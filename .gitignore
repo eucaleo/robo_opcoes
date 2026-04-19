@@ -1,0 +1,7 @@
+data/*.db
+> bridge/*.csv
+> __pycache__/
+> *.pyc
+> *.log
+> *.tmp
+> 
