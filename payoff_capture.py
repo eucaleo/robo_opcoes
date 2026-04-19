@@ -54,7 +54,7 @@ class PayoffCapture:
         
         # Timestamp padrão
         if timestamp is None:
-            timestamp = datetime.now().isoformat()
+            timestamp = datetime.now().isoformat(timespec="seconds")
         
         # Extrai pontos
         try:
