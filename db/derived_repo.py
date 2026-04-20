@@ -8,10 +8,7 @@ import json
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-def ensure_derived_tables(conn: sqlite3.Connection):
-    """Cria as tabelas derivadas se não existirem."""
-    
-    # Tabela para pontos da curva de payoff
+def ensure_derived_tables(conn):
     conn.execute("""
         CREATE TABLE IF NOT EXISTS payoff_curve_points (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -24,8 +21,6 @@ def ensure_derived_tables(conn: sqlite3.Connection):
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    
-    # Tabela para decisões das estruturas
     conn.execute("""
         CREATE TABLE IF NOT EXISTS structure_decisions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,8 +36,13 @@ def ensure_derived_tables(conn: sqlite3.Connection):
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    
+    # Índices (consultas por aba e timestamp ficam bem mais rápidas)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_payoff_aba_ts ON payoff_curve_points (aba, timestamp)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_payoff_ts ON payoff_curve_points (timestamp)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_decisions_aba_ts ON structure_decisions (aba, timestamp)")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_decisions_ts ON structure_decisions (timestamp)")
     conn.commit()
+
 
 def insert_payoff_points(
     conn: sqlite3.Connection,
