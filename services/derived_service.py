@@ -1,4 +1,6 @@
 #derived_service.py
+import sqlite3
+from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Any, Tuple, Union
 
@@ -180,4 +182,31 @@ def get_recent_decisions():
         'pl_max', 'pl_min', 'spread_pct_medio', 'why_json', 'created_at'
     ]
     return [dict(zip(colunas, row)) for row in results]
+
+def insert_consolidacao_close_reopen(
+    aba: str,
+    timestamp: str,
+    pl_atual: float,
+    pl_max: float,
+    ratio: float,
+    db_path: str = "Data/app.db"
+):
+    """Insere linha padronizada em rtd_consolidacoes para CLOSE_REOPEN"""
+    obs = f"CLOSE_REOPEN: PL_atual={pl_atual:.2f}, PL_max={pl_max:.2f}, Ratio={ratio:.3%}"
+    row = (
+        timestamp,
+        aba,
+        "", "", "", "", "", "",  # campos opcionais
+        obs
+    )
+    conn = sqlite3.connect(str(Path(db_path).resolve()))
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO rtd_consolidacoes (
+            timestamp, aba, pernas_abertas, total_executado_aberto,
+            total_atual_aberto, ganho_atual_aberto, pl_realizado, pl_total, obs
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, row)
+    conn.commit()
+    conn.close()
 
