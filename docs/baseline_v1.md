@@ -426,6 +426,13 @@ Campos:
 Chave/índices:
 •	PK: (timestamp, aba)
 •	Index: (aba, timestamp)
+
+***Nota de implementação (executed_v1):
+Para evitar inconsistência entre métricas, a implementação atual calcula `pl_atual` a partir
+da própria curva de payoff no `spot_ref` (mesma base de `pl_max`), e o ratio pode ser negativo.
+Os campos "realistas" do raw (ex.: pl_realista_total) permanecem disponíveis para UI/alertas,
+mas não são combinados com `pl_max` do payoff sem normalização.
+
 ________________________________________
 5) Integração com “consolidações” (requisito confirmado)
 Quando decision == CLOSE_REOPEN:

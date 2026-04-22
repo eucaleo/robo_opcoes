@@ -7,6 +7,7 @@ Demonstra todas as funcionalidades implementadas.
 import pandas as pd
 import numpy as np
 from datetime import datetime
+from db.derived_repo import
 import json
 
 # Importa o sistema
@@ -199,6 +200,18 @@ def main():
         print("\n" + "=" * 50)
         print("✅ TODOS OS TESTES CONCLUÍDOS COM SUCESSO!")
         print("✅ Sistema pronto para integração com o código existente!")
+                print("\n🧹 Teste 5: Limpando decisions antigas...")
+        # Inserir decisão antiga
+        old_timestamp_dec = (base_time - timedelta(days=40)).isoformat()
+        insert_structure_decision(
+            conn=conn,
+            timestamp=old_timestamp_dec,
+            aba="TESTE_OLD_DECISION",
+            decision_dict={'decision': 'HOLD', 'level': 1}
+        )
+        deleted_dec = cleanup_old_decisions(conn, days_to_keep=30)
+        print(f"   🗑️  {deleted_dec} decisões antigas removidas")
+
         
     except Exception as e:
         print(f"\n❌ ERRO durante os testes: {e}")

@@ -173,4 +173,83 @@ ________________________________________
 Backup
 Arquivo original salvo como domain/payoff_backup_20260420.py (recomendado).
 ________________________________________
-FIM DO LOG
+22/04/2026
+## P2 — Domain formal (payoff + decision) — Encerramento
+
+### Objetivo
+Consolidar o Domain Layer para:
+- gerar curva de payoff no vencimento por aba (points compatíveis com derived.db)
+- gerar decisão por aba (HOLD / PREPARE_ROLL / CLOSE_REOPEN) com thresholds 30/60/80 + gate DTE
+
+### Ajuste crítico em domain/decision.py
+**Bug:** compute_decision_for_aba() calculava `pl_atual` via `pl_realista_total` (rtd_analise_robo),
+enquanto `pl_max` vinha da curva de payoff. Isso misturava fontes e gerava inconsistência.
+Além disso, o ratio era zerado quando `pl_atual <= 0`, mascarando prejuízo.
+
+**Fix:** `pl_atual` passou a ser calculado pela própria curva de payoff:
+- calcula payoff via compute_payoff_for_aba(aba)
+- interpola PL no spot_ref
+- ratio = pl_atual / pl_max (quando pl_max > 0), permitindo ratio negativo
+
+### Validação
+Teste com `BOVA11`:
+- spot_ref: 194.27
+- pl_max: 381810
+- pl_atual (decision): -11380
+- ratio: -2.98%
+- decision: HOLD (level 0)
+- why_json inclui spread_pct_medio e dte_min
+
+### Status
+P2 concluído e consistente: payoff + decision usam a mesma fonte para PL e ratio.
+Próximo: P3 (Hook pós-ingest) — acionar derivadores após ingest do bridge_ingest_csv.py.
+
+## P2 — Domain formal (payoff + decision) — Encerramento
+
+### Objetivo
+Consolidar o Domain Layer para:
+- gerar curva de payoff no vencimento por aba (points compatíveis com derived.db)
+- gerar decisão por aba (HOLD / PREPARE_ROLL / CLOSE_REOPEN) com thresholds 30/60/80 + gate DTE
+
+### Ajuste crítico em domain/decision.py
+**Bug:** compute_decision_for_aba() calculava `pl_atual` via `pl_realista_total` (rtd_analise_robo),
+enquanto `pl_max` vinha da curva de payoff. Isso misturava fontes e gerava inconsistência.
+Além disso, o ratio era zerado quando `pl_atual <= 0`, mascarando prejuízo.
+
+**Fix:** `pl_atual` passou a ser calculado pela própria curva de payoff:
+- calcula payoff via compute_payoff_for_aba(aba)
+- interpola PL no spot_ref
+- ratio = pl_atual / pl_max (quando pl_max > 0), permitindo ratio negativo
+
+### Validação
+Teste com `BOVA11`:
+- spot_ref: 194.27
+- pl_max: 381810
+- pl_atual (decision): -11380
+- ratio: -2.98%
+- decision: HOLD (level 0)
+- why_json inclui spread_pct_medio e dte_min
+
+### Status
+P2 concluído e consistente: payoff + decision usam a mesma fonte para PL e ratio.
+Próximo: P3 (Hook pós-ingest) — acionar derivadores após ingest do bridge_ingest_csv.py.
+
+22/04/2026
+## P3 - Pipeline de Dados Derivados (✅ CONCLUÍDO)
+
+### Objetivo
+Implementar processamento automático de dados derivados (payoffs e decisões de estruturas) com integração ao sistema de ingestão.
+
+### Componentes Implementados
+
+#### 1. **Schema de Dados Derivados** (`db/derived_repo.py`)
+- **Tabela `payoff_curve_points`**: Pontos da curva de payoff por estrutura/timestamp
+- **Tabela `structure_decisions`**: Decisões automatizadas (HOLD, ROLL, etc.) com métricas
+- **Funções de inserção e consulta** com suporte a tuplas e dicts
+- **Cleanup automático** de dados antigos (30+ dias)
+
+```sql
+-- Estrutura das tabelas criadas
+payoff_curve_points: id, timestamp, aba, s_t, pl_venc, spot_ref, meta_json
+structure_decisions: id, timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json
+
