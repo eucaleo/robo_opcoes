@@ -5,3 +5,30 @@ data/*.db
 > *.log
 > *.tmp
 > 
+
+# Python
+__pycache__/
+*.py[cod]
+
+# SQLite / DB
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs / temp
+logs/
+reports/
+.tables/
+.payoff_check_tmp
+__debug_payoff.png
+
+# Backups locais
+*.bak
+*.backup.*
+*.backup_*
+*.backup_debug_*
+backup_*/
+backup_Data_*/
+
+# Excel exports / bridge artifacts (se não forem parte do produto)
+SEU_CAMINHO_DO_DB.sqlite3
