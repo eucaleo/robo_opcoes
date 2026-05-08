@@ -32,3 +32,4 @@ backup_Data_*/
 
 # Excel exports / bridge artifacts (se não forem parte do produto)
 SEU_CAMINHO_DO_DB.sqlite3
+data/
