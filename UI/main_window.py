@@ -11,6 +11,7 @@ from UI.components.decisions_grid import DecisionsGrid
 from UI.components.filters_panel import FiltersPanel
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
+from UI.debug_utils import debug, info
 import tkinter as tk
 from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
@@ -205,7 +206,8 @@ class MainWindow:
             try:
                 points, info = self.data_model.get_payoff_curve_info(aba, timestamp)
                 try:
-                    print(f"[UI][DEBUG] payoff aba={aba} ts_req={timestamp} -> n={len(points or [])} info={info}")
+                    debug(f"payoff aba={aba} ts_req={timestamp} -> n={len(points or [])} info={info}")
+
                 except Exception:
                     pass
 
@@ -390,7 +392,7 @@ class MainWindow:
                     print("[UI] Recalc STDERR:\n", res.stderr)
 
                 # Atualizar UI no thread principal
-                self.root.after(0, self.refresh_all_data)
+                self.root.after(0, self.refresh_data)
                 self.root.after(0, lambda: finish(True, f"OK: {aba} recalculado"))
 
             except subprocess.TimeoutExpired:
