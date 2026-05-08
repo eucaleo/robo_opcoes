@@ -1,12 +1,13 @@
+# db/config.py
 import os
-import sqlite3
 from pathlib import Path
+import sqlite3
 
-DB_PATH = os.getenv("DERIVED_DB_PATH", "derived.db")
+APP_DB_PATH = Path(os.getenv("APP_DB_PATH", "data/app.db")).resolve()
+DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", "data/derived.db")).resolve()
 
-def get_connection():
-    # Garante diretório existente quando usar caminhos com subpastas
-    db_path = Path(DB_PATH)
-    if db_path.parent and not db_path.parent.exists():
-        db_path.parent.mkdir(parents=True, exist_ok=True)
-    return sqlite3.connect(str(db_path))
+def connect_app() -> sqlite3.Connection:
+    return sqlite3.connect(str(APP_DB_PATH))
+
+def connect_derived() -> sqlite3.Connection:
+    return sqlite3.connect(str(DERIVED_DB_PATH))

@@ -5,11 +5,12 @@ Domain: Payoff calculation (expiry curve) from real rtd_* data.
 import sqlite3
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
+from db.config import connect_app
 
 
 def get_app_db_connection():
     """Conexão com app.db (dados raw) - resolve caminho para evitar erro de pasta"""
-    db_path = Path("Data/app.db").resolve()
+    db_path = Path("data/app.db").resolve()
     return sqlite3.connect(str(db_path))
 
 
@@ -50,7 +51,7 @@ def read_structure_legs(aba: str, timestamp: Optional[str] = None) -> List[Dict]
     Lê pernas de uma estrutura do app.db.
     Se timestamp for None, pega o timestamp mais recente da aba e retorna TODAS as legs daquele snapshot.
     """
-    conn = get_app_db_connection()
+    conn = connect_app()
     cursor = conn.cursor()
 
     ts = timestamp
@@ -86,7 +87,7 @@ def read_structure_summary(aba: str) -> Optional[Dict]:
     """
     Lê dados agregados da estrutura (spot, dte_min, pl_total).
     """
-    conn = get_app_db_connection()
+    conn = connect_app()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -228,7 +229,7 @@ if __name__ == "__main__":
     print("Testando payoff com dados reais...")
 
     # Listar abas disponíveis
-    conn = get_app_db_connection()
+    conn = connect_app()
     cursor = conn.cursor()
     cursor.execute("SELECT DISTINCT aba FROM rtd_analise_robo ORDER BY aba")
     abas = [row[0] for row in cursor.fetchall()]

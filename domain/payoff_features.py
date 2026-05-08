@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, Dict, Any
 
 
 def get_derived_db_connection():
-    db_path = Path("Data/derived.db").resolve()
+    db_path = Path("data/derived.db").resolve()
     return sqlite3.connect(str(db_path))
 
 

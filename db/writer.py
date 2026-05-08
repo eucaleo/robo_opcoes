@@ -45,6 +45,9 @@ class PayoffWriter:
         if not points:
             return 0
         
+        meta = dict(meta) if meta else {}
+        if spot_ref is not None:
+            meta.setdefault('spot_ref', spot_ref)
         meta_json = json.dumps(meta) if meta else None
         
         with sqlite3.connect(self.db_path) as conn:
@@ -61,13 +64,13 @@ class PayoffWriter:
                     continue
                 
                 records.append((
-                    timestamp, aba, spot_ref, float(spot), float(pl), meta_json
+                    timestamp, aba, float(spot), float(pl), meta_json
                 ))
             
             cursor.executemany("""
                 INSERT INTO payoff_curve_points 
-                (timestamp, aba, spot_ref, point_spot, point_pl, meta_json)
-                VALUES (?, ?, ?, ?, ?, ?)
+                (timestamp, aba, point_spot, point_pl, meta_json)
+                VALUES (?, ?, ?, ?, ?)
             """, records)
             
             return len(records)

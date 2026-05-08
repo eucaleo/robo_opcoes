@@ -7,7 +7,7 @@ from domain.payoff_features import compute_curve_features, upsert_curve_summary
 
 
 def get_derived_db_connection():
-    db_path = Path("Data/derived.db").resolve()
+    db_path = Path("data/derived.db").resolve()
     return sqlite3.connect(str(db_path))
 
 

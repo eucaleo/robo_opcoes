@@ -253,3 +253,19 @@ Implementar processamento automático de dados derivados (payoffs e decisões de
 payoff_curve_points: id, timestamp, aba, s_t, pl_venc, spot_ref, meta_json
 structure_decisions: id, timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json
 
+## P4 — Hook de consolidação automática no fechamento de estrutura (CLOSE_REOPEN)
+
+### Implementado
+Quando a decisão computada para uma aba retorna `"CLOSE_REOPEN"`, o pipeline agora:
+- insere automaticamente uma linha em `rtd_consolidacoes` (na Data/app.db)
+- os campos essenciais (`timestamp`, `aba`, `obs`) são preenchidos, e os outros permanecem em branco
+- o campo `obs` segue o padrão: `"CLOSE_REOPEN: PL_atual=X, PL_max=Y, Ratio=Z%"`
+- o timestamp usado é sempre o do snapshot real (`timestamp_used`), garantindo total rastreabilidade e sincronismo nos dados derivados e raw.
+
+### Código relacionado
+- Função auxiliar: `insert_consolidacao_close_reopen(...)` em `services/derived_service.py`
+- Chamada direta no pipeline, logo após a decisão e persistência da decisão em derived.
+
+---
+
+**Com isso, o pipeline está 100% aderente ao baseline.**
