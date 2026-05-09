@@ -10,7 +10,7 @@ from db.config import connect_app
 
 def get_app_db_connection():
     """Conexão com app.db (dados raw) - resolve caminho para evitar erro de pasta"""
-    db_path = Path("data/app.db").resolve()
+    db_path = Path("dados/app.db").resolve()
     return sqlite3.connect(str(db_path))
 
 

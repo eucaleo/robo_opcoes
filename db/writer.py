@@ -11,7 +11,7 @@ from pathlib import Path
 class PayoffWriter:
     """Escritor para pontos do payoff curve e decisões estruturais."""
     
-    def __init__(self, db_path: str = "data/derived.db"):
+    def __init__(self, db_path: str = "dados/derived.db"):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()

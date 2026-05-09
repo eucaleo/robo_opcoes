@@ -1,5 +1,5 @@
 import sqlite3
-db = sqlite3.connect('data/derived.db')
+db = sqlite3.connect('dados/derived.db')
 db.execute("""
 CREATE TABLE IF NOT EXISTS payoff_curve_summary (
   timestamp      TEXT NOT NULL,

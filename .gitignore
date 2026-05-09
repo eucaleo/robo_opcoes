@@ -1,4 +1,4 @@
-data/*.db
+dados/*.db
 > bridge/*.csv
 > __pycache__/
 > *.pyc
@@ -32,7 +32,7 @@ backup_Data_*/
 
 # Excel exports / bridge artifacts (se não forem parte do produto)
 SEU_CAMINHO_DO_DB.sqlite3
-data/
+dados/
 OPERACOES_E_OPCOES.xlsm
 OPERACOES_E_OPCOES.xlsx
 

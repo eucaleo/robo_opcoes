@@ -94,7 +94,7 @@ def main():
     else:
         warn("Excel (xlsm) NÃO encontrado. Se sua operação depende do RDP, recoloque-o na raiz.")
 
-    # 3) DB paths (fonte da verdade: data/)
+    # 3) DB paths (fonte da verdade: dados/)
     raw_db = project_root / "data" / "app.db"
     derived_db = project_root / "data" / "derived.db"
     exists_file(raw_db, "Raw DB")

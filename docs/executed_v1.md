@@ -1,6 +1,6 @@
 LOG de evolução (para ir “matando” o que resta)
 1) Diagnóstico inicial (SQLite / schema)
-•	Você inspecionou o schema do Data/derived.db:
+•	Você inspecionou o schema do dados/derived.db:
 •	payoff_curve_points tem as colunas:
 •	timestamp (TEXT, NOT NULL)
 •	aba (TEXT, NOT NULL)
@@ -62,7 +62,7 @@ ________________________________________
 B) Validar o salvamento no derived.db (pipeline)
 Depois de rodar a pipeline, conferir:
 bash
-python -c "import sqlite3; c=sqlite3.connect('Data/derived.db'); cur=c.cursor(); cur.execute('select aba, count(*) from payoff_curve_points group by aba order by count(*) desc'); print(cur.fetchall()[:10]); c.close()"
+python -c "import sqlite3; c=sqlite3.connect('dados/derived.db'); cur=c.cursor(); cur.execute('select aba, count(*) from payoff_curve_points group by aba order by count(*) desc'); print(cur.fetchall()[:10]); c.close()"
 Esperado: contagens > 0 por aba.
 ________________________________________
 C) Sanidade do snapshot (principal risco residual)
@@ -122,12 +122,12 @@ if not (is_call or is_put):    continue
 if is_call:    intrinsic = max(s_t - strike, 0)else:  # PUT    intrinsic = max(strike - s_t, 0)
 4) Path Resolvido + Bug Fix
 python
-def get_app_db_connection():    """Conexão com app.db - resolve caminho para evitar erro de pasta"""    db_path = Path("Data/app.db").resolve()    return sqlite3.connect(str(db_path))
+def get_app_db_connection():    """Conexão com app.db - resolve caminho para evitar erro de pasta"""    db_path = Path("dados/app.db").resolve()    return sqlite3.connect(str(db_path))
 ________________________________________
 🧪 VALIDAÇÃO
 Schema Source Confirmado
 bash
-$ python -c "import sqlite3; c=sqlite3.connect('Data/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"
+$ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"
 Resultado: Campos cv, call_put, quant, valor_executado, strike confirmados.
 Comandos de Teste
 1) Teste Básico do Domínio
@@ -137,7 +137,7 @@ Output Esperado:
 ABA_TESTE 2026-04-20_17:44:39 101 [(50.0, -125.5), (50.5, -124.8), (51.0, -124.1)]
 2) Verificar Persistência
 bash
-python -c "import sqlite3; c=sqlite3.connect('Data/derived.db'); cur=c.cursor(); cur.execute('select aba, count(*) from payoff_curve_points group by aba order by count(*) desc'); print(cur.fetchall()[:10]); c.close()"
+python -c "import sqlite3; c=sqlite3.connect('dados/derived.db'); cur=c.cursor(); cur.execute('select aba, count(*) from payoff_curve_points group by aba order by count(*) desc'); print(cur.fetchall()[:10]); c.close()"
 Output Esperado:
 [('ABA1', 101), ('ABA2', 101), ('ABA3', 101), ...]
 3) Teste Direto do Módulo
@@ -257,7 +257,7 @@ structure_decisions: id, timestamp, aba, decision, level, pl_atual, pl_max, pl_p
 
 ### Implementado
 Quando a decisão computada para uma aba retorna `"CLOSE_REOPEN"`, o pipeline agora:
-- insere automaticamente uma linha em `rtd_consolidacoes` (na Data/app.db)
+- insere automaticamente uma linha em `rtd_consolidacoes` (na dados/app.db)
 - os campos essenciais (`timestamp`, `aba`, `obs`) são preenchidos, e os outros permanecem em branco
 - o campo `obs` segue o padrão: `"CLOSE_REOPEN: PL_atual=X, PL_max=Y, Ratio=Z%"`
 - o timestamp usado é sempre o do snapshot real (`timestamp_used`), garantindo total rastreabilidade e sincronismo nos dados derivados e raw.

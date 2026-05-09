@@ -34,7 +34,7 @@ class DecisionsGrid(ttk.LabelFrame):
             height=12)
 
         # Configurar cabeçalhos
-        self.tree.heading('timestamp', text='Data/Hora')
+        self.tree.heading('timestamp', text='dados/Hora')
         self.tree.heading('aba', text='Aba')
         self.tree.heading('decision', text='Decisão')
         self.tree.heading('level', text='Nível')

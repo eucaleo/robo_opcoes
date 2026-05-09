@@ -330,7 +330,7 @@ class DetailsPanel(ttk.LabelFrame):
             label.config(text=str(value))
 
     def _derived_db_path(self) -> Path:
-        # Mantém consistente com o restante do projeto: data/derived.db a partir do project_root
+        # Mantém consistente com o restante do projeto: dados/derived.db a partir do project_root
         project_root = Path(__file__).resolve().parents[2]
         return project_root / "data" / "derived.db"
 

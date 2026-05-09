@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DB_RAW="data/app.db"
+DB_RAW="dados/app.db"
 fail=0
 
 echo "[INFO] Snapshot canonicality checks (raw DB)"

@@ -11,5 +11,5 @@ def init_db(db_path):
         conn.close()
 
 if __name__ == "__main__":
-    init_db("data/app.db")
-    print("OK: banco inicializado em data/app.db")
+    init_db("dados/app.db")
+    print("OK: banco inicializado em dados/app.db")

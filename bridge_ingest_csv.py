@@ -139,7 +139,7 @@ def ingest_once():
         conn.close()
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para data/app.db")
+    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
     parser.add_argument(
         "--once",
         action="store_true",
