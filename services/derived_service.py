@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Any, Tuple, Union
 
-from db.config import DERIVED_DB_PATH, connect_derived
+from db.config import import connect_app
 from db.derived_repo import (
     ensure_derived_tables,
     insert_payoff_points,
@@ -97,19 +97,25 @@ def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
         deleted_dec = cleanup_old_decisions(conn, days_to_keep=days_to_keep)
         return {"payoff_deleted": deleted_payoff, "decisions_deleted": deleted_dec}
 def _get_canonical_snapshot_ts(self, aba: str) -> str | None:
-    db_path = self.project_root / "data" / "app.db"
-    con = sqlite3.connect(str(db_path))
+    con = connect_app()
     try:
         cur = con.cursor()
+
         def has_table(name: str) -> bool:
-            cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1", (name,))
+            cur.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1",
+                (name,)
+            )
             return cur.fetchone() is not None
-        for table in ("robo_legs_snapshot", "robo_snapshot", "rtd_analise_robo_legs"):
+
+        # prioridade: manual primeiro (se existir)
+        for table in ("manual_analise_robo_legs", "robo_legs_snapshot", "robo_snapshot", "rtd_analise_robo_legs"):
             if has_table(table):
                 cur.execute(f"SELECT MAX(timestamp) FROM {table} WHERE aba=?", (aba,))
                 row = cur.fetchone()
                 if row and row[0]:
                     return str(row[0])
+
         return None
     finally:
         con.close()

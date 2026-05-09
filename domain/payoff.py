@@ -8,11 +8,6 @@ from pathlib import Path
 from db.config import connect_app
 
 
-def get_app_db_connection():
-    """Conexão com app.db (dados raw) - resolve caminho para evitar erro de pasta"""
-    db_path = Path("dados/app.db").resolve()
-    return sqlite3.connect(str(db_path))
-
 
 def safe_float(value, default=0.0) -> float:
     """Converte TEXT para float, tolerante a erros do Excel/RTD"""
@@ -49,15 +44,39 @@ def normalize_side(cv_raw: str) -> Optional[str]:
 def read_structure_legs(aba: str, timestamp: Optional[str] = None) -> List[Dict]:
     """
     Lê pernas de uma estrutura do app.db.
-    Se timestamp for None, pega o timestamp mais recente da aba e retorna TODAS as legs daquele snapshot.
+
+    Prioridade:
+      1) manual_analise_robo_legs (se existir dado para a aba)
+      2) rtd_analise_robo_legs
+
+    Se timestamp for None, pega o timestamp mais recente da fonte escolhida.
     """
     conn = connect_app()
     cursor = conn.cursor()
 
+    def table_exists(name: str) -> bool:
+        cursor.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1",
+            (name,)
+        )
+        return cursor.fetchone() is not None
+
+    has_manual = table_exists("manual_analise_robo_legs")
+    source_table = "rtd_analise_robo_legs"
+
+    # Decide a fonte: manual só se existir e tiver pelo menos 1 linha pra aba
+    if has_manual:
+        cursor.execute(
+            "SELECT 1 FROM manual_analise_robo_legs WHERE aba=? LIMIT 1",
+            (aba,)
+        )
+        if cursor.fetchone() is not None:
+            source_table = "manual_analise_robo_legs"
+
     ts = timestamp
     if ts is None:
         cursor.execute(
-            "SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?",
+            f"SELECT MAX(timestamp) FROM {source_table} WHERE aba = ?",
             (aba,)
         )
         row = cursor.fetchone()
@@ -68,8 +87,8 @@ def read_structure_legs(aba: str, timestamp: Optional[str] = None) -> List[Dict]
         return []
 
     cursor.execute(
-        """
-        SELECT * FROM rtd_analise_robo_legs
+        f"""
+        SELECT * FROM {source_table}
         WHERE aba = ? AND timestamp = ?
         ORDER BY strike
         """,
