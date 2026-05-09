@@ -2,10 +2,7 @@
 import os
 import sys
 import argparse
-import traceback
-import subprocess
 from pathlib import Path
-from typing import List, Dict
 
 # --- bootstrap: garantir raiz do projeto no sys.path ANTES dos imports internos ---
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -20,25 +17,13 @@ try:
 except Exception:
     pass
 
-from services.derived_service import (
-    init_db,
-    save_payoff_curve,
-    save_decision,
-    cleanup_derived,
-    insert_consolidacao_close_reopen,
-)
-from domain.decision import compute_decision_for_aba
-from domain.payoff import compute_payoff_for_aba, get_app_db_connection
-
-
-
-
 
 def validate_final_consistency() -> bool:
     """Valida consistência dos snapshots após processamento."""
-    from db.derived_repo import get_derived_connection, validate_snapshot_consistency
+    from db.config import connect_derived
+    from db.derived_repo import validate_snapshot_consistency
     
-    conn = get_derived_connection()
+    conn = connect_derived()
     try:
         return validate_snapshot_consistency(conn)
     finally:
@@ -46,23 +31,42 @@ def validate_final_consistency() -> bool:
 
 
 
-def _run_build_summaries(repo_root: str):
-    """Gera payoff_curve_summary a partir de payoff_curve_points."""
-    env = os.environ.copy()
+def _run_build_summaries(repo_root: str) -> int:
+    """
+    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+    (Implemente aqui quando necessário.)
+    """
+    _ = repo_root
+    return 0
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Run derived pipeline")
+    parser.add_argument(
+        "--no-cleanup",
+        action="store_true",
+        help="Não executar cleanup do derived.db antes de validar",
+    )
+    args = parser.parse_args(argv)
+
+    # Imports internos (mantidos aqui para respeitar sys.path/bootstrap)
+    from services.derived_service import cleanup_derived
 
     if not args.no_cleanup:
         cleanup_derived(days_to_keep=30)
 
+    # (Opcional) build summaries
+    rc = _run_build_summaries(str(PROJECT_ROOT))
+    if rc != 0:
+        return rc
+
     # Validação final OBRIGATÓRIA
-    print("
-[PIPELINE] Validando consistência final dos snapshots...")
+    print("\n[PIPELINE] Validando consistência final dos snapshots...")
     if not validate_final_consistency():
         print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
         return 1
 
-    print("
-[OK] PIPELINE FINALIZADO COM SUCESSO!")
-    print(f"Processadas {len(results)} abas")
+    print("\n[OK] PIPELINE FINALIZADO COM SUCESSO!")
     return 0
 
 
