@@ -378,7 +378,7 @@ class MainWindow:
 
 
                 res = subprocess.run(
-                    [sys.executable, str(script_path), "--aba", aba],
+                    [sys.executable, str(script_path)],
                     cwd=str(project_root),
                     check=True,
                     capture_output=True,

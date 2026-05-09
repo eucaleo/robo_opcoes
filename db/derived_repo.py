@@ -236,7 +236,7 @@ def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
             print(f"  - aba={row[0]} timestamp={row[1]} ({row[2]} pontos)")
     
     if not decisions_without_points and not points_without_decisions:
-        print("✅ Snapshots consistentes: todas as decisões têm pontos e vice-versa")
+        print("[ok] Snapshots consistentes: todas as decisões têm pontos e vice-versa")
         return True
     
     return False

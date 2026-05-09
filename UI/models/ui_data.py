@@ -399,7 +399,7 @@ class UIDataModel:
         db_path = getattr(self, "derived_db_path", None) or getattr(self, "DERIVED_DB_PATH", None)
         if not db_path:
             # fallback padrão do projeto
-            db_path = str(Path("data") / "derived.db")
+            db_path = str(Path("dados") / "derived.db")
 
         # conexão por thread/chamada
         conn = sqlite3.connect(db_path)

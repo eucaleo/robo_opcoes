@@ -38,7 +38,7 @@ class DetailsPanel(ttk.LabelFrame):
             pass
 
     def _raw_db_path(self) -> Path:
-        return self._project_root / "data" / "app.db"
+        return self._project_root / "dados" / "app.db"
 
     def _get_latest_snapshot_timestamp_for_aba(self, aba: str) -> str | None:
         db_path = self._raw_db_path()
@@ -82,8 +82,8 @@ class DetailsPanel(ttk.LabelFrame):
     def _raw_db_path(self):
         from pathlib import Path
         if self._project_root:
-            return Path(self._project_root) / "data" / "app.db"
-        return Path("data") / "app.db"
+            return Path(self._project_root) / "dados" / "app.db"
+        return Path("dados") / "app.db"
 
     def _get_latest_snapshot_timestamp_for_aba(self, aba: str):
         import sqlite3
@@ -332,7 +332,7 @@ class DetailsPanel(ttk.LabelFrame):
     def _derived_db_path(self) -> Path:
         # Mantém consistente com o restante do projeto: dados/derived.db a partir do project_root
         project_root = Path(__file__).resolve().parents[2]
-        return project_root / "data" / "derived.db"
+        return project_root / "dados" / "derived.db"
 
     def _fetch_latest_decision_from_derived(self, aba: str) -> Optional[Dict[str, Any]]:
         db_path = self._derived_db_path()
