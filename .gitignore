@@ -35,3 +35,12 @@ SEU_CAMINHO_DO_DB.sqlite3
 data/
 OPERACOES_E_OPCOES.xlsm
 OPERACOES_E_OPCOES.xlsx
+
+# --- v2 hygiene: backups e artefatos temporários ---
+BAK/**
+ATT/reports/**
+# manter scripts reprodutíveis versionados:
+!ATT/patches/**
+!ATT/tests/**
+!ATT/**/.gitkeep
+# --- /v2 hygiene ---

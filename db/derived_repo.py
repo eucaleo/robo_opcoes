@@ -9,6 +9,7 @@ Contrato canônico payoff: point_spot / point_pl (opção B).
 import sqlite3
 import json
 from typing import List, Dict, Any, Optional, Tuple, Union
+from typing import List, Dict, Optional, Any
 
 PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 
@@ -76,6 +77,169 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
 
     conn.commit()
 
+
+
+
+def write_payoff_snapshot_atomic(
+    conn: sqlite3.Connection,
+    timestamp: str,
+    aba: str,
+    points: List,
+    meta: Optional[Dict[str, Any]] = None
+) -> int:
+    """
+    Política A: DELETE do snapshot anterior + INSERT dos novos pontos.
+    Garante que curvas com menos pontos não deixem pontos órfãos.
+    """
+    ensure_derived_tables(conn)
+    
+    meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+    cur = conn.cursor()
+    
+    # POLÍTICA A: limpa snapshot anterior
+    cur.execute("DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?", (aba, timestamp))
+    
+    # Insere novos pontos
+    count = 0
+    sql = """
+        INSERT INTO payoff_curve_points
+        (timestamp, aba, point_spot, point_pl, meta_json)
+        VALUES (?, ?, ?, ?, ?)
+    """
+    
+    for p in points or []:
+        if isinstance(p, (tuple, list)) and len(p) == 2:
+            x, y = float(p[0]), float(p[1])
+        elif isinstance(p, dict):
+            x = p.get("point_spot", p.get("s_t"))
+            y = p.get("point_pl", p.get("pl_venc"))
+            if x is None or y is None:
+                continue
+            x, y = float(x), float(y)
+        else:
+            continue
+        
+        cur.execute(sql, (timestamp, aba, x, y, meta_json))
+        count += 1
+    
+    return count
+
+
+def write_decision_snapshot_atomic(
+    conn: sqlite3.Connection,
+    timestamp: str,
+    aba: str,
+    decision_dict: Dict[str, Any]
+) -> int:
+    """
+    Política A: DELETE do snapshot anterior + INSERT da nova decisão.
+    """
+    ensure_derived_tables(conn)
+    
+    cur = conn.cursor()
+    
+    # POLÍTICA A: limpa snapshot anterior
+    cur.execute("DELETE FROM structure_decisions WHERE aba=? AND timestamp=?", (aba, timestamp))
+    
+    # Monta dados
+    decision = decision_dict.get("decision", "HOLD")
+    level = int(decision_dict.get("level", 0))
+    pl_atual = decision_dict.get("pl_atual")
+    pl_max = decision_dict.get("pl_max")
+    pl_pct_of_max = decision_dict.get("pl_pct_of_max")
+    dte_min = decision_dict.get("dte_min")
+    spot_ref = decision_dict.get("spot_ref")
+    meta = decision_dict.get("meta")
+    
+    why_data = {
+        k: v for k, v in decision_dict.items()
+        if k not in ["decision", "level", "pl_atual", "pl_max", "pl_pct_of_max", "dte_min", "spot_ref", "meta"]
+    }
+    
+    why_json = json.dumps(why_data, ensure_ascii=False) if why_data else None
+    meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+    created_at = datetime.now().isoformat()
+    
+    # Insere nova decisão
+    cur.execute("""
+        INSERT INTO structure_decisions
+        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json, spot_ref, meta_json, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        timestamp, aba, decision, level,
+        pl_atual, pl_max, pl_pct_of_max, dte_min,
+        why_json, spot_ref, meta_json, created_at
+    ))
+    
+    return cur.lastrowid
+
+
+def write_complete_snapshot_atomic(
+    conn: sqlite3.Connection,
+    timestamp: str,
+    aba: str,
+    points: List,
+    decision_dict: Dict[str, Any],
+    points_meta: Optional[Dict] = None
+) -> Dict[str, int]:
+    """
+    FUNÇÃO MASTER: grava snapshot completo (pontos + decisão) em uma transação.
+    Política A: deleta snapshot anterior e insere novo, atomicamente.
+    """
+    ensure_derived_tables(conn)
+    
+    with conn:  # auto-transação: BEGIN/COMMIT ou ROLLBACK se der erro
+        # Pontos
+        points_count = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
+        
+        # Decisão
+        decision_id = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
+        
+        return {
+            "points_count": points_count,
+            "decision_id": decision_id
+        }
+
+
+def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
+    """Valida consistência entre pontos e decisões nos snapshots."""
+    cur = conn.cursor()
+    
+    # Decisões sem pontos
+    cur.execute("""
+        SELECT d.aba, d.timestamp, COUNT(p.point_spot) as point_count
+        FROM structure_decisions d
+        LEFT JOIN payoff_curve_points p ON (d.aba = p.aba AND d.timestamp = p.timestamp)
+        GROUP BY d.aba, d.timestamp
+        HAVING point_count = 0
+    """)
+    decisions_without_points = cur.fetchall()
+    
+    # Pontos sem decisões
+    cur.execute("""
+        SELECT p.aba, p.timestamp, COUNT(DISTINCT p.point_spot) as point_count
+        FROM payoff_curve_points p
+        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+        WHERE d.aba IS NULL
+        GROUP BY p.aba, p.timestamp
+    """)
+    points_without_decisions = cur.fetchall()
+    
+    if decisions_without_points:
+        print(f"❌ ERRO: {len(decisions_without_points)} decisões sem pontos:")
+        for row in decisions_without_points[:5]:
+            print(f"  - aba={row[0]} timestamp={row[1]}")
+    
+    if points_without_decisions:
+        print(f"❌ ERRO: {len(points_without_decisions)} snapshots de pontos sem decisão:")
+        for row in points_without_decisions[:5]:
+            print(f"  - aba={row[0]} timestamp={row[1]} ({row[2]} pontos)")
+    
+    if not decisions_without_points and not points_without_decisions:
+        print("✅ Snapshots consistentes: todas as decisões têm pontos e vice-versa")
+        return True
+    
+    return False
 
 def insert_payoff_points(
     conn: sqlite3.Connection,

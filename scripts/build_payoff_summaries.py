@@ -1,7 +1,13 @@
+import os
+import sys
 import json
 import sqlite3
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
 
 from domain.payoff_features import compute_curve_features, upsert_curve_summary
 

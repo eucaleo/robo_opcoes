@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-import os, ast, json
-
-def find_py_files(root):
-    for dirpath, _, files in os.walk(root):
-        for file in files:
-            if file.endswith('.py'):
-                yield os.path.join(dirpath, file)
+import os
+import ast
+import json
+from _scan_utils_v2 import iter_files
 
 def analyze_imports(pyfile):
     with open(pyfile, 'r', encoding='utf-8', errors='ignore') as f:
@@ -24,11 +21,12 @@ def analyze_imports(pyfile):
     return imports
 
 result = {}
-for f in find_py_files('.'):
+for f in iter_files(".", (".py",)):
     rel = os.path.relpath(f)
-    imps = analyze_imports(f)
-    result[rel] = sorted(set(imps))
+    result[rel] = sorted(set(analyze_imports(f)))
 
-with open("ATT/reports/imports_report_v2.json", "w", encoding="utf-8") as f:
-    json.dump(result, f, indent=2, ensure_ascii=False)
-print("[analyze_code_imports_v2] OK - wrote ATT/reports/imports_report_v2.json")
+os.makedirs("ATT/reports", exist_ok=True)
+with open("ATT/reports/imports_report_v2.json", "w", encoding="utf-8") as out:
+    json.dump(result, out, indent=2, ensure_ascii=False)
+
+print("[analyze_code_imports_v2] OK (filtered) - wrote ATT/reports/imports_report_v2.json")
