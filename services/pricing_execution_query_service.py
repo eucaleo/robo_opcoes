@@ -116,3 +116,45 @@ class PricingExecutionQueryService:
             raise ValueError(f"pricing execution {execution_id} not found")
 
         return execution
+
+    def paginate_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        if page <= 0:
+            raise ValueError("page must be greater than zero")
+
+        if page_size <= 0:
+            raise ValueError("page_size must be greater than zero")
+
+        summaries = self.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+        )
+
+        total_items = len(summaries)
+        total_pages = (
+            (total_items + page_size - 1) // page_size if total_items > 0 else 0
+        )
+
+        start = (page - 1) * page_size
+        end = start + page_size
+        items = summaries[start:end]
+
+        return {
+            "items": items,
+            "page": page,
+            "page_size": page_size,
+            "total_items": total_items,
+            "total_pages": total_pages,
+        }
+

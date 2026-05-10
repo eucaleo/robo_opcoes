@@ -64,3 +64,24 @@ class PricingExecutionAppService:
 
     def get_execution(self, execution_id: int) -> dict[str, Any]:
         return self.pricing_execution_query_service.get_execution(execution_id)
+
+    def paginate_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.paginate_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+            page=page,
+            page_size=page_size,
+        )
+
