@@ -40,3 +40,90 @@ Migrar criação/edição de estruturas para o sistema, deixando RTD/Excel apena
 - necessidade de separar canonicamente:
   - Estrutura
   - Snapshot de mercado
+
+## Fase 2 — Modelo Canônico de Estrutura
+
+### Objetivo
+Definir uma entidade de estrutura independente de Excel, RTD e da chave legado `aba + timestamp`.
+
+### Entidade Structure
+Campos propostos:
+- id
+- name
+- underlying_asset
+- alias_legacy_aba
+- status
+- notes
+- created_at
+- updated_at
+
+### Entidade StructureLeg
+Campos propostos:
+- id
+- structure_id
+- position_side
+- option_type
+- symbol
+- strike
+- expiration_date
+- quantity
+- premium
+- multiplier
+- leg_order
+- notes
+- created_at
+- updated_at
+
+### Regras de identidade
+- `Structure.id` é a chave primária real do sistema
+- `alias_legacy_aba` existe apenas para compatibilidade com o legado
+- `aba` não deve ser usada como chave primária do modelo novo
+- `timestamp` não faz parte da identidade da estrutura
+
+### Regras de normalização
+- `option_type`: armazenar apenas `CALL` ou `PUT`
+- `position_side`: armazenar apenas `LONG` ou `SHORT`
+- legado: `C` -> `LONG`, `V` -> `SHORT`
+- `quantity`: inteiro positivo
+- `strike`: decimal normalizado
+- `expiration_date`: data válida e normalizada
+
+### Separação estrutural obrigatória
+- Estrutura = definição da operação
+- Snapshot = estado de mercado em um instante
+- O pipeline futuro deve combinar:
+  - Structure
+  - MarketSnapshot
+  para gerar derivados
+
+### Decisões da Fase 2
+- o modelo novo não depende de Excel
+- o modelo novo não usa `aba + timestamp` como identidade
+- a compatibilidade com o legado será mantida via `alias_legacy_aba`
+
+### Proposta inicial de persistência
+Tabela `structures`:
+- id
+- name
+- underlying_asset
+- alias_legacy_aba
+- status
+- notes
+- created_at
+- updated_at
+
+Tabela `structure_legs`:
+- id
+- structure_id
+- position_side
+- option_type
+- symbol
+- strike
+- expiration_date
+- quantity
+- premium
+- multiplier
+- leg_order
+- notes
+- created_at
+- updated_at
