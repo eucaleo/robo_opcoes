@@ -38,8 +38,24 @@ class PricingExecutionAppService:
         underlying_asset: str | None = None,
         status: str | None = None,
         reference_date: str | None = None,
+        descending: bool = True,
     ) -> list[dict[str, Any]]:
         return self.pricing_execution_query_service.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+        )
+
+    def get_latest_execution_summary(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_latest_execution_summary(
             structure_id=structure_id,
             underlying_asset=underlying_asset,
             status=status,

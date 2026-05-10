@@ -21,6 +21,7 @@ class PricingExecutionQueryService:
         underlying_asset: str | None = None,
         status: str | None = None,
         reference_date: str | None = None,
+        descending: bool = True,
     ) -> list[dict[str, Any]]:
         executions = self.pricing_executions_repository.list_executions()
 
@@ -82,7 +83,28 @@ class PricingExecutionQueryService:
 
             summaries.append(summary)
 
+        summaries.sort(key=lambda item: item["id"], reverse=descending)
         return summaries
+
+    def get_latest_execution_summary(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        summaries = self.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=True,
+        )
+
+        if not summaries:
+            raise ValueError("no pricing execution summaries found")
+
+        return summaries[0]
 
     def get_execution(self, execution_id: int) -> dict[str, Any]:
         if execution_id <= 0:
