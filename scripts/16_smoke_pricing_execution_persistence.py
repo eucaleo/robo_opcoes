@@ -31,11 +31,26 @@ def main():
     if record["result"] != result:
         raise RuntimeError("persisted result does not match execution result")
 
-    if persisted["duration_ms"] != 12:
-        raise RuntimeError("returned duration_ms does not match expected value")
+    if record["execution_engine"] != "stub":
+        raise RuntimeError("persisted execution_engine does not match expected value")
 
-    if persisted["error_message"] is not None:
-        raise RuntimeError("returned error_message should be None")
+    if record["execution_status"] != "ok":
+        raise RuntimeError("persisted execution_status does not match expected value")
+
+    if record["duration_ms"] != 12:
+        raise RuntimeError("persisted duration_ms does not match expected value")
+
+    if record["error_message"] is not None:
+        raise RuntimeError("persisted error_message should be None")
+
+    if record["number_of_legs"] != 2:
+        raise RuntimeError("persisted number_of_legs does not match expected value")
+
+    if record["total_quantity"] != 4000:
+        raise RuntimeError("persisted total_quantity does not match expected value")
+
+    if record["theoretical_value"] != 0.0:
+        raise RuntimeError("persisted theoretical_value does not match expected value")
 
     print("PERSISTED EXECUTION:", persisted)
     print("PRICING EXECUTION PERSISTENCE SMOKE OK")

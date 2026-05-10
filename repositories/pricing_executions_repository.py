@@ -19,6 +19,13 @@ class PricingExecutionsRepository:
         self,
         pricing_payload: dict[str, Any],
         result: dict[str, Any],
+        execution_status: str | None = None,
+        execution_engine: str | None = None,
+        error_message: str | None = None,
+        duration_ms: int | None = None,
+        number_of_legs: int | None = None,
+        total_quantity: int | None = None,
+        theoretical_value: float | None = None,
     ) -> dict[str, Any]:
         if not pricing_payload:
             raise ValueError("pricing_payload is required")
@@ -35,6 +42,13 @@ class PricingExecutionsRepository:
             "structure_id": pricing_payload["structure_id"],
             "underlying_asset": pricing_payload["underlying_asset"],
             "reference_date": pricing_payload["reference_date"],
+            "execution_status": execution_status,
+            "execution_engine": execution_engine,
+            "error_message": error_message,
+            "duration_ms": duration_ms,
+            "number_of_legs": number_of_legs,
+            "total_quantity": total_quantity,
+            "theoretical_value": theoretical_value,
             "pricing_payload": pricing_payload,
             "result": result,
         }

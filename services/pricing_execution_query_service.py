@@ -26,9 +26,14 @@ class PricingExecutionQueryService:
 
         summaries = []
         for execution in executions:
-            result = execution.get("result", {})
-            metrics = result.get("metrics", {})
-            valuation = result.get("valuation", {})
+            persisted_number_of_legs = execution.get("number_of_legs")
+            persisted_total_quantity = execution.get("total_quantity")
+            persisted_theoretical_value = execution.get("theoretical_value")
+
+            nested_result = execution.get("result", {})
+            engine_result = nested_result.get("result", {})
+            metrics = engine_result.get("metrics", {})
+            valuation = engine_result.get("valuation", {})
 
             summary = {
                 "id": execution["id"],
@@ -40,9 +45,21 @@ class PricingExecutionQueryService:
                 "execution_status": execution.get("execution_status"),
                 "duration_ms": execution.get("duration_ms"),
                 "error_message": execution.get("error_message"),
-                "number_of_legs": metrics.get("number_of_legs"),
-                "total_quantity": metrics.get("total_quantity"),
-                "theoretical_value": valuation.get("theoretical_value"),
+                "number_of_legs": (
+                    persisted_number_of_legs
+                    if persisted_number_of_legs is not None
+                    else metrics.get("number_of_legs")
+                ),
+                "total_quantity": (
+                    persisted_total_quantity
+                    if persisted_total_quantity is not None
+                    else metrics.get("total_quantity")
+                ),
+                "theoretical_value": (
+                    persisted_theoretical_value
+                    if persisted_theoretical_value is not None
+                    else valuation.get("theoretical_value")
+                ),
             }
 
             if structure_id is not None and summary["structure_id"] != structure_id:
@@ -54,10 +71,7 @@ class PricingExecutionQueryService:
             ):
                 continue
 
-            if (
-                status is not None
-                and summary["execution_status"] != status
-            ):
+            if status is not None and summary["execution_status"] != status:
                 continue
 
             if (
