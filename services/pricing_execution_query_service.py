@@ -36,8 +36,10 @@ class PricingExecutionQueryService:
                 "structure_id": execution["structure_id"],
                 "underlying_asset": execution["underlying_asset"],
                 "reference_date": execution["reference_date"],
-                "engine": result.get("engine"),
-                "status": result.get("status"),
+                "execution_engine": execution.get("execution_engine"),
+                "execution_status": execution.get("execution_status"),
+                "duration_ms": execution.get("duration_ms"),
+                "error_message": execution.get("error_message"),
                 "number_of_legs": metrics.get("number_of_legs"),
                 "total_quantity": metrics.get("total_quantity"),
                 "theoretical_value": valuation.get("theoretical_value"),
@@ -52,7 +54,10 @@ class PricingExecutionQueryService:
             ):
                 continue
 
-            if status is not None and summary["status"] != status:
+            if (
+                status is not None
+                and summary["execution_status"] != status
+            ):
                 continue
 
             if (

@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Optional, Any, Tuple, Union
 
-from db.config import import connect_app
+from db.config import connect_app, connect_derived
 from db.derived_repo import (
     ensure_derived_tables,
     insert_payoff_points,

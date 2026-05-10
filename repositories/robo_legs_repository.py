@@ -21,6 +21,45 @@ class RoboLegsRepoConfig:
 
 
 class RoboLegsRepository:
+
+    @staticmethod
+    def _parse_float(value):
+        if value is None:
+            return None
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        s = str(value).strip()
+        if not s:
+            return None
+
+        try:
+            if "," in s:
+                s = s.replace(".", "").replace(",", ".")
+            return float(s)
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _parse_int(value):
+        if value is None:
+            return None
+        if isinstance(value, int):
+            return value
+        if isinstance(value, float):
+            return int(value)
+
+        s = str(value).strip()
+        if not s:
+            return None
+
+        try:
+            if "," in s:
+                s = s.replace(".", "").replace(",", ".")
+            return int(float(s))
+        except ValueError:
+            return None
+
     """
     Leitura canônica por (aba, timestamp) com regra:
       manual_analise_robo_legs > rtd_analise_robo_legs
@@ -83,31 +122,36 @@ class RoboLegsRepository:
     def list_timestamps(self, aba: str, prefer: str = "manual_then_rtd") -> List[str]:
         """Lista timestamps disponíveis para a aba."""
         prefer = (prefer or "").strip().lower()
-        with sqlite_conn(self.config.app_db_path) as conn:
-            if prefer == "all":
-                rows = conn.execute(
-                    """
-                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
-                    UNION
-                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?
-                    ORDER BY timestamp
-                    """,
-                    (aba, aba),
-                ).fetchall()
-                return [r["timestamp"] for r in rows]
 
+        with sqlite_conn(self.config.app_db_path) as conn:
             rows_m = conn.execute(
                 "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
-            if rows_m:
-                return [r["timestamp"] for r in rows_m]
+            manual = [r["timestamp"] for r in rows_m]
 
             rows_r = conn.execute(
                 "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
-            return [r["timestamp"] for r in rows_r]
+            rtd = [r["timestamp"] for r in rows_r]
+
+        if prefer == "manual_only":
+            return manual
+
+        if prefer == "rtd_only":
+            return rtd
+
+        if prefer == "manual_then_rtd":
+            return manual if manual else rtd
+
+        if prefer == "all":
+            return sorted(set(manual) | set(rtd))
+
+        raise ValueError(
+            "prefer must be one of: 'manual_then_rtd', 'manual_only', 'rtd_only', 'all'"
+        )
+
 
     def _query_legs(
         self,
@@ -161,8 +205,8 @@ class RoboLegsRepository:
             timestamp=parse_timestamp(timestamp),
             cv=cv_norm,
             call_put=call_put_norm,
-            strike=float(strike) if strike is not None else 0.0,
-            quant=int(quant) if quant is not None else 0,
+            strike=self._parse_float(strike) if self._parse_float(strike) is not None else 0.0,
+            quant=self._parse_int(quant) if self._parse_int(quant) is not None else 0,
             ativo=str(ativo).strip().upper() if ativo is not None else "",
             vencimento=parse_vencimento(venc) if venc is not None else None,
             fonte=fonte,

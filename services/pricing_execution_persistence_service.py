@@ -1,36 +1,31 @@
 from typing import Any
 
 from repositories.pricing_executions_repository import PricingExecutionsRepository
-from services.pricing_execution_service import PricingExecutionService
 
 
 class PricingExecutionPersistenceService:
     def __init__(
         self,
-        pricing_execution_service: PricingExecutionService | None = None,
         pricing_executions_repository: PricingExecutionsRepository | None = None,
     ):
-        self.pricing_execution_service = pricing_execution_service or PricingExecutionService()
         self.pricing_executions_repository = (
             pricing_executions_repository or PricingExecutionsRepository()
         )
 
-    def execute_and_persist(
+    def persist_execution(
         self,
-        structure_id: int,
-        reference_date: str | None = None,
+        pricing_payload: dict[str, Any],
+        result: dict[str, Any],
+        duration_ms: int | None = None,
+        error_message: str | None = None,
     ) -> dict[str, Any]:
-        execution = self.pricing_execution_service.execute(
-            structure_id=structure_id,
-            reference_date=reference_date,
-        )
-
         record = self.pricing_executions_repository.save_execution(
-            pricing_payload=execution["pricing_payload"],
-            result=execution["result"],
+            pricing_payload=pricing_payload,
+            result=result,
         )
 
         return {
-            "execution": execution,
             "record": record,
+            "duration_ms": duration_ms,
+            "error_message": error_message,
         }
