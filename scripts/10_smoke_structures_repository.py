@@ -27,7 +27,7 @@ def main():
             "expiration_date": "2026-05-15",
             "quantity": 1000,
             "premium": None,
-            "multiplier": 1,
+            "multiplier": 1.0,
             "leg_order": 1,
             "notes": "leg 1",
         },
@@ -43,7 +43,7 @@ def main():
             "expiration_date": "2026-05-15",
             "quantity": 1000,
             "premium": None,
-            "multiplier": 1,
+            "multiplier": 1.0,
             "leg_order": 2,
             "notes": "leg 2",
         },
@@ -73,7 +73,9 @@ def main():
                 "strike": 190.0,
                 "expiration_date": "2026-05-15",
                 "quantity": 2000,
-                "multiplier": 1,
+                "premium": None,
+                "multiplier": 1.0,
+                "leg_order": 1,
                 "notes": "replacement leg 1",
             },
             {
@@ -83,7 +85,9 @@ def main():
                 "strike": 185.0,
                 "expiration_date": "2026-05-15",
                 "quantity": 2000,
-                "multiplier": 1,
+                "premium": None,
+                "multiplier": 1.0,
+                "leg_order": 2,
                 "notes": "replacement leg 2",
             },
         ],
@@ -96,6 +100,17 @@ def main():
 
     archived = repo.get_structure(structure_id)
     print("ARCHIVED STRUCTURE:", archived)
+
+    active_only = repo.list_structures()
+    print("ACTIVE ONLY:", active_only)
+
+    all_structures = repo.list_structures(include_archived=True)
+    print("ALL STRUCTURES:", all_structures)
+
+    assert archived is not None
+    assert archived["status"] == "archived"
+    assert all(item["status"] == "active" for item in active_only)
+    assert any(item["id"] == structure_id for item in all_structures)
 
     print("SMOKE OK")
 
