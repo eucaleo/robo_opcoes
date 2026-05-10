@@ -84,8 +84,13 @@ class PricingExecutionQueryService:
 
         return summaries
 
-    def get_execution(self, execution_id: int) -> dict[str, Any] | None:
+    def get_execution(self, execution_id: int) -> dict[str, Any]:
         if execution_id <= 0:
             raise ValueError("execution_id must be greater than zero")
 
-        return self.pricing_executions_repository.get_execution(execution_id)
+        execution = self.pricing_executions_repository.get_execution(execution_id)
+
+        if execution is None:
+            raise ValueError(f"pricing execution {execution_id} not found")
+
+        return execution
