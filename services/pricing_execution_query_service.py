@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from repositories.pricing_executions_repository import PricingExecutionsRepository
@@ -12,6 +13,33 @@ class PricingExecutionQueryService:
             pricing_executions_repository or PricingExecutionsRepository()
         )
 
+    def _validate_summary_filters(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> None:
+        if structure_id is not None and structure_id <= 0:
+            raise ValueError("structure_id must be greater than zero")
+
+        if underlying_asset is not None and not underlying_asset.strip():
+            raise ValueError("underlying_asset must not be empty")
+
+        if status is not None and status not in {"ok", "error"}:
+            raise ValueError("status must be either 'ok' or 'error'")
+
+        if reference_date is not None:
+            if not reference_date.strip():
+                raise ValueError("reference_date must not be empty")
+
+            try:
+                datetime.strptime(reference_date, "%Y-%m-%d")
+            except ValueError as exc:
+                raise ValueError(
+                    "reference_date must be in YYYY-MM-DD format"
+                ) from exc
+
     def list_executions(self) -> list[dict[str, Any]]:
         return self.pricing_executions_repository.list_executions()
 
@@ -23,6 +51,13 @@ class PricingExecutionQueryService:
         reference_date: str | None = None,
         descending: bool = True,
     ) -> list[dict[str, Any]]:
+        self._validate_summary_filters(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+        )
+
         executions = self.pricing_executions_repository.list_executions()
 
         summaries = []
@@ -86,37 +121,6 @@ class PricingExecutionQueryService:
         summaries.sort(key=lambda item: item["id"], reverse=descending)
         return summaries
 
-    def get_latest_execution_summary(
-        self,
-        structure_id: int | None = None,
-        underlying_asset: str | None = None,
-        status: str | None = None,
-        reference_date: str | None = None,
-    ) -> dict[str, Any]:
-        summaries = self.list_execution_summaries(
-            structure_id=structure_id,
-            underlying_asset=underlying_asset,
-            status=status,
-            reference_date=reference_date,
-            descending=True,
-        )
-
-        if not summaries:
-            raise ValueError("no pricing execution summaries found")
-
-        return summaries[0]
-
-    def get_execution(self, execution_id: int) -> dict[str, Any]:
-        if execution_id <= 0:
-            raise ValueError("execution_id must be greater than zero")
-
-        execution = self.pricing_executions_repository.get_execution(execution_id)
-
-        if execution is None:
-            raise ValueError(f"pricing execution {execution_id} not found")
-
-        return execution
-
     def paginate_execution_summaries(
         self,
         structure_id: int | None = None,
@@ -127,6 +131,13 @@ class PricingExecutionQueryService:
         page: int = 1,
         page_size: int = 10,
     ) -> dict[str, Any]:
+        self._validate_summary_filters(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+        )
+
         if page <= 0:
             raise ValueError("page must be greater than zero")
 
@@ -158,3 +169,40 @@ class PricingExecutionQueryService:
             "total_pages": total_pages,
         }
 
+    def get_latest_execution_summary(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        self._validate_summary_filters(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+        )
+
+        summaries = self.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=True,
+        )
+
+        if not summaries:
+            raise ValueError("no pricing execution summaries found")
+
+        return summaries[0]
+
+    def get_execution(self, execution_id: int) -> dict[str, Any]:
+        if execution_id <= 0:
+            raise ValueError("execution_id must be greater than zero")
+
+        execution = self.pricing_executions_repository.get_execution(execution_id)
+
+        if execution is None:
+            raise ValueError(f"pricing execution {execution_id} not found")
+
+        return execution
