@@ -1,9 +1,28 @@
 from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel
 
 from services.pricing_execution_app_service import PricingExecutionAppService
 
 router = APIRouter()
 service = PricingExecutionAppService()
+
+
+class CreatePricingExecutionRequest(BaseModel):
+    structure_id: int
+    reference_date: str
+
+
+@router.post("/pricing-executions")
+def create_pricing_execution(request: CreatePricingExecutionRequest):
+    try:
+        return service.execute_pricing(
+            structure_id=request.structure_id,
+            reference_date=request.reference_date,
+        )
+    except ValueError as exc:
+        message = str(exc)
+        status_code = 404 if "not found" in message else 400
+        raise HTTPException(status_code=status_code, detail=message) from exc
 
 
 @router.get("/pricing-executions")
