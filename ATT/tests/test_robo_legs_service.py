@@ -1,7 +1,9 @@
 from datetime import datetime
+from types import SimpleNamespace
 
+import services.robo_legs_service as robo_legs_service
 from dto.robo_leg_dto import RoboLegDTO, CVType, CallPutType, FonteType
-from services.robo_legs_service import RoboLegsService
+from services.robo_legs_service import LegValidationError, RoboLegsService
 
 
 class FakeValidRepo:
@@ -21,14 +23,36 @@ class FakeValidRepo:
         ]
 
 
-def test_service_returns_legs_when_validate_false():
+def test_service_raises_leg_validation_error_when_validator_reports_invalid(monkeypatch):
     service = RoboLegsService(repo=FakeValidRepo())
 
-    legs = service.get_legs(
-        aba="TESTE",
-        timestamp=datetime(2025, 1, 10, 10, 0, 0),
-        validate=False,
+    fake_error = SimpleNamespace(
+        field="strike",
+        row_index=0,
+        error_message="Strike inconsistente",
     )
 
-    assert len(legs) == 1
-    assert legs[0].ativo == "PETR4"
+    class FakeReport:
+        def __init__(self):
+            self.errors = [fake_error]
+
+        def is_ok(self):
+            return False
+
+    def fake_validate_legs(legs):
+        return FakeReport()
+
+    monkeypatch.setattr(robo_legs_service, "validate_legs", fake_validate_legs)
+
+    try:
+        service.get_legs(
+            aba="TESTE",
+            timestamp=datetime(2025, 1, 10, 10, 0, 0),
+            validate=True,
+        )
+        assert False, "Era esperado LegValidationError"
+    except LegValidationError as exc:
+        msg = str(exc)
+        assert "field=strike" in msg
+        assert "row_index=0" in msg
+        assert "Strike inconsistente" in msg
