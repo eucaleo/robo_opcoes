@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import datetime
 import pandas as pd
 
-from dto.robo_leg_dto import RoboLegDTO
+from dto.robo_leg_dto import RoboLegDTO, CVType, CallPutType, FonteType
 from utils.leg_normalizers import LegNormalizer
 
 
@@ -306,6 +306,39 @@ def validate_legs(legs: List[RoboLegDTO]) -> ValidationReport:
                     value=leg.timestamp,
                     error_message="Timestamp anterior a 2020",
                     severity="WARNING",
+                )
+            )
+
+        if not isinstance(leg.cv, CVType):
+            errors.append(
+                ValidationError(
+                    row_index=idx,
+                    field="cv",
+                    value=leg.cv,
+                    error_message="CV inválido",
+                    severity="ERROR",
+                )
+            )
+
+        if not isinstance(leg.call_put, CallPutType):
+            errors.append(
+                ValidationError(
+                    row_index=idx,
+                    field="call_put",
+                    value=leg.call_put,
+                    error_message="Call/Put inválido",
+                    severity="ERROR",
+                )
+            )
+
+        if not isinstance(leg.fonte, FonteType):
+            errors.append(
+                ValidationError(
+                    row_index=idx,
+                    field="fonte",
+                    value=leg.fonte,
+                    error_message="Fonte inválida",
+                    severity="ERROR",
                 )
             )
 
