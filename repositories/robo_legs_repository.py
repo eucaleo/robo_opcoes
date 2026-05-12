@@ -212,6 +212,12 @@ class RoboLegsRepository:
         strike_value = self._parse_float(strike)
         quant_value = self._parse_int(quant)
 
+        if strike_value is None:
+            raise ValueError("Linha inválida: campo 'strike' ausente/inválido")
+
+        if quant_value is None:
+            raise ValueError("Linha inválida: campo 'quant' ausente/inválido")
+
         cv_norm = normalize_cv(cv)
         call_put_norm = normalize_call_put(call_put)
 
@@ -220,8 +226,8 @@ class RoboLegsRepository:
             timestamp=parse_timestamp(timestamp),
             cv=cv_norm,
             call_put=call_put_norm,
-            strike=strike_value if strike_value is not None else 0.0,
-            quant=quant_value if quant_value is not None else 0,
+            strike=strike_value,
+            quant=quant_value,
             ativo=str(ativo).strip().upper(),
             vencimento=parse_vencimento(venc),
             fonte=fonte,
