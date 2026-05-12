@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Script para localizar todas as referências à string "data" nas pastas específicas
-do projeto, com foco na migração data/ -> dados/
+do projeto, com foco em localizar resíduos legados de data/ após a migração para dados/
 """
 
 import os
@@ -84,8 +84,8 @@ def print_results(results: Dict[str, List[Tuple[int, str]]]) -> None:
     """Imprime os resultados de forma organizada."""
     
     if not results:
-        print("\n🎉 NENHUMA referência a 'data' encontrada!")
-        print("✅ Migração data/ -> dados/ parece estar completa nas pastas verificadas.")
+        print("\n🎉 Nenhuma referência legada operacional a 'data/' encontrada!")
+        print("✅ A migração operacional de data/ -> dados/ parece consistente nas pastas verificadas.")
         return
     
     print(f"\n📋 RESULTADOS: {len(results)} arquivo(s) com referências a 'data'")
