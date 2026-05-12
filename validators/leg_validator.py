@@ -90,7 +90,7 @@ class LegValidator:
                     )
                 )
 
-        if any(e.field in ["timestamp", "aba"] for e in errors if e.severity == "ERROR"):
+        if any(e.field in ["timestamp", "aba", "vencimento"] for e in errors if e.severity == "ERROR"):
             return errors
 
         try:
