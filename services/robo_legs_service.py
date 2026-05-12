@@ -7,6 +7,10 @@ from repositories.robo_legs_repository import RoboLegsRepository, RoboLegsRepoCo
 from validators.leg_validator import validate_legs
 
 
+class LegValidationError(ValueError):
+    pass
+
+
 class RoboLegsService:
     """
     Camada fina:
@@ -24,7 +28,7 @@ class RoboLegsService:
             report = validate_legs(legs)
             if not report.is_ok():
                 first = report.errors[0]
-                raise ValueError(
+                raise LegValidationError(
                     f"Legs inválidas: field={first.field} row_index={first.row_index} msg={first.error_message}"
                 )
 
