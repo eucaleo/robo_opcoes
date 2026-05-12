@@ -19,10 +19,13 @@ class RoboLegsService:
 
     def get_legs(self, aba: str, timestamp: Any, validate: bool = True) -> List[RoboLegDTO]:
         legs = self.repo.get_legs(aba=aba, timestamp=timestamp)
+
         if validate:
             report = validate_legs(legs)
             if not report.is_ok():
-                # Levanta erro enxuto (você pode trocar por exceção de domínio)
                 first = report.errors[0]
-                raise ValueError(f"Legs inválidas: {first.code} field={first.field} aba={first.aba}")
+                raise ValueError(
+                    f"Legs inválidas: field={first.field} row_index={first.row_index} msg={first.error_message}"
+                )
+
         return legs

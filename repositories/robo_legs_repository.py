@@ -197,21 +197,36 @@ class RoboLegsRepository:
         preco = pick("preco", "price", "premium")
         leg_id = pick("id", "leg_id")
 
-        cv_norm = normalize_cv(cv).value
-        call_put_norm = normalize_call_put(call_put).value
+        if aba is None or not str(aba).strip():
+            raise ValueError("Linha inválida: campo 'aba' ausente/vazio")
+
+        if timestamp is None:
+            raise ValueError("Linha inválida: campo 'timestamp' ausente")
+
+        if ativo is None or not str(ativo).strip():
+            raise ValueError("Linha inválida: campo 'ativo' ausente/vazio")
+
+        if venc is None:
+            raise ValueError("Linha inválida: campo 'vencimento' ausente")
+
+        strike_value = self._parse_float(strike)
+        quant_value = self._parse_int(quant)
+
+        cv_norm = normalize_cv(cv)
+        call_put_norm = normalize_call_put(call_put)
 
         dto = RoboLegDTO(
             aba=str(aba).strip(),
             timestamp=parse_timestamp(timestamp),
             cv=cv_norm,
             call_put=call_put_norm,
-            strike=self._parse_float(strike) if self._parse_float(strike) is not None else 0.0,
-            quant=self._parse_int(quant) if self._parse_int(quant) is not None else 0,
-            ativo=str(ativo).strip().upper() if ativo is not None else "",
-            vencimento=parse_vencimento(venc) if venc is not None else None,
+            strike=strike_value if strike_value is not None else 0.0,
+            quant=quant_value if quant_value is not None else 0,
+            ativo=str(ativo).strip().upper(),
+            vencimento=parse_vencimento(venc),
             fonte=fonte,
             id=int(leg_id) if leg_id is not None else None,
-            preco=float(preco) if preco is not None else None,
+            preco=self._parse_float(preco),
             created_at=None,
             updated_at=None,
         )
