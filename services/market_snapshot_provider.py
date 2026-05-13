@@ -1,0 +1,46 @@
+from datetime import date
+from typing import Any
+
+
+DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
+    "BOVA11": {
+        "spot_price": 198.35,
+        "interest_rate": 0.1175,
+        "volatility": 0.22,
+    },
+    "PETR4": {
+        "spot_price": 37.42,
+        "interest_rate": 0.1175,
+        "volatility": 0.31,
+    },
+    "VALE3": {
+        "spot_price": 61.80,
+        "interest_rate": 0.1175,
+        "volatility": 0.28,
+    },
+}
+
+
+class MarketSnapshotProvider:
+    def __init__(self, market_by_asset: dict[str, dict[str, Any]] | None = None):
+        self.market_by_asset = market_by_asset or DEFAULT_MARKET_BY_ASSET
+
+    def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
+        asset = str(underlying_asset or "").strip().upper()
+        if not asset:
+            raise ValueError("underlying_asset is required")
+
+        market = self.market_by_asset.get(asset)
+        if market is None:
+            raise ValueError(f"market snapshot not found for asset: {asset}")
+
+        if reference_date is None:
+            reference_date = date.today().isoformat()
+
+        return {
+            "reference_date": reference_date,
+            "underlying_asset": asset,
+            "spot_price": float(market["spot_price"]),
+            "interest_rate": float(market["interest_rate"]),
+            "volatility": float(market["volatility"]),
+        }

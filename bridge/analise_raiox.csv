@@ -1,0 +1,26 @@
+﻿"ABA";"TIMESTAMP";"ANALISE_RAIOX"
+"EMBJ3";"14/04/2026 17:55:51";"ABA: EMBJ3 | Pernas: 4 | Viés: ALTA
+Delta Liq: 1776.5 | Gamma Liq: 166.2 | Vega Liq: 38685.2
+PL Total: R$ -30,500.00
+Top Delta: EMBJE868, EMBJQ878
+Top PL: EMBJE868, EMBJQ878"
+"BOVA11";"14/04/2026 17:55:51";"ABA: BOVA11 | Pernas: 4 | Viés: ALTA
+Delta Liq: 322.5 | Gamma Liq: 75.6 | Vega Liq: 59739.7
+PL Total: R$ -3,590.00
+Top Delta: BOVAE195, BOVAQ195
+Top PL: BOVAE195, BOVAQ195"
+"PRIO3";"14/04/2026 17:55:51";"ABA: PRIO3 | Pernas: 4 | Viés: BAIXA
+Delta Liq: -612.3 | Gamma Liq: 9.3 | Vega Liq: -13363.6
+PL Total: R$ -4,014.00
+Top Delta: PRIOQ720, PRIOD750
+Top PL: PRIOE515, PRIOP600"
+"SMAL11";"14/04/2026 17:55:51";"ABA: SMAL11 | Pernas: 4 | Viés: BAIXA
+Delta Liq: -954.2 | Gamma Liq: -83.1 | Vega Liq: -31771.3
+PL Total: R$ -2,442.44
+Top Delta: SMALQ119, SMALD139
+Top PL: SMALQ119, SMALD139"
+"SBSP3";"14/04/2026 17:55:51";"ABA: SBSP3 | Pernas: 4 | Viés: ALTA
+Delta Liq: 218.4 | Gamma Liq: 24.3 | Vega Liq: 20309.0
+PL Total: R$ -7,074.00
+Top Delta: SBSPE175, SBSPQ166
+Top PL: SBSPE175, SBSPQ166"

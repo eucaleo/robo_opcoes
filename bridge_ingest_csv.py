@@ -1,15 +1,26 @@
+#bridge_ingest_csv.py
+
+import os
+import sys
+import argparse
+import subprocess
 import time
 import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
+from db.config import APP_DB_PATH
 import pandas as pd
 
 from db.sqlite import connect  # <-- CORRIGIDO (db, não Db)
 
 PROJECT_DIR = Path(r"C:\Users\eucal\projeto")
 BRIDGE_DIR = PROJECT_DIR / "bridge"
-RAW_DB = PROJECT_DIR / "Data" / "app.db"  # <-- CORRIGIDO para sua pasta Data/
+RAW_DB = APP_DB_PATH
+DERIVED_PIPELINE = PROJECT_DIR / "Scripts" / "run_derived_pipeline.py"
+RUN_DERIVED_AFTER_INGEST = os.getenv("RUN_DERIVED_AFTER_INGEST", "1") == "1"
+DERIVED_DEBOUNCE_SEC = float(os.getenv("DERIVED_DEBOUNCE_SEC", "3"))
+
 
 @dataclass(frozen=True)
 class CsvSpec:
@@ -48,6 +59,29 @@ def normalize_col(col: str) -> str:
         "obs": "obs",
     }
     return aliases.get(s, s)
+
+def run_derived_pipeline() -> int:
+    """
+    Roda o pipeline de derivadas em processo separado.
+    Não levanta exceção; retorna returncode.
+    """
+    if not DERIVED_PIPELINE.exists():
+        print(f"[DERIVED] pipeline não encontrado: {DERIVED_PIPELINE}")
+        return 2
+
+    cmd = [sys.executable, str(DERIVED_PIPELINE)]
+    print(f"[DERIVED] executando: {' '.join(cmd)}")
+
+    p = subprocess.run(cmd, cwd=str(PROJECT_DIR), capture_output=True, text=True)
+
+    if p.stdout:
+        print(p.stdout.rstrip())
+    if p.returncode != 0 and p.stderr:
+        print(p.stderr.rstrip())
+
+    print(f"[DERIVED] returncode={p.returncode}")
+    return p.returncode
+
 
 def read_csv(path: Path) -> pd.DataFrame:
     df = pd.read_csv(
@@ -104,13 +138,48 @@ def ingest_once():
     finally:
         conn.close()
 
-def main():
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
+    parser.add_argument(
+        "--once",
+        action="store_true",
+        help="Processa um único evento (uma atualização do last_export.txt) e sai.",
+    )
+    parser.add_argument(
+        "--run-now",
+        action="store_true",
+        help="Roda ingest imediatamente (sem esperar last_export.txt mudar) e sai.",
+    )
+    args = parser.parse_args(argv)
+
     BRIDGE_DIR.mkdir(parents=True, exist_ok=True)
     control = BRIDGE_DIR / "last_export.txt"
     last_mtime = 0.0
+    last_derived_run = 0.0
 
     print(f"[INGEST] Bridge dir: {BRIDGE_DIR}")
     print(f"[INGEST] Raw DB:     {RAW_DB}")
+
+    def maybe_run_derived():
+        nonlocal last_derived_run
+        if not RUN_DERIVED_AFTER_INGEST:
+            return
+        now = time.time()
+        if (now - last_derived_run) >= DERIVED_DEBOUNCE_SEC:
+            last_derived_run = now
+            rc = run_derived_pipeline()
+            if rc != 0:
+                print("[DERIVED] WARNING: pipeline falhou (ingest ok).")
+        else:
+            print("[DERIVED] debounce: ignorando disparo muito próximo do anterior.")
+
+    # Modo: rodar agora e sair
+    if args.run_now:
+        rows = ingest_once()
+        print(f"[INGEST] import concluído, linhas processadas: {rows}")
+        maybe_run_derived()
+        return
+
     print("[INGEST] aguardando last_export.txt ...")
 
     while True:
@@ -120,7 +189,14 @@ def main():
                 last_mtime = mtime
                 rows = ingest_once()
                 print(f"[INGEST] import concluído, linhas processadas: {rows}")
+                maybe_run_derived()
+
+                if args.once:
+                    print("[INGEST] --once: finalizando.")
+                    return
+
         time.sleep(1.0)
+
 
 if __name__ == "__main__":
     main()

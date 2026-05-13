@@ -1,7 +1,7 @@
 # validate_db.py
 from db.sqlite import connect
 
-conn = connect("data/app.db")
+conn = connect("dados/app.db")
 tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
 print("Tabelas criadas:")
 for table in tables:
