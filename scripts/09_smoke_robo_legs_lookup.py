@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import dataclasses
 import sys
 from pathlib import Path
 from pprint import pprint
@@ -9,21 +10,32 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from repositories.robo_legs_repository import RoboLegsRepository
-
+from services.robo_legs_service import LegValidationError, RoboLegsService
 
 APP_DB = "./dados/app.db"
 
 
+def to_debug_dict(obj):
+    if hasattr(obj, "model_dump") and callable(obj.model_dump):
+        return obj.model_dump()
+    if hasattr(obj, "dict") and callable(obj.dict):
+        return obj.dict()
+    if dataclasses.is_dataclass(obj):
+        return dataclasses.asdict(obj)
+    if hasattr(obj, "_asdict") and callable(obj._asdict):
+        return obj._asdict()
+    if hasattr(obj, "__dict__"):
+        return vars(obj)
+    return repr(obj)
+
+
 def main() -> int:
-    repo = RoboLegsRepository(APP_DB)
+    repo = RoboLegsRepository()
+    service = RoboLegsService(repo=repo)
 
     cases = [
         ("manual", "BOVA11", "09/05/2026 21:04:53"),
-        ("rtd", "BOVA11", "14/04/2026 17:55:51"),
-        ("rtd", "EMBJ3", "14/04/2026 17:55:51"),
-        ("rtd", "PRIO3", "14/04/2026 17:55:51"),
-        ("rtd", "SMAL11", "14/04/2026 17:55:51"),
-        ("rtd", "SBSP3", "14/04/2026 17:55:51"),
+        ("fallback_rtd", "BOVA11", "14/04/2026 17:55:51"),
     ]
 
     print("== SMOKE ROBO LEGS LOOKUP ==")
@@ -31,16 +43,23 @@ def main() -> int:
     print(f"DB: {APP_DB}")
     print()
 
-    for source, aba, timestamp in cases:
+    for label, aba, timestamp in cases:
         print("=" * 80)
-        print(f"CASE: source={source} aba={aba} timestamp={timestamp}")
+        print(f"CASE: source={label} aba={aba} timestamp={timestamp}")
 
-        legs = repo.get_legs(source=source, aba=aba, timestamp=timestamp)
+        has_manual = repo.has_manual(aba, timestamp)
+        print(f"HAS_MANUAL: {has_manual}")
+
+        try:
+            legs = service.get_legs(aba=aba, timestamp=timestamp, validate=True)
+        except LegValidationError as exc:
+            print(f"[FAIL] validação semântica: {exc}")
+            return 1
 
         print(f"LEGS FOUND: {len(legs)}")
         for i, leg in enumerate(legs, start=1):
             print(f"-- LEG {i} --")
-            pprint(leg.model_dump())
+            pprint(to_debug_dict(leg))
 
         print()
 
