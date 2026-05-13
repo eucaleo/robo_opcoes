@@ -10,6 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from repositories.robo_legs_repository import RoboLegsRepository
+from services.robo_legs_service import LegValidationError, RoboLegsService
 
 
 def to_debug_dict(obj):
@@ -28,10 +29,11 @@ def to_debug_dict(obj):
 
 def main() -> int:
     repo = RoboLegsRepository()
+    service = RoboLegsService(repo=repo)
 
     cases = [
-        ("BOVA11", "09/05/2026 21:04:53"),  # manual existente
-        ("BOVA11", "14/04/2026 17:55:51"),  # deve cair em rtd
+        ("BOVA11", "09/05/2026 21:04:53"),
+        ("BOVA11", "14/04/2026 17:55:51"),
         ("EMBJ3", "14/04/2026 17:55:51"),
         ("PRIO3", "14/04/2026 17:55:51"),
         ("SMAL11", "14/04/2026 17:55:51"),
@@ -49,7 +51,12 @@ def main() -> int:
         has_manual = repo.has_manual(aba, timestamp)
         print(f"HAS_MANUAL: {has_manual}")
 
-        legs = repo.get_legs(aba, timestamp)
+        try:
+            legs = service.get_legs(aba=aba, timestamp=timestamp, validate=True)
+        except LegValidationError as exc:
+            print(f"[FAIL] validação semântica: {exc}")
+            print()
+            continue
 
         print(f"LEGS FOUND: {len(legs)}")
         for i, leg in enumerate(legs, start=1):
