@@ -1,6 +1,7 @@
 from datetime import datetime
 from types import SimpleNamespace
 
+import pytest
 import services.robo_legs_service as robo_legs_service
 from dto.robo_leg_dto import RoboLegDTO, CVType, CallPutType, FonteType
 from services.robo_legs_service import LegValidationError, RoboLegsService
@@ -44,15 +45,17 @@ def test_service_raises_leg_validation_error_when_validator_reports_invalid(monk
 
     monkeypatch.setattr(robo_legs_service, "validate_legs", fake_validate_legs)
 
-    try:
+    with pytest.raises(LegValidationError) as exc:
         service.get_legs(
             aba="TESTE",
             timestamp=datetime(2025, 1, 10, 10, 0, 0),
             validate=True,
         )
-        assert False, "Era esperado LegValidationError"
-    except LegValidationError as exc:
-        msg = str(exc)
-        assert "field=strike" in msg
-        assert "row_index=0" in msg
-        assert "Strike inconsistente" in msg
+
+    msg = str(exc.value)
+    assert "aba=TESTE" in msg
+    assert "timestamp=2025-01-10 10:00:00" in msg
+    assert "field=strike" in msg
+    assert "row_index=0" in msg
+    assert "Strike inconsistente" in msg
+

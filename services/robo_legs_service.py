@@ -29,7 +29,10 @@ class RoboLegsService:
             if not report.is_ok():
                 first = report.errors[0]
                 raise LegValidationError(
-                    f"Legs inválidas: field={first.field} row_index={first.row_index} msg={first.error_message}"
+                    f"Validação semântica falhou para aba={aba} timestamp={timestamp}: "
+                    f"field={first.field} row_index={first.row_index} "
+                    f"error={first.error_message}"
                 )
+
 
         return legs
