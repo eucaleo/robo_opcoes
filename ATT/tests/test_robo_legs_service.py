@@ -24,6 +24,76 @@ class FakeValidRepo:
         ]
 
 
+class FakeEmptyRepo:
+    def get_legs(self, aba, timestamp):
+        return []
+
+
+def test_service_returns_legs_for_valid_input(monkeypatch):
+    service = RoboLegsService(repo=FakeValidRepo())
+
+    class FakeReport:
+        def is_ok(self):
+            return True
+
+    def fake_validate_legs(legs):
+        return FakeReport()
+
+    monkeypatch.setattr(robo_legs_service, "validate_legs", fake_validate_legs)
+
+    result = service.get_legs(
+        aba="TESTE",
+        timestamp=datetime(2025, 1, 10, 10, 0, 0),
+        validate=True,
+    )
+
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0].aba == "TESTE"
+    assert result[0].ativo == "PETR4"
+    assert result[0].strike == 30.0
+
+
+def test_service_returns_empty_list_when_repo_finds_no_match(monkeypatch):
+    service = RoboLegsService(repo=FakeEmptyRepo())
+
+    class FakeReport:
+        def is_ok(self):
+            return True
+
+    def fake_validate_legs(legs):
+        return FakeReport()
+
+    monkeypatch.setattr(robo_legs_service, "validate_legs", fake_validate_legs)
+
+    result = service.get_legs(
+        aba="TESTE",
+        timestamp=datetime(2025, 1, 10, 10, 0, 0),
+        validate=True,
+    )
+
+    assert result == []
+
+
+def test_service_skips_validation_when_validate_is_false(monkeypatch):
+    service = RoboLegsService(repo=FakeValidRepo())
+
+    def fake_validate_legs(legs):
+        raise AssertionError("validate_legs should not be called when validate=False")
+
+    monkeypatch.setattr(robo_legs_service, "validate_legs", fake_validate_legs)
+
+    result = service.get_legs(
+        aba="TESTE",
+        timestamp=datetime(2025, 1, 10, 10, 0, 0),
+        validate=False,
+    )
+
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0].ativo == "PETR4"
+
+
 def test_service_raises_leg_validation_error_when_validator_reports_invalid(monkeypatch):
     service = RoboLegsService(repo=FakeValidRepo())
 
@@ -58,4 +128,3 @@ def test_service_raises_leg_validation_error_when_validator_reports_invalid(monk
     assert "field=strike" in msg
     assert "row_index=0" in msg
     assert "Strike inconsistente" in msg
-
