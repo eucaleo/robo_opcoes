@@ -35,6 +35,7 @@ def main():
         "26_smoke_pricing_execution_app_service_execute.py",
         "17_smoke_pricing_execution_query_service.py",
         "18_smoke_pricing_execution_summary_query.py",
+        "19_smoke_robo_legs_service.py",
         "99_smoke_cleanup.py",
     ]
 
