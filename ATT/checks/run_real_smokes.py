@@ -32,10 +32,12 @@ def main():
         "15_smoke_pricing_execution_service.py",
         "16_smoke_pricing_execution_persistence.py",
         "22_smoke_pricing_execution_orchestration_success.py",
+        "23_smoke_pricing_execution_orchestration_with_real_legs.py",
         "26_smoke_pricing_execution_app_service_execute.py",
         "17_smoke_pricing_execution_query_service.py",
         "18_smoke_pricing_execution_summary_query.py",
         "19_smoke_robo_legs_service.py",
+        "20_smoke_canonical_input_with_real_robo_legs.py",
         "99_smoke_cleanup.py",
     ]
 

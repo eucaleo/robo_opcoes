@@ -1,153 +1,192 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
+import json
+import sqlite3
 import sys
-from collections import Counter
+from dataclasses import dataclass, asdict
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
-
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(PROJECT_ROOT) not in sys.path
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-from infra.sqlite_conn import sqlite_conn
+from typing import Any
 
 
-APP_DB = .dadosapp.db
-TABLES = [
-    manual_analise_robo_legs,
-    rtd_analise_robo_legs,
-]
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "dados" / "app.db"
+OUTPUT_DIR = BASE_DIR / "reports"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def is_blank(value Any) - bool
-    return value is None or str(value).strip() == 
+@dataclass
+class SnapshotKeyIssue:
+    table_name: str
+    issue_type: str
+    details: str
+    severity: str = "error"
 
 
-def fetch_rows(conn, table str) - List[dict]
+AUDIT_RULES = {
+    "manual_analise_robo_legs": {
+        "require_key_candidate": False,
+    },
+    "rtd_analise_raiox": {
+        "require_key_candidate": False,
+    },
+    "rtd_analise_robo": {
+        "require_key_candidate": False,
+    },
+    "rtd_analise_robo_legs": {
+        "require_key_candidate": False,
+    },
+    "rtd_configuracoes": {
+        "require_key_candidate": False,
+    },
+    "rtd_consolidacoes": {
+        "require_key_candidate": False,
+    },
+    "rtd_encerramentos_manuais": {
+        "require_key_candidate": False,
+    },
+    "rtd_hist_robo": {
+        "require_key_candidate": False,
+    },
+    "rtd_rolls_detectados": {
+        "require_key_candidate": False,
+    },
+    "structure_legs": {
+        "require_key_candidate": False,
+        "non_unique_foreign_keys": ["structure_id"],
+    },
+}
+
+DEFAULT_KEY_CANDIDATES = {
+    "id",
+    "uuid",
+    "snapshot_id",
+    "record_id",
+    "external_id",
+    "key",
+}
+
+
+def get_tables(conn: sqlite3.Connection) -> list[str]:
     rows = conn.execute(
-        f
-        SELECT aba, timestamp
-        FROM {table}
-        
+        """
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table'
+          AND name NOT LIKE 'sqlite_%'
+        ORDER BY name
+        """
     ).fetchall()
-    return [dict(r) for r in rows]
+    return [row[0] for row in rows]
 
 
-def summarize_table(rows List[dict]) - Dict[str, Any]
-    total_rows = len(rows)
+def get_table_columns(conn: sqlite3.Connection, table_name: str) -> list[str]:
+    rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    return [row[1] for row in rows]
 
-    abas = []
-    timestamps = []
-    pair_counter Counter[Tuple[str, str]] = Counter()
 
-    blank_aba = 0
-    blank_timestamp = 0
-    blank_both = 0
+def find_possible_key_columns(columns: list[str], table_name: str) -> list[str]:
+    rules = AUDIT_RULES.get(table_name, {})
+    explicit = rules.get("unique_key_candidates")
+    if explicit is not None:
+        return [c for c in explicit if c in columns]
 
-    for row in rows
-        aba = row.get(aba)
-        ts = row.get(timestamp)
+    candidates = []
+    for col in columns:
+        lower = col.lower()
+        if lower in DEFAULT_KEY_CANDIDATES or lower.endswith("_id"):
+            candidates.append(col)
+    return candidates
 
-        aba_blank = is_blank(aba)
-        ts_blank = is_blank(ts)
 
-        if aba_blank
-            blank_aba += 1
-        if ts_blank
-            blank_timestamp += 1
-        if aba_blank and ts_blank
-            blank_both += 1
+def audit_snapshot_keys(conn: sqlite3.Connection) -> dict[str, Any]:
+    issues: list[SnapshotKeyIssue] = []
 
-        if not aba_blank
-            abas.append(str(aba).strip())
+    for table in get_tables(conn):
+        columns = get_table_columns(conn, table)
+        rules = AUDIT_RULES.get(table, {})
+        require_key_candidate = rules.get("require_key_candidate", True)
+        non_unique_foreign_keys = set(rules.get("non_unique_foreign_keys", []))
 
-        if not ts_blank
-            timestamps.append(str(ts).strip())
+        key_candidates = find_possible_key_columns(columns, table)
 
-        if not aba_blank and not ts_blank
-            pair_counter[(str(aba).strip(), str(ts).strip())] += 1
+        if require_key_candidate and not key_candidates:
+            issues.append(
+                SnapshotKeyIssue(
+                    table_name=table,
+                    issue_type="missing_key_candidate",
+                    details="Nenhuma coluna candidata a chave foi encontrada.",
+                )
+            )
+            continue
 
-    unique_abas = sorted(set(abas))
-    unique_timestamps = sorted(set(timestamps))
-    unique_pairs = list(pair_counter.keys())
+        for key_col in key_candidates:
+            if key_col in non_unique_foreign_keys:
+                continue
 
-    duplicated_pairs = [(pair, count) for pair, count in pair_counter.items() if count  1]
-    duplicated_pairs.sort(key=lambda x (-x[1], x[0][0], x[0][1]))
+            total_rows, non_null_keys, distinct_keys = conn.execute(
+                f"""
+                SELECT COUNT(*),
+                       COUNT({key_col}),
+                       COUNT(DISTINCT {key_col})
+                FROM {table}
+                """
+            ).fetchone()
 
-    legs_per_snapshot = Counter(pair_counter.values())
+            if non_null_keys < total_rows:
+                issues.append(
+                    SnapshotKeyIssue(
+                        table_name=table,
+                        issue_type="null_keys",
+                        details=(
+                            f"Coluna '{key_col}' possui valores nulos: "
+                            f"{total_rows - non_null_keys} de {total_rows}."
+                        ),
+                    )
+                )
 
-    top_abas = Counter(abas).most_common(10)
-    top_timestamps = Counter(timestamps).most_common(10)
+            if distinct_keys < non_null_keys:
+                issues.append(
+                    SnapshotKeyIssue(
+                        table_name=table,
+                        issue_type="duplicate_keys",
+                        details=(
+                            f"Coluna '{key_col}' possui duplicidades: "
+                            f"{non_null_keys - distinct_keys} registros repetidos."
+                        ),
+                    )
+                )
 
     return {
-        total_rows total_rows,
-        distinct_abas len(unique_abas),
-        distinct_timestamps len(unique_timestamps),
-        distinct_pairs len(unique_pairs),
-        blank_aba blank_aba,
-        blank_timestamp blank_timestamp,
-        blank_both blank_both,
-        duplicated_pairs duplicated_pairs,
-        legs_per_snapshot legs_per_snapshot,
-        top_abas top_abas,
-        top_timestamps top_timestamps,
+        "database": str(DB_PATH),
+        "issues_found": len(issues),
+        "issues": [asdict(issue) for issue in issues],
     }
 
 
-def print_summary(table str, summary Dict[str, Any]) - None
-    print(=  80)
-    print(fTABELA {table})
-    print(fTOTAL_ROWS           {summary['total_rows']})
-    print(fDISTINCT_ABAS        {summary['distinct_abas']})
-    print(fDISTINCT_TIMESTAMPS  {summary['distinct_timestamps']})
-    print(fDISTINCT_PAIRS       {summary['distinct_pairs']})
-    print()
+def main() -> int:
+    if not DB_PATH.exists():
+        print(f"ERRO: banco não encontrado em: {DB_PATH}", file=sys.stderr)
+        return 2
 
-    print(BLANKS)
-    print(f  - aba blank        {summary['blank_aba']})
-    print(f  - timestamp blank  {summary['blank_timestamp']})
-    print(f  - ambos blank      {summary['blank_both']})
-    print()
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        result = audit_snapshot_keys(conn)
+    finally:
+        conn.close()
 
-    print(LEGS POR SNAPSHOT (qtd_linhas por chave aba+timestamp))
-    for legs_count, snapshots in sorted(summary[legs_per_snapshot].items())
-        print(f  - {legs_count} legs - {snapshots} snapshot(s))
-    print()
+    output_file = OUTPUT_DIR / "audit_snapshot_keys.json"
+    output_file.write_text(
+        json.dumps(result, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
 
-    print(TOP ABAS)
-    for aba, count in summary[top_abas]
-        print(f  - {aba} {count})
-    print()
+    print(f"Relatório salvo em: {output_file}")
+    print(f"Issues encontradas: {result['issues_found']}")
 
-    print(TOP TIMESTAMPS)
-    for ts, count in summary[top_timestamps]
-        print(f  - {ts} {count})
-    print()
-
-    print(DUPLICATED SNAPSHOT KEYS (aba+timestamp com mais de 1 linha))
-    if summary[duplicated_pairs]
-        for (aba, ts), count in summary[duplicated_pairs][20]
-            print(f  - aba={aba!r} timestamp={ts!r} rows={count})
-    else
-        print(  - nenhuma)
+    has_error = any(issue.get("severity", "error") == "error" for issue in result["issues"])
+    return 1 if has_error else 0
 
 
-def main() - int
-    print(== AUDIT SNAPSHOT KEYS ==)
-    print(fPROJECT_ROOT {PROJECT_ROOT})
-    print(fDB {APP_DB})
-    print()
-
-    with sqlite_conn(APP_DB) as conn
-        for table in TABLES
-            rows = fetch_rows(conn, table)
-            summary = summarize_table(rows)
-            print_summary(table, summary)
-            print()
-
-    print(OK)
-    return 0
-
-
-if __name__ == __main__
+if __name__ == "__main__":
     raise SystemExit(main())

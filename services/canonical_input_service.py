@@ -61,9 +61,22 @@ class CanonicalInputService:
             }
 
         try:
+            timestamps = self.robo_legs_service.repo.list_timestamps(aba)
+        except Exception:
+            timestamps = []
+
+        if not timestamps:
+            return {
+                **structure,
+                "legs": existing_legs,
+            }
+
+        selected_timestamp = timestamps[0]
+
+        try:
             robo_legs = self.robo_legs_service.get_legs(
                 aba=aba,
-                timestamp=reference_date,
+                timestamp=selected_timestamp,
                 validate=False,
             )
         except Exception:
