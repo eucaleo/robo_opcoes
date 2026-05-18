@@ -29,9 +29,23 @@ def to_canonical_leg(leg: Any, multiplier: float = 1.0) -> dict[str, Any]:
     cv_str = str(cv).upper().strip() if cv is not None else ""
     call_put_str = str(call_put).upper().strip() if call_put is not None else ""
 
+    if cv_str == "C":
+        position_side = "LONG"
+    elif cv_str == "V":
+        position_side = "SHORT"
+    else:
+        raise ValueError(f"invalid cv: {cv}")
+
+    if call_put_str == "CALL":
+        option_type = "CALL"
+    elif call_put_str == "PUT":
+        option_type = "PUT"
+    else:
+        raise ValueError(f"invalid call_put: {call_put}")
+
     return {
-        "position_side": "long" if cv_str == "C" else "short",
-        "option_type": "call" if call_put_str == "CALL" else "put",
+        "position_side": position_side,
+        "option_type": option_type,
         "symbol": str(ativo).strip().upper() if ativo else None,
         "strike": float(strike),
         "expiration_date": vencimento.strftime("%Y-%m-%d") if vencimento else None,
