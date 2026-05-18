@@ -69,24 +69,38 @@ class CanonicalInputService:
             },
         }
 
+    def _build_meta(
+        self,
+        legs_source: str,
+        legacy_aba: str | None = None,
+        legacy_timestamp: str | None = None,
+    ) -> dict[str, Any]:
+        meta = {
+            "legs_source": legs_source,
+        }
+
+        if legacy_aba is not None:
+            meta["legacy_aba"] = legacy_aba
+
+        if legacy_timestamp is not None:
+            meta["legacy_timestamp"] = legacy_timestamp
+
+        return meta
+
     def _base_legs_response(
         self,
         structure: dict[str, Any],
         existing_legs: list[dict[str, Any]],
-        aba: str | None,
         legs_source: str,
-        legacy_timestamp: str | None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         return (
             {
                 **structure,
                 "legs": existing_legs,
             },
-            {
-                "legs_source": legs_source,
-                "legacy_aba": aba,
-                "legacy_timestamp": legacy_timestamp,
-            },
+            self._build_meta(
+                legs_source=legs_source,
+            ),
         )
 
     def _enrich_structure_with_legs(
@@ -105,27 +119,21 @@ class CanonicalInputService:
             return self._base_legs_response(
                 structure=structure,
                 existing_legs=existing_legs,
-                aba=aba,
                 legs_source="canonical",
-                legacy_timestamp=None,
             )
 
         if not self.enable_legacy_legs_fallback:
             return self._base_legs_response(
                 structure=structure,
                 existing_legs=existing_legs,
-                aba=aba,
                 legs_source="empty",
-                legacy_timestamp=None,
             )
 
         if not aba or self.robo_legs_service is None:
             return self._base_legs_response(
                 structure=structure,
                 existing_legs=existing_legs,
-                aba=aba,
                 legs_source="empty",
-                legacy_timestamp=None,
             )
 
         selected_timestamp = self._select_legacy_timestamp(
@@ -137,9 +145,7 @@ class CanonicalInputService:
             return self._base_legs_response(
                 structure=structure,
                 existing_legs=existing_legs,
-                aba=aba,
                 legs_source="empty",
-                legacy_timestamp=None,
             )
 
         try:
@@ -167,19 +173,17 @@ class CanonicalInputService:
                     **structure,
                     "legs": canonical_robo_legs,
                 },
-                {
-                    "legs_source": "legacy_robo",
-                    "legacy_aba": aba,
-                    "legacy_timestamp": selected_timestamp,
-                },
+                self._build_meta(
+                    legs_source="legacy_robo",
+                    legacy_aba=aba,
+                    legacy_timestamp=selected_timestamp,
+                ),
             )
 
         return self._base_legs_response(
             structure=structure,
             existing_legs=existing_legs,
-            aba=aba,
             legs_source="empty",
-            legacy_timestamp=selected_timestamp,
         )
 
     def _select_legacy_timestamp(

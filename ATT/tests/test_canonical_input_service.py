@@ -80,7 +80,8 @@ class CanonicalInputServiceTests(unittest.TestCase):
         )
 
         self.assertEqual(result["meta"]["legs_source"], "canonical")
-        self.assertIsNone(result["meta"]["legacy_timestamp"])
+        self.assertNotIn("legacy_aba", result["meta"])
+        self.assertNotIn("legacy_timestamp", result["meta"])
         self.assertEqual(len(result["structure"]["legs"]), 1)
         self.assertEqual(result["structure"]["legs"][0]["symbol"], "BOVAE195")
 
@@ -151,8 +152,9 @@ class CanonicalInputServiceTests(unittest.TestCase):
         )
 
         self.assertEqual(result["meta"]["legs_source"], "empty")
+        self.assertNotIn("legacy_aba", result["meta"])
+        self.assertNotIn("legacy_timestamp", result["meta"])
         self.assertEqual(result["structure"]["legs"], [])
-        self.assertIsNone(result["meta"]["legacy_timestamp"])
 
 
 if __name__ == "__main__":
