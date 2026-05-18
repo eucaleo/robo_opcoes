@@ -51,7 +51,6 @@ def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
         "structure_id": structure["structure_id"],
         "structure_name": _clean_text(structure["name"]),
         "underlying_asset": _clean_upper_text(structure["underlying_asset"]),
-        "alias_legacy_aba": _clean_text(structure.get("alias_legacy_aba")),
         "reference_date": _clean_text(market["reference_date"]),
         "spot_price": float(market["spot_price"]),
         "interest_rate": float(market["interest_rate"]),

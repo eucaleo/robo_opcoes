@@ -203,6 +203,10 @@ def compute_decision_for_aba(
     thresholds: dict[str, float] | None = None,
     dte_gate: int = 7,
 ) -> dict[str, Any]:
+    """
+    Legacy compatibility path.
+    Prefer compute_decision_from_contract(...) for the canonical flow.
+    """
     thresholds = _resolve_thresholds(thresholds)
 
     try:
@@ -399,7 +403,7 @@ def compute_decision_from_payoff(
 if __name__ == "__main__":
     from .payoff import get_app_db_connection
 
-    print("Testando decision com dados reais...")
+    print("Testando decision com dados reais (legacy aba path)...")
 
     conn = get_app_db_connection()
     cursor = conn.cursor()

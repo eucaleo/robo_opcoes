@@ -98,7 +98,10 @@ class CanonicalInputService:
         aba = structure.get("alias_legacy_aba") or structure.get("name")
         aba = self._clean_text(aba)
 
-        if self.prefer_canonical_legs and existing_legs:
+        # 3B rule:
+        # If canonical legs already exist in the structure repository,
+        # they are always the source of truth for the main flow.
+        if existing_legs:
             return self._base_legs_response(
                 structure=structure,
                 existing_legs=existing_legs,
@@ -112,7 +115,7 @@ class CanonicalInputService:
                 structure=structure,
                 existing_legs=existing_legs,
                 aba=aba,
-                legs_source="canonical" if existing_legs else "empty",
+                legs_source="empty",
                 legacy_timestamp=None,
             )
 
@@ -121,7 +124,7 @@ class CanonicalInputService:
                 structure=structure,
                 existing_legs=existing_legs,
                 aba=aba,
-                legs_source="canonical" if existing_legs else "empty",
+                legs_source="empty",
                 legacy_timestamp=None,
             )
 
@@ -135,7 +138,7 @@ class CanonicalInputService:
                 structure=structure,
                 existing_legs=existing_legs,
                 aba=aba,
-                legs_source="canonical" if existing_legs else "empty",
+                legs_source="empty",
                 legacy_timestamp=None,
             )
 
@@ -175,7 +178,7 @@ class CanonicalInputService:
             structure=structure,
             existing_legs=existing_legs,
             aba=aba,
-            legs_source="canonical" if existing_legs else "empty",
+            legs_source="empty",
             legacy_timestamp=selected_timestamp,
         )
 
