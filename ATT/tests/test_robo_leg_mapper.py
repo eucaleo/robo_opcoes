@@ -1,110 +1,107 @@
+import unittest
 from datetime import datetime
-
-import pytest
 
 from services.robo_leg_mapper import to_canonical_leg
 
 
-class FakeEnum:
-    def __init__(self, value):
-        self.value = value
+class RoboLegMapperTests(unittest.TestCase):
+    def test_should_map_call_buy_leg_to_canonical(self):
+        leg = {
+            "cv": "C",
+            "call_put": "CALL",
+            "ativo": "bovae195",
+            "strike": 195,
+            "vencimento": datetime(2026, 5, 15),
+            "quant": 5000,
+            "preco": 1.25,
+        }
+
+        result = to_canonical_leg(leg)
+
+        self.assertEqual(result["position_side"], "LONG")
+        self.assertEqual(result["option_type"], "CALL")
+        self.assertEqual(result["symbol"], "BOVAE195")
+        self.assertEqual(result["strike"], 195.0)
+        self.assertEqual(result["expiration_date"], "2026-05-15")
+        self.assertEqual(result["quantity"], 5000)
+        self.assertEqual(result["premium"], 1.25)
+        self.assertEqual(result["multiplier"], 1.0)
+
+    def test_should_map_put_sell_leg_to_canonical(self):
+        leg = {
+            "cv": "V",
+            "call_put": "PUT",
+            "ativo": "bovaq180",
+            "strike": "180",
+            "vencimento": datetime(2026, 6, 19),
+            "quant": "3000",
+            "preco": "2.5",
+        }
+
+        result = to_canonical_leg(leg, multiplier=100)
+
+        self.assertEqual(result["position_side"], "SHORT")
+        self.assertEqual(result["option_type"], "PUT")
+        self.assertEqual(result["symbol"], "BOVAQ180")
+        self.assertEqual(result["strike"], 180.0)
+        self.assertEqual(result["expiration_date"], "2026-06-19")
+        self.assertEqual(result["quantity"], 3000)
+        self.assertEqual(result["premium"], 2.5)
+        self.assertEqual(result["multiplier"], 100.0)
+
+    def test_should_accept_object_attributes(self):
+        class FakeLeg:
+            cv = "C"
+            call_put = "PUT"
+            ativo = "bovaq170"
+            strike = 170
+            vencimento = datetime(2026, 7, 17)
+            quant = 2000
+            preco = None
+
+        result = to_canonical_leg(FakeLeg())
+
+        self.assertEqual(result["position_side"], "LONG")
+        self.assertEqual(result["option_type"], "PUT")
+        self.assertEqual(result["symbol"], "BOVAQ170")
+        self.assertEqual(result["strike"], 170.0)
+        self.assertEqual(result["expiration_date"], "2026-07-17")
+        self.assertEqual(result["quantity"], 2000)
+        self.assertIsNone(result["premium"])
+        self.assertEqual(result["multiplier"], 1.0)
+
+    def test_should_raise_when_cv_is_invalid(self):
+        leg = {
+            "cv": "X",
+            "call_put": "CALL",
+            "ativo": "bovae195",
+            "strike": 195,
+            "vencimento": datetime(2026, 5, 15),
+            "quant": 5000,
+            "preco": 1.25,
+        }
+
+        with self.assertRaises(ValueError) as ctx:
+            to_canonical_leg(leg)
+
+        self.assertIn("invalid cv", str(ctx.exception))
+
+    def test_should_raise_when_call_put_is_invalid(self):
+        leg = {
+            "cv": "C",
+            "call_put": "XXX",
+            "ativo": "bovae195",
+            "strike": 195,
+            "vencimento": datetime(2026, 5, 15),
+            "quant": 5000,
+            "preco": 1.25,
+        }
+
+        with self.assertRaises(ValueError) as ctx:
+            to_canonical_leg(leg)
+
+        self.assertIn("invalid call_put", str(ctx.exception))
 
 
-class FakeLegObject:
-    def __init__(
-        self,
-        cv,
-        call_put,
-        ativo,
-        strike,
-        vencimento,
-        quant,
-        preco,
-    ):
-        self.cv = cv
-        self.call_put = call_put
-        self.ativo = ativo
-        self.strike = strike
-        self.vencimento = vencimento
-        self.quant = quant
-        self.preco = preco
-
-
-def test_to_canonical_leg_maps_valid_dict_input():
-    leg = {
-        "cv": "C",
-        "call_put": "PUT",
-        "ativo": " bovam190 ",
-        "strike": "190",
-        "vencimento": datetime(2026, 5, 15),
-        "quant": "2000",
-        "preco": "1.25",
-    }
-
-    result = to_canonical_leg(leg, multiplier=100)
-
-    assert result == {
-        "position_side": "LONG",
-        "option_type": "PUT",
-        "symbol": "BOVAM190",
-        "strike": 190.0,
-        "expiration_date": "2026-05-15",
-        "quantity": 2000,
-        "premium": 1.25,
-        "multiplier": 100.0,
-    }
-
-
-def test_to_canonical_leg_maps_valid_object_and_enum_input():
-    leg = FakeLegObject(
-        cv=FakeEnum("V"),
-        call_put=FakeEnum("CALL"),
-        ativo=" bovaM210 ",
-        strike=210,
-        vencimento=datetime(2026, 6, 19),
-        quant=10,
-        preco=None,
-    )
-
-    result = to_canonical_leg(leg, multiplier=1)
-
-    assert result == {
-        "position_side": "SHORT",
-        "option_type": "CALL",
-        "symbol": "BOVAM210",
-        "strike": 210.0,
-        "expiration_date": "2026-06-19",
-        "quantity": 10,
-        "premium": None,
-        "multiplier": 1.0,
-    }
-
-
-def test_to_canonical_leg_raises_for_invalid_cv():
-    leg = {
-        "cv": "X",
-        "call_put": "PUT",
-        "ativo": "BOVAM190",
-        "strike": 190,
-        "vencimento": datetime(2026, 5, 15),
-        "quant": 1,
-        "preco": None,
-    }
-
-    with pytest.raises(ValueError, match="invalid cv: X"):
-        to_canonical_leg(leg)
-
-
-def test_to_canonical_leg_raises_for_invalid_call_put():
-    leg = {
-        "cv": "C",
-        "call_put": "INVALID",
-        "ativo": "BOVAM190",
-        "strike": 190,
-        "vencimento": datetime(2026, 5, 15),
-        "quant": 1,
-        "preco": None,
-    }
-
-    with pytest.raises(ValueError, match="invalid call_put: INVALID"):
-        to_canonical_leg(leg)
+if __name__ == "__main__":
+    unittest.main()
