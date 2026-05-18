@@ -231,3 +231,177 @@ def test_build_structure_market_input_uses_explicit_reference_date(monkeypatch):
     assert market_provider.calls[0]["reference_date"] == "2026-05-12"
     assert result["meta"]["reference_date"] == "2026-05-12"
     assert result["meta"]["legacy_timestamp"] == "2026-05-12T15:00:00"
+
+
+def test_build_structure_market_input_uses_name_as_legacy_aba_fallback(monkeypatch):
+    structure = {
+        "id": 4,
+        "name": "  Minha Estrutura Legada  ",
+        "underlying_asset": "BOVA11",
+        "alias_legacy_aba": None,
+        "legs": [],
+    }
+
+    snapshot = {
+        "reference_date": "2026-05-15",
+        "underlying_asset": "BOVA11",
+        "spot_price": 198.35,
+    }
+
+    monkeypatch.setattr(
+        "services.canonical_input_service.assemble_structure_market_input",
+        fake_assemble_structure_market_input,
+    )
+
+    fake_robo_service = FakeRoboLegsService(
+        timestamps=["2026-05-15T11:00:00"],
+        legs=[],
+    )
+
+    service = CanonicalInputService(
+        repository=FakeRepository(structure),
+        market_snapshot_provider=FakeMarketSnapshotProvider(snapshot),
+        robo_legs_service=fake_robo_service,
+        prefer_canonical_legs=False,
+        enable_legacy_legs_fallback=True,
+    )
+
+    result = service.build_structure_market_input(structure_id=4)
+
+    assert fake_robo_service.calls[0]["aba"] == "Minha Estrutura Legada"
+    assert result["meta"]["legacy_aba"] == "Minha Estrutura Legada"
+    assert result["meta"]["legacy_timestamp"] == "2026-05-15T11:00:00"
+    assert result["meta"]["legs_source"] == "empty"
+
+
+def test_build_structure_market_input_returns_empty_when_no_legacy_timestamps(monkeypatch):
+    structure = {
+        "id": 5,
+        "name": "Estrutura Sem Timestamp",
+        "underlying_asset": "BOVA11",
+        "alias_legacy_aba": "ABA_SEM_TIMESTAMP",
+        "legs": [],
+    }
+
+    snapshot = {
+        "reference_date": "2026-05-15",
+        "underlying_asset": "BOVA11",
+        "spot_price": 198.35,
+    }
+
+    monkeypatch.setattr(
+        "services.canonical_input_service.assemble_structure_market_input",
+        fake_assemble_structure_market_input,
+    )
+
+    fake_robo_service = FakeRoboLegsService(
+        timestamps=[],
+        legs=[],
+    )
+
+    service = CanonicalInputService(
+        repository=FakeRepository(structure),
+        market_snapshot_provider=FakeMarketSnapshotProvider(snapshot),
+        robo_legs_service=fake_robo_service,
+        prefer_canonical_legs=False,
+        enable_legacy_legs_fallback=True,
+    )
+
+    result = service.build_structure_market_input(structure_id=5)
+
+    assert result["structure"]["legs"] == []
+    assert result["meta"]["legs_source"] == "empty"
+    assert result["meta"]["legacy_aba"] == "ABA_SEM_TIMESTAMP"
+    assert result["meta"]["legacy_timestamp"] is None
+    assert fake_robo_service.calls == []
+
+
+def test_build_structure_market_input_returns_canonical_when_fallback_disabled(monkeypatch):
+    structure = {
+        "id": 6,
+        "name": "Estrutura Sem Fallback",
+        "underlying_asset": "BOVA11",
+        "alias_legacy_aba": "ABA_SEM_FALLBACK",
+        "legs": [],
+    }
+
+    snapshot = {
+        "reference_date": "2026-05-15",
+        "underlying_asset": "BOVA11",
+        "spot_price": 198.35,
+    }
+
+    monkeypatch.setattr(
+        "services.canonical_input_service.assemble_structure_market_input",
+        fake_assemble_structure_market_input,
+    )
+
+    fake_robo_service = FakeRoboLegsService(
+        timestamps=["2026-05-15T11:00:00"],
+        legs=[
+            {
+                "position_side": "long",
+                "option_type": "put",
+                "symbol": "BOVAM190",
+                "strike": 190.0,
+                "expiration_date": "2026-05-15",
+                "quantity": 2000,
+                "premium": None,
+                "multiplier": 1.0,
+            }
+        ],
+    )
+
+    service = CanonicalInputService(
+        repository=FakeRepository(structure),
+        market_snapshot_provider=FakeMarketSnapshotProvider(snapshot),
+        robo_legs_service=fake_robo_service,
+        prefer_canonical_legs=False,
+        enable_legacy_legs_fallback=False,
+    )
+
+    result = service.build_structure_market_input(structure_id=6)
+
+    assert result["structure"]["legs"] == []
+    assert result["meta"]["legs_source"] == "empty"
+    assert result["meta"]["legacy_aba"] == "ABA_SEM_FALLBACK"
+    assert result["meta"]["legacy_timestamp"] is None
+    assert fake_robo_service.calls == []
+
+
+def test_build_structure_market_input_returns_empty_when_robo_service_is_unavailable(monkeypatch):
+    structure = {
+        "id": 7,
+        "name": "Estrutura Sem Robo",
+        "underlying_asset": "BOVA11",
+        "alias_legacy_aba": "ABA_SEM_ROBO",
+        "legs": [],
+    }
+
+    snapshot = {
+        "reference_date": "2026-05-15",
+        "underlying_asset": "BOVA11",
+        "spot_price": 198.35,
+    }
+
+    monkeypatch.setattr(
+        "services.canonical_input_service.assemble_structure_market_input",
+        fake_assemble_structure_market_input,
+    )
+
+    service = CanonicalInputService(
+        repository=FakeRepository(structure),
+        market_snapshot_provider=FakeMarketSnapshotProvider(snapshot),
+        robo_legs_service=None,
+        prefer_canonical_legs=False,
+        enable_legacy_legs_fallback=True,
+    )
+
+    service.robo_legs_service = None
+
+    result = service.build_structure_market_input(structure_id=7)
+
+    assert result["structure"]["legs"] == []
+    assert result["meta"]["legs_source"] == "empty"
+    assert result["meta"]["legacy_aba"] == "ABA_SEM_ROBO"
+    assert result["meta"]["legacy_timestamp"] is None
