@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +17,7 @@ class PricingExecutionsRepository:
 
     def save_execution(
         self,
-        pricing_payload: dict[str, Any],
+        pricing_payload: dict[str, Any] | None,
         result: dict[str, Any],
         execution_status: str | None = None,
         execution_engine: str | None = None,
@@ -27,9 +27,6 @@ class PricingExecutionsRepository:
         total_quantity: int | None = None,
         theoretical_value: float | None = None,
     ) -> dict[str, Any]:
-        if not pricing_payload:
-            raise ValueError("pricing_payload is required")
-
         if not result:
             raise ValueError("result is required")
 
@@ -38,10 +35,10 @@ class PricingExecutionsRepository:
 
         record = {
             "id": next_id,
-            "created_at": datetime.utcnow().isoformat() + "Z",
-            "structure_id": pricing_payload["structure_id"],
-            "underlying_asset": pricing_payload["underlying_asset"],
-            "reference_date": pricing_payload["reference_date"],
+            "created_at": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+            "structure_id": pricing_payload.get("structure_id") if pricing_payload else None,
+            "underlying_asset": pricing_payload.get("underlying_asset") if pricing_payload else None,
+            "reference_date": pricing_payload.get("reference_date") if pricing_payload else None,
             "execution_status": execution_status,
             "execution_engine": execution_engine,
             "error_message": error_message,

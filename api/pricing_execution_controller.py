@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from services.pricing_execution_app_service import PricingExecutionAppService
 
-router = APIRouter()
+router = APIRouter(tags=["pricing-executions"])
 service = PricingExecutionAppService()
 
 
@@ -31,8 +31,8 @@ def list_pricing_executions(
     underlying_asset: str | None = None,
     status: str | None = None,
     reference_date: str | None = None,
-    page: int = Query(1),
-    page_size: int = Query(10),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1),
 ):
     try:
         return service.paginate_execution_summaries(
@@ -63,7 +63,12 @@ def get_latest_pricing_execution(
         )
     except ValueError as exc:
         message = str(exc)
-        status_code = 404 if "not found" in message or "no pricing execution summaries found" in message else 400
+        status_code = (
+            404
+            if "not found" in message
+            or "no pricing execution summaries found" in message
+            else 400
+        )
         raise HTTPException(status_code=status_code, detail=message) from exc
 
 

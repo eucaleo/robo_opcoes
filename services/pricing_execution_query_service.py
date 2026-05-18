@@ -206,3 +206,6 @@ class PricingExecutionQueryService:
             raise ValueError(f"pricing execution {execution_id} not found")
 
         return execution
+
+    def get_execution_details(self, execution_id: int) -> dict[str, Any]:
+        return self.get_execution(execution_id)

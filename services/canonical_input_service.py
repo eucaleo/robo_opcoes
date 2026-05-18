@@ -12,9 +12,13 @@ class CanonicalInputService:
         repository: StructuresRepository | None = None,
         market_snapshot_provider: MarketSnapshotProvider | None = None,
         robo_legs_service: Any | None = None,
+        prefer_canonical_legs: bool = True,
+        enable_legacy_legs_fallback: bool = True,
     ):
         self.repository = repository or StructuresRepository()
         self.market_snapshot_provider = market_snapshot_provider or MarketSnapshotProvider()
+        self.prefer_canonical_legs = prefer_canonical_legs
+        self.enable_legacy_legs_fallback = enable_legacy_legs_fallback
 
         if robo_legs_service is not None:
             self.robo_legs_service = robo_legs_service
@@ -34,44 +38,106 @@ class CanonicalInputService:
         if structure is None:
             raise ValueError(f"structure not found: {structure_id}")
 
+        structure = {
+            **structure,
+            "name": self._clean_text(structure.get("name")),
+            "underlying_asset": self._clean_text(structure.get("underlying_asset")),
+            "alias_legacy_aba": self._clean_text(structure.get("alias_legacy_aba")),
+        }
+
         snapshot = self.market_snapshot_provider.get_snapshot(
             structure["underlying_asset"],
             reference_date=reference_date,
         )
 
-        enriched_structure = self._enrich_structure_with_legs(
+        effective_reference_date = reference_date or snapshot.get("reference_date")
+
+        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
             structure=structure,
-            reference_date=reference_date or snapshot["reference_date"],
+            reference_date=effective_reference_date,
         )
 
-        return assemble_structure_market_input(enriched_structure, snapshot)
+        assembled = assemble_structure_market_input(enriched_structure, snapshot)
+        assembled_meta = assembled.get("meta") or {}
+
+        return {
+            **assembled,
+            "meta": {
+                **assembled_meta,
+                "reference_date": effective_reference_date,
+                **enrichment_meta,
+            },
+        }
+
+    def _base_legs_response(
+        self,
+        structure: dict[str, Any],
+        existing_legs: list[dict[str, Any]],
+        aba: str | None,
+        legs_source: str,
+        legacy_timestamp: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        return (
+            {
+                **structure,
+                "legs": existing_legs,
+            },
+            {
+                "legs_source": legs_source,
+                "legacy_aba": aba,
+                "legacy_timestamp": legacy_timestamp,
+            },
+        )
 
     def _enrich_structure_with_legs(
         self,
         structure: dict[str, Any],
-        reference_date: str,
-    ) -> dict[str, Any]:
-        aba = structure.get("alias_legacy_aba") or structure.get("name")
+        reference_date: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         existing_legs = structure.get("legs", [])
+        aba = structure.get("alias_legacy_aba") or structure.get("name")
+        aba = self._clean_text(aba)
+
+        if self.prefer_canonical_legs and existing_legs:
+            return self._base_legs_response(
+                structure=structure,
+                existing_legs=existing_legs,
+                aba=aba,
+                legs_source="canonical",
+                legacy_timestamp=None,
+            )
+
+        if not self.enable_legacy_legs_fallback:
+            return self._base_legs_response(
+                structure=structure,
+                existing_legs=existing_legs,
+                aba=aba,
+                legs_source="canonical" if existing_legs else "empty",
+                legacy_timestamp=None,
+            )
 
         if not aba or self.robo_legs_service is None:
-            return {
-                **structure,
-                "legs": existing_legs,
-            }
+            return self._base_legs_response(
+                structure=structure,
+                existing_legs=existing_legs,
+                aba=aba,
+                legs_source="canonical" if existing_legs else "empty",
+                legacy_timestamp=None,
+            )
 
-        try:
-            timestamps = self.robo_legs_service.repo.list_timestamps(aba)
-        except Exception:
-            timestamps = []
+        selected_timestamp = self._select_legacy_timestamp(
+            aba=aba,
+            reference_date=reference_date,
+        )
 
-        if not timestamps:
-            return {
-                **structure,
-                "legs": existing_legs,
-            }
-
-        selected_timestamp = timestamps[0]
+        if not selected_timestamp:
+            return self._base_legs_response(
+                structure=structure,
+                existing_legs=existing_legs,
+                aba=aba,
+                legs_source="canonical" if existing_legs else "empty",
+                legacy_timestamp=None,
+            )
 
         try:
             robo_legs = self.robo_legs_service.get_legs(
@@ -93,12 +159,51 @@ class CanonicalInputService:
                 continue
 
         if canonical_robo_legs:
-            return {
-                **structure,
-                "legs": canonical_robo_legs,
-            }
+            return (
+                {
+                    **structure,
+                    "legs": canonical_robo_legs,
+                },
+                {
+                    "legs_source": "legacy_robo",
+                    "legacy_aba": aba,
+                    "legacy_timestamp": selected_timestamp,
+                },
+            )
 
-        return {
-            **structure,
-            "legs": existing_legs,
-        }
+        return self._base_legs_response(
+            structure=structure,
+            existing_legs=existing_legs,
+            aba=aba,
+            legs_source="canonical" if existing_legs else "empty",
+            legacy_timestamp=selected_timestamp,
+        )
+
+    def _select_legacy_timestamp(
+        self,
+        aba: str,
+        reference_date: str | None = None,
+    ) -> str | None:
+        try:
+            timestamps = self.robo_legs_service.repo.list_timestamps(aba)
+        except Exception:
+            timestamps = []
+
+        if not timestamps:
+            return None
+
+        normalized = [str(ts) for ts in timestamps if ts]
+        if not normalized:
+            return None
+
+        if reference_date:
+            exact_prefix_matches = [ts for ts in normalized if ts.startswith(reference_date)]
+            if exact_prefix_matches:
+                return sorted(exact_prefix_matches)[-1]
+
+        return sorted(normalized)[-1]
+
+    def _clean_text(self, value: Any) -> Any:
+        if isinstance(value, str):
+            return value.strip()
+        return value

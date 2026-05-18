@@ -14,7 +14,7 @@ class PricingExecutionPersistenceService:
 
     def persist_execution(
         self,
-        pricing_payload: dict[str, Any],
+        pricing_payload: dict[str, Any] | None,
         result: dict[str, Any],
         duration_ms: int | None = None,
         error_message: str | None = None,

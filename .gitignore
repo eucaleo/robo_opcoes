@@ -44,3 +44,12 @@ ATT/reports/**
 !ATT/tests/**
 !ATT/**/.gitkeep
 # --- /v2 hygiene ---
+
+__pycache__/
+*.pyc
+.pytest_cache/
+ATT/temporario/
+project_context.json
+module_inventory.json
+main.py.txt
+

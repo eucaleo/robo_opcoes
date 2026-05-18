@@ -1,25 +1,23 @@
-import sys
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 from typing import Dict, Optional, Any
 import json
 import sqlite3
-from datetime import datetime
-import threading
-import subprocess
 from pathlib import Path
+
 
 class DetailsPanel(ttk.LabelFrame):
     def __init__(self, parent, on_recalculate=None):
         super().__init__(parent)
         self._on_recalculate_cb = on_recalculate
         self._recalc_in_progress = False
-        self._last_recalc_signature = None  # (aba, snapshot_ts)
+        self._last_recalc_signature = None
+        self._current_decision = None
+
         try:
-            from pathlib import Path as _Path
             self._project_root = Path(__file__).resolve().parents[2]
         except Exception:
-            self.project_root = None
+            self._project_root = None
 
         self._setup_widgets()
 
@@ -38,73 +36,33 @@ class DetailsPanel(ttk.LabelFrame):
             pass
 
     def _raw_db_path(self) -> Path:
-        return self._project_root / "dados" / "app.db"
-
-    def _get_latest_snapshot_timestamp_for_aba(self, aba: str) -> str | None:
-        db_path = self._raw_db_path()
-        if not db_path.exists():
-            return None
-
-        con = sqlite3.connect(str(db_path))
-        try:
-            cur = con.cursor()
-            def has_table(name: str) -> bool:
-                cur.execute(
-                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1", (name,))
-                return cur.fetchone() is not None
-
-            for tname in ["robo_legs_snapshot", "robo_snapshot", "rtd_analise_robo_legs"]:
-                if has_table(tname):
-                    cur.execute(f"SELECT MAX(timestamp) FROM {tname} WHERE aba=?", (aba,))
-                    row = cur.fetchone()
-                    if row and row[0]:
-                        return str(row[0])
-            return None
-        finally:
-            con.close()
-
-    def _compute_recalc_signature(self, aba: str) -> tuple[str, str | None]:
-        ts = self._get_latest_snapshot_timestamp_for_aba(aba)
-        return (aba, ts)
-    def _set_recalc_ui_state(self, in_progress: bool, msg: str = "", color: str = "gray"):
-        self._recalc_in_progress = in_progress
-        try:  # Botão
-            if hasattr(self, "btn_recalculate") and self.btn_recalculate:
-                self.btn_recalculate.config(state=("disabled" if in_progress else "normal"))
-        except Exception:
-            pass
-        try:  # Label de status
-            if hasattr(self, "lbl_recalc_status") and self.lbl_recalc_status:
-                self.lbl_recalc_status.config(text=msg, foreground=color)
-        except Exception:
-            pass
-
-    def _raw_db_path(self):
-        from pathlib import Path
         if self._project_root:
             return Path(self._project_root) / "dados" / "app.db"
         return Path("dados") / "app.db"
 
-    def _get_latest_snapshot_timestamp_for_aba(self, aba: str):
-        import sqlite3
+    def _get_latest_snapshot_timestamp_for_aba(self, aba: str) -> Optional[str]:
         db_path = self._raw_db_path()
         if not db_path.exists():
             return None
+
         con = sqlite3.connect(str(db_path))
         try:
             cur = con.cursor()
+
             def has_table(name: str) -> bool:
                 cur.execute(
                     "SELECT 1 FROM sqlite_master WHERE type='table' AND name=? LIMIT 1",
                     (name,),
                 )
                 return cur.fetchone() is not None
+
             for table in ("robo_legs_snapshot", "robo_snapshot", "rtd_analise_robo_legs"):
                 if has_table(table):
                     cur.execute(f"SELECT MAX(timestamp) FROM {table} WHERE aba=?", (aba,))
                     row = cur.fetchone()
                     if row and row[0]:
                         return str(row[0])
+
             return None
         finally:
             con.close()
@@ -112,43 +70,10 @@ class DetailsPanel(ttk.LabelFrame):
     def _compute_recalc_signature(self, aba: str):
         return (aba, self._get_latest_snapshot_timestamp_for_aba(aba))
 
-    def _on_recalculate_click(self):
-        decision = self._current_decision
-        if not decision:
-            self.lbl_recalc_status.config(text="Nenhuma decisão selecionada", foreground="red")
-            return
-        aba = decision.get("aba")
-        if not aba:
-            self.lbl_recalc_status.config(text="Aba não identificada", foreground="red")
-            return
-        # lock local (UX)
-        if getattr(self, "_recalc_in_progress", False):
-            self._set_recalc_ui_state(True, msg=f"Recalc já em andamento ({aba})", color="orange")
-            return
-        # dedupe por assinatura (aba, ts_canônico)
-        sig = self._compute_recalc_signature(aba)
-        if self._last_recalc_signature == sig and sig[1] is not None:
-            self._set_recalc_ui_state(False, msg="Snapshot não mudou; recálculo desnecessário", color="gray")
-            return
-        if callable(getattr(self, "_on_recalculate_cb", None)):
-            self._set_recalc_ui_state(True, msg=f"Recalculando {aba}...", color="blue")
-            try:
-                self._on_recalculate_cb(aba)
-                self._last_recalc_signature = sig
-            except Exception as e:
-                self._set_recalc_ui_state(False, msg="Erro ao iniciar recálculo", color="red")
-                print(f"[UI] Erro delegando recalc: {e}")
-            return
-        self._run_recalculate(aba)
-
-
-
     def _setup_widgets(self):
-        # Usar grid para melhor controle
-        self.grid_rowconfigure(2, weight=1)  # why_json área será expansível
+        self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        # Linha 0: Informações básicas
         basic_frame = ttk.LabelFrame(self, text="Informações Básicas", padding=5)
         basic_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 5))
         basic_frame.grid_columnconfigure(1, weight=1)
@@ -170,7 +95,6 @@ class DetailsPanel(ttk.LabelFrame):
         self.level_label = ttk.Label(basic_frame, text="N/A", background="white", relief="sunken")
         self.level_label.grid(row=1, column=3, sticky="ew")
 
-        # Linha 1: Métricas financeiras
         metrics_frame = ttk.LabelFrame(self, text="Métricas Financeiras", padding=5)
         metrics_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
         metrics_frame.grid_columnconfigure(1, weight=1)
@@ -200,7 +124,6 @@ class DetailsPanel(ttk.LabelFrame):
         self.breakevens_label = ttk.Label(metrics_frame, text="N/A", background="white", relief="sunken")
         self.breakevens_label.grid(row=2, column=3, sticky="ew")
 
-        # Linha 2: Rationale JSON (expansível)
         json_frame = ttk.LabelFrame(self, text="Rationale / Why JSON", padding=5)
         json_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
         json_frame.grid_rowconfigure(0, weight=1)
@@ -215,7 +138,6 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.why_text.grid(row=0, column=0, sticky="nsew")
 
-        # Linha 3: Auditoria & ações (P5.8.1 / P5.8.2)
         audit_frame = ttk.LabelFrame(self, text="Auditoria & Ações", padding=5)
         audit_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=5)
         audit_frame.grid_columnconfigure(1, weight=1)
@@ -259,6 +181,9 @@ class DetailsPanel(ttk.LabelFrame):
         self.dte_label.config(text=str(decision_data.get("dte_min", "N/A")))
 
         spot_ref = decision_data.get("spot_reference")
+        if spot_ref is None:
+            spot_ref = decision_data.get("spot_ref")
+
         if spot_ref is not None:
             try:
                 self.spot_ref_label.config(text=f"{float(spot_ref):.2f}")
@@ -267,21 +192,23 @@ class DetailsPanel(ttk.LabelFrame):
         else:
             self.spot_ref_label.config(text="N/A")
 
-        why_json = decision_data.get("why_json")
+        why_payload = decision_data.get("why")
+        if why_payload is None:
+            why_payload = decision_data.get("why_json")
+
         self.why_text.delete("1.0", tk.END)
-        if why_json:
+        if why_payload:
             try:
-                if isinstance(why_json, str):
-                    formatted = json.dumps(json.loads(why_json), indent=2, ensure_ascii=False)
+                if isinstance(why_payload, str):
+                    formatted = json.dumps(json.loads(why_payload), indent=2, ensure_ascii=False)
                 else:
-                    formatted = json.dumps(why_json, indent=2, ensure_ascii=False)
+                    formatted = json.dumps(why_payload, indent=2, ensure_ascii=False)
                 self.why_text.insert("1.0", formatted)
             except Exception:
-                self.why_text.insert("1.0", str(why_json))
+                self.why_text.insert("1.0", str(why_payload))
         else:
             self.why_text.insert("1.0", "Sem rationale disponível")
 
-        # limpar auditoria e status de recalc (até receber info do payoff)
         self.source_label.config(text="N/A")
         self.created_at_label.config(text="N/A")
         self.lbl_recalc_status.config(text="", foreground="gray")
@@ -330,7 +257,6 @@ class DetailsPanel(ttk.LabelFrame):
             label.config(text=str(value))
 
     def _derived_db_path(self) -> Path:
-        # Mantém consistente com o restante do projeto: dados/derived.db a partir do project_root
         project_root = Path(__file__).resolve().parents[2]
         return project_root / "dados" / "derived.db"
 
@@ -340,25 +266,39 @@ class DetailsPanel(ttk.LabelFrame):
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         try:
+            cols = [
+                row["name"]
+                for row in cur.execute("PRAGMA table_info(structure_decisions)").fetchall()
+            ]
+
+            select_cols = [
+                "timestamp", "aba", "decision", "level",
+                "pl_atual", "pl_max", "pl_pct_of_max", "dte_min",
+                "spot_ref", "meta_json", "created_at",
+            ]
+            if "why" in cols:
+                select_cols.append("why")
+            if "why_json" in cols:
+                select_cols.append("why_json")
+
             row = cur.execute(
-                """
+                f"""
                 SELECT
-                    timestamp, aba, decision, level,
-                    pl_atual, pl_max, pl_pct_of_max, dte_min,
-                    spot_ref, why_json, meta_json, created_at
+                    {", ".join(select_cols)}
                 FROM structure_decisions
                 WHERE aba = ?
-                ORDER BY
-                    COALESCE(created_at, timestamp) DESC
+                ORDER BY COALESCE(created_at, timestamp) DESC
                 LIMIT 1
                 """,
                 (aba,),
             ).fetchone()
+
             if not row:
                 return None
 
             d = dict(row)
-            # Normaliza o nome para o que update_decision espera
+            if d.get("why") is None and d.get("why_json") is not None:
+                d["why"] = d["why_json"]
             d["spot_reference"] = d.pop("spot_ref", None)
             return d
         finally:
@@ -379,7 +319,11 @@ class DetailsPanel(ttk.LabelFrame):
                 """,
                 (aba,),
             ).fetchall()
-            pts = [(float(r["point_spot"]), float(r["point_pl"])) for r in rows if r["point_spot"] is not None and r["point_pl"] is not None]
+            pts = [
+                (float(r["point_spot"]), float(r["point_pl"]))
+                for r in rows
+                if r["point_spot"] is not None and r["point_pl"] is not None
+            ]
             return pts
         finally:
             con.close()
@@ -400,13 +344,11 @@ class DetailsPanel(ttk.LabelFrame):
             if y2 == 0.0:
                 breakevens.append(x2)
                 continue
-            # cruzamento de sinal -> existe raiz no intervalo
             if (y1 < 0.0 and y2 > 0.0) or (y1 > 0.0 and y2 < 0.0):
                 if x2 != x1:
                     x0 = x1 + (0.0 - y1) * (x2 - x1) / (y2 - y1)
                     breakevens.append(x0)
 
-        # dedup por tolerância
         breakevens_sorted = sorted(breakevens)
         out = []
         for be in breakevens_sorted:
@@ -420,7 +362,6 @@ class DetailsPanel(ttk.LabelFrame):
 
         x = float(spot_ref)
 
-        # se fora do range, não extrapola (pode mudar se você quiser)
         if x < pts[0][0] or x > pts[-1][0]:
             return None
 
@@ -444,7 +385,6 @@ class DetailsPanel(ttk.LabelFrame):
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         try:
-            # created_at mais recente da decisão
             row = cur.execute(
                 """
                 SELECT created_at, timestamp
@@ -455,6 +395,7 @@ class DetailsPanel(ttk.LabelFrame):
                 """,
                 (aba,),
             ).fetchone()
+
             created_at = None
             if row:
                 created_at = row["created_at"] or row["timestamp"]
@@ -495,7 +436,6 @@ class DetailsPanel(ttk.LabelFrame):
         audit = self._fetch_audit_info_from_derived(aba)
         self.update_audit_info(audit)
 
-
     def _on_recalculate_click(self):
         decision = self._current_decision
         if not decision:
@@ -507,31 +447,35 @@ class DetailsPanel(ttk.LabelFrame):
             self.lbl_recalc_status.config(text="Aba não identificada", foreground="red")
             return
 
-        # Preferir delegar para a MainWindow (fonte única de verdade)
+        if getattr(self, "_recalc_in_progress", False):
+            self._set_recalc_ui_state(True, msg=f"Recalc já em andamento ({aba})", color="orange")
+            return
+
+        sig = self._compute_recalc_signature(aba)
+        if self._last_recalc_signature == sig and sig[1] is not None:
+            self._set_recalc_ui_state(False, msg="Snapshot não mudou; recálculo desnecessário", color="gray")
+            return
+
         if callable(getattr(self, "_on_recalculate_cb", None)):
-            self.lbl_recalc_status.config(text=f"Recalculando {aba}...", foreground="blue")
+            self._set_recalc_ui_state(True, msg=f"Recalculando {aba}...", color="blue")
             try:
                 self._on_recalculate_cb(aba)
+                self._last_recalc_signature = sig
             except Exception as e:
-                self.lbl_recalc_status.config(text="Erro ao iniciar recálculo", foreground="red")
+                self._set_recalc_ui_state(False, msg="Erro ao iniciar recálculo", color="red")
                 print(f"[UI] Erro delegando recalc: {e}")
             return
 
-        # fallback legado (se ninguém passou callback)
         self._run_recalculate(aba)
 
     def _run_recalculate(self, aba: str):
-        """DEPRECATED: recálculo agora é delegado ao MainWindow via callback.
-
-        Este método não deve rodar subprocess nem threads; fica só como fallback.
-        """
+        """DEPRECATED: recálculo agora é delegado ao MainWindow via callback."""
         print(f"[WARN] _run_recalculate({aba}) chamado (deprecated). Tentando delegar via callback.")
         cb = getattr(self, "_on_recalculate_cb", None)
         if callable(cb):
             cb(aba)
             return
 
-        # Se chegou aqui, não existe callback: melhor informar do que tentar rodar legado
         self.lbl_recalc_status.config(
             text="Recalc indisponível: callback não configurado",
             foreground="red",
@@ -547,4 +491,3 @@ class DetailsPanel(ttk.LabelFrame):
                 self._set_recalc_ui_state(False, msg=(message or "Falha no recálculo"), color="red")
         except Exception:
             self._recalc_in_progress = False
-

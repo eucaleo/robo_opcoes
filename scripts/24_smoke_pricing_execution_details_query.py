@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from services.pricing_execution_query_service import PricingExecutionQueryService
 
 
@@ -8,7 +15,7 @@ def main():
     if not summaries:
         raise RuntimeError("no execution summaries found for details query smoke test")
 
-    latest = summaries[-1]
+    latest = summaries[0]
     details = service.get_execution_details(latest["id"])
 
     if details["id"] != latest["id"]:

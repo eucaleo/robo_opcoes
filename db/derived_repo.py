@@ -9,9 +9,15 @@ Contrato canônico payoff: point_spot / point_pl (opção B).
 import sqlite3
 import json
 from typing import List, Dict, Any, Optional, Tuple, Union
-from typing import List, Dict, Optional, Any
 
 PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
+
+
+def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
+    cur = conn.cursor()
+    cur.execute(f"PRAGMA table_info({table_name})")
+    rows = cur.fetchall()
+    return [row[1] for row in rows]
 
 
 def ensure_derived_tables(conn: sqlite3.Connection) -> None:
@@ -38,7 +44,7 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
         ON payoff_curve_points (aba, timestamp)
     """)
 
-    # Decisões: CRIAR tabela completa + migração das colunas faltantes
+    # Decisões: criar base + migração incremental
     conn.execute("""
         CREATE TABLE IF NOT EXISTS structure_decisions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,17 +62,26 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    
-    # Migração: adicionar colunas faltantes se não existirem
-    try:
-        conn.execute("ALTER TABLE structure_decisions ADD COLUMN spot_ref REAL")
-    except sqlite3.OperationalError:
-        pass  # coluna já existe
-    
-    try:
-        conn.execute("ALTER TABLE structure_decisions ADD COLUMN meta_json TEXT")
-    except sqlite3.OperationalError:
-        pass  # coluna já existe
+
+    existing_cols = _table_columns(conn, "structure_decisions")
+
+    if "why" not in existing_cols:
+        try:
+            conn.execute("ALTER TABLE structure_decisions ADD COLUMN why TEXT")
+        except sqlite3.OperationalError:
+            pass
+
+    if "spot_ref" not in existing_cols:
+        try:
+            conn.execute("ALTER TABLE structure_decisions ADD COLUMN spot_ref REAL")
+        except sqlite3.OperationalError:
+            pass
+
+    if "meta_json" not in existing_cols:
+        try:
+            conn.execute("ALTER TABLE structure_decisions ADD COLUMN meta_json TEXT")
+        except sqlite3.OperationalError:
+            pass
 
     conn.execute("""
         CREATE UNIQUE INDEX IF NOT EXISTS ux_decision_snapshot
@@ -78,6 +93,33 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
+def _normalize_why_fields(decision_dict: Dict[str, Any]) -> tuple[Any, Optional[str]]:
+    why_data = {
+        k: v for k, v in decision_dict.items()
+        if k not in [
+            "decision", "level", "pl_atual", "pl_max",
+            "pl_pct_of_max", "dte_min", "spot_ref", "meta",
+            "why", "why_json",
+        ]
+    }
+
+    why = decision_dict.get("why")
+    if why is None and why_data:
+        why = why_data
+
+    why_json = decision_dict.get("why_json")
+    if why_json is None and why is not None:
+        if isinstance(why, str):
+            why_json = why
+        else:
+            why_json = json.dumps(why, ensure_ascii=False)
+
+    if why is not None and not isinstance(why, str):
+        why_db = json.dumps(why, ensure_ascii=False)
+    else:
+        why_db = why
+
+    return why_db, why_json
 
 
 def write_payoff_snapshot_atomic(
@@ -92,21 +134,19 @@ def write_payoff_snapshot_atomic(
     Garante que curvas com menos pontos não deixem pontos órfãos.
     """
     ensure_derived_tables(conn)
-    
+
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     cur = conn.cursor()
-    
-    # POLÍTICA A: limpa snapshot anterior
+
     cur.execute("DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?", (aba, timestamp))
-    
-    # Insere novos pontos
+
     count = 0
     sql = """
         INSERT INTO payoff_curve_points
         (timestamp, aba, point_spot, point_pl, meta_json)
         VALUES (?, ?, ?, ?, ?)
     """
-    
+
     for p in points or []:
         if isinstance(p, (tuple, list)) and len(p) == 2:
             x, y = float(p[0]), float(p[1])
@@ -118,10 +158,10 @@ def write_payoff_snapshot_atomic(
             x, y = float(x), float(y)
         else:
             continue
-        
+
         cur.execute(sql, (timestamp, aba, x, y, meta_json))
         count += 1
-    
+
     return count
 
 
@@ -135,13 +175,10 @@ def write_decision_snapshot_atomic(
     Política A: DELETE do snapshot anterior + INSERT da nova decisão.
     """
     ensure_derived_tables(conn)
-    
+
     cur = conn.cursor()
-    
-    # POLÍTICA A: limpa snapshot anterior
     cur.execute("DELETE FROM structure_decisions WHERE aba=? AND timestamp=?", (aba, timestamp))
-    
-    # Monta dados
+
     decision = decision_dict.get("decision", "HOLD")
     level = int(decision_dict.get("level", 0))
     pl_atual = decision_dict.get("pl_atual")
@@ -150,27 +187,22 @@ def write_decision_snapshot_atomic(
     dte_min = decision_dict.get("dte_min")
     spot_ref = decision_dict.get("spot_ref")
     meta = decision_dict.get("meta")
-    
-    why_data = {
-        k: v for k, v in decision_dict.items()
-        if k not in ["decision", "level", "pl_atual", "pl_max", "pl_pct_of_max", "dte_min", "spot_ref", "meta"]
-    }
-    
-    why_json = json.dumps(why_data, ensure_ascii=False) if why_data else None
+
+    why, why_json = _normalize_why_fields(decision_dict)
+
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     created_at = datetime.now().isoformat()
-    
-    # Insere nova decisão
+
     cur.execute("""
         INSERT INTO structure_decisions
-        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json, spot_ref, meta_json, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why, why_json, spot_ref, meta_json, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         timestamp, aba, decision, level,
         pl_atual, pl_max, pl_pct_of_max, dte_min,
-        why_json, spot_ref, meta_json, created_at
+        why, why_json, spot_ref, meta_json, created_at
     ))
-    
+
     return cur.lastrowid
 
 
@@ -187,14 +219,11 @@ def write_complete_snapshot_atomic(
     Política A: deleta snapshot anterior e insere novo, atomicamente.
     """
     ensure_derived_tables(conn)
-    
-    with conn:  # auto-transação: BEGIN/COMMIT ou ROLLBACK se der erro
-        # Pontos
+
+    with conn:
         points_count = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
-        
-        # Decisão
         decision_id = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
-        
+
         return {
             "points_count": points_count,
             "decision_id": decision_id
@@ -204,8 +233,7 @@ def write_complete_snapshot_atomic(
 def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
     """Valida consistência entre pontos e decisões nos snapshots."""
     cur = conn.cursor()
-    
-    # Decisões sem pontos
+
     cur.execute("""
         SELECT d.aba, d.timestamp, COUNT(p.point_spot) as point_count
         FROM structure_decisions d
@@ -214,8 +242,7 @@ def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
         HAVING point_count = 0
     """)
     decisions_without_points = cur.fetchall()
-    
-    # Pontos sem decisões
+
     cur.execute("""
         SELECT p.aba, p.timestamp, COUNT(DISTINCT p.point_spot) as point_count
         FROM payoff_curve_points p
@@ -224,22 +251,23 @@ def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
         GROUP BY p.aba, p.timestamp
     """)
     points_without_decisions = cur.fetchall()
-    
+
     if decisions_without_points:
         print(f"❌ ERRO: {len(decisions_without_points)} decisões sem pontos:")
         for row in decisions_without_points[:5]:
             print(f"  - aba={row[0]} timestamp={row[1]}")
-    
+
     if points_without_decisions:
         print(f"❌ ERRO: {len(points_without_decisions)} snapshots de pontos sem decisão:")
         for row in points_without_decisions[:5]:
             print(f"  - aba={row[0]} timestamp={row[1]} ({row[2]} pontos)")
-    
+
     if not decisions_without_points and not points_without_decisions:
         print("[ok] Snapshots consistentes: todas as decisões têm pontos e vice-versa")
         return True
-    
+
     return False
+
 
 def insert_payoff_points(
     conn: sqlite3.Connection,
@@ -309,28 +337,23 @@ def insert_structure_decision(
     pl_pct_of_max = decision_dict.get("pl_pct_of_max")
     dte_min = decision_dict.get("dte_min")
 
-    # opcionais
     spot_ref = decision_dict.get("spot_ref")
     meta = decision_dict.get("meta")
 
-    why_data = {
-        k: v for k, v in decision_dict.items()
-        if k not in ["decision", "level", "pl_atual", "pl_max", "pl_pct_of_max", "dte_min", "spot_ref", "meta"]
-    }
+    why, why_json = _normalize_why_fields(decision_dict)
 
-    why_json = json.dumps(why_data, ensure_ascii=False) if why_data else None
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     created_at = datetime.now().isoformat()
 
     cur = conn.cursor()
     cur.execute("""
         INSERT OR REPLACE INTO structure_decisions
-        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json, spot_ref, meta_json, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why, why_json, spot_ref, meta_json, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         timestamp, aba, decision, level,
         pl_atual, pl_max, pl_pct_of_max, dte_min,
-        why_json, spot_ref, meta_json, created_at
+        why, why_json, spot_ref, meta_json, created_at
     ))
 
     conn.commit()
