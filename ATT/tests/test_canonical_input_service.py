@@ -80,12 +80,12 @@ class CanonicalInputServiceTests(unittest.TestCase):
         )
 
         self.assertEqual(result["meta"]["legs_source"], "canonical")
-        self.assertNotIn("legacy_aba", result["meta"])
         self.assertNotIn("legacy_timestamp", result["meta"])
         self.assertEqual(len(result["structure"]["legs"]), 1)
         self.assertEqual(result["structure"]["legs"][0]["symbol"], "BOVAE195")
+        self.assertNotIn("alias_legacy_aba", result["structure"])
 
-    @patch("services.canonical_input_service.to_canonical_leg")
+    @patch("services.legacy_robo_legs_fallback.to_canonical_leg")
     def test_should_use_legacy_robo_only_when_no_canonical_legs_exist(self, mock_to_canonical_leg):
         structure = {
             "id": 7,
@@ -122,10 +122,10 @@ class CanonicalInputServiceTests(unittest.TestCase):
         )
 
         self.assertEqual(result["meta"]["legs_source"], "legacy_robo")
-        self.assertEqual(result["meta"]["legacy_aba"], "BOVA11")
         self.assertEqual(result["meta"]["legacy_timestamp"], "2026-05-18 10:00:00")
         self.assertEqual(len(result["structure"]["legs"]), 1)
         self.assertEqual(result["structure"]["legs"][0]["symbol"], "BOVAE195")
+        self.assertNotIn("alias_legacy_aba", result["structure"])
 
     def test_should_return_empty_when_no_canonical_legs_and_fallback_disabled(self):
         structure = {
@@ -152,9 +152,9 @@ class CanonicalInputServiceTests(unittest.TestCase):
         )
 
         self.assertEqual(result["meta"]["legs_source"], "empty")
-        self.assertNotIn("legacy_aba", result["meta"])
         self.assertNotIn("legacy_timestamp", result["meta"])
         self.assertEqual(result["structure"]["legs"], [])
+        self.assertNotIn("alias_legacy_aba", result["structure"])
 
 
 if __name__ == "__main__":

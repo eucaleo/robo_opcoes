@@ -19,7 +19,6 @@ class CanonicalStructure:
     structure_id: int
     name: str
     underlying_asset: str
-    alias_legacy_aba: str | None = None
     legs: list[CanonicalLeg] = field(default_factory=list)
 
 
@@ -36,7 +35,6 @@ class CanonicalMarket:
 class CanonicalMeta:
     reference_date: str | None = None
     legs_source: str | None = None
-    legacy_aba: str | None = None
     legacy_timestamp: str | None = None
     input_source: str | None = None
 
@@ -71,7 +69,6 @@ class CanonicalStructureMarketInput:
             structure_id=int(structure_raw.get("structure_id")),
             name=structure_raw.get("name"),
             underlying_asset=structure_raw.get("underlying_asset"),
-            alias_legacy_aba=structure_raw.get("alias_legacy_aba"),
             legs=legs,
         )
 
@@ -86,7 +83,6 @@ class CanonicalStructureMarketInput:
         meta = CanonicalMeta(
             reference_date=meta_raw.get("reference_date"),
             legs_source=meta_raw.get("legs_source"),
-            legacy_aba=meta_raw.get("legacy_aba"),
             legacy_timestamp=meta_raw.get("legacy_timestamp"),
             input_source=meta_raw.get("input_source"),
         )
@@ -103,7 +99,6 @@ class CanonicalStructureMarketInput:
                 "structure_id": self.structure.structure_id,
                 "name": self.structure.name,
                 "underlying_asset": self.structure.underlying_asset,
-                "alias_legacy_aba": self.structure.alias_legacy_aba,
                 "legs": [
                     {
                         "position_side": leg.position_side,
@@ -128,7 +123,6 @@ class CanonicalStructureMarketInput:
             "meta": {
                 "reference_date": self.meta.reference_date if self.meta else None,
                 "legs_source": self.meta.legs_source if self.meta else None,
-                "legacy_aba": self.meta.legacy_aba if self.meta else None,
                 "legacy_timestamp": self.meta.legacy_timestamp if self.meta else None,
                 "input_source": self.meta.input_source if self.meta else None,
             },

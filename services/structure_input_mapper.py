@@ -23,7 +23,6 @@ def to_structure_input(structure: dict[str, Any]) -> dict[str, Any]:
         "structure_id": structure["id"],
         "name": _clean_text(structure["name"]),
         "underlying_asset": _clean_upper_text(structure["underlying_asset"]),
-        "alias_legacy_aba": _clean_text(structure.get("alias_legacy_aba")),
         "legs": [
             {
                 "position_side": _clean_upper_text(leg["position_side"]),

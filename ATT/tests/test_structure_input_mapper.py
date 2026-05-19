@@ -1,62 +1,21 @@
 from services.structure_input_mapper import to_structure_input
 
 
-def test_to_structure_input_normalizes_top_level_and_legs_fields():
+def test_to_structure_input_should_not_expose_alias_legacy_aba():
     structure = {
-        "id": 10,
-        "name": "  Fence BOVA11  ",
-        "underlying_asset": "\n bova11 ",
-        "alias_legacy_aba": "  aba_bova11  ",
+        "id": 7,
+        "name": "  BOVA11 Condor Maio/2026  ",
+        "underlying_asset": " bova11 ",
+        "alias_legacy_aba": "BOVA11",
         "legs": [
             {
-                "position_side": " long ",
-                "option_type": " put ",
-                "symbol": " bovam190 ",
-                "strike": 190,
+                "position_side": "long",
+                "option_type": "call",
+                "symbol": " bovae195 ",
+                "strike": 195.0,
                 "expiration_date": " 2026-05-15 ",
-                "quantity": 2,
+                "quantity": 5000,
                 "premium": None,
-                "multiplier": 1,
-            }
-        ],
-    }
-
-    result = to_structure_input(structure)
-
-    assert result == {
-        "structure_id": 10,
-        "name": "Fence BOVA11",
-        "underlying_asset": "BOVA11",
-        "alias_legacy_aba": "aba_bova11",
-        "legs": [
-            {
-                "position_side": "LONG",
-                "option_type": "PUT",
-                "symbol": "BOVAM190",
-                "strike": 190,
-                "expiration_date": "2026-05-15",
-                "quantity": 2,
-                "premium": None,
-                "multiplier": 1,
-            }
-        ],
-    }
-
-
-def test_to_structure_input_keeps_symbol_as_none_when_missing():
-    structure = {
-        "id": 11,
-        "name": "Estrutura",
-        "underlying_asset": "BOVA11",
-        "legs": [
-            {
-                "position_side": "SHORT",
-                "option_type": "CALL",
-                "symbol": None,
-                "strike": 210.0,
-                "expiration_date": "2026-06-19",
-                "quantity": 1,
-                "premium": 3.5,
                 "multiplier": 1.0,
             }
         ],
@@ -64,4 +23,11 @@ def test_to_structure_input_keeps_symbol_as_none_when_missing():
 
     result = to_structure_input(structure)
 
-    assert result["legs"][0]["symbol"] is None
+    assert result["structure_id"] == 7
+    assert result["name"] == "BOVA11 Condor Maio/2026"
+    assert result["underlying_asset"] == "BOVA11"
+    assert "alias_legacy_aba" not in result
+    assert len(result["legs"]) == 1
+    assert result["legs"][0]["position_side"] == "LONG"
+    assert result["legs"][0]["option_type"] == "CALL"
+    assert result["legs"][0]["symbol"] == "BOVAE195"

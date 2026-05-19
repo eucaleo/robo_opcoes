@@ -1,8 +1,8 @@
 from typing import Any
 
 from repositories.structures_repository import StructuresRepository
+from services.legacy_robo_legs_fallback import LegacyRoboLegsFallback
 from services.market_snapshot_provider import MarketSnapshotProvider
-from services.robo_leg_mapper import to_canonical_leg
 from services.structure_market_input_assembler import assemble_structure_market_input
 
 
@@ -28,6 +28,10 @@ class CanonicalInputService:
                 self.robo_legs_service = RoboLegsService()
             except Exception:
                 self.robo_legs_service = None
+
+        self.legacy_robo_legs_fallback = LegacyRoboLegsFallback(
+            robo_legs_service=self.robo_legs_service,
+        )
 
     def build_structure_market_input(
         self,
@@ -72,15 +76,11 @@ class CanonicalInputService:
     def _build_meta(
         self,
         legs_source: str,
-        legacy_aba: str | None = None,
         legacy_timestamp: str | None = None,
     ) -> dict[str, Any]:
         meta = {
             "legs_source": legs_source,
         }
-
-        if legacy_aba is not None:
-            meta["legacy_aba"] = legacy_aba
 
         if legacy_timestamp is not None:
             meta["legacy_timestamp"] = legacy_timestamp
@@ -109,8 +109,6 @@ class CanonicalInputService:
         reference_date: str | None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         existing_legs = structure.get("legs", [])
-        aba = structure.get("alias_legacy_aba") or structure.get("name")
-        aba = self._clean_text(aba)
 
         # 3B rule:
         # If canonical legs already exist in the structure repository,
@@ -129,55 +127,18 @@ class CanonicalInputService:
                 legs_source="empty",
             )
 
-        if not aba or self.robo_legs_service is None:
-            return self._base_legs_response(
-                structure=structure,
-                existing_legs=existing_legs,
-                legs_source="empty",
-            )
-
-        selected_timestamp = self._select_legacy_timestamp(
-            aba=aba,
+        fallback_legs, fallback_meta = self.legacy_robo_legs_fallback.load(
+            structure=structure,
             reference_date=reference_date,
         )
 
-        if not selected_timestamp:
-            return self._base_legs_response(
-                structure=structure,
-                existing_legs=existing_legs,
-                legs_source="empty",
-            )
-
-        try:
-            robo_legs = self.robo_legs_service.get_legs(
-                aba=aba,
-                timestamp=selected_timestamp,
-                validate=False,
-            )
-        except Exception:
-            robo_legs = []
-
-        canonical_robo_legs = []
-        for leg in robo_legs:
-            try:
-                canonical_leg = to_canonical_leg(leg)
-                if canonical_leg.get("expiration_date") is None:
-                    continue
-                canonical_robo_legs.append(canonical_leg)
-            except Exception:
-                continue
-
-        if canonical_robo_legs:
+        if fallback_legs:
             return (
                 {
                     **structure,
-                    "legs": canonical_robo_legs,
+                    "legs": fallback_legs,
                 },
-                self._build_meta(
-                    legs_source="legacy_robo",
-                    legacy_aba=aba,
-                    legacy_timestamp=selected_timestamp,
-                ),
+                fallback_meta,
             )
 
         return self._base_legs_response(
@@ -185,30 +146,6 @@ class CanonicalInputService:
             existing_legs=existing_legs,
             legs_source="empty",
         )
-
-    def _select_legacy_timestamp(
-        self,
-        aba: str,
-        reference_date: str | None = None,
-    ) -> str | None:
-        try:
-            timestamps = self.robo_legs_service.repo.list_timestamps(aba)
-        except Exception:
-            timestamps = []
-
-        if not timestamps:
-            return None
-
-        normalized = [str(ts) for ts in timestamps if ts]
-        if not normalized:
-            return None
-
-        if reference_date:
-            exact_prefix_matches = [ts for ts in normalized if ts.startswith(reference_date)]
-            if exact_prefix_matches:
-                return sorted(exact_prefix_matches)[-1]
-
-        return sorted(normalized)[-1]
 
     def _clean_text(self, value: Any) -> Any:
         if isinstance(value, str):
