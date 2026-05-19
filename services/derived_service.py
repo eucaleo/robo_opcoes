@@ -1,21 +1,71 @@
 # derived_service.py
-import sqlite3
 import json
-from typing import List, Dict, Optional, Any, Tuple, Union
+import sqlite3
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from db.config import connect_derived
 from db.derived_repo import (
+    cleanup_old_decisions,
+    cleanup_old_payoff_data,
     ensure_derived_tables,
     insert_payoff_points,
     insert_structure_decision,
-    cleanup_old_payoff_data,
-    cleanup_old_decisions,
 )
 
 
 def _now_iso() -> str:
     from datetime import datetime
     return datetime.now().isoformat()
+
+
+def _safe_str(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _resolve_storage_key(
+    aba: Optional[str] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+) -> str:
+    resolved_aba = _safe_str(aba)
+    if resolved_aba:
+        return resolved_aba
+
+    resolved_structure_id = _safe_str(structure_id)
+    if resolved_structure_id:
+        return f"structure:{resolved_structure_id}"
+
+    resolved_structure_name = _safe_str(structure_name)
+    if resolved_structure_name:
+        return resolved_structure_name
+
+    resolved_underlying_asset = _safe_str(underlying_asset)
+    if resolved_underlying_asset:
+        return resolved_underlying_asset
+
+    return "unknown"
+
+
+def _merge_meta(
+    meta: Optional[Dict[str, Any]] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+    reference_date: Any = None,
+    input_meta: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    return {
+        **(meta or {}),
+        "structure_id": structure_id,
+        "structure_name": structure_name,
+        "underlying_asset": underlying_asset,
+        "reference_date": reference_date,
+        "input_meta": input_meta or {},
+    }
 
 
 def init_db():
@@ -68,6 +118,38 @@ def save_payoff_curve(
         )
 
 
+def save_payoff_from_canonical_payload(
+    payoff: Dict[str, Any],
+    aba: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> int:
+    ts = timestamp or _now_iso()
+
+    storage_key = _resolve_storage_key(
+        aba=aba,
+        structure_id=payoff.get("structure_id"),
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+    )
+
+    meta = _merge_meta(
+        meta=payoff.get("meta"),
+        structure_id=payoff.get("structure_id"),
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+        reference_date=payoff.get("reference_date"),
+        input_meta=payoff.get("input_meta"),
+    )
+
+    return save_payoff_curve(
+        aba=storage_key,
+        points=payoff.get("points", []),
+        spot_ref=payoff.get("spot_ref"),
+        meta=meta,
+        timestamp=ts,
+    )
+
+
 def save_decision(
     aba: str,
     decision: Dict[str, Any],
@@ -84,8 +166,42 @@ def save_decision(
             conn=conn,
             timestamp=ts,
             aba=aba,
-            decision_dict=decision
+            decision_dict=decision,
         )
+
+
+def save_decision_from_canonical_payload(
+    decision: Dict[str, Any],
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+    aba: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> int:
+    ts = timestamp or _now_iso()
+
+    storage_key = _resolve_storage_key(
+        aba=aba,
+        structure_id=structure_id,
+        structure_name=structure_name,
+        underlying_asset=underlying_asset,
+    )
+
+    enriched_decision = {
+        **decision,
+        "meta": {
+            **(decision.get("meta") or {}),
+            "structure_id": structure_id,
+            "structure_name": structure_name,
+            "underlying_asset": underlying_asset,
+        },
+    }
+
+    return save_decision(
+        aba=storage_key,
+        decision=enriched_decision,
+        timestamp=ts,
+    )
 
 
 def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:

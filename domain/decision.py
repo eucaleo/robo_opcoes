@@ -163,6 +163,19 @@ def _resolve_dte_min(
     return 0
 
 
+def _build_payoff_error_extra(payoff: dict[str, Any] | None) -> dict[str, Any]:
+    payoff = payoff or {}
+    meta = payoff.get("meta") or {}
+
+    return {
+        "structure_id": payoff.get("structure_id"),
+        "structure_name": payoff.get("structure_name"),
+        "underlying_asset": payoff.get("underlying_asset"),
+        "reference_date": payoff.get("reference_date"),
+        "validation_errors": meta.get("validation_errors", []),
+    }
+
+
 def compute_decision_from_contract(
     contract: dict[str, Any] | Any,
     dte_min: int | None = None,
@@ -179,13 +192,7 @@ def compute_decision_from_contract(
             message="unable to compute payoff from contract",
             dte_min=effective_dte_min,
             pl_max=safe_float((payoff or {}).get("pl_max"), 0.0),
-            extra={
-                "structure_id": (payoff or {}).get("structure_id"),
-                "structure_name": (payoff or {}).get("structure_name"),
-                "underlying_asset": (payoff or {}).get("underlying_asset"),
-                "reference_date": (payoff or {}).get("reference_date"),
-                "validation_errors": ((payoff or {}).get("meta") or {}).get("validation_errors", []),
-            },
+            extra=_build_payoff_error_extra(payoff),
         )
 
     return compute_decision_from_payoff(
@@ -363,13 +370,7 @@ def compute_decision_from_payoff(
             message="payoff is required",
             dte_min=dte_min,
             pl_max=safe_float((payoff or {}).get("pl_max"), 0.0),
-            extra={
-                "structure_id": (payoff or {}).get("structure_id"),
-                "structure_name": (payoff or {}).get("structure_name"),
-                "underlying_asset": (payoff or {}).get("underlying_asset"),
-                "reference_date": (payoff or {}).get("reference_date"),
-                "validation_errors": ((payoff or {}).get("meta") or {}).get("validation_errors", []),
-            },
+            extra=_build_payoff_error_extra(payoff),
         )
 
     spot = safe_float(payoff.get("spot_ref"), 0.0)
