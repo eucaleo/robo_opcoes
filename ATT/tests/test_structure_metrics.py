@@ -9,6 +9,10 @@ def test_compute_dte_future_day():
     assert compute_dte("2026-05-15", "2026-05-20") == 5
 
 
+def test_compute_dte_should_accept_br_date_format():
+    assert compute_dte("15/05/2026", "20/05/2026") == 5
+
+
 def test_compute_dte_invalid():
     assert compute_dte("2026-05-15", None) is None
 
