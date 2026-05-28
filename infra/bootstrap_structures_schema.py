@@ -11,6 +11,9 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
     with sqlite3.connect(db_path) as conn:
         conn.execute("PRAGMA foreign_keys = ON;")
 
+        # ------------------------------------------------------------------ #
+        #  structures                                                          #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS structures (
@@ -26,6 +29,9 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        # ------------------------------------------------------------------ #
+        #  structure_legs                                                      #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS structure_legs (
@@ -48,6 +54,34 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        # ------------------------------------------------------------------ #
+        #  pricing_executions                                                  #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS pricing_executions (
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at        TEXT NOT NULL,
+                structure_id      INTEGER,
+                underlying_asset  TEXT,
+                reference_date    TEXT,
+                execution_status  TEXT,
+                execution_engine  TEXT,
+                error_message     TEXT,
+                duration_ms       INTEGER,
+                number_of_legs    INTEGER,
+                total_quantity    INTEGER,
+                theoretical_value REAL,
+                pricing_payload   TEXT,
+                result            TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        #  índices — structures                                                #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structures_underlying_asset
@@ -62,6 +96,9 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        # ------------------------------------------------------------------ #
+        #  índices — structure_legs                                            #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id
@@ -76,4 +113,62 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        # ------------------------------------------------------------------ #
+        #  índices — pricing_executions                                        #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id
+            ON pricing_executions(structure_id)
+            """
+        )
+
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at
+            ON pricing_executions(created_at)
+            """
+        )
+
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_status
+            ON pricing_executions(execution_status)
+            """
+        )
+
         conn.commit()
+
+
+# ------------------------------------------------------------------
+# Tabela: pricing_executions  (adicionada no patch_23)
+# ------------------------------------------------------------------
+_PRICING_EXECUTIONS_DDL = """
+CREATE TABLE IF NOT EXISTS pricing_executions (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    structure_id    INTEGER NOT NULL,
+    reference_date  TEXT    NOT NULL,
+    status          TEXT    NOT NULL DEFAULT 'ok',
+    canonical_input TEXT    NULL,
+    engine_result   TEXT    NULL,
+    error_message   TEXT    NULL,
+    executed_at     TEXT    NOT NULL,
+    created_at      TEXT    NOT NULL
+);
+"""
+
+_PRICING_EXECUTIONS_INDEXES = [
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id   ON pricing_executions (structure_id);",
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_reference_date ON pricing_executions (reference_date);",
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_status         ON pricing_executions (status);",
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_date ON pricing_executions (structure_id, reference_date);",
+]
+
+
+def bootstrap_pricing_executions(conn):
+    """Garante tabela pricing_executions e seus indices (idempotente)."""
+    cur = conn.cursor()
+    cur.executescript(_PRICING_EXECUTIONS_DDL)
+    for idx in _PRICING_EXECUTIONS_INDEXES:
+        cur.execute(idx)
+    conn.commit()
