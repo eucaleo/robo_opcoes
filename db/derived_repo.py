@@ -1,3 +1,4 @@
+# db/derived_repo.py
 from datetime import datetime
 """
 Repositório para operações com dados derivados (payoff e decisões).
@@ -47,48 +48,51 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
     # Decisões: criar base + migração incremental
     conn.execute("""
         CREATE TABLE IF NOT EXISTS structure_decisions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
-            aba TEXT NOT NULL,
-            decision TEXT NOT NULL,
-            level INTEGER NOT NULL,
-            pl_atual REAL,
-            pl_max REAL,
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp     TEXT    NOT NULL,
+            aba           TEXT    NOT NULL,
+            decision      TEXT    NOT NULL,
+            level         INTEGER NOT NULL,
+            pl_atual      REAL,
+            pl_max        REAL,
             pl_pct_of_max REAL,
-            dte_min INTEGER,
-            why_json TEXT,
-            spot_ref REAL,
-            meta_json TEXT,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            dte_min       INTEGER,
+            why_json      TEXT,
+            spot_ref      REAL,
+            meta_json     TEXT,
+            created_at    TEXT    DEFAULT CURRENT_TIMESTAMP,
+            why           TEXT,
+            structure_id  INTEGER
         )
     """)
 
     existing_cols = _table_columns(conn, "structure_decisions")
 
-    if "why" not in existing_cols:
-        try:
-            conn.execute("ALTER TABLE structure_decisions ADD COLUMN why TEXT")
-        except sqlite3.OperationalError:
-            pass
-
-    if "spot_ref" not in existing_cols:
-        try:
-            conn.execute("ALTER TABLE structure_decisions ADD COLUMN spot_ref REAL")
-        except sqlite3.OperationalError:
-            pass
-
-    if "meta_json" not in existing_cols:
-        try:
-            conn.execute("ALTER TABLE structure_decisions ADD COLUMN meta_json TEXT")
-        except sqlite3.OperationalError:
-            pass
+    _migrations = {
+        "why":          "ALTER TABLE structure_decisions ADD COLUMN why TEXT",
+        "spot_ref":     "ALTER TABLE structure_decisions ADD COLUMN spot_ref REAL",
+        "meta_json":    "ALTER TABLE structure_decisions ADD COLUMN meta_json TEXT",
+        "structure_id": "ALTER TABLE structure_decisions ADD COLUMN structure_id INTEGER",
+    }
+    for col, sql in _migrations.items():
+        if col not in existing_cols:
+            try:
+                conn.execute(sql)
+            except sqlite3.OperationalError:
+                pass
 
     conn.execute("""
         CREATE UNIQUE INDEX IF NOT EXISTS ux_decision_snapshot
         ON structure_decisions (timestamp, aba)
     """)
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_decisions_aba_ts ON structure_decisions (aba, timestamp)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_decisions_ts ON structure_decisions (timestamp)")
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_decisions_aba_ts
+        ON structure_decisions (aba, timestamp)
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_decisions_ts
+        ON structure_decisions (timestamp)
+    """)
 
     conn.commit()
 
@@ -138,7 +142,10 @@ def write_payoff_snapshot_atomic(
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     cur = conn.cursor()
 
-    cur.execute("DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?", (aba, timestamp))
+    cur.execute(
+        "DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?",
+        (aba, timestamp),
+    )
 
     count = 0
     sql = """
@@ -177,30 +184,36 @@ def write_decision_snapshot_atomic(
     ensure_derived_tables(conn)
 
     cur = conn.cursor()
-    cur.execute("DELETE FROM structure_decisions WHERE aba=? AND timestamp=?", (aba, timestamp))
+    cur.execute(
+        "DELETE FROM structure_decisions WHERE aba=? AND timestamp=?",
+        (aba, timestamp),
+    )
 
-    decision = decision_dict.get("decision", "HOLD")
-    level = int(decision_dict.get("level", 0))
-    pl_atual = decision_dict.get("pl_atual")
-    pl_max = decision_dict.get("pl_max")
+    decision      = decision_dict.get("decision", "HOLD")
+    level         = int(decision_dict.get("level", 0))
+    pl_atual      = decision_dict.get("pl_atual")
+    pl_max        = decision_dict.get("pl_max")
     pl_pct_of_max = decision_dict.get("pl_pct_of_max")
-    dte_min = decision_dict.get("dte_min")
-    spot_ref = decision_dict.get("spot_ref")
-    meta = decision_dict.get("meta")
+    dte_min       = decision_dict.get("dte_min")
+    spot_ref      = decision_dict.get("spot_ref")
+    meta          = decision_dict.get("meta")
+    structure_id  = decision_dict.get("structure_id")  # ← patch_30
 
     why, why_json = _normalize_why_fields(decision_dict)
 
-    meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+    meta_json  = json.dumps(meta, ensure_ascii=False) if meta else None
     created_at = datetime.now().isoformat()
 
     cur.execute("""
         INSERT INTO structure_decisions
-        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why, why_json, spot_ref, meta_json, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max,
+         dte_min, why, why_json, spot_ref, meta_json, created_at, structure_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         timestamp, aba, decision, level,
         pl_atual, pl_max, pl_pct_of_max, dte_min,
-        why, why_json, spot_ref, meta_json, created_at
+        why, why_json, spot_ref, meta_json, created_at,
+        structure_id,  # ← patch_30
     ))
 
     return cur.lastrowid
@@ -222,11 +235,11 @@ def write_complete_snapshot_atomic(
 
     with conn:
         points_count = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
-        decision_id = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
+        decision_id  = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
 
         return {
             "points_count": points_count,
-            "decision_id": decision_id
+            "decision_id":  decision_id,
         }
 
 
@@ -329,31 +342,32 @@ def insert_structure_decision(
     """
     ensure_derived_tables(conn)
 
-    decision = decision_dict.get("decision", "HOLD")
-    level = int(decision_dict.get("level", 0))
-
-    pl_atual = decision_dict.get("pl_atual")
-    pl_max = decision_dict.get("pl_max")
+    decision      = decision_dict.get("decision", "HOLD")
+    level         = int(decision_dict.get("level", 0))
+    pl_atual      = decision_dict.get("pl_atual")
+    pl_max        = decision_dict.get("pl_max")
     pl_pct_of_max = decision_dict.get("pl_pct_of_max")
-    dte_min = decision_dict.get("dte_min")
-
-    spot_ref = decision_dict.get("spot_ref")
-    meta = decision_dict.get("meta")
+    dte_min       = decision_dict.get("dte_min")
+    spot_ref      = decision_dict.get("spot_ref")
+    meta          = decision_dict.get("meta")
+    structure_id  = decision_dict.get("structure_id")  # ← patch_30
 
     why, why_json = _normalize_why_fields(decision_dict)
 
-    meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+    meta_json  = json.dumps(meta, ensure_ascii=False) if meta else None
     created_at = datetime.now().isoformat()
 
     cur = conn.cursor()
     cur.execute("""
         INSERT OR REPLACE INTO structure_decisions
-        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why, why_json, spot_ref, meta_json, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max,
+         dte_min, why, why_json, spot_ref, meta_json, created_at, structure_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         timestamp, aba, decision, level,
         pl_atual, pl_max, pl_pct_of_max, dte_min,
-        why, why_json, spot_ref, meta_json, created_at
+        why, why_json, spot_ref, meta_json, created_at,
+        structure_id,  # ← patch_30
     ))
 
     conn.commit()
