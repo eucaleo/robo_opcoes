@@ -180,10 +180,11 @@ class TestGetDecisionsFiltro:
         with pytest.raises(ValueError, match="structure_id deve ser inteiro"):
             model.get_decisions(filters={"structure_id": "BOVA11"})
 
-    def test_filtro_aba_legado_nao_filtra(self, model):
-        # patch_34: "aba" no filtro nao e mais aplicado — retorna todos
+    def test_filtro_aba_filtra_por_ticker(self, model):
+        # patch_3a: "aba" no filtro e aplicado — retorna apenas registros do ticker
         rows = model.get_decisions(filters={"aba": "BOVA11"})
-        assert len(rows) == 3
+        assert len(rows) >= 1
+        assert all(r["aba"] == "BOVA11" for r in rows)
 
 
 # ---------------------------------------------------------------------------

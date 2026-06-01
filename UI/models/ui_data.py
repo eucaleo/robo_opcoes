@@ -42,7 +42,6 @@ COLUMN_ALIASES = {
 PAYOFF_COLUMN_ALIASES = {
     "timestamp": ["timestamp", "ts", "dt_ref"],
     "structure_id": ["structure_id"],   # ◄ patch_33
-    "aba":       ["aba", "sheet", "tab"],
     "spot":      ["point_spot", "spot", "underlying", "x", "s_t"],
     "pl":        ["point_pl", "pl", "pl_value", "y", "payoff", "pl_venc"],
 }
@@ -144,8 +143,7 @@ class UIDataModel:
                 "spot":         ["point_spot"],
                 "pl":           ["point_pl"],
                 "timestamp":    ["timestamp"],
-                "structure_id": ["structure_id"],   # ◄ patch_33: preferido
-                "aba":          ["aba"],             # fallback
+                "structure_id": ["structure_id"],   # ◄ patch_34: único identificador canônico
             }
             print(f"[UI] Usando contrato canônico para {self._payoff_table}")
         else:
@@ -182,7 +180,7 @@ class UIDataModel:
     
     def _resolve_structure_key(self, structure_id: str) -> int:
         """
-        patch_34: structure_id e sempre INTEGER. key_type e conn removidos.
+        patch_34: structure_id e sempre INTEGER.
         Aceita str ("7") ou int (7). Lanca ValueError se nao conversivel.
         """
         try:
@@ -227,16 +225,6 @@ class UIDataModel:
         rows = conn.execute(q).fetchall()
         return [r["structure_id"] for r in rows]
         
-        # Fallback: aba
-        aba_col = c.get("aba")
-        if not aba_col:
-            return []
-        q = (
-            f"SELECT DISTINCT {aba_col} AS structure_id "
-            f"FROM {self._consolidations_table} "
-            f"ORDER BY structure_id"
-        )
-        return [r["structure_id"] for r in conn.execute(q).fetchall()]
 
     def get_structures(self) -> List[str]:
         return self._cache_structures
@@ -317,6 +305,12 @@ class UIDataModel:
                         f"structure_id deve ser inteiro; recebido: {structure_filter!r}"
                     ) from exc
 
+            # ◄ patch_3a: filtro por aba (ticker TEXT) — campo independente no banco
+            aba_filter = filters.get("aba")
+            if aba_filter is not None:
+                where.append("t.aba = ?")
+                params.append(str(aba_filter))
+
             if filters.get("decision"):
                 where.append("t.decision = ?")
                 params.append(filters["decision"])
@@ -377,7 +371,8 @@ class UIDataModel:
     def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
         """
         ◄ patch_33: resolve chave via _structure_filter_col.
-        Aceita structure_id como int-string ("7") ou aba ("BOVA11").
+        Aceita structure_id como inteiro ou string numerica ("7").
+        Strings nao-numericas lancam ValueError.
         """
         ts_key = timestamp if timestamp is not None else "__latest__"
         cache_key = (str(structure_id), ts_key)
