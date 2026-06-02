@@ -54,7 +54,7 @@ def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
         alias_legacy_aba = str(alias_legacy_aba).strip() or None
 
     if notes is not None:
-        notes = str(notes)
+        notes = str(notes).strip() or None
 
     return {
         "name": name,
@@ -85,6 +85,9 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         strike = float(strike)
     except Exception as exc:
         raise ValueError("strike must be numeric") from exc
+
+    if strike <= 0:
+        raise ValueError("strike must be > 0")
 
     try:
         quantity = int(quantity)
@@ -121,7 +124,7 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         symbol = str(symbol).strip() or None
 
     if notes is not None:
-        notes = str(notes)
+        notes = str(notes).strip() or None
 
     return {
         "position_side": position_side,
@@ -430,6 +433,8 @@ class StructuresRepository:
             conn.close()
 
     def replace_legs(self, structure_id: int, legs: list[dict[str, Any]]) -> None:
+        if not legs:
+            raise ValueError("legs list must not be empty")
         validated_legs = [_validate_leg(leg) for leg in legs]
         now = _utc_now_iso()
 

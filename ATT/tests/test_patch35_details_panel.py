@@ -65,6 +65,7 @@ _TK_MODULES_TO_PURGE = [
     "tkinter.scrolledtext",
     "tkinter.messagebox",
     "tkinter.simpledialog",
+    "tkinter.filedialog",           # ← patch: evita contaminação entre suítes
     "UI.components.details_panel",  # força re-import com fakes corretos
 ]
 for _m in _TK_MODULES_TO_PURGE:
@@ -97,23 +98,21 @@ def _build_tk_modules():
     tk.Button     = _FakeButton
     tk.Entry      = _FakeEntry
 
+
     ttk = types.ModuleType("tkinter.ttk")
-    ttk.LabelFrame = _FakeLabelFrame
-    ttk.Label      = _FakeLabel
-    ttk.Frame      = _FakeFrame
-    ttk.Button     = _FakeButton
-    ttk.Entry      = _FakeEntry
-    # ✅ Widgets extras usados em type annotations no details_panel.py
-    ttk.Scrollbar  = _FakeWidget
-    ttk.Combobox   = _FakeWidget
-    ttk.Treeview   = _FakeWidget
-    ttk.Notebook   = _FakeWidget
-    ttk.Spinbox    = _FakeWidget
-    ttk.Scale      = _FakeWidget
-    ttk.Separator  = _FakeWidget
+    ttk.LabelFrame  = _FakeLabelFrame
+    ttk.Label       = _FakeLabel
+    ttk.Frame       = _FakeFrame
+    ttk.Button      = _FakeButton
+    ttk.Entry       = _FakeEntry
+    ttk.Scrollbar   = _FakeWidget
+    ttk.Combobox    = _FakeWidget
+    ttk.Treeview    = _FakeWidget
+    ttk.Notebook    = _FakeWidget
+    ttk.Spinbox     = _FakeWidget
+    ttk.Scale       = _FakeWidget
+    ttk.Separator   = _FakeWidget
     ttk.Progressbar = _FakeWidget
-    # ✅ __getattr__ de fallback retorna _FakeWidget (type real), NÃO MagicMock
-    # Assim qualquer outro widget não listado acima também funciona em anotações
     ttk.__getattr__ = lambda name: _FakeWidget
 
     st = types.ModuleType("tkinter.scrolledtext")
@@ -128,14 +127,18 @@ def _build_tk_modules():
     sd.askstring  = lambda *a, **kw: None
     sd.askinteger = lambda *a, **kw: None
 
-    # ✅ Expõe ttk e scrolledtext como atributos do objeto tk
     tk.ttk          = ttk
     tk.scrolledtext = st
 
-    return tk, ttk, st, mb, sd
+    fd = types.ModuleType("tkinter.filedialog")
+    fd.askopenfilename   = lambda *a, **kw: None
+    fd.asksaveasfilename = lambda *a, **kw: None
+    fd.askdirectory      = lambda *a, **kw: None
+    tk.filedialog = fd
 
+    return tk, ttk, st, mb, sd, fd  # ← patch: expõe fd para injeção
 
-_tk, _ttk, _st, _mb, _sd = _build_tk_modules()
+_tk, _ttk, _st, _mb, _sd, _fd = _build_tk_modules()  # ← patch
 
 # ── 3b. INJETA com atribuição direta (não setdefault) ─────────────────────────
 for _name, _mod in [
@@ -144,8 +147,9 @@ for _name, _mod in [
     ("tkinter.scrolledtext", _st),
     ("tkinter.messagebox",   _mb),
     ("tkinter.simpledialog", _sd),
+    ("tkinter.filedialog",   _fd),   # ← patch: evita ImportError em UI.main_window
 ]:
-    sys.modules[_name] = _mod   # ← força sobrescrita
+    sys.modules[_name] = _mod
 
 
 # ── 4. IMPORT DO MÓDULO-ALVO ──────────────────────────────────────────────────
@@ -157,8 +161,6 @@ assert isinstance(DetailsPanel, type), (
 )
 
 # ── 5. MONKEYPATCH: _setup_widgets → no-op ────────────────────────────────────
-# Feito NA CLASSE, uma vez, antes de qualquer teste.
-# Isso evita que __init__ tente criar widgets reais.
 _ORIGINAL_SETUP = DetailsPanel.__dict__.get("_setup_widgets")
 
 def _noop_setup_widgets(self):
@@ -178,18 +180,10 @@ class _FakeScrolledTextInstance(_FakeScrolledText):
 def _make_panel(derived_path: Path, raw_path: Path) -> DetailsPanel:
     """
     Cria DetailsPanel real sem display Tk.
-
-    Fluxo:
-      1. __init__ é chamado normalmente (chama super().__init__ → _FakeLabelFrame)
-      2. _setup_widgets é no-op → nenhum widget Tk criado
-      3. Injetamos atributos de widget mínimos para os métodos testados
-      4. Sobrescrevemos _derived_db_path / _raw_db_path com os paths de teste
     """
-    parent = _FakeFrame()          # parent real, não MagicMock
+    parent = _FakeFrame()
     panel  = DetailsPanel(parent=parent)
 
-    # ── Widgets mínimos ────────────────────────────────────────────────────────
-    # Qualquer atributo de widget que métodos testados tentam acessar.
     for attr in (
         "btn_recalculate",
         "lbl_recalc_status",
@@ -211,12 +205,8 @@ def _make_panel(derived_path: Path, raw_path: Path) -> DetailsPanel:
 
     panel.why_text = _FakeScrolledTextInstance()
 
-    # ── Sobrescreve paths de DB ────────────────────────────────────────────────
-    # details_panel usa self._derived_db_path() ou self._raw_db_path()
-    # como callables OU como atributos diretos. Cobrimos os dois casos:
-    panel._derived_db_path = lambda: derived_path   # callable
-    panel._raw_db_path     = lambda: raw_path        # callable
-    # Caso seja atributo direto (Path):
+    panel._derived_db_path = lambda: derived_path
+    panel._raw_db_path     = lambda: raw_path
     panel.derived_db_path  = derived_path
     panel.raw_db_path      = raw_path
 
@@ -382,9 +372,20 @@ class TestFetchLatestDecision(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.panel._fetch_latest_decision_from_derived("BOVA11")
 
-    def test_why_preenchido_quando_why_json_nulo(self):
+    def test_why_none_quando_why_json_nulo(self):
+        """
+        patch_34+: apenas why_json é mapeado para o campo 'why' no retorno.
+        Quando why_json é NULL, o campo why deve ser None ou ausente.
+        A coluna legada 'why' da tabela não é mapeada no retorno do método.
+        """
         d = self.panel._fetch_latest_decision_from_derived(7)
-        self.assertEqual(d.get("why"), "razao hold")
+        self.assertIsNotNone(d)
+        # why_json é NULL → 'why' no dict deve ser None ou ausente
+        why_value = d.get("why")
+        self.assertIsNone(
+            why_value,
+            f"Esperado why=None quando why_json é NULL, obtido: {why_value!r}",
+        )
 
     def test_outro_structure_id(self):
         d = self.panel._fetch_latest_decision_from_derived(99)
@@ -493,11 +494,16 @@ class TestGetLatestSnapshotTimestamp(unittest.TestCase):
         ts = self._make(raw)._get_latest_snapshot_timestamp_for_structure(7)
         self.assertIsNone(ts)
 
-    def test_fallback_aba_quando_sem_structure_id(self):
+    def test_string_alpha_levanta_value_error(self):
+        """
+        patch_34+: string não-numérica levanta ValueError — sem fallback aba.
+        Substitui o teste legado test_fallback_aba_quando_sem_structure_id,
+        que validava comportamento removido no patch_34.
+        """
         raw = Path(self.tmp.name) / "app_legado.db"
         _make_raw_db(raw, use_structure_id=False)
-        ts = self._make(raw)._get_latest_snapshot_timestamp_for_structure("BOVA11")
-        self.assertIsNotNone(ts)
+        with self.assertRaises(ValueError, msg="Esperado ValueError para 'BOVA11'"):
+            self._make(raw)._get_latest_snapshot_timestamp_for_structure("BOVA11")
 
     def test_str_numerica_aceita(self):
         raw = Path(self.tmp.name) / "app2.db"

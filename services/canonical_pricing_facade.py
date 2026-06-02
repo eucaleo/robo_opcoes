@@ -1,12 +1,20 @@
 # services/canonical_pricing_facade.py
 """
-patch_16 (rev2) — Fachada canônica corrigida.
+patch_17 — Fachada canônica corrigida.
+patch_21 — Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+           no PricingExecutionPersistenceService.
 
 Correções aplicadas:
   C1: sel.select(aba=...) — parâmetro correto
   C2: alias_legacy_aba buscado via MarketSnapshotRepository antes de chamar o selector
   C3: orquestração direta repo → selector → execute_payload(), sem depender de
       CanonicalInputService.build_structure_market_input() (assinatura não confirmada)
+  C4: engine_result extraído do wrapper do engine antes de passar ao persister
+      execution_result = { "pricing_payload": ..., "result": { engine, status, metrics... } }
+      engine_result    = execution_result.get("result", execution_result)
+  C5 (patch_21): DerivedPayoffPersistence injetado como payoff_persistence_port —
+      após persist_execution, payoff + decisão são gravados no derived.db
+      de forma fire-and-forget (falha não derruba a execução principal).
 """
 
 from __future__ import annotations
@@ -17,6 +25,7 @@ from pathlib import Path
 from typing import Any
 
 from repositories.market_snapshot_repository import MarketSnapshotRepository
+from services.derived_payoff_persistence import DerivedPayoffPersistence
 from services.market_snapshot_selector import MarketSnapshotSelector
 from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
 from services.pricing_execution_service import PricingExecutionService
@@ -55,7 +64,7 @@ def _snapshot_result_to_payload(
     for leg in selection_result.legs:
         d = leg if isinstance(leg, dict) else vars(leg)
         legs_data.append({
-            "quantity":    d.get("quant"),          # quant → quantity
+            "quantity":    d.get("quant"),
             "price":       d.get("valor_executado"),
             "asset":       d.get("ativo"),
             "option_type": d.get("call_put"),
@@ -99,6 +108,8 @@ class CanonicalPricingFacade:
                             └─► pricing_payload
                                     └─► PricingExecutionService.execute_payload()
                                             └─► PricingExecutionPersistenceService.persist()
+                                                    └─► DerivedPayoffPersistence.persist()  ← patch_21
+                                                            └─► derived.db (payoff + decisão)
     """
 
     def __init__(
@@ -107,11 +118,15 @@ class CanonicalPricingFacade:
         pricing_execution_service: PricingExecutionService | None = None,
         persistence_service: PricingExecutionPersistenceService | None = None,
     ) -> None:
-        self._db_path   = Path(db_path)
-        self._repo      = MarketSnapshotRepository(db_path=self._db_path)
-        self._selector  = MarketSnapshotSelector(repository=self._repo)
-        self._engine    = pricing_execution_service or PricingExecutionService()
-        self._persister = persistence_service or PricingExecutionPersistenceService()
+        self._db_path  = Path(db_path)
+        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+        self._selector = MarketSnapshotSelector(repository=self._repo)
+        self._engine   = pricing_execution_service or PricingExecutionService()
+
+        # patch_21: injeta DerivedPayoffPersistence se nenhum persister for fornecido
+        self._persister = persistence_service or PricingExecutionPersistenceService(
+            payoff_persistence_port=DerivedPayoffPersistence(),
+        )
 
     # ------------------------------------------------------------------
     # API pública
@@ -129,7 +144,7 @@ class CanonicalPricingFacade:
             status          "ok" | "error"
             canonical_input payload montado
             pricing_payload idem (alias semântico)
-            result          saída do engine
+            result          saída do engine (wrapper completo)
             persisted       registro persistido
             meta            snapshot_source, overrides, legs_count
             duration_ms     tempo total
@@ -142,7 +157,7 @@ class CanonicalPricingFacade:
             aba = _get_alias_legacy_aba(structure_id, self._db_path)
 
             # ── 2. Seleciona snapshot (manual > rtd) ───────────────────────
-            selection = self._selector.select(aba=aba)   # ← C1 corrigido
+            selection = self._selector.select(aba=aba)
 
             # ── 3. Monta pricing_payload ───────────────────────────────────
             pricing_payload = _snapshot_result_to_payload(
@@ -156,28 +171,32 @@ class CanonicalPricingFacade:
                 pricing_payload=pricing_payload,
             )
 
+            # ── C4: extrai dict interno do wrapper antes de passar ao persister
+            # execution_result: { "pricing_payload": ..., "result": { engine, status, metrics, valuation } }
+            engine_result = execution_result.get("result", execution_result)
+
             duration_ms = int((time.perf_counter() - started_at) * 1000)
 
-            # ── 5. Persiste ────────────────────────────────────────────────
+            # ── 5. Persiste (app.db) + derived.db via port (patch_21) ──────
             persisted = self._persister.persist_execution(
                 pricing_payload=pricing_payload,
-                result=execution_result,
+                result=engine_result,
                 duration_ms=duration_ms,
                 error_message=None,
             )
 
             return {
-                "status":         "ok",
+                "status":          "ok",
                 "canonical_input": pricing_payload,
                 "pricing_payload": pricing_payload,
-                "result":          execution_result,
+                "result":          execution_result,   # wrapper completo na resposta pública
                 "persisted":       persisted,
                 "meta":            pricing_payload["meta"],
                 "duration_ms":     duration_ms,
             }
 
         except Exception as exc:
-            duration_ms  = int((time.perf_counter() - started_at) * 1000)
+            duration_ms   = int((time.perf_counter() - started_at) * 1000)
             error_message = str(exc)
 
             try:

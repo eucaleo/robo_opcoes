@@ -1,13 +1,40 @@
 import json
+import sqlite3
 
 import pytest
 
 from repositories.pricing_executions_repository import PricingExecutionsRepository
 
 
+def _make_repo(tmp_path) -> PricingExecutionsRepository:
+    """Cria repositório apontando para um SQLite temporário com a tabela necessária."""
+    db_path = tmp_path / "pricing_executions.db"
+    conn = sqlite3.connect(str(db_path))
+    conn.execute("""
+        CREATE TABLE pricing_executions (
+            id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at         TEXT    NOT NULL,
+            structure_id       INTEGER,
+            underlying_asset   TEXT,
+            reference_date     TEXT,
+            execution_status   TEXT,
+            execution_engine   TEXT,
+            error_message      TEXT,
+            duration_ms        INTEGER,
+            number_of_legs     INTEGER,
+            total_quantity     INTEGER,
+            theoretical_value  REAL,
+            pricing_payload    TEXT,
+            result             TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+    return PricingExecutionsRepository(db_path=str(db_path))
+
+
 def test_save_execution_persists_record_with_payload_and_result(tmp_path):
-    file_path = tmp_path / "pricing_executions.json"
-    repository = PricingExecutionsRepository(file_path=str(file_path))
+    repository = _make_repo(tmp_path)
 
     pricing_payload = {
         "structure_id": 123,
@@ -47,14 +74,9 @@ def test_save_execution_persists_record_with_payload_and_result(tmp_path):
     assert record["result"] == result
     assert record["created_at"].endswith("Z")
 
-    saved_data = json.loads(file_path.read_text(encoding="utf-8"))
-    assert len(saved_data) == 1
-    assert saved_data[0]["id"] == 1
-
 
 def test_save_execution_accepts_none_pricing_payload(tmp_path):
-    file_path = tmp_path / "pricing_executions.json"
-    repository = PricingExecutionsRepository(file_path=str(file_path))
+    repository = _make_repo(tmp_path)
 
     result = {
         "result": {
@@ -81,8 +103,7 @@ def test_save_execution_accepts_none_pricing_payload(tmp_path):
 
 
 def test_save_execution_raises_when_result_is_missing(tmp_path):
-    file_path = tmp_path / "pricing_executions.json"
-    repository = PricingExecutionsRepository(file_path=str(file_path))
+    repository = _make_repo(tmp_path)
 
     with pytest.raises(ValueError, match="result is required"):
         repository.save_execution(
@@ -92,8 +113,7 @@ def test_save_execution_raises_when_result_is_missing(tmp_path):
 
 
 def test_list_and_get_execution_return_persisted_records(tmp_path):
-    file_path = tmp_path / "pricing_executions.json"
-    repository = PricingExecutionsRepository(file_path=str(file_path))
+    repository = _make_repo(tmp_path)
 
     repository.save_execution(
         pricing_payload={
@@ -115,8 +135,14 @@ def test_list_and_get_execution_return_persisted_records(tmp_path):
     records = repository.list_executions()
 
     assert len(records) == 2
-    assert records[0]["id"] == 1
-    assert records[1]["id"] == 2
+    # list_executions retorna ORDER BY created_at DESC; valida por conteúdo, não posição
+    ids = {r["id"] for r in records}
+    assert ids == {1, 2}
+
+    rec1 = next(r for r in records if r["structure_id"] == 1)
+    rec2 = next(r for r in records if r["structure_id"] == 2)
+    assert rec1["id"] is not None
+    assert rec2["id"] is not None
 
     record = repository.get_execution(2)
     assert record is not None
@@ -125,17 +151,16 @@ def test_list_and_get_execution_return_persisted_records(tmp_path):
 
 
 def test_get_execution_returns_none_when_not_found(tmp_path):
-    file_path = tmp_path / "pricing_executions.json"
-    repository = PricingExecutionsRepository(file_path=str(file_path))
-
+    repository = _make_repo(tmp_path)
     assert repository.get_execution(999) is None
 
 
 def test_read_all_raises_when_storage_is_not_a_list(tmp_path):
-    file_path = tmp_path / "pricing_executions.json"
-    file_path.write_text('{"invalid": true}', encoding="utf-8")
-
-    repository = PricingExecutionsRepository(file_path=str(file_path))
-
-    with pytest.raises(ValueError, match="pricing executions storage must contain a list"):
-        repository.list_executions()
+    """
+    No backend SQLite este cenário não se aplica da mesma forma.
+    Validamos que list_executions() retorna lista vazia em banco vazio.
+    """
+    repository = _make_repo(tmp_path)
+    records = repository.list_executions()
+    assert isinstance(records, list)
+    assert records == []
