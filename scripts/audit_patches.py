@@ -315,10 +315,10 @@ PATCHES = [
                  "services/canonical_pricing_facade.py",
                  "def execute_pricing"
              )),
-            ("_get_alias_legacy_aba() implementado",
+            ("_get_structure_info() implementado (patch_41: substitui _get_alias_legacy_aba)",
              lambda: contains(
                  "services/canonical_pricing_facade.py",
-                 "def _get_alias_legacy_aba"
+                 "def _get_structure_info"
              )),
             ("engine_result extraido do wrapper (C4)",
              lambda: contains(
