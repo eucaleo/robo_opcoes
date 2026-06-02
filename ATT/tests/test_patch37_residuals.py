@@ -90,18 +90,25 @@ class TestPatch37StaticUIData:
 
     # --- get_abas -----------------------------------------------------------
 
-    def test_no_get_abas_method(self):
-        """get_abas() não deve existir em UIDataModel."""
+    def test_get_abas_is_readonly_alias(self):
+        """get_abas() deve existir como alias readonly de get_structure_ids().
+        Decisão permanente patch_34: alias mantido para compatibilidade de UI.
+        """
         methods = _all_method_names(self.tree, "UIDataModel")
-        assert "get_abas" not in methods, (
-            "get_abas() ainda presente em UIDataModel"
+        assert "get_abas" in methods, (
+            "get_abas() alias readonly ausente em UIDataModel — ver DECISÕES patch_34"
         )
 
-    def test_no_get_abas_any_reference(self):
-        """Nenhuma referência textual a get_abas no arquivo."""
-        assert "get_abas" not in self.src, (
-            "Referência a get_abas ainda encontrada em ui_data.py"
+    def test_get_abas_reference_is_alias_only(self):
+        """get_abas presente em ui_data.py somente como alias readonly — não como setter/property legado."""
+        assert "get_abas" in self.src, (
+            "get_abas() alias readonly ausente em ui_data.py — ver DECISÕES patch_34"
         )
+        # Garantir que _cache_abas (resíduo legado) NÃO está presente
+        assert "_cache_abas" not in self.src, (
+            "Resíduo _cache_abas ainda presente em ui_data.py"
+        )
+
 
     # --- Métodos canônicos presentes ----------------------------------------
 
@@ -251,9 +258,17 @@ class TestPatch37Functional:
         """_cache_abas não deve existir como atributo de instância."""
         assert not hasattr(model, "_cache_abas")
 
-    def test_no_get_abas_method(self, model):
-        """get_abas() não deve existir no objeto."""
-        assert not hasattr(model, "get_abas")
+# DEPOIS
+    def test_get_abas_is_readonly_alias(self, model):
+        """get_abas() deve existir e retornar o mesmo que get_structure_ids().
+        Decisão permanente patch_34: alias readonly para compatibilidade de UI.
+        """
+        assert hasattr(model, "get_abas"), (
+            "get_abas() alias readonly ausente no objeto — ver DECISÕES patch_34"
+        )
+        assert model.get_abas() == model.get_structure_ids(), (
+            "get_abas() deve ser alias exato de get_structure_ids()"
+        )
 
     def test_get_decisions_aba_filter_no_crash(self, model):
         """get_decisions(aba=) não deve lançar exceção."""
