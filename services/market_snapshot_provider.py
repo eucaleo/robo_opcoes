@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Any
+from typing import Any, Callable
 
 
 DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
@@ -22,8 +22,13 @@ DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
 
 
 class MarketSnapshotProvider:
-    def __init__(self, market_by_asset: dict[str, dict[str, Any]] | None = None):
+    def __init__(
+        self,
+        market_by_asset: dict[str, dict[str, Any]] | None = None,
+        today_provider: Callable[[], date] | None = None,
+    ):
         self.market_by_asset = market_by_asset or DEFAULT_MARKET_BY_ASSET
+        self.today_provider = today_provider or date.today
 
     def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
         asset = str(underlying_asset or "").strip().upper()
@@ -34,11 +39,10 @@ class MarketSnapshotProvider:
         if market is None:
             raise ValueError(f"market snapshot not found for asset: {asset}")
 
-        if reference_date is None:
-            reference_date = date.today().isoformat()
+        effective_reference_date = reference_date or self.today_provider().isoformat()
 
         return {
-            "reference_date": reference_date,
+            "reference_date": effective_reference_date,
             "underlying_asset": asset,
             "spot_price": float(market["spot_price"]),
             "interest_rate": float(market["interest_rate"]),

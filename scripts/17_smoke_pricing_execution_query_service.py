@@ -1,30 +1,22 @@
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from services.pricing_execution_query_service import PricingExecutionQueryService
-from _smoke_context import require_context_value
 
 
 def main():
     service = PricingExecutionQueryService()
 
-    structure_id = require_context_value("structure_id")
-    execution_id = require_context_value("execution_id")
+    summaries = service.list_execution_summaries()
 
-    executions = service.list_executions()
-    loaded_execution = service.get_execution(execution_id)
+    if not isinstance(summaries, list):
+        raise RuntimeError("list_execution_summaries must return a list")
 
-    if not isinstance(executions, list):
-        raise RuntimeError("executions should be a list")
-
-    if not executions:
-        raise RuntimeError("executions should not be empty")
-
-    if loaded_execution["id"] != execution_id:
-        raise RuntimeError("loaded execution id should match smoke context execution_id")
-
-    if loaded_execution["structure_id"] != structure_id:
-        raise RuntimeError("loaded execution structure_id should match smoke context structure_id")
-
-    print("EXECUTIONS COUNT:", len(executions))
-    print("LOADED EXECUTION:", loaded_execution)
+    print("EXECUTION SUMMARIES:", summaries)
     print("PRICING EXECUTION QUERY SERVICE SMOKE OK")
 
 

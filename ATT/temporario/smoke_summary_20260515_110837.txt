@@ -1,1 +1,0 @@
-Todos os smoke checks passaram com sucesso.

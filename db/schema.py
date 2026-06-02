@@ -27,13 +27,18 @@ CREATE TABLE IF NOT EXISTS structure_decisions (
     timestamp TEXT NOT NULL,
     aba TEXT NOT NULL,
     decision TEXT NOT NULL,
+    level INTEGER,
     ratio REAL,
+    pl_pct_of_max REAL,
     dte_min INTEGER,
     pl_atual REAL,
     pl_max REAL,
     pl_min REAL,
     spread_pct_medio REAL,
+    why TEXT,
     why_json TEXT,
+    spot_ref REAL,
+    meta_json TEXT,
     created_at TEXT DEFAULT (datetime('now'))
 );
 

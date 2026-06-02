@@ -17,6 +17,27 @@ def _enum_value(value: Any) -> Any:
     return value
 
 
+def _safe_upper_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text.upper() if text else None
+
+
+def _to_float(value: Any, field_name: str) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"invalid {field_name}: {value}") from exc
+
+
+def _to_int(value: Any, field_name: str) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"invalid {field_name}: {value}") from exc
+
+
 def to_canonical_leg(leg: Any, multiplier: float = 1.0) -> dict[str, Any]:
     cv = _enum_value(_read_attr(leg, "cv"))
     call_put = _enum_value(_read_attr(leg, "call_put"))
@@ -29,13 +50,27 @@ def to_canonical_leg(leg: Any, multiplier: float = 1.0) -> dict[str, Any]:
     cv_str = str(cv).upper().strip() if cv is not None else ""
     call_put_str = str(call_put).upper().strip() if call_put is not None else ""
 
+    if cv_str == "C":
+        position_side = "LONG"
+    elif cv_str == "V":
+        position_side = "SHORT"
+    else:
+        raise ValueError(f"invalid cv: {cv}")
+
+    if call_put_str == "CALL":
+        option_type = "CALL"
+    elif call_put_str == "PUT":
+        option_type = "PUT"
+    else:
+        raise ValueError(f"invalid call_put: {call_put}")
+
     return {
-        "position_side": "long" if cv_str == "C" else "short",
-        "option_type": "call" if call_put_str == "CALL" else "put",
-        "symbol": str(ativo).strip().upper() if ativo else None,
-        "strike": float(strike),
+        "position_side": position_side,
+        "option_type": option_type,
+        "symbol": _safe_upper_text(ativo),
+        "strike": _to_float(strike, "strike"),
         "expiration_date": vencimento.strftime("%Y-%m-%d") if vencimento else None,
-        "quantity": int(quant),
+        "quantity": _to_int(quant, "quant"),
         "premium": float(preco) if preco is not None else None,
         "multiplier": float(multiplier),
     }

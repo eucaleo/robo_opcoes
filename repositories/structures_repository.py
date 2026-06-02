@@ -1,3 +1,10 @@
+# repositories/structures_repository.py
+"""
+Repositório canônico de estruturas e suas pernas (legs).
+PATCH_11: conexões SQLite fechadas explicitamente via try/finally
+          para evitar ResourceWarning no Python 3.13+.
+"""
+
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -47,7 +54,7 @@ def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
         alias_legacy_aba = str(alias_legacy_aba).strip() or None
 
     if notes is not None:
-        notes = str(notes)
+        notes = str(notes).strip() or None
 
     return {
         "name": name,
@@ -78,6 +85,9 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         strike = float(strike)
     except Exception as exc:
         raise ValueError("strike must be numeric") from exc
+
+    if strike <= 0:
+        raise ValueError("strike must be > 0")
 
     try:
         quantity = int(quantity)
@@ -114,7 +124,7 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         symbol = str(symbol).strip() or None
 
     if notes is not None:
-        notes = str(notes)
+        notes = str(notes).strip() or None
 
     return {
         "position_side": position_side,
@@ -185,11 +195,16 @@ class StructuresRepository:
         if row is None:
             raise ValueError(f"structure not found: {structure_id}")
 
+    # ------------------------------------------------------------------
+    # CREATE
+    # ------------------------------------------------------------------
+
     def create_structure(self, data: dict[str, Any]) -> int:
         payload = _normalize_structure_payload(data)
         now = _utc_now_iso()
 
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             cursor = conn.execute(
                 """
                 INSERT INTO structures (
@@ -214,6 +229,15 @@ class StructuresRepository:
             )
             conn.commit()
             return int(cursor.lastrowid)
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # READ
+    # ------------------------------------------------------------------
 
     def list_structures(self, include_archived: bool = False) -> list[dict[str, Any]]:
         query = """
@@ -236,12 +260,16 @@ class StructuresRepository:
 
         query += " ORDER BY id ASC"
 
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             rows = conn.execute(query, params).fetchall()
             return [dict(row) for row in rows]
+        finally:
+            conn.close()
 
     def get_structure(self, structure_id: int) -> dict[str, Any] | None:
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             row = conn.execute(
                 """
                 SELECT
@@ -265,6 +293,12 @@ class StructuresRepository:
 
             structure["legs"] = self._fetch_legs(conn, structure_id)
             return structure
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # UPDATE
+    # ------------------------------------------------------------------
 
     def update_structure(self, structure_id: int, data: dict[str, Any]) -> None:
         current = self.get_structure(structure_id)
@@ -281,7 +315,8 @@ class StructuresRepository:
         payload = _normalize_structure_payload(merged)
         now = _utc_now_iso()
 
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             conn.execute(
                 """
                 UPDATE structures
@@ -305,13 +340,22 @@ class StructuresRepository:
                 ),
             )
             conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # ARCHIVE
+    # ------------------------------------------------------------------
 
     def archive_structure(self, structure_id: int) -> None:
         now = _utc_now_iso()
 
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             self._ensure_structure_exists(conn, structure_id)
-
             conn.execute(
                 """
                 UPDATE structures
@@ -321,12 +365,22 @@ class StructuresRepository:
                 ("archived", now, structure_id),
             )
             conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # LEGS
+    # ------------------------------------------------------------------
 
     def add_leg(self, structure_id: int, leg_data: dict[str, Any]) -> int:
         leg = _validate_leg(leg_data)
         now = _utc_now_iso()
 
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             self._ensure_structure_exists(conn, structure_id)
 
             cursor = conn.execute(
@@ -364,6 +418,7 @@ class StructuresRepository:
                 ),
             )
 
+            # ← atualiza updated_at da estrutura pai (lógica original preservada)
             conn.execute(
                 "UPDATE structures SET updated_at = ? WHERE id = ?",
                 (now, structure_id),
@@ -371,12 +426,20 @@ class StructuresRepository:
 
             conn.commit()
             return int(cursor.lastrowid)
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
 
     def replace_legs(self, structure_id: int, legs: list[dict[str, Any]]) -> None:
+        if not legs:
+            raise ValueError("legs list must not be empty")
         validated_legs = [_validate_leg(leg) for leg in legs]
         now = _utc_now_iso()
 
-        with self._connect() as conn:
+        conn = self._connect()
+        try:
             self._ensure_structure_exists(conn, structure_id)
 
             conn.execute(
@@ -420,9 +483,15 @@ class StructuresRepository:
                     ),
                 )
 
+            # ← atualiza updated_at da estrutura pai (lógica original preservada)
             conn.execute(
                 "UPDATE structures SET updated_at = ? WHERE id = ?",
                 (now, structure_id),
             )
 
             conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()

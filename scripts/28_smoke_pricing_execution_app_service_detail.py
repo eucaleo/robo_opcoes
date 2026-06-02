@@ -1,3 +1,10 @@
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from services.pricing_execution_app_service import PricingExecutionAppService
 
 
@@ -8,7 +15,7 @@ def main():
     if not summaries:
         raise RuntimeError("no execution summaries found for app service detail smoke")
 
-    latest = summaries[-1]
+    latest = summaries[0]
     execution = service.get_execution(latest["id"])
 
     if execution["id"] != latest["id"]:

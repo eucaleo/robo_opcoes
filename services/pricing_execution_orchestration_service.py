@@ -16,7 +16,9 @@ class PricingExecutionOrchestrationService:
         pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
     ):
         self.pricing_input_service = pricing_input_service or PricingInputService()
-        self.pricing_execution_service = pricing_execution_service or PricingExecutionService()
+        self.pricing_execution_service = pricing_execution_service or PricingExecutionService(
+            pricing_input_service=self.pricing_input_service,
+        )
         self.pricing_execution_persistence_service = (
             pricing_execution_persistence_service or PricingExecutionPersistenceService()
         )
@@ -26,11 +28,6 @@ class PricingExecutionOrchestrationService:
         structure_id: int,
         reference_date: str | None = None,
     ) -> dict[str, Any]:
-        pricing_payload = self.pricing_input_service.build_pricing_payload(
-            structure_id=structure_id,
-            reference_date=reference_date,
-        )
-
         started_at = time.perf_counter()
 
         try:
@@ -41,14 +38,14 @@ class PricingExecutionOrchestrationService:
             duration_ms = int((time.perf_counter() - started_at) * 1000)
 
             persisted = self.pricing_execution_persistence_service.persist_execution(
-                pricing_payload=pricing_payload,
+                pricing_payload=result["pricing_payload"],
                 result=result,
                 duration_ms=duration_ms,
                 error_message=None,
             )
 
             return {
-                "pricing_payload": pricing_payload,
+                "pricing_payload": result["pricing_payload"],
                 "result": result,
                 "persisted": persisted,
             }
@@ -58,7 +55,7 @@ class PricingExecutionOrchestrationService:
             error_message = str(exc)
 
             result = {
-                "pricing_payload": pricing_payload,
+                "pricing_payload": None,
                 "result": {
                     "engine": "stub",
                     "status": "error",
@@ -67,14 +64,14 @@ class PricingExecutionOrchestrationService:
             }
 
             persisted = self.pricing_execution_persistence_service.persist_execution(
-                pricing_payload=pricing_payload,
+                pricing_payload=None,
                 result=result,
                 duration_ms=duration_ms,
                 error_message=error_message,
             )
 
             return {
-                "pricing_payload": pricing_payload,
+                "pricing_payload": None,
                 "result": result,
                 "persisted": persisted,
             }

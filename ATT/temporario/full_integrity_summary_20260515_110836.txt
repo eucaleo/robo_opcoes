@@ -1,2 +1,0 @@
-WARNINGS:
-- scripts/07_audit_snapshot_keys.py: exit_code=1

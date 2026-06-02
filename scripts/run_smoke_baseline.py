@@ -1,70 +1,129 @@
-# scripts/run_smoke_baseline.py
-
-from __future__ import annotations
-
-import subprocess
+import os
 import sys
+import time
+import subprocess
 from pathlib import Path
 
 
-BASE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = BASE_DIR.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent
+SCRIPTS_DIR = ROOT_DIR / "Scripts"
 
-# Ajuste esta lista conforme os scripts reais existentes
-BASELINE_SCRIPTS = [
-    "smoke_quick_flow.py",
-    "smoke_quick_persistence.py",
+BASELINE_SMOKES = [
+    "10_smoke_structures_repository.py",
+    "11_smoke_structure_input_mapper.py",
+    "13_smoke_canonical_input_service.py",
+    "15_smoke_pricing_execution_service.py",
+    "16_smoke_pricing_execution_persistence.py",
+    "22_smoke_pricing_execution_orchestration_success.py",
+    "26_smoke_pricing_execution_app_service_execute.py",
 ]
 
 
-def run_script(script_name: str) -> int:
-    script_path = BASE_DIR / script_name
+def log(level: str, message: str) -> None:
+    print(f"[{level}] {message}")
+
+
+def build_env() -> dict:
+    env = os.environ.copy()
+    current_pythonpath = env.get("PYTHONPATH", "")
+
+    paths = [str(ROOT_DIR)]
+    if current_pythonpath:
+        paths.append(current_pythonpath)
+
+    env["PYTHONPATH"] = os.pathsep.join(paths)
+    return env
+
+
+def run_smoke(script_name: str, env: dict) -> dict:
+    script_path = SCRIPTS_DIR / script_name
 
     if not script_path.exists():
-        print(f"[ERRO] Script não encontrado: {script_path}")
-        return 1
+        return {
+            "script": script_name,
+            "status": "missing",
+            "exit_code": 2,
+            "duration_sec": 0.0,
+        }
 
-    print(f"\n[INFO] Executando: {script_name}")
-    print("-" * 60)
+    start = time.perf_counter()
 
     result = subprocess.run(
         [sys.executable, str(script_path)],
-        cwd=str(PROJECT_ROOT),
+        cwd=str(ROOT_DIR),
+        env=env,
     )
 
-    if result.returncode == 0:
-        print(f"[OK] {script_name} finalizado com sucesso")
-    else:
-        print(f"[FALHA] {script_name} retornou código {result.returncode}")
+    duration = time.perf_counter() - start
+    status = "ok" if result.returncode == 0 else "fail"
 
-    return result.returncode
+    return {
+        "script": script_name,
+        "status": status,
+        "exit_code": result.returncode,
+        "duration_sec": round(duration, 3),
+    }
+
+
+def print_summary(results: list[dict]) -> None:
+    log("INFO", "Resumo final da baseline funcional")
+    total_time = 0.0
+
+    for item in results:
+        total_time += item["duration_sec"]
+
+        if item["status"] == "ok":
+            log("OK", f'{item["script"]} | {item["duration_sec"]:.3f}s')
+        elif item["status"] == "missing":
+            log("WARN", f'{item["script"]} | ausente')
+        else:
+            log(
+                "FAIL",
+                f'{item["script"]} | exit_code={item["exit_code"]} | {item["duration_sec"]:.3f}s',
+            )
+
+    log("INFO", f"Tempo total: {total_time:.3f}s")
 
 
 def main() -> int:
-    print("=" * 60)
-    print("SMOKE BASELINE")
-    print("=" * 60)
+    log("INFO", "Iniciando baseline funcional do fluxo real")
+    log("INFO", f"Raiz do projeto: {ROOT_DIR}")
+    log("INFO", f"Pasta Scripts: {SCRIPTS_DIR}")
 
+    if not SCRIPTS_DIR.exists():
+        log("FAIL", f"Pasta Scripts não encontrada: {SCRIPTS_DIR}")
+        return 1
+
+    env = build_env()
+    log("INFO", f"PYTHONPATH ativo: {env.get('PYTHONPATH', '')}")
+
+    results = []
     failures = []
+    missing = []
 
-    for script in BASELINE_SCRIPTS:
-        code = run_script(script)
-        if code != 0:
-            failures.append((script, code))
+    for script_name in BASELINE_SMOKES:
+        log("INFO", f"Executando: {script_name}")
+        result = run_smoke(script_name, env)
+        results.append(result)
 
-    print("\n" + "=" * 60)
-    print("RESUMO")
-    print("=" * 60)
+        if result["status"] == "fail":
+            failures.append(result)
+        elif result["status"] == "missing":
+            missing.append(result)
 
-    if not failures:
-        print("[OK] Todos os scripts baseline passaram")
+    print_summary(results)
+
+    if failures:
+        log("FAIL", f"Baseline reprovada: {len(failures)} smoke(s) com falha")
+        return 1
+
+    if missing:
+        log("WARN", f"Baseline concluída com {len(missing)} smoke(s) ausente(s)")
         return 0
 
-    for script, code in failures:
-        print(f"[FALHA] {script}: código {code}")
-
-    return 1
+    log("OK", "Baseline funcional aprovada com sucesso")
+    return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())

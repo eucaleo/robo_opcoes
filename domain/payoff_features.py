@@ -1,11 +1,16 @@
 import json
 import sqlite3
-from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any
+from typing import Any, Dict, List, Optional, Tuple
+
+"""
+Patch 24: chave de upsert migrada de (timestamp, aba)
+          para (structure_id, reference_date).
+          aba e timestamp mantidos como colunas opcionais de rastreabilidade.
+"""
 
 
-def get_derived_db_connection():
+def get_derived_db_connection() -> sqlite3.Connection:
     db_path = Path("dados/derived.db").resolve()
     return sqlite3.connect(str(db_path))
 
@@ -17,17 +22,11 @@ def _as_sorted_points(points: List[Tuple[float, float]]) -> List[Tuple[float, fl
 
 
 def _interp_y_at_x(points: List[Tuple[float, float]], x: float) -> Optional[float]:
-    """
-    Linear interpolation. Returns None if x is outside the points' x-range or insufficient points.
-    """
     pts = _as_sorted_points(points)
     if len(pts) < 2:
         return None
-
     if x < pts[0][0] or x > pts[-1][0]:
         return None
-
-    # find segment
     for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
         if x0 <= x <= x1:
             if x1 == x0:
@@ -38,33 +37,20 @@ def _interp_y_at_x(points: List[Tuple[float, float]], x: float) -> Optional[floa
 
 
 def _find_breakevens(points: List[Tuple[float, float]], eps: float = 1e-12) -> List[float]:
-    """
-    Finds approximate x where y crosses 0 using linear interpolation between consecutive points.
-    """
     pts = _as_sorted_points(points)
     if len(pts) < 2:
         return []
-
     bes: List[float] = []
     for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
-        # exact zeros at grid points
         if abs(y0) <= eps:
             bes.append(x0)
-
-        # crossing
         if (y0 < -eps and y1 > eps) or (y0 > eps and y1 < -eps):
-            # y = y0 + t*(y1-y0); set y=0 => t = -y0/(y1-y0)
-            denom = (y1 - y0)
+            denom = y1 - y0
             if abs(denom) > eps:
                 t = (-y0) / denom
-                xz = x0 + t * (x1 - x0)
-                bes.append(xz)
-
-        # handle last point exact zero
+                bes.append(x0 + t * (x1 - x0))
     if abs(pts[-1][1]) <= eps:
         bes.append(pts[-1][0])
-
-    # de-dup close values
     bes.sort()
     out: List[float] = []
     for x in bes:
@@ -73,19 +59,15 @@ def _find_breakevens(points: List[Tuple[float, float]], eps: float = 1e-12) -> L
     return out
 
 
-def _positive_ranges(points: List[Tuple[float, float]], eps: float = 0.0) -> List[Tuple[float, float]]:
-    """
-    Returns ranges [x_start, x_end] where y >= 0 (approx) based on sign of sampled points.
-    Uses breakevens to cut segments.
-    """
+def _positive_ranges(
+    points: List[Tuple[float, float]],
+    eps: float = 0.0,
+) -> List[Tuple[float, float]]:
     pts = _as_sorted_points(points)
     if len(pts) < 2:
         return []
-
     bes = _find_breakevens(pts)
-    xs = [pts[0][0]] + bes + [pts[-1][0]]
-    xs = sorted(set(float(x) for x in xs))
-
+    xs = sorted(set(float(x) for x in [pts[0][0]] + bes + [pts[-1][0]]))
     ranges: List[Tuple[float, float]] = []
     curr_start: Optional[float] = None
 
@@ -95,8 +77,7 @@ def _positive_ranges(points: List[Tuple[float, float]], eps: float = 0.0) -> Lis
     for a, b in zip(xs, xs[1:]):
         if b <= a:
             continue
-        xm = mid(a, b)
-        ym = _interp_y_at_x(pts, xm)
+        ym = _interp_y_at_x(pts, mid(a, b))
         if ym is None:
             continue
         if ym >= -eps:
@@ -106,25 +87,26 @@ def _positive_ranges(points: List[Tuple[float, float]], eps: float = 0.0) -> Lis
             if curr_start is not None:
                 ranges.append((curr_start, a))
                 curr_start = None
-
     if curr_start is not None:
         ranges.append((curr_start, xs[-1]))
-
-    # clean small/degenerate ranges
-    cleaned = []
-    for a, b in ranges:
-        if b - a > 1e-9:
-            cleaned.append((float(a), float(b)))
-    return cleaned
+    return [(float(a), float(b)) for a, b in ranges if b - a > 1e-9]
 
 
 def compute_curve_features(
     points: List[Tuple[float, float]],
     spot_ref: Optional[float] = None,
+    structure_id: Optional[str] = None,
+    reference_date: Optional[str] = None,
     timestamp: Optional[str] = None,
     aba: Optional[str] = None,
     meta: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    """
+    Computa features da curva de payoff.
+
+    Chave canônica : structure_id + reference_date  → upsert no derived.db.
+    timestamp + aba               → rastreabilidade opcional (legado RTD).
+    """
     pts = _as_sorted_points(points)
     if not pts:
         raise ValueError("points vazio")
@@ -140,76 +122,119 @@ def compute_curve_features(
     bes = _find_breakevens(pts)
     pos_ranges = _positive_ranges(pts)
 
-    features = {
-        "timestamp": timestamp,
-        "aba": aba,
-        "spot_ref": float(spot_ref) if spot_ref is not None else None,
-        "points_count": int(len(pts)),
-        "pl_min": pl_min,
-        "pl_max": pl_max,
-        "pl_at_spot_ref": float(pl_at_spot_ref) if pl_at_spot_ref is not None else None,
-        "breakevens": bes,
-        "be_count": int(len(bes)),
-        "pos_ranges": [[a, b] for a, b in pos_ranges],
-        "pos_ranges_count": int(len(pos_ranges)),
+    return {
+        "structure_id":      structure_id,
+        "reference_date":    reference_date,
+        "timestamp":         timestamp,
+        "aba":               aba,
+        "spot_ref":          float(spot_ref) if spot_ref is not None else None,
+        "points_count":      int(len(pts)),
+        "pl_min":            pl_min,
+        "pl_max":            pl_max,
+        "pl_at_spot_ref":    float(pl_at_spot_ref) if pl_at_spot_ref is not None else None,
+        "breakevens":        bes,
+        "be_count":          int(len(bes)),
+        "pos_ranges":        [[a, b] for a, b in pos_ranges],
+        "pos_ranges_count":  int(len(pos_ranges)),
         "max_drawdown_like": float(pl_max - pl_min),
-        "meta": meta or {},
+        "meta":              meta or {},
     }
-    return features
 
 
-def upsert_curve_summary(features: Dict[str, Any]) -> None:
-    """
-    Upsert por (timestamp, aba).
-    """
-    ts = features.get("timestamp")
-    aba = features.get("aba")
-    if not ts or not aba:
-        raise ValueError("features precisa de timestamp e aba")
-
-    conn = get_derived_db_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        """
-        INSERT INTO payoff_curve_summary (
-          timestamp, aba,
-          spot_ref, points_count,
-          pl_min, pl_max,
-          pl_at_spot_ref,
-          breakevens_json, be_count,
-          pos_ranges_json, pos_ranges_count,
-          max_drawdown_like,
-          meta_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ON CONFLICT(timestamp, aba) DO UPDATE SET
-          spot_ref=excluded.spot_ref,
-          points_count=excluded.points_count,
-          pl_min=excluded.pl_min,
-          pl_max=excluded.pl_max,
-          pl_at_spot_ref=excluded.pl_at_spot_ref,
-          breakevens_json=excluded.breakevens_json,
-          be_count=excluded.be_count,
-          pos_ranges_json=excluded.pos_ranges_json,
-          pos_ranges_count=excluded.pos_ranges_count,
-          max_drawdown_like=excluded.max_drawdown_like,
-          meta_json=excluded.meta_json
-        """,
-        (
-            ts, aba,
-            features.get("spot_ref"),
-            features.get("points_count"),
-            features.get("pl_min"),
-            features.get("pl_max"),
-            features.get("pl_at_spot_ref"),
-            json.dumps(features.get("breakevens", []), ensure_ascii=False),
-            features.get("be_count"),
-            json.dumps(features.get("pos_ranges", []), ensure_ascii=False),
-            features.get("pos_ranges_count"),
-            features.get("max_drawdown_like"),
-            json.dumps(features.get("meta", {}), ensure_ascii=False),
-        )
+_SQL_UPSERT = """
+    INSERT INTO payoff_curve_summary (
+        structure_id, reference_date,
+        timestamp, aba,
+        spot_ref, points_count,
+        pl_min, pl_max, pl_at_spot_ref,
+        breakevens_json, be_count,
+        pos_ranges_json, pos_ranges_count,
+        max_drawdown_like, meta_json
+    ) VALUES (
+        :structure_id, :reference_date,
+        :timestamp, :aba,
+        :spot_ref, :points_count,
+        :pl_min, :pl_max, :pl_at_spot_ref,
+        :breakevens_json, :be_count,
+        :pos_ranges_json, :pos_ranges_count,
+        :max_drawdown_like, :meta_json
     )
+    ON CONFLICT(structure_id, reference_date) DO UPDATE SET
+        timestamp          = excluded.timestamp,
+        aba                = excluded.aba,
+        spot_ref           = excluded.spot_ref,
+        points_count       = excluded.points_count,
+        pl_min             = excluded.pl_min,
+        pl_max             = excluded.pl_max,
+        pl_at_spot_ref     = excluded.pl_at_spot_ref,
+        breakevens_json    = excluded.breakevens_json,
+        be_count           = excluded.be_count,
+        pos_ranges_json    = excluded.pos_ranges_json,
+        pos_ranges_count   = excluded.pos_ranges_count,
+        max_drawdown_like  = excluded.max_drawdown_like,
+        meta_json          = excluded.meta_json
+"""
 
-    conn.commit()
-    conn.close()
+
+def upsert_curve_summary(
+    features: Dict[str, Any],
+    _conn_override: Optional[sqlite3.Connection] = None,
+) -> None:
+    """
+    Upsert por (structure_id, reference_date) — chave canônica.
+
+    Patch 24: substituída chave legada (timestamp, aba)
+              pela chave canônica (structure_id, reference_date).
+              As colunas aba e timestamp permanecem na tabela como
+              rastreabilidade opcional, sem participar da constraint UNIQUE.
+
+    Patch 20: conexão própria (quando não há _conn_override) gerenciada
+              internamente com try/finally, garantindo conn.close() mesmo
+              em caso de exceção (ResourceWarning fix).
+
+    Args:
+        features       : dict retornado por compute_curve_features().
+        _conn_override : conexão SQLite para injeção em testes. Quando
+                         fornecida, o ciclo de vida da conexão é
+                         responsabilidade do caller — esta função NÃO
+                         fecha a conexão injetada.
+    """
+    structure_id   = features.get("structure_id")
+    reference_date = features.get("reference_date")
+
+    if not structure_id or not reference_date:
+        raise ValueError(
+            "features precisa de structure_id e reference_date para upsert canônico"
+        )
+
+    _owns_conn = _conn_override is None
+    conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            _SQL_UPSERT,
+            {
+                "structure_id":      structure_id,
+                "reference_date":    reference_date,
+                "timestamp":         features.get("timestamp"),
+                "aba":               features.get("aba"),
+                "spot_ref":          features.get("spot_ref"),
+                "points_count":      features.get("points_count"),
+                "pl_min":            features.get("pl_min"),
+                "pl_max":            features.get("pl_max"),
+                "pl_at_spot_ref":    features.get("pl_at_spot_ref"),
+                "breakevens_json":   json.dumps(features.get("breakevens", [])),
+                "be_count":          features.get("be_count"),
+                "pos_ranges_json":   json.dumps(features.get("pos_ranges", [])),
+                "pos_ranges_count":  features.get("pos_ranges_count"),
+                "max_drawdown_like": features.get("max_drawdown_like"),
+                "meta_json":         json.dumps(features.get("meta", {})),
+            },
+        )
+        conn.commit()
+    finally:
+        # Fecha apenas conexões criadas por esta função.
+        # Conexões injetadas via _conn_override são responsabilidade do caller.
+        if _owns_conn:
+            conn.close()
