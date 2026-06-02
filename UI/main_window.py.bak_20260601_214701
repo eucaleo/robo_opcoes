@@ -23,7 +23,9 @@ from pathlib import Path
 import threading
 import time
 
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
 
 class MainWindow:
     def __init__(self):
@@ -278,7 +280,10 @@ class MainWindow:
                     self.data_model.get_structures()
                 )
             except Exception:
-                pass
+                try:
+                    self.filters_panel.update_abas(self.data_model.get_abas())
+                except Exception:
+                    pass
 
             try:
                 self.filters_panel.reset_filters()
@@ -692,10 +697,12 @@ Baseline: executed_v1 + baseline_v1b"""
         """Inicia a aplicação."""
         self.root.mainloop()
 
+
 def main():
     """Entry point da UI."""
     app = MainWindow()
     app.run()
+
 
 if __name__ == "__main__":
     main()

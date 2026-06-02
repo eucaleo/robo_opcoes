@@ -214,20 +214,13 @@ class UIDataModel:
         
 
     def get_structures(self) -> List[str]:
-        """Alias de get_structure_ids() para compatibilidade."""
-        if not self._cache_structures:
-            self._cache_structures = self._load_structures()
-        return list(self._cache_structures)
+        return self._cache_structures
 
     def get_structure_ids(self) -> List[str]:
         """patch_34: metodo canonico. Substitui get_structures()."""
         if not self._cache_structures:
             self._cache_structures = self._load_structures()
         return list(self._cache_structures)
-
-    def get_abas(self) -> list:
-        """Alias readonly de get_structure_ids() — compat UI (patch_34:filtro_aba)."""
-        return self.get_structure_ids()
 
     def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
         """
@@ -332,7 +325,7 @@ class UIDataModel:
             # Adapter layer: garante ambos os campos sempre presentes
             # ◄ patch_3a: structure_id é autoritativo (int); aba espelha o mesmo valor
             # patch_34: structure_id e sempre preenchido pelo SELECT
-                # aba espelha structure_id para compat de leitura (patch_3a)
+                # aba espelha para compat de leitura; nunca mais usado como chave de
             if item.get("aba") is None:
                 item["aba"] = item.get("structure_id")
 

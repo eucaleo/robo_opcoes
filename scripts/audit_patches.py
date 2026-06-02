@@ -3,6 +3,7 @@
 # Atualizado: patch_34 + patch_35 + DECISÕES PERMANENTES registradas
 
 import os
+import glob
 import sqlite3
 from datetime import datetime
 
@@ -898,6 +899,88 @@ PATCHES = [
                 lambda: contains("ATT/tests/test_patch36_details_panel.py", "TestOnRecalculateClick")),
         ],
     },
+    {
+        "id": "patch_37",
+        "desc": "ui_data.py — resíduos _cache_abas/get_abas/update_abas removidos; get_structures() canônico",
+        "checks": [
+            # ── 1. ui_data.py ─────────────────────────────────────────
+            ("UI/models/ui_data.py existe",
+             lambda: exists("UI/models/ui_data.py")),
+            ("_cache_abas removido de ui_data.py",
+             lambda: not contains("UI/models/ui_data.py", "_cache_abas")),
+            ("get_abas() como setter/property removido de ui_data.py",
+             lambda: not contains("UI/models/ui_data.py", "self._cache_abas")),
+            ("get_structures() presente em ui_data.py",
+             lambda: contains("UI/models/ui_data.py", "def get_structures")),
+            ("_cache_structures presente (lazy-load canônico)",
+             lambda: contains("UI/models/ui_data.py", "_cache_structures")),
+
+            # ── 2. filters_panel.py ───────────────────────────────────
+            ("UI/components/filters_panel.py existe",
+             lambda: exists("UI/components/filters_panel.py")),
+            ("update_abas removido de filters_panel.py",
+             lambda: not contains("UI/components/filters_panel.py", "def update_abas")),
+            ("update_abas não referenciado em filters_panel.py",
+             lambda: not contains("UI/components/filters_panel.py", "update_abas")),
+
+            # ── 3. main_window.py ─────────────────────────────────────
+            ("UI/main_window.py existe",
+             lambda: exists("UI/main_window.py")),
+            ("update_abas não chamado em main_window.py",
+             lambda: not contains("UI/main_window.py", "update_abas")),
+            ("get_abas não chamado em main_window.py",
+             lambda: not contains("UI/main_window.py", "get_abas")),
+            ("_cache_abas não referenciado em main_window.py",
+             lambda: not contains("UI/main_window.py", "_cache_abas")),
+
+            # ── 4. Arquivos de teste ───────────────────────────────────
+            ("ATT/tests/test_patch37_residuals.py existe",
+             lambda: exists("ATT/tests/test_patch37_residuals.py")),
+            ("TestPatch37StaticUIData presente",
+             lambda: contains("ATT/tests/test_patch37_residuals.py", "TestPatch37StaticUIData")),
+            ("TestPatch37StaticFiltersPanel presente",
+             lambda: contains("ATT/tests/test_patch37_residuals.py", "TestPatch37StaticFiltersPanel")),
+            ("TestPatch37StaticMainWindow presente",
+             lambda: contains("ATT/tests/test_patch37_residuals.py", "TestPatch37StaticMainWindow")),
+            ("TestPatch37Functional presente",
+             lambda: contains("ATT/tests/test_patch37_residuals.py", "TestPatch37Functional")),
+            ("TestPatch37NoRegression presente",
+             lambda: contains("ATT/tests/test_patch37_residuals.py", "TestPatch37NoRegression")),
+        ],
+    },
+    {
+        "id": "patch_38",
+        "desc": "Polish pós-patch_37 — get_structures() lazy-load consolidado; comentário regex corrigido",
+        "checks": [
+            # ── 1. ui_data.py ─────────────────────────────────────────
+            ("UI/models/ui_data.py existe",
+             lambda: exists("UI/models/ui_data.py")),
+            ("get_structures() com lazy-load presente",
+             lambda: contains("UI/models/ui_data.py", "def get_structures")),
+            ("_cache_structures usado no lazy-load de get_structures()",
+             lambda: contains("UI/models/ui_data.py", "_cache_structures")),
+            ("Nenhum resíduo _cache_abas remanescente",
+             lambda: not contains("UI/models/ui_data.py", "_cache_abas")),
+            ("Nenhum resíduo self.abas remanescente",
+             lambda: not contains("UI/models/ui_data.py", "self.abas")),
+
+            # ── 2. Inventário de patches ──────────────────────────────
+            ("ATT/PATCHES.md existe (inventário criado pelo patch_37_update_inventory.sh)",
+             lambda: exists("ATT/PATCHES.md")),
+            ("patch_37 registrado no PATCHES.md",
+             lambda: contains("ATT/PATCHES.md", "patch_37")),
+            ("patch_38 registrado no PATCHES.md",
+             lambda: contains("ATT/PATCHES.md", "patch_38")),
+
+            # ── 3. Backup gerado ──────────────────────────────────────
+            ("Backup ui_data.py.bak_p38_* gerado",
+             lambda: any(
+                 f.startswith("ui_data.py.bak_p38_")
+                 for f in os.listdir("UI/models")
+             )),
+        ],
+    },
+
 
 ]  # ← fechamento da lista PATCHES
 
@@ -1099,7 +1182,7 @@ def generate_report():
         f"\n\n  Resumo patches : {ok_count} OK | "
         f"{partial_count} PARCIAL | {fail_count} FALHOU | "
         f"{ok_count + partial_count + fail_count} total\n"
-        f"  Suite pytest   : 483 passed | "
+        f"  Suite pytest   : 510 passed | "
         f"{SKIPPED_INTENCIONAL} skipped (Tk/headless — intencional, ver DECISÕES PERMANENTES) | "
         f"0 failed"
     )

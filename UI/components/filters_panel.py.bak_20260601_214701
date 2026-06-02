@@ -4,6 +4,7 @@ from tkinter import ttk
 from typing import Dict, List, Optional, Callable
 from datetime import datetime, timedelta
 
+
 class FiltersPanel(ttk.LabelFrame):
     def __init__(self, parent, on_filter_change: Callable[[Dict], None]):
         super().__init__(parent, text="Filtros", padding=10)
@@ -156,3 +157,6 @@ class FiltersPanel(ttk.LabelFrame):
         if current not in values:
             self.structure_var.set("")
 
+    def update_abas(self, abas: List[str]):
+        """Alias de compatibilidade — delega para update_structures()."""
+        self.update_structures(abas)
