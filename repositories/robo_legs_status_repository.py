@@ -35,3 +35,36 @@ class RoboLegsStatusRepository:
         m = parse_timestamp(row_m["ts"]) if row_m and row_m["ts"] else None
         r = parse_timestamp(row_r["ts"]) if row_r and row_r["ts"] else None
         return (m, r)
+
+
+    # ──────────────────────────────────────────────────────────────
+    # patch_40: método canônico por structure_id
+    # ──────────────────────────────────────────────────────────────
+
+    def _resolve_aba_from_structure_id(self, structure_id: int) -> Optional[str]:
+        """Resolve structure_id → alias_legacy_aba via app.db."""
+        sql = """
+            SELECT alias_legacy_aba
+            FROM structures
+            WHERE id = ?
+              AND alias_legacy_aba IS NOT NULL
+              AND alias_legacy_aba != ''
+            LIMIT 1
+        """
+        with sqlite_conn(self.config.app_db_path) as conn:
+            row = conn.execute(sql, (structure_id,)).fetchone()
+        return row["alias_legacy_aba"] if row else None
+
+    def latest_timestamps_by_structure_id(
+        self,
+        structure_id: int,
+    ) -> "Tuple[Optional[datetime], Optional[datetime]]":
+        """
+        Versão canônica de latest_timestamps() por structure_id.
+        Retorna (manual_latest_ts, rtd_latest_ts).
+        """
+        aba = self._resolve_aba_from_structure_id(structure_id)
+        if aba is None:
+            return (None, None)
+        return self.latest_timestamps(aba=aba)
+

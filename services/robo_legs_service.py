@@ -26,3 +26,28 @@ class RoboLegsService:
                 first = report.errors[0]
                 raise ValueError(f"Legs inválidas: {first.code} field={first.field} aba={first.aba}")
         return legs
+
+    def get_legs_by_structure_id(
+        self,
+        structure_id: int,
+        timestamp: Any,
+        validate: bool = True,
+    ) -> "List[RoboLegDTO]":
+        """
+        patch_40: ponto de entrada canônico por structure_id.
+        Delega para repo.get_legs_by_structure_id() e valida.
+        """
+        legs = self.repo.get_legs_by_structure_id(
+            structure_id=structure_id,
+            timestamp=timestamp,
+        )
+        if validate:
+            report = validate_legs(legs)
+            if not report.is_ok():
+                first = report.errors[0]
+                raise ValueError(
+                    f"Legs inválidas: {first.code} field={first.field} "
+                    f"structure_id={structure_id}"
+                )
+        return legs
+

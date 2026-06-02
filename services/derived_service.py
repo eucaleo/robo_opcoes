@@ -368,6 +368,26 @@ def get_payoff_by_aba(aba: str):
         ]
 
 
+
+
+def get_payoff_by_structure_id(structure_id: int):
+    """
+    patch_40: ponto de entrada canônico por structure_id.
+    Resolve structure_id → aba via cache, delega para get_payoff_by_aba().
+    """
+    if not _ABA_CACHE_LOADED:
+        _load_aba_cache()
+
+    # Inverter o cache para structure_id → aba
+    sid_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+    aba = sid_to_aba.get(structure_id)
+
+    if aba is None:
+        return []  # structure_id não mapeado — retorna lista vazia
+
+    return get_payoff_by_aba(aba)
+
+
 def get_recent_decisions():
     with connect_derived() as conn:
         conn.row_factory = sqlite3.Row
