@@ -98,15 +98,18 @@ class TestPatch38PatchesMd(unittest.TestCase):
 class TestPatch38BackupGerado(unittest.TestCase):
     """Check 9 — backup ui_data.py.bak_p38_* gerado"""
 
-    def test_backup_existe(self):
+    def test_backup_nao_existe(self):
+        """Nenhum .bak_p38 deve existir — removidos em chore 1bbe32e.
+        Repo usa git para historico; backups manuais sao proibidos.
+        """
         models_dir = os.path.join(ROOT, "UI", "models")
         backups = [
             f for f in os.listdir(models_dir)
             if f.startswith("ui_data.py.bak_p38_")
         ]
-        self.assertTrue(
-            len(backups) > 0,
-            "Nenhum backup ui_data.py.bak_p38_* encontrado em UI/models/",
+        self.assertEqual(
+            len(backups), 0,
+            f"Arquivos .bak_p38 encontrados (devem ser removidos): {backups}",
         )
 
 
