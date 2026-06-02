@@ -3,6 +3,7 @@
 Repositório canônico de estruturas e suas pernas (legs).
 PATCH_11: conexões SQLite fechadas explicitamente via try/finally
           para evitar ResourceWarning no Python 3.13+.
+PATCH_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
 """
 
 import sqlite3
@@ -418,7 +419,6 @@ class StructuresRepository:
                 ),
             )
 
-            # ← atualiza updated_at da estrutura pai (lógica original preservada)
             conn.execute(
                 "UPDATE structures SET updated_at = ? WHERE id = ?",
                 (now, structure_id),
@@ -483,7 +483,6 @@ class StructuresRepository:
                     ),
                 )
 
-            # ← atualiza updated_at da estrutura pai (lógica original preservada)
             conn.execute(
                 "UPDATE structures SET updated_at = ? WHERE id = ?",
                 (now, structure_id),
@@ -495,3 +494,57 @@ class StructuresRepository:
             raise
         finally:
             conn.close()
+
+    # ------------------------------------------------------------------
+    # LOOKUP POR ALIAS LEGADO
+    # patch_42: permite localizar estrutura pelo campo alias_legacy_aba
+    # sem usar aba como chave primaria.
+    # Retorna None se nao encontrado ou se alias for None/vazio.
+    # ------------------------------------------------------------------
+
+    def get_structure_by_alias(self, alias: str) -> dict[str, Any] | None:
+        if not alias or not str(alias).strip():
+            return None
+
+        alias = str(alias).strip()
+
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                """
+                SELECT
+                    id,
+                    name,
+                    underlying_asset,
+                    alias_legacy_aba,
+                    status,
+                    notes,
+                    created_at,
+                    updated_at
+                FROM structures
+                WHERE alias_legacy_aba = ?
+                  AND status = 'active'
+                ORDER BY id DESC
+                LIMIT 1
+                """,
+                (alias,),
+            ).fetchone()
+
+            structure = self._row_to_dict(row)
+            if structure is None:
+                return None
+
+            structure["legs"] = self._fetch_legs(conn, structure["id"])
+            return structure
+        finally:
+            conn.close()
+
+    def get_structure_id_by_alias(self, alias: str) -> int | None:
+        """
+        patch_42: retorna apenas o id da estrutura pelo alias.
+        Util para resolucao rapida sem carregar legs.
+        """
+        result = self.get_structure_by_alias(alias)
+        if result is None:
+            return None
+        return int(result["id"])

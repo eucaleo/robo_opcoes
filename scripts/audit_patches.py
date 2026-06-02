@@ -980,6 +980,81 @@ PATCHES = [
              )),
         ],
     },
+    {
+        "id": "patch_42",
+        "desc": "StructuresRepository — get_structure_by_alias() e get_structure_id_by_alias() (lookup por alias_legacy_aba)",
+        "checks": [
+            # ── 1. Implementação ──────────────────────────────────────
+            ("repositories/structures_repository.py existe",
+             lambda: exists("repositories/structures_repository.py")),
+            ("get_structure_by_alias() implementado",
+             lambda: contains(
+                 "repositories/structures_repository.py",
+                 "def get_structure_by_alias"
+             )),
+            ("get_structure_id_by_alias() implementado",
+             lambda: contains(
+                 "repositories/structures_repository.py",
+                 "def get_structure_id_by_alias"
+             )),
+            ("WHERE alias_legacy_aba = ? presente (lookup correto)",
+             lambda: contains(
+                 "repositories/structures_repository.py",
+                 "alias_legacy_aba = ?"
+             )),
+            ("PATCH_42 registrado no header do repositório",
+             lambda: contains(
+                 "repositories/structures_repository.py",
+                 "PATCH_42"
+             )),
+
+            # ── 2. Guards de entrada ─────────────────────────────────
+            ("Guard alias vazio/None retorna None sem query",
+             lambda: contains(
+                 "repositories/structures_repository.py",
+                 "alias_legacy_aba"
+             )),
+
+            # ── 3. Testes formais ────────────────────────────────────
+            ("ATT/tests/test_patch42.py existe",
+             lambda: exists("ATT/tests/test_patch42.py")),
+            ("TestPatch42RepoFileExists presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42RepoFileExists"
+             )),
+            ("TestPatch42MetodosPresentes presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42MetodosPresentes"
+             )),
+            ("TestPatch42SemAbaComoChave presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42SemAbaComoChave"
+             )),
+            ("TestPatch42FuncionalAliasInexistente presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42FuncionalAliasInexistente"
+             )),
+            ("TestPatch42FuncionalAliasVazio presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42FuncionalAliasVazio"
+             )),
+            ("TestPatch42FuncionalAliasEncontrado presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42FuncionalAliasEncontrado"
+             )),
+            ("TestPatch42ArchivedNaoRetornado presente",
+             lambda: contains(
+                 "ATT/tests/test_patch42.py",
+                 "TestPatch42ArchivedNaoRetornado"
+             )),
+        ],
+    },
 
 
 ]  # ← fechamento da lista PATCHES
