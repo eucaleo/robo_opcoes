@@ -174,7 +174,7 @@ class StructuresListPanel(ttk.Frame):
 
         self._tree.delete(*self._tree.get_children())
         for row in filtered:
-            n_legs = len(row.get("legs", []))   # list_structures não traz legs — mostramos "—"
+            n_legs = row.get("n_legs", 0)
             iid = str(row["id"])
             self._tree.insert(
                 "", "end", iid=iid,
