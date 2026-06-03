@@ -1,5 +1,4 @@
-# Criar o arquivo Python puro direto
-cat > scripts/39_audit_patch3b_baseline.py << 'EOF'
+#!/usr/bin/env python3
 """
 scripts/39_audit_patch3b_baseline.py
 
@@ -12,6 +11,7 @@ Objetivo:
   5. Verificar se o fluxo canonico Structure+Snapshot->derived esta fechado
   6. Inspecionar bridge/last_export.txt (residuo ou estado ativo?)
   7. Gerar relatorio em scripts/auditoria_patch39_YYYYMMDD_HHMM.md
+  8. Gerar artefato JSON em ATT/reports/auditoria_patch39.json
 
 Uso:
   python scripts/39_audit_patch3b_baseline.py
@@ -20,6 +20,7 @@ Uso:
 import os
 import re
 import sys
+import json
 import hashlib
 import subprocess
 from datetime import datetime
@@ -336,7 +337,7 @@ def run_audit():
     )
     section("Resumo Executivo e Plano de Acao", summary)
 
-    # --- GRAVAR RELATORIO ---
+    # --- GRAVAR RELATORIO .md ---
     report_path = ROOT / REPORT_NAME
     report_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -347,8 +348,27 @@ def run_audit():
     full_report = header + "".join(sections)
     report_path.write_text(full_report, encoding="utf-8")
 
-    print()
-    print(f"[audit] Relatorio salvo em: {report_path}")
+    print(f"\n[audit] Relatorio .md salvo em: {report_path}")
+
+    # --- GRAVAR ARTEFATO JSON (para audit_patches.py) ---
+    reports_dir = ROOT / "ATT" / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    json_path = reports_dir / "auditoria_patch39.json"
+
+    payload = {
+        "patch": 39,
+        "gerado_em": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "relatorio_md": str(report_path.relative_to(ROOT)),
+        "residuos_confirmados": residuals_confirmed,
+        "total_residuos_tracked": len(residuals_confirmed),
+        "status": "ok",
+    }
+    json_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    print(f"[audit] Artefato JSON salvo em: {json_path.relative_to(ROOT)}")
     print(f"[audit] Secoes geradas: {len(sections)}")
     print("[audit] Concluido.")
 
@@ -356,4 +376,3 @@ def run_audit():
 if __name__ == "__main__":
     run_audit()
     sys.exit(0)
-EOF

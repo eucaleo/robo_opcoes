@@ -1476,6 +1476,93 @@ PATCHES = [
                 )),
         ],
     },
+    {
+        "id": "patch_47",
+        "desc": "calculation_orchestrator — run_decision auto-extract pl_max/pl_atual/dte_min, multiplier fix (1.0), run_full_pipeline",
+        "checks": [
+            # ── 1. Arquivo ────────────────────────────────────────
+            ("services/calculation_orchestrator.py existe",
+                lambda: exists("services/calculation_orchestrator.py")),
+
+            # ── 2. run_full_pipeline ──────────────────────────────
+            ("run_full_pipeline() implementado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "def run_full_pipeline"
+                )),
+
+            # ── 3. Multiplier fix ─────────────────────────────────
+            ("multiplier hardcode 100 removido",
+                lambda: not contains(
+                    "services/calculation_orchestrator.py",
+                    '"multiplier":      getattr(leg, "multiplier", 100)'
+                )),
+            ("multiplier fallback e 1.0",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    '"multiplier":      getattr(leg, "multiplier",  1.0)'
+                )),
+
+            # ── 4. run_decision auto-extract ──────────────────────
+            ("run_decision extrai pl_max do payoff automaticamente",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    'payoff.get("pl_max")'
+                )),
+            ("run_decision extrai pl_atual do payoff automaticamente",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    'payoff.get("pl_atual")'
+                )),
+            ("run_decision extrai dte_min do market_snapshot",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    'request.market_snapshot, "dte_min"'
+                )),
+
+            # ── 5. Isolamento de DB ───────────────────────────────
+            ("Sem sqlite3 no orchestrator",
+                lambda: not contains(
+                    "services/calculation_orchestrator.py",
+                    "sqlite3"
+                )),
+            ("Sem get_app_db_connection no orchestrator",
+                lambda: not contains(
+                    "services/calculation_orchestrator.py",
+                    "get_app_db_connection"
+                )),
+            ("import Optional nao duplicado",
+                lambda: count_occurrences(
+                    "services/calculation_orchestrator.py",
+                    "from typing import"
+                ) <= 1),
+
+            # ── 6. Testes ─────────────────────────────────────────
+            ("ATT/tests/test_patch47.py existe",
+                lambda: exists("ATT/tests/test_patch47.py")),
+            ("TestPatch47ArquivoExiste presente",
+                lambda: contains(
+                    "ATT/tests/test_patch47.py",
+                    "TestPatch47ArquivoExiste"
+                )),
+            ("TestMultiplierFix presente",
+                lambda: contains(
+                    "ATT/tests/test_patch47.py",
+                    "TestMultiplierFix"
+                )),
+            ("TestRunDecisionAutoExtract presente",
+                lambda: contains(
+                    "ATT/tests/test_patch47.py",
+                    "TestRunDecisionAutoExtract"
+                )),
+            ("TestRunFullPipeline presente",
+                lambda: contains(
+                    "ATT/tests/test_patch47.py",
+                    "TestRunFullPipeline"
+                )),
+        ],
+    },
+
 ]  # ← fechamento da lista PATCHES
 
 # ------------------------------------------------------------------

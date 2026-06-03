@@ -163,8 +163,8 @@ class UIDataModel:
         raise RuntimeError(
             "Coluna 'structure_id' nao encontrada no colmap. "
             "Execute a migration do patch_33 antes de continuar."
-        )    
-    
+        )
+
     def _resolve_structure_key(self, structure_id: str) -> int:
         """
         patch_34: structure_id e sempre INTEGER.
@@ -177,6 +177,7 @@ class UIDataModel:
                 f"structure_id invalido: {structure_id!r}. "
                 "Esperado inteiro ou string numerica."
             ) from exc
+
     # ------------------------------------------------------------------
     # API pública
     # ------------------------------------------------------------------
@@ -211,7 +212,6 @@ class UIDataModel:
         )
         rows = conn.execute(q).fetchall()
         return [r["structure_id"] for r in rows]
-        
 
     def get_structures(self) -> List[str]:
         """Alias de get_structure_ids() para compatibilidade."""
@@ -234,6 +234,8 @@ class UIDataModel:
         Retorna lista de decisões.
         ◄ patch_33: filtra por structure_id quando disponível;
         fallback transparente para aba.
+        ◄ patch_3a: select_parts deriva aba de structure_id (e vice-versa)
+        quando a coluna física não existe na tabela.
         """
         if not self._consolidations_table:
             self.refresh()
@@ -253,13 +255,34 @@ class UIDataModel:
         else:
             pl_pct_expr = "NULL"
 
+        # ◄ patch_3a: deriva aba <-> structure_id quando coluna física ausente
         select_parts = []
         for alias in [
             "timestamp", "structure_id", "aba", "decision", "level",
             "dte_min", "why", "why_json", "pl_atual", "pl_max", "spot_ref",
         ]:
             src = c.get(alias)
-            select_parts.append(f"{src} AS {alias}" if src else f"NULL AS {alias}")
+            if src:
+                select_parts.append(f"{src} AS {alias}")
+            elif alias == "aba":
+                # aba ausente: deriva de structure_id (sem prefixo, cast TEXT)
+                sid_src = c.get("structure_id")
+                if sid_src:
+                    select_parts.append(f"CAST({sid_src} AS TEXT) AS aba")
+                else:
+                    select_parts.append("NULL AS aba")
+            elif alias == "structure_id":
+                # structure_id ausente: deriva de aba quando for numérica (legado)
+                aba_src = c.get("aba")
+                if aba_src:
+                    select_parts.append(
+                        f"CASE WHEN CAST({aba_src} AS TEXT) GLOB '[0-9]*' "
+                        f"THEN CAST({aba_src} AS INTEGER) ELSE NULL END AS structure_id"
+                    )
+                else:
+                    select_parts.append("NULL AS structure_id")
+            else:
+                select_parts.append(f"NULL AS {alias}")
 
         select_parts.append(f"({pl_pct_expr}) AS pl_pct_of_max")
 
@@ -329,12 +352,17 @@ class UIDataModel:
         for r in rows:
             item = dict(r)
 
-            # Adapter layer: garante ambos os campos sempre presentes
-            # ◄ patch_3a: structure_id é autoritativo (int); aba espelha o mesmo valor
-            # patch_34: structure_id e sempre preenchido pelo SELECT
-                # aba espelha structure_id para compat de leitura (patch_3a)
-            if item.get("aba") is None:
-                item["aba"] = item.get("structure_id")
+            # ◄ patch_3a: adapter layer — garante ambos os campos sempre presentes
+            # structure_id é autoritativo (int); aba é TEXT derivado
+            if item.get("structure_id") is None and item.get("aba") is not None:
+                # legado: tenta extrair int de aba
+                try:
+                    item["structure_id"] = int(item["aba"])
+                except (TypeError, ValueError):
+                    pass  # aba não-numérica: structure_id permanece None
+
+            if item.get("aba") is None and item.get("structure_id") is not None:
+                item["aba"] = str(item["structure_id"])
 
             # Normalizar why
             why_val = item.get("why")
