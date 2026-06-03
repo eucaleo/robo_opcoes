@@ -161,7 +161,7 @@ def main():
 
     # Grava relatório JSON
     os.makedirs(REPORT_DIR, exist_ok=True)
-    report_path = os.path.join(REPORT_DIR, "auditoria_patch44.json")
+    report_path = os.path.join(REPORT_DIR, "domain_dto_boundary.json")
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     print(f"\n  Relatório gravado em: {os.path.relpath(report_path, ROOT)}")

@@ -15,7 +15,7 @@ sys.path.insert(0, ROOT)
 DOMAIN_PAYOFF   = os.path.join(ROOT, "domain", "payoff.py")
 DOMAIN_DECISION = os.path.join(ROOT, "domain", "decision.py")
 SCRIPT          = os.path.join(ROOT, "scripts", "44_audit_domain_dto_boundary.py")
-REPORT_PATH     = os.path.join(ROOT, "ATT", "reports", "auditoria_patch44.json")
+REPORT_PATH     = os.path.join(ROOT, "ATT", "reports", "domain_dto_boundary.json")
 
 FORBIDDEN_IMPORTS = ["sqlite3", "get_app_db_connection", "get_derived_db_connection"]
 
