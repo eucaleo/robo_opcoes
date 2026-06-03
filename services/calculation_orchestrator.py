@@ -125,3 +125,89 @@ def build_calculation_request(
         len(legs),
     )
     return CalculationRequest(structure=structure, market_snapshot=snapshot)
+
+
+# ---------------------------------------------------------------------------
+# Adaptadores: CalculationRequest -> contrato do domínio
+# ---------------------------------------------------------------------------
+
+from types import SimpleNamespace
+from typing import Optional
+
+from domain.payoff import compute_payoff_from_canonical_input
+from domain.decision import compute_decision_from_contract
+
+
+def _request_to_payoff_dict(
+    request,
+    extra_meta=None,
+) -> dict:
+    """
+    Traduz CalculationRequest para o dict canônico que
+    compute_payoff_from_canonical_input() espera.
+    """
+    legs = []
+    for leg in request.structure.legs:
+        legs.append({
+            "position_side":   leg.position_side,
+            "option_type":     leg.option_type,
+            "strike":          leg.strike,
+            "expiration_date": leg.expiration_date,
+            "quantity":        leg.quantity,
+            "symbol":          getattr(leg, "symbol",     None),
+            "premium":         getattr(leg, "premium",    None),
+            "multiplier":      getattr(leg, "multiplier", 100),
+            "leg_order":       getattr(leg, "leg_order",  0),
+            "notes":           getattr(leg, "notes",      None),
+        })
+
+    return {
+        "structure": {
+            "structure_id":     request.structure.structure_id,
+            "underlying_asset": request.structure.underlying_asset,
+            "name":             getattr(request.structure, "name", None),
+            "legs":             legs,
+        },
+        "market": {
+            "spot_price":       request.market_snapshot.spot_price,
+            "underlying_asset": request.market_snapshot.underlying_asset,
+            "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+            "option_quotes":    getattr(request.market_snapshot, "option_quotes",     {}),
+            "greeks":           getattr(request.market_snapshot, "greeks",            {}),
+        },
+        "meta": extra_meta or {},
+    }
+
+
+def run_payoff(
+    request,
+    low_pct: float = 0.5,
+    high_pct: float = 1.5,
+    step_pct: float = 0.01,
+    extra_meta=None,
+) -> dict:
+    """Executa cálculo de payoff a partir de um CalculationRequest."""
+    canonical = _request_to_payoff_dict(request, extra_meta=extra_meta)
+    return compute_payoff_from_canonical_input(
+        canonical,
+        low_pct=low_pct,
+        high_pct=high_pct,
+        step_pct=step_pct,
+    )
+
+
+def run_decision(
+    request,
+    payoff=None,
+    pl_atual: float = 0.0,
+    pl_max: float = 0.0,
+    dte_min=None,
+) -> dict:
+    """Executa cálculo de decisão a partir de um CalculationRequest."""
+    from types import SimpleNamespace
+    contract = SimpleNamespace(
+        pl_max=pl_max,
+        pl_atual=pl_atual,
+        dte_min=dte_min,
+    )
+    return compute_decision_from_contract(contract, payoff=payoff)

@@ -1055,10 +1055,346 @@ PATCHES = [
              )),
         ],
     },
+    {
+        "id": "patch_39",
+        "desc": "Auditoria pre-patch/3b: baseline de acoplamento legado (script + relatorio JSON)",
+        "checks": [
+            # ── 1. Script de auditoria ────────────────────────────
+            ("scripts/39_audit_patch3b_baseline.py existe",
+                lambda: exists("scripts/39_audit_patch3b_baseline.py")),
+            ("run_audit() implementado no script",
+                lambda: contains(
+                    "scripts/39_audit_patch3b_baseline.py",
+                    "def run_audit"
+                )),
+            ("SUSPECTED_RESIDUALS definido",
+                lambda: contains(
+                    "scripts/39_audit_patch3b_baseline.py",
+                    "SUSPECTED_RESIDUALS"
+                )),
+            ("LEGACY_PATTERNS definido",
+                lambda: contains(
+                    "scripts/39_audit_patch3b_baseline.py",
+                    "LEGACY_PATTERNS"
+                )),
+            ("DOMAIN_FILES_TO_CHECK definido",
+                lambda: contains(
+                    "scripts/39_audit_patch3b_baseline.py",
+                    "DOMAIN_FILES_TO_CHECK"
+                )),
+            ("patch_39: relatorio .md gerado em scripts/ e artefato JSON em ATT/reports/",
+                lambda: os.path.isfile(os.path.join(ROOT, "ATT", "reports", "auditoria_patch39.json"))
+                    and any(glob.glob(os.path.join(ROOT, "scripts", "auditoria_patch39_*.md"))),
+            ),
+            ("git branch capturado no relatorio",
+                lambda: contains(
+                    "scripts/39_audit_patch3b_baseline.py",
+                    "_git_branch"
+                )),
 
+            # ── 2. Testes formais ─────────────────────────────────
+            ("ATT/tests/test_patch39.py existe",
+                lambda: exists("ATT/tests/test_patch39.py")),
+            ("TestPatch39ScriptExiste presente",
+                lambda: contains(
+                    "ATT/tests/test_patch39.py",
+                    "TestPatch39ScriptExiste"
+                )),
+            ("TestPatch39ConteudoEstrutura presente",
+                lambda: contains(
+                    "ATT/tests/test_patch39.py",
+                    "TestPatch39ConteudoEstrutura"
+                )),
+            ("TestPatch39ImportsBasicos presente",
+                lambda: contains(
+                    "ATT/tests/test_patch39.py",
+                    "TestPatch39ImportsBasicos"
+                )),
+        ],
+    },
+    {
+        "id": "patch_40",
+        "desc": "Isolamento de acoplamento legado: repos e services migrados para structure_id",
+        "checks": [
+            # ── 1. Script de patch ────────────────────────────────
+            ("scripts/40_patch_legacy_coupling_isolation.py existe",
+                lambda: exists("scripts/40_patch_legacy_coupling_isolation.py")),
+
+            # ── 2. RoboLegsRepository ─────────────────────────────
+            ("repositories/robo_legs_repository.py existe",
+                lambda: exists("repositories/robo_legs_repository.py")),
+            ("get_legs_by_structure_id() implementado",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def get_legs_by_structure_id"
+                )),
+            ("has_manual_by_structure_id() implementado",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def has_manual_by_structure_id"
+                )),
+            ("list_timestamps_by_structure_id() implementado",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def list_timestamps_by_structure_id"
+                )),
+            ("_resolve_aba_from_structure_id() implementado (lookup interno)",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def _resolve_aba_from_structure_id"
+                )),
+            ("get_legs() mantido como wrapper de compatibilidade",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def get_legs"
+                )),
+
+            # ── 3. RoboLegsStatusRepository ───────────────────────
+            ("repositories/robo_legs_status_repository.py existe",
+                lambda: exists("repositories/robo_legs_status_repository.py")),
+            ("latest_timestamps_by_structure_id() implementado",
+                lambda: contains(
+                    "repositories/robo_legs_status_repository.py",
+                    "def latest_timestamps_by_structure_id"
+                )),
+            ("_resolve_aba_from_structure_id() no status repo",
+                lambda: contains(
+                    "repositories/robo_legs_status_repository.py",
+                    "def _resolve_aba_from_structure_id"
+                )),
+
+            # ── 4. DerivedService ─────────────────────────────────
+            ("services/derived_service.py existe",
+                lambda: exists("services/derived_service.py")),
+            ("get_payoff_by_structure_id() implementado",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "def get_payoff_by_structure_id"
+                )),
+            ("get_payoff_by_aba() mantido como wrapper de compatibilidade",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "def get_payoff_by_aba"
+                )),
+
+            # ── 5. RoboLegsService ────────────────────────────────
+            ("services/robo_legs_service.py existe",
+                lambda: exists("services/robo_legs_service.py")),
+            ("get_legs_by_structure_id() no service",
+                lambda: contains(
+                    "services/robo_legs_service.py",
+                    "def get_legs_by_structure_id"
+                )),
+
+            # ── 6. Testes formais ─────────────────────────────────
+            ("ATT/tests/test_patch40.py existe",
+                lambda: exists("ATT/tests/test_patch40.py")),
+            ("TestPatch40ArquivosExistem presente",
+                lambda: contains(
+                    "ATT/tests/test_patch40.py",
+                    "TestPatch40ArquivosExistem"
+                )),
+            ("TestPatch40RoboLegsRepository presente",
+                lambda: contains(
+                    "ATT/tests/test_patch40.py",
+                    "TestPatch40RoboLegsRepository"
+                )),
+            ("TestPatch40RoboLegsStatusRepository presente",
+                lambda: contains(
+                    "ATT/tests/test_patch40.py",
+                    "TestPatch40RoboLegsStatusRepository"
+                )),
+            ("TestPatch40DerivedService presente",
+                lambda: contains(
+                    "ATT/tests/test_patch40.py",
+                    "TestPatch40DerivedService"
+                )),
+            ("TestPatch40RoboLegsService presente",
+                lambda: contains(
+                    "ATT/tests/test_patch40.py",
+                    "TestPatch40RoboLegsService"
+                )),
+        ],
+    },
+    {
+        "id": "patch_41",
+        "desc": "CanonicalPricingFacade — _get_alias_legacy_aba renomeado para _get_structure_info",
+        "checks": [
+            # ── 1. Implementacao ──────────────────────────────────
+            ("services/canonical_pricing_facade.py existe",
+                lambda: exists("services/canonical_pricing_facade.py")),
+            ("_get_alias_legacy_aba removido da facade",
+                lambda: not contains(
+                    "services/canonical_pricing_facade.py",
+                    "def _get_alias_legacy_aba"
+                )),
+            ("_get_structure_info() implementado (substituto canonico)",
+                lambda: contains(
+                    "services/canonical_pricing_facade.py",
+                    "def _get_structure_info"
+                )),
+            ("execute_pricing() preservado",
+                lambda: contains(
+                    "services/canonical_pricing_facade.py",
+                    "def execute_pricing"
+                )),
+            ("CanonicalPricingFacade definida",
+                lambda: contains(
+                    "services/canonical_pricing_facade.py",
+                    "class CanonicalPricingFacade"
+                )),
+
+            # ── 2. Testes formais ─────────────────────────────────
+            ("ATT/tests/test_patch41.py existe",
+                lambda: exists("ATT/tests/test_patch41.py")),
+            ("TestPatch41ArquivoExiste presente",
+                lambda: contains(
+                    "ATT/tests/test_patch41.py",
+                    "TestPatch41ArquivoExiste"
+                )),
+            ("TestPatch41Renome presente",
+                lambda: contains(
+                    "ATT/tests/test_patch41.py",
+                    "TestPatch41Renome"
+                )),
+            ("TestPatch41InterfacePublica presente",
+                lambda: contains(
+                    "ATT/tests/test_patch41.py",
+                    "TestPatch41InterfacePublica"
+                )),
+            ("TestPatch41SemArquivoNovo presente",
+                lambda: contains(
+                    "ATT/tests/test_patch41.py",
+                    "TestPatch41SemArquivoNovo"
+                )),
+        ],
+    },
+    {
+        "id": "patch_43",
+        "desc": "Registro formal de patch_39/40/41 + fechamento do check pendente patch_38",
+        "checks": [
+            # ── 1. Script do patch ────────────────────────────────
+            ("ATT/patches/patch_43_register_39_40_41.py existe",
+                lambda: exists("ATT/patches/patch_43_register_39_40_41.py")),
+            ("patch_43 registra patch_39 no script",
+                lambda: contains(
+                    "ATT/patches/patch_43_register_39_40_41.py",
+                    "patch_39"
+                )),
+            ("patch_43 registra patch_40 no script",
+                lambda: contains(
+                    "ATT/patches/patch_43_register_39_40_41.py",
+                    "patch_40"
+                )),
+            ("patch_43 registra patch_41 no script",
+                lambda: contains(
+                    "ATT/patches/patch_43_register_39_40_41.py",
+                    "patch_41"
+                )),
+            ("fechamento do check patch_38 implementado",
+                lambda: contains(
+                    "ATT/patches/patch_43_register_39_40_41.py",
+                    "patch_38"
+                )),
+            ("dry-run suportado (--dry-run)",
+                lambda: contains(
+                    "ATT/patches/patch_43_register_39_40_41.py",
+                    "dry-run"
+                )),
+
+            # ── 2. Backup patch_38 gerado ─────────────────────────
+            ("Backup ui_data.py.bak_p38_* gerado (check patch_38 fechado)",
+                lambda: any(
+                    f.startswith("ui_data.py.bak_p38_")
+                    for f in os.listdir(p("UI/models"))
+                    if os.path.isdir(p("UI/models"))
+                )),
+
+            # ── 3. Testes gerados pelo patch_43 ───────────────────
+            ("ATT/tests/test_patch39.py gerado pelo patch_43",
+                lambda: exists("ATT/tests/test_patch39.py")),
+            ("ATT/tests/test_patch40.py gerado pelo patch_43",
+                lambda: exists("ATT/tests/test_patch40.py")),
+            ("ATT/tests/test_patch41.py gerado pelo patch_43",
+                lambda: exists("ATT/tests/test_patch41.py")),
+
+            # ── 4. Suite pytest pos-patch_43 ─────────────────────
+            ("patch_43 executa pytest interno e valida suite",
+                lambda: contains(
+                    "ATT/patches/patch_43_register_39_40_41.py",
+                    "pytest"
+                )),
+        ],
+    },
+    {
+        "id": "patch_44",
+        "desc": "Auditoria do dominio como receptor de DTO — payoff.py e decision.py",
+        "checks": [
+            ("scripts/44_audit_domain_dto_boundary.py existe",
+            lambda: exists("scripts/44_audit_domain_dto_boundary.py")),
+            ("domain/payoff.py nao importa sqlite3 diretamente",
+            lambda: not contains("domain/payoff.py", "import sqlite3")),
+            ("domain/decision.py nao importa sqlite3 diretamente",
+            lambda: not contains("domain/decision.py", "import sqlite3")),
+            ("domain/payoff.py nao chama get_app_db_connection",
+            lambda: not contains("domain/payoff.py", "get_app_db_connection")),
+            ("domain/decision.py nao chama get_app_db_connection",
+            lambda: not contains("domain/decision.py", "get_app_db_connection")),
+            ("relatorio de fronteira gravado em ATT/reports/",
+            lambda: contains(
+                "scripts/44_audit_domain_dto_boundary.py",
+                "domain_dto_boundary.json"
+            )),
+            ("ATT/tests/test_patch44.py existe",
+            lambda: exists("ATT/tests/test_patch44.py")),
+            ("TestPatch44DomainNaoAcessaDB presente",
+            lambda: contains("ATT/tests/test_patch44.py", "TestPatch44DomainNaoAcessaDB")),
+            ("TestPatch44PayoffPuro presente",
+            lambda: contains("ATT/tests/test_patch44.py", "TestPatch44PayoffPuro")),
+            ("TestPatch44DecisionPuro presente",
+            lambda: contains("ATT/tests/test_patch44.py", "TestPatch44DecisionPuro")),
+        ],
+    },
+    {
+        "id": "patch_45",
+        "desc": "CalculationRequest — contrato canonico StructureInput + MarketSnapshotInput",
+        "checks": [
+            ("domain/calculation_request.py existe",
+            lambda: exists("domain/calculation_request.py")),
+            ("StructureInput definido",
+            lambda: contains("domain/calculation_request.py", "StructureInput")),
+            ("StructureLegInput definido",
+            lambda: contains("domain/calculation_request.py", "StructureLegInput")),
+            ("MarketSnapshotInput definido",
+            lambda: contains("domain/calculation_request.py", "MarketSnapshotInput")),
+            ("CalculationRequest definido",
+            lambda: contains("domain/calculation_request.py", "CalculationRequest")),
+            ("services/calculation_orchestrator.py existe",
+            lambda: exists("services/calculation_orchestrator.py")),
+            ("build_calculation_request() implementado",
+            lambda: contains(
+                "services/calculation_orchestrator.py",
+                "def build_calculation_request"
+            )),
+            ("orquestrador NAO acessa raw DB diretamente",
+            lambda: not contains(
+                "services/calculation_orchestrator.py",
+                "rtd_analise_robo"
+            )),
+            ("scripts/45_smoke_calculation_request.py existe",
+            lambda: exists("scripts/45_smoke_calculation_request.py")),
+            ("ATT/tests/test_patch45.py existe",
+            lambda: exists("ATT/tests/test_patch45.py")),
+            ("TestPatch45ContratoDomain presente",
+            lambda: contains("ATT/tests/test_patch45.py", "TestPatch45ContratoDomain")),
+            ("TestPatch45OrchestratorBuildsDTO presente",
+            lambda: contains("ATT/tests/test_patch45.py", "TestPatch45OrchestratorBuildsDTO")),
+            ("TestPatch45SemAcessoRawDB presente",
+            lambda: contains("ATT/tests/test_patch45.py", "TestPatch45SemAcessoRawDB")),
+        ],
+    },
 
 ]  # ← fechamento da lista PATCHES
-
 
 # ------------------------------------------------------------------
 # Definicao dos bancos esperados
@@ -1101,6 +1437,128 @@ FASE_3A_SERVICES = [
     "services/pricing_execution_app_service.py",
     "domain/market_snapshot.py",
     "repositories/market_snapshot_repository.py",
+
+        {
+            "id": "patch_46",
+            "desc": "calculation_orchestrator — run_payoff() e run_decision() adaptam CalculationRequest ao domínio",
+            "checks": [
+                # ── 1. Implementação no orquestrador ─────────────────────
+                ("services/calculation_orchestrator.py existe",
+                 lambda: exists("services/calculation_orchestrator.py")),
+                ("_request_to_payoff_dict() implementado",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "def _request_to_payoff_dict"
+                 )),
+                ("run_payoff() implementado",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "def run_payoff"
+                 )),
+                ("run_decision() implementado",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "def run_decision"
+                 )),
+                ("compute_payoff_from_canonical_input importado no orquestrador",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "compute_payoff_from_canonical_input"
+                 )),
+                ("compute_decision_from_contract importado no orquestrador",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "compute_decision_from_contract"
+                 )),
+                ("SimpleNamespace usado para montar contract em run_decision",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "SimpleNamespace"
+                 )),
+
+                # ── 2. Tradução fiel de CalculationRequest ────────────────
+                ("structure_id traduzido no dict canônico",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "structure_id"
+                 )),
+                ("spot_price traduzido no dict de market",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "spot_price"
+                 )),
+                ("legs iteradas e convertidas para lista de dicts",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "for leg in request.structure.legs"
+                 )),
+                ("low_pct/high_pct/step_pct repassados ao domínio",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "low_pct"
+                 )),
+                ("dte_min repassado ao contract em run_decision",
+                 lambda: contains(
+                     "services/calculation_orchestrator.py",
+                     "dte_min"
+                 )),
+
+                # ── 3. Testes formais — 17 passou / 0 falhou ─────────────
+                ("ATT/tests/test_orchestrator_run_methods.py existe",
+                 lambda: exists("ATT/tests/test_orchestrator_run_methods.py")),
+                ("TestRequestToPayoffDict presente (7 testes)",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "TestRequestToPayoffDict"
+                 )),
+                ("TestRunPayoff presente (4 testes)",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "TestRunPayoff"
+                 )),
+                ("TestRunDecision presente (5 testes)",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "TestRunDecision"
+                 )),
+                ("TestRunPayoffIntegration presente (smoke real)",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "TestRunPayoffIntegration"
+                 )),
+                ("test_chama_dominio_com_dict_correto presente",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "test_chama_dominio_com_dict_correto"
+                 )),
+                ("test_parametros_de_range_repassados presente",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "test_parametros_de_range_repassados"
+                 )),
+                ("test_chama_dominio_com_contract_correto presente",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "test_chama_dominio_com_contract_correto"
+                 )),
+                ("test_defaults_pl_zerados presente",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "test_defaults_pl_zerados"
+                 )),
+                ("test_smoke_run_payoff_call_chain presente",
+                 lambda: contains(
+                     "ATT/tests/test_orchestrator_run_methods.py",
+                     "test_smoke_run_payoff_call_chain"
+                 )),
+
+                # ── 4. Zero regressão ─────────────────────────────────────
+                ("from __future__ import annotations NAO duplicado no orquestrador",
+                 lambda: count_occurrences("services/calculation_orchestrator.py", "from __future__ import annotations") <= 1,
+                ),
+            ],
+        },
+
 ]
 
 
