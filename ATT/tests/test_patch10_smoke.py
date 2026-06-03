@@ -209,15 +209,18 @@ class TestStructuresRepository(unittest.TestCase):
         self.assertNotEqual(data["legs"][0]["option_type"], "PUT")
 
     def test_replace_legs_vazia_limpa(self):
-        """patch/3a: replace_legs([]) deve levantar ValueError (guard intencional)."""
+        """P1a: replace_legs([]) aceita lista vazia e limpa as legs (guard removido)."""
         sid = self._repo.create_structure({"name": "Test2", "underlying_asset": "Y"})
         self._repo.replace_legs(sid, [
             {"position_side": "LONG", "option_type": "CALL",
              "strike": "100", "expiration_date": "2025-12-19",
              "quantity": "5", "leg_order": 1},
         ])
-        with self.assertRaises(ValueError):
-            self._repo.replace_legs(sid, [])
+        # P1a: lista vazia deve ser aceita sem ValueError
+        self._repo.replace_legs(sid, [])
+        # P1b: count_legs confirma que ficou zerado
+        n = self._repo.count_legs(sid)
+        assert n == 0, f"esperado 0 legs apos replace_legs([]), obtido {n}"
 
     # ── ARCHIVE ─────────────────────────────────────────────────
     def test_archive_structure(self):
