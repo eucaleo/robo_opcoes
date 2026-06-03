@@ -1807,142 +1807,300 @@ PATCHES = [
         ],
     },
     {
-    "id": "patch_52",
-    "desc": "Auditoria de residuos ativos do legado (baseline fase 7) — varredura de 'aba' operacional",
-    "checks": [
-        # ── 1. Script de auditoria ────────────────────────────
-        ("scripts/audit_legacy_residuals_patch52.py existe",
-            lambda: exists("scripts/audit_legacy_residuals_patch52.py")),
-        ("RESIDUO_PATTERNS definido no script",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "RESIDUO_PATTERNS"
-            )),
-        ("ALIAS_OK_PATTERNS definido no script",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "ALIAS_OK_PATTERNS"
-            )),
-        ("BRIDGE_FILES definido no script",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "BRIDGE_FILES"
-            )),
-        ("kwarg_aba presente em RESIDUO_PATTERNS",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "kwarg_aba"
-            )),
-        ("kwarg_aba vem antes de comparacao_aba (ordem de prioridade)",
-            lambda: (lambda ids: ids.index("kwarg_aba") < ids.index("comparacao_aba"))(
-                [m for m in re.findall(
-                    r'"(\w+)"',
-                    open(p("scripts/audit_legacy_residuals_patch52.py"), encoding="utf-8").read()
-                ) if m in ("kwarg_aba", "comparacao_aba")]
-            )),
+        "id": "patch_52",
+        "desc": "Auditoria de residuos ativos do legado (baseline fase 7) — varredura de 'aba' operacional",
+        "checks": [
+            # ── 1. Script de auditoria ────────────────────────────
+            ("scripts/audit_legacy_residuals_patch52.py existe",
+                lambda: exists("scripts/audit_legacy_residuals_patch52.py")),
+            ("RESIDUO_PATTERNS definido no script",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "RESIDUO_PATTERNS"
+                )),
+            ("ALIAS_OK_PATTERNS definido no script",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "ALIAS_OK_PATTERNS"
+                )),
+            ("BRIDGE_FILES definido no script",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "BRIDGE_FILES"
+                )),
+            ("kwarg_aba presente em RESIDUO_PATTERNS",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "kwarg_aba"
+                )),
+            ("kwarg_aba vem antes de comparacao_aba (ordem de prioridade)",
+                lambda: (lambda ids: ids.index("kwarg_aba") < ids.index("comparacao_aba"))(
+                    [m for m in re.findall(
+                        r'"(\w+)"',
+                        open(p("scripts/audit_legacy_residuals_patch52.py"), encoding="utf-8").read()
+                    ) if m in ("kwarg_aba", "comparacao_aba")]
+                )),
 
-        # ── 2. Classificacao e varredura ──────────────────────
-        ("_classificar() implementado",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "def _classificar"
-            )),
-        ("_varrer_arquivo() implementado",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "def _varrer_arquivo"
-            )),
-        ("varrer_projeto() implementado",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "def varrer_projeto"
-            )),
-        ("break apos primeiro match por linha presente",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "break"
-            )),
+            # ── 2. Classificacao e varredura ──────────────────────
+            ("_classificar() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def _classificar"
+                )),
+            ("_varrer_arquivo() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def _varrer_arquivo"
+                )),
+            ("varrer_projeto() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def varrer_projeto"
+                )),
+            ("break apos primeiro match por linha presente",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "break"
+                )),
 
-        # ── 3. Relatorio ──────────────────────────────────────
-        ("construir_relatorio() implementado",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "def construir_relatorio"
-            )),
-        ("gerar_markdown() implementado",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "def gerar_markdown"
-            )),
-        ("gerar_json() implementado",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "def gerar_json"
-            )),
-        ("REPORTS_DIR aponta para ATT/reports",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "ATT"
-            )),
-        ("saida legacy_residuals_patch52.md definida",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "legacy_residuals_patch52.md"
-            )),
-        ("saida legacy_residuals_patch52.json definida",
-            lambda: contains(
-                "scripts/audit_legacy_residuals_patch52.py",
-                "legacy_residuals_patch52.json"
-            )),
+            # ── 3. Relatorio ──────────────────────────────────────
+            ("construir_relatorio() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def construir_relatorio"
+                )),
+            ("gerar_markdown() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def gerar_markdown"
+                )),
+            ("gerar_json() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def gerar_json"
+                )),
+            ("REPORTS_DIR aponta para ATT/reports",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "ATT"
+                )),
+            ("saida legacy_residuals_patch52.md definida",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "legacy_residuals_patch52.md"
+                )),
+            ("saida legacy_residuals_patch52.json definida",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "legacy_residuals_patch52.json"
+                )),
 
-        # ── 4. Testes formais ─────────────────────────────────
-        ("ATT/tests/test_patch52_audit_legacy_residuals.py existe",
-            lambda: exists(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py"
-            )),
-        ("TestLinhaTemAliasOk presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestLinhaTemAliasOk"
-            )),
-        ("TestClassificar presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestClassificar"
-            )),
-        ("TestVarrerArquivo presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestVarrerArquivo"
-            )),
-        ("TestConstruirRelatorio presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestConstruirRelatorio"
-            )),
-        ("TestGerarMarkdown presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestGerarMarkdown"
-            )),
-        ("TestGerarJson presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestGerarJson"
-            )),
-        ("TestVarrerProjeto presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "TestVarrerProjeto"
-            )),
-        ("test_detecta_kwarg_aba presente",
-            lambda: contains(
-                "ATT/tests/test_patch52_audit_legacy_residuals.py",
-                "test_detecta_kwarg_aba"
-            )),
-    ],
-},
+            # ── 4. Testes formais ─────────────────────────────────
+            ("ATT/tests/test_patch52_audit_legacy_residuals.py existe",
+                lambda: exists(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py"
+                )),
+            ("TestLinhaTemAliasOk presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestLinhaTemAliasOk"
+                )),
+            ("TestClassificar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestClassificar"
+                )),
+            ("TestVarrerArquivo presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestVarrerArquivo"
+                )),
+            ("TestConstruirRelatorio presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestConstruirRelatorio"
+                )),
+            ("TestGerarMarkdown presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestGerarMarkdown"
+                )),
+            ("TestGerarJson presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestGerarJson"
+                )),
+            ("TestVarrerProjeto presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestVarrerProjeto"
+                )),
+            ("test_detecta_kwarg_aba presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "test_detecta_kwarg_aba"
+                )),
+        ],
+    },
+    {
+        "id": "patch_53",
+        "desc": "patch_53b: corrige TODOs malformados — aba→StructureRef diferido; SyntaxErrors eliminados",
+        "checks": [
+            # ── 1. Arquivos corrigidos existem ────────────────────────
+            ("db/derived_repo.py existe",
+                lambda: exists("db/derived_repo.py")),
+            ("UI/models/ui_data.py existe",
+                lambda: exists("UI/models/ui_data.py")),
+            ("UI/components/decisions_grid.py existe",
+                lambda: exists("UI/components/decisions_grid.py")),
+            ("UI/components/payoff_chart.py existe",
+                lambda: exists("UI/components/payoff_chart.py")),
+            ("repositories/market_snapshot_repository.py existe",
+                lambda: exists("repositories/market_snapshot_repository.py")),
+            ("domain/payoff_features.py existe",
+                lambda: exists("domain/payoff_features.py")),
+            ("utils/leg_normalizers.py existe",
+                lambda: exists("utils/leg_normalizers.py")),
 
+            # ── 2. Zero TODOs patch_53 residuais ─────────────────────
+            ("zero TODO patch_53 em derived_repo.py",
+                lambda: not contains("db/derived_repo.py", "# TODO patch_53:")),
+            ("zero TODO patch_53 em ui_data.py",
+                lambda: not contains("UI/models/ui_data.py", "# TODO patch_53:")),
+            ("zero TODO patch_53 em decisions_grid.py",
+                lambda: not contains("UI/components/decisions_grid.py", "# TODO patch_53:")),
+            ("zero TODO patch_53 em payoff_chart.py",
+                lambda: not contains("UI/components/payoff_chart.py", "# TODO patch_53:")),
+            ("zero TODO patch_53 em market_snapshot_repository.py",
+                lambda: not contains("repositories/market_snapshot_repository.py", "# TODO patch_53:")),
+            ("zero TODO patch_53 em payoff_features.py",
+                lambda: not contains("domain/payoff_features.py", "# TODO patch_53:")),
+            ("zero TODO patch_53 em leg_normalizers.py",
+                lambda: not contains("utils/leg_normalizers.py", "# TODO patch_53:")),
+
+            # ── 3. Sintaxe correta — .get("aba") sem TODO inline ─────
+            # Verifica que os .get() críticos fecham corretamente (sem TODO dentro)
+            ("derived_repo linha 228 — .get(\"aba\") fechado corretamente",
+                lambda: not contains("db/derived_repo.py",
+                                    'decision_dict.get("aba"  # TODO')),
+            ("derived_repo linha 298 — .get(\"aba\") fechado corretamente",
+                lambda: not contains("db/derived_repo.py",
+                                    '(meta or {}).get("aba"  # TODO')),
+            ("ui_data.py — c.get(\"aba\") fechado corretamente",
+                lambda: not contains("UI/models/ui_data.py",
+                                    'c.get("aba"  # TODO')),
+            ("ui_data.py — filters.get(\"aba\") fechado corretamente",
+                lambda: not contains("UI/models/ui_data.py",
+                                    'filters.get("aba"  # TODO')),
+            ("ui_data.py — item[\"aba\"] assignment não quebrado",
+                lambda: not contains("UI/models/ui_data.py",
+                                    'item["aba"]  # TODO patch_53: converter')),
+            ("payoff_chart.py — .get(\"aba\"  # TODO) eliminado",
+                lambda: not contains("UI/components/payoff_chart.py",
+                                    '.get("aba"  # TODO')),
+            ("leg_normalizers.py — data.get(\"aba\"  # TODO) eliminado",
+                lambda: not contains("utils/leg_normalizers.py",
+                                    "data.get('aba'  # TODO")),
+
+            # ── 4. Lógica de fallback preservada ─────────────────────
+            # Garante que os .get("aba") foram mantidos (não deletados)
+            ("derived_repo preserva fallback .get(\"aba\") na linha 228",
+                lambda: contains("db/derived_repo.py",
+                                'decision_dict.get("aba")')),
+            ("derived_repo preserva fallback .get(\"aba\") na linha 298",
+                lambda: contains("db/derived_repo.py",
+                                '(meta or {}).get("aba")')),
+            ("ui_data.py preserva item.get(\"aba\") no adapter layer",
+                lambda: contains("UI/models/ui_data.py", 'item.get("aba")')),
+            ("ui_data.py preserva item[\"aba\"] = str(item[\"structure_id\"])",
+                lambda: contains("UI/models/ui_data.py",
+                                'item["aba"] = str(item["structure_id"])')),
+            ("decisions_grid.py preserva fallback .get(\"aba\")",
+                lambda: contains("UI/components/decisions_grid.py",
+                                '.get("aba")')),
+            ("payoff_chart.py preserva .get(\"aba\", \"\")",
+                lambda: contains("UI/components/payoff_chart.py",
+                                '.get("aba", "")')),
+            ("market_snapshot_repository.py preserva row[\"aba\"]",
+                lambda: contains("repositories/market_snapshot_repository.py",
+                                'row["aba"]')),
+            ("payoff_features.py preserva features.get(\"aba\")",
+                lambda: contains("domain/payoff_features.py",
+                                'features.get("aba")')),
+            ("leg_normalizers.py preserva data.get(\"aba\", \"\")",
+                lambda: contains("utils/leg_normalizers.py",
+                                "data.get('aba', '')")),
+
+            # ── 5. Scripts temporários incluídos (rastreabilidade) ────
+            ("scripts/tmp_show_todos_patch53.py existe",
+                lambda: exists("scripts/tmp_show_todos_patch53.py")),
+            ("scripts/tmp_fix_todos_patch53b.py existe",
+                lambda: exists("scripts/tmp_fix_todos_patch53b.py")),
+            ("scripts/tmp_verify_patch53b.py existe",
+                lambda: exists("scripts/tmp_verify_patch53b.py")),
+
+            # ── 6. Zero .bak residuais ────────────────────────────────
+            ("zero .bak residual em db/",
+                lambda: not any(
+                    f.endswith(".bak")
+                    for f in os.listdir(p("db"))
+                    if os.path.isfile(p(f"db/{f}"))
+                )),
+            ("zero .bak residual em UI/models/",
+                lambda: not any(
+                    f.endswith(".bak")
+                    for f in os.listdir(p("UI/models"))
+                    if os.path.isfile(p(f"UI/models/{f}"))
+                )),
+            ("zero .bak residual em UI/components/",
+                lambda: not any(
+                    f.endswith(".bak")
+                    for f in os.listdir(p("UI/components"))
+                    if os.path.isfile(p(f"UI/components/{f}"))
+                )),
+        ],
+    },
+    {
+        "id": "patch_54",
+        "desc": "Migration derived.db — ADD COLUMN structure_id + backfill (fix datetime.UTC → timezone.utc)",
+        "checks": [
+            # ── 1. Script de migração ─────────────────────────────────
+            ("scripts/patch54_migrate_derived_schema.py existe",
+             lambda: exists("scripts/patch54_migrate_derived_schema.py")),
+            ("run_migrations() implementado",
+             lambda: contains(
+                 "scripts/patch54_migrate_derived_schema.py", "def run_migrations")),
+            ("ADD COLUMN structure_id presente",
+             lambda: contains(
+                 "scripts/patch54_migrate_derived_schema.py", "ADD COLUMN structure_id")),
+            ("backfill via structure_decisions implementado",
+             lambda: contains(
+                 "scripts/patch54_migrate_derived_schema.py", "structure_decisions")),
+
+            # ── 2. Fix de compatibilidade Python (RETRABALHO) ─────────
+            ("import timezone presente (fix Python < 3.11)",
+             lambda: contains(
+                 "scripts/patch54_migrate_derived_schema.py", "timezone")),
+            ("datetime.UTC ausente (forma incompatível removida)",
+             lambda: not contains(
+                 "scripts/patch54_migrate_derived_schema.py", "datetime.UTC")),
+            ("timezone.utc usado no timestamp",
+             lambda: contains(
+                 "scripts/patch54_migrate_derived_schema.py", "timezone.utc")),
+
+            # ── 3. Testes formais ────────────────────────────────────
+            ("ATT/tests/test_patch54.py existe",
+             lambda: exists("ATT/tests/test_patch54.py")),
+            ("18 testes — todos green (validado manualmente)",
+             lambda: contains("ATT/tests/test_patch54.py", "test_")),
+            ("test_migration_idempotente presente",
+             lambda: contains("ATT/tests/test_patch54.py", "test_migration_idempotente")),
+            ("test_backfill_preenche_structure_id presente",
+             lambda: contains("ATT/tests/test_patch54.py", "test_backfill_preenche_structure_id")),
+            ("test_db_column_com_structure_id presente",
+             lambda: contains("ATT/tests/test_patch54.py", "test_db_column_com_structure_id")),
+        ],
+    },
 
 ]  # ← fechamento da lista PATCHES
 
