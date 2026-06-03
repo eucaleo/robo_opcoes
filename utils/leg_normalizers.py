@@ -1,3 +1,4 @@
+from src.domain.refs.structure_ref import StructureRef
 from datetime import datetime, timedelta
 from typing import Union, Optional
 import pandas as pd
@@ -155,7 +156,7 @@ class LegNormalizer:
         """Cria DTO a partir de dicionário com normalização automática"""
 
         normalized_data = {
-            'aba': str(data.get('aba', '')).strip(),
+            'aba': str(data.get('aba'  # TODO patch_53: converter para StructureRef, '')).strip(),
             'timestamp': cls.parse_timestamp(data.get('timestamp')),
             'cv': cls.normalize_cv(data.get('cv')),
             'call_put': cls.normalize_call_put(data.get('call_put')),

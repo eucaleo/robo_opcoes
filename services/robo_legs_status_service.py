@@ -1,3 +1,4 @@
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -28,7 +29,7 @@ class RoboLegsStatusService:
         self.status_repo = status_repo or RoboLegsStatusRepository(RoboLegsStatusRepoConfig())
         self.freshness = freshness or RoboLegsFreshnessConfig()
 
-    def status(self, aba: str, requested_timestamp: object, ttl_seconds: Optional[int] = None) -> RoboLegsStatusDTO:
+    def status(self, ref: StructureRef, requested_timestamp: object, ttl_seconds: Optional[int] = None) -> RoboLegsStatusDTO:
         requested_ts = parse_timestamp(requested_timestamp)
         ttl = timedelta(seconds=ttl_seconds if ttl_seconds is not None else self.freshness.default_ttl_seconds)
         validate_ttl(ttl)

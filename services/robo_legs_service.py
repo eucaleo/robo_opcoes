@@ -1,3 +1,4 @@
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 from typing import Any, List, Optional
@@ -17,7 +18,7 @@ class RoboLegsService:
     def __init__(self, repo: Optional[RoboLegsRepository] = None):
         self.repo = repo or RoboLegsRepository(RoboLegsRepoConfig())
 
-    def get_legs(self, aba: str, timestamp: Any, validate: bool = True) -> List[RoboLegDTO]:
+    def get_legs(self, ref: StructureRef, timestamp: Any, validate: bool = True) -> List[RoboLegDTO]:
         legs = self.repo.get_legs(aba=aba, timestamp=timestamp)
         if validate:
             report = validate_legs(legs)

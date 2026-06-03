@@ -1,4 +1,5 @@
 # UI/components/payoff_chart.py
+from src.domain.refs.structure_ref import StructureRef
 from matplotlib.ticker import FuncFormatter
 import json
 from matplotlib.figure import Figure
@@ -306,7 +307,7 @@ class PayoffChart(ttk.Frame):
         if overlay_curve and decision_data:
             sid = (
                 decision_data.get("structure_id")
-                or decision_data.get("aba", "")
+                or decision_data.get("aba"  # TODO patch_53: converter para StructureRef, "")
             )
             main_label = f"B: {sid}"
         else:
@@ -415,7 +416,7 @@ class PayoffChart(ttk.Frame):
         if decision_data:
             sid = (
                 decision_data.get("structure_id")
-                or decision_data.get("aba", "")
+                or decision_data.get("aba"  # TODO patch_53: converter para StructureRef, "")
             )
             dec = decision_data.get("decision", "")
             title = f"Payoff — {sid} [{dec}]"

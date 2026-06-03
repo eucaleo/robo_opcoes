@@ -1,3 +1,4 @@
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -31,7 +32,7 @@ class RoboLegsRepository:
     def __init__(self, config: Optional[RoboLegsRepoConfig] = None):
         self.config = config or RoboLegsRepoConfig()
 
-    def get_legs(self, aba: str, timestamp: Any) -> List[RoboLegDTO]:
+    def get_legs(self, ref: StructureRef, timestamp: Any) -> List[RoboLegDTO]:
         """
         Retorna legs para uma aba e um timestamp exatos.
         - Primeiro tenta MANUAL
@@ -57,7 +58,7 @@ class RoboLegsRepository:
         )
         return rtd
 
-    def has_manual(self, aba: str, timestamp: Any) -> bool:
+    def has_manual(self, ref: StructureRef, timestamp: Any) -> bool:
         ts = parse_timestamp(timestamp)
         ts_candidates = self._timestamp_candidates(timestamp, ts)
 
@@ -65,7 +66,7 @@ class RoboLegsRepository:
         sql = f"""
             SELECT 1
             FROM manual_analise_robo_legs
-            WHERE aba = ?
+            WHERE {ref.db_column()} = ?
               AND timestamp IN ({placeholders})
             LIMIT 1
         """
@@ -74,16 +75,16 @@ class RoboLegsRepository:
             cur = conn.execute(sql, (aba, *ts_candidates))
             return cur.fetchone() is not None
 
-    def list_timestamps(self, aba: str, prefer: str = "manual_then_rtd") -> List[str]:
+    def list_timestamps(self, ref: StructureRef, prefer: str = "manual_then_rtd") -> List[str]:
         """Lista timestamps disponíveis para a aba."""
         prefer = (prefer or "").strip().lower()
         with sqlite_conn(self.config.app_db_path) as conn:
             if prefer == "all":
                 rows = conn.execute(
                     """
-                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
+                    SELECT timestamp FROM manual_analise_robo_legs WHERE {ref.db_column()} = ?
                     UNION
-                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?
+                    SELECT timestamp FROM rtd_analise_robo_legs WHERE {ref.db_column()} = ?
                     ORDER BY timestamp
                     """,
                     (aba, aba),
@@ -91,14 +92,14 @@ class RoboLegsRepository:
                 return [r["timestamp"] for r in rows]
 
             rows_m = conn.execute(
-                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE {ref.db_column()} = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
             if rows_m:
                 return [r["timestamp"] for r in rows_m]
 
             rows_r = conn.execute(
-                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE {ref.db_column()} = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
             return [r["timestamp"] for r in rows_r]
@@ -106,7 +107,7 @@ class RoboLegsRepository:
     def _query_legs(
         self,
         table: str,
-        aba: str,
+        ref: StructureRef,
         ts_candidates: List[str],
         fonte: FonteType,
     ) -> List[RoboLegDTO]:
@@ -114,7 +115,7 @@ class RoboLegsRepository:
         sql = f"""
             SELECT *
             FROM {table}
-            WHERE aba = ?
+            WHERE {ref.db_column()} = ?
               AND timestamp IN ({placeholders})
         """
 

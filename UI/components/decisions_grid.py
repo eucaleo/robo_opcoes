@@ -1,4 +1,5 @@
 # UI/components/decisions_grid.py
+from src.domain.refs.structure_ref import StructureRef
 import tkinter as tk
 from tkinter import ttk
 from typing import Dict, List, Optional, Callable
@@ -107,7 +108,7 @@ class DecisionsGrid(ttk.LabelFrame):
             timestamp = self._format_timestamp(decision.get("timestamp"))
             # Exibe structure_id; fallback para aba (compat)
             structure_id = (
-                decision.get("structure_id") or decision.get("aba") or "N/A"
+                decision.get("structure_id") or decision.get("aba"  # TODO patch_53: converter para StructureRef) or "N/A"
             )
             decision_text = decision.get("decision", "N/A")
             level = decision.get("level", "")
@@ -200,7 +201,7 @@ class DecisionsGrid(ttk.LabelFrame):
             return False
 
         for idx, row in enumerate(self.current_data):
-            row_sid = row.get("structure_id") or row.get("aba")
+            row_sid = row.get("structure_id") or row.get("aba"  # TODO patch_53: converter para StructureRef)
             if row_sid == structure_id and row.get("timestamp") == timestamp:
                 iid = str(idx + 1)
                 try:

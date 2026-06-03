@@ -2,6 +2,7 @@
 """
 Writer para persistência de dados derivados no SQLite.
 """
+from src.domain.refs.structure_ref import StructureRef
 import sqlite3
 import json
 from datetime import datetime
@@ -25,7 +26,7 @@ class PayoffWriter:
     
     def save_payoff_points(self, 
                           timestamp: str,
-                          aba: str,
+                          ref: StructureRef,
                           points: List[Dict[str, Any]],
                           spot_ref: Optional[float] = None,
                           meta: Optional[Dict] = None) -> int:
@@ -77,7 +78,7 @@ class PayoffWriter:
     
     def save_structure_decision(self,
                            timestamp: str,
-                           aba: str,
+                           ref: StructureRef,
                            decision: str,
                            ratio: Optional[float] = None,
                            dte_min: Optional[int] = None,
@@ -118,7 +119,7 @@ class PayoffWriter:
             conn.close()
 
 
-    def get_latest_decision(self, aba: str) -> Optional[Dict]:
+    def get_latest_decision(self, ref: StructureRef) -> Optional[Dict]:
         """Retorna a última decisão para uma aba."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -126,7 +127,7 @@ class PayoffWriter:
             
             cursor.execute("""
                 SELECT * FROM structure_decisions 
-                WHERE aba = ? 
+                WHERE {ref.db_column()} = ? 
                 ORDER BY timestamp DESC, id DESC 
                 LIMIT 1
             """, (aba,))
@@ -134,7 +135,7 @@ class PayoffWriter:
             row = cursor.fetchone()
             return dict(row) if row else None
 
-    def get_payoff_history(self, aba: str, limit: int = 100) -> List[Dict]:
+    def get_payoff_history(self, ref: StructureRef, limit: int = 100) -> List[Dict]:
         """Retorna histórico de payoff points para uma aba."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -143,7 +144,7 @@ class PayoffWriter:
             cursor.execute("""
                 SELECT timestamp, spot_ref, point_spot, point_pl, meta_json
                 FROM payoff_curve_points 
-                WHERE aba = ? 
+                WHERE {ref.db_column()} = ? 
                 ORDER BY timestamp DESC, id DESC 
                 LIMIT ?
             """, (aba, limit))

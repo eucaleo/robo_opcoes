@@ -9,6 +9,7 @@ Para cada aba:
 O selector não decide quais abas existem — apenas escolhe a fonte.
 """
 
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -42,7 +43,7 @@ class MarketSnapshotSelector:
     def __init__(self, repository: MarketSnapshotRepository) -> None:
         self._repo = repository
 
-    def select(self, aba: str) -> SnapshotSelectionResult:
+    def select(self, ref: StructureRef) -> SnapshotSelectionResult:
         """
         Seleciona as legs canônicas para a aba informada.
 

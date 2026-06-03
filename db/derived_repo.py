@@ -12,6 +12,7 @@ patch_33:
   - Mantém funções avulsas como shims para compatibilidade com callers legados
 """
 
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 import json
@@ -224,7 +225,7 @@ class DerivedRepo:
         Permite tanto a API nova (só dict) quanto a legada (ts, aba, dict).
         """
         ts  = timestamp  or decision_dict.get("timestamp") or datetime.now().isoformat()
-        ab  = aba        or decision_dict.get("aba")        or decision_dict.get("ticker", "unknown")
+        ab  = aba        or decision_dict.get("aba"  # TODO patch_53: converter para StructureRef)        or decision_dict.get("ticker", "unknown")
         return ts, ab
 
     # ------------------------------------------------------------------
@@ -247,7 +248,7 @@ class DerivedRepo:
         try:
             cur = conn.cursor()
             cur.execute(
-                "DELETE FROM structure_decisions WHERE aba=? AND timestamp=?",
+                "DELETE FROM structure_decisions WHERE {ref.db_column()} = ? AND timestamp=?",
                 (ab, ts),
             )
             rowid = self._insert_decision(cur, ts, ab, decision_dict)
@@ -294,14 +295,14 @@ class DerivedRepo:
         Retorna contagem inserida.
         """
         ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba")        or "unknown"
+        ab = aba       or (meta or {}).get("aba"  # TODO patch_53: converter para StructureRef)        or "unknown"
 
         conn = self._connect()
         try:
             meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
             cur = conn.cursor()
             cur.execute(
-                "DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?",
+                "DELETE FROM payoff_curve_points WHERE {ref.db_column()} = ? AND timestamp=?",
                 (ab, ts),
             )
             sql = """
@@ -338,7 +339,7 @@ class DerivedRepo:
     ) -> int:
         """INSERT OR REPLACE idempotente por (timestamp, aba, point_spot)."""
         ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba")        or "unknown"
+        ab = aba       or (meta or {}).get("aba"  # TODO patch_53: converter para StructureRef)        or "unknown"
 
         conn = self._connect()
         try:
@@ -390,7 +391,7 @@ class DerivedRepo:
 
             # --- payoff ---
             cur.execute(
-                "DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?",
+                "DELETE FROM payoff_curve_points WHERE {ref.db_column()} = ? AND timestamp=?",
                 (ab, ts),
             )
             sql_p = """
@@ -415,7 +416,7 @@ class DerivedRepo:
 
             # --- decisão ---
             cur.execute(
-                "DELETE FROM structure_decisions WHERE aba=? AND timestamp=?",
+                "DELETE FROM structure_decisions WHERE {ref.db_column()} = ? AND timestamp=?",
                 (ab, ts),
             )
             decision_id = self._insert_decision(cur, ts, ab, decision_dict)
@@ -431,7 +432,7 @@ class DerivedRepo:
 
     def get_payoff_points(
         self,
-        aba: str,
+        ref: StructureRef,
         timestamp: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         conn = self._connect()
@@ -442,7 +443,7 @@ class DerivedRepo:
                     """
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
-                    WHERE aba = ? AND timestamp = ?
+                    WHERE {ref.db_column()} = ? AND timestamp = ?
                     ORDER BY point_spot
                     """,
                     (aba, timestamp),
@@ -452,7 +453,7 @@ class DerivedRepo:
                     """
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
-                    WHERE aba = ?
+                    WHERE {ref.db_column()} = ?
                     ORDER BY timestamp DESC, point_spot
                     LIMIT 100
                     """,
@@ -560,7 +561,7 @@ class DerivedRepo:
         self,
         cur: sqlite3.Cursor,
         timestamp: str,
-        aba: str,
+        ref: StructureRef,
         decision_dict: Dict[str, Any],
         replace: bool = False,
     ) -> int:
@@ -602,7 +603,7 @@ class DerivedRepo:
 def write_payoff_snapshot_atomic(
     conn: sqlite3.Connection,
     timestamp: str,
-    aba: str,
+    ref: StructureRef,
     points: List,
     meta: Optional[Dict[str, Any]] = None,
 ) -> int:
@@ -610,7 +611,7 @@ def write_payoff_snapshot_atomic(
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     cur = conn.cursor()
     cur.execute(
-        "DELETE FROM payoff_curve_points WHERE aba=? AND timestamp=?",
+        "DELETE FROM payoff_curve_points WHERE {ref.db_column()} = ? AND timestamp=?",
         (aba, timestamp),
     )
     sql = """
@@ -638,13 +639,13 @@ def write_payoff_snapshot_atomic(
 def write_decision_snapshot_atomic(
     conn: sqlite3.Connection,
     timestamp: str,
-    aba: str,
+    ref: StructureRef,
     decision_dict: Dict[str, Any],
 ) -> int:
     ensure_derived_tables(conn)
     cur = conn.cursor()
     cur.execute(
-        "DELETE FROM structure_decisions WHERE aba=? AND timestamp=?",
+        "DELETE FROM structure_decisions WHERE {ref.db_column()} = ? AND timestamp=?",
         (aba, timestamp),
     )
     why, why_json = _normalize_why_fields(decision_dict)
@@ -674,7 +675,7 @@ def write_decision_snapshot_atomic(
 def write_complete_snapshot_atomic(
     conn: sqlite3.Connection,
     timestamp: str,
-    aba: str,
+    ref: StructureRef,
     points: List,
     decision_dict: Dict[str, Any],
     points_meta: Optional[Dict] = None,
@@ -689,7 +690,7 @@ def write_complete_snapshot_atomic(
 def insert_payoff_points(
     conn: sqlite3.Connection,
     timestamp: str,
-    aba: str,
+    ref: StructureRef,
     points: List[PayoffPoint],
     spot_ref: Optional[float] = None,
     meta: Optional[Dict[str, Any]] = None,
@@ -723,7 +724,7 @@ def insert_payoff_points(
 def insert_structure_decision(
     conn: sqlite3.Connection,
     timestamp: str,
-    aba: str,
+    ref: StructureRef,
     decision_dict: Dict[str, Any],
 ) -> int:
     ensure_derived_tables(conn)
@@ -755,7 +756,7 @@ def insert_structure_decision(
 
 def get_payoff_points(
     conn: sqlite3.Connection,
-    aba: str,
+    ref: StructureRef,
     timestamp: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     ensure_derived_tables(conn)
@@ -764,13 +765,13 @@ def get_payoff_points(
         cur.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            WHERE aba = ? AND timestamp = ?
+            WHERE {ref.db_column()} = ? AND timestamp = ?
             ORDER BY point_spot
         """, (aba, timestamp))
     else:
         cur.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
-            WHERE aba = ?
+            WHERE {ref.db_column()} = ?
             ORDER BY timestamp DESC, point_spot
             LIMIT 100
         """, (aba,))

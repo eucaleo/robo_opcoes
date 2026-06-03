@@ -1,3 +1,4 @@
+from src.domain.refs.structure_ref import StructureRef
 from typing import Any
 
 
@@ -105,7 +106,7 @@ class LegacyRoboLegsFallback:
 
     def _resolve_reference_timestamp(
         self,
-        aba: str,
+        ref: StructureRef,
         reference_date: str | None,
     ) -> Any | None:
         if self.robo_legs_service is None:
@@ -164,7 +165,7 @@ class LegacyRoboLegsFallback:
 
     def _load_legacy_legs(
         self,
-        aba: str,
+        ref: StructureRef,
         reference_timestamp: Any,
     ) -> list[Any]:
         if self.robo_legs_service is None:

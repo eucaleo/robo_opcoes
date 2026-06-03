@@ -2,6 +2,7 @@
 """
 Reader para análise de dados derivados do SQLite.
 """
+from src.domain.refs.structure_ref import StructureRef
 import sqlite3
 import json
 import pandas as pd
@@ -38,7 +39,7 @@ class PayoffReader:
                 return None
         return None
 
-    def get_payoff_curve(self, aba: str, timestamp: Optional[str] = None) -> pd.DataFrame:
+    def get_payoff_curve(self, ref: StructureRef, timestamp: Optional[str] = None) -> pd.DataFrame:
         """
         Retorna pontos do payoff curve como DataFrame.
 
@@ -55,7 +56,7 @@ class PayoffReader:
                     SELECT point_spot as spot, point_pl as pl,
                            timestamp, spot_ref, meta_json
                     FROM payoff_curve_points
-                    WHERE aba = ? AND timestamp = ?
+                    WHERE {ref.db_column()} = ? AND timestamp = ?
                     ORDER BY point_spot
                 """
                 params = (aba, timestamp)
@@ -64,8 +65,8 @@ class PayoffReader:
                     SELECT point_spot as spot, point_pl as pl,
                            timestamp, spot_ref, meta_json
                     FROM payoff_curve_points
-                    WHERE aba = ? AND timestamp = (
-                        SELECT MAX(timestamp) FROM payoff_curve_points WHERE aba = ?
+                    WHERE {ref.db_column()} = ? AND timestamp = (
+                        SELECT MAX(timestamp) FROM payoff_curve_points WHERE {ref.db_column()} = ?
                     )
                     ORDER BY point_spot
                 """
@@ -81,7 +82,7 @@ class PayoffReader:
 
             return df
 
-    def get_decision_history(self, aba: str, days_back: int = 30) -> pd.DataFrame:
+    def get_decision_history(self, ref: StructureRef, days_back: int = 30) -> pd.DataFrame:
         """
         Retorna histórico de decisões como DataFrame.
 
@@ -126,7 +127,7 @@ class PayoffReader:
             query = f"""
                 SELECT {", ".join(selected_cols)}
                 FROM structure_decisions
-                WHERE aba = ? AND timestamp >= ?
+                WHERE {ref.db_column()} = ? AND timestamp >= ?
                 ORDER BY timestamp DESC
             """
 

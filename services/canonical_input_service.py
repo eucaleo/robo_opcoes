@@ -17,6 +17,7 @@ Contrato exigido pelo assemble_structure_market_input:
   }
 """
 
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 from typing import Any
@@ -164,7 +165,7 @@ class CanonicalInputService:
 
     def _resolve_legs_via_selector(
         self,
-        aba: str,
+        ref: StructureRef,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Delega ao MarketSnapshotSelector e serializa legs completas.

@@ -8,6 +8,7 @@ patch_30: _resolve_structure_id() resolve aba → structure_id via app.db
           os registros com structure_id antes do INSERT.
 """
 
+from src.domain.refs.structure_ref import StructureRef
 import json
 import sqlite3
 from datetime import datetime, timezone
@@ -152,7 +153,7 @@ def init_db():
 # ──────────────────────────────────────────────────────────────
 
 def save_payoff_curve(
-    aba: str,
+    ref: StructureRef,
     points: List[Union[Tuple[float, float], Dict[str, float]]],
     spot_ref: Optional[float] = None,
     meta: Optional[Dict[str, Any]] = None,
@@ -239,7 +240,7 @@ def save_payoff_from_canonical_payload(
 # ──────────────────────────────────────────────────────────────
 
 def save_decision(
-    aba: str,
+    ref: StructureRef,
     decision: Dict[str, Any],
     timestamp: Optional[str] = None,
 ) -> int:
@@ -348,13 +349,13 @@ def get_all_payoff_curves():
         ]
 
 
-def get_payoff_by_aba(aba: str):
+def get_payoff_by_aba(ref: StructureRef):
     with connect_derived() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT timestamp, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            WHERE aba = ?
+            WHERE {ref.db_column()} = ?
             ORDER BY point_spot
         """, (aba,))
         return [

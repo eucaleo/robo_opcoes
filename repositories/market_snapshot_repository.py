@@ -12,6 +12,7 @@ Schema real confirmado por 62_inspect_snapshot_tables.py (2026-05-27):
   - manual_analise_robo_legs: colunas [0-21] + source + created_at
 """
 
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 import sqlite3
@@ -50,7 +51,7 @@ _SQL_RTD_LEGS = """
         dte,
         pl_realista
     FROM rtd_analise_robo_legs
-    WHERE aba = ?
+    WHERE {ref.db_column()} = ?
     ORDER BY timestamp DESC
 """
 
@@ -79,7 +80,7 @@ _SQL_MANUAL_LEGS = """
         source,
         created_at
     FROM manual_analise_robo_legs
-    WHERE aba = ?
+    WHERE {ref.db_column()} = ?
     ORDER BY timestamp DESC
 """
 
@@ -98,7 +99,7 @@ _SQL_RTD_SUMMARY = """
         spread_pct_medio,
         alertas_v2
     FROM rtd_analise_robo
-    WHERE aba = ?
+    WHERE {ref.db_column()} = ?
     ORDER BY rowid DESC
     LIMIT 1
 """
@@ -134,7 +135,7 @@ def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
     mid = _mid_price(bid, ask)
 
     return LegMarketSnapshot(
-        aba             = row["aba"],
+        aba             = row["aba"]  # TODO patch_53: converter para StructureRef,
         ativo           = row["ativo"],
         cv              = row["cv"],
         call_put        = row["call_put"],
@@ -182,13 +183,13 @@ class MarketSnapshotRepository:
 
     # -- RTD ------------------------------------------------------------------
 
-    def get_rtd_legs(self, aba: str) -> list[LegMarketSnapshot]:
+    def get_rtd_legs(self, ref: StructureRef) -> list[LegMarketSnapshot]:
         # Retorna as legs RTD mais recentes para uma aba.
         with self._connect() as conn:
             rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
         return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
 
-    def get_rtd_summary(self, aba: str) -> Optional[dict]:
+    def get_rtd_summary(self, ref: StructureRef) -> Optional[dict]:
         # Retorna o cabecalho RTD da estrutura (linha mais recente).
         with self._connect() as conn:
             row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
@@ -198,7 +199,7 @@ class MarketSnapshotRepository:
 
     # -- Manual ---------------------------------------------------------------
 
-    def get_manual_legs(self, aba: str) -> list[LegMarketSnapshot]:
+    def get_manual_legs(self, ref: StructureRef) -> list[LegMarketSnapshot]:
         # Retorna as legs manuais mais recentes para uma aba.
         with self._connect() as conn:
             rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
@@ -208,7 +209,7 @@ class MarketSnapshotRepository:
 
     def get_structure(
         self,
-        aba: str,
+        ref: StructureRef,
         source: SnapshotSource = SnapshotSource.RTD,
     ) -> StructureMarketSnapshot:
         # Retorna um StructureMarketSnapshot completo para a aba informada.

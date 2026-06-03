@@ -1,3 +1,4 @@
+from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -17,18 +18,18 @@ class RoboLegsStatusRepository:
     def __init__(self, config: Optional[RoboLegsStatusRepoConfig] = None):
         self.config = config or RoboLegsStatusRepoConfig()
 
-    def latest_timestamps(self, aba: str) -> Tuple[Optional[datetime], Optional[datetime]]:
+    def latest_timestamps(self, ref: StructureRef) -> Tuple[Optional[datetime], Optional[datetime]]:
         """
         Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
         Se não houver, retorna (None, None).
         """
         with sqlite_conn(self.config.app_db_path) as conn:
             row_m = conn.execute(
-                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
+                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE {ref.db_column()} = ?",
                 (aba,),
             ).fetchone()
             row_r = conn.execute(
-                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?",
+                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE {ref.db_column()} = ?",
                 (aba,),
             ).fetchone()
 
