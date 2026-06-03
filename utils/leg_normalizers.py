@@ -156,7 +156,7 @@ class LegNormalizer:
         """Cria DTO a partir de dicionário com normalização automática"""
 
         normalized_data = {
-            'aba': str(data.get('aba'  # TODO patch_53: converter para StructureRef, '')).strip(),
+            'aba': str(data.get('aba', '')).strip(),
             'timestamp': cls.parse_timestamp(data.get('timestamp')),
             'cv': cls.normalize_cv(data.get('cv')),
             'call_put': cls.normalize_call_put(data.get('call_put')),

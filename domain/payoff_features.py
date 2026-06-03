@@ -219,7 +219,7 @@ def upsert_curve_summary(
                 "structure_id":      structure_id,
                 "reference_date":    reference_date,
                 "timestamp":         features.get("timestamp"),
-                "aba":               features.get("aba"  # TODO patch_53: converter para StructureRef),
+                "aba":               features.get("aba"),
                 "spot_ref":          features.get("spot_ref"),
                 "points_count":      features.get("points_count"),
                 "pl_min":            features.get("pl_min"),

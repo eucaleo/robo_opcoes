@@ -225,7 +225,7 @@ class DerivedRepo:
         Permite tanto a API nova (só dict) quanto a legada (ts, aba, dict).
         """
         ts  = timestamp  or decision_dict.get("timestamp") or datetime.now().isoformat()
-        ab  = aba        or decision_dict.get("aba"  # TODO patch_53: converter para StructureRef)        or decision_dict.get("ticker", "unknown")
+        ab  = aba        or decision_dict.get("aba")          or decision_dict.get("ticker", "unknown")
         return ts, ab
 
     # ------------------------------------------------------------------
@@ -295,7 +295,7 @@ class DerivedRepo:
         Retorna contagem inserida.
         """
         ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba"  # TODO patch_53: converter para StructureRef)        or "unknown"
+        ab = aba       or (meta or {}).get("aba")             or "unknown"
 
         conn = self._connect()
         try:
@@ -339,7 +339,7 @@ class DerivedRepo:
     ) -> int:
         """INSERT OR REPLACE idempotente por (timestamp, aba, point_spot)."""
         ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba"  # TODO patch_53: converter para StructureRef)        or "unknown"
+        ab = aba       or (meta or {}).get("aba")             or "unknown"
 
         conn = self._connect()
         try:

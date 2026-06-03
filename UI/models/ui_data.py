@@ -274,7 +274,7 @@ class UIDataModel:
                     select_parts.append("NULL AS aba")
             elif alias == "structure_id":
                 # structure_id ausente: deriva de aba quando for numérica (legado)
-                aba_src = c.get("aba"  # TODO patch_53: converter para StructureRef)
+                aba_src = c.get("aba")  # patch_53b: aba é coluna TEXT do banco; StructureRef é criado na camada de serviço
                 if aba_src:
                     select_parts.append(
                         f"CASE WHEN CAST({aba_src} AS TEXT) GLOB '[0-9]*' "
@@ -320,7 +320,7 @@ class UIDataModel:
                     ) from exc
 
             # ◄ patch_3a: filtro por aba (ticker TEXT) — campo independente no banco
-            aba_filter = filters.get("aba"  # TODO patch_53: converter para StructureRef)
+            aba_filter = filters.get("aba")  # patch_53b: filtro por aba TEXT — compat legado
             if aba_filter is not None:
                 where.append("t.aba = ?")
                 params.append(str(aba_filter))
@@ -355,15 +355,15 @@ class UIDataModel:
 
             # ◄ patch_3a: adapter layer — garante ambos os campos sempre presentes
             # structure_id é autoritativo (int); aba é TEXT derivado
-            if item.get("structure_id") is None and item.get("aba"  # TODO patch_53: converter para StructureRef) is not None:
+            if item.get("structure_id") is None and item.get("aba") is not None:
                 # legado: tenta extrair int de aba
                 try:
-                    item["structure_id"] = int(item["aba"]  # TODO patch_53: converter para StructureRef)
+                    item["structure_id"] = int(item["aba"])
                 except (TypeError, ValueError):
                     pass  # aba não-numérica: structure_id permanece None
 
-            if item.get("aba"  # TODO patch_53: converter para StructureRef) is None and item.get("structure_id") is not None:
-                item["aba"]  # TODO patch_53: converter para StructureRef = str(item["structure_id"])
+            if item.get("aba") is None and item.get("structure_id") is not None:
+                item["aba"] = str(item["structure_id"])
 
             # Normalizar why
             why_val = item.get("why")

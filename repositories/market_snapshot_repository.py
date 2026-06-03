@@ -135,7 +135,7 @@ def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
     mid = _mid_price(bid, ask)
 
     return LegMarketSnapshot(
-        aba             = row["aba"]  # TODO patch_53: converter para StructureRef,
+        aba             = row["aba"],
         ativo           = row["ativo"],
         cv              = row["cv"],
         call_put        = row["call_put"],

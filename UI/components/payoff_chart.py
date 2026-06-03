@@ -307,7 +307,7 @@ class PayoffChart(ttk.Frame):
         if overlay_curve and decision_data:
             sid = (
                 decision_data.get("structure_id")
-                or decision_data.get("aba"  # TODO patch_53: converter para StructureRef, "")
+                or decision_data.get("aba", "")
             )
             main_label = f"B: {sid}"
         else:
@@ -416,7 +416,7 @@ class PayoffChart(ttk.Frame):
         if decision_data:
             sid = (
                 decision_data.get("structure_id")
-                or decision_data.get("aba"  # TODO patch_53: converter para StructureRef, "")
+                or decision_data.get("aba", "")
             )
             dec = decision_data.get("decision", "")
             title = f"Payoff — {sid} [{dec}]"
