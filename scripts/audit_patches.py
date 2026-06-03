@@ -2111,11 +2111,11 @@ PATCHES = [
             ("StructureRef definido (dataclass ou namedtuple)",
                 lambda: contains("db/derived_repo.py", "StructureRef")),
             ("StructureRef.from_id() implementado",
-                lambda: contains("db/derived_repo.py", "def from_id")),
+                lambda: contains("src/domain/refs/structure_ref.py", "def from_id")),
             ("StructureRef.from_aba() implementado",
-                lambda: contains("db/derived_repo.py", "def from_aba")),
+                lambda: contains("src/domain/refs/structure_ref.py", "def from_aba")),
             ("StructureRef.db_pair() implementado",
-                lambda: contains("db/derived_repo.py", "def db_pair")),
+                lambda: contains("src/domain/refs/structure_ref.py", "def db_pair")),
 
             # ── 2. _insert_decision — sem created_at explícito ────
             ("created_at removido do INSERT de _insert_decision",
