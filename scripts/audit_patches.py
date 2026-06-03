@@ -1805,6 +1805,142 @@ PATCHES = [
                 )),
         ],
     },
+    {
+        "id": "patch_52",
+        "desc": "Auditoria de residuos ativos do legado (baseline fase 7) — varredura de 'aba' operacional",
+        "checks": [
+            # ── 1. Script de auditoria ────────────────────────────
+            ("scripts/audit_legacy_residuals_patch52.py existe",
+                lambda: exists("scripts/audit_legacy_residuals_patch52.py")),
+            ("RESIDUO_PATTERNS definido no script",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "RESIDUO_PATTERNS"
+                )),
+            ("ALIAS_OK_PATTERNS definido no script",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "ALIAS_OK_PATTERNS"
+                )),
+            ("BRIDGE_FILES definido no script",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "BRIDGE_FILES"
+                )),
+            ("kwarg_aba presente em RESIDUO_PATTERNS",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "kwarg_aba"
+                )),
+            ("kwarg_aba vem antes de comparacao_aba (ordem de prioridade)",
+                lambda: (
+                    open(p("scripts/audit_legacy_residuals_patch52.py"),
+                        encoding="utf-8").read().index("kwarg_aba")
+                    < open(p("scripts/audit_legacy_residuals_patch52.py"),
+                        encoding="utf-8").read().index("comparacao_aba")
+                )),
+
+            # ── 2. Classificacao e varredura ──────────────────────
+            ("_classificar() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def _classificar"
+                )),
+            ("_varrer_arquivo() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def _varrer_arquivo"
+                )),
+            ("varrer_projeto() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def varrer_projeto"
+                )),
+            ("break apos primeiro match por linha presente",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "break"
+                )),
+
+            # ── 3. Relatorio ──────────────────────────────────────
+            ("construir_relatorio() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def construir_relatorio"
+                )),
+            ("gerar_markdown() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def gerar_markdown"
+                )),
+            ("gerar_json() implementado",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "def gerar_json"
+                )),
+            ("REPORTS_DIR aponta para ATT/reports",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "ATT"
+                )),
+            ("saida legacy_residuals_patch52.md definida",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "legacy_residuals_patch52.md"
+                )),
+            ("saida legacy_residuals_patch52.json definida",
+                lambda: contains(
+                    "scripts/audit_legacy_residuals_patch52.py",
+                    "legacy_residuals_patch52.json"
+                )),
+
+            # ── 4. Testes formais ─────────────────────────────────
+            ("ATT/tests/test_patch52_audit_legacy_residuals.py existe",
+                lambda: exists(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py"
+                )),
+            ("TestLinhaTemAliasOk presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestLinhaTemAliasOk"
+                )),
+            ("TestClassificar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestClassificar"
+                )),
+            ("TestVarrerArquivo presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestVarrerArquivo"
+                )),
+            ("TestConstruirRelatorio presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestConstruirRelatorio"
+                )),
+            ("TestGerarMarkdown presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestGerarMarkdown"
+                )),
+            ("TestGerarJson presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestGerarJson"
+                )),
+            ("TestVarrerProjeto presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "TestVarrerProjeto"
+                )),
+            ("test_detecta_kwarg_aba presente",
+                lambda: contains(
+                    "ATT/tests/test_patch52_audit_legacy_residuals.py",
+                    "test_detecta_kwarg_aba"
+                )),
+        ],
+    },
 
 ]  # ← fechamento da lista PATCHES
 
