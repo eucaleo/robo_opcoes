@@ -34,27 +34,31 @@ class CanonicalInputService:
         repository: StructuresRepository | None = None,
         market_snapshot_provider: MarketSnapshotProvider | None = None,
         market_snapshot_selector: MarketSnapshotSelector | None = None,
-        robo_legs_service: Any | None = None,
+        robo_legs_service: Any | None = None,  # injeção explícita
         prefer_canonical_legs: bool = True,
         enable_legacy_legs_fallback: bool = True,
         allow_legacy_name_fallback: bool = False,
     ):
-        self.repository                 = repository or StructuresRepository()
-        self.market_snapshot_provider   = market_snapshot_provider or MarketSnapshotProvider()
-        self.market_snapshot_selector   = market_snapshot_selector  # None = desabilitado
-        self.prefer_canonical_legs      = prefer_canonical_legs
+        self.repository                  = repository or StructuresRepository()
+        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+        self.prefer_canonical_legs       = prefer_canonical_legs
         self.enable_legacy_legs_fallback = enable_legacy_legs_fallback
         self.allow_legacy_name_fallback  = allow_legacy_name_fallback
 
         if robo_legs_service is not None:
+            # Injecao explicita — path canonico preferencial
             self.robo_legs_service = robo_legs_service
         else:
+            # BRIDGE LEGADO: import dinamico de robo_legs_service para compatibilidade
+            # com pipeline legado. Remover quando legado for desligado.
             try:
-                from services.robo_legs_service import RoboLegsService
+                from services.robo_legs_service import RoboLegsService  # noqa: PLC0415
                 self.robo_legs_service = RoboLegsService()
-            except Exception:
+            except ImportError:
                 self.robo_legs_service = None
 
+        # LegacyRoboLegsFallback sempre inicializado, independente da origem do robo_legs_service
         self.legacy_robo_legs_fallback = LegacyRoboLegsFallback(
             robo_legs_service=self.robo_legs_service,
             allow_name_fallback=self.allow_legacy_name_fallback,

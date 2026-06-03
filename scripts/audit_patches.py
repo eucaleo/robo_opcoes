@@ -954,30 +954,32 @@ PATCHES = [
         "checks": [
             # ── 1. ui_data.py ─────────────────────────────────────────
             ("UI/models/ui_data.py existe",
-             lambda: exists("UI/models/ui_data.py")),
+            lambda: exists("UI/models/ui_data.py")),
             ("get_structures() com lazy-load presente",
-             lambda: contains("UI/models/ui_data.py", "def get_structures")),
+            lambda: contains("UI/models/ui_data.py", "def get_structures")),
             ("_cache_structures usado no lazy-load de get_structures()",
-             lambda: contains("UI/models/ui_data.py", "_cache_structures")),
+            lambda: contains("UI/models/ui_data.py", "_cache_structures")),
             ("Nenhum resíduo _cache_abas remanescente",
-             lambda: not contains("UI/models/ui_data.py", "_cache_abas")),
+            lambda: not contains("UI/models/ui_data.py", "_cache_abas")),
             ("Nenhum resíduo self.abas remanescente",
-             lambda: not contains("UI/models/ui_data.py", "self.abas")),
+            lambda: not contains("UI/models/ui_data.py", "self.abas")),
 
             # ── 2. Inventário de patches ──────────────────────────────
             ("ATT/PATCHES.md existe (inventário criado pelo patch_37_update_inventory.sh)",
-             lambda: exists("ATT/PATCHES.md")),
+            lambda: exists("ATT/PATCHES.md")),
             ("patch_37 registrado no PATCHES.md",
-             lambda: contains("ATT/PATCHES.md", "patch_37")),
+            lambda: contains("ATT/PATCHES.md", "patch_37")),
             ("patch_38 registrado no PATCHES.md",
-             lambda: contains("ATT/PATCHES.md", "patch_38")),
+            lambda: contains("ATT/PATCHES.md", "patch_38")),
 
             # ── 3. Backup gerado ──────────────────────────────────────
+            # CORRIGIDO: usa p() para resolver path relativo à ROOT,
+            # evitando falha quando cwd != raiz do projeto.
             ("Backup ui_data.py.bak_p38_* gerado",
-             lambda: any(
-                 f.startswith("ui_data.py.bak_p38_")
-                 for f in os.listdir("UI/models")
-             )),
+            lambda: any(
+                f.startswith("ui_data.py.bak_p38_")
+                for f in os.listdir(p("UI/models"))  # ← p() aqui
+            )),
         ],
     },
     {
@@ -1559,6 +1561,247 @@ PATCHES = [
                 lambda: contains(
                     "ATT/tests/test_patch47.py",
                     "TestRunFullPipeline"
+                )),
+        ],
+    },
+    {
+        "id": "patch_48",
+        "desc": "CalculationOrchestrator — build_calculation_request_from_db + run_full_pipeline_from_db (injeção de repositórios, sem acesso direto a DB)",
+        "checks": [
+            # ── 1. Arquivo ────────────────────────────────────────────
+            ("services/calculation_orchestrator.py existe",
+                lambda: exists("services/calculation_orchestrator.py")),
+            ("ATT/tests/test_patch48.py existe",
+                lambda: exists("ATT/tests/test_patch48.py")),
+
+            # ── 2. Métodos implementados ──────────────────────────────
+            ("build_calculation_request_from_db() implementado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "def build_calculation_request_from_db"
+                )),
+            ("run_full_pipeline_from_db() implementado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "def run_full_pipeline_from_db"
+                )),
+
+            # ── 3. Injeção de dependências ────────────────────────────
+            ("structures_repository no construtor",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "structures_repository"
+                )),
+            ("market_snapshot_repository no construtor",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "market_snapshot_repository"
+                )),
+
+            # ── 4. Sem acesso direto a DB ─────────────────────────────
+            ("sqlite3 NÃO importado no orchestrator",
+                lambda: not contains(
+                    "services/calculation_orchestrator.py",
+                    "import sqlite3"
+                )),
+            ("get_app_db_connection NÃO usado no orchestrator",
+                lambda: not contains(
+                    "services/calculation_orchestrator.py",
+                    "get_app_db_connection"
+                )),
+
+            # ── 5. Guards de erro ─────────────────────────────────────
+            ("Guard structures_repository None levanta RuntimeError",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "RuntimeError"
+                )),
+            ("Guard estrutura não encontrada levanta ValueError",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "ValueError"
+                )),
+
+            # ── 6. Classes de teste presentes ─────────────────────────
+            ("TestPatch48ArquivoExiste presente",
+                lambda: contains(
+                    "ATT/tests/test_patch48.py",
+                    "TestPatch48ArquivoExiste"
+                )),
+            ("TestBuildRequestFromDb presente",
+                lambda: contains(
+                    "ATT/tests/test_patch48.py",
+                    "TestBuildRequestFromDb"
+                )),
+            ("TestBuildRequestFromDbGuards presente",
+                lambda: contains(
+                    "ATT/tests/test_patch48.py",
+                    "TestBuildRequestFromDbGuards"
+                )),
+            ("TestRunFullPipelineFromDb presente",
+                lambda: contains(
+                    "ATT/tests/test_patch48.py",
+                    "TestRunFullPipelineFromDb"
+                )),
+            ("TestOrchestratorNaoAcessaDBDireto presente",
+                lambda: contains(
+                    "ATT/tests/test_patch48.py",
+                    "TestOrchestratorNaoAcessaDBDireto"
+                )),
+        ],
+    },
+    {
+        "id": "patch_49",
+        "desc": "Auditoria LegacyRoboLegsFallback — isolamento e ausência de resíduos",
+        "checks": [
+            ("ATT/patch_49_legacy_audit_report.md existe",
+                lambda: exists("ATT/patch_49_legacy_audit_report.md")),
+            ("LegacyRoboLegsFallback definido no módulo correto",
+                lambda: contains(
+                    "services/legacy_robo_legs_fallback.py",
+                    "class LegacyRoboLegsFallback"
+                )),
+            ("Sem import direto de db/ em legacy_robo_legs_fallback",
+                lambda: not contains(
+                    "services/legacy_robo_legs_fallback.py",
+                    "from db."
+                )),
+            ("Sem import direto de repositories/ em legacy_robo_legs_fallback",
+                lambda: not contains(
+                    "services/legacy_robo_legs_fallback.py",
+                    "from repositories."
+                )),
+            ("fallback_reason presente (degradação controlada)",
+                lambda: contains(
+                    "services/legacy_robo_legs_fallback.py",
+                    "fallback_reason"
+                )),
+            ("load() implementado",
+                lambda: contains(
+                    "services/legacy_robo_legs_fallback.py",
+                    "def load"
+                )),
+        ],
+    },
+    {
+        "id": "patch_50",
+        "desc": "canonical_input_service — boundary bridge legado formalizado com comentário BRIDGE LEGADO",
+        "checks": [
+            # ── 1. Arquivo de produção ────────────────────────────
+            ("services/canonical_input_service.py existe",
+                lambda: exists("services/canonical_input_service.py")),
+
+            # ── 2. Boundary formalizado ───────────────────────────
+            ("Comentário BRIDGE LEGADO presente no canonical_input_service",
+                lambda: contains(
+                    "services/canonical_input_service.py",
+                    "BRIDGE LEGADO"
+                )),
+            ("Import dinâmico de robo_legs_service presente (try/except)",
+                lambda: contains(
+                    "services/canonical_input_service.py",
+                    "robo_legs_service"
+                )),
+            ("ImportError tratado graciosamente (except ImportError)",
+                lambda: contains(
+                    "services/canonical_input_service.py",
+                    "except ImportError"
+                )),
+            ("robo_legs_service aceita injeção explícita via __init__",
+                lambda: contains(
+                    "services/canonical_input_service.py",
+                    "robo_legs_service: Any | None = None"
+                )),
+
+            # ── 3. Testes estáticos ───────────────────────────────
+            ("ATT/tests/test_patch_50_boundary_static.py existe",
+                lambda: exists("ATT/tests/test_patch_50_boundary_static.py")),
+            ("TestBoundaryBridgeAusente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_50_boundary_static.py",
+                    "TestBoundaryBridgeAusente"
+                )),
+            ("TestBoundaryBridgePresente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_50_boundary_static.py",
+                    "TestBoundaryBridgePresente"
+                )),
+            ("TestBoundaryInjecaoExplicita presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_50_boundary_static.py",
+                    "TestBoundaryInjecaoExplicita"
+                )),
+            ("_bridge_ausente context manager presente (bloqueio real de import)",
+                lambda: contains(
+                    "ATT/tests/test_patch_50_boundary_static.py",
+                    "_bridge_ausente"
+                )),
+            ("_import_blocker_for_robo_legs presente (builtins.__import__ patch)",
+                lambda: contains(
+                    "ATT/tests/test_patch_50_boundary_static.py",
+                    "_import_blocker_for_robo_legs"
+                )),
+        ],
+    },
+    {
+        "id": "patch_51",
+        "desc": "REST API /structures — CRUD completo exposto via FastAPI (structures_controller)",
+        "checks": [
+            # ── 1. Controller ─────────────────────────────────────
+            ("api/structures_controller.py existe",
+                lambda: exists("api/structures_controller.py")),
+            ("POST /structures implementado",
+                lambda: contains("api/structures_controller.py", "def create_structure")),
+            ("GET /structures implementado (listagem)",
+                lambda: contains("api/structures_controller.py", "def list_structures")),
+            ("GET /structures/{id} implementado (detalhe)",
+                lambda: contains("api/structures_controller.py", "def get_structure")),
+            ("PATCH /structures/{id} implementado",
+                lambda: contains("api/structures_controller.py", "def update_structure")),
+            ("DELETE /structures/{id} implementado (archive)",
+                lambda: contains("api/structures_controller.py", "def archive_structure")),
+            ("Schemas de entrada/saída definidos no controller",
+                lambda: contains("api/structures_controller.py", "BaseModel")),
+            ("include_archived suportado na listagem",
+                lambda: contains("api/structures_controller.py", "include_archived")),
+            ("404 tratado quando estrutura não encontrada",
+                lambda: contains("api/structures_controller.py", "404")),
+            ("400 tratado para payloads inválidos (ValueError)",
+                lambda: contains("api/structures_controller.py", "ValueError")),
+
+            # ── 2. Roteamento no main.py ──────────────────────────
+            ("main.py existe",
+                lambda: exists("main.py")),
+            ("structures_controller registrado no main.py (include_router)",
+                lambda: contains("main.py", "structures_controller")),
+
+            # ── 3. Testes de contrato ─────────────────────────────
+            ("ATT/tests/test_patch_51_structures_api.py existe",
+                lambda: exists("ATT/tests/test_patch_51_structures_api.py")),
+            ("TestCreateStructure presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_51_structures_api.py",
+                    "TestCreateStructure"
+                )),
+            ("TestListStructures presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_51_structures_api.py",
+                    "TestListStructures"
+                )),
+            ("TestGetStructure presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_51_structures_api.py",
+                    "TestGetStructure"
+                )),
+            ("TestUpdateStructure presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_51_structures_api.py",
+                    "TestUpdateStructure"
+                )),
+            ("TestArchiveStructure presente",
+                lambda: contains(
+                    "ATT/tests/test_patch_51_structures_api.py",
+                    "TestArchiveStructure"
                 )),
         ],
     },
