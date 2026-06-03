@@ -332,7 +332,7 @@ def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
 def get_all_payoff_curves():
     with connect_derived() as conn:
         cursor = conn.cursor()
-        cursor.execute(f"""
+        cursor.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             ORDER BY timestamp DESC, point_spot
@@ -350,15 +350,14 @@ def get_all_payoff_curves():
 
 
 def get_payoff_by_aba(ref: StructureRef):
-    col, val = ref.db_pair()  # patch_56
     with connect_derived() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT timestamp, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            WHERE {col} = ?
+            WHERE {ref.db_column()} = ?
             ORDER BY point_spot
-        """, (val,))
+        """, (aba,))
         return [
             {
                 "timestamp":  row[0],
@@ -374,10 +373,20 @@ def get_payoff_by_aba(ref: StructureRef):
 
 def get_payoff_by_structure_id(structure_id: int):
     """
-    patch_56: constrói StructureRef.from_id() em vez de resolver aba via cache.
+    patch_40: ponto de entrada canônico por structure_id.
+    Resolve structure_id → aba via cache, delega para get_payoff_by_aba().
     """
-    ref = StructureRef.from_id(structure_id)
-    return get_payoff_by_aba(ref)
+    if not _ABA_CACHE_LOADED:
+        _load_aba_cache()
+
+    # Inverter o cache para structure_id → aba
+    sid_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+    aba = sid_to_aba.get(structure_id)
+
+    if aba is None:
+        return []  # structure_id não mapeado — retorna lista vazia
+
+    return get_payoff_by_aba(aba)
 
 
 def get_recent_decisions():

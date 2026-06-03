@@ -40,31 +40,6 @@ PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 # Utilitários de schema (nível módulo — usados por funções avulsas legadas)
 # ---------------------------------------------------------------------------
 
-
-# ── patch_56: helper de compatibilidade StructureRef → str ───────────────────
-try:
-    from src.domain.refs.structure_ref import StructureRef as _StructureRef
-except ImportError:
-    _StructureRef = None  # compatibilidade se módulo ainda não instalado
-
-
-def _unwrap_aba(aba_or_ref) -> str:
-    """
-    patch_56: aceita str ou StructureRef no parâmetro 'aba'.
-    Extrai .aba como string canônica quando recebe StructureRef.
-    Compatibilidade retroativa: callers que passam str continuam funcionando.
-    """
-    if _StructureRef is not None and isinstance(aba_or_ref, _StructureRef):
-        resolved = aba_or_ref.aba
-        if resolved is None:
-            raise ValueError(
-                f"StructureRef.aba é None — use StructureRef.from_aba() ou "
-                f"verifique o mapeamento. ref={aba_or_ref!r}"
-            )
-        return resolved
-    return aba_or_ref  # já é str (ou None, para wildcards)
-
-# ─────────────────────────────────────────────────────────────────────────────
 def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
     cur = conn.cursor()
     cur.execute(f"PRAGMA table_info({table_name})")
