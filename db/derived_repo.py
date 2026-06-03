@@ -10,15 +10,29 @@ patch_33:
   - Gerenciamento de conexão interno com try/finally + conn.close() explícito
   - Adiciona get_recent_decisions() (gap patch_26)
   - Mantém funções avulsas como shims para compatibilidade com callers legados
+
+patch_55:
+  - Suporte a StructureRef como argumento aba em _extract_ts_aba e get_recent_decisions
 """
 
-from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
 
 import json
 import sqlite3
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
+
+# patch_55:StructureRef
+try:
+    from src.domain.refs.structure_ref import StructureRef as _StructureRef
+except ImportError:
+    _StructureRef = None  # type: ignore
+
+# Import canônico para type hints (usado nas assinaturas públicas)
+try:
+    from src.domain.refs.structure_ref import StructureRef
+except ImportError:
+    StructureRef = Any  # type: ignore
 
 PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 
@@ -102,6 +116,7 @@ _MIGRATIONS: Dict[str, str] = {
 }
 
 _migrations = _MIGRATIONS
+
 # ---------------------------------------------------------------------------
 # Helpers internos (nível módulo — reutilizados pela classe e shims)
 # ---------------------------------------------------------------------------
@@ -164,23 +179,15 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
 # DerivedRepo — API canônica com gerenciamento próprio de conexão
 # ===========================================================================
 
-# db/derived_repo.py — patch_34
-# Alterações APENAS na classe DerivedRepo (shims legados não mudam)
-# Diff conceitual:
-#   write_decision_snapshot_atomic(self, decision_dict)         ← era (self, timestamp, aba, decision_dict)
-#   write_payoff_snapshot_atomic(self, points, meta=None, ...) ← extrai timestamp/aba do meta ou parâmetro
-#   insert_structure_decision(self, decision_dict)              ← era (self, timestamp, aba, decision_dict)
-#   _table_columns(self, table) exposto como alias de table_columns
-
-
 class DerivedRepo:
     """
     Repositório canônico para derived.db.
     patch_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
+    patch_55: suporte a StructureRef como argumento aba.
     """
 
-    def __init__(self, db_path: str = "dados/derived.db") -> None:
-        self._db_path = db_path
+    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
+        self._db_path = derived_db or db_path
         self._bootstrap()
 
     # ------------------------------------------------------------------
@@ -223,9 +230,18 @@ class DerivedRepo:
         """
         Extrai timestamp e aba do dict ou dos parâmetros explícitos.
         Permite tanto a API nova (só dict) quanto a legada (ts, aba, dict).
+        patch_55: desempacota StructureRef se necessário.
         """
-        ts  = timestamp  or decision_dict.get("timestamp") or datetime.now().isoformat()
-        ab  = aba        or decision_dict.get("aba")          or decision_dict.get("ticker", "unknown")
+        # patch_55: desempacotar StructureRef
+        if _StructureRef is not None and isinstance(aba, _StructureRef):
+            _ref = aba
+            aba = _ref.aba
+            if _ref.structure_id is not None:
+                decision_dict = dict(decision_dict)
+                decision_dict["structure_id"] = _ref.structure_id
+
+        ts = timestamp or decision_dict.get("timestamp") or datetime.now().isoformat()
+        ab = aba       or decision_dict.get("aba")       or decision_dict.get("ticker", "unknown")
         return ts, ab
 
     # ------------------------------------------------------------------
@@ -248,7 +264,7 @@ class DerivedRepo:
         try:
             cur = conn.cursor()
             cur.execute(
-                "DELETE FROM structure_decisions WHERE {ref.db_column()} = ? AND timestamp=?",
+                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
             rowid = self._insert_decision(cur, ts, ab, decision_dict)
@@ -295,14 +311,14 @@ class DerivedRepo:
         Retorna contagem inserida.
         """
         ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba")             or "unknown"
+        ab = aba       or (meta or {}).get("aba")       or "unknown"
 
         conn = self._connect()
         try:
             meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
             cur = conn.cursor()
             cur.execute(
-                "DELETE FROM payoff_curve_points WHERE {ref.db_column()} = ? AND timestamp=?",
+                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
             sql = """
@@ -339,7 +355,7 @@ class DerivedRepo:
     ) -> int:
         """INSERT OR REPLACE idempotente por (timestamp, aba, point_spot)."""
         ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba")             or "unknown"
+        ab = aba       or (meta or {}).get("aba")       or "unknown"
 
         conn = self._connect()
         try:
@@ -391,7 +407,7 @@ class DerivedRepo:
 
             # --- payoff ---
             cur.execute(
-                "DELETE FROM payoff_curve_points WHERE {ref.db_column()} = ? AND timestamp=?",
+                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
             sql_p = """
@@ -416,7 +432,7 @@ class DerivedRepo:
 
             # --- decisão ---
             cur.execute(
-                "DELETE FROM structure_decisions WHERE {ref.db_column()} = ? AND timestamp=?",
+                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
             decision_id = self._insert_decision(cur, ts, ab, decision_dict)
@@ -432,32 +448,41 @@ class DerivedRepo:
 
     def get_payoff_points(
         self,
-        ref: StructureRef,
+        aba: Optional[str] = None,
         timestamp: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         conn = self._connect()
         try:
             cur = conn.cursor()
-            if timestamp:
+            if aba and timestamp:
                 cur.execute(
                     """
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
-                    WHERE {ref.db_column()} = ? AND timestamp = ?
+                    WHERE aba = ? AND timestamp = ?
                     ORDER BY point_spot
                     """,
                     (aba, timestamp),
+                )
+            elif aba:
+                cur.execute(
+                    """
+                    SELECT timestamp, aba, point_spot, point_pl, meta_json
+                    FROM payoff_curve_points
+                    WHERE aba = ?
+                    ORDER BY timestamp DESC, point_spot
+                    LIMIT 100
+                    """,
+                    (aba,),
                 )
             else:
                 cur.execute(
                     """
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
-                    WHERE {ref.db_column()} = ?
                     ORDER BY timestamp DESC, point_spot
                     LIMIT 100
-                    """,
-                    (aba,),
+                    """
                 )
             cols = [d[0] for d in cur.description]
             return [dict(zip(cols, r)) for r in cur.fetchall()]
@@ -471,16 +496,27 @@ class DerivedRepo:
         ticker: Optional[str] = None,
         limit: int = 50,
     ) -> List[Dict[str, Any]]:
+        # patch_55: desempacotar StructureRef
+        if _StructureRef is not None and isinstance(aba, _StructureRef):
+            if structure_id is None and aba.structure_id is not None:
+                structure_id = aba.structure_id
+            aba = aba.aba
+
         conn = self._connect()
         try:
             conditions: List[str] = []
             params: List[Any] = []
+
             if aba is not None:
                 conditions.append("aba = ?")
                 params.append(aba)
             if structure_id is not None:
                 conditions.append("structure_id = ?")
                 params.append(structure_id)
+            if ticker is not None and aba is None:
+                conditions.append("aba = ?")
+                params.append(ticker)
+
             where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
             params.append(limit)
             rows = conn.execute(
@@ -561,7 +597,7 @@ class DerivedRepo:
         self,
         cur: sqlite3.Cursor,
         timestamp: str,
-        ref: StructureRef,
+        aba: str,
         decision_dict: Dict[str, Any],
         replace: bool = False,
     ) -> int:
@@ -572,14 +608,14 @@ class DerivedRepo:
             f"""
             {verb} INTO structure_decisions
                 (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max,
-                 dte_min, why, why_json, spot_ref, meta_json, created_at, structure_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 dte_min, why, why_json, spot_ref, meta_json, structure_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 timestamp,
                 aba,
                 decision_dict.get("decision", "HOLD"),
-                int(decision_dict.get("level", 0)),
+                (lambda v: int(v) if str(v).lstrip("-").isdigit() else 0)(decision_dict.get("level", 0)),
                 decision_dict.get("pl_atual"),
                 decision_dict.get("pl_max"),
                 decision_dict.get("pl_pct_of_max"),
@@ -588,7 +624,6 @@ class DerivedRepo:
                 why_json,
                 decision_dict.get("spot_ref"),
                 json.dumps(meta, ensure_ascii=False) if meta else None,
-                datetime.now().isoformat(),
                 decision_dict.get("structure_id"),
             ),
         )
@@ -597,13 +632,12 @@ class DerivedRepo:
 
 # ===========================================================================
 # Shims de compatibilidade — funções avulsas legadas
-# Callers existentes continuam funcionando sem alteração.
 # ===========================================================================
 
 def write_payoff_snapshot_atomic(
     conn: sqlite3.Connection,
     timestamp: str,
-    ref: StructureRef,
+    aba: str,
     points: List,
     meta: Optional[Dict[str, Any]] = None,
 ) -> int:
@@ -611,7 +645,7 @@ def write_payoff_snapshot_atomic(
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     cur = conn.cursor()
     cur.execute(
-        "DELETE FROM payoff_curve_points WHERE {ref.db_column()} = ? AND timestamp=?",
+        "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
         (aba, timestamp),
     )
     sql = """
@@ -639,13 +673,13 @@ def write_payoff_snapshot_atomic(
 def write_decision_snapshot_atomic(
     conn: sqlite3.Connection,
     timestamp: str,
-    ref: StructureRef,
+    aba: str,
     decision_dict: Dict[str, Any],
 ) -> int:
     ensure_derived_tables(conn)
     cur = conn.cursor()
     cur.execute(
-        "DELETE FROM structure_decisions WHERE {ref.db_column()} = ? AND timestamp=?",
+        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
         (aba, timestamp),
     )
     why, why_json = _normalize_why_fields(decision_dict)
@@ -658,7 +692,7 @@ def write_decision_snapshot_atomic(
     """, (
         timestamp, aba,
         decision_dict.get("decision", "HOLD"),
-        int(decision_dict.get("level", 0)),
+        (lambda v: int(v) if str(v).lstrip("-").isdigit() else 0)(decision_dict.get("level", 0)),
         decision_dict.get("pl_atual"),
         decision_dict.get("pl_max"),
         decision_dict.get("pl_pct_of_max"),
@@ -675,14 +709,14 @@ def write_decision_snapshot_atomic(
 def write_complete_snapshot_atomic(
     conn: sqlite3.Connection,
     timestamp: str,
-    ref: StructureRef,
+    aba: str,
     points: List,
     decision_dict: Dict[str, Any],
     points_meta: Optional[Dict] = None,
 ) -> Dict[str, int]:
     ensure_derived_tables(conn)
     with conn:
-        pc = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
+        pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
         did = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
     return {"points_count": pc, "decision_id": did}
 
@@ -690,7 +724,7 @@ def write_complete_snapshot_atomic(
 def insert_payoff_points(
     conn: sqlite3.Connection,
     timestamp: str,
-    ref: StructureRef,
+    aba: str,
     points: List[PayoffPoint],
     spot_ref: Optional[float] = None,
     meta: Optional[Dict[str, Any]] = None,
@@ -724,7 +758,7 @@ def insert_payoff_points(
 def insert_structure_decision(
     conn: sqlite3.Connection,
     timestamp: str,
-    ref: StructureRef,
+    aba: str,
     decision_dict: Dict[str, Any],
 ) -> int:
     ensure_derived_tables(conn)
@@ -739,7 +773,7 @@ def insert_structure_decision(
     """, (
         timestamp, aba,
         decision_dict.get("decision", "HOLD"),
-        int(decision_dict.get("level", 0)),
+        (lambda v: int(v) if str(v).lstrip("-").isdigit() else 0)(decision_dict.get("level", 0)),
         decision_dict.get("pl_atual"),
         decision_dict.get("pl_max"),
         decision_dict.get("pl_pct_of_max"),
@@ -756,25 +790,33 @@ def insert_structure_decision(
 
 def get_payoff_points(
     conn: sqlite3.Connection,
-    ref: StructureRef,
+    aba: Optional[str] = None,
     timestamp: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     ensure_derived_tables(conn)
     cur = conn.cursor()
-    if timestamp:
+    if aba and timestamp:
         cur.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            WHERE {ref.db_column()} = ? AND timestamp = ?
+            WHERE aba = ? AND timestamp = ?
             ORDER BY point_spot
         """, (aba, timestamp))
-    else:
+    elif aba:
         cur.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
-            WHERE {ref.db_column()} = ?
+            FROM payoff_curve_points
+            WHERE aba = ?
             ORDER BY timestamp DESC, point_spot
             LIMIT 100
         """, (aba,))
+    else:
+        cur.execute("""
+            SELECT timestamp, aba, point_spot, point_pl, meta_json
+            FROM payoff_curve_points
+            ORDER BY timestamp DESC, point_spot
+            LIMIT 100
+        """)
     cols = [d[0] for d in cur.description]
     return [dict(zip(cols, r)) for r in cur.fetchall()]
 
