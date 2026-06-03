@@ -1,13 +1,16 @@
 """
-patch_45 — Orquestrador canônico de cálculo.
+patch_45/patch_47 — Orquestrador canonico de calculo.
 
 Responsabilidade:
-  - Ler Structure + legs do repositório canônico
+  - Ler Structure + legs do repositorio canonico
   - Obter MarketSnapshot via selector
   - Normalizar e montar CalculationRequest
-  - Passar ao domínio SEM expor raw DB
+  - Passar ao dominio SEM expor raw DB
 
-O domínio não sabe de onde vieram os dados.
+patch_47: correcoes
+  - run_decision extrai pl_max/dte_min automaticamente
+  - multiplier usa leg.multiplier (sem hardcode)
+  - run_full_pipeline(request) adicionado
 """
 from __future__ import annotations
 
@@ -24,7 +27,7 @@ from domain.calculation_request import (
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Mapeamento legado → canônico
+# Mapeamento legado -> canonico
 # ---------------------------------------------------------------------------
 _CV_TO_SIDE = {"C": "LONG", "V": "SHORT", "LONG": "LONG", "SHORT": "SHORT"}
 _CP_NORM    = {"CALL": "CALL", "PUT": "PUT", "C": "CALL", "P": "PUT"}
@@ -45,7 +48,7 @@ def _normalize_option_type(raw: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Builder público
+# Builder publico
 # ---------------------------------------------------------------------------
 def build_calculation_request(
     structure_row: dict,
@@ -53,7 +56,7 @@ def build_calculation_request(
     snapshot_row: dict,
 ) -> CalculationRequest:
     """
-    Monta um CalculationRequest a partir de dicts vindos do repositório.
+    Monta um CalculationRequest a partir de dicts vindos do repositorio.
 
     Parameters
     ----------
@@ -63,15 +66,15 @@ def build_calculation_request(
 
     Returns
     -------
-    CalculationRequest validado e imutável.
+    CalculationRequest validado e imutavel.
 
     Raises
     ------
-    ValueError  se algum campo obrigatório estiver ausente ou inválido.
-    TypeError   se legs_rows não for lista de dicts.
+    ValueError  se algum campo obrigatorio estiver ausente ou invalido.
+    TypeError   se legs_rows nao for lista de dicts.
     """
     if not isinstance(legs_rows, list) or len(legs_rows) == 0:
-        raise ValueError("legs_rows não pode ser vazio")
+        raise ValueError("legs_rows nao pode ser vazio")
 
     # ---- Legs ----
     legs = []
@@ -128,23 +131,23 @@ def build_calculation_request(
 
 
 # ---------------------------------------------------------------------------
-# Adaptadores: CalculationRequest -> contrato do domínio
+# Adaptadores: CalculationRequest -> contrato do dominio
 # ---------------------------------------------------------------------------
-
 from types import SimpleNamespace
-from typing import Optional
 
 from domain.payoff import compute_payoff_from_canonical_input
 from domain.decision import compute_decision_from_contract
 
 
 def _request_to_payoff_dict(
-    request,
-    extra_meta=None,
+    request: CalculationRequest,
+    extra_meta: Optional[dict] = None,
 ) -> dict:
     """
-    Traduz CalculationRequest para o dict canônico que
+    Traduz CalculationRequest para o dict canonico que
     compute_payoff_from_canonical_input() espera.
+
+    patch_47: multiplier usa leg.multiplier com fallback 1.0 (era hardcode 100).
     """
     legs = []
     for leg in request.structure.legs:
@@ -154,11 +157,11 @@ def _request_to_payoff_dict(
             "strike":          leg.strike,
             "expiration_date": leg.expiration_date,
             "quantity":        leg.quantity,
-            "symbol":          getattr(leg, "symbol",     None),
-            "premium":         getattr(leg, "premium",    None),
-            "multiplier":      getattr(leg, "multiplier", 100),
-            "leg_order":       getattr(leg, "leg_order",  0),
-            "notes":           getattr(leg, "notes",      None),
+            "symbol":          getattr(leg, "symbol",      None),
+            "premium":         getattr(leg, "premium",     None),
+            "multiplier":      getattr(leg, "multiplier",  1.0),   # patch_47: era 100
+            "leg_order":       getattr(leg, "leg_order",   0),
+            "notes":           getattr(leg, "notes",       None),
         })
 
     return {
@@ -172,21 +175,21 @@ def _request_to_payoff_dict(
             "spot_price":       request.market_snapshot.spot_price,
             "underlying_asset": request.market_snapshot.underlying_asset,
             "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
-            "option_quotes":    getattr(request.market_snapshot, "option_quotes",     {}),
-            "greeks":           getattr(request.market_snapshot, "greeks",            {}),
+            "option_quotes":    getattr(request.market_snapshot, "option_quotes",      {}),
+            "greeks":           getattr(request.market_snapshot, "greeks",             {}),
         },
         "meta": extra_meta or {},
     }
 
 
 def run_payoff(
-    request,
+    request: CalculationRequest,
     low_pct: float = 0.5,
     high_pct: float = 1.5,
     step_pct: float = 0.01,
-    extra_meta=None,
+    extra_meta: Optional[dict] = None,
 ) -> dict:
-    """Executa cálculo de payoff a partir de um CalculationRequest."""
+    """Executa calculo de payoff a partir de um CalculationRequest."""
     canonical = _request_to_payoff_dict(request, extra_meta=extra_meta)
     return compute_payoff_from_canonical_input(
         canonical,
@@ -197,17 +200,86 @@ def run_payoff(
 
 
 def run_decision(
-    request,
-    payoff=None,
-    pl_atual: float = 0.0,
-    pl_max: float = 0.0,
-    dte_min=None,
+    request: CalculationRequest,
+    payoff: Optional[dict] = None,
+    pl_atual: Optional[float] = None,
+    pl_max: Optional[float] = None,
+    dte_min: Optional[int] = None,
 ) -> dict:
-    """Executa cálculo de decisão a partir de um CalculationRequest."""
-    from types import SimpleNamespace
+    """
+    Executa calculo de decisao a partir de um CalculationRequest.
+
+    patch_47:
+      - pl_max extraido de payoff["pl_max"] quando nao fornecido explicitamente
+      - pl_atual extraido de payoff["pl_atual"] ou interpolado quando disponivel
+      - dte_min extraido do request.market_snapshot quando nao fornecido
+      - Elimina risco de HOLD silencioso por valores zerados
+    """
+    # Extrair pl_max do payoff calculado, se disponivel
+    _pl_max = pl_max
+    if _pl_max is None and payoff:
+        _pl_max = float(payoff.get("pl_max") or 0.0)
+    if _pl_max is None:
+        _pl_max = 0.0
+
+    # Extrair pl_atual do payoff, se disponivel
+    _pl_atual = pl_atual
+    if _pl_atual is None and payoff:
+        _pl_atual = float(payoff.get("pl_atual") or payoff.get("pl_now") or 0.0)
+    if _pl_atual is None:
+        _pl_atual = 0.0
+
+    # Extrair dte_min do snapshot quando nao fornecido
+    _dte_min = dte_min
+    if _dte_min is None:
+        _dte_min = getattr(request.market_snapshot, "dte_min", None)
+
     contract = SimpleNamespace(
-        pl_max=pl_max,
-        pl_atual=pl_atual,
-        dte_min=dte_min,
+        pl_max=_pl_max,
+        pl_atual=_pl_atual,
+        dte_min=_dte_min,
     )
     return compute_decision_from_contract(contract, payoff=payoff)
+
+
+def run_full_pipeline(
+    request: CalculationRequest,
+    low_pct: float = 0.5,
+    high_pct: float = 1.5,
+    step_pct: float = 0.01,
+    extra_meta: Optional[dict] = None,
+) -> dict:
+    """
+    Executa payoff + decision em sequencia a partir de um CalculationRequest.
+
+    patch_47: entrada unica para o pipeline completo.
+    Garante que run_decision recebe o payoff real calculado por run_payoff,
+    eliminando dependencia de passagem manual de pl_max/pl_atual.
+
+    Returns
+    -------
+    dict com chaves:
+      - "payoff"   : resultado completo de run_payoff
+      - "decision" : resultado completo de run_decision
+      - "structure_id"     : int
+      - "underlying_asset" : str
+    """
+    payoff_result = run_payoff(
+        request,
+        low_pct=low_pct,
+        high_pct=high_pct,
+        step_pct=step_pct,
+        extra_meta=extra_meta,
+    )
+
+    decision_result = run_decision(
+        request,
+        payoff=payoff_result,
+    )
+
+    return {
+        "payoff":           payoff_result,
+        "decision":         decision_result,
+        "structure_id":     request.structure.structure_id,
+        "underlying_asset": request.structure.underlying_asset,
+    }
