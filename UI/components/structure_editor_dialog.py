@@ -327,6 +327,13 @@ class StructureEditorDialog(tk.Toplevel):
     # Salvar
     # ─────────────────────────────────────────────────────────────────
 
+    def _build_legs_payload(self) -> list[dict]:
+        """Constroi lista de legs com leg_order para persistencia."""
+        return [
+            {**leg, "leg_order": i}
+            for i, leg in enumerate(self._legs_rows, 1)
+        ]
+
     def _cmd_save(self):
         name       = self._f_name.get().strip()
         underlying = self._f_underlying.get().strip()
@@ -346,10 +353,7 @@ class StructureEditorDialog(tk.Toplevel):
             "notes":            self._f_notes.get().strip() or None,
         }
 
-        # Prepara legs com leg_order atualizado
-        legs_payload = []
-        for i, leg in enumerate(self._legs_rows, 1):
-            legs_payload.append({**leg, "leg_order": i})
+        legs_payload = self._build_legs_payload()
 
         try:
             if self._structure_id is None:

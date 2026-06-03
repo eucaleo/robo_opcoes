@@ -185,7 +185,12 @@ class StructuresRepository:
             (structure_id,),
         ).fetchall()
 
-        return [dict(row) for row in rows]
+        result = []
+        for row in rows:
+            d = dict(row)
+            d["n_legs"] = self.count_legs(d["id"])
+            result.append(d)
+        return result
 
     def _ensure_structure_exists(self, conn: sqlite3.Connection, structure_id: int) -> None:
         row = conn.execute(
@@ -433,8 +438,6 @@ class StructuresRepository:
             conn.close()
 
     def replace_legs(self, structure_id: int, legs: list[dict[str, Any]]) -> None:
-        if not legs:
-            raise ValueError("legs list must not be empty")
         validated_legs = [_validate_leg(leg) for leg in legs]
         now = _utc_now_iso()
 
@@ -501,6 +504,18 @@ class StructuresRepository:
     # sem usar aba como chave primaria.
     # Retorna None se nao encontrado ou se alias for None/vazio.
     # ------------------------------------------------------------------
+
+    def count_legs(self, structure_id: int) -> int:
+        """Retorna o numero de legs de uma estrutura."""
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id = ?",
+                (structure_id,),
+            ).fetchone()
+            return int(row["n"]) if row else 0
+        finally:
+            conn.close()
 
     def get_structure_by_alias(self, alias: str) -> dict[str, Any] | None:
         if not alias or not str(alias).strip():
