@@ -2101,6 +2101,47 @@ PATCHES = [
              lambda: contains("ATT/tests/test_patch54.py", "test_db_column_com_structure_id")),
         ],
     },
+    {
+        "id": "patch_55",
+        "desc": "StructureRef — tipo canônico para identificação de estrutura; created_at removido do INSERT explícito",
+        "checks": [
+            # ── 1. Domínio ────────────────────────────────────────
+            ("db/derived_repo.py existe",
+                lambda: exists("db/derived_repo.py")),
+            ("StructureRef definido (dataclass ou namedtuple)",
+                lambda: contains("db/derived_repo.py", "StructureRef")),
+            ("StructureRef.from_id() implementado",
+                lambda: contains("db/derived_repo.py", "def from_id")),
+            ("StructureRef.from_aba() implementado",
+                lambda: contains("db/derived_repo.py", "def from_aba")),
+            ("StructureRef.db_pair() implementado",
+                lambda: contains("db/derived_repo.py", "def db_pair")),
+
+            # ── 2. _insert_decision — sem created_at explícito ────
+            ("created_at removido do INSERT de _insert_decision",
+                lambda: not contains("db/derived_repo.py", "created_at, structure_id)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")),
+            ("datetime.now() removido dos valores do INSERT",
+                lambda: not contains("db/derived_repo.py", "datetime.now().isoformat(),\n                decision_dict.get(\"structure_id\")")),
+
+            # ── 3. write_decision_snapshot_atomic aceita StructureRef ──
+            ("write_decision_snapshot_atomic aceita StructureRef como aba",
+                lambda: contains("db/derived_repo.py", "StructureRef")),
+
+            # ── 4. Testes formais ─────────────────────────────────
+            ("ATT/tests/test_patch55.py existe",
+                lambda: exists("ATT/tests/test_patch55.py")),
+            ("TestStructureRefBasico presente",
+                lambda: contains("ATT/tests/test_patch55.py", "TestStructureRefBasico")),
+            ("TestExtractTsAba presente",
+                lambda: contains("ATT/tests/test_patch55.py", "TestExtractTsAba")),
+            ("TestWriteComStructureRef presente",
+                lambda: contains("ATT/tests/test_patch55.py", "TestWriteComStructureRef")),
+            ("TestGetRecentComStructureRef presente",
+                lambda: contains("ATT/tests/test_patch55.py", "TestGetRecentComStructureRef")),
+            ("TestRetrocompatibilidade presente",
+                lambda: contains("ATT/tests/test_patch55.py", "TestRetrocompatibilidade")),
+        ],
+    },
 
 ]  # ← fechamento da lista PATCHES
 
