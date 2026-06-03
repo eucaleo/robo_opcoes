@@ -1833,11 +1833,9 @@ PATCHES = [
                     "kwarg_aba"
                 )),
             ("kwarg_aba vem antes de comparacao_aba (ordem de prioridade)",
-                lambda: (
-                    open(p("scripts/audit_legacy_residuals_patch52.py"),
-                        encoding="utf-8").read().index("kwarg_aba")
-                    < open(p("scripts/audit_legacy_residuals_patch52.py"),
-                        encoding="utf-8").read().index("comparacao_aba")
+             lambda: (lambda txt: txt.index("kwarg_aba") < txt.index("comparacao_aba"))(
+                 open(p("scripts/audit_legacy_residuals_patch52.py"),
+                      encoding="utf-8").read()
                 )),
 
             # ── 2. Classificacao e varredura ──────────────────────
