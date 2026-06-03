@@ -1393,7 +1393,89 @@ PATCHES = [
             lambda: contains("ATT/tests/test_patch45.py", "TestPatch45SemAcessoRawDB")),
         ],
     },
+    {
+        "id": "patch_46",
+        "desc": "calculation_orchestrator — run_payoff() e run_decision() adaptam CalculationRequest ao domínio",
+        "checks": [
+            # ── 1. Implementação no orquestrador ─────────────────────
+            ("services/calculation_orchestrator.py existe",
+                lambda: exists("services/calculation_orchestrator.py")),
+            ("_request_to_payoff_dict() implementado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "def _request_to_payoff_dict"
+                )),
+            ("run_payoff() implementado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "def run_payoff"
+                )),
+            ("run_decision() implementado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "def run_decision"
+                )),
+            ("compute_payoff_from_canonical_input importado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "compute_payoff_from_canonical_input"
+                )),
+            ("compute_decision_from_contract importado",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "compute_decision_from_contract"
+                )),
+            ("legs iteradas e convertidas para lista de dicts",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "for leg in request.structure.legs"
+                )),
+            ("low_pct/high_pct/step_pct repassados ao domínio",
+                lambda: contains(
+                    "services/calculation_orchestrator.py",
+                    "low_pct"
+                )),
+            ("from __future__ NAO duplicado no orquestrador",
+                lambda: count_occurrences(
+                    "services/calculation_orchestrator.py",
+                    "from __future__ import annotations"
+                ) <= 1),
 
+            # ── 2. Testes formais — 17 passed ────────────────────────
+            ("ATT/tests/test_orchestrator_run_methods.py existe",
+                lambda: exists("ATT/tests/test_orchestrator_run_methods.py")),
+            ("TestRequestToPayoffDict presente",
+                lambda: contains(
+                    "ATT/tests/test_orchestrator_run_methods.py",
+                    "TestRequestToPayoffDict"
+                )),
+            ("TestRunPayoff presente",
+                lambda: contains(
+                    "ATT/tests/test_orchestrator_run_methods.py",
+                    "TestRunPayoff"
+                )),
+            ("TestRunDecision presente",
+                lambda: contains(
+                    "ATT/tests/test_orchestrator_run_methods.py",
+                    "TestRunDecision"
+                )),
+            ("TestRunPayoffIntegration presente (smoke real)",
+                lambda: contains(
+                    "ATT/tests/test_orchestrator_run_methods.py",
+                    "TestRunPayoffIntegration"
+                )),
+            ("test_defaults_pl_zerados presente",
+                lambda: contains(
+                    "ATT/tests/test_orchestrator_run_methods.py",
+                    "test_defaults_pl_zerados"
+                )),
+            ("test_smoke_run_payoff_call_chain presente",
+                lambda: contains(
+                    "ATT/tests/test_orchestrator_run_methods.py",
+                    "test_smoke_run_payoff_call_chain"
+                )),
+        ],
+    },
 ]  # ← fechamento da lista PATCHES
 
 # ------------------------------------------------------------------
@@ -1437,130 +1519,7 @@ FASE_3A_SERVICES = [
     "services/pricing_execution_app_service.py",
     "domain/market_snapshot.py",
     "repositories/market_snapshot_repository.py",
-
-        {
-            "id": "patch_46",
-            "desc": "calculation_orchestrator — run_payoff() e run_decision() adaptam CalculationRequest ao domínio",
-            "checks": [
-                # ── 1. Implementação no orquestrador ─────────────────────
-                ("services/calculation_orchestrator.py existe",
-                 lambda: exists("services/calculation_orchestrator.py")),
-                ("_request_to_payoff_dict() implementado",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "def _request_to_payoff_dict"
-                 )),
-                ("run_payoff() implementado",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "def run_payoff"
-                 )),
-                ("run_decision() implementado",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "def run_decision"
-                 )),
-                ("compute_payoff_from_canonical_input importado no orquestrador",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "compute_payoff_from_canonical_input"
-                 )),
-                ("compute_decision_from_contract importado no orquestrador",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "compute_decision_from_contract"
-                 )),
-                ("SimpleNamespace usado para montar contract em run_decision",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "SimpleNamespace"
-                 )),
-
-                # ── 2. Tradução fiel de CalculationRequest ────────────────
-                ("structure_id traduzido no dict canônico",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "structure_id"
-                 )),
-                ("spot_price traduzido no dict de market",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "spot_price"
-                 )),
-                ("legs iteradas e convertidas para lista de dicts",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "for leg in request.structure.legs"
-                 )),
-                ("low_pct/high_pct/step_pct repassados ao domínio",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "low_pct"
-                 )),
-                ("dte_min repassado ao contract em run_decision",
-                 lambda: contains(
-                     "services/calculation_orchestrator.py",
-                     "dte_min"
-                 )),
-
-                # ── 3. Testes formais — 17 passou / 0 falhou ─────────────
-                ("ATT/tests/test_orchestrator_run_methods.py existe",
-                 lambda: exists("ATT/tests/test_orchestrator_run_methods.py")),
-                ("TestRequestToPayoffDict presente (7 testes)",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "TestRequestToPayoffDict"
-                 )),
-                ("TestRunPayoff presente (4 testes)",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "TestRunPayoff"
-                 )),
-                ("TestRunDecision presente (5 testes)",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "TestRunDecision"
-                 )),
-                ("TestRunPayoffIntegration presente (smoke real)",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "TestRunPayoffIntegration"
-                 )),
-                ("test_chama_dominio_com_dict_correto presente",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "test_chama_dominio_com_dict_correto"
-                 )),
-                ("test_parametros_de_range_repassados presente",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "test_parametros_de_range_repassados"
-                 )),
-                ("test_chama_dominio_com_contract_correto presente",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "test_chama_dominio_com_contract_correto"
-                 )),
-                ("test_defaults_pl_zerados presente",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "test_defaults_pl_zerados"
-                 )),
-                ("test_smoke_run_payoff_call_chain presente",
-                 lambda: contains(
-                     "ATT/tests/test_orchestrator_run_methods.py",
-                     "test_smoke_run_payoff_call_chain"
-                 )),
-
-                # ── 4. Zero regressão ─────────────────────────────────────
-                ("from __future__ import annotations NAO duplicado no orquestrador",
-                 lambda: count_occurrences("services/calculation_orchestrator.py", "from __future__ import annotations") <= 1,
-                ),
-            ],
-        },
-
-]
-
+]       
 
 # ------------------------------------------------------------------
 # Runners
