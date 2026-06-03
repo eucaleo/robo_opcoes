@@ -198,3 +198,68 @@ class RoboLegsRepository:
                 candidates.append(v)
 
         return candidates
+
+
+    # ──────────────────────────────────────────────────────────────
+    # patch_40: métodos canônicos por structure_id
+    # Os métodos legados (por aba) são mantidos sem alteração.
+    # ──────────────────────────────────────────────────────────────
+
+    def _resolve_aba_from_structure_id(self, structure_id: int) -> Optional[str]:
+        """
+        Resolve structure_id → alias_legacy_aba via structures em app.db.
+        Retorna None se não encontrado.
+        """
+        sql = """
+            SELECT alias_legacy_aba
+            FROM structures
+            WHERE id = ?
+              AND alias_legacy_aba IS NOT NULL
+              AND alias_legacy_aba != ''
+            LIMIT 1
+        """
+        with sqlite_conn(self.config.app_db_path) as conn:
+            row = conn.execute(sql, (structure_id,)).fetchone()
+        return row["alias_legacy_aba"] if row else None
+
+    def get_legs_by_structure_id(
+        self,
+        structure_id: int,
+        timestamp: Any,
+    ) -> List[RoboLegDTO]:
+        """
+        Ponto de entrada canônico: recebe structure_id, resolve para aba,
+        delega para get_legs() existente.
+        Levanta ValueError se structure_id não mapeado.
+        """
+        aba = self._resolve_aba_from_structure_id(structure_id)
+        if aba is None:
+            raise ValueError(
+                f"structure_id={structure_id} sem alias_legacy_aba em structures"
+            )
+        return self.get_legs(aba=aba, timestamp=timestamp)
+
+    def has_manual_by_structure_id(
+        self,
+        structure_id: int,
+        timestamp: Any,
+    ) -> bool:
+        """Versão canônica de has_manual() por structure_id."""
+        aba = self._resolve_aba_from_structure_id(structure_id)
+        if aba is None:
+            return False
+        return self.has_manual(aba=aba, timestamp=timestamp)
+
+    def list_timestamps_by_structure_id(
+        self,
+        structure_id: int,
+        prefer: str = "manual_then_rtd",
+    ) -> List[str]:
+        """Versão canônica de list_timestamps() por structure_id."""
+        aba = self._resolve_aba_from_structure_id(structure_id)
+        if aba is None:
+            raise ValueError(
+                f"structure_id={structure_id} sem alias_legacy_aba em structures"
+            )
+        return self.list_timestamps(aba=aba, prefer=prefer)
+

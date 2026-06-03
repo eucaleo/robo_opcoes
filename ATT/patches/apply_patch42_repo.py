@@ -1,3 +1,14 @@
+# apply_patch42_repo.py
+"""
+patch_42 — auto-aplica get_structure_by_alias + get_structure_id_by_alias
+em repositories/structures_repository.py
+"""
+
+from pathlib import Path
+
+REPO_FILE = Path("repositories/structures_repository.py")
+
+NEW_CONTENT = '''\
 # repositories/structures_repository.py
 """
 Repositório canônico de estruturas e suas pernas (legs).
@@ -523,7 +534,7 @@ class StructuresRepository:
                     updated_at
                 FROM structures
                 WHERE alias_legacy_aba = ?
-                  AND status = 'active'
+                  AND status = \'active\'
                 ORDER BY id DESC
                 LIMIT 1
                 """,
@@ -548,3 +559,20 @@ class StructuresRepository:
         if result is None:
             return None
         return int(result["id"])
+'''
+
+def main():
+    if not REPO_FILE.exists():
+        print(f"[ERRO] Arquivo nao encontrado: {REPO_FILE}")
+        return
+
+    backup = REPO_FILE.with_suffix(".py.bak_pre_p42")
+    backup.write_text(REPO_FILE.read_text(encoding="utf-8"), encoding="utf-8")
+    print(f"[OK] Backup criado: {backup}")
+
+    REPO_FILE.write_text(NEW_CONTENT, encoding="utf-8")
+    print(f"[OK] {REPO_FILE} atualizado com patch_42")
+
+
+if __name__ == "__main__":
+    main()

@@ -3,18 +3,22 @@
 patch_17 — Fachada canônica corrigida.
 patch_21 — Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
            no PricingExecutionPersistenceService.
+patch_41 — Corrige underlying_asset no pricing_payload.
 
-Correções aplicadas:
+Correções patch_41:
+  C6: _get_alias_legacy_aba() substituído por _get_structure_info() —
+      busca alias_legacy_aba E underlying_asset em uma única query.
+  C7: _snapshot_result_to_payload() recebe underlying_asset explícito —
+      elimina uso de selection_result.aba como underlying_asset
+      (aba legada ≠ ativo subjacente real).
+  C8: execute_pricing() passa underlying_asset para o payload builder.
+
+Correções anteriores mantidas:
   C1: sel.select(aba=...) — parâmetro correto
-  C2: alias_legacy_aba buscado via MarketSnapshotRepository antes de chamar o selector
-  C3: orquestração direta repo → selector → execute_payload(), sem depender de
-      CanonicalInputService.build_structure_market_input() (assinatura não confirmada)
-  C4: engine_result extraído do wrapper do engine antes de passar ao persister
-      execution_result = { "pricing_payload": ..., "result": { engine, status, metrics... } }
-      engine_result    = execution_result.get("result", execution_result)
-  C5 (patch_21): DerivedPayoffPersistence injetado como payoff_persistence_port —
-      após persist_execution, payoff + decisão são gravados no derived.db
-      de forma fire-and-forget (falha não derruba a execução principal).
+  C2: alias_legacy_aba buscado via query antes de chamar o selector
+  C3: orquestração direta repo → selector → execute_payload()
+  C4: engine_result extraído do wrapper antes de passar ao persister
+  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
 """
 
 from __future__ import annotations
@@ -33,15 +37,20 @@ from services.pricing_execution_service import PricingExecutionService
 _DEFAULT_DB = Path("dados/app.db")
 
 
-def _get_alias_legacy_aba(structure_id: int, db_path: Path) -> str:
+# ── C6: substitui _get_alias_legacy_aba — busca aba + underlying em 1 query ──
+
+def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
     """
-    Busca alias_legacy_aba direto no banco.
-    Lança ValueError se a estrutura não existir ou aba for nula.
+    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+
+    Raises ValueError se:
+      - estrutura não existir
+      - alias_legacy_aba for nulo (sem aba legada mapeada)
     """
     with sqlite3.connect(str(db_path)) as conn:
         conn.row_factory = sqlite3.Row
         row = conn.execute(
-            "SELECT alias_legacy_aba FROM structures WHERE id = ?",
+            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
             (structure_id,),
         ).fetchone()
 
@@ -52,12 +61,17 @@ def _get_alias_legacy_aba(structure_id: int, db_path: Path) -> str:
     if not aba:
         raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
 
-    return aba
+    underlying_asset = row["underlying_asset"]  # NOT NULL — sempre presente
 
+    return aba, underlying_asset
+
+
+# ── C7: recebe underlying_asset explícito — não usa selection_result.aba ─────
 
 def _snapshot_result_to_payload(
     selection_result: Any,
     structure_id: int,
+    underlying_asset: str,          # ← parâmetro novo (era implícito via .aba)
     reference_date: str | None,
 ) -> dict[str, Any]:
     legs_data = []
@@ -78,13 +92,12 @@ def _snapshot_result_to_payload(
             "source":      str(d.get("source")),
         })
 
-    # spot_price: tenta no selection_result, senão pega do primeiro leg como fallback
     spot = getattr(selection_result, "spot_price", None) \
         or getattr(selection_result, "spot", None)
 
     return {
         "structure_id":     structure_id,
-        "underlying_asset": selection_result.aba,
+        "underlying_asset": underlying_asset,   # ← C7: ativo real, não aba legada
         "reference_date":   reference_date,
         "spot_price":       float(spot) if spot else 0.0,
         "interest_rate":    0.0,
@@ -92,6 +105,7 @@ def _snapshot_result_to_payload(
         "legs":             legs_data,
         "meta": {
             "snapshot_source":  str(selection_result.source),
+            "snapshot_aba":     selection_result.aba,   # ← preserva aba para rastreabilidade
             "manual_overrides": getattr(selection_result, "manual_overrides", None),
             "legs_count":       len(legs_data),
         },
@@ -103,13 +117,13 @@ class CanonicalPricingFacade:
     Orquestra o pipeline canônico ponta a ponta:
 
         structure_id
-            └─► alias_legacy_aba  (query em structures)
+            └─► alias_legacy_aba + underlying_asset  (query em structures)
                     └─► MarketSnapshotSelector.select(aba=...)
-                            └─► pricing_payload
+                            └─► pricing_payload  (underlying_asset = ativo real)
                                     └─► PricingExecutionService.execute_payload()
                                             └─► PricingExecutionPersistenceService.persist()
-                                                    └─► DerivedPayoffPersistence.persist()  ← patch_21
-                                                            └─► derived.db (payoff + decisão)
+                                                    └─► DerivedPayoffPersistence.persist()
+                                                            └─► derived.db
     """
 
     def __init__(
@@ -123,61 +137,45 @@ class CanonicalPricingFacade:
         self._selector = MarketSnapshotSelector(repository=self._repo)
         self._engine   = pricing_execution_service or PricingExecutionService()
 
-        # patch_21: injeta DerivedPayoffPersistence se nenhum persister for fornecido
         self._persister = persistence_service or PricingExecutionPersistenceService(
             payoff_persistence_port=DerivedPayoffPersistence(),
         )
-
-    # ------------------------------------------------------------------
-    # API pública
-    # ------------------------------------------------------------------
 
     def execute_pricing(
         self,
         structure_id: int,
         reference_date: str | None = None,
     ) -> dict[str, Any]:
-        """
-        Executa o pipeline canônico completo.
-
-        Returns dict:
-            status          "ok" | "error"
-            canonical_input payload montado
-            pricing_payload idem (alias semântico)
-            result          saída do engine (wrapper completo)
-            persisted       registro persistido
-            meta            snapshot_source, overrides, legs_count
-            duration_ms     tempo total
-            error_message   presente apenas se status="error"
-        """
         started_at = time.perf_counter()
 
         try:
-            # ── 1. Resolve aba ─────────────────────────────────────────────
-            aba = _get_alias_legacy_aba(structure_id, self._db_path)
+            # ── 1. Resolve aba + underlying_asset ─────────────────────────
+            aba, underlying_asset = _get_structure_info(   # ← C6/C8
+                structure_id, self._db_path
+            )
 
-            # ── 2. Seleciona snapshot (manual > rtd) ───────────────────────
+            # ── 2. Seleciona snapshot (manual > rtd) ──────────────────────
             selection = self._selector.select(aba=aba)
 
-            # ── 3. Monta pricing_payload ───────────────────────────────────
+            # ── 3. Monta pricing_payload ──────────────────────────────────
             pricing_payload = _snapshot_result_to_payload(
                 selection_result=selection,
                 structure_id=structure_id,
+                underlying_asset=underlying_asset,          # ← C7/C8
                 reference_date=reference_date,
             )
 
-            # ── 4. Executa engine ──────────────────────────────────────────
+            # ── 4. Executa engine ─────────────────────────────────────────
             execution_result = self._engine.execute_payload(
                 pricing_payload=pricing_payload,
             )
 
-            # ── C4: extrai dict interno do wrapper antes de passar ao persister
-            # execution_result: { "pricing_payload": ..., "result": { engine, status, metrics, valuation } }
+            # ── C4: extrai dict interno do wrapper ────────────────────────
             engine_result = execution_result.get("result", execution_result)
 
             duration_ms = int((time.perf_counter() - started_at) * 1000)
 
-            # ── 5. Persiste (app.db) + derived.db via port (patch_21) ──────
+            # ── 5. Persiste (app.db + derived.db via port) ────────────────
             persisted = self._persister.persist_execution(
                 pricing_payload=pricing_payload,
                 result=engine_result,
@@ -189,7 +187,7 @@ class CanonicalPricingFacade:
                 "status":          "ok",
                 "canonical_input": pricing_payload,
                 "pricing_payload": pricing_payload,
-                "result":          execution_result,   # wrapper completo na resposta pública
+                "result":          execution_result,
                 "persisted":       persisted,
                 "meta":            pricing_payload["meta"],
                 "duration_ms":     duration_ms,
