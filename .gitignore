@@ -54,3 +54,5 @@ module_inventory.json
 main.py.txt
 
 scripts/auditoria_*.md
+
+# Excecoes: artefatos de auditoria rastreados
