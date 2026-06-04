@@ -1,6 +1,7 @@
 # scripts/audit_patches.py
 # Auditoria de patches do projeto ATT
 # Atualizado: patch_34 + patch_35 + DECISÕES PERMANENTES registradas
+from __future__ import annotations
 
 import os
 import glob
@@ -1441,7 +1442,6 @@ PATCHES = [
             ("from __future__ NAO duplicado no orquestrador",
                 lambda: count_occurrences(
                     "services/calculation_orchestrator.py",
-                    "from __future__ import annotations"
                 ) <= 1),
 
             #  2. Testes formais -- 17 passed 
@@ -2239,6 +2239,94 @@ PATCHES = [
         ],
     },
 
+
+{
+    "id": "patch_57",
+    "desc": "Auditoria de surface pública da API ABA: scan_directory, classify, format_report + testes formais",
+    "checks": [
+        #  1. Script permanente de auditoria
+        ("scripts/74_audit_public_api_aba_surface.py existe",
+         lambda: exists("scripts/74_audit_public_api_aba_surface.py")),
+
+        #  2. Tipos e dataclass
+        ("AuditEntry definido",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "class AuditEntry")),
+
+        #  3. Funções públicas exigidas pelos testes
+        ("scan_directory() implementado",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "def scan_directory")),
+
+        ("_classify() implementado (núcleo interno)",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "def _classify")),
+
+        ("classify = _classify  alias público presente",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "classify = _classify")),
+
+        ("format_report() implementado",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "def format_report")),
+
+        #  4. Contrato de importação (hasattr)
+        ("scan_directory exportado como atributo do módulo",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "scan_directory")),
+
+        ("classify exportado como atributo do módulo",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "classify")),
+
+        ("format_report exportado como atributo do módulo",
+         lambda: contains(
+             "scripts/74_audit_public_api_aba_surface.py", "format_report")),
+
+        #  5. Scripts temporários removidos
+        ("scripts/tmp_audit_aba_surface.py NÃO existe (temporário removido)",
+         lambda: not exists("scripts/tmp_audit_aba_surface.py")),
+
+        ("scripts/tmp_patch57_fix.py NÃO existe (temporário removido)",
+         lambda: not exists("scripts/tmp_patch57_fix.py")),
+
+        #  6. Arquivos de teste formais
+        ("ATT/tests/test_patch57.py existe",
+         lambda: exists("ATT/tests/test_patch57.py")),
+
+        #  7. Classes de teste presentes
+        ("TestAuditScript74 presente",
+         lambda: contains("ATT/tests/test_patch57.py", "TestAuditScript74")),
+
+        ("TestCanonicalInputServiceImport presente",
+         lambda: contains("ATT/tests/test_patch57.py", "TestCanonicalInputServiceImport")),
+
+        ("TestRoboLegsServiceImport presente",
+         lambda: contains("ATT/tests/test_patch57.py", "TestRoboLegsServiceImport")),
+
+        ("TestTmpScriptsRemovidos presente",
+         lambda: contains("ATT/tests/test_patch57.py", "TestTmpScriptsRemovidos")),
+
+        #  8. Casos críticos cobertos
+        ("test_importavel presente (hasattr scan_directory/classify/format_report)",
+         lambda: contains("ATT/tests/test_patch57.py", "test_importavel")),
+
+        ("test_scan_nao_levanta_excecao presente",
+         lambda: contains("ATT/tests/test_patch57.py", "test_scan_nao_levanta_excecao")),
+
+        ("test_sem_aba_solta_em_selector_call presente",
+         lambda: contains("ATT/tests/test_patch57.py", "test_sem_aba_solta_em_selector_call")),
+
+        ("test_get_legs_extrai_aba_de_ref presente",
+         lambda: contains("ATT/tests/test_patch57.py", "test_get_legs_extrai_aba_de_ref")),
+
+        ("test_audit_permanente_existe presente",
+         lambda: contains("ATT/tests/test_patch57.py", "test_audit_permanente_existe")),
+
+        ("test_tmp_nao_existem_em_scripts presente",
+         lambda: contains("ATT/tests/test_patch57.py", "test_tmp_nao_existem_em_scripts")),
+    ],
+},
 
 ]  #  fechamento da lista PATCHES
 
