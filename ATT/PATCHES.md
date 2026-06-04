@@ -18,3 +18,7 @@ test_patch34_ui_data).
 - Migrado get_payoff_by_structure_id() para StructureRef.from_id()
 - Adicionado _unwrap_aba() em derived_repo.py
 - 6 funções standalone aceitam str | StructureRef
+
+## patch_61 -- 2026-06-04
+chore: remove tmp scripts residuais do patch_53b
+Arquivos removidos: nenhum (ja ausentes)
