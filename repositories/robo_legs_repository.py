@@ -1,5 +1,10 @@
+# repositories/robo_legs_repository.py
+"""
+patch_40 -- métodos canônicos por structure_id adicionados
+patch_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
+             (elimina duplicação com robo_legs_status_repository)
+"""
 from __future__ import annotations
-from src.domain.refs.structure_ref import StructureRef
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -7,8 +12,9 @@ from typing import Any, Dict, List, Optional
 
 from dto.robo_leg_dto import FonteType, RoboLegDTO
 from infra.sqlite_conn import sqlite_conn
+from repositories._aba_resolver_mixin import AbaResolverMixin
+from src.domain.refs.structure_ref import StructureRef
 from utils.leg_normalizers import parse_timestamp, parse_vencimento
-
 
 
 def _to_aba(ref) -> str:
@@ -17,12 +23,13 @@ def _to_aba(ref) -> str:
         return ref
     return ref.aba  # StructureRef.aba (patch_53)
 
+
 @dataclass(frozen=True)
 class RoboLegsRepoConfig:
     app_db_path: str = "./dados/app.db"
 
 
-class RoboLegsRepository:
+class RoboLegsRepository(AbaResolverMixin):
     """
     Leitura canônica por (aba, timestamp) com regra:
       manual_analise_robo_legs > rtd_analise_robo_legs
@@ -34,6 +41,9 @@ class RoboLegsRepository:
     - BR : DD/MM/YYYY HH:MM:SS
 
     Portanto a leitura precisa ser tolerante a ambas as representações.
+
+    patch_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
+              não é mais definido localmente.
     """
 
     def __init__(self, config: Optional[RoboLegsRepoConfig] = None):
@@ -84,7 +94,11 @@ class RoboLegsRepository:
             cur = conn.execute(sql, (aba, *ts_candidates))
             return cur.fetchone() is not None
 
-    def list_timestamps(self, ref: StructureRef, prefer: str = "manual_then_rtd") -> List[str]:
+    def list_timestamps(
+        self,
+        ref: StructureRef,
+        prefer: str = "manual_then_rtd",
+    ) -> List[str]:
         """Lista timestamps disponíveis para a aba."""
         aba = _to_aba(ref)
         prefer = (prefer or "").strip().lower()
@@ -102,14 +116,16 @@ class RoboLegsRepository:
                 return [r["timestamp"] for r in rows]
 
             rows_m = conn.execute(
-                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs "
+                "WHERE aba = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
             if rows_m:
                 return [r["timestamp"] for r in rows_m]
 
             rows_r = conn.execute(
-                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs "
+                "WHERE aba = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
             return [r["timestamp"] for r in rows_r]
@@ -139,7 +155,7 @@ class RoboLegsRepository:
         return out
 
     def _row_to_dto(self, row: Dict[str, Any], fonte: FonteType) -> RoboLegDTO:
-        """Mapeia colunas -> DTO com normalização simples"""
+        """Mapeia colunas -> DTO com normalização simples."""
 
         def pick(*keys: str, default=None):
             for k in keys:
@@ -147,39 +163,38 @@ class RoboLegsRepository:
                     return row[k]
             return default
 
-        aba = pick("aba")
+        aba       = pick("aba")
         timestamp = pick("timestamp")
-        cv = pick("cv", "lado", "c_v")
-        call_put = pick("call_put", "cp", "tipo", "callput")
-        strike = pick("strike", "k", "preco_exercicio")
-        quant = pick("quant", "qty", "qtd", "quantidade")
-        ativo = pick("ativo", "ticker", "cod_ativo")
-        venc = pick("vencimento", "vcto", "expiry", "expiracao")
-        preco = pick("preco", "price", "premium")
-        leg_id = pick("id", "leg_id")
+        cv        = pick("cv", "lado", "c_v")
+        call_put  = pick("call_put", "cp", "tipo", "callput")
+        strike    = pick("strike", "k", "preco_exercicio")
+        quant     = pick("quant", "qty", "qtd", "quantidade")
+        ativo     = pick("ativo", "ticker", "cod_ativo")
+        venc      = pick("vencimento", "vcto", "expiry", "expiracao")
+        preco     = pick("preco", "price", "premium")
+        leg_id    = pick("id", "leg_id")
 
-        cv_raw = str(cv).upper().strip() if cv is not None else ""
-        cp_raw = str(call_put).upper().strip() if call_put is not None else ""
+        cv_raw  = str(cv).upper().strip()       if cv        is not None else ""
+        cp_raw  = str(call_put).upper().strip() if call_put  is not None else ""
 
-        cv_norm = "C" if cv_raw in ["C", "COMPRA", "COMPRADO", "BUY", "LONG"] else "V"
+        cv_norm       = "C" if cv_raw in ["C", "COMPRA", "COMPRADO", "BUY", "LONG"] else "V"
         call_put_norm = "CALL" if cp_raw in ["CALL", "C"] else "PUT"
 
-        dto = RoboLegDTO(
+        return RoboLegDTO(
             aba=str(aba).strip(),
             timestamp=parse_timestamp(timestamp),
             cv=cv_norm,
             call_put=call_put_norm,
-            strike=float(strike) if strike is not None else 0.0,
-            quant=int(quant) if quant is not None else 0,
+            strike=float(strike)       if strike  is not None else 0.0,
+            quant=int(quant)           if quant   is not None else 0,
             ativo=str(ativo).strip().upper() if ativo is not None else "",
             vencimento=parse_vencimento(venc) if venc is not None else None,
             fonte=fonte,
-            id=int(leg_id) if leg_id is not None else None,
-            preco=float(preco) if preco is not None else None,
+            id=int(leg_id)             if leg_id  is not None else None,
+            preco=float(preco)         if preco   is not None else None,
             created_at=None,
             updated_at=None,
         )
-        return dto
 
     @staticmethod
     def _timestamp_candidates(original: Any, ts: datetime) -> List[str]:
@@ -200,9 +215,9 @@ class RoboLegsRepository:
                 candidates.append(raw)
 
         iso_dt = ts.replace(microsecond=0).isoformat(sep=" ")
-        br_dt = ts.strftime("%d/%m/%Y %H:%M:%S")
-        iso_d = ts.strftime("%Y-%m-%d")
-        br_d = ts.strftime("%d/%m/%Y")
+        br_dt  = ts.strftime("%d/%m/%Y %H:%M:%S")
+        iso_d  = ts.strftime("%Y-%m-%d")
+        br_d   = ts.strftime("%d/%m/%Y")
 
         for v in [iso_dt, br_dt, iso_d, br_d]:
             if v not in candidates:
@@ -210,28 +225,10 @@ class RoboLegsRepository:
 
         return candidates
 
-
-    # 
-    # patch_40: métodos canônicos por structure_id
-    # Os métodos legados (por aba) são mantidos sem alteração.
-    # 
-
-    def _resolve_aba_from_structure_id(self, structure_id: int) -> Optional[str]:
-        """
-        Resolve structure_id  alias_legacy_aba via structures em app.db.
-        Retorna None se não encontrado.
-        """
-        sql = """
-            SELECT alias_legacy_aba
-            FROM structures
-            WHERE id = ?
-              AND alias_legacy_aba IS NOT NULL
-              AND alias_legacy_aba != ''
-            LIMIT 1
-        """
-        with sqlite_conn(self.config.app_db_path) as conn:
-            row = conn.execute(sql, (structure_id,)).fetchone()
-        return row["alias_legacy_aba"] if row else None
+    # ------------------------------------------------------------------ #
+    # patch_40: métodos canônicos por structure_id                        #
+    # patch_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
+    # ------------------------------------------------------------------ #
 
     def get_legs_by_structure_id(
         self,
@@ -248,7 +245,9 @@ class RoboLegsRepository:
             raise ValueError(
                 f"structure_id={structure_id} sem alias_legacy_aba em structures"
             )
-        return self.get_legs(ref=aba, timestamp=timestamp)
+        # patch_62: passa StructureRef em vez de str nua -- semântica explícita
+        ref = StructureRef(aba=aba, structure_id=structure_id)
+        return self.get_legs(ref=ref, timestamp=timestamp)
 
     def has_manual_by_structure_id(
         self,
@@ -259,7 +258,10 @@ class RoboLegsRepository:
         aba = self._resolve_aba_from_structure_id(structure_id)
         if aba is None:
             return False
-        return self.has_manual(ref=aba, timestamp=timestamp)
+        return self.has_manual(
+            ref=StructureRef(aba=aba, structure_id=structure_id),
+            timestamp=timestamp,
+        )
 
     def list_timestamps_by_structure_id(
         self,
@@ -272,5 +274,7 @@ class RoboLegsRepository:
             raise ValueError(
                 f"structure_id={structure_id} sem alias_legacy_aba em structures"
             )
-        return self.list_timestamps(ref=aba, prefer=prefer)
-
+        return self.list_timestamps(
+            ref=StructureRef(aba=aba, structure_id=structure_id),
+            prefer=prefer,
+        )

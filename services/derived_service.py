@@ -1,11 +1,14 @@
-from __future__ import annotations
+# services/derived_service.py
 """
 patch_30/patch_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+patch_62           -- get_payoff_by_aba() marcada como depreciada (remoção: patch_65).
   - from __future__ garantido como linha 1
 """
+from __future__ import annotations
 
 import json
 import sqlite3
+import warnings
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -152,8 +155,8 @@ def save_payoff_curve(
     patch_57: 'ref' aceita StructureRef, str ou None.
     _unwrap_ref() extrai a string aba de forma segura.
     """
-    ts          = timestamp or _now_iso()
-    storage_key = _unwrap_ref(ref) or "unknown"
+    ts           = timestamp or _now_iso()
+    storage_key  = _unwrap_ref(ref) or "unknown"
     resolved_sid = _resolve_structure_id(storage_key)
 
     norm_points: List[Tuple[float, float]] = []
@@ -345,16 +348,31 @@ def get_payoff_by_aba(ref: StructureRef):
     """
     patch_56: usa ref.db_pair() para montar WHERE clause dinamicamente.
     patch_57: sem alteracao -- ja estava correto.
+
+    .. deprecated:: patch_62
+        Use ``get_payoff_by_structure_id(structure_id)`` ou construa um
+        ``StructureRef`` e chame ``get_payoff_by_aba()`` diretamente enquanto
+        a função não for removida. Remoção prevista: patch_65.
     """
+    warnings.warn(
+        "get_payoff_by_aba() está depreciada desde patch_62. "
+        "Prefira get_payoff_by_structure_id(structure_id). "
+        "Será removida no patch_65.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     col, val = ref.db_pair()
     with connect_derived() as conn:
         cursor = conn.cursor()
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT timestamp, point_spot, point_pl, meta_json
-            FROM payoff_curve_points
-            WHERE {col} = ?
-            ORDER BY point_spot
-        """, (val,))
+              FROM payoff_curve_points
+             WHERE {col} = ?
+             ORDER BY point_spot
+            """,
+            (val,),
+        )
         return [
             {
                 "timestamp":  row[0],
@@ -367,9 +385,33 @@ def get_payoff_by_aba(ref: StructureRef):
 
 
 def get_payoff_by_structure_id(structure_id: int):
-    """patch_56: constroi StructureRef.from_id() e delega."""
+    """
+    patch_56: constrói StructureRef.from_id() e delega.
+    patch_62: chamada interna usa ref.db_pair() diretamente,
+              evitando disparar o DeprecationWarning de get_payoff_by_aba().
+    """
     ref = StructureRef.from_id(structure_id)
-    return get_payoff_by_aba(ref)
+    col, val = ref.db_pair()
+    with connect_derived() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            f"""
+            SELECT timestamp, point_spot, point_pl, meta_json
+              FROM payoff_curve_points
+             WHERE {col} = ?
+             ORDER BY point_spot
+            """,
+            (val,),
+        )
+        return [
+            {
+                "timestamp":  row[0],
+                "point_spot": row[1],
+                "point_pl":   row[2],
+                "meta_json":  json.loads(row[3]) if row[3] else None,
+            }
+            for row in cursor.fetchall()
+        ]
 
 
 def get_recent_decisions():
