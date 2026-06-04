@@ -1,6 +1,6 @@
 # apply_patch42_repo.py
 """
-patch_42 — auto-aplica get_structure_by_alias + get_structure_id_by_alias
+patch_42 -- auto-aplica get_structure_by_alias + get_structure_id_by_alias
 em repositories/structures_repository.py
 """
 

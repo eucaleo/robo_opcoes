@@ -1,6 +1,6 @@
 # C:/users/eucal/projeto/ATT/tests/test_patch37_residuals.py
 """
-patch_37 — Testes de remoção de resíduos aba/abas
+patch_37 -- Testes de remoção de resíduos aba/abas
 Verifica que:
   - _cache_abas (property + setter) foi removido de UIDataModel
   - get_abas() foi removido de UIDataModel
@@ -50,7 +50,7 @@ def _all_method_names(tree: ast.Module, class_name: str) -> list[str]:
 
 
 # ===========================================================================
-# BLOCO 1 — Análise estática: resíduos removidos de ui_data.py
+# BLOCO 1 -- Análise estática: resíduos removidos de ui_data.py
 # ===========================================================================
 
 class TestPatch37StaticUIData:
@@ -96,13 +96,13 @@ class TestPatch37StaticUIData:
         """
         methods = _all_method_names(self.tree, "UIDataModel")
         assert "get_abas" in methods, (
-            "get_abas() alias readonly ausente em UIDataModel — ver DECISÕES patch_34"
+            "get_abas() alias readonly ausente em UIDataModel -- ver DECISÕES patch_34"
         )
 
     def test_get_abas_reference_is_alias_only(self):
-        """get_abas presente em ui_data.py somente como alias readonly — não como setter/property legado."""
+        """get_abas presente em ui_data.py somente como alias readonly -- não como setter/property legado."""
         assert "get_abas" in self.src, (
-            "get_abas() alias readonly ausente em ui_data.py — ver DECISÕES patch_34"
+            "get_abas() alias readonly ausente em ui_data.py -- ver DECISÕES patch_34"
         )
         # Garantir que _cache_abas (resíduo legado) NÃO está presente
         assert "_cache_abas" not in self.src, (
@@ -134,7 +134,7 @@ class TestPatch37StaticUIData:
 
 
 # ===========================================================================
-# BLOCO 2 — Análise estática: resíduos removidos de filters_panel.py
+# BLOCO 2 -- Análise estática: resíduos removidos de filters_panel.py
 # ===========================================================================
 
 class TestPatch37StaticFiltersPanel:
@@ -164,7 +164,7 @@ class TestPatch37StaticFiltersPanel:
 
 
 # ===========================================================================
-# BLOCO 3 — Análise estática: main_window.py limpo
+# BLOCO 3 -- Análise estática: main_window.py limpo
 # ===========================================================================
 
 class TestPatch37StaticMainWindow:
@@ -192,7 +192,7 @@ class TestPatch37StaticMainWindow:
 
 
 # ===========================================================================
-# BLOCO 4 — Testes funcionais com mock de DB
+# BLOCO 4 -- Testes funcionais com mock de DB
 # ===========================================================================
 
 @pytest.fixture
@@ -264,7 +264,7 @@ class TestPatch37Functional:
         Decisão permanente patch_34: alias readonly para compatibilidade de UI.
         """
         assert hasattr(model, "get_abas"), (
-            "get_abas() alias readonly ausente no objeto — ver DECISÕES patch_34"
+            "get_abas() alias readonly ausente no objeto -- ver DECISÕES patch_34"
         )
         assert model.get_abas() == model.get_structure_ids(), (
             "get_abas() deve ser alias exato de get_structure_ids()"
@@ -298,7 +298,7 @@ class TestPatch37Functional:
 
 
 # ===========================================================================
-# BLOCO 5 — Não-regressão patch_34 / patch_3a
+# BLOCO 5 -- Não-regressão patch_34 / patch_3a
 # ===========================================================================
 
 class TestPatch37NoRegression:

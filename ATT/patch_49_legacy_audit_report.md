@@ -1,4 +1,4 @@
-# patch_49 — Auditoria LegacyRoboLegsFallback
+# patch_49 -- Auditoria LegacyRoboLegsFallback
 
 **Data:** 2026-06-03
 **Branch:** branch/3a-canonical-domain-decoupling

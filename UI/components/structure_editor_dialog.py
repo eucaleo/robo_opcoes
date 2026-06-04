@@ -1,12 +1,12 @@
 # UI/components/structure_editor_dialog.py
 """
-StructureEditorDialog — patch_10 / Fase 5
+StructureEditorDialog -- patch_10 / Fase 5
 Dialog modal para criar / editar uma estrutura com suas legs.
 
 Contrato com main_window.py:
     dlg = StructureEditorDialog(
         parent,
-        structure_id: int | None,   # None → nova estrutura
+        structure_id: int | None,   # None  nova estrutura
         db_path: str,
     )
     root.wait_window(dlg)
@@ -18,8 +18,8 @@ Atributos públicos esperados pelos testes de integração:
     _f_underlying   tk.StringVar
     _cmd_save()     método que executa a lógica de salvar
 """
-
 from __future__ import annotations
+
 
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -28,7 +28,7 @@ from typing import Optional
 from repositories.structures_repository import StructuresRepository
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 class StructureEditorDialog(tk.Toplevel):
     """Dialog modal de criação / edição de estrutura."""
 
@@ -57,15 +57,15 @@ class StructureEditorDialog(tk.Toplevel):
         self.resizable(True, True)
         self.minsize(640, 480)
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Construção da UI
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _build_ui(self):
         title = "Nova Estrutura" if self._structure_id is None else "Editar Estrutura"
         self.title(title)
 
-        # ── Cabeçalho ──────────────────────────────────────────────
+        #  Cabeçalho 
         hdr = ttk.LabelFrame(self, text="Dados Gerais", padding=8)
         hdr.pack(fill="x", padx=8, pady=(8, 4))
 
@@ -96,7 +96,7 @@ class StructureEditorDialog(tk.Toplevel):
 
         hdr.columnconfigure(1, weight=1)
 
-        # ── Legs ───────────────────────────────────────────────────
+        #  Legs 
         legs_outer = ttk.LabelFrame(self, text="Legs", padding=8)
         legs_outer.pack(fill="both", expand=True, padx=8, pady=4)
 
@@ -104,9 +104,9 @@ class StructureEditorDialog(tk.Toplevel):
         leg_toolbar = ttk.Frame(legs_outer)
         leg_toolbar.pack(fill="x", pady=(0, 4))
         ttk.Button(leg_toolbar, text="+ Leg",    command=self._cmd_add_leg).pack(side="left", padx=2)
-        ttk.Button(leg_toolbar, text="✕ Remover", command=self._cmd_remove_leg).pack(side="left", padx=2)
-        ttk.Button(leg_toolbar, text="↑",         command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
-        ttk.Button(leg_toolbar, text="↓",         command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
+        ttk.Button(leg_toolbar, text=" Remover", command=self._cmd_remove_leg).pack(side="left", padx=2)
+        ttk.Button(leg_toolbar, text="",         command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
+        ttk.Button(leg_toolbar, text="",         command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
 
         # Treeview de legs
         leg_frame = ttk.Frame(legs_outer)
@@ -136,12 +136,12 @@ class StructureEditorDialog(tk.Toplevel):
         # Formulário inline de edição de leg
         self._build_leg_form(legs_outer)
 
-        # ── Botões de ação ─────────────────────────────────────────
+        #  Botões de ação 
         btn_bar = ttk.Frame(self)
         btn_bar.pack(fill="x", padx=8, pady=8)
 
         ttk.Button(btn_bar, text="Cancelar", command=self.destroy).pack(side="right", padx=4)
-        ttk.Button(btn_bar, text="💾 Salvar",  command=self._cmd_save).pack(side="right", padx=4)
+        ttk.Button(btn_bar, text="[SAVE] Salvar",  command=self._cmd_save).pack(side="right", padx=4)
 
     def _build_leg_form(self, parent: tk.Widget):
         """Formulário colapsável para editar/adicionar uma leg."""
@@ -188,13 +188,13 @@ class StructureEditorDialog(tk.Toplevel):
             ttk.Entry(r2, textvariable=var, width=10).pack(side="left", padx=(0, 8))
 
         # Botão aplicar
-        ttk.Button(form, text="✔ Aplicar Leg", command=self._cmd_apply_leg).pack(
+        ttk.Button(form, text="[v] Aplicar Leg", command=self._cmd_apply_leg).pack(
             anchor="e", pady=(4, 0)
         )
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Carregar estrutura existente
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _load_existing(self, structure_id: int):
         data = self._repo.get_structure(structure_id)
@@ -212,9 +212,9 @@ class StructureEditorDialog(tk.Toplevel):
         self._legs_rows = list(data.get("legs", []))
         self._refresh_leg_tree()
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Renderização da leg tree
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _refresh_leg_tree(self):
         self._leg_tree.delete(*self._leg_tree.get_children())
@@ -240,9 +240,9 @@ class StructureEditorDialog(tk.Toplevel):
         except (ValueError, TypeError):
             return None
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Callbacks de legs
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _on_leg_double_click(self, _event=None):
         """Popula o formulário com a leg duplo-clicada."""
@@ -323,9 +323,9 @@ class StructureEditorDialog(tk.Toplevel):
         }
         self._refresh_leg_tree()
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Salvar
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _build_legs_payload(self) -> list[dict]:
         """Constroi lista de legs com leg_order para persistencia."""

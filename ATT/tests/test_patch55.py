@@ -1,5 +1,5 @@
 """
-test_patch55.py — DerivedRepo aceita StructureRef como parametro canonico.
+test_patch55.py -- DerivedRepo aceita StructureRef como parametro canonico.
 """
 from __future__ import annotations
 import os, sqlite3, sys, tempfile, unittest
@@ -12,7 +12,7 @@ from src.domain.refs.structure_ref import StructureRef
 from db.derived_repo import DerivedRepo
 
 
-# ── helpers ──────────────────────────────────────────────────────────────────
+#  helpers 
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS structure_decisions (
@@ -48,7 +48,7 @@ def _repo(path):
     return DerivedRepo(derived_db=path)
 
 
-# ── Grupo 1: StructureRef basico ─────────────────────────────────────────────
+#  Grupo 1: StructureRef basico 
 
 class TestStructureRefBasico(unittest.TestCase):
     def test_from_id(self):
@@ -68,7 +68,7 @@ class TestStructureRefBasico(unittest.TestCase):
         self.assertEqual(StructureRef(aba="PETR4").db_pair(), ("aba", "PETR4"))
 
 
-# ── Grupo 2: _extract_ts_aba desempacota StructureRef ────────────────────────
+#  Grupo 2: _extract_ts_aba desempacota StructureRef 
 
 class TestExtractTsAba(unittest.TestCase):
     def setUp(self):
@@ -106,7 +106,7 @@ class TestExtractTsAba(unittest.TestCase):
         self.assertIn(ab, ["unknown", None, ""])
 
 
-# ── Grupo 3: write aceita StructureRef ───────────────────────────────────────
+#  Grupo 3: write aceita StructureRef 
 
 class TestWriteComStructureRef(unittest.TestCase):
     def setUp(self):
@@ -152,7 +152,7 @@ class TestWriteComStructureRef(unittest.TestCase):
         self.assertEqual(row[0], "PETR4")
 
 
-# ── Grupo 4: get_recent_decisions aceita StructureRef ────────────────────────
+#  Grupo 4: get_recent_decisions aceita StructureRef 
 
 class TestGetRecentComStructureRef(unittest.TestCase):
     def setUp(self):
@@ -186,7 +186,7 @@ class TestGetRecentComStructureRef(unittest.TestCase):
         self.assertGreaterEqual(len(rows), 1)
 
 
-# ── Grupo 5: retrocompatibilidade ────────────────────────────────────────────
+#  Grupo 5: retrocompatibilidade 
 
 class TestRetrocompatibilidade(unittest.TestCase):
     def setUp(self):

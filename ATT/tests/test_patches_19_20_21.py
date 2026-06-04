@@ -2,9 +2,9 @@
 """
 Testes dos patches 19, 20 e 21.
 
-  patch_19 — PricingExecutionsRepository: JSON → SQLite (app.db)
-  patch_20 — payoff_features.upsert_curve_summary: try/finally (ResourceWarning fix)
-  patch_21 — Pipeline conectado: payoff + decisão gravados no derived.db
+  patch_19 -- PricingExecutionsRepository: JSON  SQLite (app.db)
+  patch_20 -- payoff_features.upsert_curve_summary: try/finally (ResourceWarning fix)
+  patch_21 -- Pipeline conectado: payoff + decisão gravados no derived.db
 
 Execução:
     pytest ATT/tests/test_patches_19_20_21.py -v
@@ -23,15 +23,15 @@ from unittest.mock import MagicMock, patch
 # helpers de assert simples (sem pytest obrigatório)
 # ---------------------------------------------------------------------------
 
-_PASS = "✅"
-_FAIL = "❌"
+_PASS = "[OK]"
+_FAIL = "[FALHOU]"
 _results: list[tuple[str, bool, str]] = []
 
 
 def _check(name: str, condition: bool, detail: str = "") -> None:
     icon = _PASS if condition else _FAIL
     _results.append((name, condition, detail))
-    print(f"  {icon}  {name}" + (f"  →  {detail}" if detail else ""))
+    print(f"  {icon}  {name}" + (f"    {detail}" if detail else ""))
     if not condition:
         raise AssertionError(f"FALHOU: {name}  {detail}")
 
@@ -88,11 +88,11 @@ def _tmp_dir() -> tempfile.TemporaryDirectory:
 
 
 # ===========================================================================
-# patch_19 — PricingExecutionsRepository → SQLite
+# patch_19 -- PricingExecutionsRepository  SQLite
 # ===========================================================================
 
 def test_patch19_save_and_read() -> None:
-    print("\n── patch_19: PricingExecutionsRepository (SQLite) ──────────────────")
+    print("\n patch_19: PricingExecutionsRepository (SQLite) ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -138,7 +138,7 @@ def test_patch19_save_and_read() -> None:
 
 
 def test_patch19_list_and_count() -> None:
-    print("\n── patch_19: list_executions / count_executions ────────────────────")
+    print("\n patch_19: list_executions / count_executions ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -189,7 +189,7 @@ def test_patch19_list_and_count() -> None:
 
 
 def test_patch19_get_latest_by_structure() -> None:
-    print("\n── patch_19: get_latest_by_structure ───────────────────────────────")
+    print("\n patch_19: get_latest_by_structure ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -225,7 +225,7 @@ def test_patch19_get_latest_by_structure() -> None:
 
 
 def test_patch19_no_json_file_created() -> None:
-    print("\n── patch_19: arquivo JSON não deve ser criado ───────────────────────")
+    print("\n patch_19: arquivo JSON não deve ser criado ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -253,7 +253,7 @@ def test_patch19_no_json_file_created() -> None:
 
 
 # ===========================================================================
-# patch_20 — payoff_features try/finally
+# patch_20 -- payoff_features try/finally
 # ===========================================================================
 
 def _create_derived_db(path: Path) -> None:
@@ -283,7 +283,7 @@ def _create_derived_db(path: Path) -> None:
 
 
 def test_patch20_upsert_no_resource_leak() -> None:
-    print("\n── patch_20: upsert_curve_summary try/finally (sem leak) ────────────")
+    print("\n patch_20: upsert_curve_summary try/finally (sem leak) ")
 
     import domain.payoff_features as pf
 
@@ -339,7 +339,7 @@ def test_patch20_upsert_no_resource_leak() -> None:
                 f"esperado=800.0 obtido={row[pl_max_idx]}",
             )
 
-            # Idempotência — upsert com pl_max diferente
+            # Idempotência -- upsert com pl_max diferente
             features["pl_max"] = 999.0
             pf.upsert_curve_summary(features)
 
@@ -359,7 +359,7 @@ def test_patch20_upsert_no_resource_leak() -> None:
 
 
 def test_patch20_missing_timestamp_raises() -> None:
-    print("\n── patch_20: ValueError se timestamp/aba ausente ────────────────────")
+    print("\n patch_20: ValueError se timestamp/aba ausente ")
 
     import domain.payoff_features as pf
 
@@ -381,7 +381,7 @@ def test_patch20_missing_timestamp_raises() -> None:
 
 
 # ===========================================================================
-# patch_21 — Pipeline connected: derived.db gravado após execute_pricing
+# patch_21 -- Pipeline connected: derived.db gravado após execute_pricing
 # ===========================================================================
 
 def _make_service_with_mock_port(db_path: Path):
@@ -398,7 +398,7 @@ def _make_service_with_mock_port(db_path: Path):
 
 
 def test_patch21_port_called_on_success() -> None:
-    print("\n── patch_21: PayoffPersistencePort.persist() chamado em sucesso ─────")
+    print("\n patch_21: PayoffPersistencePort.persist() chamado em sucesso ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -441,7 +441,7 @@ def test_patch21_port_called_on_success() -> None:
 
 
 def test_patch21_port_not_called_without_injection() -> None:
-    print("\n── patch_21: sem injeção, pipeline não falha (retrocompatível) ──────")
+    print("\n patch_21: sem injeção, pipeline não falha (retrocompatível) ")
 
     from repositories.pricing_executions_repository import PricingExecutionsRepository
     from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
@@ -467,7 +467,7 @@ def test_patch21_port_not_called_without_injection() -> None:
 
 
 def test_patch21_port_exception_does_not_raise() -> None:
-    print("\n── patch_21: exceção no port não derruba persist_execution ──────────")
+    print("\n patch_21: exceção no port não derruba persist_execution ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -492,7 +492,7 @@ def test_patch21_port_exception_does_not_raise() -> None:
 
 
 def test_patch21_facade_wiring() -> None:
-    print("\n── patch_21: CanonicalPricingFacade instancia DerivedPayoffPersistence ─")
+    print("\n patch_21: CanonicalPricingFacade instancia DerivedPayoffPersistence ")
 
     # Mock do módulo derived_service antes de qualquer import da facade
     import sys
@@ -524,7 +524,7 @@ def test_patch21_facade_wiring() -> None:
 
 
 def test_patch21_bootstrap_has_pricing_executions_table() -> None:
-    print("\n── patch_19+21: tabela pricing_executions no bootstrap ──────────────")
+    print("\n patch_19+21: tabela pricing_executions no bootstrap ")
 
     from infra.bootstrap_structures_schema import ensure_structures_schema
 
@@ -595,7 +595,7 @@ def _run_all() -> None:
         except Exception:
             name = test_fn.__name__
             failed.append(name)
-            print(f"\n  ❌  {name} — ERRO INESPERADO:")
+            print(f"\n  [FALHOU]  {name} -- ERRO INESPERADO:")
             traceback.print_exc()
 
     print("\n" + "=" * 65)
@@ -606,10 +606,10 @@ def _run_all() -> None:
     if failed:
         print("\n  Falhas:")
         for f in failed:
-            print(f"    ❌  {f}")
+            print(f"    [FALHOU]  {f}")
         sys.exit(1)
     else:
-        print("  ✅  Todos os testes passaram.")
+        print("  [OK]  Todos os testes passaram.")
 
     print("=" * 65)
 

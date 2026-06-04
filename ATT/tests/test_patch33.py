@@ -1,14 +1,14 @@
 # ATT/tests/test_patch33.py
 """
-test_patch33 — Valida migration: structure_id em payoff_curve_points
+test_patch33 -- Valida migration: structure_id em payoff_curve_points
                e payoff_curve_summary (derived.db)
 
 Critérios de aceite:
-  ✅ run() executa sem erro em DB em memória
-  ✅ Colunas structure_id presentes após migration
-  ✅ Índices criados
-  ✅ Idempotência: rodar 2x não levanta exceção
-  ✅ Backfill: linhas com aba+timestamp correspondente recebem structure_id
+  [OK] run() executa sem erro em DB em memória
+  [OK] Colunas structure_id presentes após migration
+  [OK] Índices criados
+  [OK] Idempotência: rodar 2x não levanta exceção
+  [OK] Backfill: linhas com aba+timestamp correspondente recebem structure_id
 """
 
 import sqlite3
@@ -19,7 +19,7 @@ RAIZ = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(RAIZ))
 
 
-# ── Fixtures helpers ──────────────────────────────────────────────────────────
+#  Fixtures helpers 
 
 def _make_db() -> sqlite3.Connection:
     """Cria derived.db em memória com schema mínimo."""
@@ -127,7 +127,7 @@ def _apply_migration(conn: sqlite3.Connection):
     conn.commit()
 
 
-# ── Testes ────────────────────────────────────────────────────────────────────
+#  Testes 
 
 class TestPatch33Migration:
 
@@ -192,7 +192,7 @@ class TestPatch33Migration:
         conn = _make_db()
         _apply_migration(conn)
         try:
-            _apply_migration(conn)  # segunda vez — deve ser silenciosa
+            _apply_migration(conn)  # segunda vez -- deve ser silenciosa
         except Exception as e:
             assert False, f"Migration não é idempotente: {e}"
         conn.close()

@@ -1,25 +1,25 @@
 # scripts/64_smoke_pipeline_integration.py
 """
-patch_15 — Smoke: integração completa pipeline structure + snapshot → pricing.
+patch_15 -- Smoke: integração completa pipeline structure + snapshot  pricing.
 
 Fluxo testado:
   StructuresRepository
-       ↓
+       
   CanonicalInputService  (com MarketSnapshotSelector manual>rtd)
-       ↓
+       
   PricingExecutionAppService.execute_pricing()
-       ↓
+       
   resultado persistido e consultável
 
 Cenários cobertos:
-  1. Pipeline completo com selector manual → execução OK
-  2. Pipeline completo com selector RTD   → execução OK
-  3. Pipeline sem selector (legado)       → execução OK (regressão)
-  4. Structure inexistente → erro tratado antes do pricing
+  1. Pipeline completo com selector manual  execução OK
+  2. Pipeline completo com selector RTD    execução OK
+  3. Pipeline sem selector (legado)        execução OK (regressão)
+  4. Structure inexistente  erro tratado antes do pricing
   5. PricingExecutionAppService importável
 """
-
 from __future__ import annotations
+
 
 import sys
 import os
@@ -106,7 +106,7 @@ def _make_provider_mock() -> MagicMock:
 
 
 def _assembled_stub() -> dict:
-    """Retorno padrão do assembler — simula canonical input montado."""
+    """Retorno padrão do assembler -- simula canonical input montado."""
     return {
         "structure_id":   1,
         "underlying":     "PETR4",
@@ -121,7 +121,7 @@ def _make_pricing_app_service_mock(execution_id: int = 42) -> MagicMock:
     """
     Mock do PricingExecutionAppService.
     Método real: execute_pricing(structure_id, reference_date).
-    No smoke o canonical_input já foi montado — simulamos a chamada direta.
+    No smoke o canonical_input já foi montado -- simulamos a chamada direta.
     """
     svc = MagicMock(spec=PricingExecutionAppService)
     svc.execute_pricing.return_value = {
@@ -134,11 +134,11 @@ def _make_pricing_app_service_mock(execution_id: int = 42) -> MagicMock:
 
 
 # ---------------------------------------------------------------------------
-# Cenário 1: pipeline completo — snapshot manual
+# Cenário 1: pipeline completo -- snapshot manual
 # ---------------------------------------------------------------------------
 
 def test_pipeline_manual():
-    print("\n[1] Pipeline completo — snapshot source=MANUAL → execução OK")
+    print("\n[1] Pipeline completo -- snapshot source=MANUAL  execução OK")
 
     structure = _make_structure(aba="PETR4")
     repo      = _make_repo_mock(structure)
@@ -178,15 +178,15 @@ def test_pipeline_manual():
     print(f"   status          : {exec_result['status']}")
     print(f"   snapshot_source : {meta['snapshot_source']}")
     print(f"   is_manual_first : {meta['is_manual_first']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
-# Cenário 2: pipeline completo — snapshot RTD
+# Cenário 2: pipeline completo -- snapshot RTD
 # ---------------------------------------------------------------------------
 
 def test_pipeline_rtd():
-    print("\n[2] Pipeline completo — snapshot source=RTD → execução OK")
+    print("\n[2] Pipeline completo -- snapshot source=RTD  execução OK")
 
     structure = _make_structure(aba="VALE3")
     repo      = _make_repo_mock(structure)
@@ -223,15 +223,15 @@ def test_pipeline_rtd():
     print(f"   execution_id    : {exec_result['execution_id']}")
     print(f"   snapshot_source : {meta['snapshot_source']}")
     print(f"   is_manual_first : {meta['is_manual_first']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
-# Cenário 3: pipeline sem selector → regressão com provider legado
+# Cenário 3: pipeline sem selector  regressão com provider legado
 # ---------------------------------------------------------------------------
 
 def test_pipeline_sem_selector_regressao():
-    print("\n[3] Pipeline sem selector → regressão provider legado OK")
+    print("\n[3] Pipeline sem selector  regressão provider legado OK")
 
     structure = _make_structure(aba="BBAS3")
     repo      = _make_repo_mock(structure)
@@ -264,15 +264,15 @@ def test_pipeline_sem_selector_regressao():
 
     print(f"   execution_id    : {exec_result['execution_id']}")
     print(f"   snapshot_source : {meta['snapshot_source']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
-# Cenário 4: structure inexistente → erro antes do pricing
+# Cenário 4: structure inexistente  erro antes do pricing
 # ---------------------------------------------------------------------------
 
 def test_pipeline_structure_not_found():
-    print("\n[4] Structure inexistente → ValueError antes do pricing")
+    print("\n[4] Structure inexistente  ValueError antes do pricing")
 
     repo    = MagicMock()
     repo.get_structure.return_value = None
@@ -285,13 +285,13 @@ def test_pipeline_structure_not_found():
 
     try:
         canonical_svc.build_structure_market_input(structure_id=9999)
-        print("   ❌ FALHOU — deveria ter levantado ValueError")
+        print("   [FALHOU] FALHOU -- deveria ter levantado ValueError")
         sys.exit(1)
     except ValueError as exc:
         pricing.execute_pricing.assert_not_called()
         print(f"   ValueError      : {exc}")
-        print("   execute_pricing NÃO chamado ✅")
-        print("   ✅ OK")
+        print("   execute_pricing NÃO chamado [OK]")
+        print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
@@ -308,10 +308,10 @@ def test_pricing_app_service_importavel():
         assert hasattr(_Real, "execute_pricing"), \
             "Método execute_pricing não encontrado na classe real"
         print(f"   Classe          : {_Real}")
-        print(f"   execute_pricing : ✅ presente")
-        print("   ✅ OK")
+        print(f"   execute_pricing : [OK] presente")
+        print("   [OK] OK")
     except Exception as exc:
-        print(f"   ❌ FALHOU: {exc}")
+        print(f"   [FALHOU] FALHOU: {exc}")
         sys.exit(1)
 
 
@@ -321,7 +321,7 @@ def test_pricing_app_service_importavel():
 
 def main():
     print("=" * 60)
-    print("  SMOKE patch_15 — Pipeline completo structure+snapshot→pricing")
+    print("  SMOKE patch_15 -- Pipeline completo structure+snapshotpricing")
     print("=" * 60)
 
     tests = [
@@ -337,14 +337,14 @@ def main():
         try:
             t()
         except Exception as exc:
-            print(f"   ❌ EXCEÇÃO inesperada: {exc}")
+            print(f"   [FALHOU] EXCEÇÃO inesperada: {exc}")
             failed += 1
 
     print("\n" + "=" * 60)
     if failed == 0:
-        print(f"  Resultado: {len(tests)}/{len(tests)} cenários OK ✅")
+        print(f"  Resultado: {len(tests)}/{len(tests)} cenários OK [OK]")
     else:
-        print(f"  Resultado: {failed} cenário(s) FALHARAM ❌")
+        print(f"  Resultado: {failed} cenário(s) FALHARAM [FALHOU]")
         sys.exit(1)
     print("=" * 60)
 

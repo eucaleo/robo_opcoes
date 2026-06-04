@@ -20,7 +20,7 @@ import tkinter as tk
 from tkinter import ttk
 
 
-@unittest.skip("Requer display Tk (headless nao suportado) — rodar manualmente")
+@unittest.skip("Requer display Tk (headless nao suportado) -- rodar manualmente")
 class TestStructuresListPanelUI(unittest.TestCase):
 
     @classmethod

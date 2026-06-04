@@ -26,9 +26,9 @@ def structures(model):
     return model.get_structures()
 
 
-# ──────────────────────────────────────────────
-# Smoke — banco acessível
-# ──────────────────────────────────────────────
+# 
+# Smoke -- banco acessível
+# 
 
 def test_db_existe():
     assert DB_PATH.exists(), f"Banco não encontrado: {DB_PATH}"
@@ -40,9 +40,9 @@ def test_db_project_root_correto():
     )
 
 
-# ──────────────────────────────────────────────
-# Nível 1 — get_structures / get_abas
-# ──────────────────────────────────────────────
+# 
+# Nível 1 -- get_structures / get_abas
+# 
 
 def test_get_structures_retorna_lista(structures):
     assert isinstance(structures, list), "get_structures() deve retornar lista"
@@ -60,9 +60,9 @@ def test_get_abas_alias_de_get_structures(model, structures):
     )
 
 
-# ──────────────────────────────────────────────
-# Nível 2 — get_decisions() com structure_id
-# ──────────────────────────────────────────────
+# 
+# Nível 2 -- get_decisions() com structure_id
+# 
 
 def test_decisions_nao_vazia(decisions):
     assert len(decisions) > 0, "Deve haver ao menos uma decisão no banco"
@@ -101,9 +101,9 @@ def test_decisions_tem_timestamp(decisions):
         assert d["timestamp"], "timestamp não pode ser vazio ou None"
 
 
-# ──────────────────────────────────────────────
-# Nível 3 — Filtros
-# ──────────────────────────────────────────────
+# 
+# Nível 3 -- Filtros
+# 
 
 def test_filtro_por_structure_id(model, structures):
     """
@@ -141,9 +141,9 @@ def test_filtro_por_aba_compat(model, decisions):
         )
 
 
-# ──────────────────────────────────────────────
-# Nível 4 — get_payoff_curve_info()
-# ──────────────────────────────────────────────
+# 
+# Nível 4 -- get_payoff_curve_info()
+# 
 
 def test_payoff_curve_info_retorna_dados(model, decisions):
     d0 = decisions[0]

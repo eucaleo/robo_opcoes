@@ -94,7 +94,7 @@ def main() -> int:
     )
 
     lines: list[str] = []
-    lines.append("# Phase 3C — Code Surface Conference")
+    lines.append("# Phase 3C -- Code Surface Conference")
     lines.append("")
     lines.append(f"Generated at: `{payload['generated_at']}`")
     lines.append("")

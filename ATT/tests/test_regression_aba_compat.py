@@ -16,20 +16,20 @@ def model():
     return m
 
 
-# ──────────────────────────────────────────────
+# 
 # Smoke
-# ──────────────────────────────────────────────
+# 
 
 def test_db_existe():
     assert DB_PATH.exists(), f"Banco não encontrado: {DB_PATH}"
 
 
-# ──────────────────────────────────────────────
+# 
 # APIs legadas ainda existem
-# ──────────────────────────────────────────────
+# 
 
 def test_get_abas_existe(model):
-    assert hasattr(model, "get_abas"), "get_abas() sumiu — quebraria código legado"
+    assert hasattr(model, "get_abas"), "get_abas() sumiu -- quebraria código legado"
 
 
 def test_get_abas_callable(model):
@@ -51,9 +51,9 @@ def test_get_structures_callable(model):
     assert callable(model.get_structures), "get_structures() não é callable"
 
 
-# ──────────────────────────────────────────────
+# 
 # Coexistência de 'aba' e 'structure_id'
-# ──────────────────────────────────────────────
+# 
 
 def test_decisions_tem_ambos_campos(model):
     decisions = model.get_decisions()
@@ -66,7 +66,7 @@ def test_decisions_tem_ambos_campos(model):
 def test_aba_e_structure_id_identicos(model):
     """
     patch_3a: structure_id e int canonico; aba e ticker legado (ex: 'SBSP3').
-    Nao sao mais identicos — esse e o comportamento correto apos o patch_34.
+    Nao sao mais identicos -- esse e o comportamento correto apos o patch_34.
     Verificamos apenas que ambos existem e sao nao-nulos.
     """
     decisions = model.get_decisions()
@@ -81,9 +81,9 @@ def test_aba_e_structure_id_identicos(model):
         )
 
 
-# ──────────────────────────────────────────────
+# 
 # Filtros legados não quebram
-# ──────────────────────────────────────────────
+# 
 
 def test_filtro_aba_nao_quebra(model):
     decisions = model.get_decisions()
@@ -109,9 +109,9 @@ def test_filtro_structure_id_nao_quebra(model):
         pytest.fail(f"Filtro 'structure_id' lançou exceção: {e}")
 
 
-# ──────────────────────────────────────────────
+# 
 # get_payoff_curve_info() não quebra
-# ──────────────────────────────────────────────
+# 
 
 def test_payoff_curve_info_nao_quebra_com_structure_id(model):
     decisions = model.get_decisions()
@@ -128,7 +128,7 @@ def test_payoff_curve_info_nao_quebra_com_structure_id(model):
 
 def test_payoff_curve_info_nao_quebra_com_aba(model):
     """
-    patch_3a: get_payoff_curve_info() recebe structure_id (int) — nao mais aba ticker.
+    patch_3a: get_payoff_curve_info() recebe structure_id (int) -- nao mais aba ticker.
     Teste atualizado para usar structure_id canonico.
     Aba como chave de lookup foi removida no patch_34.
     """

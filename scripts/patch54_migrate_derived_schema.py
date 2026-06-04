@@ -1,13 +1,13 @@
 """
-patch_54: migração de schema — ADD COLUMN structure_id nas tabelas do derived.db
+patch_54: migração de schema -- ADD COLUMN structure_id nas tabelas do derived.db
 
 Idempotente: pode ser executado N vezes sem erro.
 Não destrói dados existentes.
 Não altera coluna 'aba' (mantém retrocompatibilidade para leitura legada).
 
 Tabelas afetadas:
-  - payoff_curve_points      → ADD structure_id INTEGER NULL
-  - structure_decisions      → ADD structure_id INTEGER NULL
+  - payoff_curve_points       ADD structure_id INTEGER NULL
+  - structure_decisions       ADD structure_id INTEGER NULL
 
 Índices criados:
   - idx_payoff_structure_id
@@ -23,13 +23,13 @@ import os
 import sys
 from datetime import datetime, timezone
 
-# ── Paths canônicos (conforme rota_v2b.pdf + git) ─────────────────────────────
+#  Paths canônicos (conforme rota_v2b.pdf + git) 
 BASE_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DERIVED_DB  = os.path.join(BASE_DIR, "dados", "derived.db")
 APP_DB      = os.path.join(BASE_DIR, "dados", "app.db")
 REPORT_PATH = os.path.join(BASE_DIR, "ATT", "reports", "patch54_migration_report.json")
 
-# ── Colunas a adicionar por tabela ─────────────────────────────────────────────
+#  Colunas a adicionar por tabela 
 MIGRATIONS = [
     {
         "table":  "payoff_curve_points",
@@ -49,7 +49,7 @@ MIGRATIONS = [
 
 
 def _column_exists(conn: sqlite3.Connection, table: str, column: str) -> bool:
-    """Verifica se coluna já existe — workaround para ausência de IF NOT EXISTS no SQLite."""
+    """Verifica se coluna já existe -- workaround para ausência de IF NOT EXISTS no SQLite."""
     cur = conn.execute(f"PRAGMA table_info({table})")
     return any(row[1] == column for row in cur.fetchall())
 
@@ -92,7 +92,7 @@ def run_migrations(derived_db: str = DERIVED_DB) -> dict:
             if _column_exists(conn, m["table"], m["column"]):
                 entry["status"] = "ALREADY_EXISTS"
                 report["migrations"].append(entry)
-                print(f"  [OK]    {m['table']}.{m['column']} já existe — noop")
+                print(f"  [OK]    {m['table']}.{m['column']} já existe -- noop")
             else:
                 conn.execute(m["ddl"])
                 conn.commit()
@@ -100,7 +100,7 @@ def run_migrations(derived_db: str = DERIVED_DB) -> dict:
                 report["migrations"].append(entry)
                 print(f"  [ADD]   {m['table']}.{m['column']} adicionada")
 
-            # Índice sempre com IF NOT EXISTS — seguro repetir
+            # Índice sempre com IF NOT EXISTS -- seguro repetir
             conn.execute(m["index"])
             conn.commit()
             print(f"  [IDX]   índice em {m['table']}.{m['column']} garantido")
@@ -121,14 +121,14 @@ def run_backfill(derived_db: str = DERIVED_DB, app_db: str = APP_DB) -> dict:
     backfill = {"payoff_curve_points": 0, "structure_decisions": 0, "no_match": []}
 
     if not os.path.exists(app_db):
-        print(f"  [WARN]  app.db não encontrado ({app_db}) — backfill pulado")
+        print(f"  [WARN]  app.db não encontrado ({app_db}) -- backfill pulado")
         return backfill
 
     app_conn     = sqlite3.connect(app_db)
     derived_conn = sqlite3.connect(derived_db)
 
     try:
-        # Monta dicionário alias → structure_id a partir de app.db
+        # Monta dicionário alias  structure_id a partir de app.db
         alias_map: dict[str, int] = {}
         try:
             rows = app_conn.execute(
@@ -137,10 +137,10 @@ def run_backfill(derived_db: str = DERIVED_DB, app_db: str = APP_DB) -> dict:
             ).fetchall()
             alias_map = {row[1]: row[0] for row in rows}
         except sqlite3.OperationalError:
-            print("  [WARN]  tabela structures não existe em app.db — backfill parcial")
+            print("  [WARN]  tabela structures não existe em app.db -- backfill parcial")
 
         if not alias_map:
-            print("  [INFO]  nenhum alias_legacy_aba encontrado — backfill vazio")
+            print("  [INFO]  nenhum alias_legacy_aba encontrado -- backfill vazio")
             return backfill
 
         for table in ("payoff_curve_points", "structure_decisions"):
@@ -195,7 +195,7 @@ def save_report(report: dict, path: str = REPORT_PATH) -> None:
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("patch_54 — migração de schema derived.db")
+    print("patch_54 -- migração de schema derived.db")
     print("=" * 60)
 
     print("\n[1/3] Executando ADD COLUMN...")
@@ -208,7 +208,7 @@ if __name__ == "__main__":
     print("\n[3/3] Salvando relatório...")
     save_report(report)
 
-    print("\n✓ patch_54 concluído.")
+    print("\n patch_54 concluído.")
 
     # Exit code não-zero se alguma migration falhou
     failed = [m for m in report["migrations"] if m["status"] not in

@@ -51,7 +51,7 @@ class PricingExecutionPersistenceService:
         )
 
         # ------------------------------------------------------------------ #
-        #  patch_21 — persistência derivada (payoff + decisão)                #
+        #  patch_21 -- persistência derivada (payoff + decisão)                #
         #  Fire-and-forget: falha aqui nunca derruba a execução principal.    #
         # ------------------------------------------------------------------ #
         if self._payoff_port is not None:
@@ -62,7 +62,7 @@ class PricingExecutionPersistenceService:
                 )
             except Exception:
                 logger.exception(
-                    "payoff_persistence_port.persist() falhou — execução id=%s não afetada",
+                    "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",
                     record.get("id"),
                 )
 

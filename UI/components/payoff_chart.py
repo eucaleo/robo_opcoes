@@ -184,7 +184,7 @@ class PayoffChart(ttk.Frame):
 
     def fix_current_curve(self):
         """Fixa a curva atual como Curva A para comparação."""
-        payoff_debug("FIX clicked — id=", id(self))
+        payoff_debug("FIX clicked -- id=", id(self))
 
         if not self._last_points:
             self._fixed_curve = None
@@ -213,7 +213,7 @@ class PayoffChart(ttk.Frame):
 
     def clear_comparison(self):
         """Remove a curva fixada."""
-        payoff_debug("CLEAR comparison — id=", id(self))
+        payoff_debug("CLEAR comparison -- id=", id(self))
         self._fixed_curve = None
         if self._last_points:
             self._redraw_current()
@@ -419,11 +419,11 @@ class PayoffChart(ttk.Frame):
                 or decision_data.get("aba", "")
             )
             dec = decision_data.get("decision", "")
-            title = f"Payoff — {sid} [{dec}]"
+            title = f"Payoff -- {sid} [{dec}]"
             if overlay_curve:
                 title += f" vs {overlay_curve['label']}"
         elif overlay_curve:
-            title = "Curva de Payoff — Comparação"
+            title = "Curva de Payoff -- Comparação"
         else:
             title = "Curva de Payoff"
 
@@ -439,9 +439,9 @@ class PayoffChart(ttk.Frame):
     def _extract_xy(self, p) -> Tuple[Optional[float], Optional[float]]:
         """
         Extrai (x, y) de múltiplos formatos:
-        - tuple/list  → (p[0], p[1])
-        - dict        → chaves canônicas e alternativas
-        - sqlite Row  → idem via indexação
+        - tuple/list   (p[0], p[1])
+        - dict         chaves canônicas e alternativas
+        - sqlite Row   idem via indexação
         """
         if isinstance(p, (tuple, list)) and len(p) >= 2:
             return p[0], p[1]

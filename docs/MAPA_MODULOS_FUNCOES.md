@@ -1,4 +1,4 @@
-# Mapa de Uso de SQL — Tabela x Arquivo/Função (v2)
+# Mapa de Uso de SQL -- Tabela x Arquivo/Função (v2)
 
 > Fonte: ATT/reports/sql_report_v3.json
 

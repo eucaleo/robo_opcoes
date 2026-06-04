@@ -1,6 +1,6 @@
 # apply_patch42_test.py
 """
-patch_42 — cria ATT/tests/test_patch42.py
+patch_42 -- cria ATT/tests/test_patch42.py
 """
 
 from pathlib import Path
@@ -77,7 +77,7 @@ def _make_tmp_db() -> str:
 
 
 class TestPatch42RepoFileExists(unittest.TestCase):
-    """Check 1 — arquivo existe"""
+    """Check 1 -- arquivo existe"""
 
     def test_repo_file_existe(self):
         self.assertTrue(
@@ -87,7 +87,7 @@ class TestPatch42RepoFileExists(unittest.TestCase):
 
 
 class TestPatch42MetodosPresentes(unittest.TestCase):
-    """Checks 2 e 3 — metodos adicionados"""
+    """Checks 2 e 3 -- metodos adicionados"""
 
     @classmethod
     def setUpClass(cls):
@@ -109,7 +109,7 @@ class TestPatch42MetodosPresentes(unittest.TestCase):
 
 
 class TestPatch42SemAbaComoChave(unittest.TestCase):
-    """Check 4 — lookup usa alias_legacy_aba, nao aba diretamente"""
+    """Check 4 -- lookup usa alias_legacy_aba, nao aba diretamente"""
 
     @classmethod
     def setUpClass(cls):
@@ -119,12 +119,12 @@ class TestPatch42SemAbaComoChave(unittest.TestCase):
         self.assertIn(
             "alias_legacy_aba = ?",
             self.src,
-            "WHERE alias_legacy_aba = ? nao encontrado — verificar implementacao",
+            "WHERE alias_legacy_aba = ? nao encontrado -- verificar implementacao",
         )
 
 
 class TestPatch42PatchNotaNoHeader(unittest.TestCase):
-    """Check 5 — PATCH_42 registrado no header do arquivo"""
+    """Check 5 -- PATCH_42 registrado no header do arquivo"""
 
     @classmethod
     def setUpClass(cls):
@@ -139,7 +139,7 @@ class TestPatch42PatchNotaNoHeader(unittest.TestCase):
 
 
 class TestPatch42FuncionalAliasInexistente(unittest.TestCase):
-    """Check 6 — alias inexistente retorna None sem lancar excecao"""
+    """Check 6 -- alias inexistente retorna None sem lancar excecao"""
 
     def setUp(self):
         self.tmp_path = _make_tmp_db()
@@ -161,7 +161,7 @@ class TestPatch42FuncionalAliasInexistente(unittest.TestCase):
 
 
 class TestPatch42FuncionalAliasVazio(unittest.TestCase):
-    """Check 7 — alias vazio/None retorna None sem bater no banco"""
+    """Check 7 -- alias vazio/None retorna None sem bater no banco"""
 
     def setUp(self):
         self.tmp_path = _make_tmp_db()
@@ -186,7 +186,7 @@ class TestPatch42FuncionalAliasVazio(unittest.TestCase):
 
 
 class TestPatch42FuncionalAliasEncontrado(unittest.TestCase):
-    """Check 8 — alias existente retorna estrutura correta"""
+    """Check 8 -- alias existente retorna estrutura correta"""
 
     def setUp(self):
         self.tmp_path = _make_tmp_db()
@@ -221,7 +221,7 @@ class TestPatch42FuncionalAliasEncontrado(unittest.TestCase):
 
 
 class TestPatch42ArchivedNaoRetornado(unittest.TestCase):
-    """Check 9 — estrutura archived nao retornada por get_structure_by_alias"""
+    """Check 9 -- estrutura archived nao retornada por get_structure_by_alias"""
 
     def setUp(self):
         self.tmp_path = _make_tmp_db()
@@ -257,7 +257,7 @@ def main():
     TEST_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     if TEST_FILE.exists():
-        print(f"[AVISO] {TEST_FILE} ja existe — sobrescrevendo")
+        print(f"[AVISO] {TEST_FILE} ja existe -- sobrescrevendo")
 
     TEST_FILE.write_text(CONTENT, encoding="utf-8")
     print(f"[OK] {TEST_FILE} criado com 9 checks do patch_42")

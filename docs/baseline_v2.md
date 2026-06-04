@@ -1,14 +1,14 @@
-# Baseline v2 — Estado do Sistema
+# Baseline v2 -- Estado do Sistema
 
 ## Tabelas por banco
 
 | Tabela                    | AppDB (`app.db`) | DerivedDB (`derived.db`) | Observações                                            |
 |---------------------------|:----------------:|:-----------------------:|--------------------------------------------------------|
-| rtd_analise_robo          |        ✔️         |                         | Estrutura principal dos robôs                          |
-| rtd_analise_robo_legs     |        ✔️         |                         | Legs (pernas) de cada estrutura                        |
-| rtd_consolidacoes         |        ✔️         |                         | Resultados consolidados (outputs pipeline)             |
-| payoff_curve_points       |                  |           ✔️            | Pontos da curva payoff (resultado calculado)           |
-| structure_decisions       |                  |           ✔️            | Decisão por estrutura/aba após pipeline                |
+| rtd_analise_robo          |        [v]         |                         | Estrutura principal dos robôs                          |
+| rtd_analise_robo_legs     |        [v]         |                         | Legs (pernas) de cada estrutura                        |
+| rtd_consolidacoes         |        [v]         |                         | Resultados consolidados (outputs pipeline)             |
+| payoff_curve_points       |                  |           [v]            | Pontos da curva payoff (resultado calculado)           |
+| structure_decisions       |                  |           [v]            | Decisão por estrutura/aba após pipeline                |
 | payoff_curve_summary      |                  |           ~             | Referência no código, mas não vista em derived.db      |
 | payoff_points             |                  |           ~             | Só referência na UI e schema, não criado por padrão    |
 
@@ -18,9 +18,9 @@ Outras tabelas de suporte/utilidade podem existir e serão mapeadas conforme evo
 
 ---
 
-## Regra central do domínio (“1 aba = 1 estrutura”)
+## Regra central do domínio ("1 aba = 1 estrutura")
 
-- A lista de estruturas (“abas”) é obtida via:
+- A lista de estruturas ("abas") é obtida via:
   - `SELECT DISTINCT aba FROM rtd_analise_robo`
   - evidência: linha 38 `scripts/run_derived_pipeline.py`
 - Detalhe (legs) por estrutura:

@@ -1,6 +1,6 @@
 # ATT/patches/patch_36_commit.py
 """
-Patch_36 — Remove fallback legado 'aba' de details_panel e main_window.
+Patch_36 -- Remove fallback legado 'aba' de details_panel e main_window.
 Executa os testes e realiza commit automático se todos passarem.
 """
 import subprocess
@@ -21,7 +21,7 @@ FILES_TO_COMMIT = [
     "scripts/audit_patches.py",          # auditoria atualizada
 ]
 COMMIT_MSG = (
-    "refactor(patch_36): remove fallback legado 'aba' — details_panel + main_window\n\n"
+    "refactor(patch_36): remove fallback legado 'aba' -- details_panel + main_window\n\n"
     "- _resolve_structure_key: aceita int ou str numérica, rejeita None/alpha\n"
     "- _get_latest_snapshot_timestamp_for_structure: query direta por structure_id INTEGER\n"
     "- _fetch_latest_decision_from_derived: sem PRAGMA condicional por aba\n"
@@ -42,7 +42,7 @@ def run(cmd: list, **kwargs) -> subprocess.CompletedProcess:
 
 def main() -> int:
     print("=" * 62)
-    print("  Patch_36 — Commit Automático")
+    print("  Patch_36 -- Commit Automático")
     print("=" * 62)
 
     # 1. Roda os testes
@@ -52,10 +52,10 @@ def main() -> int:
         capture_output=False,
     )
     if result.returncode != 0:
-        print("\n❌ Testes falharam — commit abortado.")
+        print("\n[FALHOU] Testes falharam -- commit abortado.")
         return result.returncode
 
-    print("\n✅ 60/60 testes passaram.")
+    print("\n[OK] 60/60 testes passaram.")
 
     # 2. git add
     print("\n[2/3] Staging dos arquivos...")
@@ -65,13 +65,13 @@ def main() -> int:
     print("\n[3/3] Realizando commit...")
     diff = run(["git", "diff", "--cached", "--quiet"])
     if diff.returncode == 0:
-        print("ℹ️  Nada a commitar — arquivos já atualizados.")
+        print("[INFO]  Nada a commitar -- arquivos já atualizados.")
         return 0
 
     run(["git", "commit", "-m", COMMIT_MSG], check=True)
 
     print("\n" + "=" * 62)
-    print("  ✅ Commit patch_36 realizado com sucesso")
+    print("  [OK] Commit patch_36 realizado com sucesso")
     print("=" * 62)
     run(["git", "log", "--oneline", "-1"])
     return 0

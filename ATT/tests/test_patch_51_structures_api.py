@@ -1,7 +1,7 @@
 """
-patch_51 — testes de contrato da API REST de estruturas.
+patch_51 -- testes de contrato da API REST de estruturas.
 
-Usa TestClient do FastAPI (sem banco real — repositório mockado).
+Usa TestClient do FastAPI (sem banco real -- repositório mockado).
 """
 from __future__ import annotations
 

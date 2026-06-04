@@ -35,7 +35,7 @@ def main():
             mapping[table][filename].append((line, context))
 
     with DOC_OUT.open('w', encoding='utf-8') as out:
-        out.write("# Mapa de Uso de SQL — Tabela x Arquivo/Função (v2)\n\n")
+        out.write("# Mapa de Uso de SQL -- Tabela x Arquivo/Função (v2)\n\n")
         out.write("> Fonte: ATT/reports/sql_report_v3.json\n\n")
         for table in sorted(mapping):
             out.write(f"## {table}\n\n")

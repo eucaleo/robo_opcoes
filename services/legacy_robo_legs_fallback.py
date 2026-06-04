@@ -106,7 +106,7 @@ class LegacyRoboLegsFallback:
 
     def _resolve_reference_timestamp(
         self,
-        ref: StructureRef,
+        aba: str,
         reference_date: str | None,
     ) -> Any | None:
         if self.robo_legs_service is None:
@@ -165,7 +165,7 @@ class LegacyRoboLegsFallback:
 
     def _load_legacy_legs(
         self,
-        ref: StructureRef,
+        aba: str,
         reference_timestamp: Any,
     ) -> list[Any]:
         if self.robo_legs_service is None:

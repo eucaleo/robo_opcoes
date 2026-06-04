@@ -1,6 +1,6 @@
 # ATT/patches/patch_43_register_39_40_41.py
 """
-patch_43 — Registrar patch_39, patch_40 e patch_41 no auditor
+patch_43 -- Registrar patch_39, patch_40 e patch_41 no auditor
            Fechar check pendente do patch_38 (backup ui_data.py)
 """
 
@@ -22,16 +22,16 @@ def log(msg: str):
 
 def dry_write(path: Path, content: str):
     if DRY_RUN:
-        log(f"  [DRY-RUN] escreveria → {path.relative_to(ROOT)}")
+        log(f"  [DRY-RUN] escreveria  {path.relative_to(ROOT)}")
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
-    log(f"  [OK] escrito → {path.relative_to(ROOT)}")
+    log(f"  [OK] escrito  {path.relative_to(ROOT)}")
 
 
-# ══════════════════════════════════════════════════════════════════
-# ACAO 1 — fechar check pendente do patch_38
-# ══════════════════════════════════════════════════════════════════
+# 
+# ACAO 1 -- fechar check pendente do patch_38
+# 
 
 def _find_ui_data() -> Path | None:
     candidates = [
@@ -53,29 +53,29 @@ def fechar_check_patch38() -> bool:
     ui_data = _find_ui_data()
     if ui_data is None:
         log("  AVISO: ui_data.py nao localizado em nenhum caminho candidato")
-        log("  → Skip nao-bloqueante (patch_38 pode nao ter criado este arquivo)")
+        log("   Skip nao-bloqueante (patch_38 pode nao ter criado este arquivo)")
         return True
 
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     bak_path = ui_data.parent / f"ui_data.py.bak_p38_{ts}"
 
     if DRY_RUN:
-        log(f"  [DRY-RUN] encontrado → {ui_data.relative_to(ROOT)}")
-        log(f"  [DRY-RUN] criaria backup → {bak_path.name}")
+        log(f"  [DRY-RUN] encontrado  {ui_data.relative_to(ROOT)}")
+        log(f"  [DRY-RUN] criaria backup  {bak_path.name}")
         return True
 
     shutil.copy2(ui_data, bak_path)
-    log(f"  [OK] backup criado → {bak_path.relative_to(ROOT)}")
+    log(f"  [OK] backup criado  {bak_path.relative_to(ROOT)}")
     return True
 
 
-# ══════════════════════════════════════════════════════════════════
-# HELPER de ROOT nos testes — resolve pelo .git ou marcador
+# 
+# HELPER de ROOT nos testes -- resolve pelo .git ou marcador
 # A lógica: sobe a partir do __file__ até achar .git ou scripts/
-# ══════════════════════════════════════════════════════════════════
+# 
 
 _ROOT_RESOLVER = f'''\
-# ROOT resolvido dinamicamente — imune ao rootdir do pytest
+# ROOT resolvido dinamicamente -- imune ao rootdir do pytest
 import sys
 from pathlib import Path
 
@@ -103,13 +103,13 @@ def _skip_if_absent(path):
         raise unittest.SkipTest(f"Arquivo nao encontrado: {{path}}")
 '''
 
-# ══════════════════════════════════════════════════════════════════
+# 
 # CONTEUDO test_patch39.py
-# ══════════════════════════════════════════════════════════════════
+# 
 
 TEST_PATCH39 = '''\
 # ATT/tests/test_patch39.py
-"""Testes formais do patch_39 — auditoria pre-patch/3b baseline."""
+"""Testes formais do patch_39 -- auditoria pre-patch/3b baseline."""
 import os
 import sys
 import unittest
@@ -149,7 +149,7 @@ class TestPatch39ConteudoEstrutura(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.isfile(SCRIPT_FILE):
-            raise unittest.SkipTest("Script nao encontrado — skip conteudo")
+            raise unittest.SkipTest("Script nao encontrado -- skip conteudo")
         cls.src = _read(SCRIPT_FILE)
 
     def test_run_audit_presente(self):
@@ -183,13 +183,13 @@ if __name__ == "__main__":
     unittest.main()
 '''
 
-# ══════════════════════════════════════════════════════════════════
+# 
 # CONTEUDO test_patch40.py
-# ══════════════════════════════════════════════════════════════════
+# 
 
 TEST_PATCH40 = '''\
 # ATT/tests/test_patch40.py
-"""Testes formais do patch_40 — isolamento de acoplamento legado."""
+"""Testes formais do patch_40 -- isolamento de acoplamento legado."""
 import os
 import sys
 import unittest
@@ -316,13 +316,13 @@ if __name__ == "__main__":
     unittest.main()
 '''
 
-# ══════════════════════════════════════════════════════════════════
+# 
 # CONTEUDO test_patch41.py
-# ══════════════════════════════════════════════════════════════════
+# 
 
 TEST_PATCH41 = '''\
 # ATT/tests/test_patch41.py
-"""Testes formais do patch_41 — canonical_pricing_facade.py."""
+"""Testes formais do patch_41 -- canonical_pricing_facade.py."""
 import os
 import sys
 import unittest
@@ -362,7 +362,7 @@ class TestPatch41Renome(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.isfile(FACADE_FILE):
-            raise unittest.SkipTest("Facade nao encontrada — skip conteudo")
+            raise unittest.SkipTest("Facade nao encontrada -- skip conteudo")
         cls.src = _read(FACADE_FILE)
 
     def test_get_structure_info_presente(self):
@@ -370,14 +370,14 @@ class TestPatch41Renome(unittest.TestCase):
 
     def test_get_alias_legacy_aba_removido(self):
         self.assertNotIn("def _get_alias_legacy_aba", self.src,
-            "_get_alias_legacy_aba ainda presente — patch_41 nao aplicado")
+            "_get_alias_legacy_aba ainda presente -- patch_41 nao aplicado")
 
 
 class TestPatch41InterfacePublica(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.isfile(FACADE_FILE):
-            raise unittest.SkipTest("Facade nao encontrada — skip interface")
+            raise unittest.SkipTest("Facade nao encontrada -- skip interface")
         cls.src = _read(FACADE_FILE)
 
     def test_execute_pricing_presente(self):
@@ -403,9 +403,9 @@ if __name__ == "__main__":
 '''
 
 
-# ══════════════════════════════════════════════════════════════════
+# 
 # EXECUCAO PRINCIPAL
-# ══════════════════════════════════════════════════════════════════
+# 
 
 def run_pytest_check() -> bool:
     log("\n[5/5] Rodando pytest para validar suite pos-patch_43...")
@@ -430,7 +430,7 @@ def main():
     DRY_RUN = args.dry_run
 
     if DRY_RUN:
-        log("=== MODO DRY-RUN — nenhum arquivo sera alterado ===\n")
+        log("=== MODO DRY-RUN -- nenhum arquivo sera alterado ===\n")
 
     log("patch_43: Registrar patch_39/40/41 + fechar check patch_38")
     log("=" * 60)
@@ -462,7 +462,7 @@ def main():
         log("  3. git add ATT/tests/test_patch3{9,0,1}.py ATT/patches/patch_43*.py")
         log("  4. git commit -m 'test(patch43): registrar testes patch_39/40/41'")
     else:
-        log("patch_43 concluido com ERROS — revisar saida acima.")
+        log("patch_43 concluido com ERROS -- revisar saida acima.")
         sys.exit(1)
 
 

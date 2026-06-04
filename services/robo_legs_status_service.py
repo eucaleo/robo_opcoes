@@ -1,5 +1,10 @@
-from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
+"""
+patch_57c -- RoboLegsStatusService.
+  - from __future__ garantido como linha 1
+"""
+
+from src.domain.refs.structure_ref import StructureRef
 
 from dataclasses import dataclass
 from datetime import timedelta
@@ -29,10 +34,19 @@ class RoboLegsStatusService:
         self.status_repo = status_repo or RoboLegsStatusRepository(RoboLegsStatusRepoConfig())
         self.freshness = freshness or RoboLegsFreshnessConfig()
 
+# services/robo_legs_status_service.py
+# SUBSTITUA o método status() inteiro por este:
+
     def status(self, ref: StructureRef, requested_timestamp: object, ttl_seconds: Optional[int] = None) -> RoboLegsStatusDTO:
         requested_ts = parse_timestamp(requested_timestamp)
         ttl = timedelta(seconds=ttl_seconds if ttl_seconds is not None else self.freshness.default_ttl_seconds)
         validate_ttl(ttl)
+
+        # patch_57c: extrair aba de ref (StructureRef ou str direto)
+        if isinstance(ref, str):
+            aba = ref
+        else:
+            aba = getattr(ref, "aba", None) or str(ref)
 
         manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba=aba)
 
@@ -54,6 +68,28 @@ class RoboLegsStatusService:
                 freshness=DataFreshness.MISSING,
                 reason="no_data_for_aba",
             )
+
+        delta = requested_ts - chosen_ts
+
+        if delta <= ttl:
+            freshness = DataFreshness.FRESH
+            reason = "within_ttl"
+        else:
+            freshness = DataFreshness.STALE
+            reason = "older_than_ttl"
+
+        return RoboLegsStatusDTO(
+            aba=aba,
+            requested_ts=requested_ts,
+            ttl=ttl,
+            chosen_fonte=chosen_fonte,
+            chosen_ts=chosen_ts,
+            manual_latest_ts=manual_latest,
+            rtd_latest_ts=rtd_latest,
+            freshness=freshness,
+            reason=reason,
+        )
+
 
         delta = requested_ts - chosen_ts
 

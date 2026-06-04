@@ -1,63 +1,63 @@
-LOG de evolução (para ir “matando” o que resta)
+LOG de evolução (para ir "matando" o que resta)
 1) Diagnóstico inicial (SQLite / schema)
-•	Você inspecionou o schema do dados/derived.db:
-•	payoff_curve_points tem as colunas:
-•	timestamp (TEXT, NOT NULL)
-•	aba (TEXT, NOT NULL)
-•	spot_ref (REAL)
-•	point_spot (REAL, NOT NULL)
-•	point_pl (REAL, NOT NULL)
-•	meta_json (TEXT)
-•	created_at default datetime('now')
-•	Também existe payoff_points, mas com esquema diferente e não é a tabela alvo do pipeline (ou é legado/auxiliar).
+*	Você inspecionou o schema do dados/derived.db:
+*	payoff_curve_points tem as colunas:
+*	timestamp (TEXT, NOT NULL)
+*	aba (TEXT, NOT NULL)
+*	spot_ref (REAL)
+*	point_spot (REAL, NOT NULL)
+*	point_pl (REAL, NOT NULL)
+*	meta_json (TEXT)
+*	created_at default datetime('now')
+*	Também existe payoff_points, mas com esquema diferente e não é a tabela alvo do pipeline (ou é legado/auxiliar).
 Decisão: alinhar o domínio para produzir pontos compatíveis com payoff_curve_points.
 ________________________________________
 2) Causa provável do bug anterior
-•	Seu pipeline (função tipo save_payoff_curve) esperava pontos como:
-•	tuplas (point_spot, point_pl) ou
-•	dicts com chaves point_spot/point_pl
-•	Mas você tinha/teve pontos como dicts com chaves tipo s_t e pl_venc, gerando erro/KeyError no salvamento.
+*	Seu pipeline (função tipo save_payoff_curve) esperava pontos como:
+*	tuplas (point_spot, point_pl) ou
+*	dicts com chaves point_spot/point_pl
+*	Mas você tinha/teve pontos como dicts com chaves tipo s_t e pl_venc, gerando erro/KeyError no salvamento.
 Ação: padronizar saída do domínio para (spot, pl).
 ________________________________________
 3) Revisão do domain/payoff.py enviado por você
 Status do arquivo original:
-•	compute_payoff_curve() já estava retornando:
-•	points.append((s_t, pl_total))
-•	✅ formato correto para persistência (tupla spot, pl).
-•	Porém havia pontos frágeis:
-3.1) Problema de “snapshot” (mistura de timestamps)
-•	read_structure_legs() quando timestamp=None fazia:
-•	ORDER BY timestamp DESC ... LIMIT 10
-•	Isso pode misturar legs de timestamps diferentes (dependendo do número de pernas / atualização).
+*	compute_payoff_curve() já estava retornando:
+*	points.append((s_t, pl_total))
+*	[OK] formato correto para persistência (tupla spot, pl).
+*	Porém havia pontos frágeis:
+3.1) Problema de "snapshot" (mistura de timestamps)
+*	read_structure_legs() quando timestamp=None fazia:
+*	ORDER BY timestamp DESC ... LIMIT 10
+*	Isso pode misturar legs de timestamps diferentes (dependendo do número de pernas / atualização).
 Correção proposta:
-•	Resolver MAX(timestamp) primeiro e buscar todas as legs daquele timestamp.
+*	Resolver MAX(timestamp) primeiro e buscar todas as legs daquele timestamp.
 3.2) Normalização de cv (lado)
-•	Assumir apenas cv == 'C' como comprado é frágil (pode vir V, BUY, SELL, etc.).
+*	Assumir apenas cv == 'C' como comprado é frágil (pode vir V, BUY, SELL, etc.).
 Correção proposta: normalizar para LONG/SHORT.
 3.3) Normalização de call_put
-•	Seu check if 'CALL' in call_put falha se vier C/P.
+*	Seu check if 'CALL' in call_put falha se vier C/P.
 Correção proposta: aceitar CALL/C e PUT/P.
 3.4) Bug no final do arquivo
-•	Existia um ] sobrando no final do módulo, quebraria execução direta.
+*	Existia um ] sobrando no final do módulo, quebraria execução direta.
 Correção proposta: remover.
 ________________________________________
 4) Você confirmou os nomes das colunas
 Você confirmou que em rtd_analise_robo_legs os campos são:
-•	cv, call_put, quant, valor_executado, strike
-✅ perfeito.
+*	cv, call_put, quant, valor_executado, strike
+[OK] perfeito.
 Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:
-•	existem timestamp, aba, ativo, cv, call_put, quant, valor_executado, strike, etc.
+*	existem timestamp, aba, ativo, cv, call_put, quant, valor_executado, strike, etc.
 Decisão: manter o arquivo completo revisado sem renomear colunas.
 ________________________________________
-Checklist de “restos” para matar (próximos passos práticos)
+Checklist de "restos" para matar (próximos passos práticos)
 A) Validar que o domínio roda e gera pontos coerentes
 Rode (exemplo):
 bash
 python -c "from domain.payoff import compute_payoff_for_aba; r=compute_payoff_for_aba('SUA_ABA'); print(r['aba'], r['timestamp_used'], len(r['points']), r['points'][:3])"
 Esperado:
-•	len(points) > 0
-•	points[0] é tupla (float, float)
-•	timestamp_used não é None
+*	len(points) > 0
+*	points[0] é tupla (float, float)
+*	timestamp_used não é None
 ________________________________________
 B) Validar o salvamento no derived.db (pipeline)
 Depois de rodar a pipeline, conferir:
@@ -66,9 +66,9 @@ python -c "import sqlite3; c=sqlite3.connect('dados/derived.db'); cur=c.cursor()
 Esperado: contagens > 0 por aba.
 ________________________________________
 C) Sanidade do snapshot (principal risco residual)
-Se ainda der “curva estranha” (pulos, formato inconsistente), o primeiro suspeito é:
-•	summary (spot) vindo de rtd_analise_robo com um timestamp
-•	legs vindo de rtd_analise_robo_legs com outro timestamp
+Se ainda der "curva estranha" (pulos, formato inconsistente), o primeiro suspeito é:
+*	summary (spot) vindo de rtd_analise_robo com um timestamp
+*	legs vindo de rtd_analise_robo_legs com outro timestamp
 Se isso acontecer, o próximo ajuste é: fazer read_structure_summary() também por timestamp (pegar o mesmo timestamp_used das legs), ou armazenar e usar o timestamp comum entre as tabelas.
 
 
@@ -77,14 +77,14 @@ markdown
 ## Pipeline de Derivados - Correção do Módulo `domain/payoff.py`
 **Branch:** `executed_v1`  **Data:** 2026-04-20  **Responsável:** Carlos Rubio  
 ---
-## 🔍 **PROBLEMA IDENTIFICADO**
+## [BUSCA] **PROBLEMA IDENTIFICADO**
 ### Sintomas- Pipeline falhava ao salvar curvas de payoff no `derived.db`- Possível KeyError/TypeError na persistência de pontos- Inconsistência entre formato esperado pela tabela `payoff_curve_points` e dados gerados
 ### Análise do Schema```sql-- Tabela alvo: payoff_curve_pointsCREATE TABLE payoff_curve_points (    timestamp TEXT NOT NULL,    aba TEXT NOT NULL,    spot_ref REAL,    point_spot REAL NOT NULL,    -- coordenada X    point_pl REAL NOT NULL,      -- coordenada Y      meta_json TEXT,    created_at TEXT DEFAULT (datetime('now')));
 Diagnóstico
-•	Pipeline esperava pontos como tuplas (point_spot, point_pl)
-•	Possível mismatch de formato/chaves nos dados gerados pelo domínio
+*	Pipeline esperava pontos como tuplas (point_spot, point_pl)
+*	Possível mismatch de formato/chaves nos dados gerados pelo domínio
 ________________________________________
-🎯 PROBLEMAS CRÍTICOS ENCONTRADOS
+ PROBLEMAS CRÍTICOS ENCONTRADOS
 1) Snapshot Inconsistente (CRÍTICO)
 Localização: read_structure_legs() linha ~65
 python
@@ -103,9 +103,9 @@ Problema: Se call_put="C", cai no else e vira PUT (incorreto).
 4) Bug Sintático
 Localização: Final do arquivo
 python
-        else:            print(f"❌ Não foi possível calcular payoff para '{test_aba}'")]  # <-- SOBRANDO, quebra execução direta
+        else:            print(f"[FALHOU] Não foi possível calcular payoff para '{test_aba}'")]  # <-- SOBRANDO, quebra execução direta
 ________________________________________
-✅ SOLUÇÕES IMPLEMENTADAS
+[OK] SOLUÇÕES IMPLEMENTADAS
 1) Snapshot Consistente
 python
 def read_structure_legs(aba: str, timestamp: Optional[str] = None) -> List[Dict]:    conn = get_app_db_connection()    cursor = conn.cursor()
@@ -124,7 +124,7 @@ if is_call:    intrinsic = max(s_t - strike, 0)else:  # PUT    intrinsic = max(s
 python
 def get_app_db_connection():    """Conexão com app.db - resolve caminho para evitar erro de pasta"""    db_path = Path("dados/app.db").resolve()    return sqlite3.connect(str(db_path))
 ________________________________________
-🧪 VALIDAÇÃO
+[TESTE] VALIDAÇÃO
 Schema Source Confirmado
 bash
 $ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"
@@ -144,37 +144,37 @@ Output Esperado:
 bash
 python domain/payoff.py
 Output Esperado:
-Testando payoff com dados reais...Abas disponíveis: ['ABA1', 'ABA2', 'ABA3']✅ Aba 'ABA1': 101 pontos, PL_max=250.75
+Testando payoff com dados reais...Abas disponíveis: ['ABA1', 'ABA2', 'ABA3'][OK] Aba 'ABA1': 101 pontos, PL_max=250.75
 ________________________________________
-📊 FORMATO FINAL DOS DADOS
+[RELATORIO] FORMATO FINAL DOS DADOS
 Estrutura de Retorno
 python
 {    "points": [(point_spot, point_pl), ...],  # tuplas (X, Y)    "pl_max": float,    "pl_min": float,     "spot_ref": float,    "aba": str,    "timestamp_used": str,    "meta": {        "legs_count": int,        "grid_params": {...}    }}
 Compatibilidade com payoff_curve_points
-•	✅ points[i][0] → point_spot (REAL NOT NULL)
-•	✅ points[i][1] → point_pl (REAL NOT NULL)
-•	✅ spot_ref → spot_ref (REAL)
-•	✅ timestamp_used → timestamp (TEXT NOT NULL)
+*	[OK] points[i][0]  point_spot (REAL NOT NULL)
+*	[OK] points[i][1]  point_pl (REAL NOT NULL)
+*	[OK] spot_ref  spot_ref (REAL)
+*	[OK] timestamp_used  timestamp (TEXT NOT NULL)
 ________________________________________
-🚦 STATUS
-•	✅ CORRIGIDO: Snapshot consistency
-•	✅ CORRIGIDO: Side normalization (cv)
-•	✅ CORRIGIDO: Option type normalization (call_put)
-•	✅ CORRIGIDO: Path resolution
-•	✅ CORRIGIDO: Syntax bug
-•	✅ TESTADO: Schema compatibility
+ STATUS
+*	[OK] CORRIGIDO: Snapshot consistency
+*	[OK] CORRIGIDO: Side normalization (cv)
+*	[OK] CORRIGIDO: Option type normalization (call_put)
+*	[OK] CORRIGIDO: Path resolution
+*	[OK] CORRIGIDO: Syntax bug
+*	[OK] TESTADO: Schema compatibility
 Próximos Passos
 1.	Executar pipeline completa
 2.	Validar dados em derived.db
 3.	Se houver "curva estranha", verificar sincronia timestamp entre rtd_analise_robo e rtd_analise_robo_legs
 ________________________________________
-📝 ARQUIVOS ALTERADOS
-•	domain/payoff.py - REESCRITO COMPLETO
+[NOTA] ARQUIVOS ALTERADOS
+*	domain/payoff.py - REESCRITO COMPLETO
 Backup
 Arquivo original salvo como domain/payoff_backup_20260420.py (recomendado).
 ________________________________________
 22/04/2026
-## P2 — Domain formal (payoff + decision) — Encerramento
+## P2 -- Domain formal (payoff + decision) -- Encerramento
 
 ### Objetivo
 Consolidar o Domain Layer para:
@@ -202,9 +202,9 @@ Teste com `BOVA11`:
 
 ### Status
 P2 concluído e consistente: payoff + decision usam a mesma fonte para PL e ratio.
-Próximo: P3 (Hook pós-ingest) — acionar derivadores após ingest do bridge_ingest_csv.py.
+Próximo: P3 (Hook pós-ingest) -- acionar derivadores após ingest do bridge_ingest_csv.py.
 
-## P2 — Domain formal (payoff + decision) — Encerramento
+## P2 -- Domain formal (payoff + decision) -- Encerramento
 
 ### Objetivo
 Consolidar o Domain Layer para:
@@ -232,10 +232,10 @@ Teste com `BOVA11`:
 
 ### Status
 P2 concluído e consistente: payoff + decision usam a mesma fonte para PL e ratio.
-Próximo: P3 (Hook pós-ingest) — acionar derivadores após ingest do bridge_ingest_csv.py.
+Próximo: P3 (Hook pós-ingest) -- acionar derivadores após ingest do bridge_ingest_csv.py.
 
 22/04/2026
-## P3 - Pipeline de Dados Derivados (✅ CONCLUÍDO)
+## P3 - Pipeline de Dados Derivados ([OK] CONCLUÍDO)
 
 ### Objetivo
 Implementar processamento automático de dados derivados (payoffs e decisões de estruturas) com integração ao sistema de ingestão.
@@ -253,7 +253,7 @@ Implementar processamento automático de dados derivados (payoffs e decisões de
 payoff_curve_points: id, timestamp, aba, s_t, pl_venc, spot_ref, meta_json
 structure_decisions: id, timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json
 
-## P4 — Hook de consolidação automática no fechamento de estrutura (CLOSE_REOPEN)
+## P4 -- Hook de consolidação automática no fechamento de estrutura (CLOSE_REOPEN)
 
 ### Implementado
 Quando a decisão computada para uma aba retorna `"CLOSE_REOPEN"`, o pipeline agora:

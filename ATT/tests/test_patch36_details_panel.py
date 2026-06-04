@@ -1,6 +1,6 @@
 # tests/test_patch36_details_panel.py
 """
-Testes Patch_36 — details_panel.py
+Testes Patch_36 -- details_panel.py
 Cobre:
   - _resolve_structure_key
   - _get_latest_snapshot_timestamp_for_structure
@@ -11,7 +11,7 @@ Cobre:
   - _on_recalculate_click (sem fallback aba)
 
 Estratégia headless:
-  - Nenhum tk.Tk() é instanciado — evita falha em ambiente sem display
+  - Nenhum tk.Tk() é instanciado -- evita falha em ambiente sem display
     e conflito com o fake-tkinter injetado pelo patch_35.
   - DetailsPanel é criado via __new__ com widgets substituídos por MagicMock.
 """
@@ -140,7 +140,7 @@ class TestResolveStructureKey:
             panel._resolve_structure_key("WING")
 
     def test_float_string_raises(self, panel):
-        """'3.5' não é inteiro puro — deve lançar ValueError."""
+        """'3.5' não é inteiro puro -- deve lançar ValueError."""
         with pytest.raises(ValueError):
             panel._resolve_structure_key("3.5")
 
@@ -275,7 +275,7 @@ class TestFetchLatestDecision:
         assert d["structure_id"] == 4
 
     def test_nao_filtra_por_aba(self, panel, derived_db):
-        """patch_36: sem coluna aba — query não deve lançar OperationalError."""
+        """patch_36: sem coluna aba -- query não deve lançar OperationalError."""
         self._insert_decision(derived_db, 5, "2025-01-01")
         panel._derived_db_path = lambda: derived_db
         d = panel._fetch_latest_decision_from_derived(99)
@@ -412,7 +412,7 @@ class TestFetchAuditInfo:
 
 
 # ===========================================================================
-# 6. update_decision — sem fallback aba
+# 6. update_decision -- sem fallback aba
 # ===========================================================================
 
 class TestUpdateDecision:
@@ -428,7 +428,7 @@ class TestUpdateDecision:
         assert call_args[1]["text"] == "10"
 
     def test_exibe_na_quando_structure_id_ausente(self, panel):
-        """patch_36: sem structure_id → exibe N/A (não usa aba)."""
+        """patch_36: sem structure_id  exibe N/A (não usa aba)."""
         panel.update_decision({
             "aba": "WING_LEGADO",
             "timestamp": "2025-01-01",
@@ -469,7 +469,7 @@ class TestUpdateDecision:
 
 
 # ===========================================================================
-# 7. _on_recalculate_click — sem fallback aba
+# 7. _on_recalculate_click -- sem fallback aba
 # ===========================================================================
 
 class TestOnRecalculateClick:
@@ -486,7 +486,7 @@ class TestOnRecalculateClick:
         cb.assert_called_once_with(42)
 
     def test_nao_usa_aba_como_fallback(self, panel):
-        """patch_36: sem structure_id → erro, mesmo com aba presente."""
+        """patch_36: sem structure_id  erro, mesmo com aba presente."""
         panel._current_decision = {"aba": "WING", "timestamp": "2025-01-01"}
         panel._on_recalculate_click()
         panel.lbl_recalc_status.config.assert_called_with(

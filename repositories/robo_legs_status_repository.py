@@ -1,5 +1,5 @@
-from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
+from src.domain.refs.structure_ref import StructureRef
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -8,6 +8,13 @@ from typing import Optional, Tuple
 from infra.sqlite_conn import sqlite_conn
 from utils.leg_normalizers import parse_timestamp
 
+
+
+def _to_aba(ref) -> str:
+    """Aceita StructureRef ou str e devolve a string da aba."""
+    if isinstance(ref, str):
+        return ref
+    return ref.aba
 
 @dataclass(frozen=True)
 class RoboLegsStatusRepoConfig:
@@ -23,13 +30,14 @@ class RoboLegsStatusRepository:
         Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
         Se não houver, retorna (None, None).
         """
+        aba = _to_aba(ref)
         with sqlite_conn(self.config.app_db_path) as conn:
             row_m = conn.execute(
-                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE {ref.db_column()} = ?",
+                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
                 (aba,),
             ).fetchone()
             row_r = conn.execute(
-                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE {ref.db_column()} = ?",
+                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?",
                 (aba,),
             ).fetchone()
 
@@ -38,12 +46,12 @@ class RoboLegsStatusRepository:
         return (m, r)
 
 
-    # ──────────────────────────────────────────────────────────────
+    # 
     # patch_40: método canônico por structure_id
-    # ──────────────────────────────────────────────────────────────
+    # 
 
     def _resolve_aba_from_structure_id(self, structure_id: int) -> Optional[str]:
-        """Resolve structure_id → alias_legacy_aba via app.db."""
+        """Resolve structure_id  alias_legacy_aba via app.db."""
         sql = """
             SELECT alias_legacy_aba
             FROM structures

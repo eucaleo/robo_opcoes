@@ -1,18 +1,18 @@
 """
-StructureRef — encapsula a identidade de uma estrutura.
+StructureRef -- encapsula a identidade de uma estrutura.
 
 patch_53:  introdução do tipo
-patch_54:  from_aba() resolve alias → structure_id via lookup real
+patch_54:  from_aba() resolve alias  structure_id via lookup real
            from_id() cria ref canônica diretamente por structure_id
            db_column() retorna coluna correta conforme disponibilidade
 
-Regra de compatibilidade (rota_v2b.pdf — Fase 2, decisão 1):
+Regra de compatibilidade (rota_v2b.pdf -- Fase 2, decisão 1):
   - structure_id é a chave canônica REAL
   - aba é alias legado de compatibilidade APENAS
   - db_column() retorna 'structure_id' se disponível, 'aba' como fallback
 """
-
 from __future__ import annotations
+
 
 import sqlite3
 import os
@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 
-# ── Path canônico (mesmo padrão usado em todo o projeto) ──────────────────────
+#  Path canônico (mesmo padrão usado em todo o projeto) 
 _BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
@@ -34,14 +34,14 @@ class StructureRef:
 
     Invariantes:
       - structure_id (int) é a identidade primária quando disponível
-      - aba (str) é fallback legado — nunca deve ser PK lógica nova
+      - aba (str) é fallback legado -- nunca deve ser PK lógica nova
       - Pelo menos um dos dois deve estar preenchido (validado no __post_init__)
     """
 
     structure_id: Optional[int] = None
     aba:          Optional[str] = None
 
-    # Metadado de diagnóstico — não participa de == nem hash (frozen exclui)
+    # Metadado de diagnóstico -- não participa de == nem hash (frozen exclui)
     _resolved_via: str = field(default="direct", compare=False, hash=False)
 
     def __post_init__(self) -> None:
@@ -54,7 +54,7 @@ class StructureRef:
                 f"structure_id deve ser int, recebido: {type(self.structure_id)}"
             )
 
-    # ── Factories ─────────────────────────────────────────────────────────────
+    #  Factories 
 
     @classmethod
     def from_id(cls, structure_id: int) -> "StructureRef":
@@ -73,7 +73,7 @@ class StructureRef:
         Tenta resolver structure_id via structures.alias_legacy_aba em app.db.
         Se não encontrar, retorna ref com aba apenas (fallback seguro).
 
-        Nunca lança exceção por ausência de match — degradação graciosa.
+        Nunca lança exceção por ausência de match -- degradação graciosa.
         """
         if not aba:
             raise ValueError("aba não pode ser vazia para StructureRef.from_aba()")
@@ -97,7 +97,7 @@ class StructureRef:
                 finally:
                     conn.close()
             except sqlite3.OperationalError:
-                # tabela structures ainda não existe — fallback silencioso
+                # tabela structures ainda não existe -- fallback silencioso
                 resolved_via = "aba_only_no_table"
 
         return cls(
@@ -120,15 +120,15 @@ class StructureRef:
             return cls(aba=aba, _resolved_via="from_dict_aba")
         raise ValueError(f"dict sem structure_id nem aba: {d}")
 
-    # ── Interface para camada DB ───────────────────────────────────────────────
+    #  Interface para camada DB 
 
     def db_column(self) -> str:
         """
         Retorna o nome da coluna a usar em queries SQL.
 
         Regra (patch_54):
-          - Se tiver structure_id → 'structure_id'  (canônico)
-          - Senão               → 'aba'             (fallback legado)
+          - Se tiver structure_id  'structure_id'  (canônico)
+          - Senão                'aba'             (fallback legado)
         """
         return "structure_id" if self.structure_id is not None else "aba"
 
@@ -143,7 +143,7 @@ class StructureRef:
         """Atalho: retorna (coluna, valor) para WHERE clause."""
         return self.db_column(), self.db_value()
 
-    # ── Utilitários ───────────────────────────────────────────────────────────
+    #  Utilitários 
 
     def is_canonical(self) -> bool:
         """True se tem structure_id resolvido (identidade canônica real)."""

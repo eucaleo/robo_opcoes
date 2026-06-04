@@ -21,11 +21,11 @@ def main():
     conn.row_factory = sqlite3.Row
 
     for tabela in TABELAS:
-        print(f"\n── {tabela} ──")
+        print(f"\n {tabela} ")
         try:
             info = conn.execute(f"PRAGMA table_info({tabela})").fetchall()
             if not info:
-                print("  ⚠️  Tabela não encontrada ou vazia")
+                print("  [AVISO]  Tabela não encontrada ou vazia")
                 continue
             for col in info:
                 print(f"  [{col['cid']:>2}] {col['name']:<30} {col['type']:<15} notnull={col['notnull']} pk={col['pk']}")
@@ -37,9 +37,9 @@ def main():
                 for k in row.keys():
                     print(f"    {k}: {row[k]}")
             else:
-                print(f"\n  ℹ️  Tabela vazia")
+                print(f"\n  [INFO]  Tabela vazia")
         except Exception as e:
-            print(f"  ❌ Erro: {e}")
+            print(f"  [FALHOU] Erro: {e}")
 
     conn.close()
 

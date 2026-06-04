@@ -5,7 +5,7 @@
 |---|---|
 | DDL de teste (`_make_db`) | Sem coluna `created_at` |
 | DDL de produção | `created_at DEFAULT CURRENT_TIMESTAMP` |
-| `_insert_decision` | Inseria `created_at` explicitamente → quebrava no teste |
+| `_insert_decision` | Inseria `created_at` explicitamente  quebrava no teste |
 
 ## Decisão
 
@@ -19,11 +19,11 @@ produção e DDL de teste mínimo.
 
 ## Fix aplicado
 
-# patch_55 — Decisão Arquitetural: created_at removido do INSERT explícito
+# patch_55 -- Decisão Arquitetural: created_at removido do INSERT explícito
 
 **Data:** 2026-06-03  
 **Branch:** patch/53-structure-ref  
-**Status:** FECHADO ✅
+**Status:** FECHADO [OK]
 
 ---
 

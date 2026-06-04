@@ -1,5 +1,5 @@
 # ATT/tests/test_patch39.py
-"""Testes formais do patch_39 — auditoria pre-patch/3b baseline."""
+"""Testes formais do patch_39 -- auditoria pre-patch/3b baseline."""
 import os
 import sys
 import unittest
@@ -39,7 +39,7 @@ class TestPatch39ConteudoEstrutura(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.isfile(SCRIPT_FILE):
-            raise unittest.SkipTest("Script nao encontrado — skip conteudo")
+            raise unittest.SkipTest("Script nao encontrado -- skip conteudo")
         cls.src = _read(SCRIPT_FILE)
 
     def test_run_audit_presente(self):

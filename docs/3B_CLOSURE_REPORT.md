@@ -1,4 +1,4 @@
-# Encerramento 3B — Canonical Domain Decoupling
+# Encerramento 3B -- Canonical Domain Decoupling
 
 ## Status
 Concluído.

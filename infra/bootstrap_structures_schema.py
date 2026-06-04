@@ -80,7 +80,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        #  índices — structures                                                #
+        #  índices -- structures                                                #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -97,7 +97,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        #  índices — structure_legs                                            #
+        #  índices -- structure_legs                                            #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -114,7 +114,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        #  índices — pricing_executions                                        #
+        #  índices -- pricing_executions                                        #
         # ------------------------------------------------------------------ #
         conn.execute(
             """

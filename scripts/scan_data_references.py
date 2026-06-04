@@ -38,17 +38,17 @@ def find_data_references(project_root: str = ".") -> Dict[str, List[Tuple[int, s
     
     compiled_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
     
-    print(f"🔍 Escaneando pastas: {', '.join(target_dirs)}")
-    print(f"📂 Projeto: {project_path}")
+    print(f"[BUSCA] Escaneando pastas: {', '.join(target_dirs)}")
+    print(f" Projeto: {project_path}")
     print("=" * 60)
     
     for dir_name in target_dirs:
         dir_path = project_path / dir_name
         if not dir_path.exists():
-            print(f"⚠️  Pasta não encontrada: {dir_name}")
+            print(f"[AVISO]  Pasta não encontrada: {dir_name}")
             continue
             
-        print(f"📁 Escaneando: {dir_name}/")
+        print(f"[DIR] Escaneando: {dir_name}/")
         
         # Recursivo através da pasta
         for root, dirs, files in os.walk(dir_path):
@@ -76,7 +76,7 @@ def find_data_references(project_root: str = ".") -> Dict[str, List[Tuple[int, s
                         results[str(relative_path)] = matches
                         
                 except Exception as e:
-                    print(f"❌ Erro lendo {relative_path}: {e}")
+                    print(f"[FALHOU] Erro lendo {relative_path}: {e}")
     
     return results
 
@@ -84,16 +84,16 @@ def print_results(results: Dict[str, List[Tuple[int, str]]]) -> None:
     """Imprime os resultados de forma organizada."""
     
     if not results:
-        print("\n🎉 NENHUMA referência a 'data' encontrada!")
-        print("✅ Migração data/ -> dados/ parece estar completa nas pastas verificadas.")
+        print("\n NENHUMA referência a 'data' encontrada!")
+        print("[OK] Migração data/ -> dados/ parece estar completa nas pastas verificadas.")
         return
     
-    print(f"\n📋 RESULTADOS: {len(results)} arquivo(s) com referências a 'data'")
+    print(f"\n[LISTA] RESULTADOS: {len(results)} arquivo(s) com referências a 'data'")
     print("=" * 60)
     
     total_lines = 0
     for filepath, matches in sorted(results.items()):
-        print(f"\n📄 {filepath}")
+        print(f"\n[ARQUIVO] {filepath}")
         print("-" * len(filepath))
         
         for line_num, line_content in matches:
@@ -107,9 +107,9 @@ def print_results(results: Dict[str, List[Tuple[int, str]]]) -> None:
             )
             print(f"  {line_num:3d}: {highlighted}")
     
-    print(f"\n📊 RESUMO:")
-    print(f"   • Arquivos afetados: {len(results)}")
-    print(f"   • Linhas com referências: {total_lines}")
+    print(f"\n[RELATORIO] RESUMO:")
+    print(f"   * Arquivos afetados: {len(results)}")
+    print(f"   * Linhas com referências: {total_lines}")
     
 def suggest_fixes(results: Dict[str, List[Tuple[int, str]]]) -> None:
     """Sugere correções automáticas comuns."""
@@ -117,7 +117,7 @@ def suggest_fixes(results: Dict[str, List[Tuple[int, str]]]) -> None:
     if not results:
         return
     
-    print(f"\n🔧 SUGESTÕES DE CORREÇÃO:")
+    print(f"\n[CONFIG] SUGESTÕES DE CORREÇÃO:")
     print("=" * 40)
     
     common_fixes = {
@@ -137,13 +137,13 @@ def suggest_fixes(results: Dict[str, List[Tuple[int, str]]]) -> None:
                     break
         
         if needs_fix:
-            print(f"\n📝 {filepath}:")
+            print(f"\n[NOTA] {filepath}:")
             for old, new in common_fixes.items():
                 print(f"   sed -i 's|{old}|{new}|g' {filepath}")
 
 def main():
     """Função principal."""
-    print("🚀 SCANNER DE REFERÊNCIAS 'data' -> 'dados'")
+    print("[DEPLOY] SCANNER DE REFERÊNCIAS 'data' -> 'dados'")
     print("Restrito às pastas: bridge, db, domain, scripts, services, UI")
     print("=" * 60)
     
@@ -157,7 +157,7 @@ def main():
     suggest_fixes(results)
     
     print("\n" + "=" * 60)
-    print("✅ Scan concluído!")
+    print("[OK] Scan concluído!")
 
 if __name__ == "__main__":
     main()

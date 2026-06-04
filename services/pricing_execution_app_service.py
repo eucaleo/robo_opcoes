@@ -1,6 +1,6 @@
 # services/pricing_execution_app_service.py
 """
-patch_18 — execute_pricing() delegado para CanonicalPricingFacade.
+patch_18 -- execute_pricing() delegado para CanonicalPricingFacade.
 
 Alterações:
   - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
@@ -63,7 +63,7 @@ class PricingExecutionAppService:
         return response
 
     # ------------------------------------------------------------------
-    # Queries — inalteradas
+    # Queries -- inalteradas
     # ------------------------------------------------------------------
 
     def list_execution_summaries(

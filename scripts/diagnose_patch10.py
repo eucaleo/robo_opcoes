@@ -1,6 +1,6 @@
 # scripts/diagnose_patch10.py
 """
-Diagnóstico patch_10 — roda direto: python scripts/diagnose_patch10.py
+Diagnóstico patch_10 -- roda direto: python scripts/diagnose_patch10.py
 Não precisa de pytest nem de display gráfico.
 Verifica: arquivos, imports, banco, métodos esperados.
 """
@@ -13,9 +13,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-PASS = "✅"
-FAIL = "❌"
-WARN = "⚠️ "
+PASS = "[OK]"
+FAIL = "[FALHOU]"
+WARN = "[AVISO] "
 
 results = []
 
@@ -25,16 +25,16 @@ def check(label, fn):
         results.append((PASS, label))
         print(f"  {PASS} {label}")
     except Exception as e:
-        results.append((FAIL, f"{label} → {e}"))
+        results.append((FAIL, f"{label}  {e}"))
         print(f"  {FAIL} {label}")
         print(f"       {e}")
 
 
 print("\n" + "="*60)
-print("  DIAGNÓSTICO PATCH_10 — Fase 5 Estruturas")
+print("  DIAGNÓSTICO PATCH_10 -- Fase 5 Estruturas")
 print("="*60)
 
-# ── 1. Arquivos existem ────────────────────────────────────────
+#  1. Arquivos existem 
 print("\n[1] Arquivos no disco")
 
 FILES = {
@@ -48,7 +48,7 @@ for name, path in FILES.items():
     check(f"{name} existe em {path.relative_to(ROOT)}",
           lambda p=path: (_ for _ in ()).throw(FileNotFoundError(p)) if not p.exists() else None)
 
-# ── 2. Sintaxe / imports ───────────────────────────────────────
+#  2. Sintaxe / imports 
 print("\n[2] Importação dos módulos")
 
 def _import(path, modname):
@@ -68,8 +68,8 @@ check("UI.components.structure_editor_dialog importa",
       lambda: __import__("UI.components.structure_editor_dialog",
                           fromlist=["StructureEditorDialog"]))
 
-# ── 3. main_window.py tem os métodos novos ─────────────────────
-print("\n[3] main_window.py — métodos patch_10")
+#  3. main_window.py tem os métodos novos 
+print("\n[3] main_window.py -- métodos patch_10")
 
 mw_src = (ROOT / "UI/main_window.py").read_text(encoding="utf-8")
 
@@ -95,8 +95,8 @@ check("db_path usa PROJECT_ROOT (path absoluto)",
           AssertionError("db_path hardcoded como string simples detectado")
       ) if '"dados/app.db"' in mw_src and "PROJECT_ROOT" not in mw_src else None)
 
-# ── 4. Banco de dados ──────────────────────────────────────────
-print("\n[4] Banco app.db — tabelas structures e structure_legs")
+#  4. Banco de dados 
+print("\n[4] Banco app.db -- tabelas structures e structure_legs")
 
 DB_CANDIDATES = [
     ROOT / "dados" / "app.db",
@@ -150,7 +150,7 @@ if db_found:
         from repositories.structures_repository import StructuresRepository
         repo = StructuresRepository(str(db_found))
         rows = repo.list_structures(include_archived=True)
-        print(f"       → {len(rows)} estrutura(s) no banco")
+        print(f"        {len(rows)} estrutura(s) no banco")
 
     check("StructuresRepository.list_structures() roda no banco real", check_repo_live)
 
@@ -159,7 +159,7 @@ else:
     for c in DB_CANDIDATES:
         print(f"       {c}")
 
-# ── 5. Resumo ──────────────────────────────────────────────────
+#  5. Resumo 
 print("\n" + "="*60)
 total  = len(results)
 passed = sum(1 for r in results if r[0] == PASS)
@@ -170,9 +170,9 @@ if failed:
     print(f"\n  {FAIL} Falhas:")
     for r in results:
         if r[0] == FAIL:
-            print(f"    • {r[1]}")
+            print(f"    * {r[1]}")
 else:
-    print(f"\n  {PASS} Tudo OK — patch_10 pronto para smoke manual")
+    print(f"\n  {PASS} Tudo OK -- patch_10 pronto para smoke manual")
 
 print("="*60 + "\n")
 sys.exit(0 if failed == 0 else 1)

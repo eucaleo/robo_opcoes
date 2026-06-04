@@ -156,7 +156,7 @@ class PreflightChecker:
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(self.results, f, indent=2, ensure_ascii=False)
         
-        print(f"📄 Relatório salvo: {report_path.relative_to(self.repo_root)}")
+        print(f"[ARQUIVO] Relatório salvo: {report_path.relative_to(self.repo_root)}")
         
         # Status final
         if failed > 0:

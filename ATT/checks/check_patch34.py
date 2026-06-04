@@ -1,4 +1,4 @@
-# ATT/checks/check_patch34.py  (v2 — fix falso positivo docstring)
+# ATT/checks/check_patch34.py  (v2 -- fix falso positivo docstring)
 """
 Checker cirúrgico para patch_34.
 Valida que ui_data.py está no estado canônico correto.
@@ -11,8 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TARGET = ROOT / "UI" / "models" / "ui_data.py"
 
-PASS = "  ✅"
-FAIL = "  ❌"
+PASS = "  [OK]"
+FAIL = "  [FALHOU]"
 
 results = []
 
@@ -48,7 +48,7 @@ def extract_fn_body(src: str, fn_name: str) -> str:
 
 def run():
     print("=" * 70)
-    print(f"  CHECKER patch_34 — {TARGET.relative_to(ROOT)}")
+    print(f"  CHECKER patch_34 -- {TARGET.relative_to(ROOT)}")
     print("=" * 70)
 
     if not TARGET.exists():
@@ -157,7 +157,7 @@ def run():
     check(
         '"aba" mantido em COLUMN_ALIASES (compat leitura SELECT)',
         '"aba"' in col_block,
-        "COLUMN_ALIASES não contém 'aba' — pode quebrar SELECT"
+        "COLUMN_ALIASES não contém 'aba' -- pode quebrar SELECT"
         if '"aba"' not in col_block
         else "",
     )

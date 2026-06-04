@@ -4,7 +4,7 @@ from domain.decision import compute_decision_from_payoff
 def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
     """
     Garante que compute_decision_from_payoff funciona com payoff canônico
-    que não carrega alias_legacy_aba — substitui o teste de contract com dict.
+    que não carrega alias_legacy_aba -- substitui o teste de contract com dict.
     """
     payoff = {
         "pl_atual": 120.0,

@@ -105,8 +105,8 @@ def compute_curve_features(
     """
     Computa features da curva de payoff.
 
-    Chave canônica : structure_id + reference_date  → upsert no derived.db.
-    timestamp + aba               → rastreabilidade opcional (legado RTD).
+    Chave canônica : structure_id + reference_date   upsert no derived.db.
+    timestamp + aba                rastreabilidade opcional (legado RTD).
     """
     pts = _as_sorted_points(points)
     if not pts:
@@ -182,7 +182,7 @@ def upsert_curve_summary(
     _conn_override: Optional[sqlite3.Connection] = None,
 ) -> None:
     """
-    Upsert por (structure_id, reference_date) — chave canônica.
+    Upsert por (structure_id, reference_date) -- chave canônica.
 
     Patch 24: substituída chave legada (timestamp, aba)
               pela chave canônica (structure_id, reference_date).
@@ -197,7 +197,7 @@ def upsert_curve_summary(
         features       : dict retornado por compute_curve_features().
         _conn_override : conexão SQLite para injeção em testes. Quando
                          fornecida, o ciclo de vida da conexão é
-                         responsabilidade do caller — esta função NÃO
+                         responsabilidade do caller -- esta função NÃO
                          fecha a conexão injetada.
     """
     structure_id   = features.get("structure_id")

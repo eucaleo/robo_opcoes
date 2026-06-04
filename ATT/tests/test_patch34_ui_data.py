@@ -140,7 +140,7 @@ class TestGetStructureIds:
         assert model.get_abas() == model.get_structure_ids()
 
     def test_get_structures_ainda_funciona(self, model):
-        # get_structures() nao foi removido — compat
+        # get_structures() nao foi removido -- compat
         assert model.get_structures() == model.get_structure_ids()
 
     def test_schema_sem_structure_id_raises(self, tmp_path):
@@ -159,7 +159,7 @@ class TestGetStructureIds:
 
 
 # ---------------------------------------------------------------------------
-# get_decisions — filtro
+# get_decisions -- filtro
 # ---------------------------------------------------------------------------
 
 class TestGetDecisionsFiltro:
@@ -181,14 +181,14 @@ class TestGetDecisionsFiltro:
             model.get_decisions(filters={"structure_id": "BOVA11"})
 
     def test_filtro_aba_filtra_por_ticker(self, model):
-        # patch_3a: "aba" no filtro e aplicado — retorna apenas registros do ticker
+        # patch_3a: "aba" no filtro e aplicado -- retorna apenas registros do ticker
         rows = model.get_decisions(filters={"aba": "BOVA11"})
         assert len(rows) >= 1
         assert all(r["aba"] == "BOVA11" for r in rows)
 
 
 # ---------------------------------------------------------------------------
-# get_decisions — normalizacao pos-query
+# get_decisions -- normalizacao pos-query
 # ---------------------------------------------------------------------------
 
 class TestGetDecisionsNormalizacao:

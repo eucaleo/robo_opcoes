@@ -1,16 +1,16 @@
 # services/market_snapshot_selector.py
 """
-patch_13 — Política de precedência de snapshots: manual > rtd.
+patch_13 -- Política de precedência de snapshots: manual > rtd.
 
 Para cada aba:
-  - Se existir snapshot manual → usa manual
-  - Caso contrário             → usa rtd
+  - Se existir snapshot manual  usa manual
+  - Caso contrário              usa rtd
 
-O selector não decide quais abas existem — apenas escolhe a fonte.
+O selector não decide quais abas existem -- apenas escolhe a fonte.
 """
+from __future__ import annotations
 
 from src.domain.refs.structure_ref import StructureRef
-from __future__ import annotations
 
 from dataclasses import dataclass, field
 
@@ -50,9 +50,9 @@ class MarketSnapshotSelector:
         Regra:
             1. Busca legs manuais  (manual_analise_robo_legs)
             2. Busca legs RTD      (rtd_analise_robo_legs)
-            3. Para cada ativo presente nas duas fontes → manual vence
-            4. Ativos só no RTD   → usa RTD
-            5. Ativos só manual   → usa manual
+            3. Para cada ativo presente nas duas fontes  manual vence
+            4. Ativos só no RTD    usa RTD
+            5. Ativos só manual    usa manual
 
         Returns:
             SnapshotSelectionResult com a lista final de legs e metadados.

@@ -1,5 +1,5 @@
 # tests/paths.py
-# Centraliza os caminhos do projeto — importável por qualquer test file
+# Centraliza os caminhos do projeto -- importável por qualquer test file
 
 import sys
 from pathlib import Path

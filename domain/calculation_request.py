@@ -1,13 +1,13 @@
 """
-patch_45 — Contrato canônico de entrada para cálculo.
+patch_45 -- Contrato canônico de entrada para cálculo.
 
 Define os DTOs imutáveis que o domínio recebe:
   CalculationRequest
-    ├── structure: StructureInput
-    │     └── legs: List[StructureLegInput]
-    └── market_snapshot: MarketSnapshotInput
+     structure: StructureInput
+          legs: List[StructureLegInput]
+     market_snapshot: MarketSnapshotInput
 
-O domínio NÃO acessa banco diretamente — recebe estes objetos
+O domínio NÃO acessa banco diretamente -- recebe estes objetos
 já normalizados pelo orquestrador.
 """
 from __future__ import annotations
@@ -73,8 +73,8 @@ class StructureLegInput:
     strike        : decimal positivo
     expiration_date: YYYY-MM-DD
     quantity      : inteiro positivo (direção fica em position_side)
-    symbol        : código da opção (ex.: BOVAE195) — opcional
-    premium       : preço de entrada — opcional
+    symbol        : código da opção (ex.: BOVAE195) -- opcional
+    premium       : preço de entrada -- opcional
     multiplier    : padrão 1.0
     leg_order     : ordem para exibição
     """
@@ -128,7 +128,7 @@ class StructureInput:
     underlying_asset  : ativo base (ex.: BOVA11)
     legs              : pernas já normalizadas
     name              : label amigável
-    alias_legacy_aba  : compatibilidade — NÃO é chave de cálculo
+    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
     """
     structure_id:     int
     underlying_asset: str
@@ -197,7 +197,7 @@ class MarketSnapshotInput:
 
 
 # ---------------------------------------------------------------------------
-# CalculationRequest — envelope completo
+# CalculationRequest -- envelope completo
 # ---------------------------------------------------------------------------
 @dataclass(frozen=True)
 class CalculationRequest:
@@ -205,7 +205,7 @@ class CalculationRequest:
     Contrato canônico de entrada para qualquer cálculo de payoff/decisão.
 
     O orquestrador monta este objeto a partir do DB e do bridge/RTD,
-    e o domínio (payoff, decision) recebe SOMENTE este objeto — sem
+    e o domínio (payoff, decision) recebe SOMENTE este objeto -- sem
     acessar banco diretamente.
     """
     structure:       StructureInput

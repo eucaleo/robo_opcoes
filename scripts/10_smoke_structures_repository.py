@@ -1,5 +1,5 @@
 """
-Smoke test — Fase 4 / Etapa D
+Smoke test -- Fase 4 / Etapa D
 Valida CRUD completo do StructuresRepository.
 
 Fluxo (9 etapas):
@@ -17,7 +17,7 @@ Fluxo (9 etapas):
 import sys
 from pathlib import Path
 
-# ── garante que o raiz do projeto está no path ──────────────────────────────
+#  garante que o raiz do projeto está no path 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -27,7 +27,7 @@ from repositories.structures_repository import StructuresRepository
 from scripts._smoke_context import update_context, clear_context
 
 
-# ── helpers ─────────────────────────────────────────────────────────────────
+#  helpers 
 
 def _assert(condition: bool, msg: str) -> None:
     if not condition:
@@ -35,10 +35,10 @@ def _assert(condition: bool, msg: str) -> None:
 
 
 def _ok(msg: str) -> None:
-    print(f"  ✓ {msg}")
+    print(f"   {msg}")
 
 
-# ── etapas ──────────────────────────────────────────────────────────────────
+#  etapas 
 
 def etapa_1_garantir_schema() -> None:
     print("\n[1/9] Garantindo schema...")
@@ -78,7 +78,7 @@ def etapa_3_adicionar_legs(repo: StructuresRepository, structure_id: int) -> Non
         "premium": None,
         "multiplier": 1.0,
         "leg_order": 1,
-        "notes": "leg 1 — smoke",
+        "notes": "leg 1 -- smoke",
     })
 
     leg2_id = repo.add_leg(structure_id, {
@@ -91,7 +91,7 @@ def etapa_3_adicionar_legs(repo: StructuresRepository, structure_id: int) -> Non
         "premium": None,
         "multiplier": 1.0,
         "leg_order": 2,
-        "notes": "leg 2 — smoke",
+        "notes": "leg 2 -- smoke",
     })
 
     _assert(isinstance(leg1_id, int) and leg1_id > 0, "leg1_id deve ser positivo")
@@ -111,7 +111,7 @@ def etapa_4_listar_estruturas(repo: StructuresRepository, structure_id: int) -> 
 
     for s in lista:
         _assert(s["status"] == "active",
-                f"listagem sem archived deve conter só active — encontrou: {s['status']}")
+                f"listagem sem archived deve conter só active -- encontrou: {s['status']}")
 
     _ok(f"{len(lista)} estrutura(s) ativa(s) listada(s)")
 
@@ -137,21 +137,21 @@ def etapa_5_buscar_com_legs(repo: StructuresRepository, structure_id: int) -> No
     _assert("LONG" in sides and "SHORT" in sides,
             "deve ter um LONG e um SHORT")
 
-    _ok(f"estrutura carregada com {len(legs)} legs — ordem e lados corretos")
+    _ok(f"estrutura carregada com {len(legs)} legs -- ordem e lados corretos")
 
 
 def etapa_6_atualizar_metadados(repo: StructuresRepository, structure_id: int) -> None:
     print("\n[6/9] Atualizando metadados da estrutura...")
 
     repo.update_structure(structure_id, {
-        "name": "BOVA11 Condor Maio/2026 — Atualizada",
+        "name": "BOVA11 Condor Maio/2026 -- Atualizada",
         "notes": "atualizado pelo smoke fase 4",
     })
 
     updated = repo.get_structure(structure_id)
 
     _assert(updated is not None, "estrutura deve existir após update")
-    _assert(updated["name"] == "BOVA11 Condor Maio/2026 — Atualizada",
+    _assert(updated["name"] == "BOVA11 Condor Maio/2026 -- Atualizada",
             "name deve refletir o update")
     _assert(updated["notes"] == "atualizado pelo smoke fase 4",
             "notes deve refletir o update")
@@ -222,7 +222,7 @@ def etapa_7_substituir_legs(repo: StructuresRepository, structure_id: int) -> No
         _assert(leg["expiration_date"] == "2026-06-20",
                 "vencimento deve ser 2026-06-20")
 
-    _ok(f"replace_legs OK — {len(legs)} legs novas, antigas removidas")
+    _ok(f"replace_legs OK -- {len(legs)} legs novas, antigas removidas")
 
 
 def etapa_8_arquivar(repo: StructuresRepository, structure_id: int) -> None:
@@ -256,21 +256,21 @@ def etapa_9_validar_estado_final(repo: StructuresRepository, structure_id: int) 
     _assert(final is not None, "estrutura deve ser recuperável no estado final")
     _assert(final["id"] == structure_id, "id deve bater")
     _assert(final["status"] == "archived", "status final deve ser archived")
-    _assert(final["name"] == "BOVA11 Condor Maio/2026 — Atualizada",
+    _assert(final["name"] == "BOVA11 Condor Maio/2026 -- Atualizada",
             "name deve refletir o update da etapa 6")
     _assert(len(final["legs"]) == 3,
             f"deve ter 3 legs (do replace), encontrou {len(final['legs'])}")
     _assert(final["underlying_asset"] == "BOVA11",
             "underlying_asset deve ser BOVA11")
 
-    _ok("estado final consistente — todas as operações persistidas corretamente")
+    _ok("estado final consistente -- todas as operações persistidas corretamente")
 
 
-# ── main ────────────────────────────────────────────────────────────────────
+#  main 
 
 def main() -> None:
     print("=" * 60)
-    print("SMOKE — Fase 4 / StructuresRepository")
+    print("SMOKE -- Fase 4 / StructuresRepository")
     print("=" * 60)
 
     clear_context()
@@ -287,7 +287,7 @@ def main() -> None:
     etapa_9_validar_estado_final(repo, structure_id)
 
     print("\n" + "=" * 60)
-    print("✅  SMOKE FASE 4 — TODAS AS ETAPAS OK")
+    print("[OK]  SMOKE FASE 4 -- TODAS AS ETAPAS OK")
     print("=" * 60)
 
 

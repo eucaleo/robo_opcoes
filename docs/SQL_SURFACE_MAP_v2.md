@@ -1,4 +1,4 @@
-# Mapa de Uso SQL (surface) — v2
+# Mapa de Uso SQL (surface) -- v2
 
 | Tabela                  | Operação (CRUD)   | Arquivos/Modulos                                 |
 |-------------------------|-------------------|--------------------------------------------------|

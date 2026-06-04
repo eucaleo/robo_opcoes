@@ -1,6 +1,6 @@
 # scripts/44_audit_domain_dto_boundary.py
 """
-Auditoria de fronteira domínio/DTO — patch_44.
+Auditoria de fronteira domínio/DTO -- patch_44.
 Verifica que domain/payoff.py e domain/decision.py não importam
 sqlite3, get_app_db_connection ou get_derived_db_connection.
 Gera ATT/reports/domain_dto_boundary.json com:

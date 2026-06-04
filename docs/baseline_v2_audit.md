@@ -1,8 +1,8 @@
 <!-- docs/baseline_v2_audit.md -->
-# Baseline v2 — Auditoria e Inventário
+# Baseline v2 -- Auditoria e Inventário
 
 **Gerado em:** 2026-05-27  
-**Projeto:** ATT — Análise de Estruturas de Opções  
+**Projeto:** ATT -- Análise de Estruturas de Opções  
 **Raiz:** `C:\Users\eucal\projeto`
 
 ---
@@ -44,23 +44,23 @@ com separação clara entre camada de domínio, repositórios canônicos e servi
 
 | Repositório | Arquivo | Status |
 |-------------|---------|--------|
-| StructuresRepository | `repositories/structures_repository.py` | ✅ v2 |
-| RoboLegsRepository | `repositories/robo_legs_repository.py` | ✅ |
-| RoboLegsStatusRepository | `repositories/robo_legs_status_repository.py` | ✅ |
-| PricingExecutionsRepository | `repositories/pricing_executions_repository.py` | ✅ |
-| MarketSnapshotRepository | `repositories/market_snapshot_repository.py` | ⏳ patch_12 |
+| StructuresRepository | `repositories/structures_repository.py` | [OK] v2 |
+| RoboLegsRepository | `repositories/robo_legs_repository.py` | [OK] |
+| RoboLegsStatusRepository | `repositories/robo_legs_status_repository.py` | [OK] |
+| PricingExecutionsRepository | `repositories/pricing_executions_repository.py` | [OK] |
+| MarketSnapshotRepository | `repositories/market_snapshot_repository.py` |  patch_12 |
 
 ---
 
-## 4. Serviços — Fase 3A
+## 4. Serviços -- Fase 3A
 
 | Serviço | Status |
 |---------|--------|
-| `structure_input_mapper.py` | ✅ |
-| `market_snapshot_provider.py` | ✅ |
-| `canonical_input_service.py` | ✅ |
-| `pricing_execution_service.py` | ✅ |
-| `pricing_execution_app_service.py` | ✅ |
+| `structure_input_mapper.py` | [OK] |
+| `market_snapshot_provider.py` | [OK] |
+| `canonical_input_service.py` | [OK] |
+| `pricing_execution_service.py` | [OK] |
+| `pricing_execution_app_service.py` | [OK] |
 
 ---
 
@@ -68,20 +68,20 @@ com separação clara entre camada de domínio, repositórios canônicos e servi
 
 | Módulo | Arquivo | Status |
 |--------|---------|--------|
-| Contratos canônicos | `domain/contracts.py` | ✅ |
-| Validadores canônicos | `domain/canonical_validators.py` | ✅ |
-| Payoff | `domain/payoff.py` | ✅ |
-| Payoff features | `domain/payoff_features.py` | ✅ |
-| Decision | `domain/decision.py` | ✅ |
-| Structure metrics | `domain/structure_metrics.py` | ✅ |
-| MarketSnapshot | `domain/market_snapshot.py` | ⏳ patch_12 |
+| Contratos canônicos | `domain/contracts.py` | [OK] |
+| Validadores canônicos | `domain/canonical_validators.py` | [OK] |
+| Payoff | `domain/payoff.py` | [OK] |
+| Payoff features | `domain/payoff_features.py` | [OK] |
+| Decision | `domain/decision.py` | [OK] |
+| Structure metrics | `domain/structure_metrics.py` | [OK] |
+| MarketSnapshot | `domain/market_snapshot.py` |  patch_12 |
 
 ---
 
 ## 6. Dívida Técnica Conhecida
 
-- 16 arquivos `.bak` em `BAK/` e `repositories/` — candidatos a remoção após validação
-- 7 bancos `.db` soltos em `BAK/` — backups históricos, não usados em produção
+- 16 arquivos `.bak` em `BAK/` e `repositories/` -- candidatos a remoção após validação
+- 7 bancos `.db` soltos em `BAK/` -- backups históricos, não usados em produção
 - `patch_12` e `patch_13` pendentes (MarketSnapshot canônico)
 
 ---
@@ -90,13 +90,13 @@ com separação clara entre camada de domínio, repositórios canônicos e servi
 
 | Patch | Descrição | Status |
 |-------|-----------|--------|
-| patch_01 | Auditoria baseline_v2 | ✅ |
-| patch_02 | Contratos canônicos de structures | ✅ |
-| patch_03 | Camada de compatibilidade legado | ✅ |
-| patch_04 | CRUD canônico StructuresRepository | ✅ |
-| patch_05 | Testes smoke/contrato | ✅ |
-| patch_06 | Normalização repositories | ✅ |
-| patch_10 | Smoke tests pytest (19 testes) | ✅ |
-| patch_11 | conn.close() explícito (ResourceWarning) | ✅ |
-| patch_12 | MarketSnapshot repositório + domínio | ⏳ |
-| patch_13 | Política timestamp canônico | ⏳ |
+| patch_01 | Auditoria baseline_v2 | [OK] |
+| patch_02 | Contratos canônicos de structures | [OK] |
+| patch_03 | Camada de compatibilidade legado | [OK] |
+| patch_04 | CRUD canônico StructuresRepository | [OK] |
+| patch_05 | Testes smoke/contrato | [OK] |
+| patch_06 | Normalização repositories | [OK] |
+| patch_10 | Smoke tests pytest (19 testes) | [OK] |
+| patch_11 | conn.close() explícito (ResourceWarning) | [OK] |
+| patch_12 | MarketSnapshot repositório + domínio |  |
+| patch_13 | Política timestamp canônico |  |

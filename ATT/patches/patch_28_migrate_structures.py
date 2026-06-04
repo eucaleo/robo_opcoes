@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # =============================================================================
-# patch_28_migrate_structures.py  (v2 — bugs #1 #2 #3 corrigidos)
+# patch_28_migrate_structures.py  (v2 -- bugs #1 #2 #3 corrigidos)
 # =============================================================================
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ ABA_CATALOG: dict[str, dict] = {
     "BOVA11": {
         "name":             "BOVA11 Condor Maio/2026",
         "underlying_asset": "BOVA11",
-        "notes":            "Canônico — migrado do legado",
+        "notes":            "Canônico -- migrado do legado",
     },
     "EMBJ3": {
         "name":             "EMBJ3 Estrutura Maio/2026",
@@ -46,12 +46,12 @@ ABA_CATALOG: dict[str, dict] = {
 
 NOW = datetime.now(timezone.utc).isoformat()
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def log(msg: str, level: str = "INFO") -> None:
-    icons = {"INFO": "ℹ️ ", "OK": "✅", "WARN": "⚠️ ", "ERR": "❌", "DRY": "🔵"}
+    icons = {"INFO": "[INFO] ", "OK": "[OK]", "WARN": "[AVISO] ", "ERR": "[FALHOU]", "DRY": "[INFO]"}
     print(f"  {icons.get(level, '  ')} [{level}] {msg}")
 
 
@@ -105,9 +105,9 @@ def _map_call_put(cv, call_put) -> tuple[str, str]:
     return side, kind
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # ESTADO SIMULADO (usado pelo dry-run para Op 3 e Op 4)
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 class SimState:
     """
@@ -129,14 +129,14 @@ class SimState:
         legs = conn.execute(
             "SELECT id, structure_id FROM structure_legs"
         ).fetchall()
-        self.legs: dict[int, list[int]] = {}  # structure_id → [leg_ids]
+        self.legs: dict[int, list[int]] = {}  # structure_id  [leg_ids]
         for l in legs:
             self.legs.setdefault(l["structure_id"], []).append(l["id"])
 
         self._next_id = max(self.structures.keys(), default=0) + 1
         self._next_structure_id = self._next_id
 
-        # Legs simuladas (structure_id → list of dicts)
+        # Legs simuladas (structure_id  list of dicts)
         self.sim_legs: dict[int, list[dict]] = {}
 
     def delete_structures(self, ids: list[int]) -> None:
@@ -176,16 +176,16 @@ class SimState:
         return sorted(self.structures.values(), key=lambda s: s["id"])
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # OP 1
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def op1_clean_structures(
     conn: sqlite3.Connection,
     dry: bool,
     sim: SimState,
 ) -> dict[str, int]:
-    print("\n── Op 1: Limpeza de duplicatas em structures ──")
+    print("\n Op 1: Limpeza de duplicatas em structures ")
 
     rows = conn.execute(
         "SELECT id, name, underlying_asset, alias_legacy_aba, status "
@@ -200,7 +200,7 @@ def op1_clean_structures(
     canonical_ids: dict[str, int] = {}
 
     for alias, group in by_alias.items():
-        log(f"alias='{alias}' → {len(group)} registros encontrados")
+        log(f"alias='{alias}'  {len(group)} registros encontrados")
 
         def sort_key(r):
             # Preferência: active > archived, sem "Atualizada", menor id
@@ -212,16 +212,16 @@ def op1_clean_structures(
         keeper    = group[0]
         to_delete = group[1:]
 
-        log(f"  → Mantendo  id={keeper['id']}  '{keeper['name']}'  [{keeper['status']}]")
+        log(f"   Mantendo  id={keeper['id']}  '{keeper['name']}'  [{keeper['status']}]")
         canonical_ids[alias] = keeper["id"]
 
         if to_delete:
             ids_del = [r["id"] for r in to_delete]
-            log(f"  → Deletando ids={ids_del}  ({len(ids_del)} duplicatas)")
+            log(f"   Deletando ids={ids_del}  ({len(ids_del)} duplicatas)")
 
             if dry:
                 sim.delete_structures(ids_del)
-                log(f"  → [DRY] Simulando deleção de {len(ids_del)} registros", "DRY")
+                log(f"   [DRY] Simulando deleção de {len(ids_del)} registros", "DRY")
             else:
                 conn.execute(
                     f"DELETE FROM structure_legs WHERE structure_id IN "
@@ -231,25 +231,25 @@ def op1_clean_structures(
                     f"DELETE FROM structures WHERE id IN "
                     f"({','.join('?' * len(ids_del))})", ids_del
                 )
-                log(f"  → Deletadas {len(ids_del)} duplicatas + suas legs", "OK")
+                log(f"   Deletadas {len(ids_del)} duplicatas + suas legs", "OK")
 
         if keeper["status"] != "active":
             if dry:
                 sim.set_active(keeper["id"])
-                log(f"  → [DRY] Simulando reativação de id={keeper['id']}", "DRY")
+                log(f"   [DRY] Simulando reativação de id={keeper['id']}", "DRY")
             else:
                 conn.execute(
                     "UPDATE structures SET status='active', updated_at=? WHERE id=?",
                     (NOW, keeper["id"])
                 )
-                log(f"  → Reativado id={keeper['id']}", "OK")
+                log(f"   Reativado id={keeper['id']}", "OK")
 
     return canonical_ids
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # OP 2
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def op2_create_missing_structures(
     conn: sqlite3.Connection,
@@ -257,20 +257,20 @@ def op2_create_missing_structures(
     sim: SimState,
     canonical_ids: dict[str, int],
 ) -> dict[str, int]:
-    print("\n── Op 2: Criar structures ausentes ──")
+    print("\n Op 2: Criar structures ausentes ")
 
     for aba, meta in ABA_CATALOG.items():
         if aba in canonical_ids:
-            log(f"'{aba}' já existe → id={canonical_ids[aba]}  (pulado)")
+            log(f"'{aba}' já existe  id={canonical_ids[aba]}  (pulado)")
             continue
 
-        log(f"'{aba}' ausente → criando structure canônica")
+        log(f"'{aba}' ausente  criando structure canônica")
 
         if dry:
             # FIX #2: Em dry-run, atribui ID simulado para Op 3 poder usá-lo
             new_id = sim.create_structure(aba, meta)
             canonical_ids[aba] = new_id
-            log(f"  → [DRY] Simularia INSERT → id_simulado={new_id}  '{meta['name']}'", "DRY")
+            log(f"   [DRY] Simularia INSERT  id_simulado={new_id}  '{meta['name']}'", "DRY")
         else:
             cur = conn.execute("""
                 INSERT INTO structures
@@ -285,14 +285,14 @@ def op2_create_missing_structures(
             if new_id is None:
                 raise RuntimeError(f"INSERT de structure '{aba}' não retornou lastrowid")
             canonical_ids[aba] = new_id
-            log(f"  → Criada id={new_id}  '{meta['name']}'", "OK")
+            log(f"   Criada id={new_id}  '{meta['name']}'", "OK")
 
     return canonical_ids
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # OP 3
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def _migrate_from_table(
     conn: sqlite3.Connection,
@@ -302,14 +302,14 @@ def _migrate_from_table(
     sim: SimState,
     source_label: str,
 ) -> dict[str, int]:
-    print(f"\n── Op 3: Migração de {table} ──")
+    print(f"\n Op 3: Migração de {table} ")
 
     rows = conn.execute(
         f"SELECT * FROM {table} ORDER BY aba, timestamp DESC"
     ).fetchall()
 
     if not rows:
-        log(f"Tabela {table} vazia — nada a migrar", "WARN")
+        log(f"Tabela {table} vazia -- nada a migrar", "WARN")
         return {}
 
     # Pega snapshot mais recente por aba
@@ -332,15 +332,15 @@ def _migrate_from_table(
 
         # FIX #2: Em dry-run, canonical_ids já tem IDs simulados da Op 2
         if sid is None:
-            log(f"aba='{aba}' sem structure canônica — pulado", "WARN")
+            log(f"aba='{aba}' sem structure canônica -- pulado", "WARN")
             continue
 
-        log(f"aba='{aba}' → structure_id={sid}  ts={seen_ts[aba]}  legs={len(legs)}")
+        log(f"aba='{aba}'  structure_id={sid}  ts={seen_ts[aba]}  legs={len(legs)}")
 
         if dry:
             # FIX #1: Registra legs simuladas no SimState para Op 4 usar
             sim.set_legs(sid, legs)
-            log(f"  → [DRY] Inseriria {len(legs)} legs para aba='{aba}'", "DRY")
+            log(f"   [DRY] Inseriria {len(legs)} legs para aba='{aba}'", "DRY")
         else:
             conn.execute(
                 "DELETE FROM structure_legs WHERE structure_id = ?", (sid,)
@@ -364,7 +364,7 @@ def _migrate_from_table(
                     f"migrado de {table} ({source_label})",
                     NOW, NOW,
                 ))
-            log(f"  → {len(legs)} legs inseridas", "OK")
+            log(f"   {len(legs)} legs inseridas", "OK")
 
         stats[aba] = len(legs)
 
@@ -394,22 +394,22 @@ def op3_migrate_legs(
         log(f"  aba='{aba}'  legs_finais={final_n}  origem={origin}")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # OP 4
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def op4_verify(
     conn: sqlite3.Connection,
     dry: bool,
     sim: SimState,
 ) -> None:
-    print("\n── Op 4: Verificação final ──")
+    print("\n Op 4: Verificação final ")
 
     if dry:
         # FIX #1 + #3: Usa estado SIMULADO, não o banco real
         all_structs = sim.all_structures_sorted()
         print()
-        print("  (estado simulado — o que o banco TERIA após a migração)\n")
+        print("  (estado simulado -- o que o banco TERIA após a migração)\n")
     else:
         rows = conn.execute("""
             SELECT s.id, s.name, s.underlying_asset, s.alias_legacy_aba, s.status
@@ -419,7 +419,7 @@ def op4_verify(
 
     print(f"  {'ID':<6} {'Ativo':<8} {'Alias':<8} {'Status':<10} "
           f"{'Legs':<7} {'Nome'}")
-    print(f"  {'─'*6} {'─'*8} {'─'*8} {'─'*10} {'─'*7} {'─'*40}")
+    print(f"  {''*6} {''*8} {''*8} {''*10} {''*7} {''*40}")
 
     for s in all_structs:
         sid    = s["id"]
@@ -427,10 +427,10 @@ def op4_verify(
             "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id=?", (sid,)
         ).fetchone()["n"]
 
-        legs_ok = "✅" if n_legs > 0 else "⚠️ "
+        legs_ok = "[OK]" if n_legs > 0 else "[AVISO] "
         print(
             f"  {sid:<6} {s['underlying_asset']:<8} "
-            f"{(s['alias_legacy_aba'] or '—'):<8} {s['status']:<10} "
+            f"{(s['alias_legacy_aba'] or '--'):<8} {s['status']:<10} "
             f"{legs_ok}{n_legs:<5} {s['name']}"
         )
 
@@ -468,8 +468,8 @@ def op4_verify(
 
     all_ok = True
     for aba in sorted(active_aliases):
-        in_dec    = "✅" if aba in derived_abas    else "⚠️  ausente"
-        in_payoff = "✅" if aba in derived_payoff  else "⚠️  ausente"
+        in_dec    = "[OK]" if aba in derived_abas    else "[AVISO]  ausente"
+        in_payoff = "[OK]" if aba in derived_payoff  else "[AVISO]  ausente"
         if "ausente" in in_dec or "ausente" in in_payoff:
             all_ok = False
         print(f"    aba='{aba}'  decisions={in_dec}  payoff={in_payoff}")
@@ -477,20 +477,20 @@ def op4_verify(
     if not all_ok:
         print()
         log(
-            "Algumas abas não têm dados em derived.db — "
+            "Algumas abas não têm dados em derived.db -- "
             "isso é esperado para as 4 estruturas novas (EMBJ3/PRIO3/SBSP3/SMAL11). "
             "derived.db será atualizado pelo pipeline de análise.",
             "WARN"
         )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # MAIN
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="patch_28 v2 — Migração legado → structures canônico"
+        description="patch_28 v2 -- Migração legado  structures canônico"
     )
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force",   action="store_true")
@@ -498,21 +498,21 @@ def main() -> None:
     dry  = args.dry_run
 
     print()
-    print("╔══════════════════════════════════════════════════════════════╗")
-    print("║  patch_28 v2 — Migração legado → structures canônico        ║")
-    print("╚══════════════════════════════════════════════════════════════╝")
-    print(f"  Modo: {'🔵 DRY-RUN (sem gravação)' if dry else '🟢 REAL (gravará no banco)'}")
+    print("")
+    print("  patch_28 v2 -- Migração legado  structures canônico        ")
+    print("")
+    print(f"  Modo: {'[INFO] DRY-RUN (sem gravação)' if dry else '[OK] REAL (gravará no banco)'}")
     print(f"  app.db:     {APP_DB.resolve()}")
     print(f"  derived.db: {DERIVED_DB.resolve()}")
 
     for path in (APP_DB, DERIVED_DB):
         if not path.exists():
-            print(f"\n❌ {path} não encontrado")
+            print(f"\n[FALHOU] {path} não encontrado")
             sys.exit(1)
 
     if not dry and not args.force:
         print()
-        print("  ⚠️  Esta operação irá:")
+        print("  [AVISO]  Esta operação irá:")
         print("      1. Deletar 34 duplicatas de structures")
         print("      2. Criar 4 novas structures (EMBJ3, PRIO3, SBSP3, SMAL11)")
         print("      3. Substituir todas as structure_legs com dados do legado")
@@ -539,14 +539,14 @@ def main() -> None:
 
         print()
         if dry:
-            print("  🔵 DRY-RUN concluído — execute sem --dry-run para aplicar")
+            print("  [INFO] DRY-RUN concluído -- execute sem --dry-run para aplicar")
         else:
-            print("  ✅ patch_28 aplicado com sucesso")
+            print("  [OK] patch_28 aplicado com sucesso")
             print(f"  Backup disponível em: {BACKUP_DIR}/")
 
     except Exception as exc:
-        print(f"\n  ❌ Erro: {exc}")
-        print("  Transação revertida — banco intacto.")
+        print(f"\n  [FALHOU] Erro: {exc}")
+        print("  Transação revertida -- banco intacto.")
         import traceback
         traceback.print_exc()
         sys.exit(1)

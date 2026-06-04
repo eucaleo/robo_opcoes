@@ -1,5 +1,5 @@
 """
-patch_50b — teste estático de boundary do legacy bridge.
+patch_50b -- teste estático de boundary do legacy bridge.
 
 Correção dos 3 testes que falhavam porque services.robo_legs_service
 existe no disco: a remoção de sys.modules não basta para simular ausência.
@@ -91,11 +91,11 @@ def _mock_infra_dependencies(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Testes — bridge AUSENTE
+# Testes -- bridge AUSENTE
 # ---------------------------------------------------------------------------
 
 class TestBoundaryBridgeAusente:
-    """Bridge RTD não instalado — sistema deve degradar graciosamente."""
+    """Bridge RTD não instalado -- sistema deve degradar graciosamente."""
 
     def test_instancia_sem_bridge(self, _mock_infra_dependencies):
         with _bridge_ausente():
@@ -124,7 +124,7 @@ class TestBoundaryBridgeAusente:
     ):
         """
         Quando o bridge não existe o fallback deve retornar legs=[]
-        com algum fallback_reason. NÃO exigimos string específica —
+        com algum fallback_reason. NÃO exigimos string específica --
         o contrato é: legs vazio, meta com chave 'fallback_reason'.
         """
         with _bridge_ausente():
@@ -143,11 +143,11 @@ class TestBoundaryBridgeAusente:
 
 
 # ---------------------------------------------------------------------------
-# Testes — bridge PRESENTE (módulo real no disco)
+# Testes -- bridge PRESENTE (módulo real no disco)
 # ---------------------------------------------------------------------------
 
 class TestBoundaryBridgePresente:
-    """Bridge RTD instalado (módulo real) — deve ser usado sem exceção."""
+    """Bridge RTD instalado (módulo real) -- deve ser usado sem exceção."""
 
     def test_instancia_com_bridge_disponivel(self, _mock_infra_dependencies):
         # Força reload para garantir que pega o módulo real
@@ -170,7 +170,7 @@ class TestBoundaryBridgePresente:
 
 
 # ---------------------------------------------------------------------------
-# Testes — injeção explícita
+# Testes -- injeção explícita
 # ---------------------------------------------------------------------------
 
 class TestBoundaryInjecaoExplicita:

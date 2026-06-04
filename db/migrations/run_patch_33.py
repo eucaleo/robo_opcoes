@@ -15,7 +15,7 @@ import sys
 
 
 SQL_STEPS = [
-    # ── payoff_curve_points ────────────────────────────────────────────────
+    #  payoff_curve_points 
     (
         "payoff_curve_points: verificar se structure_id já existe",
         None,  # tratado especialmente abaixo
@@ -44,7 +44,7 @@ SQL_STEPS = [
             ON payoff_curve_points (structure_id, timestamp)
         """,
     ),
-    # ── payoff_curve_summary ───────────────────────────────────────────────
+    #  payoff_curve_summary 
     (
         "payoff_curve_summary: ADD COLUMN structure_id",
         "ALTER TABLE payoff_curve_summary ADD COLUMN structure_id INTEGER",
@@ -92,7 +92,7 @@ def run(db_path: pathlib.Path):
                 if "ADD COLUMN structure_id" in (sql or ""):
                     table = label.split(":")[0].strip()
                     if col_exists(conn, table, "structure_id"):
-                        print(f"  [SKIP] {label} — coluna já existe")
+                        print(f"  [SKIP] {label} -- coluna já existe")
                         continue
 
                 if sql is None:
@@ -102,7 +102,7 @@ def run(db_path: pathlib.Path):
                 conn.execute(sql)
 
         # Verificação pós-migration
-        print("\n── Verificação ──")
+        print("\n Verificação ")
         for table in ("payoff_curve_points", "payoff_curve_summary"):
             rows = conn.execute(
                 f"SELECT COUNT(*) AS total, "

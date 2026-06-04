@@ -1,5 +1,5 @@
 """
-Smoke test patch_10 — Structures API (FastAPI local)
+Smoke test patch_10 -- Structures API (FastAPI local)
 Pré-requisito: servidor rodando em http://localhost:8000
 Execute em terminal separado:
     uvicorn main:app --reload --port 8000
@@ -21,10 +21,10 @@ FAIL = 0
 def check(label: str, condition: bool, detail: str = ""):
     global OK, FAIL
     if condition:
-        print(f"  ✓ {label}")
+        print(f"   {label}")
         OK += 1
     else:
-        print(f"  ✗ {label}  ← {detail}")
+        print(f"  [x] {label}   {detail}")
         FAIL += 1
 
 
@@ -32,7 +32,7 @@ def section(title: str):
     print(f"\n{SEP}\n{title}\n{SEP}")
 
 
-# ── helpers ───────────────────────────────────────────────────
+#  helpers 
 
 def post(path, payload):
     return requests.post(f"{BASE}{path}", json=payload)
@@ -44,10 +44,10 @@ def put(path, payload):
     return requests.put(f"{BASE}{path}", json=payload)
 
 
-# ── testes ────────────────────────────────────────────────────
+#  testes 
 
 def test_create_valid():
-    section("1. CREATE — válido")
+    section("1. CREATE -- válido")
     r = post("/structures", {
         "name": "BOVA11 Condor Teste",
         "underlying_asset": "BOVA11",
@@ -63,7 +63,7 @@ def test_create_valid():
 
 
 def test_create_invalid():
-    section("2. CREATE — inválido (name vazio)")
+    section("2. CREATE -- inválido (name vazio)")
     r = post("/structures", {
         "name": "",
         "underlying_asset": "BOVA11"
@@ -81,7 +81,7 @@ def test_get(structure_id: int):
 
 
 def test_get_not_found():
-    section("4. GET — not found")
+    section("4. GET -- not found")
     r = get("/structures/999999")
     check("status 404", r.status_code == 404, r.text)
 
@@ -97,7 +97,7 @@ def test_list():
 
 
 def test_list_filter(structure_id: int):
-    section("6. LIST — filtro por underlying_asset")
+    section("6. LIST -- filtro por underlying_asset")
     r = get("/structures", {"underlying_asset": "BOVA11"})
     check("status 200", r.status_code == 200, r.text)
     data = r.json()
@@ -128,7 +128,7 @@ def test_add_leg(structure_id: int):
 
 
 def test_add_leg_invalid(structure_id: int):
-    section("9. ADD LEG — inválido (position_side errado)")
+    section("9. ADD LEG -- inválido (position_side errado)")
     r = post(f"/structures/{structure_id}/legs", {
         "position_side": "COMPRA",
         "option_type": "CALL",
@@ -173,7 +173,7 @@ def test_archive(structure_id: int):
 
 
 def test_list_archived(structure_id: int):
-    section("12. LIST — include_archived=true")
+    section("12. LIST -- include_archived=true")
     r = get("/structures", {"include_archived": "true"})
     check("status 200", r.status_code == 200, r.text)
     data = r.json()
@@ -181,18 +181,18 @@ def test_list_archived(structure_id: int):
     check("estrutura arquivada aparece", structure_id in ids)
 
 
-# ── main ──────────────────────────────────────────────────────
+#  main 
 
 def main():
     print(SEP)
-    print("SMOKE — patch_10: Structures API")
+    print("SMOKE -- patch_10: Structures API")
     print(SEP)
 
     # verifica servidor
     try:
         requests.get(BASE, timeout=3)
     except Exception:
-        print(f"\n❌  Servidor não está rodando em {BASE}")
+        print(f"\n[FALHOU]  Servidor não está rodando em {BASE}")
         print("    Execute em outro terminal:")
         print("    uvicorn main:app --reload --port 8000\n")
         sys.exit(1)
@@ -212,10 +212,10 @@ def main():
         test_archive(sid)
         test_list_archived(sid)
     else:
-        print("\n⚠  CREATE falhou — pulando testes dependentes")
+        print("\n[AVISO]  CREATE falhou -- pulando testes dependentes")
 
     print(f"\n{SEP}")
-    print(f"RESULTADO: {OK} ✓  {FAIL} ✗")
+    print(f"RESULTADO: {OK}   {FAIL} [x]")
     print(SEP)
     sys.exit(0 if FAIL == 0 else 1)
 

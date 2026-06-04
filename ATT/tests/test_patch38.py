@@ -1,6 +1,6 @@
 # ATT/tests/test_patch38.py
 # Testes formais do patch_38
-# Polish pós-patch_37 — get_structures() lazy-load consolidado;
+# Polish pós-patch_37 -- get_structures() lazy-load consolidado;
 # comentário regex corrigido
 
 import os
@@ -20,14 +20,14 @@ def _read(path):
 
 
 class TestPatch38UIDataExists(unittest.TestCase):
-    """Check 1 — UI/models/ui_data.py existe"""
+    """Check 1 -- UI/models/ui_data.py existe"""
 
     def test_ui_data_existe(self):
         self.assertTrue(os.path.isfile(UI_DATA), "UI/models/ui_data.py não encontrado")
 
 
 class TestPatch38LazyLoad(unittest.TestCase):
-    """Checks 2 e 3 — get_structures() com lazy-load e _cache_structures"""
+    """Checks 2 e 3 -- get_structures() com lazy-load e _cache_structures"""
 
     @classmethod
     def setUpClass(cls):
@@ -49,7 +49,7 @@ class TestPatch38LazyLoad(unittest.TestCase):
 
 
 class TestPatch38SemResiduos(unittest.TestCase):
-    """Checks 4 e 5 — sem resíduos _cache_abas / self.abas"""
+    """Checks 4 e 5 -- sem resíduos _cache_abas / self.abas"""
 
     @classmethod
     def setUpClass(cls):
@@ -71,7 +71,7 @@ class TestPatch38SemResiduos(unittest.TestCase):
 
 
 class TestPatch38PatchesMd(unittest.TestCase):
-    """Checks 6, 7 e 8 — ATT/PATCHES.md existe e registra patch_37 e patch_38"""
+    """Checks 6, 7 e 8 -- ATT/PATCHES.md existe e registra patch_37 e patch_38"""
 
     @classmethod
     def setUpClass(cls):
@@ -96,10 +96,10 @@ class TestPatch38PatchesMd(unittest.TestCase):
 
 
 class TestPatch38BackupGerado(unittest.TestCase):
-    """Check 9 — backup ui_data.py.bak_p38_* gerado"""
+    """Check 9 -- backup ui_data.py.bak_p38_* gerado"""
 
     def test_backup_nao_existe(self):
-        """Nenhum .bak_p38 deve existir — removidos em chore 1bbe32e.
+        """Nenhum .bak_p38 deve existir -- removidos em chore 1bbe32e.
         Repo usa git para historico; backups manuais sao proibidos.
         """
         models_dir = os.path.join(ROOT, "UI", "models")

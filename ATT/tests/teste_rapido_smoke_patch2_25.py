@@ -1,21 +1,21 @@
 # ATT/tests/teste_rapido_smoke_patch2_25.py
 """
-Smoke tests — patch_25
+Smoke tests -- patch_25
 Cobertura:
   [S01] Provider retorna contrato completo (5 campos obrigatórios)
   [S02] Provider falha para ativo desconhecido
   [S03] Provider usa reference_date injetada
   [S04] Provider infere reference_date via today_provider
-  [S05] _resolve_snapshot sem selector → legs vêm do provider (lista vazia)
-  [S06] _resolve_snapshot com selector e aba → legs vêm do selector
-  [S07] _resolve_snapshot com selector mas sem aba → legs do provider
-  [S08] _resolve_snapshot com selector → snapshot_source correto no meta
+  [S05] _resolve_snapshot sem selector  legs vêm do provider (lista vazia)
+  [S06] _resolve_snapshot com selector e aba  legs vêm do selector
+  [S07] _resolve_snapshot com selector mas sem aba  legs do provider
+  [S08] _resolve_snapshot com selector  snapshot_source correto no meta
   [S09] snapshot final sempre tem os 5 campos obrigatórios do assembler
-  [S10] build_structure_market_input → meta contém reference_date
-  [S11] build_structure_market_input → meta contém snapshot_source
-  [S12] build_structure_market_input → structure not found levanta ValueError
+  [S10] build_structure_market_input  meta contém reference_date
+  [S11] build_structure_market_input  meta contém snapshot_source
+  [S12] build_structure_market_input  structure not found levanta ValueError
   [S13] _resolve_legs_via_selector serializa todos os 23 campos de LegMarketSnapshot
-  [S14] _resolve_legs_via_selector → manual_overrides refletidos no meta
+  [S14] _resolve_legs_via_selector  manual_overrides refletidos no meta
   [S15] _reference_date_from_legs retorna None se legs sem timestamp
   [S16] _reference_date_from_legs retorna YYYY-MM-DD do timestamp mais recente
   [S17] SnapshotSource.MANUAL serializado como string "manual" na leg
@@ -31,10 +31,10 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-# ── domínio ───────────────────────────────────────────────────────────────────
+#  domínio 
 from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
 
-# ── serviços ──────────────────────────────────────────────────────────────────
+#  serviços 
 from services.canonical_input_service import CanonicalInputService
 from services.market_snapshot_provider import MarketSnapshotProvider
 from services.market_snapshot_selector import (
@@ -43,9 +43,9 @@ from services.market_snapshot_selector import (
 )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # Constantes de teste
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 _ASSET       = "PETR4"
 _ABA         = "PETR4_TEST"
@@ -77,9 +77,9 @@ _ASSEMBLER_REQUIRED_FIELDS = {
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # Factories
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 def _leg(
     ativo: str = "PETR4C37",
@@ -187,9 +187,9 @@ def _assembled_stub() -> dict:
     }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [S01–S04] MarketSnapshotProvider
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# [S01-S04] MarketSnapshotProvider
+# 
 
 class TestMarketSnapshotProvider:
 
@@ -214,14 +214,14 @@ class TestMarketSnapshotProvider:
         assert snap["reference_date"] == "2025-01-15"
 
     def test_s04_infere_reference_date_via_today_provider(self):
-        """[S04] Sem reference_date → usa today_provider."""
+        """[S04] Sem reference_date  usa today_provider."""
         snap = _provider().get_snapshot(_ASSET)
         assert snap["reference_date"] == _FIXED_DATE
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [S05–S09] _resolve_snapshot
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# [S05-S09] _resolve_snapshot
+# 
 
 class TestResolveSnapshot:
 
@@ -229,7 +229,7 @@ class TestResolveSnapshot:
         return {"underlying_asset": _ASSET, "alias_legacy_aba": aba}
 
     def test_s05_sem_selector_legs_vem_do_provider(self):
-        """[S05] Sem selector → legs = [] e source = provider_legacy."""
+        """[S05] Sem selector  legs = [] e source = provider_legacy."""
         svc = _service(selector=None)
         snap, meta = svc._resolve_snapshot(self._structure(), _FIXED_DATE)
 
@@ -237,7 +237,7 @@ class TestResolveSnapshot:
         assert meta["snapshot_source"] == "provider_legacy"
 
     def test_s06_com_selector_e_aba_legs_vem_do_selector(self):
-        """[S06] Com selector e aba válida → legs serializadas do selector."""
+        """[S06] Com selector e aba válida  legs serializadas do selector."""
         leg = _leg()
         sel = _mock_selector(_selection(legs=[leg]))
         svc = _service(selector=sel)
@@ -249,7 +249,7 @@ class TestResolveSnapshot:
         sel.select.assert_called_once_with(_ABA)
 
     def test_s07_com_selector_mas_sem_aba_usa_provider(self):
-        """[S07] Selector presente mas aba=None → selector NÃO é chamado."""
+        """[S07] Selector presente mas aba=None  selector NÃO é chamado."""
         sel = _mock_selector(_selection())
         svc = _service(selector=sel, aba=None)
 
@@ -276,9 +276,9 @@ class TestResolveSnapshot:
             assert not missing, f"Campos faltando (selector={selector}): {missing}"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [S10–S12] build_structure_market_input
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# [S10-S12] build_structure_market_input
+# 
 
 class TestBuildStructureMarketInput:
 
@@ -305,7 +305,7 @@ class TestBuildStructureMarketInput:
         assert "snapshot_source" in result["meta"]
 
     def test_s12_structure_not_found_levanta_valueerror(self):
-        """[S12] structure_id inexistente → ValueError com mensagem clara."""
+        """[S12] structure_id inexistente  ValueError com mensagem clara."""
         repo = MagicMock()
         repo.get_structure.return_value = None
         svc = _service(repo=repo)
@@ -314,9 +314,9 @@ class TestBuildStructureMarketInput:
             svc.build_structure_market_input(999)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [S13–S14] _resolve_legs_via_selector
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# [S13-S14] _resolve_legs_via_selector
+# 
 
 class TestResolveLegsViaSelector:
 
@@ -348,14 +348,14 @@ class TestResolveLegsViaSelector:
         assert meta["snapshot_aba"]    == _ABA
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [S15–S16] _reference_date_from_legs
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# [S15-S16] _reference_date_from_legs
+# 
 
 class TestReferenceDateFromLegs:
 
     def test_s15_retorna_none_se_sem_timestamp(self):
-        """[S15] Todas as legs sem timestamp → retorna None."""
+        """[S15] Todas as legs sem timestamp  retorna None."""
         legs = [_leg(timestamp=None), _leg(timestamp=None)]
         assert CanonicalInputService._reference_date_from_legs(legs) is None
 
@@ -363,20 +363,20 @@ class TestReferenceDateFromLegs:
         """[S16] Retorna YYYY-MM-DD do max(timestamps)."""
         legs = [
             _leg(timestamp="2025-05-20 00:00:00"),
-            _leg(timestamp="2025-05-28 14:30:00"),  # ← mais recente
+            _leg(timestamp="2025-05-28 14:30:00"),  #  mais recente
             _leg(timestamp="2025-05-25 08:00:00"),
         ]
         assert CanonicalInputService._reference_date_from_legs(legs) == "2025-05-28"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# [S17–S20] Edge cases
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# [S17-S20] Edge cases
+# 
 
 class TestEdgeCases:
 
     def test_s17_source_manual_serializado_como_string(self):
-        """[S17] source=MANUAL → serializado como 'manual' (não como Enum)."""
+        """[S17] source=MANUAL  serializado como 'manual' (não como Enum)."""
         sel = _mock_selector(_selection(
             source = SnapshotSource.MANUAL,
             legs   = [_leg(source=SnapshotSource.MANUAL)],
@@ -389,7 +389,7 @@ class TestEdgeCases:
         assert isinstance(legs_list[0]["source"], str)
 
     def test_s18_source_rtd_serializado_como_string(self):
-        """[S18] source=RTD → serializado como 'rtd' (não como Enum)."""
+        """[S18] source=RTD  serializado como 'rtd' (não como Enum)."""
         sel = _mock_selector(_selection(legs=[_leg(source=SnapshotSource.RTD)]))
         svc = _service(selector=sel)
 
@@ -399,7 +399,7 @@ class TestEdgeCases:
         assert isinstance(legs_list[0]["source"], str)
 
     def test_s19_selector_nao_chamado_para_aba_vazia(self):
-        """[S19] aba='' (string vazia) → trata como ausente, selector não chamado."""
+        """[S19] aba='' (string vazia)  trata como ausente, selector não chamado."""
         sel = _mock_selector(_selection())
         svc = _service(selector=sel, aba="")
 
@@ -410,7 +410,7 @@ class TestEdgeCases:
         assert meta["snapshot_source"] == "provider_legacy"
 
     def test_s20_resolve_legs_com_zero_legs_retorna_lista_vazia(self):
-        """[S20] Selector retorna 0 legs → lista vazia e meta válido."""
+        """[S20] Selector retorna 0 legs  lista vazia e meta válido."""
         sel = _mock_selector(_selection(legs=[]))
         svc = _service(selector=sel)
 

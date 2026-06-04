@@ -1,16 +1,16 @@
 # scripts/63_smoke_canonical_with_snapshot.py
 """
-patch_14 — Smoke: CanonicalInputService consome MarketSnapshotSelector.
+patch_14 -- Smoke: CanonicalInputService consome MarketSnapshotSelector.
 
 Cenários cobertos:
-  1. Selector injetado + aba presente → snapshot via selector (manual>rtd)
-  2. Selector injetado + aba ausente  → fallback para provider legado
-  3. Selector NÃO injetado           → comportamento original (provider legado)
+  1. Selector injetado + aba presente  snapshot via selector (manual>rtd)
+  2. Selector injetado + aba ausente   fallback para provider legado
+  3. Selector NÃO injetado            comportamento original (provider legado)
   4. Fonte RTD (sem manual override)
-  5. structure_id inválido           → ValueError
+  5. structure_id inválido            ValueError
 """
-
 from __future__ import annotations
+
 
 import sys
 import os
@@ -109,11 +109,11 @@ def _make_assembler_patch(assembled_value: dict):
 
 
 # ---------------------------------------------------------------------------
-# Cenário 1: selector injetado + aba presente → snapshot via selector
+# Cenário 1: selector injetado + aba presente  snapshot via selector
 # ---------------------------------------------------------------------------
 
 def test_cenario_1_selector_com_aba():
-    print("\n[1] Selector injetado + aba presente → snapshot via selector (manual>rtd)")
+    print("\n[1] Selector injetado + aba presente  snapshot via selector (manual>rtd)")
 
     structure  = _make_structure(aba="PETR4")
     sel_result = _make_selector_result("PETR4", SnapshotSource.MANUAL, with_override=True)
@@ -146,15 +146,15 @@ def test_cenario_1_selector_com_aba():
     print(f"   snapshot_source  : {meta['snapshot_source']}")
     print(f"   is_manual_first  : {meta['is_manual_first']}")
     print(f"   manual_overrides : {meta['manual_overrides']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
-# Cenário 2: selector injetado + aba AUSENTE → fallback para provider legado
+# Cenário 2: selector injetado + aba AUSENTE  fallback para provider legado
 # ---------------------------------------------------------------------------
 
 def test_cenario_2_selector_sem_aba():
-    print("\n[2] Selector injetado + aba ausente → fallback para provider legado")
+    print("\n[2] Selector injetado + aba ausente  fallback para provider legado")
 
     structure = _make_structure(aba=None)
 
@@ -180,15 +180,15 @@ def test_cenario_2_selector_sem_aba():
         f"Esperado 'provider_legacy', obtido: {meta.get('snapshot_source')}"
 
     print(f"   snapshot_source : {meta['snapshot_source']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
-# Cenário 3: selector NÃO injetado → comportamento original
+# Cenário 3: selector NÃO injetado  comportamento original
 # ---------------------------------------------------------------------------
 
 def test_cenario_3_sem_selector():
-    print("\n[3] Selector NÃO injetado → comportamento original (provider legado)")
+    print("\n[3] Selector NÃO injetado  comportamento original (provider legado)")
 
     structure = _make_structure(aba="PETR4")
 
@@ -212,7 +212,7 @@ def test_cenario_3_sem_selector():
         f"Esperado 'provider_legacy', obtido: {meta.get('snapshot_source')}"
 
     print(f"   snapshot_source : {meta['snapshot_source']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
@@ -250,7 +250,7 @@ def test_cenario_4_selector_fonte_rtd():
     print(f"   snapshot_source  : {meta['snapshot_source']}")
     print(f"   is_manual_first  : {meta['is_manual_first']}")
     print(f"   manual_overrides : {meta['manual_overrides']}")
-    print("   ✅ OK")
+    print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
@@ -258,7 +258,7 @@ def test_cenario_4_selector_fonte_rtd():
 # ---------------------------------------------------------------------------
 
 def test_cenario_5_structure_not_found():
-    print("\n[5] structure_id inválido → ValueError")
+    print("\n[5] structure_id inválido  ValueError")
 
     repo = MagicMock()
     repo.get_structure.return_value = None
@@ -270,11 +270,11 @@ def test_cenario_5_structure_not_found():
 
     try:
         svc.build_structure_market_input(structure_id=9999)
-        print("   ❌ FALHOU — deveria ter levantado ValueError")
+        print("   [FALHOU] FALHOU -- deveria ter levantado ValueError")
         sys.exit(1)
     except ValueError as exc:
         print(f"   ValueError: {exc}")
-        print("   ✅ OK")
+        print("   [OK] OK")
 
 
 # ---------------------------------------------------------------------------
@@ -283,7 +283,7 @@ def test_cenario_5_structure_not_found():
 
 def main():
     print("=" * 60)
-    print("  SMOKE patch_14 — CanonicalInputService + MarketSnapshotSelector")
+    print("  SMOKE patch_14 -- CanonicalInputService + MarketSnapshotSelector")
     print("=" * 60)
 
     tests = [
@@ -299,14 +299,14 @@ def main():
         try:
             t()
         except Exception as exc:
-            print(f"   ❌ EXCEÇÃO: {exc}")
+            print(f"   [FALHOU] EXCEÇÃO: {exc}")
             failed += 1
 
     print("\n" + "=" * 60)
     if failed == 0:
-        print(f"  Resultado: {len(tests)}/{len(tests)} cenários OK ✅")
+        print(f"  Resultado: {len(tests)}/{len(tests)} cenários OK [OK]")
     else:
-        print(f"  Resultado: {failed} cenário(s) FALHARAM ❌")
+        print(f"  Resultado: {failed} cenário(s) FALHARAM [FALHOU]")
         sys.exit(1)
     print("=" * 60)
 

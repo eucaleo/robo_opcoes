@@ -1,5 +1,5 @@
 """
-test_patch54 — 18 checks cobrindo:
+test_patch54 -- 18 checks cobrindo:
   - migração de schema (idempotência)
   - StructureRef.from_aba() com e sem lookup
   - StructureRef.from_id()
@@ -13,7 +13,7 @@ import sqlite3
 import tempfile
 import unittest
 
-# ── Ajuste de path para encontrar src/ ────────────────────────────────────────
+#  Ajuste de path para encontrar src/ 
 import sys
 _ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, _ROOT)
@@ -27,7 +27,7 @@ from scripts.patch54_migrate_derived_schema import (
 )
 
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
+#  Helpers 
 
 def _make_derived_db(path: str, with_structure_id: bool = False) -> None:
     """Cria derived.db mínimo para testes."""
@@ -76,7 +76,7 @@ def _make_app_db(path: str) -> None:
     conn.close()
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# 
 class TestPatch54SchemaMigration(unittest.TestCase):
     """Testa ADD COLUMN idempotente em derived.db."""
 
@@ -156,7 +156,7 @@ class TestPatch54SchemaMigration(unittest.TestCase):
         self.assertIn("idx_decisions_structure_id", nomes)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# 
 class TestPatch54Backfill(unittest.TestCase):
     """Testa backfill structure_id a partir de alias_legacy_aba."""
 
@@ -217,9 +217,9 @@ class TestPatch54Backfill(unittest.TestCase):
         self.assertIn("payoff_curve_points", result)
 
 
-# ══════════════════════════════════════════════════════════════════════════════
+# 
 class TestPatch54StructureRef(unittest.TestCase):
-    """Testa StructureRef — factories, db_column, db_value."""
+    """Testa StructureRef -- factories, db_column, db_value."""
 
     def setUp(self):
         self.tmp = tempfile.mkdtemp()

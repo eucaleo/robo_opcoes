@@ -1,5 +1,5 @@
 """
-Testes do patch_45 — CalculationRequest canônico.
+Testes do patch_45 -- CalculationRequest canônico.
 """
 import os
 import sys
@@ -103,7 +103,7 @@ class TestPatch45ContratoDomain(unittest.TestCase):
             _make_leg(expiration_date="18/07/2026")
 
     def test_dto_e_imutavel(self):
-        """frozen=True — atribuição deve levantar FrozenInstanceError."""
+        """frozen=True -- atribuição deve levantar FrozenInstanceError."""
         leg = _make_leg()
         with self.assertRaises(Exception):
             leg.strike = 999.0  # type: ignore

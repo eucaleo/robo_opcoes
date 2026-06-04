@@ -20,9 +20,9 @@ TARGET_FILES = [
     "infrastructure/db.py",
 ]
 
-# ──────────────────────────────────────────────
+# 
 # AST visitor: detecta conn.close() fora de finally
-# ──────────────────────────────────────────────
+# 
 class ConnCloseChecker(ast.NodeVisitor):
     def __init__(self, source: str):
         self.source = source
@@ -46,7 +46,7 @@ class ConnCloseChecker(ast.NodeVisitor):
         self._in_finally = prev
 
     def visit_With(self, node: ast.With):
-        """with conn: é padrão seguro — não reporta."""
+        """with conn: é padrão seguro -- não reporta."""
         self.generic_visit(node)
 
     def visit_Expr(self, node: ast.Expr):
@@ -68,9 +68,9 @@ class ConnCloseChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-# ──────────────────────────────────────────────
+# 
 # Verifica também uso de context manager
-# ──────────────────────────────────────────────
+# 
 def uses_context_manager(source: str) -> bool:
     """Retorna True se o arquivo usa 'with ... as conn' (padrão seguro)."""
     try:
@@ -86,9 +86,9 @@ def uses_context_manager(source: str) -> bool:
     return False
 
 
-# ──────────────────────────────────────────────
+# 
 # Runner principal
-# ──────────────────────────────────────────────
+# 
 def verify_file(rel_path: str) -> dict:
     path = ROOT / rel_path
     result = {
@@ -96,7 +96,7 @@ def verify_file(rel_path: str) -> dict:
         "exists": path.exists(),
         "issues": [],
         "uses_context_manager": False,
-        "status": "⬜ NÃO ENCONTRADO",
+        "status": " NÃO ENCONTRADO",
     }
 
     if not path.exists():
@@ -114,25 +114,25 @@ def verify_file(rel_path: str) -> dict:
         result["issues"] = [{"line": 0, "col": 0, "code": f"SyntaxError: {e}"}]
 
     if result["issues"]:
-        result["status"] = "🔴 PROBLEMA DETECTADO"
+        result["status"] = "[ERRO] PROBLEMA DETECTADO"
     elif result["uses_context_manager"]:
-        result["status"] = "✅ OK (context manager)"
+        result["status"] = "[OK] OK (context manager)"
     else:
-        result["status"] = "✅ OK (try/finally)"
+        result["status"] = "[OK] OK (try/finally)"
 
     return result
 
 
 def main():
     print("=" * 60)
-    print("  VERIFICAÇÃO patch_20 — conn.close() safety")
+    print("  VERIFICAÇÃO patch_20 -- conn.close() safety")
     print("=" * 60)
 
     all_ok = True
 
     for rel_path in TARGET_FILES:
         result = verify_file(rel_path)
-        print(f"\n📄 {result['file']}")
+        print(f"\n[ARQUIVO] {result['file']}")
         print(f"   Status : {result['status']}")
 
         if result["uses_context_manager"]:
@@ -141,13 +141,13 @@ def main():
         if result["issues"]:
             all_ok = False
             for issue in result["issues"]:
-                print(f"   ⚠️  Linha {issue['line']}: {issue['code']}")
+                print(f"   [AVISO]  Linha {issue['line']}: {issue['code']}")
 
     print("\n" + "=" * 60)
     if all_ok:
-        print("  ✅ patch_20 CONFIRMADO — nenhum conn.close() exposto")
+        print("  [OK] patch_20 CONFIRMADO -- nenhum conn.close() exposto")
     else:
-        print("  🔴 patch_20 INCOMPLETO — revisar itens acima")
+        print("  [ERRO] patch_20 INCOMPLETO -- revisar itens acima")
     print("=" * 60)
 
     sys.exit(0 if all_ok else 1)

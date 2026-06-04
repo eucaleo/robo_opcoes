@@ -347,7 +347,7 @@ def check_derived_identity_surface() -> CheckResult:
 
 def build_markdown_report(results: list[CheckResult]) -> str:
     lines: list[str] = []
-    lines.append("# Phase 3C — Initial Conference Report")
+    lines.append("# Phase 3C -- Initial Conference Report")
     lines.append("")
     lines.append(f"Generated at: `{_utc_now_iso()}`")
     lines.append("")

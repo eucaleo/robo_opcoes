@@ -1,6 +1,6 @@
 # tests/test_patch36_main_window.py
 """
-Testes Patch_36 — main_window.py
+Testes Patch_36 -- main_window.py
 Verifica que MainWindow opera por structure_id (sem fallback aba).
 """
 import sys
@@ -10,17 +10,17 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch, call
 
-# ── 1. RAIZ DO PROJETO ────────────────────────────────────────────────────────
+#  1. RAIZ DO PROJETO 
 RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ))
 
-# ── 2. PURGA cache ────────────────────────────────────────────────────────────
+#  2. PURGA cache 
 for _m in list(sys.modules):
     if _m.startswith(("tkinter", "UI.main_window", "UI.components", "UI.dialogs")):
         sys.modules.pop(_m, None)
 
 
-# ── 3. FAKE TKINTER ───────────────────────────────────────────────────────────
+#  3. FAKE TKINTER 
 
 class _W:
     def __init__(self, *a, **kw): pass
@@ -195,7 +195,7 @@ def _install_fake_tk():
 _install_fake_tk()
 
 
-# # ── 4. PRÉ-IMPORTA UI.main_window ────────────────────────────────────────────
+# #  4. PRÉ-IMPORTA UI.main_window 
 _PATCH_TARGETS = [
     "UIDataModel", "FiltersPanel", "DecisionsGrid",
     "DetailsPanel", "PayoffChart", "StructuresListPanel",
@@ -213,7 +213,7 @@ except Exception as _exc:
     _mw_mod = _mw_stub
 
 
-# ── 5. HELPER: descobre o nome real de um método ─────────────────────────────
+#  5. HELPER: descobre o nome real de um método 
 
 def _find_method(cls, *candidates):
     """
@@ -223,16 +223,16 @@ def _find_method(cls, *candidates):
     for name in candidates:
         if callable(getattr(cls, name, None)):
             return name
-    return candidates[0]  # nome preferido — o teste vai falhar com mensagem clara
+    return candidates[0]  # nome preferido -- o teste vai falhar com mensagem clara
 
 
-# ── 6. FIXTURE ────────────────────────────────────────────────────────────────
+#  6. FIXTURE 
 
 @pytest.fixture
 def win():
     import importlib
 
-    # ── Limpa qualquer resíduo de fake-tkinter de outros testes ──
+    #  Limpa qualquer resíduo de fake-tkinter de outros testes 
     # patch35 injeta fakes sem _W; patch36 precisa dos seus próprios fakes
     _mw_key = "UI.main_window"
     _current = sys.modules.get(_mw_key)
@@ -245,10 +245,10 @@ def win():
             for _k in [k for k in sys.modules if k.startswith("UI.")]:
                 sys.modules.pop(_k, None)
 
-    # ── Garante fake tkinter do patch36 (reinstala se patch35 sobrescreveu) ──
+    #  Garante fake tkinter do patch36 (reinstala se patch35 sobrescreveu) 
     _install_fake_tk()
 
-    # ── Agora importa o módulo real ──
+    #  Agora importa o módulo real 
     import UI.main_window
     from UI.main_window import MainWindow
 
@@ -262,7 +262,7 @@ def win():
     w = MainWindow.__new__(MainWindow)
     w.root = MagicMock()
 
-    # ── estado interno ──
+    #  estado interno 
     w._recalc_in_progress          = False
     w._payoff_worker_id            = 0
     w._loading_payoff              = False
@@ -271,7 +271,7 @@ def win():
     w._loading_animation_index     = 0
     w.last_selected_decision       = None
 
-    # ── componentes mock ──
+    #  componentes mock 
     w.data_model     = MagicMock()
     w.filters_panel  = MagicMock()
     w.decisions_grid = MagicMock()
@@ -279,7 +279,7 @@ def win():
     w.payoff_chart   = MagicMock()
     w.status_bar     = MagicMock()
 
-    # ── descobre nomes reais dos métodos ──
+    #  descobre nomes reais dos métodos 
     cls = type(w)
     w._method_map = {
         "recalculate_structure": _find_method(
@@ -301,7 +301,7 @@ def win():
     for p in patches:
         p.stop()
 
-    # ── Teardown: limpa UI.main_window para não vazar para próximos testes ──
+    #  Teardown: limpa UI.main_window para não vazar para próximos testes 
     for _k in [k for k in sys.modules if k.startswith("UI.")]:
         sys.modules.pop(_k, None)
 
@@ -326,7 +326,7 @@ class TestRecalculateAbaRemovido:
     def test_metodo_nao_existe(self, win):
         """patch_36: recalculate_aba deve ter sido removido da MainWindow."""
         assert not hasattr(win, "recalculate_aba"), (
-            "recalculate_aba() ainda existe — deve ser removido no patch_36"
+            "recalculate_aba() ainda existe -- deve ser removido no patch_36"
         )
 
 
@@ -377,7 +377,7 @@ class TestRecalculateStructure:
 
 
 # ===========================================================================
-# 3. refresh_data — sem fallback aba
+# 3. refresh_data -- sem fallback aba
 # ===========================================================================
 
 class TestRefreshDataSemAba:
@@ -433,7 +433,7 @@ class TestRefreshDataSemAba:
 
 
 # ===========================================================================
-# 4. on_decision_selected — sem fallback aba
+# 4. on_decision_selected -- sem fallback aba
 # ===========================================================================
 
 class TestOnDecisionSelectedSemAba:
@@ -446,7 +446,7 @@ class TestOnDecisionSelectedSemAba:
         assert mock_payoff.call_args[0][0] == 10
 
     def test_nao_usa_aba_para_payoff(self, win):
-        """patch_36: sem structure_id → payoff não deve ser carregado."""
+        """patch_36: sem structure_id  payoff não deve ser carregado."""
         with _patch_method(win, "_start_payoff_load") as mock_payoff:
             _call(win, "on_decision_selected",
                   {"aba": "WING", "timestamp": "2025-01-01"})

@@ -2,13 +2,13 @@
 """
 Testes do patch_22.
 
-  patch_22 — Auditoria e validação do bootstrap completo:
-             • pricing_executions no app.db (schema + índices)
-             • PricingExecutionPersistenceService wiring correto
-             • DerivedPayoffPersistence como implementação do port
-             • CanonicalPricingFacade instancia o persister com o port
-             • PricingExecutionsRepository compatível com o schema atual
-             • Nenhum arquivo .json gerado por execuções de pricing
+  patch_22 -- Auditoria e validação do bootstrap completo:
+             * pricing_executions no app.db (schema + índices)
+             * PricingExecutionPersistenceService wiring correto
+             * DerivedPayoffPersistence como implementação do port
+             * CanonicalPricingFacade instancia o persister com o port
+             * PricingExecutionsRepository compatível com o schema atual
+             * Nenhum arquivo .json gerado por execuções de pricing
 
 Execução:
     pytest ATT/tests/test_patch22.py -v
@@ -27,15 +27,15 @@ from unittest.mock import MagicMock, patch
 # helpers de assert simples (sem pytest obrigatório)
 # ---------------------------------------------------------------------------
 
-_PASS = "✅"
-_FAIL = "❌"
+_PASS = "[OK]"
+_FAIL = "[FALHOU]"
 _results: list[tuple[str, bool, str]] = []
 
 
 def _check(name: str, condition: bool, detail: str = "") -> None:
     icon = _PASS if condition else _FAIL
     _results.append((name, condition, detail))
-    print(f"  {icon}  {name}" + (f"  →  {detail}" if detail else ""))
+    print(f"  {icon}  {name}" + (f"    {detail}" if detail else ""))
     if not condition:
         raise AssertionError(f"FALHOU: {name}  {detail}")
 
@@ -79,11 +79,11 @@ def _patch_repo_conn(repo) -> None:
 
 
 # ===========================================================================
-# patch_22 — T1: schema completo no bootstrap
+# patch_22 -- T1: schema completo no bootstrap
 # ===========================================================================
 
 def test_patch22_schema_tables_and_indexes() -> None:
-    print("\n── patch_22 / T1: schema — tabelas e índices no bootstrap ──────────")
+    print("\n patch_22 / T1: schema -- tabelas e índices no bootstrap ")
 
     from infra.bootstrap_structures_schema import ensure_structures_schema
 
@@ -107,7 +107,7 @@ def test_patch22_schema_tables_and_indexes() -> None:
         for table in ("structures", "structure_legs", "pricing_executions"):
             _check(f"tabela '{table}' existe", table in tables)
 
-        # índices obrigatórios — pricing_executions
+        # índices obrigatórios -- pricing_executions
         expected_indexes = {
             "idx_pricing_executions_structure_id",
             "idx_pricing_executions_created_at",
@@ -116,7 +116,7 @@ def test_patch22_schema_tables_and_indexes() -> None:
         for idx in expected_indexes:
             _check(f"índice '{idx}' existe", idx in indexes)
 
-        # índices obrigatórios — structures / legs
+        # índices obrigatórios -- structures / legs
         for idx in (
             "idx_structures_underlying_asset",
             "idx_structures_alias_legacy_aba",
@@ -127,11 +127,11 @@ def test_patch22_schema_tables_and_indexes() -> None:
 
 
 # ===========================================================================
-# patch_22 — T2: colunas da tabela pricing_executions
+# patch_22 -- T2: colunas da tabela pricing_executions
 # ===========================================================================
 
 def test_patch22_pricing_executions_columns() -> None:
-    print("\n── patch_22 / T2: colunas da tabela pricing_executions ─────────────")
+    print("\n patch_22 / T2: colunas da tabela pricing_executions ")
 
     from infra.bootstrap_structures_schema import ensure_structures_schema
 
@@ -163,11 +163,11 @@ def test_patch22_pricing_executions_columns() -> None:
 
 
 # ===========================================================================
-# patch_22 — T3: PricingExecutionPersistenceService importável e wiring
+# patch_22 -- T3: PricingExecutionPersistenceService importável e wiring
 # ===========================================================================
 
 def test_patch22_persistence_service_importable() -> None:
-    print("\n── patch_22 / T3: PricingExecutionPersistenceService importável ────")
+    print("\n patch_22 / T3: PricingExecutionPersistenceService importável ")
 
     from services.pricing_execution_persistence_service import (
         PricingExecutionPersistenceService,
@@ -199,11 +199,11 @@ def test_patch22_persistence_service_importable() -> None:
 
 
 # ===========================================================================
-# patch_22 — T4: persist_execution retorna dict com 'record'
+# patch_22 -- T4: persist_execution retorna dict com 'record'
 # ===========================================================================
 
 def test_patch22_persist_execution_returns_record() -> None:
-    print("\n── patch_22 / T4: persist_execution → dict com 'record' ────────────")
+    print("\n patch_22 / T4: persist_execution  dict com 'record' ")
 
     from services.pricing_execution_persistence_service import (
         PricingExecutionPersistenceService,
@@ -250,11 +250,11 @@ def test_patch22_persist_execution_returns_record() -> None:
 
 
 # ===========================================================================
-# patch_22 — T5: port com falha não derruba persist_execution
+# patch_22 -- T5: port com falha não derruba persist_execution
 # ===========================================================================
 
 def test_patch22_port_failure_is_silent() -> None:
-    print("\n── patch_22 / T5: falha no port não propaga exceção ────────────────")
+    print("\n patch_22 / T5: falha no port não propaga exceção ")
 
     from services.pricing_execution_persistence_service import (
         PricingExecutionPersistenceService,
@@ -290,11 +290,11 @@ def test_patch22_port_failure_is_silent() -> None:
 
 
 # ===========================================================================
-# patch_22 — T6: DerivedPayoffPersistence importável
+# patch_22 -- T6: DerivedPayoffPersistence importável
 # ===========================================================================
 
 def test_patch22_derived_payoff_persistence_importable() -> None:
-    print("\n── patch_22 / T6: DerivedPayoffPersistence importável ──────────────")
+    print("\n patch_22 / T6: DerivedPayoffPersistence importável ")
 
     import sys
     from unittest.mock import MagicMock
@@ -321,11 +321,11 @@ def test_patch22_derived_payoff_persistence_importable() -> None:
 
 
 # ===========================================================================
-# patch_22 — T7: DerivedPayoffPersistence.persist() skip em status inelegível
+# patch_22 -- T7: DerivedPayoffPersistence.persist() skip em status inelegível
 # ===========================================================================
 
 def test_patch22_derived_payoff_skip_on_error_status() -> None:
-    print("\n── patch_22 / T7: DerivedPayoffPersistence.persist() skip em erro ──")
+    print("\n patch_22 / T7: DerivedPayoffPersistence.persist() skip em erro ")
 
     import sys
     from unittest.mock import MagicMock
@@ -367,11 +367,11 @@ def test_patch22_derived_payoff_skip_on_error_status() -> None:
 
 
 # ===========================================================================
-# patch_22 — T8: CanonicalPricingFacade injeta DerivedPayoffPersistence
+# patch_22 -- T8: CanonicalPricingFacade injeta DerivedPayoffPersistence
 # ===========================================================================
 
 def test_patch22_facade_injects_derived_payoff_persistence() -> None:
-    print("\n── patch_22 / T8: CanonicalPricingFacade injeta DerivedPayoffPersistence ─")
+    print("\n patch_22 / T8: CanonicalPricingFacade injeta DerivedPayoffPersistence ")
 
     import sys
     from unittest.mock import MagicMock
@@ -405,11 +405,11 @@ def test_patch22_facade_injects_derived_payoff_persistence() -> None:
 
 
 # ===========================================================================
-# patch_22 — T9: idempotência do bootstrap (ensure chamado 2x)
+# patch_22 -- T9: idempotência do bootstrap (ensure chamado 2x)
 # ===========================================================================
 
 def test_patch22_bootstrap_is_idempotent() -> None:
-    print("\n── patch_22 / T9: bootstrap idempotente (IF NOT EXISTS) ────────────")
+    print("\n patch_22 / T9: bootstrap idempotente (IF NOT EXISTS) ")
 
     from infra.bootstrap_structures_schema import ensure_structures_schema
 
@@ -435,11 +435,11 @@ def test_patch22_bootstrap_is_idempotent() -> None:
 
 
 # ===========================================================================
-# patch_22 — T10: nenhum .json gerado em pipeline completo
+# patch_22 -- T10: nenhum .json gerado em pipeline completo
 # ===========================================================================
 
 def test_patch22_no_json_artifact() -> None:
-    print("\n── patch_22 / T10: nenhum .json gerado em save_execution ───────────")
+    print("\n patch_22 / T10: nenhum .json gerado em save_execution ")
 
     with _tmp_dir() as tmp:
         db_path = _make_db(tmp)
@@ -506,7 +506,7 @@ def _run_all() -> None:
             passed += 1
         except Exception as exc:
             failed += 1
-            print(f"  ❌  {t.__name__}: {exc}")
+            print(f"  [FALHOU]  {t.__name__}: {exc}")
 
     print(f"\n{'='*55}")
     print(f"  {passed} passed  |  {failed} failed")

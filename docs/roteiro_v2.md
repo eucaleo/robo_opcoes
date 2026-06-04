@@ -1,4 +1,4 @@
-# Roteiro v2 — Fluxo operacional principal
+# Roteiro v2 -- Fluxo operacional principal
 
 ## 1. Ingestão (pré-pipeline)
 - Origem: exportação por Excel, scripts `bridge_ingest_csv.py`

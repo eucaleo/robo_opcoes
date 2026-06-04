@@ -1,6 +1,6 @@
 # scripts/70_smoke_structure_id_in_derived.py
 """
-patch_32 — Smoke: valida que structure_id chega corretamente
+patch_32 -- Smoke: valida que structure_id chega corretamente
 em structure_decisions após execução via DerivedRepo.
 
 Fluxo testado:
@@ -34,9 +34,9 @@ RED    = "\033[91m"
 YELLOW = "\033[93m"
 RESET  = "\033[0m"
 
-def ok(msg):   print(f"{GREEN}  ✅  {msg}{RESET}")
-def fail(msg): print(f"{RED}  ❌  {msg}{RESET}")
-def warn(msg): print(f"{YELLOW}  ⚠️   {msg}{RESET}")
+def ok(msg):   print(f"{GREEN}  [OK]  {msg}{RESET}")
+def fail(msg): print(f"{RED}  [FALHOU]  {msg}{RESET}")
+def warn(msg): print(f"{YELLOW}  [AVISO]   {msg}{RESET}")
 def info(msg): print(f"       {msg}")
 
 
@@ -89,7 +89,7 @@ def check(label, condition, detail=""):
 
 
 # ---------------------------------------------------------------------------
-# Teste 1 — DerivedRepo importável e instanciável
+# Teste 1 -- DerivedRepo importável e instanciável
 # ---------------------------------------------------------------------------
 
 def test_import_derived_repo():
@@ -105,11 +105,11 @@ def test_import_derived_repo():
 
 
 # ---------------------------------------------------------------------------
-# Teste 2 — write_decision_snapshot_atomic grava structure_id
+# Teste 2 -- write_decision_snapshot_atomic grava structure_id
 # ---------------------------------------------------------------------------
 
 def test_write_with_structure_id():
-    print("\n[2] write_decision_snapshot_atomic — grava structure_id")
+    print("\n[2] write_decision_snapshot_atomic -- grava structure_id")
 
     conn = _make_in_memory_conn()
     ts   = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -177,11 +177,11 @@ def test_write_with_structure_id():
 
 
 # ---------------------------------------------------------------------------
-# Teste 3 — structure_id NULL é aceito (estruturas legado sem id)
+# Teste 3 -- structure_id NULL é aceito (estruturas legado sem id)
 # ---------------------------------------------------------------------------
 
 def test_write_without_structure_id():
-    print("\n[3] write sem structure_id (legado — deve aceitar NULL)")
+    print("\n[3] write sem structure_id (legado -- deve aceitar NULL)")
 
     conn = _make_in_memory_conn()
     ts   = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
@@ -215,11 +215,11 @@ def test_write_without_structure_id():
 
 
 # ---------------------------------------------------------------------------
-# Teste 4 — DerivedRepo real com banco temporário
+# Teste 4 -- DerivedRepo real com banco temporário
 # ---------------------------------------------------------------------------
 
 def test_derived_repo_real():
-    print("\n[4] DerivedRepo real — banco temporário em disco")
+    print("\n[4] DerivedRepo real -- banco temporário em disco")
 
     try:
         from db.derived_repo import DerivedRepo
@@ -278,11 +278,11 @@ def test_derived_repo_real():
 
 
 # ---------------------------------------------------------------------------
-# Teste 5 — _table_columns confirma structure_id presente
+# Teste 5 -- _table_columns confirma structure_id presente
 # ---------------------------------------------------------------------------
 
 def test_table_columns():
-    print("\n[5] _table_columns — confirma colunas structure_id e why")
+    print("\n[5] _table_columns -- confirma colunas structure_id e why")
 
     try:
         from db.derived_repo import DerivedRepo
@@ -296,7 +296,7 @@ def test_table_columns():
             repo = DerivedRepo(db_path=db_path)
 
             if not hasattr(repo, "_table_columns"):
-                warn("_table_columns não encontrado — pulando verificação")
+                warn("_table_columns não encontrado -- pulando verificação")
                 return
 
             cols = repo._table_columns("structure_decisions")
@@ -323,7 +323,7 @@ def test_table_columns():
 
 def main():
     print("=" * 66)
-    print("  SMOKE — patch_32: structure_id em structure_decisions")
+    print("  SMOKE -- patch_32: structure_id em structure_decisions")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 66)
 
@@ -345,7 +345,7 @@ def main():
         print("=" * 66)
         sys.exit(1)
     else:
-        print(f"{GREEN}  RESULTADO: TODOS OS CHECKS PASSARAM ✅{RESET}")
+        print(f"{GREEN}  RESULTADO: TODOS OS CHECKS PASSARAM [OK]{RESET}")
         print("=" * 66)
         sys.exit(0)
 

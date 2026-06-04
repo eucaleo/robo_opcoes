@@ -1,4 +1,4 @@
-# Linha do Tempo v2 — Executado
+# Linha do Tempo v2 -- Executado
 
 ## Scripts/Patches aplicados (sequência reproduzível):
 

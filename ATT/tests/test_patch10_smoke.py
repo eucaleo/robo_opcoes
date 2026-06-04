@@ -1,6 +1,6 @@
-# ATT/tests/test_patch10_smoke.py  ← VERSÃO CORRIGIDA COMPLETA
+# ATT/tests/test_patch10_smoke.py   VERSÃO CORRIGIDA COMPLETA
 """
-Smoke test patch_10 — corrigido para Windows + path ATT/tests/
+Smoke test patch_10 -- corrigido para Windows + path ATT/tests/
 Executar: python -m pytest ATT/tests/test_patch10_smoke.py -v
 """
 import sys
@@ -13,12 +13,12 @@ import importlib
 import importlib.util
 from pathlib import Path
 
-# ── Path fix: sobe 2 níveis (ATT/tests → ATT → projeto raiz) ──
-PROJECT_ROOT = Path(__file__).resolve().parents[2]   # <── era parents[1], agora parents[2]
+#  Path fix: sobe 2 níveis (ATT/tests  ATT  projeto raiz) 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]   # < era parents[1], agora parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 
-# ── Helpers Windows-safe ────────────────────────────────────────
+#  Helpers Windows-safe 
 def _make_tmp_db(schema_sql: str) -> str:
     """Cria DB temporário e retorna o path. Usar _drop_tmp_db() no tearDown."""
     fd, path = tempfile.mkstemp(suffix=".db")
@@ -69,9 +69,9 @@ SCHEMA = """
 """
 
 
-# ─────────────────────────────────────────────────────────────────
+# 
 # 1. Imports
-# ─────────────────────────────────────────────────────────────────
+# 
 class TestImports(unittest.TestCase):
 
     def test_structures_repository_import(self):
@@ -106,9 +106,9 @@ class TestImports(unittest.TestCase):
             self.fail(f"main_window.py falhou ao importar: {e}")
 
 
-# ─────────────────────────────────────────────────────────────────
-# 2. StructuresRepository — CRUD
-# ─────────────────────────────────────────────────────────────────
+# 
+# 2. StructuresRepository -- CRUD
+# 
 class TestStructuresRepository(unittest.TestCase):
 
     def setUp(self):
@@ -123,7 +123,7 @@ class TestStructuresRepository(unittest.TestCase):
         del self._repo
         _drop_tmp_db(self._db_path)
 
-    # ── CREATE ──────────────────────────────────────────────────
+    #  CREATE 
     def test_create_structure_minimal(self):
         sid = self._repo.create_structure({
             "name": "Trava de Alta",
@@ -146,7 +146,7 @@ class TestStructuresRepository(unittest.TestCase):
         self.assertEqual(data["alias_legacy_aba"], "butterfly_vale")
         self.assertEqual(data["status"], "active")
 
-    # ── READ ────────────────────────────────────────────────────
+    #  READ 
     def test_get_structure_retorna_legs(self):
         sid = self._repo.create_structure({"name": "Spread", "underlying_asset": "IBOV"})
         self._repo.replace_legs(sid, [
@@ -181,14 +181,14 @@ class TestStructuresRepository(unittest.TestCase):
         self.assertIn("C", names)
         self.assertIn("D", names)
 
-    # ── UPDATE ──────────────────────────────────────────────────
+    #  UPDATE 
     def test_update_structure(self):
         sid = self._repo.create_structure({"name": "Old Name", "underlying_asset": "X"})
         self._repo.update_structure(sid, {"name": "New Name", "underlying_asset": "X"})
         data = self._repo.get_structure(sid)
         self.assertEqual(data["name"], "New Name")
 
-    # ── REPLACE LEGS ────────────────────────────────────────────
+    #  REPLACE LEGS 
     def test_replace_legs_substitui_anteriores(self):
         sid = self._repo.create_structure({"name": "Test", "underlying_asset": "X"})
         self._repo.replace_legs(sid, [
@@ -222,14 +222,14 @@ class TestStructuresRepository(unittest.TestCase):
         n = self._repo.count_legs(sid)
         assert n == 0, f"esperado 0 legs apos replace_legs([]), obtido {n}"
 
-    # ── ARCHIVE ─────────────────────────────────────────────────
+    #  ARCHIVE 
     def test_archive_structure(self):
         sid = self._repo.create_structure({"name": "Para Arquivar", "underlying_asset": "Z"})
         self._repo.archive_structure(sid)
         data = self._repo.get_structure(sid)
         self.assertEqual(data["status"], "archived")
 
-    # ── DUPLICATE ───────────────────────────────────────────────
+    #  DUPLICATE 
     def test_duplicate_logic(self):
         sid = self._repo.create_structure({
             "name": "Original", "underlying_asset": "PETR4", "status": "active",
@@ -257,9 +257,9 @@ class TestStructuresRepository(unittest.TestCase):
         self.assertEqual(copy["legs"][0]["strike"], src["legs"][0]["strike"])
 
 
-# ─────────────────────────────────────────────────────────────────
+# 
 # 3. Validação de campos obrigatórios
-# ─────────────────────────────────────────────────────────────────
+# 
 class TestRepositoryValidation(unittest.TestCase):
 
     def setUp(self):
@@ -299,7 +299,7 @@ class TestRepositoryValidation(unittest.TestCase):
             ])
 
 
-# ─────────────────────────────────────────────────────────────────
+# 
 if __name__ == "__main__":
     loader = unittest.TestLoader()
     suite  = unittest.TestSuite()

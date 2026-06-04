@@ -1,15 +1,15 @@
 """
 ATT/tests/test_patch24.py
-─────────────────────────────────────────────────────────────────────────────
-Patch 24 — Testes de validação das correções de acoplamento legado.
+
+Patch 24 -- Testes de validação das correções de acoplamento legado.
 
 Cobre:
-  1. decision.py  → compute_decision_for_aba ausente
-  2. decision.py  → __main__ sem get_app_db_connection / rtd_analise_robo
-  3. decision.py  → interfaces canônicas intactas e funcionais
-  4. payoff_features.py → upsert usa (structure_id, reference_date)
-  5. payoff_features.py → compute_curve_features aceita novos parâmetros
-  6. payoff_features.py → ValueError sem structure_id/reference_date
+  1. decision.py   compute_decision_for_aba ausente
+  2. decision.py   __main__ sem get_app_db_connection / rtd_analise_robo
+  3. decision.py   interfaces canônicas intactas e funcionais
+  4. payoff_features.py  upsert usa (structure_id, reference_date)
+  5. payoff_features.py  compute_curve_features aceita novos parâmetros
+  6. payoff_features.py  ValueError sem structure_id/reference_date
   7. Regressão: compute_decision_from_inputs ainda produz saída correta
 """
 
@@ -25,7 +25,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 
-# ─── helpers ──────────────────────────────────────────────────────────────────
+#  helpers 
 
 def _load_decision():
     """Importa domain.decision isolado (sem side-effects de BD)."""
@@ -40,9 +40,9 @@ def _load_payoff_features():
     return importlib.import_module("domain.payoff_features")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 1. decision.py — remoção do legado
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# 1. decision.py -- remoção do legado
+# 
 
 class TestDecisionLegacyRemoval:
 
@@ -50,7 +50,7 @@ class TestDecisionLegacyRemoval:
         """compute_decision_for_aba() deve ter sido removida do módulo."""
         mod = _load_decision()
         assert not hasattr(mod, "compute_decision_for_aba"), (
-            "compute_decision_for_aba ainda existe em domain/decision.py — "
+            "compute_decision_for_aba ainda existe em domain/decision.py -- "
             "patch_24 não foi aplicado."
         )
 
@@ -88,16 +88,16 @@ class TestDecisionLegacyRemoval:
         )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 2. decision.py — interfaces canônicas intactas
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# 2. decision.py -- interfaces canônicas intactas
+# 
 
 class TestDecisionCanonicalIntact:
 
     def test_patch24_compute_decision_from_contract_exists(self):
         mod = _load_decision()
         assert hasattr(mod, "compute_decision_from_contract"), (
-            "compute_decision_from_contract ausente — regressão crítica"
+            "compute_decision_from_contract ausente -- regressão crítica"
         )
 
     def test_patch24_compute_decision_from_payoff_exists(self):
@@ -109,7 +109,7 @@ class TestDecisionCanonicalIntact:
         assert hasattr(mod, "compute_decision_from_inputs")
 
     def test_patch24_compute_decision_from_inputs_hold(self):
-        """Ratio baixo → HOLD nível 0."""
+        """Ratio baixo  HOLD nível 0."""
         mod = _load_decision()
         result = mod.compute_decision_from_inputs(
             pl_atual=10.0,
@@ -121,7 +121,7 @@ class TestDecisionCanonicalIntact:
         assert result["pl_pct_of_max"] == pytest.approx(0.10)
 
     def test_patch24_compute_decision_from_inputs_watch(self):
-        """Ratio 35% → HOLD nível 1 (watch)."""
+        """Ratio 35%  HOLD nível 1 (watch)."""
         mod = _load_decision()
         result = mod.compute_decision_from_inputs(
             pl_atual=35.0,
@@ -132,7 +132,7 @@ class TestDecisionCanonicalIntact:
         assert result["level"] == 1
 
     def test_patch24_compute_decision_from_inputs_prepare(self):
-        """Ratio 65% → PREPARE_ROLL nível 2."""
+        """Ratio 65%  PREPARE_ROLL nível 2."""
         mod = _load_decision()
         result = mod.compute_decision_from_inputs(
             pl_atual=65.0,
@@ -143,7 +143,7 @@ class TestDecisionCanonicalIntact:
         assert result["level"] == 2
 
     def test_patch24_compute_decision_from_inputs_close(self):
-        """Ratio 85% → CLOSE_REOPEN nível 3."""
+        """Ratio 85%  CLOSE_REOPEN nível 3."""
         mod = _load_decision()
         result = mod.compute_decision_from_inputs(
             pl_atual=85.0,
@@ -154,7 +154,7 @@ class TestDecisionCanonicalIntact:
         assert result["level"] == 3
 
     def test_patch24_dte_gate_promotes_prepare_to_close(self):
-        """DTE baixo com ratio >= prepare → promovido para CLOSE_REOPEN."""
+        """DTE baixo com ratio >= prepare  promovido para CLOSE_REOPEN."""
         mod = _load_decision()
         result = mod.compute_decision_from_inputs(
             pl_atual=65.0,
@@ -200,7 +200,7 @@ class TestDecisionCanonicalIntact:
         assert result["pl_pct_of_max"] == 0.0
 
     def test_patch24_compute_decision_from_payoff_invalid_returns_hold(self):
-        """Payoff inválido (sem points) → HOLD com erro."""
+        """Payoff inválido (sem points)  HOLD com erro."""
         mod = _load_decision()
         result = mod.compute_decision_from_payoff(
             payoff={},
@@ -210,27 +210,27 @@ class TestDecisionCanonicalIntact:
         assert "error" in result["why"]
 
     def test_patch24_interp_payoff_extrapolation_low(self):
-        """Spot abaixo do mínimo → retorna primeiro valor."""
+        """Spot abaixo do mínimo  retorna primeiro valor."""
         mod = _load_decision()
         pts = [(100.0, -10.0), (110.0, 0.0), (120.0, 20.0)]
         assert mod._interp_payoff(pts, 90.0) == pytest.approx(-10.0)
 
     def test_patch24_interp_payoff_extrapolation_high(self):
-        """Spot acima do máximo → retorna último valor."""
+        """Spot acima do máximo  retorna último valor."""
         mod = _load_decision()
         pts = [(100.0, -10.0), (110.0, 0.0), (120.0, 20.0)]
         assert mod._interp_payoff(pts, 130.0) == pytest.approx(20.0)
 
     def test_patch24_interp_payoff_midpoint(self):
-        """Spot no meio do intervalo → interpolação linear correta."""
+        """Spot no meio do intervalo  interpolação linear correta."""
         mod = _load_decision()
         pts = [(100.0, 0.0), (120.0, 20.0)]
         assert mod._interp_payoff(pts, 110.0) == pytest.approx(10.0)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# 3. payoff_features.py — chave canônica
-# ─────────────────────────────────────────────────────────────────────────────
+# 
+# 3. payoff_features.py -- chave canônica
+# 
 
 class TestPayoffFeaturesCanonicalKey:
 
@@ -300,7 +300,7 @@ class TestPayoffFeaturesCanonicalKey:
             "Chave legada (timestamp, aba) ainda usada no ON CONFLICT"
         )
         assert "ON CONFLICT(timestamp, aba)" not in source, (
-            "ON CONFLICT(timestamp, aba) ainda presente — patch_24 incompleto"
+            "ON CONFLICT(timestamp, aba) ainda presente -- patch_24 incompleto"
         )
 
     def test_patch24_upsert_executes_with_in_memory_db(self):
@@ -423,9 +423,9 @@ class TestPayoffFeaturesCanonicalKey:
         assert pl  == pytest.approx(99.0), "pl_max não foi atualizado"
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # 4. Ausência de importações legadas no source
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 
 class TestSourceAuditRegressionPatch24:
 

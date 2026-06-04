@@ -1,5 +1,5 @@
 # ATT/tests/test_patch40.py
-"""Testes formais do patch_40 — isolamento de acoplamento legado."""
+"""Testes formais do patch_40 -- isolamento de acoplamento legado."""
 import os
 import sys
 import unittest

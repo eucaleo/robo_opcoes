@@ -20,7 +20,7 @@ from services.calculation_orchestrator import (
 
 
 # ---------------------------------------------------------------------------
-# Fixtures — objetos mínimos que imitam CalculationRequest
+# Fixtures -- objetos mínimos que imitam CalculationRequest
 # ---------------------------------------------------------------------------
 
 def _make_leg(**kwargs):
@@ -233,7 +233,7 @@ class TestRunDecision:
 
 
 # ---------------------------------------------------------------------------
-# Smoke test real — sem mock
+# Smoke test real -- sem mock
 # ---------------------------------------------------------------------------
 
 class TestRunPayoffIntegration:

@@ -1,5 +1,5 @@
-from src.domain.refs.structure_ref import StructureRef
 from __future__ import annotations
+from src.domain.refs.structure_ref import StructureRef
 
 from dataclasses import dataclass
 from datetime import datetime
@@ -9,6 +9,13 @@ from dto.robo_leg_dto import FonteType, RoboLegDTO
 from infra.sqlite_conn import sqlite_conn
 from utils.leg_normalizers import parse_timestamp, parse_vencimento
 
+
+
+def _to_aba(ref) -> str:
+    """Aceita StructureRef ou str e devolve a string da aba."""
+    if isinstance(ref, str):
+        return ref
+    return ref.aba  # StructureRef.aba (patch_53)
 
 @dataclass(frozen=True)
 class RoboLegsRepoConfig:
@@ -38,6 +45,7 @@ class RoboLegsRepository:
         - Primeiro tenta MANUAL
         - Se vazio, tenta RTD
         """
+        aba = _to_aba(ref)
         ts = parse_timestamp(timestamp)
         ts_candidates = self._timestamp_candidates(timestamp, ts)
 
@@ -59,6 +67,7 @@ class RoboLegsRepository:
         return rtd
 
     def has_manual(self, ref: StructureRef, timestamp: Any) -> bool:
+        aba = _to_aba(ref)
         ts = parse_timestamp(timestamp)
         ts_candidates = self._timestamp_candidates(timestamp, ts)
 
@@ -66,7 +75,7 @@ class RoboLegsRepository:
         sql = f"""
             SELECT 1
             FROM manual_analise_robo_legs
-            WHERE {ref.db_column()} = ?
+            WHERE aba = ?
               AND timestamp IN ({placeholders})
             LIMIT 1
         """
@@ -77,14 +86,15 @@ class RoboLegsRepository:
 
     def list_timestamps(self, ref: StructureRef, prefer: str = "manual_then_rtd") -> List[str]:
         """Lista timestamps disponíveis para a aba."""
+        aba = _to_aba(ref)
         prefer = (prefer or "").strip().lower()
         with sqlite_conn(self.config.app_db_path) as conn:
             if prefer == "all":
                 rows = conn.execute(
                     """
-                    SELECT timestamp FROM manual_analise_robo_legs WHERE {ref.db_column()} = ?
+                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
                     UNION
-                    SELECT timestamp FROM rtd_analise_robo_legs WHERE {ref.db_column()} = ?
+                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?
                     ORDER BY timestamp
                     """,
                     (aba, aba),
@@ -92,14 +102,14 @@ class RoboLegsRepository:
                 return [r["timestamp"] for r in rows]
 
             rows_m = conn.execute(
-                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE {ref.db_column()} = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
             if rows_m:
                 return [r["timestamp"] for r in rows_m]
 
             rows_r = conn.execute(
-                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE {ref.db_column()} = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ? ORDER BY timestamp",
                 (aba,),
             ).fetchall()
             return [r["timestamp"] for r in rows_r]
@@ -107,7 +117,7 @@ class RoboLegsRepository:
     def _query_legs(
         self,
         table: str,
-        ref: StructureRef,
+        aba: str,
         ts_candidates: List[str],
         fonte: FonteType,
     ) -> List[RoboLegDTO]:
@@ -115,7 +125,7 @@ class RoboLegsRepository:
         sql = f"""
             SELECT *
             FROM {table}
-            WHERE {ref.db_column()} = ?
+            WHERE aba = ?
               AND timestamp IN ({placeholders})
         """
 
@@ -201,14 +211,14 @@ class RoboLegsRepository:
         return candidates
 
 
-    # ──────────────────────────────────────────────────────────────
+    # 
     # patch_40: métodos canônicos por structure_id
     # Os métodos legados (por aba) são mantidos sem alteração.
-    # ──────────────────────────────────────────────────────────────
+    # 
 
     def _resolve_aba_from_structure_id(self, structure_id: int) -> Optional[str]:
         """
-        Resolve structure_id → alias_legacy_aba via structures em app.db.
+        Resolve structure_id  alias_legacy_aba via structures em app.db.
         Retorna None se não encontrado.
         """
         sql = """
@@ -238,7 +248,7 @@ class RoboLegsRepository:
             raise ValueError(
                 f"structure_id={structure_id} sem alias_legacy_aba em structures"
             )
-        return self.get_legs(aba=aba, timestamp=timestamp)
+        return self.get_legs(ref=aba, timestamp=timestamp)
 
     def has_manual_by_structure_id(
         self,
@@ -249,7 +259,7 @@ class RoboLegsRepository:
         aba = self._resolve_aba_from_structure_id(structure_id)
         if aba is None:
             return False
-        return self.has_manual(aba=aba, timestamp=timestamp)
+        return self.has_manual(ref=aba, timestamp=timestamp)
 
     def list_timestamps_by_structure_id(
         self,
@@ -262,5 +272,5 @@ class RoboLegsRepository:
             raise ValueError(
                 f"structure_id={structure_id} sem alias_legacy_aba em structures"
             )
-        return self.list_timestamps(aba=aba, prefer=prefer)
+        return self.list_timestamps(ref=aba, prefer=prefer)
 

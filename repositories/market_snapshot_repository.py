@@ -11,9 +11,9 @@ Schema real confirmado por 62_inspect_snapshot_tables.py (2026-05-27):
   - rtd_analise_robo_legs   : colunas [0-19]
   - manual_analise_robo_legs: colunas [0-21] + source + created_at
 """
+from __future__ import annotations
 
 from src.domain.refs.structure_ref import StructureRef
-from __future__ import annotations
 
 import sqlite3
 from pathlib import Path

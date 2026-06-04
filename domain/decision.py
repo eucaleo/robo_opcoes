@@ -52,7 +52,7 @@ def _ratio(numerator: float, denominator: float) -> float:
     return numerator / denominator
 
 
-# Mapeamento decision → level
+# Mapeamento decision  level
 _DECISION_LEVEL = {
     "HOLD":         0,
     "WATCH":        1,   # nível interno, mapeado para decision="HOLD" level=1
@@ -81,10 +81,10 @@ def compute_decision_from_inputs(
     alts: List[str] = []
 
     if spread_pct_medio is not None and spread_pct_medio > 0.015:
-        alts.append("Spread alto — aguardar execução")
+        alts.append("Spread alto -- aguardar execução")
 
-    # ✅ Gate só dispara se dte_min foi fornecido E é > 0
-    #    dte_min=0 significa "expirado/sem DTE real" — não aciona gate
+    # [OK] Gate só dispara se dte_min foi fornecido E é > 0
+    #    dte_min=0 significa "expirado/sem DTE real" -- não aciona gate
     if dte_min is not None and dte_min > 0 and dte_min <= dte_gate:
         _internal = "CLOSE_REOPEN"
         level = 3
@@ -145,7 +145,7 @@ def compute_decision_from_payoff(
 ) -> Dict[str, Any]:
     """
     Decide a partir de um dict de payoff.
-    Payoff vazio ou inválido → HOLD com 'error' em why_json.
+    Payoff vazio ou inválido  HOLD com 'error' em why_json.
     """
     if not payoff:
         why_dict = {"error": "payoff vazio ou invalido", "reason": "invalid_input"}

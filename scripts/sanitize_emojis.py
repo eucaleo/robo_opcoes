@@ -9,8 +9,8 @@ Uso:
     python scripts/sanitize_emojis.py --stdin      # lê stdin, escreve stdout (pipe)
     python scripts/sanitize_emojis.py --file PATH  # sanitiza arquivo específico
 """
-
 from __future__ import annotations
+
 
 import argparse
 import re

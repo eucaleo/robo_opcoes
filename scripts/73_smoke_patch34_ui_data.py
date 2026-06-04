@@ -15,7 +15,7 @@ def check(label: str, condition: bool, detail: str = "") -> bool:
     status = "OK  " if condition else "FAIL"
     line = f"  [{status}] {label}"
     if detail:
-        line += f" — {detail}"
+        line += f" -- {detail}"
     print(line)
     return condition
 
@@ -35,7 +35,7 @@ def main() -> int:
         print(f"  [FAIL] UIDataModel: {exc}")
         return 1
 
-    # _structure_filter_col — canonica
+    # _structure_filter_col -- canonica
     try:
         col = m._structure_filter_col({"structure_id": "structure_id"})
         failures += 0 if check(
@@ -46,7 +46,7 @@ def main() -> int:
         print(f"  [FAIL] _structure_filter_col: {exc}")
         failures += 1
 
-    # _structure_filter_col — rejeita aba
+    # _structure_filter_col -- rejeita aba
     try:
         m._structure_filter_col({"aba": "aba"})
         print("  [FAIL] _structure_filter_col({'aba'}) deveria ter lancado RuntimeError")
@@ -54,7 +54,7 @@ def main() -> int:
     except RuntimeError:
         print("  [OK  ] _structure_filter_col({'aba'}) lancou RuntimeError corretamente")
 
-    # _resolve_structure_key — string numerica
+    # _resolve_structure_key -- string numerica
     try:
         val = m._resolve_structure_key("7")
         failures += 0 if check(
@@ -65,7 +65,7 @@ def main() -> int:
         print(f"  [FAIL] _resolve_structure_key: {exc}")
         failures += 1
 
-    # _resolve_structure_key — rejeita nao numerico
+    # _resolve_structure_key -- rejeita nao numerico
     try:
         m._resolve_structure_key("BOVA11")
         print("  [FAIL] _resolve_structure_key('BOVA11') deveria ter lancado ValueError")
@@ -131,7 +131,7 @@ def main() -> int:
             print(f"  [FAIL] get_decisions filtrado: {exc}")
             failures += 1
 
-    # get_decisions com filtro aba legado — nao deve filtrar, nao deve crashar
+    # get_decisions com filtro aba legado -- nao deve filtrar, nao deve crashar
     try:
         rows_aba = m.get_decisions(filters={"aba": "qualquer"})
         failures += 0 if check(
@@ -142,7 +142,7 @@ def main() -> int:
         print(f"  [FAIL] get_decisions filtro aba: {exc}")
         failures += 1
 
-    # get_decisions com structure_id invalido — deve lancar ValueError
+    # get_decisions com structure_id invalido -- deve lancar ValueError
     try:
         m.get_decisions(filters={"structure_id": "BOVA11"})
         print("  [FAIL] get_decisions({'structure_id': 'BOVA11'}) deveria ter lancado ValueError")
@@ -150,7 +150,7 @@ def main() -> int:
     except ValueError:
         print("  [OK  ] get_decisions({'structure_id': 'BOVA11'}) lancou ValueError corretamente")
 
-    # check_database_status — sem mode=aba/id
+    # check_database_status -- sem mode=aba/id
     try:
         status = m.check_database_status()
         failures += 0 if check(
@@ -168,9 +168,9 @@ def main() -> int:
     # resumo
     print("=" * 50)
     if failures == 0:
-        print("RESULTADO: PASS — patch_34 smoke OK")
+        print("RESULTADO: PASS -- patch_34 smoke OK")
     else:
-        print(f"RESULTADO: FAIL — {failures} verificacao(oes) falharam")
+        print(f"RESULTADO: FAIL -- {failures} verificacao(oes) falharam")
     print("=" * 50)
 
     return failures

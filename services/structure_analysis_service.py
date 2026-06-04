@@ -42,7 +42,7 @@ class StructureAnalysisService:
         # 4. Calcula payoff
         payoff = compute_payoff_from_canonical_input(canonical_input)
 
-        # 5. Valida payoff — se inválido, retorna HOLD com erro estruturado
+        # 5. Valida payoff -- se inválido, retorna HOLD com erro estruturado
         if not payoff or not payoff.get("pl_max"):
             why_dict = {
                 "error": "payoff is required",
@@ -71,7 +71,7 @@ class StructureAnalysisService:
                 "decision": decision,
             }
 
-        # 6. Computa decisão — passa TODOS os parâmetros como keyword
+        # 6. Computa decisão -- passa TODOS os parâmetros como keyword
         decision = compute_decision_from_payoff(
             payoff=payoff,
             dte_min=dte_min_effective,

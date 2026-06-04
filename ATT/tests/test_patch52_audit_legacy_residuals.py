@@ -1,6 +1,6 @@
 # tests/test_patch52_audit_legacy_residuals.py
 """
-Testes do patch_52 — cobertura de classificacao, varredura e geracao de relatorio.
+Testes do patch_52 -- cobertura de classificacao, varredura e geracao de relatorio.
 Nenhum arquivo de producao e modificado; todos os fixtures sao temporarios.
 """
 

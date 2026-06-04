@@ -1,5 +1,5 @@
 # ATT/tests/test_patch41.py
-"""Testes formais do patch_41 — canonical_pricing_facade.py."""
+"""Testes formais do patch_41 -- canonical_pricing_facade.py."""
 import os
 import sys
 import unittest
@@ -39,7 +39,7 @@ class TestPatch41Renome(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.isfile(FACADE_FILE):
-            raise unittest.SkipTest("Facade nao encontrada — skip conteudo")
+            raise unittest.SkipTest("Facade nao encontrada -- skip conteudo")
         cls.src = _read(FACADE_FILE)
 
     def test_get_structure_info_presente(self):
@@ -47,14 +47,14 @@ class TestPatch41Renome(unittest.TestCase):
 
     def test_get_alias_legacy_aba_removido(self):
         self.assertNotIn("def _get_alias_legacy_aba", self.src,
-            "_get_alias_legacy_aba ainda presente — patch_41 nao aplicado")
+            "_get_alias_legacy_aba ainda presente -- patch_41 nao aplicado")
 
 
 class TestPatch41InterfacePublica(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         if not os.path.isfile(FACADE_FILE):
-            raise unittest.SkipTest("Facade nao encontrada — skip interface")
+            raise unittest.SkipTest("Facade nao encontrada -- skip interface")
         cls.src = _read(FACADE_FILE)
 
     def test_execute_pricing_presente(self):

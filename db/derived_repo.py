@@ -14,8 +14,8 @@ patch_33:
 patch_55:
   - Suporte a StructureRef como argumento aba em _extract_ts_aba e get_recent_decisions
 """
-
 from __future__ import annotations
+
 
 import json
 import sqlite3

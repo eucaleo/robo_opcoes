@@ -1,13 +1,13 @@
 """
 api/structures_controller.py
-patch_51 — Exposição REST do CRUD de estruturas.
+patch_51 -- Exposição REST do CRUD de estruturas.
 
 Endpoints:
-    POST   /structures                → cria estrutura
-    GET    /structures                → lista (ativas por padrão)
-    GET    /structures/{id}           → detalhe + legs
-    PATCH  /structures/{id}           → atualiza campos (merge)
-    DELETE /structures/{id}           → arquiva (soft-delete)
+    POST   /structures                 cria estrutura
+    GET    /structures                 lista (ativas por padrão)
+    GET    /structures/{id}            detalhe + legs
+    PATCH  /structures/{id}            atualiza campos (merge)
+    DELETE /structures/{id}            arquiva (soft-delete)
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from repositories.structures_repository import StructuresRepository
 
 router = APIRouter(tags=["structures"])
 
-# Repositório compartilhado — instância única por processo (sem estado mutável)
+# Repositório compartilhado -- instância única por processo (sem estado mutável)
 _repo = StructuresRepository()
 
 

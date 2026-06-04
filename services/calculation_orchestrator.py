@@ -44,7 +44,7 @@ def _normalize_option_type(raw: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Funcao legada build_calculation_request (patch_45 — mantida para
+# Funcao legada build_calculation_request (patch_45 -- mantida para
 # retrocompatibilidade com testes anteriores)
 # ---------------------------------------------------------------------------
 def build_calculation_request(
@@ -105,7 +105,7 @@ def build_calculation_request(
 
 
 # ---------------------------------------------------------------------------
-# Funcoes legadas de pipeline (patch_46/47 — mantidas para
+# Funcoes legadas de pipeline (patch_46/47 -- mantidas para
 # retrocompatibilidade com testes anteriores)
 # ---------------------------------------------------------------------------
 def _request_to_payoff_dict(
@@ -221,7 +221,7 @@ def run_full_pipeline(
 
 
 # ===========================================================================
-# PATCH_48 — CalculationOrchestrator (classe canonica)
+# PATCH_48 -- CalculationOrchestrator (classe canonica)
 # ===========================================================================
 
 class CalculationOrchestrator:
@@ -402,7 +402,7 @@ class CalculationOrchestrator:
         }
 
     # ------------------------------------------------------------------
-    # PATCH_48 — resolucao via repositorios canonicos
+    # PATCH_48 -- resolucao via repositorios canonicos
     # ------------------------------------------------------------------
 
     def build_calculation_request_from_db(

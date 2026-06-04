@@ -140,7 +140,7 @@ class DatabaseLocator:
             print("[ERROR] Nenhum banco de dados encontrado!")
             return
         
-        print(f"🗂️  Total de bancos: {len(report['databases'])}")
+        print(f"[INDICE]  Total de bancos: {len(report['databases'])}")
         
         accessible_count = sum(1 for db in report['databases'] if db.get('accessible', False))
         print(f"[OK] Acessíveis: {accessible_count}")

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 scripts/69_audit_legacy_domain_coupling.py
-─────────────────────────────────────────────────────────────────────────────
-Patch 24 — Auditoria de acoplamento legado nos módulos de domínio.
+
+Patch 24 -- Auditoria de acoplamento legado nos módulos de domínio.
 
 Objetivo:
   Varrer os módulos domain/ e reportar, de forma estruturada, todos os pontos
@@ -24,7 +24,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Optional
 
-# ─── Configuração ─────────────────────────────────────────────────────────────
+#  Configuração 
 
 DOMAIN_DIR = Path("domain")
 OUTPUT_JSON = Path("dados/audit_domain_coupling_patch24.json")
@@ -43,7 +43,7 @@ LEGACY_TERMS = {
     "legacy aba":         ("BAIXO",    "Comentário/string descrevendo caminho legado"),
 }
 
-# Funções/classes canônicas — servem como referência positiva no relatório
+# Funções/classes canônicas -- servem como referência positiva no relatório
 CANONICAL_MARKERS = {
     "compute_payoff_from_canonical_input",
     "compute_decision_from_contract",
@@ -53,7 +53,7 @@ CANONICAL_MARKERS = {
 }
 
 
-# ─── Dataclasses de resultado ─────────────────────────────────────────────────
+#  Dataclasses de resultado 
 
 @dataclass
 class CouplingOccurrence:
@@ -88,7 +88,7 @@ class AuditReport:
     recommendations     : list[str] = field(default_factory=list)
 
 
-# ─── Engine de varredura ──────────────────────────────────────────────────────
+#  Engine de varredura 
 
 def _audit_file(path: Path) -> FileAuditResult:
     """Varre um arquivo .py e retorna os acoplamentos encontrados."""
@@ -124,7 +124,7 @@ def _audit_file(path: Path) -> FileAuditResult:
                     snippet     = raw_line.rstrip(),
                 ))
 
-    # Deduplica por (linha, term) — uma linha pode conter múltiplos matches
+    # Deduplica por (linha, term) -- uma linha pode conter múltiplos matches
     seen: set[tuple[int, str]] = set()
     unique: list[CouplingOccurrence] = []
     for occ in occurrences:
@@ -157,32 +157,32 @@ def _build_recommendations(report: AuditReport) -> list[str]:
 
         if fname == "decision.py" and fr.critical > 0:
             recs.append(
-                "decision.py → Remover compute_decision_for_aba() inteiramente. "
+                "decision.py  Remover compute_decision_for_aba() inteiramente. "
                 "O __main__ com get_app_db_connection + query rtd_analise_robo "
                 "deve ser excluído ou substituído por script autônomo em scripts/."
             )
         if fname == "payoff_features.py" and fr.moderate > 0:
             recs.append(
-                "payoff_features.py → Migrar chave de upsert de (timestamp, aba) "
+                "payoff_features.py  Migrar chave de upsert de (timestamp, aba) "
                 "para (structure_id, reference_date). Manter aba como coluna "
                 "opcional de rastreabilidade, sem participar da constraint UNIQUE."
             )
         if fname == "market_snapshot.py":
             recs.append(
-                "market_snapshot.py → Campo 'aba: str' permanece aceitável como "
-                "identificador de snapshot ao vivo (UI/RTD). Não requer remoção — "
+                "market_snapshot.py  Campo 'aba: str' permanece aceitável como "
+                "identificador de snapshot ao vivo (UI/RTD). Não requer remoção -- "
                 "apenas garantir que não é usado como FK para o banco canônico."
             )
 
     # Recomendações gerais
     if report.total_critical > 0:
         recs.append(
-            "GERAL → Nenhuma função de domain/ deve importar ou chamar "
+            "GERAL  Nenhuma função de domain/ deve importar ou chamar "
             "funções com sufixo '_for_aba'. Todo caminho de decisão e payoff "
             "deve passar por compute_*_from_canonical_input / compute_*_from_contract."
         )
     recs.append(
-        "GERAL → Após aplicar as correções acima, re-executar este script "
+        "GERAL  Após aplicar as correções acima, re-executar este script "
         "para confirmar total_critical == 0 antes de merge na branch main."
     )
 
@@ -214,23 +214,23 @@ def run_audit() -> AuditReport:
         f"Ocorrências CRÍTICAS  : {report.total_critical}",
         f"Ocorrências MODERADAS : {report.total_moderate}",
         f"Ocorrências BAIXAS    : {report.total_low}",
-        f"Status geral : {'⚠️  REQUER AÇÃO' if report.total_critical > 0 else '✅ LIMPO'}",
+        f"Status geral : {'[AVISO]  REQUER AÇÃO' if report.total_critical > 0 else '[OK] LIMPO'}",
     ]
 
     return report
 
 
-# ─── Renderização ─────────────────────────────────────────────────────────────
+#  Renderização 
 
-SEV_ICON = {"CRÍTICO": "🔴", "MODERADO": "🟡", "BAIXO": "🔵"}
+SEV_ICON = {"CRÍTICO": "[ERRO]", "MODERADO": "[PARCIAL]", "BAIXO": "[INFO]"}
 
-SEPARATOR = "─" * 78
+SEPARATOR = "" * 78
 
 
 def _print_report(report: AuditReport) -> None:
-    print(f"\n{'═'*78}")
-    print(f"  PATCH 24 — Auditoria de Acoplamento Legado · domain/")
-    print(f"{'═'*78}\n")
+    print(f"\n{''*78}")
+    print(f"  PATCH 24 -- Auditoria de Acoplamento Legado . domain/")
+    print(f"{''*78}\n")
 
     print("SUMÁRIO EXECUTIVO")
     print(SEPARATOR)
@@ -241,19 +241,19 @@ def _print_report(report: AuditReport) -> None:
     for fr in report.files:
         fname = Path(fr.file).name
         print(SEPARATOR)
-        print(f"  📄 {fname}  |  "
-              f"🔴 {fr.critical}  🟡 {fr.moderate}  🔵 {fr.low}  "
+        print(f"  [ARQUIVO] {fname}  |  "
+              f"[ERRO] {fr.critical}  [PARCIAL] {fr.moderate}  [INFO] {fr.low}  "
               f"total={fr.total_occurrences}")
 
         if fr.canonical_markers:
-            print(f"  ✅ Marcadores canônicos: {', '.join(fr.canonical_markers)}")
+            print(f"  [OK] Marcadores canônicos: {', '.join(fr.canonical_markers)}")
 
         if fr.occurrences:
             print()
             for occ in fr.occurrences:
-                icon = SEV_ICON.get(occ.severity, "⚪")
+                icon = SEV_ICON.get(occ.severity, "")
                 print(f"  {icon} L{occ.line:>4}  [{occ.severity:<8}]  term='{occ.term}'")
-                print(f"         ↳ {occ.snippet.strip()}")
+                print(f"          {occ.snippet.strip()}")
         print()
 
     print(SEPARATOR)
@@ -275,7 +275,7 @@ def _print_report(report: AuditReport) -> None:
         print("\n".join(lines_out))
         print()
 
-    print(f"{'═'*78}\n")
+    print(f"{''*78}\n")
 
 
 def _save_json(report: AuditReport) -> None:
@@ -291,10 +291,10 @@ def _save_json(report: AuditReport) -> None:
         json.dumps(data, ensure_ascii=False, indent=2, default=_serialize),
         encoding="utf-8",
     )
-    print(f"  📁 JSON salvo em: {OUTPUT_JSON.resolve()}\n")
+    print(f"  [DIR] JSON salvo em: {OUTPUT_JSON.resolve()}\n")
 
 
-# ─── Entry-point ──────────────────────────────────────────────────────────────
+#  Entry-point 
 
 def main() -> None:
     report = run_audit()

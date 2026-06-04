@@ -1,13 +1,13 @@
 # scripts/65_smoke_pipeline_real_execution.py
 """
-patch_16 — Smoke: pipeline real ponta a ponta com structure_id do banco.
+patch_16 -- Smoke: pipeline real ponta a ponta com structure_id do banco.
 
 Cenários (5/5):
-  S1  structure_id válido            → status ok, meta presente
-  S2  snapshot_source registrado     → meta["snapshot_source"] não vazio
-  S3  pricing_payload montado        → canonical_input não é None
-  S4  persisted retornado            → persisted não é None
-  S5  structure_id inválido          → status error, sem crash
+  S1  structure_id válido             status ok, meta presente
+  S2  snapshot_source registrado      meta["snapshot_source"] não vazio
+  S3  pricing_payload montado         canonical_input não é None
+  S4  persisted retornado             persisted não é None
+  S5  structure_id inválido           status error, sem crash
 """
 
 import sys
@@ -18,13 +18,13 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from services.canonical_pricing_facade import CanonicalPricingFacade
 
-# ── Configuração ──────────────────────────────────────────────────────────────
+#  Configuração 
 # Ajuste para um structure_id existente em dados/app.db
 VALID_STRUCTURE_ID   = 1
 INVALID_STRUCTURE_ID = -99
 
-PASS = "✅ PASS"
-FAIL = "❌ FAIL"
+PASS = "[OK] PASS"
+FAIL = "[FALHOU] FAIL"
 
 results: list[tuple[str, str, str]] = []  # (cenario, status, detalhe)
 
@@ -37,11 +37,11 @@ def run(label: str, fn) -> None:
         results.append((label, FAIL, f"exception: {exc}"))
 
 
-# ── Instância da fachada ──────────────────────────────────────────────────────
+#  Instância da fachada 
 facade = CanonicalPricingFacade()
 
 
-# ── S1: structure_id válido → status ok ──────────────────────────────────────
+#  S1: structure_id válido  status ok 
 def s1():
     resp = facade.execute_pricing(structure_id=VALID_STRUCTURE_ID)
     ok = resp.get("status") == "ok"
@@ -50,7 +50,7 @@ def s1():
 run("S1 status ok para structure_id válido", s1)
 
 
-# ── S2: snapshot_source registrado no meta ────────────────────────────────────
+#  S2: snapshot_source registrado no meta 
 def s2():
     resp = facade.execute_pricing(structure_id=VALID_STRUCTURE_ID)
     source = resp.get("meta", {}).get("snapshot_source")
@@ -60,7 +60,7 @@ def s2():
 run("S2 meta.snapshot_source presente", s2)
 
 
-# ── S3: canonical_input (pricing_payload) montado ────────────────────────────
+#  S3: canonical_input (pricing_payload) montado 
 def s3():
     resp = facade.execute_pricing(structure_id=VALID_STRUCTURE_ID)
     ok = resp.get("canonical_input") is not None
@@ -70,7 +70,7 @@ def s3():
 run("S3 canonical_input não é None", s3)
 
 
-# ── S4: persisted retornado ───────────────────────────────────────────────────
+#  S4: persisted retornado 
 def s4():
     resp = facade.execute_pricing(structure_id=VALID_STRUCTURE_ID)
     ok = resp.get("persisted") is not None
@@ -79,16 +79,16 @@ def s4():
 run("S4 persisted retornado", s4)
 
 
-# ── S5: structure_id inválido → status error, sem crash ──────────────────────
+#  S5: structure_id inválido  status error, sem crash 
 def s5():
     resp = facade.execute_pricing(structure_id=INVALID_STRUCTURE_ID)
     ok = resp.get("status") == "error"
     return ok, f"status={resp.get('status')}, msg={resp.get('error_message', '')[:60]}"
 
-run("S5 structure_id inválido → status error sem crash", s5)
+run("S5 structure_id inválido  status error sem crash", s5)
 
 
-# ── Relatório ─────────────────────────────────────────────────────────────────
+#  Relatório 
 print("\n" + "=" * 65)
 print("patch_16 | smoke: pipeline real ponta a ponta")
 print("=" * 65)

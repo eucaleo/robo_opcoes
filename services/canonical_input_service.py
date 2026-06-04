@@ -1,3 +1,4 @@
+from __future__ import annotations
 # services/canonical_input_service.py
 """
 patch_25 — Separa responsabilidades de resolução de snapshot:
@@ -18,7 +19,6 @@ Contrato exigido pelo assemble_structure_market_input:
 """
 
 from src.domain.refs.structure_ref import StructureRef
-from __future__ import annotations
 
 from typing import Any
 
@@ -137,7 +137,7 @@ class CanonicalInputService:
 
         # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
         if self.market_snapshot_selector is not None and aba:
-            legs_list, legs_meta = self._resolve_legs_via_selector(aba)
+            legs_list, legs_meta = self._resolve_legs_via_selector(ref)
             snapshot_source = legs_meta["snapshot_source"]
         else:
             legs_list  = base_snapshot.get("legs", [])
@@ -167,13 +167,14 @@ class CanonicalInputService:
         self,
         ref: StructureRef,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        aba_str = ref.aba
         """
         Delega ao MarketSnapshotSelector e serializa legs completas.
 
         Serialização cobre todos os campos de LegMarketSnapshot para que
         consumidores downstream (pricing, greeks, payoff) tenham os dados.
         """
-        result = self.market_snapshot_selector.select(aba)
+        result = self.market_snapshot_selector.select(aba_str)
 
         legs_as_dict = [
             {

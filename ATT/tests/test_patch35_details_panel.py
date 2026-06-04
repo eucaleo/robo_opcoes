@@ -1,5 +1,5 @@
 """
-patch_35 — Testes de regressão para DetailsPanel (details_panel.py)
+patch_35 -- Testes de regressão para DetailsPanel (details_panel.py)
 Execução:
     python ATT/tests/test_patch35_details_panel.py
 
@@ -18,11 +18,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
-# ── 1. RAIZ DO PROJETO ────────────────────────────────────────────────────────
+#  1. RAIZ DO PROJETO 
 RAIZ = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(RAIZ))
 
-# ── 2. FAKE WIDGETS (classes Python reais, NÃO MagicMock) ────────────────────
+#  2. FAKE WIDGETS (classes Python reais, NÃO MagicMock) 
 
 class _FakeWidget:
     def __init__(self, *a, **kw): pass
@@ -57,7 +57,7 @@ class _FakeBooleanVar:
     def set(self, v): self._v = v
 
 
-# ── 2b. LIMPA cache tk/UI ANTES de injetar fakes ─────────────────────────────
+#  2b. LIMPA cache tk/UI ANTES de injetar fakes 
 # Crítico: remove versões reais ou MagicMock que possam já estar em sys.modules
 _TK_MODULES_TO_PURGE = [
     "tkinter",
@@ -65,14 +65,14 @@ _TK_MODULES_TO_PURGE = [
     "tkinter.scrolledtext",
     "tkinter.messagebox",
     "tkinter.simpledialog",
-    "tkinter.filedialog",           # ← patch: evita contaminação entre suítes
+    "tkinter.filedialog",           #  patch: evita contaminação entre suítes
     "UI.components.details_panel",  # força re-import com fakes corretos
 ]
 for _m in _TK_MODULES_TO_PURGE:
     sys.modules.pop(_m, None)
 
 
-# ── 3. MÓDULOS FAKE ───────────────────────────────────────────────────────────
+#  3. MÓDULOS FAKE 
 
 def _build_tk_modules():
     tk = types.ModuleType("tkinter")
@@ -136,23 +136,23 @@ def _build_tk_modules():
     fd.askdirectory      = lambda *a, **kw: None
     tk.filedialog = fd
 
-    return tk, ttk, st, mb, sd, fd  # ← patch: expõe fd para injeção
+    return tk, ttk, st, mb, sd, fd  #  patch: expõe fd para injeção
 
-_tk, _ttk, _st, _mb, _sd, _fd = _build_tk_modules()  # ← patch
+_tk, _ttk, _st, _mb, _sd, _fd = _build_tk_modules()  #  patch
 
-# ── 3b. INJETA com atribuição direta (não setdefault) ─────────────────────────
+#  3b. INJETA com atribuição direta (não setdefault) 
 for _name, _mod in [
     ("tkinter",              _tk),
     ("tkinter.ttk",          _ttk),
     ("tkinter.scrolledtext", _st),
     ("tkinter.messagebox",   _mb),
     ("tkinter.simpledialog", _sd),
-    ("tkinter.filedialog",   _fd),   # ← patch: evita ImportError em UI.main_window
+    ("tkinter.filedialog",   _fd),   #  patch: evita ImportError em UI.main_window
 ]:
     sys.modules[_name] = _mod
 
 
-# ── 4. IMPORT DO MÓDULO-ALVO ──────────────────────────────────────────────────
+#  4. IMPORT DO MÓDULO-ALVO 
 from UI.components.details_panel import DetailsPanel  # noqa: E402
 
 assert isinstance(DetailsPanel, type), (
@@ -160,7 +160,7 @@ assert isinstance(DetailsPanel, type), (
     "Verifique o mock de tkinter.ttk.LabelFrame."
 )
 
-# ── 5. MONKEYPATCH: _setup_widgets → no-op ────────────────────────────────────
+#  5. MONKEYPATCH: _setup_widgets  no-op 
 _ORIGINAL_SETUP = DetailsPanel.__dict__.get("_setup_widgets")
 
 def _noop_setup_widgets(self):
@@ -170,7 +170,7 @@ def _noop_setup_widgets(self):
 DetailsPanel._setup_widgets = _noop_setup_widgets
 
 
-# ── 6. FACTORY _make_panel ────────────────────────────────────────────────────
+#  6. FACTORY _make_panel 
 
 class _FakeScrolledTextInstance(_FakeScrolledText):
     """Instância dedicada para o atributo why_text."""
@@ -213,7 +213,7 @@ def _make_panel(derived_path: Path, raw_path: Path) -> DetailsPanel:
     return panel
 
 
-# ── 7. HELPERS DE BANCO ───────────────────────────────────────────────────────
+#  7. HELPERS DE BANCO 
 
 def _make_derived_db(path: Path):
     con = sqlite3.connect(str(path))
@@ -299,9 +299,9 @@ def _make_raw_db(path: Path, use_structure_id: bool = True):
     con.close()
 
 
-# ════════════════════════════════════════════════════════════════════════════════
+# 
 # TESTES
-# ════════════════════════════════════════════════════════════════════════════════
+# 
 
 class TestResolveStructureKey(unittest.TestCase):
 
@@ -329,7 +329,7 @@ class TestResolveStructureKey(unittest.TestCase):
             self.panel._resolve_structure_key(None)
 
     def test_float_int_aceito(self):
-        """int(7.0) == 7 — comportamento do Python padrão."""
+        """int(7.0) == 7 -- comportamento do Python padrão."""
         self.assertEqual(self.panel._resolve_structure_key(7.0), 7)
 
 
@@ -380,7 +380,7 @@ class TestFetchLatestDecision(unittest.TestCase):
         """
         d = self.panel._fetch_latest_decision_from_derived(7)
         self.assertIsNotNone(d)
-        # why_json é NULL → 'why' no dict deve ser None ou ausente
+        # why_json é NULL  'why' no dict deve ser None ou ausente
         why_value = d.get("why")
         self.assertIsNone(
             why_value,
@@ -496,7 +496,7 @@ class TestGetLatestSnapshotTimestamp(unittest.TestCase):
 
     def test_string_alpha_levanta_value_error(self):
         """
-        patch_34+: string não-numérica levanta ValueError — sem fallback aba.
+        patch_34+: string não-numérica levanta ValueError -- sem fallback aba.
         Substitui o teste legado test_fallback_aba_quando_sem_structure_id,
         que validava comportamento removido no patch_34.
         """
@@ -661,6 +661,6 @@ class TestComputeRecalcSignature(unittest.TestCase):
         self.assertNotEqual(sig7, sig99)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

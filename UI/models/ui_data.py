@@ -26,7 +26,7 @@ CANDIDATE_PAYOFF_TABLES = [
 # Mapeamento de colunas preferidas -> alternativas
 COLUMN_ALIASES = {
     "timestamp":     ["timestamp", "ts", "decided_at", "dt_ref"],
-    "structure_id":  ["structure_id"],                              # ◄ patch_33: chave canônica
+    "structure_id":  ["structure_id"],                              #  patch_33: chave canônica
     "aba":           ["aba", "sheet", "tab"],                       # mantido para compat
     "decision":      ["decision", "decisao", "action"],
     "level":         ["level", "nivel", "severity_level"],
@@ -42,7 +42,7 @@ COLUMN_ALIASES = {
 
 PAYOFF_COLUMN_ALIASES = {
     "timestamp": ["timestamp", "ts", "dt_ref"],
-    "structure_id": ["structure_id"],   # ◄ patch_33
+    "structure_id": ["structure_id"],   #  patch_33
     "spot":      ["point_spot", "spot", "underlying", "x", "s_t"],
     "pl":        ["point_pl", "pl", "pl_value", "y", "payoff", "pl_venc"],
 }
@@ -131,7 +131,7 @@ class UIDataModel:
                 "spot":         ["point_spot"],
                 "pl":           ["point_pl"],
                 "timestamp":    ["timestamp"],
-                "structure_id": ["structure_id"],   # ◄ patch_34: único identificador canônico
+                "structure_id": ["structure_id"],   #  patch_34: único identificador canônico
             }
             print(f"[UI] Usando contrato canônico para {self._payoff_table}")
         else:
@@ -151,13 +151,13 @@ class UIDataModel:
             )
 
     # ------------------------------------------------------------------
-    # ◄ patch_33: resolve a coluna de filtro por estrutura
+    #  patch_33: resolve a coluna de filtro por estrutura
     #   Prioriza structure_id; cai em aba se structure_id não mapeado.
     # ------------------------------------------------------------------
     def _structure_filter_col(self, colmap: Dict[str, str]) -> str:
         """
         patch_34: retorna apenas o nome da coluna structure_id.
-        Branch aba removido — schemas sem structure_id nao sao mais suportados.
+        Branch aba removido -- schemas sem structure_id nao sao mais suportados.
         """
         if colmap.get("structure_id"):
             return colmap["structure_id"]
@@ -227,15 +227,15 @@ class UIDataModel:
         return list(self._cache_structures)
 
     def get_abas(self) -> list:
-        """Alias readonly de get_structure_ids() — compat UI (patch_34:filtro_aba)."""
+        """Alias readonly de get_structure_ids() -- compat UI (patch_34:filtro_aba)."""
         return self.get_structure_ids()
 
     def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
         """
         Retorna lista de decisões.
-        ◄ patch_33: filtra por structure_id quando disponível;
+         patch_33: filtra por structure_id quando disponível;
         fallback transparente para aba.
-        ◄ patch_3a: select_parts deriva aba de structure_id (e vice-versa)
+         patch_3a: select_parts deriva aba de structure_id (e vice-versa)
         quando a coluna física não existe na tabela.
         """
         if not self._consolidations_table:
@@ -256,7 +256,7 @@ class UIDataModel:
         else:
             pl_pct_expr = "NULL"
 
-        # ◄ patch_3a: deriva aba <-> structure_id quando coluna física ausente
+        #  patch_3a: deriva aba <-> structure_id quando coluna física ausente
         select_parts = []
         for alias in [
             "timestamp", "structure_id", "aba", "decision", "level",
@@ -308,7 +308,7 @@ class UIDataModel:
                 except Exception:
                     pass
 
-            # ◄ patch_33: filtro por structure_id ou aba (compat)
+            #  patch_33: filtro por structure_id ou aba (compat)
             structure_filter = filters.get("structure_id")
             if structure_filter is not None:
                 try:
@@ -319,8 +319,8 @@ class UIDataModel:
                         f"structure_id deve ser inteiro; recebido: {structure_filter!r}"
                     ) from exc
 
-            # ◄ patch_3a: filtro por aba (ticker TEXT) — campo independente no banco
-            aba_filter = filters.get("aba")  # patch_53b: filtro por aba TEXT — compat legado
+            #  patch_3a: filtro por aba (ticker TEXT) -- campo independente no banco
+            aba_filter = filters.get("aba")  # patch_53b: filtro por aba TEXT -- compat legado
             if aba_filter is not None:
                 where.append("t.aba = ?")
                 params.append(str(aba_filter))
@@ -353,7 +353,7 @@ class UIDataModel:
         for r in rows:
             item = dict(r)
 
-            # ◄ patch_3a: adapter layer — garante ambos os campos sempre presentes
+            #  patch_3a: adapter layer -- garante ambos os campos sempre presentes
             # structure_id é autoritativo (int); aba é TEXT derivado
             if item.get("structure_id") is None and item.get("aba") is not None:
                 # legado: tenta extrair int de aba
@@ -389,7 +389,7 @@ class UIDataModel:
 
     def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
         """
-        ◄ patch_33: resolve chave via _structure_filter_col.
+         patch_33: resolve chave via _structure_filter_col.
         Aceita structure_id como inteiro ou string numerica ("7").
         Strings nao-numericas lancam ValueError.
         """
@@ -418,7 +418,7 @@ class UIDataModel:
                 f"Tabela {self._payoff_table} não possui colunas esperadas para payoff."
             )
 
-        # ◄ patch_33: resolve coluna de estrutura
+        #  patch_33: resolve coluna de estrutura
         # patch_34: structure_id e sempre INTEGER
         filter_col = self._structure_filter_col(p)
         filter_val = self._resolve_structure_key(structure_id)
@@ -466,7 +466,7 @@ class UIDataModel:
         self, structure_id: str, timestamp: str
     ) -> Tuple[List[Dict], Dict]:
         """
-        ◄ patch_33: usa structure_id como chave primária quando disponível.
+         patch_33: usa structure_id como chave primária quando disponível.
         Fallback para aba mantido para compatibilidade.
         """
         import time
@@ -489,7 +489,7 @@ class UIDataModel:
             return cached.get("points", []), cached.get("info", {})
 
         p = self._payoff_cols
-        # ◄ patch_33: resolve coluna + valor de filtro
+        #  patch_33: resolve coluna + valor de filtro
         # patch_34: structure_id e sempre INTEGER
         filter_col = self._structure_filter_col(p)
 
@@ -498,13 +498,13 @@ class UIDataModel:
             filter_val = self._resolve_structure_key(structure_id)
             info: Dict[str, Any] = {
                 "structure_id": structure_id,
-                "aba": structure_id,   # ◄ patch_3a: aba espelha structure_id (compat)
+                "aba": structure_id,   #  patch_3a: aba espelha structure_id (compat)
                 "requested_timestamp": timestamp,
                 "used_timestamp": timestamp,
                 "fallback": False,
                 "source_table": self._payoff_table,
-                "filter_col": filter_col,       # ◄ patch_33: auditoria
-                "filter_val": filter_val,       # ◄ patch_33: auditoria
+                "filter_col": filter_col,       #  patch_33: auditoria
+                "filter_val": filter_val,       #  patch_33: auditoria
                 "count_points": 0,
                 "created_at": None,
                 "meta_json": None,
@@ -627,7 +627,7 @@ class UIDataModel:
         n_structures = len(self._cache_structures)
         payoff_ok = bool(self._payoff_table)
 
-        # ◄ patch_33: reporta qual coluna de filtro está ativa
+        #  patch_33: reporta qual coluna de filtro está ativa
         p = self._payoff_cols
         try:
             filter_col = self._structure_filter_col(p)
@@ -640,7 +640,7 @@ class UIDataModel:
             f"Consolidações: {ctbl} (linhas: {cnt}, estruturas: {n_structures})\n"
             f"Timestamp mais recente: {last_ts}\n"
             f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
-            f"Filtro de estrutura ativo: {filter_info}"    # ◄ patch_33
+            f"Filtro de estrutura ativo: {filter_info}"    #  patch_33
         )
 
     def clear_cache(self):

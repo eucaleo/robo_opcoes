@@ -19,18 +19,18 @@ SEP = "=" * 60
 
 
 def _ok(label, val):
-    print(f"  ✓ {label}: {val}")
+    print(f"   {label}: {val}")
 
 
 def _warn(label, val):
-    print(f"  ⚠ {label}: {val}")
+    print(f"  [AVISO] {label}: {val}")
 
 
 def _miss(label):
-    print(f"  ✗ {label}: NÃO ENCONTRADO")
+    print(f"  [x] {label}: NÃO ENCONTRADO")
 
 
-# ── 1. Python ────────────────────────────────────────────────
+#  1. Python 
 
 def audit_python():
     print(f"\n[1/7] Python")
@@ -38,7 +38,7 @@ def audit_python():
     _ok("executável", sys.executable)
 
 
-# ── 2. Pacotes instalados (pip freeze) ───────────────────────
+#  2. Pacotes instalados (pip freeze) 
 
 FRAMEWORKS_DE_INTERESSE = [
     # UI / Web
@@ -83,7 +83,7 @@ def audit_packages():
         _warn("erro ao checar pacotes", str(e))
 
 
-# ── 3. Estrutura de pastas relevante ─────────────────────────
+#  3. Estrutura de pastas relevante 
 
 DIRS_DE_INTERESSE = [
     "api", "app", "ui", "frontend", "web", "views",
@@ -103,7 +103,7 @@ def audit_dirs():
             _miss(f"/{d}")
 
 
-# ── 4. Arquivos de entrada / ponto de início do app ──────────
+#  4. Arquivos de entrada / ponto de início do app 
 
 ENTRYPOINTS = [
     "app.py", "main.py", "run.py", "server.py",
@@ -124,7 +124,7 @@ def audit_entrypoints():
                 lines = path.read_text(encoding="utf-8").splitlines()[:5]
                 for l in lines:
                     if l.strip():
-                        print(f"      │ {l}")
+                        print(f"       {l}")
             except Exception:
                 pass
             found_any = True
@@ -132,7 +132,7 @@ def audit_entrypoints():
         _miss("nenhum entrypoint padrão encontrado")
 
 
-# ── 5. Presença de API já existente ──────────────────────────
+#  5. Presença de API já existente 
 
 API_INDICATORS = [
     "api/", "routes/", "controllers/",
@@ -159,14 +159,14 @@ def audit_api_presence():
         if hits:
             _ok(f'"{pattern}" encontrado em', len(hits))
             for h in hits[:4]:
-                print(f"      → {h}")
+                print(f"       {h}")
             if len(hits) > 4:
                 print(f"      ... +{len(hits) - 4} arquivo(s)")
         else:
             _miss(f'"{pattern}"')
 
 
-# ── 6. Banco de dados ─────────────────────────────────────────
+#  6. Banco de dados 
 
 def audit_databases():
     print(f"\n[6/7] Bancos de dados")
@@ -183,7 +183,7 @@ def audit_databases():
         _warn(str(db.relative_to(PROJECT_ROOT)), f"{size_kb:.1f} KB (sqlite3 solto)")
 
 
-# ── 7. requirements.txt / pyproject.toml ─────────────────────
+#  7. requirements.txt / pyproject.toml 
 
 def audit_requirements():
     print(f"\n[7/7] Arquivos de dependências")
@@ -196,16 +196,16 @@ def audit_requirements():
             # primeiras linhas relevantes
             for l in lines[:15]:
                 if l.strip() and not l.strip().startswith("#"):
-                    print(f"      │ {l}")
+                    print(f"       {l}")
         else:
             _miss(fname)
 
 
-# ── main ─────────────────────────────────────────────────────
+#  main 
 
 def main():
     print(SEP)
-    print("AUDITORIA DE FRAMEWORK / STACK — projeto")
+    print("AUDITORIA DE FRAMEWORK / STACK -- projeto")
     print(SEP)
 
     audit_python()
@@ -217,7 +217,7 @@ def main():
     audit_requirements()
 
     print(f"\n{SEP}")
-    print("✅  Auditoria concluída — cole o output acima")
+    print("[OK]  Auditoria concluída -- cole o output acima")
     print(SEP)
 
 

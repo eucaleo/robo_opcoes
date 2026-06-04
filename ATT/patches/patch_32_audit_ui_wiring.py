@@ -1,5 +1,5 @@
 """
-patch_32 — Auditoria de wiring da UI
+patch_32 -- Auditoria de wiring da UI
 
 Objetivo:
   Mapear exatamente o que cada componente/modelo da UI
@@ -11,9 +11,9 @@ Objetivo:
     - A UI já consome DerivedRepo / derived.db?
     - Há imports quebrados após o fix do __init__.py?
 
-DECISÃO PERMANENTE [patch_32:aba_alias_readonly] — 2026-06-01
+DECISÃO PERMANENTE [patch_32:aba_alias_readonly] -- 2026-06-01
   'aba' removido de LEGACY_TERMS. get_abas() é alias readonly de
-  get_structure_ids() em ui_data.py — não é acoplamento legado.
+  get_structure_ids() em ui_data.py -- não é acoplamento legado.
   ALIAS_READONLY_TERMS criado para rastrear sem gerar alerta MISTO.
   Não reverter. Não reabrir.
 
@@ -27,15 +27,15 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-# ── Paths ──────────────────────────────────────────────────────────────────
+#  Paths 
 RAIZ      = Path(__file__).resolve().parent.parent.parent
 UI_DIR    = RAIZ / "UI"
 BAK_DIR   = RAIZ / "BAK"
 DOCS_DIR  = RAIZ / "docs"
 TIMESTAMP = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-# ── Termos que indicam acoplamento LEGADO ──────────────────────────────────
-# NOTA: 'aba' foi removido intencionalmente — ver DECISÃO PERMANENTE no topo.
+#  Termos que indicam acoplamento LEGADO 
+# NOTA: 'aba' foi removido intencionalmente -- ver DECISÃO PERMANENTE no topo.
 LEGACY_TERMS = [
     "rtd_analise_robo",
     "rtd_analise_robo_legs",
@@ -47,15 +47,15 @@ LEGACY_TERMS = [
     "robo_legs_repository",
 ]
 
-# ── Termos alias readonly — rastreados sem gerar alerta LEGADO ─────────────
+#  Termos alias readonly -- rastreados sem gerar alerta LEGADO 
 # DECISÃO PERMANENTE patch_32:aba_alias_readonly (2026-06-01)
 # Presença aceita e intencional. NÃO migrar. NÃO alertar.
 ALIAS_READONLY_TERMS = [
     "get_abas",   # alias de get_structure_ids() em ui_data.py
-    "aba",        # campo de leitura retrocompatível — NÃO é chave de filtro SQL
+    "aba",        # campo de leitura retrocompatível -- NÃO é chave de filtro SQL
 ]
 
-# ── Termos canônicos ───────────────────────────────────────────────────────
+#  Termos canônicos 
 CANONICAL_TERMS = [
     "StructuresRepository",
     "structures_repository",
@@ -75,12 +75,12 @@ DERIVED_DB_TERMS = [
 ]
 
 
-# ── Coleta arquivos Python da UI ───────────────────────────────────────────
+#  Coleta arquivos Python da UI 
 def coletar_arquivos_ui() -> list[Path]:
     return sorted(UI_DIR.rglob("*.py"))
 
 
-# ── Extrai imports e chamadas de um arquivo ────────────────────────────────
+#  Extrai imports e chamadas de um arquivo 
 def analisar_arquivo(path: Path) -> dict:
     try:
         source = path.read_text(encoding="utf-8", errors="replace")
@@ -108,7 +108,7 @@ def analisar_arquivo(path: Path) -> dict:
                     for alias in node.names:
                         resultado["imports"].append(alias.name)
     except SyntaxError:
-        resultado["imports"].append("(erro de sintaxe — AST falhou)")
+        resultado["imports"].append("(erro de sintaxe -- AST falhou)")
 
     # varredura textual por termos
     linhas = source.splitlines()
@@ -134,7 +134,7 @@ def analisar_arquivo(path: Path) -> dict:
                     "linha":  i,
                     "trecho": linha.strip()[:120],
                 })
-        # ── alias readonly: rastreia sem alertar ───────────────────
+        #  alias readonly: rastreia sem alertar 
         for termo in ALIAS_READONLY_TERMS:
             if termo in linha:
                 resultado["alias_readonly"].append({
@@ -146,7 +146,7 @@ def analisar_arquivo(path: Path) -> dict:
     return resultado
 
 
-# ── Classifica wiring de cada arquivo ─────────────────────────────────────
+#  Classifica wiring de cada arquivo 
 def classificar(analise: dict) -> str:
     tem_legado   = len(analise.get("legado", [])) > 0
     tem_canonico = len(analise.get("canonico", [])) > 0
@@ -162,13 +162,13 @@ def classificar(analise: dict) -> str:
     return "NEUTRO"
 
 
-# ── Gera relatório Markdown ────────────────────────────────────────────────
+#  Gera relatório Markdown 
 def gerar_markdown(resultados: list[dict]) -> str:
     linhas = [
-        "# Auditoria de Wiring da UI — patch_32",
+        "# Auditoria de Wiring da UI -- patch_32",
         f"Gerado em: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
         "",
-        "> **DECISÃO PERMANENTE** `patch_32:aba_alias_readonly` — "
+        "> **DECISÃO PERMANENTE** `patch_32:aba_alias_readonly` -- "
         "`aba` removido de LEGACY_TERMS. "
         "`get_abas()` é alias readonly de `get_structure_ids()`. "
         "Não é legado. Não reabrir.",
@@ -185,11 +185,11 @@ def gerar_markdown(resultados: list[dict]) -> str:
             continue
         cls   = classificar(r)
         emoji = {
-            "LEGADO_PURO": "🔴",
-            "MISTO":       "🟡",
-            "CANONICO":    "🟢",
-            "NEUTRO":      "⚪",
-        }.get(cls, "❓")
+            "LEGADO_PURO": "[ERRO]",
+            "MISTO":       "[PARCIAL]",
+            "CANONICO":    "[OK]",
+            "NEUTRO":      "",
+        }.get(cls, "")
 
         linhas.append(
             f"| `{r['arquivo']}` | {emoji} {cls} "
@@ -207,7 +207,7 @@ def gerar_markdown(resultados: list[dict]) -> str:
         if cls == "NEUTRO" and not r.get("alias_readonly"):
             continue
 
-        linhas.append(f"### `{r['arquivo']}` — {cls}")
+        linhas.append(f"### `{r['arquivo']}` -- {cls}")
         linhas.append("")
 
         if r["imports"]:
@@ -217,36 +217,36 @@ def gerar_markdown(resultados: list[dict]) -> str:
             linhas.append("")
 
         if r["legado"]:
-            linhas.append("**⚠️ Acoplamentos LEGADO:**")
+            linhas.append("**[AVISO] Acoplamentos LEGADO:**")
             for oc in r["legado"]:
                 linhas.append(
-                    f"- L{oc['linha']} `{oc['termo']}` → `{oc['trecho']}`"
+                    f"- L{oc['linha']} `{oc['termo']}`  `{oc['trecho']}`"
                 )
             linhas.append("")
 
         if r["canonico"]:
-            linhas.append("**✅ Referências CANÔNICAS:**")
+            linhas.append("**[OK] Referências CANÔNICAS:**")
             for oc in r["canonico"]:
                 linhas.append(
-                    f"- L{oc['linha']} `{oc['termo']}` → `{oc['trecho']}`"
+                    f"- L{oc['linha']} `{oc['termo']}`  `{oc['trecho']}`"
                 )
             linhas.append("")
 
         if r["derived_db"]:
-            linhas.append("**📦 Referências derived.db:**")
+            linhas.append("**[PACOTE] Referências derived.db:**")
             for oc in r["derived_db"]:
                 linhas.append(
-                    f"- L{oc['linha']} `{oc['termo']}` → `{oc['trecho']}`"
+                    f"- L{oc['linha']} `{oc['termo']}`  `{oc['trecho']}`"
                 )
             linhas.append("")
 
         if r.get("alias_readonly"):
             linhas.append(
-                "**ℹ️ Alias readonly (aceito — DECISÃO PERMANENTE — não migrar):**"
+                "**[INFO] Alias readonly (aceito -- DECISÃO PERMANENTE -- não migrar):**"
             )
             for oc in r["alias_readonly"]:
                 linhas.append(
-                    f"- L{oc['linha']} `{oc['termo']}` → `{oc['trecho']}`"
+                    f"- L{oc['linha']} `{oc['termo']}`  `{oc['trecho']}`"
                 )
             linhas.append("")
 
@@ -261,26 +261,26 @@ def gerar_markdown(resultados: list[dict]) -> str:
         "",
         "## Sumário final",
         "",
-        f"- 🔴 LEGADO_PURO : {contagem['LEGADO_PURO']} arquivo(s)",
-        f"- 🟡 MISTO       : {contagem['MISTO']} arquivo(s)",
-        f"- 🟢 CANÔNICO    : {contagem['CANONICO']} arquivo(s)",
-        f"- ⚪ NEUTRO      : {contagem['NEUTRO']} arquivo(s)",
+        f"- [ERRO] LEGADO_PURO : {contagem['LEGADO_PURO']} arquivo(s)",
+        f"- [PARCIAL] MISTO       : {contagem['MISTO']} arquivo(s)",
+        f"- [OK] CANÔNICO    : {contagem['CANONICO']} arquivo(s)",
+        f"-  NEUTRO      : {contagem['NEUTRO']} arquivo(s)",
         "",
         "### Ação recomendada",
-        "- LEGADO_PURO → migrar para domínio canônico",
-        "- MISTO       → avaliar caso a caso; priorizar remoção do legado",
-        "- CANÔNICO    → manter; validar no smoke",
-        "- Alias readonly → nenhuma ação necessária (decisão permanente registrada)",
+        "- LEGADO_PURO  migrar para domínio canônico",
+        "- MISTO        avaliar caso a caso; priorizar remoção do legado",
+        "- CANÔNICO     manter; validar no smoke",
+        "- Alias readonly  nenhuma ação necessária (decisão permanente registrada)",
         "",
     ]
 
     return "\n".join(linhas)
 
 
-# ── Main ───────────────────────────────────────────────────────────────────
+#  Main 
 def run():
     print("=" * 60)
-    print("  patch_32 — Auditoria wiring UI")
+    print("  patch_32 -- Auditoria wiring UI")
     print(f"  Raiz : {RAIZ}")
     print("=" * 60)
 
@@ -291,8 +291,8 @@ def run():
     for arq in arquivos:
         analise = analisar_arquivo(arq)
         cls     = classificar(analise) if "erro" not in analise else "ERRO"
-        emoji   = {"LEGADO_PURO": "🔴", "MISTO": "🟡",
-                   "CANONICO": "🟢", "NEUTRO": "⚪"}.get(cls, "❓")
+        emoji   = {"LEGADO_PURO": "[ERRO]", "MISTO": "[PARCIAL]",
+                   "CANONICO": "[OK]", "NEUTRO": ""}.get(cls, "")
         print(f"  {emoji}  {analise['arquivo']}  [{cls}]")
         resultados.append(analise)
 
@@ -303,14 +303,14 @@ def run():
         json.dumps(resultados, indent=2, ensure_ascii=False),
         encoding="utf-8"
     )
-    print(f"\n  💾  JSON bruto salvo: {json_path.relative_to(RAIZ)}")
+    print(f"\n  [SAVE]  JSON bruto salvo: {json_path.relative_to(RAIZ)}")
 
     # Salva Markdown em docs/
     DOCS_DIR.mkdir(exist_ok=True)
     md_path    = DOCS_DIR / "audit_ui_wiring_patch32.md"
     md_content = gerar_markdown(resultados)
     md_path.write_text(md_content, encoding="utf-8")
-    print(f"  📄  Relatório salvo : {md_path.relative_to(RAIZ)}")
+    print(f"  [ARQUIVO]  Relatório salvo : {md_path.relative_to(RAIZ)}")
 
     # Sumário no terminal
     contagem = {"LEGADO_PURO": 0, "MISTO": 0, "CANONICO": 0, "NEUTRO": 0}
@@ -320,20 +320,20 @@ def run():
 
     print("\n" + "=" * 60)
     print("  SUMÁRIO")
-    print(f"  🔴 LEGADO_PURO : {contagem['LEGADO_PURO']}")
-    print(f"  🟡 MISTO       : {contagem['MISTO']}")
-    print(f"  🟢 CANÔNICO    : {contagem['CANONICO']}")
-    print(f"  ⚪ NEUTRO      : {contagem['NEUTRO']}")
+    print(f"  [ERRO] LEGADO_PURO : {contagem['LEGADO_PURO']}")
+    print(f"  [PARCIAL] MISTO       : {contagem['MISTO']}")
+    print(f"  [OK] CANÔNICO    : {contagem['CANONICO']}")
+    print(f"   NEUTRO      : {contagem['NEUTRO']}")
     print("=" * 60)
 
     if contagem["LEGADO_PURO"] > 0:
         print(
-            f"\n  ⚠️  {contagem['LEGADO_PURO']} arquivo(s) LEGADO_PURO "
-            "— wiring canônico necessário"
+            f"\n  [AVISO]  {contagem['LEGADO_PURO']} arquivo(s) LEGADO_PURO "
+            "-- wiring canônico necessário"
         )
         return 1
 
-    print("\n  ✅  UI sem acoplamentos LEGADO_PURO detectados")
+    print("\n  [OK]  UI sem acoplamentos LEGADO_PURO detectados")
     return 0
 
 

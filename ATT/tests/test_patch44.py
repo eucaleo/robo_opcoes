@@ -1,5 +1,5 @@
 """
-Testes do patch_44 — fronteira domínio/DTO.
+Testes do patch_44 -- fronteira domínio/DTO.
 Garante que payoff.py e decision.py não acessam banco diretamente.
 """
 import os
@@ -55,28 +55,28 @@ class TestPatch44DomainNaoAcessaDB(unittest.TestCase):
         with open(DOMAIN_PAYOFF, encoding="utf-8") as f:
             src = f.read()
         self.assertNotIn("import sqlite3", src,
-                         "domain/payoff.py importa sqlite3 diretamente — violação de fronteira")
+                         "domain/payoff.py importa sqlite3 diretamente -- violação de fronteira")
 
     def test_decision_nao_importa_sqlite3(self):
         self.assertTrue(os.path.isfile(DOMAIN_DECISION), "domain/decision.py não encontrado")
         with open(DOMAIN_DECISION, encoding="utf-8") as f:
             src = f.read()
         self.assertNotIn("import sqlite3", src,
-                         "domain/decision.py importa sqlite3 diretamente — violação de fronteira")
+                         "domain/decision.py importa sqlite3 diretamente -- violação de fronteira")
 
     def test_payoff_nao_chama_get_app_db_connection(self):
         self.assertTrue(os.path.isfile(DOMAIN_PAYOFF))
         with open(DOMAIN_PAYOFF, encoding="utf-8") as f:
             src = f.read()
         self.assertNotIn("get_app_db_connection", src,
-                         "domain/payoff.py chama get_app_db_connection — violação de fronteira")
+                         "domain/payoff.py chama get_app_db_connection -- violação de fronteira")
 
     def test_decision_nao_chama_get_app_db_connection(self):
         self.assertTrue(os.path.isfile(DOMAIN_DECISION))
         with open(DOMAIN_DECISION, encoding="utf-8") as f:
             src = f.read()
         self.assertNotIn("get_app_db_connection", src,
-                         "domain/decision.py chama get_app_db_connection — violação de fronteira")
+                         "domain/decision.py chama get_app_db_connection -- violação de fronteira")
 
 
 class TestPatch44PayoffPuro(unittest.TestCase):
@@ -129,7 +129,7 @@ class TestPatch44DecisionPuro(unittest.TestCase):
             [sys.executable, SCRIPT],
             capture_output=True, text=True, cwd=ROOT
         )
-        # exit 0 = domínio limpo, exit 1 = violações encontradas — ambos geram relatório
+        # exit 0 = domínio limpo, exit 1 = violações encontradas -- ambos geram relatório
         self.assertTrue(
             os.path.isfile(REPORT_PATH),
             f"Relatório JSON não foi gerado em {os.path.relpath(REPORT_PATH, ROOT)}",

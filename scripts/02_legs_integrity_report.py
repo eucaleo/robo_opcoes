@@ -43,7 +43,7 @@ def main() -> int:
             print("NULL/empty strike:", null_strike)
             print("NULL/empty quant:", null_quant)
 
-            # Valores fora do padrão (heurística, sem “corrigir” nada)
+            # Valores fora do padrão (heurística, sem "corrigir" nada)
             bad_call_put = count(conn, f"""
                 SELECT COUNT(*) FROM {t}
                 WHERE call_put IS NOT NULL

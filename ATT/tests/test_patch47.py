@@ -1,5 +1,5 @@
 """
-patch_47 — Testes: run_decision auto-extract + run_full_pipeline + multiplier fix.
+patch_47 -- Testes: run_decision auto-extract + run_full_pipeline + multiplier fix.
 """
 from __future__ import annotations
 

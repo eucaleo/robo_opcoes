@@ -39,7 +39,7 @@ class MainWindow:
 
         # Loading animation
         self._loading_animation_active = False
-        self._loading_animation_chars = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+        self._loading_animation_chars = ["", "", "", "", "", "", "", "", "", ""]
         self._loading_animation_index = 0
         self._loading_payoff = False
         self._stop_loading_animation()
@@ -105,7 +105,7 @@ class MainWindow:
         self.payoff_chart = PayoffChart(chart_frame)
         self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
 
-        # Aba 3: Estruturas (Fase 5 — patch_10)
+        # Aba 3: Estruturas (Fase 5 -- patch_10)
         self._setup_structures_tab(right_notebook)
 
         # Status bar
@@ -167,7 +167,7 @@ class MainWindow:
 
     def on_decision_selected(self, decision_data: Dict):
         """Callback quando uma decisão é selecionada no grid.
-        patch_36: structure_id é suficiente para carregar payoff — timestamp não é obrigatório.
+        patch_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
         """
         if not decision_data:
             return
@@ -180,7 +180,7 @@ class MainWindow:
         except Exception as e:
             print(f"[UI] Erro ao atualizar detalhes: {e}")
 
-        # Carregar payoff em background — apenas structure_id necessário
+        # Carregar payoff em background -- apenas structure_id necessário
         structure_id = decision_data.get("structure_id")
         timestamp = decision_data.get("timestamp")  # opcional
 
@@ -267,7 +267,7 @@ class MainWindow:
 
     def refresh_data(self):
         """Recarrega dados do banco.
-        patch_36: preserva seleção usando structure_id como chave — timestamp é auxiliar.
+        patch_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
         """
         self.status_bar.config(text="Carregando dados...")
         try:
@@ -503,16 +503,16 @@ Desenvolvido para análise de estruturas de opções
 Pipeline automático de payoff e decisões
 
 Camadas:
-• Excel RTD → CSV Bridge
-• Ingest Python → app.db
-• Domain Layer → derived.db
-• UI Tkinter (esta interface)
+* Excel RTD  CSV Bridge
+* Ingest Python  app.db
+* Domain Layer  derived.db
+* UI Tkinter (esta interface)
 
 Baseline: executed_v1 + baseline_v1b"""
         messagebox.showinfo("Sobre", about_text)
 
     # ------------------------------------------------------------------
-    # Handlers de payoff (thread → main thread)
+    # Handlers de payoff (thread  main thread)
     # ------------------------------------------------------------------
 
     def _finish_payoff_load(
@@ -599,18 +599,18 @@ Baseline: executed_v1 + baseline_v1b"""
         self._loading_animation_active = False
 
     # ------------------------------------------------------------------
-    # Aba Estruturas (Fase 5 — patch_10)
+    # Aba Estruturas (Fase 5 -- patch_10)
     # ------------------------------------------------------------------
 
     def _setup_structures_tab(self, notebook: ttk.Notebook):
         """Aba 'Estruturas' no notebook principal."""
         outer = ttk.Frame(notebook)
-        notebook.add(outer, text="🏗 Estruturas")
+        notebook.add(outer, text=" Estruturas")
 
         paned = ttk.PanedWindow(outer, orient="horizontal")
         paned.pack(fill="both", expand=True, padx=4, pady=4)
 
-        # Painel esquerdo — lista
+        # Painel esquerdo -- lista
         list_frame = ttk.Frame(paned)
         paned.add(list_frame, weight=1)
 
@@ -622,7 +622,7 @@ Baseline: executed_v1 + baseline_v1b"""
         )
         self.structures_list.pack(fill="both", expand=True)
 
-        # Painel direito — detalhes somente leitura
+        # Painel direito -- detalhes somente leitura
         detail_frame = ttk.LabelFrame(paned, text="Detalhes", padding=8)
         paned.add(detail_frame, weight=1)
 
@@ -649,19 +649,19 @@ Baseline: executed_v1 + baseline_v1b"""
                 f"ID         : {structure.get('id')}",
                 f"Nome       : {structure.get('name')}",
                 f"Ativo      : {structure.get('underlying_asset')}",
-                f"Aba legado : {structure.get('alias_legacy_aba') or '—'}",
+                f"Aba legado : {structure.get('alias_legacy_aba') or '--'}",
                 f"Status     : {structure.get('status')}",
                 f"Criado em  : {str(structure.get('created_at', ''))[:19]}",
                 f"Atualizado : {str(structure.get('updated_at', ''))[:19]}",
-                f"Obs        : {structure.get('notes') or '—'}",
+                f"Obs        : {structure.get('notes') or '--'}",
                 "",
-                f"──── {len(legs)} Leg(s) ────",
+                f" {len(legs)} Leg(s) ",
             ]
             for i, leg in enumerate(legs, 1):
                 lines += [
                     f"  Leg {i}: {leg.get('position_side')} {leg.get('option_type')}",
                     f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
-                    f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '—'}",
+                    f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '--'}",
                     f"         Prêmio : {leg.get('premium')}  Mult: {leg.get('multiplier')}",
                     "",
                 ]

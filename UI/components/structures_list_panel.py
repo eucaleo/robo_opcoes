@@ -1,6 +1,6 @@
 # UI/components/structures_list_panel.py
 """
-StructuresListPanel — patch_10 / Fase 5
+StructuresListPanel -- patch_10 / Fase 5
 Lista de estruturas com filtro de status, botões CRUD e duplicar.
 
 Contrato com main_window.py:
@@ -16,8 +16,8 @@ Atributos públicos esperados pelos testes de integração:
     _status_var     tk.StringVar  ("active" | "all")
     load()          recarrega a lista do banco
 """
-
 from __future__ import annotations
+
 
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -26,9 +26,9 @@ from typing import Callable, Optional
 from repositories.structures_repository import StructuresRepository
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 # Constantes de layout
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 _COLUMNS = ("id", "name", "underlying_asset", "alias", "status", "legs")
 _HEADERS = {
     "id":               ("ID",       45,  tk.CENTER),
@@ -64,9 +64,9 @@ class StructuresListPanel(ttk.Frame):
 
         self.load()
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Construção da UI
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _build_toolbar(self):
         """Barra superior: filtro de status + busca por nome."""
@@ -92,7 +92,7 @@ class StructuresListPanel(ttk.Frame):
         search_entry.pack(side="left", padx=(2, 4))
         self._search_var.trace_add("write", lambda *_: self._apply_filter())
 
-        ttk.Button(toolbar, text="↺", width=3,
+        ttk.Button(toolbar, text="", width=3,
                    command=self.load).pack(side="left")
 
     def _build_tree(self):
@@ -135,18 +135,18 @@ class StructuresListPanel(ttk.Frame):
 
         actions = [
             ("+ Nova",     self._cmd_new),
-            ("✏ Editar",   self._cmd_edit),
-            ("⧉ Duplicar", self._cmd_duplicate),
-            ("🗄 Arquivar", self._cmd_archive),
+            (" Editar",   self._cmd_edit),
+            (" Duplicar", self._cmd_duplicate),
+            (" Arquivar", self._cmd_archive),
         ]
         for label, cmd in actions:
             ttk.Button(btn_bar, text=label, command=cmd).pack(
                 side="left", padx=2, pady=2
             )
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Carregamento / filtro
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def load(self):
         """Recarrega do banco respeitando o filtro de status atual."""
@@ -182,9 +182,9 @@ class StructuresListPanel(ttk.Frame):
                     row["id"],
                     row["name"],
                     row["underlying_asset"],
-                    row.get("alias_legacy_aba") or "—",
+                    row.get("alias_legacy_aba") or "--",
                     row["status"],
-                    n_legs if n_legs else "—",
+                    n_legs if n_legs else "--",
                 ),
                 tags=(row["status"],),
             )
@@ -194,9 +194,9 @@ class StructuresListPanel(ttk.Frame):
             self._tree.selection_set(str(sel_id))
             self._tree.see(str(sel_id))
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Helpers internos
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _selected_id(self) -> Optional[int]:
         sel = self._tree.selection()
@@ -220,16 +220,16 @@ class StructuresListPanel(ttk.Frame):
                  for iid in self._tree.get_children("")]
         reverse = getattr(self, f"_sort_rev_{col}", False)
         try:
-            items.sort(key=lambda x: (x[0] == "—", x[0]), reverse=reverse)
+            items.sort(key=lambda x: (x[0] == "--", x[0]), reverse=reverse)
         except TypeError:
             items.sort(key=lambda x: str(x[0]), reverse=reverse)
         for idx, (_, iid) in enumerate(items):
             self._tree.move(iid, "", idx)
         setattr(self, f"_sort_rev_{col}", not reverse)
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Callbacks da Treeview
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _on_tree_select(self, _event=None):
         sid = self._selected_id()
@@ -244,9 +244,9 @@ class StructuresListPanel(ttk.Frame):
         if sid is not None:
             self._on_request_edit(sid)
 
-    # ─────────────────────────────────────────────────────────────────
+    # 
     # Comandos dos botões
-    # ─────────────────────────────────────────────────────────────────
+    # 
 
     def _cmd_new(self):
         self._on_request_edit(None)

@@ -1,21 +1,21 @@
 # scripts/audit_legacy_residuals_patch52.py
 """
-patch_52 — Auditoria de residuos ativos do legado (baseline fase 7)
+patch_52 -- Auditoria de residuos ativos do legado (baseline fase 7)
 
 Varre services/, repositories/, domain/ em busca de uso de 'aba'
 que nao seja alias_legacy_aba ou wrapper de compatibilidade controlada.
 
 Classifica cada ocorrencia:
-  alias_ok          — uso de alias_legacy_aba (esperado, nao e residuo)
-  bridge_controlado — wrapper/fallback documentado explicitamente
-  residuo_ativo     — uso de 'aba' como dado operacional real (alvo de remocao)
+  alias_ok          -- uso de alias_legacy_aba (esperado, nao e residuo)
+  bridge_controlado -- wrapper/fallback documentado explicitamente
+  residuo_ativo     -- uso de 'aba' como dado operacional real (alvo de remocao)
 
 Saidas:
   ATT/reports/legacy_residuals_patch52.md
   ATT/reports/legacy_residuals_patch52.json
 """
-
 from __future__ import annotations
+
 
 import json
 import re
@@ -43,7 +43,7 @@ SCAN_DIRS = [
 REPORTS_DIR = PROJECT_ROOT / "ATT" / "reports"
 
 # Padroes que caracterizam residuo ativo
-# ORDEM IMPORTA — loop para no primeiro match por linha.
+# ORDEM IMPORTA -- loop para no primeiro match por linha.
 # Padroes mais especificos devem vir antes dos mais genericos.
 RESIDUO_PATTERNS = [
     # assinatura de funcao com parametro 'aba'
@@ -55,10 +55,10 @@ RESIDUO_PATTERNS = [
     (r"get_legs\s*\(\s*aba",               "get_legs_com_aba"),
     (r"read_structure_legs\s*\(",           "read_structure_legs_direto"),
     (r"read_structure_summary\s*\(",        "read_structure_summary_direto"),
-    # kwarg aba='...' ou aba="..." ou aba=variavel  — MAIS ESPECIFICO que comparacao_aba
+    # kwarg aba='...' ou aba="..." ou aba=variavel  -- MAIS ESPECIFICO que comparacao_aba
     # deve vir antes de comparacao_aba para que o break pare aqui primeiro
     (r"\baba\s*=\s*(?!None\b)['\"\w]",     "kwarg_aba"),
-    # comparacao generica aba = / aba != / aba < etc  — MENOS ESPECIFICO, vem por ultimo
+    # comparacao generica aba = / aba != / aba < etc  -- MENOS ESPECIFICO, vem por ultimo
     (r'(?<!alias_legacy_)\baba\b\s*[=!<>]', "comparacao_aba"),
 ]
 
@@ -169,7 +169,7 @@ def _varrer_arquivo(caminho: Path, raiz: Path) -> list[Ocorrencia]:
                     padrao=nome_padrao,
                     classificacao=classificacao,
                 ))
-                break  # uma ocorrencia por linha — para no padrao mais especifico
+                break  # uma ocorrencia por linha -- para no padrao mais especifico
 
     return ocorrencias
 
@@ -234,7 +234,7 @@ def construir_relatorio(ocorrencias: list[Ocorrencia], raiz: Path) -> Relatorio:
 
 def gerar_markdown(rel: Relatorio, destino: Path) -> None:
     linhas = [
-        "# patch_52 — Relatorio de Residuos Ativos do Legado",
+        "# patch_52 -- Relatorio de Residuos Ativos do Legado",
         "",
         f"**Gerado em:** {rel.gerado_em}  ",
         f"**Raiz varrida:** `{rel.raiz}`  ",
@@ -317,7 +317,7 @@ def gerar_json(rel: Relatorio, destino: Path) -> None:
 def main() -> int:
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    print("patch_52 — iniciando varredura de residuos legado...")
+    print("patch_52 -- iniciando varredura de residuos legado...")
     print(f"raiz: {PROJECT_ROOT}")
 
     ocorrencias = varrer_projeto(PROJECT_ROOT)

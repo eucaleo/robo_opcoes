@@ -5,22 +5,22 @@ Objetos de domínio para snapshots de mercado.
 patch_12: LegMarketSnapshot, SnapshotSource
 patch_13: StructureMarketSnapshot (agrega legs + cabeçalho RTD)
 """
-
 from __future__ import annotations
+
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Optional
 
 
-# ─── Enum de origem ──────────────────────────────────────────────────────────
+#  Enum de origem 
 
 class SnapshotSource(str, Enum):
     RTD    = "rtd"
     MANUAL = "manual"
 
 
-# ─── Leg individual ──────────────────────────────────────────────────────────
+#  Leg individual 
 
 @dataclass
 class LegMarketSnapshot:
@@ -50,28 +50,28 @@ class LegMarketSnapshot:
     source          : SnapshotSource  = SnapshotSource.RTD
 
 
-# ─── Estrutura completa (cabeçalho + legs) ───────────────────────────────────
+#  Estrutura completa (cabeçalho + legs) 
 
 @dataclass
 class StructureMarketSnapshot:
     """
     Agrega o cabeçalho da estrutura (rtd_analise_robo) e suas legs.
 
-    Atributos do cabeçalho (todos opcionais — podem vir de RTD ou manual):
+    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
       aba, spot, num_pernas, dte_min, pl_realista_total,
       delta_liq, gamma_liq, theta_liq, vega_liq,
       spread_medio, spread_pct_medio, alertas_v2
 
     Atributo agregado:
-      legs  — lista de LegMarketSnapshot
-      source — origem predominante dos dados
+      legs  -- lista de LegMarketSnapshot
+      source -- origem predominante dos dados
     """
 
     aba                : str
     legs               : list[LegMarketSnapshot]        = field(default_factory=list)
     source             : SnapshotSource                 = SnapshotSource.RTD
 
-    # ── cabeçalho RTD / summary ──────────────────────────────────────────────
+    #  cabeçalho RTD / summary 
     spot               : Optional[float] = None
     num_pernas         : Optional[int]   = None
     dte_min            : Optional[int]   = None
@@ -84,7 +84,7 @@ class StructureMarketSnapshot:
     spread_pct_medio   : Optional[float] = None
     alertas_v2         : Optional[str]   = None
 
-    # ── helpers de conveniência ──────────────────────────────────────────────
+    #  helpers de conveniência 
 
     @property
     def num_legs(self) -> int:

@@ -65,14 +65,14 @@ class DerivedPayoffPersistence:
 
             save_payoff_from_canonical_payload(payoff_result)
             logger.info(
-                "derived_payoff_persistence: %d pontos gravados — structure_id=%s",
+                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
                 len(payoff_result["points"]),
                 pricing_payload.get("structure_id"),
             )
 
         except Exception:
             logger.exception(
-                "derived_payoff_persistence: erro ao gravar payoff — structure_id=%s",
+                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
                 pricing_payload.get("structure_id"),
             )
 
@@ -133,13 +133,13 @@ class DerivedPayoffPersistence:
                 underlying_asset=pricing_payload.get("underlying_asset"),
             )
             logger.info(
-                "derived_payoff_persistence: decisão gravada — structure_id=%s",
+                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
                 pricing_payload.get("structure_id"),
             )
 
         except Exception:
             logger.exception(
-                "derived_payoff_persistence: erro ao gravar decisão — structure_id=%s",
+                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
                 pricing_payload.get("structure_id"),
             )
 
@@ -159,11 +159,11 @@ class DerivedPayoffPersistence:
           A) já canônico: { structure: { legs, ... }, market: { spot_price, ... } }
           B) flat:        { legs: [...], spot_price: ..., structure_id: ..., ... }
         """
-        # Formato A — já canônico
+        # Formato A -- já canônico
         if "structure" in pricing_payload and "market" in pricing_payload:
             return pricing_payload
 
-        # Formato B — flat → montar canônico
+        # Formato B -- flat  montar canônico
         structure_id   = pricing_payload.get("structure_id")
         structure_name = pricing_payload.get("structure_name")
         underlying     = pricing_payload.get("underlying_asset")

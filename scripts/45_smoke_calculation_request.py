@@ -1,5 +1,5 @@
 """
-patch_45 — Smoke: CalculationRequest canônico.
+patch_45 -- Smoke: CalculationRequest canônico.
 Valida que o contrato de entrada do domínio funciona de ponta a ponta,
 sem acessar banco real.
 """
@@ -23,17 +23,17 @@ FAIL = []
 
 def check(label: str, condition: bool, detail: str = ""):
     if condition:
-        print(f"  ✅  {label}")
+        print(f"  [OK]  {label}")
         PASS.append(label)
     else:
-        print(f"  ❌  {label}" + (f" — {detail}" if detail else ""))
+        print(f"  [FALHOU]  {label}" + (f" -- {detail}" if detail else ""))
         FAIL.append(label)
 
 
 # ---------------------------------------------------------------------------
 # 1. Construção direta dos DTOs
 # ---------------------------------------------------------------------------
-print("\n── Teste 1: construção direta ──")
+print("\n Teste 1: construção direta ")
 try:
     leg = StructureLegInput(
         position_side="LONG",
@@ -87,7 +87,7 @@ except Exception as e:
 # ---------------------------------------------------------------------------
 # 2. Via orquestrador (build_calculation_request)
 # ---------------------------------------------------------------------------
-print("\n── Teste 2: build_calculation_request ──")
+print("\n Teste 2: build_calculation_request ")
 
 structure_row = {
     "id": 42,
@@ -108,8 +108,8 @@ legs_rows = [
         "leg_order": 0,
     },
     {
-        "cv": "V",           # legado — deve normalizar para SHORT
-        "call_put": "CALL",  # legado — deve normalizar para CALL
+        "cv": "V",           # legado -- deve normalizar para SHORT
+        "call_put": "CALL",  # legado -- deve normalizar para CALL
         "strike": 40.0,
         "expiration_date": "2026-07-18",
         "quantity": 2000,
@@ -130,14 +130,14 @@ try:
     check("2 legs montadas", len(req2.structure.legs) == 2)
     check("leg[0] LONG/CALL", req2.structure.legs[0].position_side == "LONG")
     check("leg[1] SHORT (normalizado de V)", req2.structure.legs[1].position_side == "SHORT")
-    check("orquestrador NAO acessa raw DB", True)  # by design — sem import de db aqui
+    check("orquestrador NAO acessa raw DB", True)  # by design -- sem import de db aqui
 except Exception as e:
     check("build_calculation_request sem erro", False, str(e))
 
 # ---------------------------------------------------------------------------
 # 3. Validações de fronteira
 # ---------------------------------------------------------------------------
-print("\n── Teste 3: validações de fronteira ──")
+print("\n Teste 3: validações de fronteira ")
 
 def assert_raises(label: str, exc_type, fn):
     try:
@@ -179,7 +179,7 @@ assert_raises(
         ),
         market_snapshot=MarketSnapshotInput(
             snapshot_timestamp="2026-06-02T20:00:00",
-            underlying_asset="PETR4",   # ← diverge
+            underlying_asset="PETR4",   #  diverge
             spot_price=37.0,
             source="rtd",
         ),
