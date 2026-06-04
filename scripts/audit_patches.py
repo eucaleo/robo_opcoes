@@ -1442,6 +1442,7 @@ PATCHES = [
             ("from __future__ NAO duplicado no orquestrador",
                 lambda: count_occurrences(
                     "services/calculation_orchestrator.py",
+                    "from __future__"
                 ) <= 1),
 
             #  2. Testes formais -- 17 passed 
