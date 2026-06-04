@@ -353,7 +353,7 @@ def get_payoff_by_aba(ref: StructureRef):
     col, val = ref.db_pair()  # patch_56
     with connect_derived() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
+        cursor.execute(f"""
             SELECT timestamp, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             WHERE {col} = ?

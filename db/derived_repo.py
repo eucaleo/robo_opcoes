@@ -668,6 +668,7 @@ def write_payoff_snapshot_atomic(
 ) -> int:
     ensure_derived_tables(conn)
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+    aba = _unwrap_aba(aba)
     cur = conn.cursor()
     cur.execute(
         "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
@@ -702,6 +703,7 @@ def write_decision_snapshot_atomic(
     decision_dict: Dict[str, Any],
 ) -> int:
     ensure_derived_tables(conn)
+    aba = _unwrap_aba(aba)
     cur = conn.cursor()
     cur.execute(
         "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
@@ -740,6 +742,7 @@ def write_complete_snapshot_atomic(
     points_meta: Optional[Dict] = None,
 ) -> Dict[str, int]:
     ensure_derived_tables(conn)
+    aba = _unwrap_aba(aba)
     with conn:
         pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
         did = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
@@ -755,6 +758,7 @@ def insert_payoff_points(
     meta: Optional[Dict[str, Any]] = None,
 ) -> int:
     ensure_derived_tables(conn)
+    aba = _unwrap_aba(aba)
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     cur = conn.cursor()
     sql = """
@@ -787,6 +791,7 @@ def insert_structure_decision(
     decision_dict: Dict[str, Any],
 ) -> int:
     ensure_derived_tables(conn)
+    aba = _unwrap_aba(aba)
     why, why_json = _normalize_why_fields(decision_dict)
     meta = decision_dict.get("meta")
     cur = conn.cursor()
@@ -819,6 +824,7 @@ def get_payoff_points(
     timestamp: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     ensure_derived_tables(conn)
+    aba = _unwrap_aba(aba)
     cur = conn.cursor()
     if aba and timestamp:
         cur.execute("""
