@@ -37,11 +37,11 @@ except ImportError:
 PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 
 # ---------------------------------------------------------------------------
-# Utilitários de schema (nível módulo — usados por funções avulsas legadas)
+# Utilitários de schema (nível módulo -- usados por funções avulsas legadas)
 # ---------------------------------------------------------------------------
 
 
-# ── patch_56: helper de compatibilidade StructureRef → str ───────────────────
+#  patch_56: helper de compatibilidade StructureRef  str 
 try:
     from src.domain.refs.structure_ref import StructureRef as _StructureRef
 except ImportError:
@@ -58,13 +58,13 @@ def _unwrap_aba(aba_or_ref) -> str:
         resolved = aba_or_ref.aba
         if resolved is None:
             raise ValueError(
-                f"StructureRef.aba é None — use StructureRef.from_aba() ou "
+                f"StructureRef.aba é None -- use StructureRef.from_aba() ou "
                 f"verifique o mapeamento. ref={aba_or_ref!r}"
             )
         return resolved
     return aba_or_ref  # já é str (ou None, para wildcards)
 
-# ─────────────────────────────────────────────────────────────────────────────
+# 
 def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
     cur = conn.cursor()
     cur.execute(f"PRAGMA table_info({table_name})")
@@ -143,7 +143,7 @@ _MIGRATIONS: Dict[str, str] = {
 _migrations = _MIGRATIONS
 
 # ---------------------------------------------------------------------------
-# Helpers internos (nível módulo — reutilizados pela classe e shims)
+# Helpers internos (nível módulo -- reutilizados pela classe e shims)
 # ---------------------------------------------------------------------------
 
 def _normalize_why_fields(
@@ -196,12 +196,12 @@ def _apply_schema(conn: sqlite3.Connection) -> None:
 # ---------------------------------------------------------------------------
 
 def ensure_derived_tables(conn: sqlite3.Connection) -> None:
-    """Shim de compatibilidade — mantém callers legados funcionando."""
+    """Shim de compatibilidade -- mantém callers legados funcionando."""
     _apply_schema(conn)
 
 
 # ===========================================================================
-# DerivedRepo — API canônica com gerenciamento próprio de conexão
+# DerivedRepo -- API canônica com gerenciamento próprio de conexão
 # ===========================================================================
 
 class DerivedRepo:
@@ -232,7 +232,7 @@ class DerivedRepo:
             conn.close()
 
     def _table_columns(self, table: str) -> List[str]:
-        """Alias privado — requerido pelo smoke 70 e audit."""
+        """Alias privado -- requerido pelo smoke 70 e audit."""
         conn = self._connect()
         try:
             return _table_columns(conn, table)
@@ -270,7 +270,7 @@ class DerivedRepo:
         return ts, ab
 
     # ------------------------------------------------------------------
-    # Escrita — decisões
+    # Escrita -- decisões
     # ------------------------------------------------------------------
 
     def write_decision_snapshot_atomic(
@@ -320,7 +320,7 @@ class DerivedRepo:
             conn.close()
 
     # ------------------------------------------------------------------
-    # Escrita — payoff
+    # Escrita -- payoff
     # ------------------------------------------------------------------
 
     def write_payoff_snapshot_atomic(
@@ -411,7 +411,7 @@ class DerivedRepo:
             conn.close()
 
     # ------------------------------------------------------------------
-    # Escrita — snapshot completo
+    # Escrita -- snapshot completo
     # ------------------------------------------------------------------
 
     def write_complete_snapshot_atomic(
@@ -581,9 +581,9 @@ class DerivedRepo:
             ok = not orphan_decisions and not orphan_points
             if not ok:
                 if orphan_decisions:
-                    print(f"❌ {len(orphan_decisions)} decisões sem pontos")
+                    print(f"[FALHOU] {len(orphan_decisions)} decisões sem pontos")
                 if orphan_points:
-                    print(f"❌ {len(orphan_points)} pontos sem decisão")
+                    print(f"[FALHOU] {len(orphan_points)} pontos sem decisão")
             else:
                 print("[ok] Snapshots consistentes")
             return ok
@@ -656,7 +656,7 @@ class DerivedRepo:
 
 
 # ===========================================================================
-# Shims de compatibilidade — funções avulsas legadas
+# Shims de compatibilidade -- funções avulsas legadas
 # ===========================================================================
 
 def write_payoff_snapshot_atomic(
@@ -874,9 +874,9 @@ def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
     ok = not orphan_decisions and not orphan_points
     if not ok:
         if orphan_decisions:
-            print(f"❌ {len(orphan_decisions)} decisões sem pontos")
+            print(f"[FALHOU] {len(orphan_decisions)} decisões sem pontos")
         if orphan_points:
-            print(f"❌ {len(orphan_points)} pontos sem decisão")
+            print(f"[FALHOU] {len(orphan_points)} pontos sem decisão")
     else:
         print("[ok] Snapshots consistentes")
     return ok

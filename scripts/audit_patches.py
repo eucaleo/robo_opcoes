@@ -47,7 +47,7 @@ PERMANENT_DECISIONS = {
         "  e _load_structures. structure_id INTEGER é a única chave canônica.\n"
         "  get_abas() mantido SOMENTE como alias readonly de get_structure_ids()\n"
         "  para compatibilidade de UI. A string 'aba' presente no fonte é\n"
-        "  exclusivamente esse alias — não é filtro legado.\n"
+        "  exclusivamente esse alias -- não é filtro legado.\n"
         "  Os 2 checks X no patch_34 são FALSOS-POSITIVOS do contains() textual.\n"
         "  Não reverter. Não reabrir."
     ),
@@ -61,20 +61,20 @@ PERMANENT_DECISIONS = {
     "patch_32:aba_alias_readonly": (
         "RESOLVIDO 2026-06-01 | branch/3a-canonical-domain-decoupling\n"
         "  Termo 'aba' removido de LEGACY_TERMS no patch_32_audit_ui_wiring.py.\n"
-        "  get_abas() é alias readonly de get_structure_ids() — não é legado.\n"
+        "  get_abas() é alias readonly de get_structure_ids() -- não é legado.\n"
         "  ALIAS_READONLY_TERMS criado para rastrear presença sem disparar alerta."
     ),
 }
 
 
 def print_permanent_decisions():
-    """Retorna bloco de decisões permanentes para o relatório — somente leitura."""
+    """Retorna bloco de decisões permanentes para o relatório -- somente leitura."""
     lines = ["\n-- DECISÕES ARQUITETURAIS PERMANENTES " + "-" * 29]
     lines.append(
-        "\n  ℹ️  Itens abaixo são FECHADOS e NÃO geram checks nem alertas.\n"
+        "\n  [INFO]  Itens abaixo são FECHADOS e NÃO geram checks nem alertas.\n"
     )
     for key, text in PERMANENT_DECISIONS.items():
-        lines.append(f"  📌  [{key}]")
+        lines.append(f"  [FIXO]  [{key}]")
         for ln in text.splitlines():
             lines.append(f"       {ln}")
         lines.append("")
@@ -269,7 +269,7 @@ PATCHES = [
     },
     {
         "id": "patch_17",
-        "desc": "DerivedPayoffPersistence — porta de persistencia derivada",
+        "desc": "DerivedPayoffPersistence -- porta de persistencia derivada",
         "checks": [
             ("services/derived_payoff_persistence.py existe",
              lambda: exists("services/derived_payoff_persistence.py")),
@@ -330,7 +330,7 @@ PATCHES = [
     },
     {
         "id": "patch_19",
-        "desc": "PricingExecutionsRepository — JSON -> SQLite (app.db)",
+        "desc": "PricingExecutionsRepository -- JSON -> SQLite (app.db)",
         "checks": [
             ("repositories/pricing_executions_repository.py existe",
              lambda: exists("repositories/pricing_executions_repository.py")),
@@ -373,7 +373,7 @@ PATCHES = [
     },
     {
         "id": "patch_20",
-        "desc": "payoff_features.upsert_curve_summary — try/finally (ResourceWarning fix)",
+        "desc": "payoff_features.upsert_curve_summary -- try/finally (ResourceWarning fix)",
         "checks": [
             ("domain/payoff_features.py existe",
              lambda: exists("domain/payoff_features.py")),
@@ -450,7 +450,7 @@ PATCHES = [
         ],
     },
     # ------------------------------------------------------------------
-    # NOVOS — Fase 3A: Desacoplamento canônico
+    # NOVOS -- Fase 3A: Desacoplamento canônico
     # ------------------------------------------------------------------
     {
         "id": "patch_23",
@@ -644,7 +644,7 @@ PATCHES = [
     },
     {
         "id": "patch_31",
-        "desc": "Fix UI/models/__init__.py — typo __ini__.py corrigido",
+        "desc": "Fix UI/models/__init__.py -- typo __ini__.py corrigido",
         "checks": [
             ("UI/models/__init__.py existe",
              lambda: exists("UI/models/__init__.py")),
@@ -716,15 +716,15 @@ PATCHES = [
         # DECISÃO PERMANENTE: ver PERMANENT_DECISIONS["patch_34:filtro_aba"]
         # Os checks de ausência de "aba" e "filters.get('aba')" foram substituídos
         # por checks de PRESENÇA de get_abas() (alias readonly) e ausência de
-        # filtro legado. O contains() textual não distingue contexto — os checks
+        # filtro legado. O contains() textual não distingue contexto -- os checks
         # antigos geravam falsos-positivos. Não reverter esta mudança.
-        "desc": "UIDataModel — structure_id INTEGER canônico; aba mantida só para leitura; fallbacks e key_type removidos",
+        "desc": "UIDataModel -- structure_id INTEGER canônico; aba mantida só para leitura; fallbacks e key_type removidos",
         "checks": [
-            # ── 1. Arquivo de produção ─────────────────────────────
+            #  1. Arquivo de produção 
             ("UI/models/ui_data.py existe",
              lambda: exists("UI/models/ui_data.py")),
 
-            # ── 2. _structure_filter_col ───────────────────────────
+            #  2. _structure_filter_col 
             ("_structure_filter_col() implementado",
              lambda: contains("UI/models/ui_data.py", "_structure_filter_col")),
             ("key_type removido de _structure_filter_col",
@@ -734,23 +734,23 @@ PATCHES = [
             ("get_abas() alias readonly presente (substitui check de ausencia de 'aba')",
              lambda: contains("UI/models/ui_data.py", "def get_abas")),
 
-            # ── 3. _resolve_structure_key ──────────────────────────
+            #  3. _resolve_structure_key 
             ("_resolve_structure_key() implementado",
              lambda: contains("UI/models/ui_data.py", "_resolve_structure_key")),
             ("_resolve_structure_key levanta ValueError('structure_id invalido')",
              lambda: contains("UI/models/ui_data.py", "structure_id invalido")),
 
-            # ── 4. _load_structures ────────────────────────────────
+            #  4. _load_structures 
             ("_load_structures() implementado",
              lambda: contains("UI/models/ui_data.py", "_load_structures")),
             ("branch 'OR CAST(aba ...)' removido",
              lambda: not contains("UI/models/ui_data.py", "OR CAST")),
 
-            # ── 5. get_decisions — filtro ──────────────────────────
+            #  5. get_decisions -- filtro 
             ("get_decisions() implementado",
              lambda: contains("UI/models/ui_data.py", "get_decisions")),
             # DECISÃO PERMANENTE: filtro legado verificado pela ausência de
-            # 'filters.get("aba")' como filtro de query — check reescrito para
+            # 'filters.get("aba")' como filtro de query -- check reescrito para
             # validar presença da validação canônica (ValueError) em vez de
             # ausência textual de 'aba' (causava falso-positivo via get_abas()).
             ("get_decisions valida structure_id invalido com ValueError (filtro canonico)",
@@ -758,7 +758,7 @@ PATCHES = [
             ("get_decisions nao usa 'aba' como coluna de filtro SQL",
              lambda: not contains("UI/models/ui_data.py", "WHERE aba =")),
 
-            # ── 6. get_structure_ids / get_abas / get_structures ───
+            #  6. get_structure_ids / get_abas / get_structures 
             ("get_structure_ids() implementado",
              lambda: contains("UI/models/ui_data.py", "get_structure_ids")),
             ("get_abas() alias de get_structure_ids() presente",
@@ -766,7 +766,7 @@ PATCHES = [
             ("get_structures() mantido para compat",
              lambda: contains("UI/models/ui_data.py", "get_structures")),
 
-            # ── 7. check_database_status ───────────────────────────
+            #  7. check_database_status 
             ("check_database_status usa mode=canonical",
              lambda: contains("UI/models/ui_data.py", "mode=canonical")),
             ("check_database_status sem mode=aba",
@@ -774,13 +774,13 @@ PATCHES = [
             ("check_database_status sem mode=id",
              lambda: not contains("UI/models/ui_data.py", "mode=id")),
 
-            # ── 8. Arquivos de teste e smoke ───────────────────────
+            #  8. Arquivos de teste e smoke 
             ("ATT/tests/test_patch34_ui_data.py existe",
              lambda: exists("ATT/tests/test_patch34_ui_data.py")),
             ("scripts/73_smoke_patch34_ui_data.py existe",
              lambda: exists("scripts/73_smoke_patch34_ui_data.py")),
 
-            # ── 9. Classes de teste presentes ──────────────────────
+            #  9. Classes de teste presentes 
             ("TestStructureFilterCol presente",
              lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestStructureFilterCol")),
             ("TestResolveStructureKey presente",
@@ -799,7 +799,7 @@ PATCHES = [
     },
     {
         "id": "patch_35",
-        "desc": "details_panel — queries internas migradas para structure_id (INTEGER); _query_by_structure removido",
+        "desc": "details_panel -- queries internas migradas para structure_id (INTEGER); _query_by_structure removido",
         "checks": [
             ("UI/components/details_panel.py existe",
              lambda: exists("UI/components/details_panel.py")),
@@ -837,9 +837,9 @@ PATCHES = [
     },
     {
         "id": "patch_36",
-        "desc": "MainWindow e DetailsPanel — structure_id canônico; aba removida como fallback",
+        "desc": "MainWindow e DetailsPanel -- structure_id canônico; aba removida como fallback",
         "checks": [
-            # ── 1. main_window.py ─────────────────────────────────
+            #  1. main_window.py 
             ("UI/main_window.py existe",
                 lambda: exists("UI/main_window.py")),
             ("recalculate_aba removido da MainWindow",
@@ -851,7 +851,7 @@ PATCHES = [
             ("on_decision_selected() não usa aba para payoff",
                 lambda: not contains("UI/main_window.py", "_start_payoff_load.*aba")),
 
-            # ── 2. details_panel.py ───────────────────────────────
+            #  2. details_panel.py 
             ("UI/components/details_panel.py existe",
                 lambda: exists("UI/components/details_panel.py")),
             ("_resolve_structure_key implementado",
@@ -869,13 +869,13 @@ PATCHES = [
             ("_on_recalculate_click usa structure_id sem fallback aba",
                 lambda: not contains("UI/components/details_panel.py", "or aba")),
 
-            # ── 3. Arquivos de teste ──────────────────────────────
+            #  3. Arquivos de teste 
             ("ATT/tests/test_patch36_main_window.py existe",
                 lambda: exists("ATT/tests/test_patch36_main_window.py")),
             ("ATT/tests/test_patch36_details_panel.py existe",
                 lambda: exists("ATT/tests/test_patch36_details_panel.py")),
 
-            # ── 4. Classes de teste presentes ─────────────────────
+            #  4. Classes de teste presentes 
             ("TestRecalculateAbaRemovido presente",
                 lambda: contains("ATT/tests/test_patch36_main_window.py", "TestRecalculateAbaRemovido")),
             ("TestRecalculateStructure presente",
@@ -902,9 +902,9 @@ PATCHES = [
     },
     {
         "id": "patch_37",
-        "desc": "ui_data.py — resíduos _cache_abas/get_abas/update_abas removidos; get_structures() canônico",
+        "desc": "ui_data.py -- resíduos _cache_abas/get_abas/update_abas removidos; get_structures() canônico",
         "checks": [
-            # ── 1. ui_data.py ─────────────────────────────────────────
+            #  1. ui_data.py 
             ("UI/models/ui_data.py existe",
              lambda: exists("UI/models/ui_data.py")),
             ("_cache_abas removido de ui_data.py",
@@ -916,7 +916,7 @@ PATCHES = [
             ("_cache_structures presente (lazy-load canônico)",
              lambda: contains("UI/models/ui_data.py", "_cache_structures")),
 
-            # ── 2. filters_panel.py ───────────────────────────────────
+            #  2. filters_panel.py 
             ("UI/components/filters_panel.py existe",
              lambda: exists("UI/components/filters_panel.py")),
             ("update_abas removido de filters_panel.py",
@@ -924,7 +924,7 @@ PATCHES = [
             ("update_abas não referenciado em filters_panel.py",
              lambda: not contains("UI/components/filters_panel.py", "update_abas")),
 
-            # ── 3. main_window.py ─────────────────────────────────────
+            #  3. main_window.py 
             ("UI/main_window.py existe",
              lambda: exists("UI/main_window.py")),
             ("update_abas não chamado em main_window.py",
@@ -934,7 +934,7 @@ PATCHES = [
             ("_cache_abas não referenciado em main_window.py",
              lambda: not contains("UI/main_window.py", "_cache_abas")),
 
-            # ── 4. Arquivos de teste ───────────────────────────────────
+            #  4. Arquivos de teste 
             ("ATT/tests/test_patch37_residuals.py existe",
              lambda: exists("ATT/tests/test_patch37_residuals.py")),
             ("TestPatch37StaticUIData presente",
@@ -951,9 +951,9 @@ PATCHES = [
     },
     {
         "id": "patch_38",
-        "desc": "Polish pós-patch_37 — get_structures() lazy-load consolidado; comentário regex corrigido",
+        "desc": "Polish pós-patch_37 -- get_structures() lazy-load consolidado; comentário regex corrigido",
         "checks": [
-            # ── 1. ui_data.py ─────────────────────────────────────────
+            #  1. ui_data.py 
             ("UI/models/ui_data.py existe",
             lambda: exists("UI/models/ui_data.py")),
             ("get_structures() com lazy-load presente",
@@ -965,7 +965,7 @@ PATCHES = [
             ("Nenhum resíduo self.abas remanescente",
             lambda: not contains("UI/models/ui_data.py", "self.abas")),
 
-            # ── 2. Inventário de patches ──────────────────────────────
+            #  2. Inventário de patches 
             ("ATT/PATCHES.md existe (inventário criado pelo patch_37_update_inventory.sh)",
             lambda: exists("ATT/PATCHES.md")),
             ("patch_37 registrado no PATCHES.md",
@@ -973,21 +973,21 @@ PATCHES = [
             ("patch_38 registrado no PATCHES.md",
             lambda: contains("ATT/PATCHES.md", "patch_38")),
 
-            # ── 3. Backup gerado ──────────────────────────────────────
+            #  3. Backup gerado 
             # CORRIGIDO: usa p() para resolver path relativo à ROOT,
             # evitando falha quando cwd != raiz do projeto.
             ("Backup ui_data.py.bak_p38_* gerado",
             lambda: any(
                 f.startswith("ui_data.py.bak_p38_")
-                for f in os.listdir(p("UI/models"))  # ← p() aqui
+                for f in os.listdir(p("UI/models"))  #  p() aqui
             )),
         ],
     },
     {
         "id": "patch_42",
-        "desc": "StructuresRepository — get_structure_by_alias() e get_structure_id_by_alias() (lookup por alias_legacy_aba)",
+        "desc": "StructuresRepository -- get_structure_by_alias() e get_structure_id_by_alias() (lookup por alias_legacy_aba)",
         "checks": [
-            # ── 1. Implementação ──────────────────────────────────────
+            #  1. Implementação 
             ("repositories/structures_repository.py existe",
              lambda: exists("repositories/structures_repository.py")),
             ("get_structure_by_alias() implementado",
@@ -1011,14 +1011,14 @@ PATCHES = [
                  "PATCH_42"
              )),
 
-            # ── 2. Guards de entrada ─────────────────────────────────
+            #  2. Guards de entrada 
             ("Guard alias vazio/None retorna None sem query",
              lambda: contains(
                  "repositories/structures_repository.py",
                  "alias_legacy_aba"
              )),
 
-            # ── 3. Testes formais ────────────────────────────────────
+            #  3. Testes formais 
             ("ATT/tests/test_patch42.py existe",
              lambda: exists("ATT/tests/test_patch42.py")),
             ("TestPatch42RepoFileExists presente",
@@ -1062,7 +1062,7 @@ PATCHES = [
         "id": "patch_39",
         "desc": "Auditoria pre-patch/3b: baseline de acoplamento legado (script + relatorio JSON)",
         "checks": [
-            # ── 1. Script de auditoria ────────────────────────────
+            #  1. Script de auditoria 
             ("scripts/39_audit_patch3b_baseline.py existe",
                 lambda: exists("scripts/39_audit_patch3b_baseline.py")),
             ("run_audit() implementado no script",
@@ -1095,7 +1095,7 @@ PATCHES = [
                     "_git_branch"
                 )),
 
-            # ── 2. Testes formais ─────────────────────────────────
+            #  2. Testes formais 
             ("ATT/tests/test_patch39.py existe",
                 lambda: exists("ATT/tests/test_patch39.py")),
             ("TestPatch39ScriptExiste presente",
@@ -1119,11 +1119,11 @@ PATCHES = [
         "id": "patch_40",
         "desc": "Isolamento de acoplamento legado: repos e services migrados para structure_id",
         "checks": [
-            # ── 1. Script de patch ────────────────────────────────
+            #  1. Script de patch 
             ("scripts/40_patch_legacy_coupling_isolation.py existe",
                 lambda: exists("scripts/40_patch_legacy_coupling_isolation.py")),
 
-            # ── 2. RoboLegsRepository ─────────────────────────────
+            #  2. RoboLegsRepository 
             ("repositories/robo_legs_repository.py existe",
                 lambda: exists("repositories/robo_legs_repository.py")),
             ("get_legs_by_structure_id() implementado",
@@ -1152,7 +1152,7 @@ PATCHES = [
                     "def get_legs"
                 )),
 
-            # ── 3. RoboLegsStatusRepository ───────────────────────
+            #  3. RoboLegsStatusRepository 
             ("repositories/robo_legs_status_repository.py existe",
                 lambda: exists("repositories/robo_legs_status_repository.py")),
             ("latest_timestamps_by_structure_id() implementado",
@@ -1166,7 +1166,7 @@ PATCHES = [
                     "def _resolve_aba_from_structure_id"
                 )),
 
-            # ── 4. DerivedService ─────────────────────────────────
+            #  4. DerivedService 
             ("services/derived_service.py existe",
                 lambda: exists("services/derived_service.py")),
             ("get_payoff_by_structure_id() implementado",
@@ -1180,7 +1180,7 @@ PATCHES = [
                     "def get_payoff_by_aba"
                 )),
 
-            # ── 5. RoboLegsService ────────────────────────────────
+            #  5. RoboLegsService 
             ("services/robo_legs_service.py existe",
                 lambda: exists("services/robo_legs_service.py")),
             ("get_legs_by_structure_id() no service",
@@ -1189,7 +1189,7 @@ PATCHES = [
                     "def get_legs_by_structure_id"
                 )),
 
-            # ── 6. Testes formais ─────────────────────────────────
+            #  6. Testes formais 
             ("ATT/tests/test_patch40.py existe",
                 lambda: exists("ATT/tests/test_patch40.py")),
             ("TestPatch40ArquivosExistem presente",
@@ -1221,9 +1221,9 @@ PATCHES = [
     },
     {
         "id": "patch_41",
-        "desc": "CanonicalPricingFacade — _get_alias_legacy_aba renomeado para _get_structure_info",
+        "desc": "CanonicalPricingFacade -- _get_alias_legacy_aba renomeado para _get_structure_info",
         "checks": [
-            # ── 1. Implementacao ──────────────────────────────────
+            #  1. Implementacao 
             ("services/canonical_pricing_facade.py existe",
                 lambda: exists("services/canonical_pricing_facade.py")),
             ("_get_alias_legacy_aba removido da facade",
@@ -1247,7 +1247,7 @@ PATCHES = [
                     "class CanonicalPricingFacade"
                 )),
 
-            # ── 2. Testes formais ─────────────────────────────────
+            #  2. Testes formais 
             ("ATT/tests/test_patch41.py existe",
                 lambda: exists("ATT/tests/test_patch41.py")),
             ("TestPatch41ArquivoExiste presente",
@@ -1276,7 +1276,7 @@ PATCHES = [
         "id": "patch_43",
         "desc": "Registro formal de patch_39/40/41 + fechamento do check pendente patch_38",
         "checks": [
-            # ── 1. Script do patch ────────────────────────────────
+            #  1. Script do patch 
             ("ATT/patches/patch_43_register_39_40_41.py existe",
                 lambda: exists("ATT/patches/patch_43_register_39_40_41.py")),
             ("patch_43 registra patch_39 no script",
@@ -1305,7 +1305,7 @@ PATCHES = [
                     "dry-run"
                 )),
 
-            # ── 2. Backup patch_38 gerado ─────────────────────────
+            #  2. Backup patch_38 gerado 
             ("Backup ui_data.py.bak_p38_* gerado (check patch_38 fechado)",
                 lambda: any(
                     f.startswith("ui_data.py.bak_p38_")
@@ -1313,7 +1313,7 @@ PATCHES = [
                     if os.path.isdir(p("UI/models"))
                 )),
 
-            # ── 3. Testes gerados pelo patch_43 ───────────────────
+            #  3. Testes gerados pelo patch_43 
             ("ATT/tests/test_patch39.py gerado pelo patch_43",
                 lambda: exists("ATT/tests/test_patch39.py")),
             ("ATT/tests/test_patch40.py gerado pelo patch_43",
@@ -1321,7 +1321,7 @@ PATCHES = [
             ("ATT/tests/test_patch41.py gerado pelo patch_43",
                 lambda: exists("ATT/tests/test_patch41.py")),
 
-            # ── 4. Suite pytest pos-patch_43 ─────────────────────
+            #  4. Suite pytest pos-patch_43 
             ("patch_43 executa pytest interno e valida suite",
                 lambda: contains(
                     "ATT/patches/patch_43_register_39_40_41.py",
@@ -1331,7 +1331,7 @@ PATCHES = [
     },
     {
         "id": "patch_44",
-        "desc": "Auditoria do dominio como receptor de DTO — payoff.py e decision.py",
+        "desc": "Auditoria do dominio como receptor de DTO -- payoff.py e decision.py",
         "checks": [
             ("scripts/44_audit_domain_dto_boundary.py existe",
             lambda: exists("scripts/44_audit_domain_dto_boundary.py")),
@@ -1360,7 +1360,7 @@ PATCHES = [
     },
     {
         "id": "patch_45",
-        "desc": "CalculationRequest — contrato canonico StructureInput + MarketSnapshotInput",
+        "desc": "CalculationRequest -- contrato canonico StructureInput + MarketSnapshotInput",
         "checks": [
             ("domain/calculation_request.py existe",
             lambda: exists("domain/calculation_request.py")),
@@ -1398,9 +1398,9 @@ PATCHES = [
     },
     {
         "id": "patch_46",
-        "desc": "calculation_orchestrator — run_payoff() e run_decision() adaptam CalculationRequest ao domínio",
+        "desc": "calculation_orchestrator -- run_payoff() e run_decision() adaptam CalculationRequest ao domínio",
         "checks": [
-            # ── 1. Implementação no orquestrador ─────────────────────
+            #  1. Implementação no orquestrador 
             ("services/calculation_orchestrator.py existe",
                 lambda: exists("services/calculation_orchestrator.py")),
             ("_request_to_payoff_dict() implementado",
@@ -1444,7 +1444,7 @@ PATCHES = [
                     "from __future__ import annotations"
                 ) <= 1),
 
-            # ── 2. Testes formais — 17 passed ────────────────────────
+            #  2. Testes formais -- 17 passed 
             ("ATT/tests/test_orchestrator_run_methods.py existe",
                 lambda: exists("ATT/tests/test_orchestrator_run_methods.py")),
             ("TestRequestToPayoffDict presente",
@@ -1481,20 +1481,20 @@ PATCHES = [
     },
     {
         "id": "patch_47",
-        "desc": "calculation_orchestrator — run_decision auto-extract pl_max/pl_atual/dte_min, multiplier fix (1.0), run_full_pipeline",
+        "desc": "calculation_orchestrator -- run_decision auto-extract pl_max/pl_atual/dte_min, multiplier fix (1.0), run_full_pipeline",
         "checks": [
-            # ── 1. Arquivo ────────────────────────────────────────
+            #  1. Arquivo 
             ("services/calculation_orchestrator.py existe",
                 lambda: exists("services/calculation_orchestrator.py")),
 
-            # ── 2. run_full_pipeline ──────────────────────────────
+            #  2. run_full_pipeline 
             ("run_full_pipeline() implementado",
                 lambda: contains(
                     "services/calculation_orchestrator.py",
                     "def run_full_pipeline"
                 )),
 
-            # ── 3. Multiplier fix ─────────────────────────────────
+            #  3. Multiplier fix 
             ("multiplier hardcode 100 removido",
                 lambda: not contains(
                     "services/calculation_orchestrator.py",
@@ -1506,7 +1506,7 @@ PATCHES = [
                     '"multiplier":      getattr(leg, "multiplier",  1.0)'
                 )),
 
-            # ── 4. run_decision auto-extract ──────────────────────
+            #  4. run_decision auto-extract 
             ("run_decision extrai pl_max do payoff automaticamente",
                 lambda: contains(
                     "services/calculation_orchestrator.py",
@@ -1523,7 +1523,7 @@ PATCHES = [
                     'request.market_snapshot, "dte_min"'
                 )),
 
-            # ── 5. Isolamento de DB ───────────────────────────────
+            #  5. Isolamento de DB 
             ("Sem sqlite3 no orchestrator",
                 lambda: not contains(
                     "services/calculation_orchestrator.py",
@@ -1540,7 +1540,7 @@ PATCHES = [
                     "from typing import"
                 ) <= 1),
 
-            # ── 6. Testes ─────────────────────────────────────────
+            #  6. Testes 
             ("ATT/tests/test_patch47.py existe",
                 lambda: exists("ATT/tests/test_patch47.py")),
             ("TestPatch47ArquivoExiste presente",
@@ -1567,15 +1567,15 @@ PATCHES = [
     },
     {
         "id": "patch_48",
-        "desc": "CalculationOrchestrator — build_calculation_request_from_db + run_full_pipeline_from_db (injeção de repositórios, sem acesso direto a DB)",
+        "desc": "CalculationOrchestrator -- build_calculation_request_from_db + run_full_pipeline_from_db (injeção de repositórios, sem acesso direto a DB)",
         "checks": [
-            # ── 1. Arquivo ────────────────────────────────────────────
+            #  1. Arquivo 
             ("services/calculation_orchestrator.py existe",
                 lambda: exists("services/calculation_orchestrator.py")),
             ("ATT/tests/test_patch48.py existe",
                 lambda: exists("ATT/tests/test_patch48.py")),
 
-            # ── 2. Métodos implementados ──────────────────────────────
+            #  2. Métodos implementados 
             ("build_calculation_request_from_db() implementado",
                 lambda: contains(
                     "services/calculation_orchestrator.py",
@@ -1587,7 +1587,7 @@ PATCHES = [
                     "def run_full_pipeline_from_db"
                 )),
 
-            # ── 3. Injeção de dependências ────────────────────────────
+            #  3. Injeção de dependências 
             ("structures_repository no construtor",
                 lambda: contains(
                     "services/calculation_orchestrator.py",
@@ -1599,7 +1599,7 @@ PATCHES = [
                     "market_snapshot_repository"
                 )),
 
-            # ── 4. Sem acesso direto a DB ─────────────────────────────
+            #  4. Sem acesso direto a DB 
             ("sqlite3 NÃO importado no orchestrator",
                 lambda: not contains(
                     "services/calculation_orchestrator.py",
@@ -1611,7 +1611,7 @@ PATCHES = [
                     "get_app_db_connection"
                 )),
 
-            # ── 5. Guards de erro ─────────────────────────────────────
+            #  5. Guards de erro 
             ("Guard structures_repository None levanta RuntimeError",
                 lambda: contains(
                     "services/calculation_orchestrator.py",
@@ -1623,7 +1623,7 @@ PATCHES = [
                     "ValueError"
                 )),
 
-            # ── 6. Classes de teste presentes ─────────────────────────
+            #  6. Classes de teste presentes 
             ("TestPatch48ArquivoExiste presente",
                 lambda: contains(
                     "ATT/tests/test_patch48.py",
@@ -1653,7 +1653,7 @@ PATCHES = [
     },
     {
         "id": "patch_49",
-        "desc": "Auditoria LegacyRoboLegsFallback — isolamento e ausência de resíduos",
+        "desc": "Auditoria LegacyRoboLegsFallback -- isolamento e ausência de resíduos",
         "checks": [
             ("ATT/patch_49_legacy_audit_report.md existe",
                 lambda: exists("ATT/patch_49_legacy_audit_report.md")),
@@ -1686,13 +1686,13 @@ PATCHES = [
     },
     {
         "id": "patch_50",
-        "desc": "canonical_input_service — boundary bridge legado formalizado com comentário BRIDGE LEGADO",
+        "desc": "canonical_input_service -- boundary bridge legado formalizado com comentário BRIDGE LEGADO",
         "checks": [
-            # ── 1. Arquivo de produção ────────────────────────────
+            #  1. Arquivo de produção 
             ("services/canonical_input_service.py existe",
                 lambda: exists("services/canonical_input_service.py")),
 
-            # ── 2. Boundary formalizado ───────────────────────────
+            #  2. Boundary formalizado 
             ("Comentário BRIDGE LEGADO presente no canonical_input_service",
                 lambda: contains(
                     "services/canonical_input_service.py",
@@ -1714,7 +1714,7 @@ PATCHES = [
                     "robo_legs_service: Any | None = None"
                 )),
 
-            # ── 3. Testes estáticos ───────────────────────────────
+            #  3. Testes estáticos 
             ("ATT/tests/test_patch_50_boundary_static.py existe",
                 lambda: exists("ATT/tests/test_patch_50_boundary_static.py")),
             ("TestBoundaryBridgeAusente presente",
@@ -1746,9 +1746,9 @@ PATCHES = [
     },
     {
         "id": "patch_51",
-        "desc": "REST API /structures — CRUD completo exposto via FastAPI (structures_controller)",
+        "desc": "REST API /structures -- CRUD completo exposto via FastAPI (structures_controller)",
         "checks": [
-            # ── 1. Controller ─────────────────────────────────────
+            #  1. Controller 
             ("api/structures_controller.py existe",
                 lambda: exists("api/structures_controller.py")),
             ("POST /structures implementado",
@@ -1770,13 +1770,13 @@ PATCHES = [
             ("400 tratado para payloads inválidos (ValueError)",
                 lambda: contains("api/structures_controller.py", "ValueError")),
 
-            # ── 2. Roteamento no main.py ──────────────────────────
+            #  2. Roteamento no main.py 
             ("main.py existe",
                 lambda: exists("main.py")),
             ("structures_controller registrado no main.py (include_router)",
                 lambda: contains("main.py", "structures_controller")),
 
-            # ── 3. Testes de contrato ─────────────────────────────
+            #  3. Testes de contrato 
             ("ATT/tests/test_patch_51_structures_api.py existe",
                 lambda: exists("ATT/tests/test_patch_51_structures_api.py")),
             ("TestCreateStructure presente",
@@ -1808,9 +1808,9 @@ PATCHES = [
     },
     {
         "id": "patch_52",
-        "desc": "Auditoria de residuos ativos do legado (baseline fase 7) — varredura de 'aba' operacional",
+        "desc": "Auditoria de residuos ativos do legado (baseline fase 7) -- varredura de 'aba' operacional",
         "checks": [
-            # ── 1. Script de auditoria ────────────────────────────
+            #  1. Script de auditoria 
             ("scripts/audit_legacy_residuals_patch52.py existe",
                 lambda: exists("scripts/audit_legacy_residuals_patch52.py")),
             ("RESIDUO_PATTERNS definido no script",
@@ -1841,7 +1841,7 @@ PATCHES = [
                     ) if m in ("kwarg_aba", "comparacao_aba")]
                 )),
 
-            # ── 2. Classificacao e varredura ──────────────────────
+            #  2. Classificacao e varredura 
             ("_classificar() implementado",
                 lambda: contains(
                     "scripts/audit_legacy_residuals_patch52.py",
@@ -1863,7 +1863,7 @@ PATCHES = [
                     "break"
                 )),
 
-            # ── 3. Relatorio ──────────────────────────────────────
+            #  3. Relatorio 
             ("construir_relatorio() implementado",
                 lambda: contains(
                     "scripts/audit_legacy_residuals_patch52.py",
@@ -1895,7 +1895,7 @@ PATCHES = [
                     "legacy_residuals_patch52.json"
                 )),
 
-            # ── 4. Testes formais ─────────────────────────────────
+            #  4. Testes formais 
             ("ATT/tests/test_patch52_audit_legacy_residuals.py existe",
                 lambda: exists(
                     "ATT/tests/test_patch52_audit_legacy_residuals.py"
@@ -1944,9 +1944,9 @@ PATCHES = [
     },
     {
         "id": "patch_53",
-        "desc": "patch_53b: corrige TODOs malformados — aba→StructureRef diferido; SyntaxErrors eliminados",
+        "desc": "patch_53b: corrige TODOs malformados -- abaStructureRef diferido; SyntaxErrors eliminados",
         "checks": [
-            # ── 1. Arquivos corrigidos existem ────────────────────────
+            #  1. Arquivos corrigidos existem 
             ("db/derived_repo.py existe",
                 lambda: exists("db/derived_repo.py")),
             ("UI/models/ui_data.py existe",
@@ -1962,7 +1962,7 @@ PATCHES = [
             ("utils/leg_normalizers.py existe",
                 lambda: exists("utils/leg_normalizers.py")),
 
-            # ── 2. Zero TODOs patch_53 residuais ─────────────────────
+            #  2. Zero TODOs patch_53 residuais 
             ("zero TODO patch_53 em derived_repo.py",
                 lambda: not contains("db/derived_repo.py", "# TODO patch_53:")),
             ("zero TODO patch_53 em ui_data.py",
@@ -1978,31 +1978,31 @@ PATCHES = [
             ("zero TODO patch_53 em leg_normalizers.py",
                 lambda: not contains("utils/leg_normalizers.py", "# TODO patch_53:")),
 
-            # ── 3. Sintaxe correta — .get("aba") sem TODO inline ─────
+            #  3. Sintaxe correta -- .get("aba") sem TODO inline 
             # Verifica que os .get() críticos fecham corretamente (sem TODO dentro)
-            ("derived_repo linha 228 — .get(\"aba\") fechado corretamente",
+            ("derived_repo linha 228 -- .get(\"aba\") fechado corretamente",
                 lambda: not contains("db/derived_repo.py",
                                     'decision_dict.get("aba"  # TODO')),
-            ("derived_repo linha 298 — .get(\"aba\") fechado corretamente",
+            ("derived_repo linha 298 -- .get(\"aba\") fechado corretamente",
                 lambda: not contains("db/derived_repo.py",
                                     '(meta or {}).get("aba"  # TODO')),
-            ("ui_data.py — c.get(\"aba\") fechado corretamente",
+            ("ui_data.py -- c.get(\"aba\") fechado corretamente",
                 lambda: not contains("UI/models/ui_data.py",
                                     'c.get("aba"  # TODO')),
-            ("ui_data.py — filters.get(\"aba\") fechado corretamente",
+            ("ui_data.py -- filters.get(\"aba\") fechado corretamente",
                 lambda: not contains("UI/models/ui_data.py",
                                     'filters.get("aba"  # TODO')),
-            ("ui_data.py — item[\"aba\"] assignment não quebrado",
+            ("ui_data.py -- item[\"aba\"] assignment não quebrado",
                 lambda: not contains("UI/models/ui_data.py",
                                     'item["aba"]  # TODO patch_53: converter')),
-            ("payoff_chart.py — .get(\"aba\"  # TODO) eliminado",
+            ("payoff_chart.py -- .get(\"aba\"  # TODO) eliminado",
                 lambda: not contains("UI/components/payoff_chart.py",
                                     '.get("aba"  # TODO')),
-            ("leg_normalizers.py — data.get(\"aba\"  # TODO) eliminado",
+            ("leg_normalizers.py -- data.get(\"aba\"  # TODO) eliminado",
                 lambda: not contains("utils/leg_normalizers.py",
                                     "data.get('aba'  # TODO")),
 
-            # ── 4. Lógica de fallback preservada ─────────────────────
+            #  4. Lógica de fallback preservada 
             # Garante que os .get("aba") foram mantidos (não deletados)
             ("derived_repo preserva fallback .get(\"aba\") na linha 228",
                 lambda: contains("db/derived_repo.py",
@@ -2031,7 +2031,7 @@ PATCHES = [
                 lambda: contains("utils/leg_normalizers.py",
                                 "data.get('aba', '')")),
 
-            # ── 5. Scripts temporários incluídos (rastreabilidade) ────
+            #  5. Scripts temporários incluídos (rastreabilidade) 
             ("scripts/tmp_show_todos_patch53.py existe",
                 lambda: exists("scripts/tmp_show_todos_patch53.py")),
             ("scripts/tmp_fix_todos_patch53b.py existe",
@@ -2039,7 +2039,7 @@ PATCHES = [
             ("scripts/tmp_verify_patch53b.py existe",
                 lambda: exists("scripts/tmp_verify_patch53b.py")),
 
-            # ── 6. Zero .bak residuais ────────────────────────────────
+            #  6. Zero .bak residuais 
             ("zero .bak residual em db/",
                 lambda: not any(
                     f.endswith(".bak")
@@ -2062,9 +2062,9 @@ PATCHES = [
     },
     {
         "id": "patch_54",
-        "desc": "Migration derived.db — ADD COLUMN structure_id + backfill (fix datetime.UTC → timezone.utc)",
+        "desc": "Migration derived.db -- ADD COLUMN structure_id + backfill (fix datetime.UTC  timezone.utc)",
         "checks": [
-            # ── 1. Script de migração ─────────────────────────────────
+            #  1. Script de migração 
             ("scripts/patch54_migrate_derived_schema.py existe",
              lambda: exists("scripts/patch54_migrate_derived_schema.py")),
             ("run_migrations() implementado",
@@ -2077,7 +2077,7 @@ PATCHES = [
              lambda: contains(
                  "scripts/patch54_migrate_derived_schema.py", "structure_decisions")),
 
-            # ── 2. Fix de compatibilidade Python (RETRABALHO) ─────────
+            #  2. Fix de compatibilidade Python (RETRABALHO) 
             ("import timezone presente (fix Python < 3.11)",
              lambda: contains(
                  "scripts/patch54_migrate_derived_schema.py", "timezone")),
@@ -2088,10 +2088,10 @@ PATCHES = [
              lambda: contains(
                  "scripts/patch54_migrate_derived_schema.py", "timezone.utc")),
 
-            # ── 3. Testes formais ────────────────────────────────────
+            #  3. Testes formais 
             ("ATT/tests/test_patch54.py existe",
              lambda: exists("ATT/tests/test_patch54.py")),
-            ("18 testes — todos green (validado manualmente)",
+            ("18 testes -- todos green (validado manualmente)",
              lambda: contains("ATT/tests/test_patch54.py", "test_")),
             ("test_migration_idempotente presente",
              lambda: contains("ATT/tests/test_patch54.py", "test_migration_idempotente")),
@@ -2103,9 +2103,9 @@ PATCHES = [
     },
     {
         "id": "patch_55",
-        "desc": "StructureRef — tipo canônico para identificação de estrutura; created_at removido do INSERT explícito",
+        "desc": "StructureRef -- tipo canônico para identificação de estrutura; created_at removido do INSERT explícito",
         "checks": [
-            # ── 1. Domínio ────────────────────────────────────────
+            #  1. Domínio 
             ("db/derived_repo.py existe",
                 lambda: exists("db/derived_repo.py")),
             ("StructureRef definido (dataclass ou namedtuple)",
@@ -2117,17 +2117,17 @@ PATCHES = [
             ("StructureRef.db_pair() implementado",
                 lambda: contains("src/domain/refs/structure_ref.py", "def db_pair")),
 
-            # ── 2. _insert_decision — sem created_at explícito ────
+            #  2. _insert_decision -- sem created_at explícito 
             ("created_at removido do INSERT de _insert_decision",
                 lambda: not contains("db/derived_repo.py", "created_at, structure_id)\n            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")),
             ("datetime.now() removido dos valores do INSERT",
                 lambda: not contains("db/derived_repo.py", "datetime.now().isoformat(),\n                decision_dict.get(\"structure_id\")")),
 
-            # ── 3. write_decision_snapshot_atomic aceita StructureRef ──
+            #  3. write_decision_snapshot_atomic aceita StructureRef 
             ("write_decision_snapshot_atomic aceita StructureRef como aba",
                 lambda: contains("db/derived_repo.py", "StructureRef")),
 
-            # ── 4. Testes formais ─────────────────────────────────
+            #  4. Testes formais 
             ("ATT/tests/test_patch55.py existe",
                 lambda: exists("ATT/tests/test_patch55.py")),
             ("TestStructureRefBasico presente",
@@ -2142,8 +2142,105 @@ PATCHES = [
                 lambda: contains("ATT/tests/test_patch55.py", "TestRetrocompatibilidade")),
         ],
     },
+    {
+        "id": "patch_56",
+        "desc": "derived_repo + derived_service -- _unwrap_aba em todas entradas; f-string bug corrigido",
+        "checks": [
+            #  1. Arquivo db/derived_repo.py 
+            ("db/derived_repo.py existe",
+             lambda: exists("db/derived_repo.py")),
 
-]  # ← fechamento da lista PATCHES
+            #  2. _unwrap_aba definida 
+            ("_unwrap_aba() definida em derived_repo.py",
+             lambda: contains("db/derived_repo.py", "def _unwrap_aba")),
+
+            #  3. _unwrap_aba chamada nas 6 funções de entrada 
+            ("_unwrap_aba chamada em write_payoff_snapshot_atomic",
+             lambda: contains("db/derived_repo.py", "def write_payoff_snapshot_atomic")
+                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+
+            ("_unwrap_aba chamada em write_decision_snapshot_atomic",
+             lambda: contains("db/derived_repo.py", "def write_decision_snapshot_atomic")
+                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+
+            ("_unwrap_aba chamada em write_complete_snapshot_atomic",
+             lambda: contains("db/derived_repo.py", "def write_complete_snapshot_atomic")
+                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+
+            ("_unwrap_aba chamada em insert_payoff_points",
+             lambda: contains("db/derived_repo.py", "def insert_payoff_points")
+                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+
+            ("_unwrap_aba chamada em insert_structure_decision",
+             lambda: contains("db/derived_repo.py", "def insert_structure_decision")
+                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+
+            ("_unwrap_aba chamada em get_payoff_points",
+             lambda: contains("db/derived_repo.py", "def get_payoff_points")
+                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+
+            #  4. Contagem mínima de _unwrap_aba (definição + 6 calls) 
+            ("_unwrap_aba presente >= 6 vezes em derived_repo.py",
+             lambda: count_occurrences("db/derived_repo.py", "_unwrap_aba") >= 6,
+             lambda: f"{count_occurrences('db/derived_repo.py', '_unwrap_aba')}x encontrado"),
+
+            #  5. f-string bug corrigido em derived_service.py 
+            ("services/derived_service.py existe",
+             lambda: exists("services/derived_service.py")),
+
+            ("cursor.execute usa f-string em get_payoff_by_aba (f\"\"\")",
+             lambda: contains("services/derived_service.py", 'cursor.execute(f"""')),
+
+            ("{col} não é literal string sem f-prefix (bug ausente)",
+             lambda: not contains("services/derived_service.py", 'execute("""'
+                                  '\n            SELECT timestamp, point_spot')),
+
+            #  6. StructureRef aceita None sem explosão 
+            ("_unwrap_aba trata None como passthrough",
+             lambda: contains("db/derived_repo.py", "return aba_or_ref")
+                 and (
+                     contains("db/derived_repo.py", "# já é str (ou None")
+                     or contains("db/derived_repo.py", "wildcards")
+                     or contains("db/derived_repo.py", "aba_or_ref  # já é str")
+                 )),
+
+            #  7. Arquivo de testes formais 
+            ("ATT/tests/test_patch_56.py existe",
+             lambda: exists("ATT/tests/test_patch_56.py")),
+
+            #  8. Classes de teste presentes 
+            ("TestUnwrapAba presente",
+             lambda: contains("ATT/tests/test_patch_56.py", "TestUnwrapAba")),
+
+            ("TestGetPayoffByAba presente",
+             lambda: contains("ATT/tests/test_patch_56.py", "TestGetPayoffByAba")),
+
+            ("TestGetPayoffByStructureId presente",
+             lambda: contains("ATT/tests/test_patch_56.py", "TestGetPayoffByStructureId")),
+
+            ("TestDerivedRepoStandalone presente",
+             lambda: contains("ATT/tests/test_patch_56.py", "TestDerivedRepoStandalone")),
+
+            ("TestRegressaoLegado presente",
+             lambda: contains("ATT/tests/test_patch_56.py", "TestRegressaoLegado")),
+
+            #  9. Casos críticos cobertos nos testes 
+            ("test_write_complete_snapshot_aceita_ref presente",
+             lambda: contains("ATT/tests/test_patch_56.py",
+                              "test_write_complete_snapshot_aceita_ref")),
+
+            ("test_fstring_bug_ausente_no_service presente",
+             lambda: contains("ATT/tests/test_patch_56.py",
+                              "test_fstring_bug_ausente_no_service")),
+
+            ("test_unwrap_aba_presente_no_modulo presente",
+             lambda: contains("ATT/tests/test_patch_56.py",
+                              "test_unwrap_aba_presente_no_modulo")),
+        ],
+    },
+
+
+]  #  fechamento da lista PATCHES
 
 # ------------------------------------------------------------------
 # Definicao dos bancos esperados
@@ -2301,7 +2398,7 @@ def generate_report():
     report.append(f"  Raiz      : {ROOT}")
     report.append(SEP)
 
-    # ── DECISÕES PERMANENTES — exibidas no topo, não geram checks ──
+    #  DECISÕES PERMANENTES -- exibidas no topo, não geram checks 
     report.append(print_permanent_decisions())
 
     # ---- patches ----
@@ -2324,7 +2421,7 @@ def generate_report():
 
         marker = "OK" if status == "OK " else "!!"
         report.append(
-            f"\n  {'✅' if status == 'OK ' else '⚠️ '} {marker}  "
+            f"\n  {'[OK]' if status == 'OK ' else '[AVISO] '} {marker}  "
             f"{r['id']:<12} [{r['passed']}/{r['total']}]"
             f"     {r['desc']}"
         )
@@ -2335,14 +2432,14 @@ def generate_report():
                 line += f"\n         -> {note}"
             report.append(line)
 
-    # ── Resumo com suite pytest documentada ────────────────────────
-    SKIPPED_INTENCIONAL = 6  # Tk/headless — PERMANENT_DECISIONS patch_10:tk_headless
+    #  Resumo com suite pytest documentada 
+    SKIPPED_INTENCIONAL = 6  # Tk/headless -- PERMANENT_DECISIONS patch_10:tk_headless
     report.append(
         f"\n\n  Resumo patches : {ok_count} OK | "
         f"{partial_count} PARCIAL | {fail_count} FALHOU | "
         f"{ok_count + partial_count + fail_count} total\n"
         f"  Suite pytest   : 510 passed | "
-        f"{SKIPPED_INTENCIONAL} skipped (Tk/headless — intencional, ver DECISÕES PERMANENTES) | "
+        f"{SKIPPED_INTENCIONAL} skipped (Tk/headless -- intencional, ver DECISÕES PERMANENTES) | "
         f"0 failed"
     )
 
@@ -2350,8 +2447,8 @@ def generate_report():
     report.append("\n-- BANCOS DE DADOS " + "-" * 48)
     for db in run_databases():
         report.append(
-            f"\n  {'✅' if db['exists'] else '❌'}  {db['path']}  ->  "
-            f"{'✅ existe' if db['exists'] else '❌ NAO ENCONTRADO'}"
+            f"\n  {'[OK]' if db['exists'] else '[FALHOU]'}  {db['path']}  ->  "
+            f"{'[OK] existe' if db['exists'] else '[FALHOU] NAO ENCONTRADO'}"
         )
         if db["exists"]:
             found_str = ", ".join(db["found"])
@@ -2367,7 +2464,7 @@ def generate_report():
     # ---- servicos fase 3a ----
     report.append("\n-- SERVICOS FASE 3A " + "-" * 47)
     for path, ok in run_fase3a():
-        icon = "✅" if ok else "❌"
+        icon = "[OK]" if ok else "[FALHOU]"
         report.append(f"\n  {icon}  {path}")
 
     # ---- bak ----

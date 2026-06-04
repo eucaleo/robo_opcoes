@@ -2,7 +2,7 @@
 """
 Serviço de persistência de dados derivados (payoff + decisões).
 
-patch_30: _resolve_structure_id() resolve aba → structure_id via app.db
+patch_30: _resolve_structure_id() resolve aba  structure_id via app.db
           com cache em memória (uma leitura por processo).
           Todas as funções de escrita enriquecem automaticamente
           os registros com structure_id antes do INSERT.
@@ -24,10 +24,10 @@ from db.derived_repo import (
 )
 
 
-# ──────────────────────────────────────────────────────────────
-# Cache módulo-level: aba → structure_id
+# 
+# Cache módulo-level: aba  structure_id
 # Carregado uma única vez por processo (lazy, thread-safe p/ GIL)
-# ──────────────────────────────────────────────────────────────
+# 
 
 _ABA_TO_STRUCTURE_ID: Dict[str, int] = {}
 _ABA_CACHE_LOADED: bool = False
@@ -35,7 +35,7 @@ _ABA_CACHE_LOADED: bool = False
 
 def _load_aba_cache() -> None:
     """
-    Lê structures.alias_legacy_aba → id do app.db e popula o cache.
+    Lê structures.alias_legacy_aba  id do app.db e popula o cache.
     Silencia erros: se app.db não existir, cache fica vazio
     e structure_id permanece NULL (comportamento anterior).
     """
@@ -79,9 +79,9 @@ def invalidate_aba_cache() -> None:
     _ABA_CACHE_LOADED = False
 
 
-# ──────────────────────────────────────────────────────────────
+# 
 # Helpers internos (inalterados)
-# ──────────────────────────────────────────────────────────────
+# 
 
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -139,18 +139,18 @@ def _merge_meta(
     }
 
 
-# ──────────────────────────────────────────────────────────────
+# 
 # Init
-# ──────────────────────────────────────────────────────────────
+# 
 
 def init_db():
     with connect_derived() as conn:
         ensure_derived_tables(conn)
 
 
-# ──────────────────────────────────────────────────────────────
+# 
 # Payoff
-# ──────────────────────────────────────────────────────────────
+# 
 
 def save_payoff_curve(
     ref: StructureRef,
@@ -179,7 +179,7 @@ def save_payoff_curve(
     effective_meta = {
         **(meta or {}),
         "storage_key":  storage_key,
-        "structure_id": resolved_sid,   # ← patch_30
+        "structure_id": resolved_sid,   #  patch_30
     }
 
     with connect_derived() as conn:
@@ -218,7 +218,7 @@ def save_payoff_from_canonical_payload(
 
     meta = _merge_meta(
         meta=payoff.get("meta"),
-        structure_id=resolved_sid,          # ← patch_30
+        structure_id=resolved_sid,          #  patch_30
         structure_name=payoff.get("structure_name"),
         underlying_asset=payoff.get("underlying_asset"),
         reference_date=payoff.get("reference_date"),
@@ -235,9 +235,9 @@ def save_payoff_from_canonical_payload(
     )
 
 
-# ──────────────────────────────────────────────────────────────
+# 
 # Decisões
-# ──────────────────────────────────────────────────────────────
+# 
 
 def save_decision(
     ref: StructureRef,
@@ -252,11 +252,11 @@ def save_decision(
 
     enriched_decision = {
         **decision,
-        "structure_id": resolved_sid,       # ← patch_30
+        "structure_id": resolved_sid,       #  patch_30
         "meta": {
             **(decision.get("meta") or {}),
             "storage_key":  storage_key,
-            "structure_id": resolved_sid,   # ← patch_30 (espelhado em meta)
+            "structure_id": resolved_sid,   #  patch_30 (espelhado em meta)
         },
     }
 
@@ -296,10 +296,10 @@ def save_decision_from_canonical_payload(
 
     enriched_decision = {
         **decision,
-        "structure_id": resolved_sid,       # ← patch_30
+        "structure_id": resolved_sid,       #  patch_30
         "meta": {
             **(decision.get("meta") or {}),
-            "structure_id":   resolved_sid, # ← patch_30
+            "structure_id":   resolved_sid, #  patch_30
             "structure_name": structure_name,
             "underlying_asset": underlying_asset,
             "storage_key":    storage_key,
@@ -313,9 +313,9 @@ def save_decision_from_canonical_payload(
     )
 
 
-# ──────────────────────────────────────────────────────────────
+# 
 # Cleanup
-# ──────────────────────────────────────────────────────────────
+# 
 
 def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
     with connect_derived() as conn:
@@ -325,9 +325,9 @@ def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
         return {"payoff_deleted": deleted_payoff, "decisions_deleted": deleted_dec}
 
 
-# ──────────────────────────────────────────────────────────────
+# 
 # Leituras (inalteradas)
-# ──────────────────────────────────────────────────────────────
+# 
 
 def get_all_payoff_curves():
     with connect_derived() as conn:
@@ -398,7 +398,7 @@ def get_recent_decisions():
             "spot_ref", "meta_json", "created_at",
         ]
         if "structure_id" in cols:
-            select_cols.append("structure_id")   # ← patch_30
+            select_cols.append("structure_id")   #  patch_30
         if "why" in cols:
             select_cols.append("why")
         if "why_json" in cols:
@@ -434,7 +434,7 @@ def get_recent_decisions():
                     item["why"] = why_json_val
 
             # 2. promove structure_id para o topo do dict
-            #    (coluna física ausente → busca em why_json / meta_json)
+            #    (coluna física ausente  busca em why_json / meta_json)
             if item.get("structure_id") is None:
                 for src_key in ("why_json", "meta_json"):
                     raw = item.get(src_key)

@@ -4,11 +4,11 @@ ATT/tests/test_patch_56.py
 Testes de regressão para patch_56: StructureRef propagation.
 
 Blocos:
-  1 — _unwrap_aba() helper
-  2 — get_payoff_by_aba() corrigido
-  3 — get_payoff_by_structure_id() migrado
-  4 — Funções standalone do derived_repo aceitam StructureRef
-  5 — Regressão: comportamento legado não quebrado
+  1 -- _unwrap_aba() helper
+  2 -- get_payoff_by_aba() corrigido
+  3 -- get_payoff_by_structure_id() migrado
+  4 -- Funções standalone do derived_repo aceitam StructureRef
+  5 -- Regressão: comportamento legado não quebrado
 """
 
 import json
@@ -17,7 +17,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 
-# ── Imports com fallback gracioso ─────────────────────────────────────────────
+#  Imports com fallback gracioso 
 try:
     from src.domain.refs.structure_ref import StructureRef
     HAS_STRUCTURE_REF = True
@@ -43,7 +43,7 @@ except ImportError:
     HAS_REPO = False
 
 
-# ── Fixtures ──────────────────────────────────────────────────────────────────
+#  Fixtures 
 
 @pytest.fixture
 def ref_aba():
@@ -73,7 +73,7 @@ def mock_conn(mock_cursor):
 
 
 # =============================================================================
-# BLOCO 1 — _unwrap_aba()
+# BLOCO 1 -- _unwrap_aba()
 # =============================================================================
 
 class TestUnwrapAba:
@@ -111,7 +111,7 @@ class TestUnwrapAba:
 
 
 # =============================================================================
-# BLOCO 2 — get_payoff_by_aba()
+# BLOCO 2 -- get_payoff_by_aba()
 # =============================================================================
 
 class TestGetPayoffByAba:
@@ -165,7 +165,7 @@ class TestGetPayoffByAba:
 
 
 # =============================================================================
-# BLOCO 3 — get_payoff_by_structure_id()
+# BLOCO 3 -- get_payoff_by_structure_id()
 # =============================================================================
 
 class TestGetPayoffByStructureId:
@@ -202,11 +202,11 @@ class TestGetPayoffByStructureId:
             pytest.skip("derived_service não disponível")
         import inspect
         src = inspect.getsource(derived_service.get_payoff_by_structure_id)
-        assert "sid_to_aba" not in src, "Cache sid_to_aba ainda presente — regressão"
+        assert "sid_to_aba" not in src, "Cache sid_to_aba ainda presente -- regressão"
 
 
 # =============================================================================
-# BLOCO 4 — Funções standalone do derived_repo aceitam StructureRef
+# BLOCO 4 -- Funções standalone do derived_repo aceitam StructureRef
 # =============================================================================
 
 @pytest.mark.skipif(not HAS_REPO, reason="derived_repo não disponível")
@@ -274,7 +274,7 @@ class TestDerivedRepoStandalone:
 
 
 # =============================================================================
-# BLOCO 5 — Regressão legado
+# BLOCO 5 -- Regressão legado
 # =============================================================================
 
 class TestRegressaoLegado:
