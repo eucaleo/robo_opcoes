@@ -1,5 +1,7 @@
 # ATT/tests/test_patch62.py
-"""Testes unitários do patch_62."""
+"""Testes unitários do patch_62.
+patch_65: TestGetPayoffByAbaDeprecation substituída por TestGetPayoffByAbaRemovida.
+"""
 
 import sqlite3
 import warnings
@@ -102,24 +104,52 @@ class TestAbaResolverMixin:
 
 
 # ------------------------------------------------------------------ #
-# TestGetPayoffByAbaDeprecation                                       #
+# TestGetPayoffByAbaRemovida  (patch_65)                             #
+# Substitui TestGetPayoffByAbaDeprecation do patch_62.               #
 # ------------------------------------------------------------------ #
 
-class TestGetPayoffByAbaDeprecation:
+class TestGetPayoffByAbaRemovida:
+    """
+    patch_65: get_payoff_by_aba() foi removida de derived_service.
+    Garante que a função NÃO existe mais no módulo e que a substituta
+    get_payoff_by_structure_id() está presente e acessível.
+    """
 
-    def test_emite_deprecation_warning(self):
+    def test_get_payoff_by_aba_nao_existe_mais(self):
+        """Função removida não deve mais ser encontrada no módulo."""
+        from services import derived_service
+        assert not hasattr(derived_service, "get_payoff_by_aba"), (
+            "get_payoff_by_aba() ainda existe em derived_service — deve ser removida no patch_65"
+        )
+
+    def test_get_payoff_by_structure_id_existe(self):
+        """Substituta canônica deve estar presente e ser callable."""
+        from services import derived_service
+        assert hasattr(derived_service, "get_payoff_by_structure_id"), (
+            "get_payoff_by_structure_id() não encontrada em derived_service"
+        )
+        assert callable(derived_service.get_payoff_by_structure_id)
+
+    def test_nao_ha_import_warnings_no_modulo(self):
+        """
+        Reimportação do módulo não deve emitir nenhum DeprecationWarning
+        relacionado a get_payoff_by_aba após a remoção.
+        """
+        import importlib
         from services import derived_service
 
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter("always")
-            try:
-                derived_service.get_payoff_by_aba(MagicMock())
-            except Exception:
-                pass  # ignora erros de lógica interna
-            msgs = [str(w.message) for w in caught if issubclass(w.category, DeprecationWarning)]
-            assert any(
-                "patch_62" in m or "get_payoff_by_aba" in m for m in msgs
-            ), f"DeprecationWarning não emitido. Capturado: {msgs}"
+            importlib.reload(derived_service)
+
+        aba_warnings = [
+            w for w in caught
+            if issubclass(w.category, DeprecationWarning)
+            and "get_payoff_by_aba" in str(w.message)
+        ]
+        assert aba_warnings == [], (
+            f"DeprecationWarning de get_payoff_by_aba ainda emitido após patch_65: {aba_warnings}"
+        )
 
 
 # ------------------------------------------------------------------ #
