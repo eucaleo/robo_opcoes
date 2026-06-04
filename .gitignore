@@ -56,3 +56,12 @@ main.py.txt
 scripts/auditoria_*.md
 
 # Excecoes: artefatos de auditoria rastreados
+*.bak_p*
+scripts/tmp_*.py
+
+# Backups de patches (gerados automaticamente, nao versionados)
+*.bak_p*
+*.bak_p*b
+
+# Scripts temporarios de patches
+scripts/tmp_*.py
