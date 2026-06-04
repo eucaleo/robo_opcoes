@@ -1,10 +1,13 @@
 # repositories/structures_repository.py
 """
 Repositório canônico de estruturas e suas pernas (legs).
-PATCH_11: conexões SQLite fechadas explicitamente via try/finally
-          para evitar ResourceWarning no Python 3.13+.
+
+PATCH_11: conexões SQLite fechadas explicitamente via try/finally.
 PATCH_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
+PATCH_63: fix _validate_leg — leg_order aceita >= 0 (era >= 1, bug).
+          add_leg e replace_legs já existiam; expostos via API neste patch.
 """
+from __future__ import annotations
 
 import sqlite3
 from datetime import datetime, timezone
@@ -12,10 +15,14 @@ from pathlib import Path
 from typing import Any
 
 
-VALID_POSITION_SIDES = {"LONG", "SHORT"}
-VALID_OPTION_TYPES = {"CALL", "PUT"}
-VALID_STRUCTURE_STATUS = {"active", "archived"}
+VALID_POSITION_SIDES: frozenset[str] = frozenset({"LONG", "SHORT"})
+VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
+VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
 
+
+# ---------------------------------------------------------------------------
+# Helpers de validação / normalização (funções puras, sem I/O)
+# ---------------------------------------------------------------------------
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -30,7 +37,9 @@ def _validate_expiration_date(value: str) -> str:
     try:
         parsed = datetime.strptime(value, "%Y-%m-%d")
     except ValueError as exc:
-        raise ValueError("expiration_date must be a valid date in YYYY-MM-DD format") from exc
+        raise ValueError(
+            "expiration_date must be a valid date in YYYY-MM-DD format"
+        ) from exc
 
     return parsed.strftime("%Y-%m-%d")
 
@@ -67,14 +76,14 @@ def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
-    position_side = leg.get("position_side")
-    option_type = leg.get("option_type")
-    strike = leg.get("strike")
+    position_side   = leg.get("position_side")
+    option_type     = leg.get("option_type")
+    strike          = leg.get("strike")
     expiration_date = _validate_expiration_date(leg.get("expiration_date"))
-    quantity = leg.get("quantity")
-    multiplier = leg.get("multiplier", 1)
-    symbol = leg.get("symbol")
-    notes = leg.get("notes")
+    quantity        = leg.get("quantity")
+    multiplier      = leg.get("multiplier", 1)
+    symbol          = leg.get("symbol")
+    notes           = leg.get("notes")
 
     if position_side not in VALID_POSITION_SIDES:
         raise ValueError(f"invalid position_side: {position_side}")
@@ -107,12 +116,13 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("multiplier must be > 0")
 
     try:
+        # patch_63 FIX: leg_order >= 0 (antes era >= 1, rejeitava leg_order=0)
         leg_order = int(leg.get("leg_order", 0))
     except Exception as exc:
         raise ValueError("leg_order must be integer") from exc
 
-    if leg_order <= 0:
-        raise ValueError("leg_order must be >= 1")
+    if leg_order < 0:
+        raise ValueError("leg_order must be >= 0")
 
     premium = leg.get("premium")
     if premium is not None:
@@ -128,22 +138,30 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         notes = str(notes).strip() or None
 
     return {
-        "position_side": position_side,
-        "option_type": option_type,
-        "symbol": symbol,
-        "strike": strike,
+        "position_side":  position_side,
+        "option_type":    option_type,
+        "symbol":         symbol,
+        "strike":         strike,
         "expiration_date": expiration_date,
-        "quantity": quantity,
-        "premium": premium,
-        "multiplier": multiplier,
-        "leg_order": leg_order,
-        "notes": notes,
+        "quantity":       quantity,
+        "premium":        premium,
+        "multiplier":     multiplier,
+        "leg_order":      leg_order,
+        "notes":          notes,
     }
 
 
+# ---------------------------------------------------------------------------
+# Repositório
+# ---------------------------------------------------------------------------
+
 class StructuresRepository:
-    def __init__(self, db_path: str | Path = "dados/app.db"):
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
         self.db_path = str(db_path)
+
+    # ------------------------------------------------------------------
+    # Infraestrutura de conexão
+    # ------------------------------------------------------------------
 
     def _connect(self) -> sqlite3.Connection:
         db_path = Path(self.db_path)
@@ -160,7 +178,9 @@ class StructuresRepository:
             return None
         return dict(row)
 
-    def _fetch_legs(self, conn: sqlite3.Connection, structure_id: int) -> list[dict[str, Any]]:
+    def _fetch_legs(
+        self, conn: sqlite3.Connection, structure_id: int
+    ) -> list[dict[str, Any]]:
         rows = conn.execute(
             """
             SELECT
@@ -185,13 +205,11 @@ class StructuresRepository:
             (structure_id,),
         ).fetchall()
 
-        result = []
-        for row in rows:
-            d = dict(row)
-            result.append(d)
-        return result
+        return [dict(row) for row in rows]
 
-    def _ensure_structure_exists(self, conn: sqlite3.Connection, structure_id: int) -> None:
+    def _ensure_structure_exists(
+        self, conn: sqlite3.Connection, structure_id: int
+    ) -> None:
         row = conn.execute(
             "SELECT id FROM structures WHERE id = ?",
             (structure_id,),
@@ -213,23 +231,14 @@ class StructuresRepository:
             cursor = conn.execute(
                 """
                 INSERT INTO structures (
-                    name,
-                    underlying_asset,
-                    alias_legacy_aba,
-                    status,
-                    notes,
-                    created_at,
-                    updated_at
+                    name, underlying_asset, alias_legacy_aba,
+                    status, notes, created_at, updated_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    payload["name"],
-                    payload["underlying_asset"],
-                    payload["alias_legacy_aba"],
-                    payload["status"],
-                    payload["notes"],
-                    now,
-                    now,
+                    payload["name"], payload["underlying_asset"],
+                    payload["alias_legacy_aba"], payload["status"],
+                    payload["notes"], now, now,
                 ),
             )
             conn.commit()
@@ -244,17 +253,12 @@ class StructuresRepository:
     # READ
     # ------------------------------------------------------------------
 
-    def list_structures(self, include_archived: bool = False) -> list[dict[str, Any]]:
+    def list_structures(
+        self, include_archived: bool = False
+    ) -> list[dict[str, Any]]:
         query = """
-            SELECT
-                id,
-                name,
-                underlying_asset,
-                alias_legacy_aba,
-                status,
-                notes,
-                created_at,
-                updated_at
+            SELECT id, name, underlying_asset, alias_legacy_aba,
+                   status, notes, created_at, updated_at
             FROM structures
         """
         params: tuple[Any, ...] = ()
@@ -277,17 +281,9 @@ class StructuresRepository:
         try:
             row = conn.execute(
                 """
-                SELECT
-                    id,
-                    name,
-                    underlying_asset,
-                    alias_legacy_aba,
-                    status,
-                    notes,
-                    created_at,
-                    updated_at
-                FROM structures
-                WHERE id = ?
+                SELECT id, name, underlying_asset, alias_legacy_aba,
+                       status, notes, created_at, updated_at
+                FROM structures WHERE id = ?
                 """,
                 (structure_id,),
             ).fetchone()
@@ -311,11 +307,11 @@ class StructuresRepository:
             raise ValueError(f"structure not found: {structure_id}")
 
         merged = {
-            "name": data.get("name", current["name"]),
+            "name":             data.get("name",             current["name"]),
             "underlying_asset": data.get("underlying_asset", current["underlying_asset"]),
             "alias_legacy_aba": data.get("alias_legacy_aba", current["alias_legacy_aba"]),
-            "status": data.get("status", current["status"]),
-            "notes": data.get("notes", current["notes"]),
+            "status":           data.get("status",           current["status"]),
+            "notes":            data.get("notes",            current["notes"]),
         }
         payload = _normalize_structure_payload(merged)
         now = _utc_now_iso()
@@ -325,23 +321,14 @@ class StructuresRepository:
             conn.execute(
                 """
                 UPDATE structures
-                SET
-                    name = ?,
-                    underlying_asset = ?,
-                    alias_legacy_aba = ?,
-                    status = ?,
-                    notes = ?,
-                    updated_at = ?
-                WHERE id = ?
+                SET name=?, underlying_asset=?, alias_legacy_aba=?,
+                    status=?, notes=?, updated_at=?
+                WHERE id=?
                 """,
                 (
-                    payload["name"],
-                    payload["underlying_asset"],
-                    payload["alias_legacy_aba"],
-                    payload["status"],
-                    payload["notes"],
-                    now,
-                    structure_id,
+                    payload["name"], payload["underlying_asset"],
+                    payload["alias_legacy_aba"], payload["status"],
+                    payload["notes"], now, structure_id,
                 ),
             )
             conn.commit()
@@ -352,21 +339,16 @@ class StructuresRepository:
             conn.close()
 
     # ------------------------------------------------------------------
-    # ARCHIVE
+    # ARCHIVE (soft-delete)
     # ------------------------------------------------------------------
 
     def archive_structure(self, structure_id: int) -> None:
         now = _utc_now_iso()
-
         conn = self._connect()
         try:
             self._ensure_structure_exists(conn, structure_id)
             conn.execute(
-                """
-                UPDATE structures
-                SET status = ?, updated_at = ?
-                WHERE id = ?
-                """,
+                "UPDATE structures SET status=?, updated_at=? WHERE id=?",
                 ("archived", now, structure_id),
             )
             conn.commit()
@@ -381,6 +363,7 @@ class StructuresRepository:
     # ------------------------------------------------------------------
 
     def add_leg(self, structure_id: int, leg_data: dict[str, Any]) -> int:
+        """Adiciona uma perna à estrutura e retorna o ID gerado."""
         leg = _validate_leg(leg_data)
         now = _utc_now_iso()
 
@@ -391,43 +374,23 @@ class StructuresRepository:
             cursor = conn.execute(
                 """
                 INSERT INTO structure_legs (
-                    structure_id,
-                    position_side,
-                    option_type,
-                    symbol,
-                    strike,
-                    expiration_date,
-                    quantity,
-                    premium,
-                    multiplier,
-                    leg_order,
-                    notes,
-                    created_at,
-                    updated_at
+                    structure_id, position_side, option_type, symbol,
+                    strike, expiration_date, quantity, premium,
+                    multiplier, leg_order, notes, created_at, updated_at
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
-                    structure_id,
-                    leg["position_side"],
-                    leg["option_type"],
-                    leg["symbol"],
-                    leg["strike"],
-                    leg["expiration_date"],
-                    leg["quantity"],
-                    leg["premium"],
-                    leg["multiplier"],
-                    leg["leg_order"],
-                    leg["notes"],
-                    now,
-                    now,
+                    structure_id, leg["position_side"], leg["option_type"],
+                    leg["symbol"], leg["strike"], leg["expiration_date"],
+                    leg["quantity"], leg["premium"], leg["multiplier"],
+                    leg["leg_order"], leg["notes"], now, now,
                 ),
             )
 
             conn.execute(
-                "UPDATE structures SET updated_at = ? WHERE id = ?",
+                "UPDATE structures SET updated_at=? WHERE id=?",
                 (now, structure_id),
             )
-
             conn.commit()
             return int(cursor.lastrowid)
         except Exception:
@@ -436,7 +399,10 @@ class StructuresRepository:
         finally:
             conn.close()
 
-    def replace_legs(self, structure_id: int, legs: list[dict[str, Any]]) -> None:
+    def replace_legs(
+        self, structure_id: int, legs: list[dict[str, Any]]
+    ) -> None:
+        """Substitui todas as pernas da estrutura atomicamente."""
         validated_legs = [_validate_leg(leg) for leg in legs]
         now = _utc_now_iso()
 
@@ -445,7 +411,7 @@ class StructuresRepository:
             self._ensure_structure_exists(conn, structure_id)
 
             conn.execute(
-                "DELETE FROM structure_legs WHERE structure_id = ?",
+                "DELETE FROM structure_legs WHERE structure_id=?",
                 (structure_id,),
             )
 
@@ -453,43 +419,23 @@ class StructuresRepository:
                 conn.execute(
                     """
                     INSERT INTO structure_legs (
-                        structure_id,
-                        position_side,
-                        option_type,
-                        symbol,
-                        strike,
-                        expiration_date,
-                        quantity,
-                        premium,
-                        multiplier,
-                        leg_order,
-                        notes,
-                        created_at,
-                        updated_at
+                        structure_id, position_side, option_type, symbol,
+                        strike, expiration_date, quantity, premium,
+                        multiplier, leg_order, notes, created_at, updated_at
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
-                        structure_id,
-                        leg["position_side"],
-                        leg["option_type"],
-                        leg["symbol"],
-                        leg["strike"],
-                        leg["expiration_date"],
-                        leg["quantity"],
-                        leg["premium"],
-                        leg["multiplier"],
-                        leg["leg_order"],
-                        leg["notes"],
-                        now,
-                        now,
+                        structure_id, leg["position_side"], leg["option_type"],
+                        leg["symbol"], leg["strike"], leg["expiration_date"],
+                        leg["quantity"], leg["premium"], leg["multiplier"],
+                        leg["leg_order"], leg["notes"], now, now,
                     ),
                 )
 
             conn.execute(
-                "UPDATE structures SET updated_at = ? WHERE id = ?",
+                "UPDATE structures SET updated_at=? WHERE id=?",
                 (now, structure_id),
             )
-
             conn.commit()
         except Exception:
             conn.rollback()
@@ -498,23 +444,23 @@ class StructuresRepository:
             conn.close()
 
     # ------------------------------------------------------------------
-    # LOOKUP POR ALIAS LEGADO
-    # patch_42: permite localizar estrutura pelo campo alias_legacy_aba
-    # sem usar aba como chave primaria.
-    # Retorna None se nao encontrado ou se alias for None/vazio.
+    # UTILITÁRIOS
     # ------------------------------------------------------------------
 
     def count_legs(self, structure_id: int) -> int:
-        """Retorna o numero de legs de uma estrutura."""
         conn = self._connect()
         try:
             row = conn.execute(
-                "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id = ?",
+                "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id=?",
                 (structure_id,),
             ).fetchone()
             return int(row["n"]) if row else 0
         finally:
             conn.close()
+
+    # ------------------------------------------------------------------
+    # LOOKUP POR ALIAS LEGADO (patch_42)
+    # ------------------------------------------------------------------
 
     def get_structure_by_alias(self, alias: str) -> dict[str, Any] | None:
         if not alias or not str(alias).strip():
@@ -526,20 +472,11 @@ class StructuresRepository:
         try:
             row = conn.execute(
                 """
-                SELECT
-                    id,
-                    name,
-                    underlying_asset,
-                    alias_legacy_aba,
-                    status,
-                    notes,
-                    created_at,
-                    updated_at
+                SELECT id, name, underlying_asset, alias_legacy_aba,
+                       status, notes, created_at, updated_at
                 FROM structures
-                WHERE alias_legacy_aba = ?
-                  AND status = 'active'
-                ORDER BY id DESC
-                LIMIT 1
+                WHERE alias_legacy_aba = ? AND status = 'active'
+                ORDER BY id DESC LIMIT 1
                 """,
                 (alias,),
             ).fetchone()
@@ -554,10 +491,6 @@ class StructuresRepository:
             conn.close()
 
     def get_structure_id_by_alias(self, alias: str) -> int | None:
-        """
-        patch_42: retorna apenas o id da estrutura pelo alias.
-        Util para resolucao rapida sem carregar legs.
-        """
         result = self.get_structure_by_alias(alias)
         if result is None:
             return None
