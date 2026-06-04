@@ -63,8 +63,8 @@ def test_resolve_storage_key_returns_unknown_when_all_missing():
 def test_save_payoff_from_canonical_payload_uses_resolved_storage_key(monkeypatch):
     captured = {}
 
-    def fake_save_payoff_curve(aba, points, spot_ref=None, meta=None, timestamp=None):
-        captured["aba"] = aba
+    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+        captured["aba"] = ref
         captured["points"] = points
         captured["spot_ref"] = spot_ref
         captured["meta"] = meta
@@ -100,8 +100,8 @@ def test_save_payoff_from_canonical_payload_uses_resolved_storage_key(monkeypatc
 def test_save_decision_from_canonical_payload_enriches_meta(monkeypatch):
     captured = {}
 
-    def fake_save_decision(aba, decision, timestamp=None):
-        captured["aba"] = aba
+    def fake_save_decision(ref, decision, timestamp=None):
+        captured["aba"] = ref
         captured["decision"] = decision
         captured["timestamp"] = timestamp
         return 888

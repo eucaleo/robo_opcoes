@@ -96,20 +96,6 @@ def format_report(entries) -> str:
     return "\n".join(lines)
 
 if __name__ == "__main__":
-
-
-def format_report_aba(entries) -> str:
-    """Formata relatorio de auditoria de surface ABA em texto legivel.
-
-    Cada entry deve expor structure_id, reference_date e aba_str.
-    """
-    lines: list = []
-    for e in entries:
-        structure_id   = getattr(e, "structure_id",   getattr(e, "file", "?"))
-        reference_date = getattr(e, "reference_date", getattr(e, "line", "?"))
-        aba_str        = getattr(e, "aba_str",        getattr(e, "text", ""))
-        lines.append(f"{structure_id} | {reference_date} | {aba_str}")
-    return "\n".join(lines)
     parser = argparse.ArgumentParser(description="Auditoria de uso legado de 'aba'")
     parser.add_argument("--root", default=".", help="Diretório raiz")
     parser.add_argument("--out", default=None, help="Arquivo de saída (.md)")

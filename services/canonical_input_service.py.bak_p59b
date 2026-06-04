@@ -137,7 +137,6 @@ class CanonicalInputService:
 
         # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
         if self.market_snapshot_selector is not None and aba:
-            ref = StructureRef.from_aba(aba)
             legs_list, legs_meta = self._resolve_legs_via_selector(ref)
             snapshot_source = legs_meta["snapshot_source"]
         else:
@@ -168,13 +167,13 @@ class CanonicalInputService:
         self,
         ref: StructureRef,
     ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        aba_str = ref.aba
         """
         Delega ao MarketSnapshotSelector e serializa legs completas.
 
         Serialização cobre todos os campos de LegMarketSnapshot para que
         consumidores downstream (pricing, greeks, payoff) tenham os dados.
         """
-        aba_str = ref.aba
         result = self.market_snapshot_selector.select(aba_str)
 
         legs_as_dict = [
@@ -216,7 +215,7 @@ class CanonicalInputService:
 
         meta = {
             "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
-            "snapshot_aba":     aba_str,
+            "snapshot_aba":     aba,
             "manual_overrides": result.manual_overrides,
             "is_manual_first":  result.is_manual_first,
             "legs_reference_date": reference_date,

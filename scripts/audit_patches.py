@@ -2239,95 +2239,171 @@ PATCHES = [
                               "test_unwrap_aba_presente_no_modulo")),
         ],
     },
+    {
+        "id": "patch_57",
+        "desc": "Auditoria de surface pública da API ABA: scan_directory, classify, format_report + testes formais",
+        "checks": [
+            #  1. Script permanente de auditoria
+            ("scripts/74_audit_public_api_aba_surface.py existe",
+            lambda: exists("scripts/74_audit_public_api_aba_surface.py")),
 
+            #  2. Tipos e dataclass
+            ("AuditEntry definido",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "class AuditEntry")),
 
-{
-    "id": "patch_57",
-    "desc": "Auditoria de surface pública da API ABA: scan_directory, classify, format_report + testes formais",
-    "checks": [
-        #  1. Script permanente de auditoria
-        ("scripts/74_audit_public_api_aba_surface.py existe",
-         lambda: exists("scripts/74_audit_public_api_aba_surface.py")),
+            #  3. Funções públicas exigidas pelos testes
+            ("scan_directory() implementado",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "def scan_directory")),
 
-        #  2. Tipos e dataclass
-        ("AuditEntry definido",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "class AuditEntry")),
+            ("_classify() implementado (núcleo interno)",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "def _classify")),
 
-        #  3. Funções públicas exigidas pelos testes
-        ("scan_directory() implementado",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "def scan_directory")),
+            ("classify = _classify  alias público presente",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "classify = _classify")),
 
-        ("_classify() implementado (núcleo interno)",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "def _classify")),
+            ("format_report() implementado",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "def format_report")),
 
-        ("classify = _classify  alias público presente",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "classify = _classify")),
+            #  4. Contrato de importação (hasattr)
+            ("scan_directory exportado como atributo do módulo",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "scan_directory")),
 
-        ("format_report() implementado",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "def format_report")),
+            ("classify exportado como atributo do módulo",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "classify")),
 
-        #  4. Contrato de importação (hasattr)
-        ("scan_directory exportado como atributo do módulo",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "scan_directory")),
+            ("format_report exportado como atributo do módulo",
+            lambda: contains(
+                "scripts/74_audit_public_api_aba_surface.py", "format_report")),
 
-        ("classify exportado como atributo do módulo",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "classify")),
+            #  5. Scripts temporários removidos
+            ("scripts/tmp_audit_aba_surface.py NÃO existe (temporário removido)",
+            lambda: not exists("scripts/tmp_audit_aba_surface.py")),
 
-        ("format_report exportado como atributo do módulo",
-         lambda: contains(
-             "scripts/74_audit_public_api_aba_surface.py", "format_report")),
+            ("scripts/tmp_patch57_fix.py NÃO existe (temporário removido)",
+            lambda: not exists("scripts/tmp_patch57_fix.py")),
 
-        #  5. Scripts temporários removidos
-        ("scripts/tmp_audit_aba_surface.py NÃO existe (temporário removido)",
-         lambda: not exists("scripts/tmp_audit_aba_surface.py")),
+            #  6. Arquivos de teste formais
+            ("ATT/tests/test_patch57.py existe",
+            lambda: exists("ATT/tests/test_patch57.py")),
 
-        ("scripts/tmp_patch57_fix.py NÃO existe (temporário removido)",
-         lambda: not exists("scripts/tmp_patch57_fix.py")),
+            #  7. Classes de teste presentes
+            ("TestAuditScript74 presente",
+            lambda: contains("ATT/tests/test_patch57.py", "TestAuditScript74")),
 
-        #  6. Arquivos de teste formais
-        ("ATT/tests/test_patch57.py existe",
-         lambda: exists("ATT/tests/test_patch57.py")),
+            ("TestCanonicalInputServiceImport presente",
+            lambda: contains("ATT/tests/test_patch57.py", "TestCanonicalInputServiceImport")),
 
-        #  7. Classes de teste presentes
-        ("TestAuditScript74 presente",
-         lambda: contains("ATT/tests/test_patch57.py", "TestAuditScript74")),
+            ("TestRoboLegsServiceImport presente",
+            lambda: contains("ATT/tests/test_patch57.py", "TestRoboLegsServiceImport")),
 
-        ("TestCanonicalInputServiceImport presente",
-         lambda: contains("ATT/tests/test_patch57.py", "TestCanonicalInputServiceImport")),
+            ("TestTmpScriptsRemovidos presente",
+            lambda: contains("ATT/tests/test_patch57.py", "TestTmpScriptsRemovidos")),
 
-        ("TestRoboLegsServiceImport presente",
-         lambda: contains("ATT/tests/test_patch57.py", "TestRoboLegsServiceImport")),
+            #  8. Casos críticos cobertos
+            ("test_importavel presente (hasattr scan_directory/classify/format_report)",
+            lambda: contains("ATT/tests/test_patch57.py", "test_importavel")),
 
-        ("TestTmpScriptsRemovidos presente",
-         lambda: contains("ATT/tests/test_patch57.py", "TestTmpScriptsRemovidos")),
+            ("test_scan_nao_levanta_excecao presente",
+            lambda: contains("ATT/tests/test_patch57.py", "test_scan_nao_levanta_excecao")),
 
-        #  8. Casos críticos cobertos
-        ("test_importavel presente (hasattr scan_directory/classify/format_report)",
-         lambda: contains("ATT/tests/test_patch57.py", "test_importavel")),
+            ("test_sem_aba_solta_em_selector_call presente",
+            lambda: contains("ATT/tests/test_patch57.py", "test_sem_aba_solta_em_selector_call")),
 
-        ("test_scan_nao_levanta_excecao presente",
-         lambda: contains("ATT/tests/test_patch57.py", "test_scan_nao_levanta_excecao")),
+            ("test_get_legs_extrai_aba_de_ref presente",
+            lambda: contains("ATT/tests/test_patch57.py", "test_get_legs_extrai_aba_de_ref")),
 
-        ("test_sem_aba_solta_em_selector_call presente",
-         lambda: contains("ATT/tests/test_patch57.py", "test_sem_aba_solta_em_selector_call")),
+            ("test_audit_permanente_existe presente",
+            lambda: contains("ATT/tests/test_patch57.py", "test_audit_permanente_existe")),
 
-        ("test_get_legs_extrai_aba_de_ref presente",
-         lambda: contains("ATT/tests/test_patch57.py", "test_get_legs_extrai_aba_de_ref")),
+            ("test_tmp_nao_existem_em_scripts presente",
+            lambda: contains("ATT/tests/test_patch57.py", "test_tmp_nao_existem_em_scripts")),
+        ],
+    },
+    {
+        "id": "patch_59",
+        "desc": "derived_service canonico -- ref=storage_key, pathlib, format_report, aba_str",
+        "checks": [
+            #  F1 -- format_report() com atributos canonicos
+            ("services/derived_service.py existe",
+                lambda: exists("services/derived_service.py")),
+            ("format_report() implementado",
+                lambda: contains("scripts/74_audit_public_api_aba_surface.py", "def format_report")),
+            ("structure_id presente em format_report",
+                lambda: contains("scripts/74_audit_public_api_aba_surface.py", "structure_id")),
+            ("reference_date presente em format_report",
+                lambda: contains("scripts/74_audit_public_api_aba_surface.py", "reference_date")),
+            ("aba_str presente em format_report",
+                lambda: contains("services/derived_service.py", "aba_str")),
 
-        ("test_audit_permanente_existe presente",
-         lambda: contains("ATT/tests/test_patch57.py", "test_audit_permanente_existe")),
+            #  F2 -- pathlib importado
+            ("pathlib importado em derived_service",
+                lambda: contains("scripts/74_audit_public_api_aba_surface.py", "from pathlib import")),
 
-        ("test_tmp_nao_existem_em_scripts presente",
-         lambda: contains("ATT/tests/test_patch57.py", "test_tmp_nao_existem_em_scripts")),
-    ],
-},
+            #  F3 -- structure_ref antes de resolve_legs
+            ("structure_ref declarado antes de resolve_legs",
+                lambda: (
+                    contains("services/canonical_input_service.py", "structure_ref") and
+                    contains("services/canonical_input_service.py", "resolve_legs")
+                )),
+
+            #  F4 -- docstring posicionada corretamente
+            ("docstring antes de aba_str no corpo do metodo",
+                lambda: contains("services/canonical_input_service.py", '"""')),
+
+            #  F5 -- snapshot_aba usa aba_str (nao 'aba' solto)
+            ("snapshot_aba usa aba_str",
+                lambda: contains("services/canonical_input_service.py", "aba_str")),
+            ("snapshot_aba nao usa 'aba' como variavel solta",
+                lambda: not contains("services/canonical_input_service.py", "snapshot_aba=aba,")),
+
+            #  F6 -- count_legs preservado
+            ("count_legs presente em derived_service",
+                lambda: contains("repositories/structures_repository.py", "count_legs")),
+            ("count_legs nao usa id de leg",
+                lambda: not contains("repositories/structures_repository.py", "leg.id")),
+
+            #  F7 -- save_decision e save_payoff_curve usam ref=storage_key
+            ("save_decision_from_canonical_payload implementado",
+                lambda: contains("services/derived_service.py",
+                                "def save_decision_from_canonical_payload")),
+            ("save_payoff_from_canonical_payload implementado",
+                lambda: contains("services/derived_service.py",
+                                "def save_payoff_from_canonical_payload")),
+            ("save_decision passa ref=storage_key",
+                lambda: contains("services/derived_service.py", "ref=storage_key")),
+            ("save_payoff_curve passa ref=storage_key",
+                lambda: contains("services/derived_service.py", "ref=storage_key")),
+
+            #  Sintaxe e testes formais
+            ("ATT/tests/test_patch59.py existe",
+                lambda: exists("ATT/tests/test_patch59.py")),
+            ("TestF1FormatReport presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF1FormatReport")),
+            ("TestF2PathlibImportado presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF2PathlibImportado")),
+            ("TestF3StructureRefAntesSeletor presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF3StructureRefAntesSeletor")),
+            ("TestF4DocstringPosicao presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF4DocstringPosicao")),
+            ("TestF5MetaUsaAbaStr presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF5MetaUsaAbaStr")),
+            ("TestF6FetchLegsCountLegs presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF6FetchLegsCountLegs")),
+            ("TestF7DerivedServiceKwarg presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestF7DerivedServiceKwarg")),
+            ("TestPatch59SintaxeArquivos presente",
+                lambda: contains("ATT/tests/test_patch59.py", "TestPatch59SintaxeArquivos")),
+            ("ATT/patches/patch_59.py existe",
+                lambda: exists("ATT/patches/patch_59.py")),
+        ],
+    },
 
 ]  #  fechamento da lista PATCHES
 

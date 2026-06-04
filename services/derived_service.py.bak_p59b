@@ -218,7 +218,7 @@ def save_payoff_from_canonical_payload(
 
     # patch_57: passa storage_key (str) -- save_payoff_curve aceita str via _unwrap_ref
     return save_payoff_curve(
-        ref=storage_key,
+        aba=storage_key,
         points=payoff.get("points", []),
         spot_ref=payoff.get("spot_ref"),
         meta=meta,
@@ -299,7 +299,7 @@ def save_decision_from_canonical_payload(
 
     # patch_57: passa storage_key (str) -- save_decision aceita str via _unwrap_ref
     return save_decision(
-        ref=storage_key,
+        aba=storage_key,
         decision=enriched_decision,
         timestamp=ts,
     )
@@ -441,27 +441,3 @@ def get_recent_decisions():
             decisions.append(item)
 
         return decisions
-
-
-# ---------------------------------------------------------------------------
-# patch_59 -- format_report + snapshot_aba (surface canônica)
-# ---------------------------------------------------------------------------
-
-def format_report(entries) -> str:
-    """Formata relatório de auditoria de surface ABA em texto legível.
-
-    Cada entry deve expor structure_id, reference_date e aba_str.
-    """
-    lines: list[str] = []
-    for e in entries:
-        aba_str = getattr(e, "aba_str", str(getattr(e, "structure_id", "")))
-        sid     = getattr(e, "structure_id", "?")
-        ref     = getattr(e, "reference_date", "?")
-        lines.append(f"{sid} | {ref} | {aba_str}")
-    return "\n".join(lines)
-
-
-def snapshot_aba(ref: "StructureRef") -> str:
-    """Retorna aba_str canônico a partir de um StructureRef."""
-    aba_str = ref.aba if hasattr(ref, "aba") and ref.aba else str(ref.structure_id)
-    return aba_str

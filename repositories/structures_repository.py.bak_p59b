@@ -188,6 +188,7 @@ class StructuresRepository:
         result = []
         for row in rows:
             d = dict(row)
+            d["n_legs"] = self.count_legs(d["id"])
             result.append(d)
         return result
 
