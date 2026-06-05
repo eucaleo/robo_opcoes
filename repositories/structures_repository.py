@@ -6,6 +6,7 @@ PATCH_11: conexões SQLite fechadas explicitamente via try/finally.
 PATCH_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
 PATCH_63: fix _validate_leg — leg_order aceita >= 0 (era >= 1, bug).
           add_leg e replace_legs já existiam; expostos via API neste patch.
+PATCH_70: revertido leg_order para >= 1 (0 é inválido; patch_63 era equivocado).
 """
 from __future__ import annotations
 
@@ -116,13 +117,13 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("multiplier must be > 0")
 
     try:
-        # patch_63 FIX: leg_order >= 0 (antes era >= 1, rejeitava leg_order=0)
+        # PATCH_70: leg_order deve ser >= 1 (0 é inválido — reverte patch_63)
         leg_order = int(leg.get("leg_order", 0))
     except Exception as exc:
         raise ValueError("leg_order must be integer") from exc
 
-    if leg_order < 0:
-        raise ValueError("leg_order must be >= 0")
+    if leg_order < 1:
+        raise ValueError("leg_order must be >= 1")
 
     premium = leg.get("premium")
     if premium is not None:

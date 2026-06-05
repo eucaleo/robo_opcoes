@@ -18,7 +18,6 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import matplotlib.pyplot as plt
 # FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import
-import sqlite3
 from pathlib import Path
 import threading
 import time
@@ -674,11 +673,12 @@ Baseline: executed_v1 + baseline_v1b"""
         dlg = StructureEditorDialog(
             self.root,
             structure_id=structure_id,
-            db_path=str(PROJECT_ROOT / "dados" / "app.db"),
+            db_path=self._db_path,                            # ← usa instância
         )
         self.root.wait_window(dlg)
-        if getattr(dlg, "saved", False):
+        if dlg.saved:
             self.structures_list.load()
+
             try:
                 self.status_bar.config(text="Estrutura salva com sucesso.")
             except Exception:
