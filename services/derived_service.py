@@ -1,9 +1,10 @@
+from __future__ import annotations
 # services/derived_service.py
 """
 patch_30/patch_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
 patch_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
+patch_65           -- get_payoff_by_aba() removida da interface pública (standalone).
 """
-from __future__ import annotations
 
 import json
 import sqlite3
@@ -340,11 +341,12 @@ def get_all_payoff_curves():
         ]
 
 
-def get_payoff_by_aba(ref):
+def get_payoff_by_structure_id(structure_id: int):
     """
-    patch_56: busca payoff_curve_points usando um StructureRef.
-    Interpola col via db_pair() e passa val como parâmetro seguro.
+    patch_56/patch_65: único ponto de entrada canônico para leitura de payoff.
+    get_payoff_by_aba() removida da interface pública (patch_65).
     """
+    ref = StructureRef.from_id(structure_id)
     col, val = ref.db_pair()
     with connect_derived() as conn:
         cursor = conn.cursor()
@@ -367,14 +369,6 @@ def get_payoff_by_aba(ref):
             for row in cursor.fetchall()
         ]
 
-
-def get_payoff_by_structure_id(structure_id: int):
-    """
-    patch_56: constrói StructureRef.from_id() e delega para get_payoff_by_aba.
-    Único ponto de entrada para leitura de payoff por estrutura.
-    """
-    ref = StructureRef.from_id(structure_id)
-    return get_payoff_by_aba(ref)
 
 def get_recent_decisions():
     with connect_derived() as conn:
@@ -467,3 +461,27 @@ def snapshot_aba(ref: "StructureRef") -> str:
     aba_str = ref.aba if hasattr(ref, "aba") and ref.aba else str(ref.structure_id)
     return aba_str
 
+
+# ------------------------------------------------------------------
+# patch_65 -- DerivedService: fachada orientada a objetos
+# get_payoff_by_aba() removida da interface pública.
+# get_payoff_by_structure_id() é o único ponto de entrada canônico.
+# ------------------------------------------------------------------
+
+class DerivedService:
+    """Fachada OO sobre as funções standalone do derived_service.
+    patch_65: get_payoff_by_aba() não exposta -- use get_payoff_by_structure_id().
+    """
+
+    def get_payoff_by_structure_id(self, structure_id: int):
+        """Retorna pontos de payoff para a estrutura informada."""
+        return get_payoff_by_structure_id(structure_id)
+
+    def save_payoff_curve(self, *args, **kwargs):
+        return save_payoff_curve(*args, **kwargs)
+
+    def save_decision(self, *args, **kwargs):
+        return save_decision(*args, **kwargs)
+
+    def cleanup_derived(self, days_to_keep: int = 30):
+        return cleanup_derived(days_to_keep)

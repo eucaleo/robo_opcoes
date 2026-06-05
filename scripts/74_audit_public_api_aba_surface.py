@@ -11,7 +11,6 @@ patch_57c -- from __future__ REMOVIDO (incompativel com importlib.exec_module
              sem registro previo em sys.modules no Python 3.13).
 """
 
-
 import argparse
 import pathlib
 import re
@@ -87,15 +86,12 @@ def scan_directory(root, extensions: tuple = (".py",)) -> List[AuditEntry]:
     return entries
 
 
-
 def format_report(entries) -> str:
     """Formata lista de AuditEntry em relatorio texto."""
     lines = []
     for e in entries:
         lines.append(f"{e.file}:{e.line} [{e.classification}] {e.text.rstrip()}")
     return "\n".join(lines)
-
-if __name__ == "__main__":
 
 
 def format_report_aba(entries) -> str:
@@ -110,6 +106,12 @@ def format_report_aba(entries) -> str:
         aba_str        = getattr(e, "aba_str",        getattr(e, "text", ""))
         lines.append(f"{structure_id} | {reference_date} | {aba_str}")
     return "\n".join(lines)
+
+
+classify = _classify  # alias público exigido pelos testes
+
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Auditoria de uso legado de 'aba'")
     parser.add_argument("--root", default=".", help="Diretório raiz")
     parser.add_argument("--out", default=None, help="Arquivo de saída (.md)")
@@ -132,4 +134,3 @@ def format_report_aba(entries) -> str:
     else:
         print(report)
 
-classify = _classify  # alias público exigido pelos testes
