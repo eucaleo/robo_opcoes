@@ -33,6 +33,9 @@ class MainWindow:
         # Data model
         self.data_model = UIDataModel()
 
+        # Caminho canônico ao banco operacional (patch_70/71)
+        self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+
         # Threading control: evitar freeze da UI
         self._payoff_worker_id = 0
 
@@ -617,7 +620,7 @@ Baseline: executed_v1 + baseline_v1b"""
             list_frame,
             on_structure_selected=self._on_structure_selected,
             on_request_edit=self._on_structure_edit_request,
-            db_path=str(PROJECT_ROOT / "dados" / "app.db"),
+            db_path=self._db_path,
         )
         self.structures_list.pack(fill="both", expand=True)
 

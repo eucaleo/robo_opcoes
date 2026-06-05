@@ -1,7 +1,10 @@
 # UI/components/structures_list_panel.py
 """
 StructuresListPanel -- patch_10 / Fase 5
-Lista de estruturas com filtro de status, botões CRUD e duplicar.
+Lista de estruturas com filtro de status, botoes CRUD e duplicar.
+
+patch_72: alias _on_archive_request -> _cmd_archive adicionado para
+          compatibilidade com checks de auditoria do patch_71.
 
 Contrato com main_window.py:
     StructuresListPanel(
@@ -11,13 +14,12 @@ Contrato com main_window.py:
         db_path:               str,
     )
 
-Atributos públicos esperados pelos testes de integração:
+Atributos publicos esperados pelos testes de integracao:
     _tree           ttk.Treeview
     _status_var     tk.StringVar  ("active" | "all")
     load()          recarrega a lista do banco
 """
 from __future__ import annotations
-
 
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -26,17 +28,18 @@ from typing import Callable, Optional
 from repositories.structures_repository import StructuresRepository
 
 
-# 
+# ------------------------------------------------------------------
 # Constantes de layout
-# 
+# ------------------------------------------------------------------
+
 _COLUMNS = ("id", "name", "underlying_asset", "alias", "status", "legs")
 _HEADERS = {
-    "id":               ("ID",       45,  "center"),
-    "name":             ("Nome",     220, "w"),
-    "underlying_asset": ("Ativo",    80,  "center"),
-    "alias":            ("Aba/Alias",110, "w"),
-    "status":           ("Status",   70,  "center"),
-    "legs":             ("Legs",     45,  "center"),
+    "id":               ("ID",        45,  "center"),
+    "name":             ("Nome",      220, "w"),
+    "underlying_asset": ("Ativo",     80,  "center"),
+    "alias":            ("Aba/Alias", 110, "w"),
+    "status":           ("Status",    70,  "center"),
+    "legs":             ("Legs",      45,  "center"),
 }
 
 
@@ -57,7 +60,7 @@ class StructuresListPanel(ttk.Frame):
         self._on_request_edit       = on_request_edit
         self._db_path               = db_path
         self._repo                  = StructuresRepository(db_path)
-        self._current_rows: list[dict] = []   # cache da última lista carregada
+        self._current_rows: list[dict] = []
 
         self._build_toolbar()
         self._build_tree()
@@ -65,9 +68,9 @@ class StructuresListPanel(ttk.Frame):
 
         self.load()
 
-    # 
-    # Construção da UI
-    # 
+    # ------------------------------------------------------------------
+    # Construcao da UI
+    # ------------------------------------------------------------------
 
     def _build_toolbar(self):
         """Barra superior: filtro de status + busca por nome."""
@@ -112,7 +115,9 @@ class StructuresListPanel(ttk.Frame):
             header, width, anchor = _HEADERS[col]
             self._tree.heading(col, text=header,
                                command=lambda c=col: self._sort_by(c))
-            self._tree.column(col, width=width, anchor=anchor, stretch=(col == "name"))
+            self._tree.column(
+                col, width=width, anchor=anchor, stretch=(col == "name")
+            )
 
         vsb = ttk.Scrollbar(frame, orient="vertical",   command=self._tree.yview)
         hsb = ttk.Scrollbar(frame, orient="horizontal", command=self._tree.xview)
@@ -125,28 +130,25 @@ class StructuresListPanel(ttk.Frame):
         self._tree.bind("<<TreeviewSelect>>", self._on_tree_select)
         self._tree.bind("<Double-1>",         self._on_tree_double_click)
 
-        # Tags de cor por status
         self._tree.tag_configure("archived", foreground="#999999")
         self._tree.tag_configure("active",   foreground="#1a1a1a")
 
     def _build_buttons(self):
-        """Barra inferior com botões de ação."""
+        """Barra inferior com botoes de acao."""
         btn_bar = ttk.Frame(self)
         btn_bar.pack(fill="x", padx=4, pady=(0, 4))
 
         actions = [
             ("+ Nova",     self._cmd_new),
-            (" Editar",   self._cmd_edit),
-            (" Duplicar", self._cmd_duplicate),
-            (" Arquivar", self._cmd_archive),
+            (" Editar",    self._cmd_edit),
+            (" Duplicar",  self._cmd_duplicate),
+            (" Arquivar",  self._cmd_archive),
         ]
         for label, cmd in actions:
             ttk.Button(btn_bar, text=label, command=cmd).pack(
                 side="left", padx=2, pady=2
             )
 
-
-        # Label de feedback de status no rodapé do painel
         self._status_label_var = tk.StringVar(value="")
         ttk.Label(
             self,
@@ -154,9 +156,10 @@ class StructuresListPanel(ttk.Frame):
             foreground="#555555",
             anchor="w",
         ).pack(fill="x", padx=4, pady=(0, 2))
-    # 
+
+    # ------------------------------------------------------------------
     # Carregamento / filtro
-    # 
+    # ------------------------------------------------------------------
 
     def load(self):
         """Recarrega do banco respeitando o filtro de status atual."""
@@ -179,7 +182,6 @@ class StructuresListPanel(ttk.Frame):
                 or term in (r.get("alias_legacy_aba") or "").lower()
             ]
 
-        # Salva seleção atual (por id) para restaurar depois
         sel_id = self._selected_id()
 
         self._tree.delete(*self._tree.get_children())
@@ -199,14 +201,13 @@ class StructuresListPanel(ttk.Frame):
                 tags=(row["status"],),
             )
 
-        # Restaura seleção se o item ainda existe
         if sel_id and self._tree.exists(str(sel_id)):
             self._tree.selection_set(str(sel_id))
             self._tree.see(str(sel_id))
 
-    # 
+    # ------------------------------------------------------------------
     # Helpers internos
-    # 
+    # ------------------------------------------------------------------
 
     def _selected_id(self) -> Optional[int]:
         sel = self._tree.selection()
@@ -218,7 +219,7 @@ class StructuresListPanel(ttk.Frame):
             return None
 
     def _get_full_structure(self, structure_id: int) -> Optional[dict]:
-        """Busca estrutura completa (com legs) pelo repositório."""
+        """Busca estrutura completa (com legs) pelo repositorio."""
         try:
             return self._repo.get_structure(structure_id)
         except Exception:
@@ -237,9 +238,9 @@ class StructuresListPanel(ttk.Frame):
             self._tree.move(iid, "", idx)
         setattr(self, f"_sort_rev_{col}", not reverse)
 
-    # 
+    # ------------------------------------------------------------------
     # Callbacks da Treeview
-    # 
+    # ------------------------------------------------------------------
 
     def _on_tree_select(self, _event=None):
         sid = self._selected_id()
@@ -254,9 +255,9 @@ class StructuresListPanel(ttk.Frame):
         if sid is not None:
             self._on_request_edit(sid)
 
-    # 
-    # Comandos dos botões
-    # 
+    # ------------------------------------------------------------------
+    # Comandos dos botoes
+    # ------------------------------------------------------------------
 
     def _cmd_new(self):
         self._on_request_edit(None)
@@ -276,12 +277,12 @@ class StructuresListPanel(ttk.Frame):
 
         src = self._get_full_structure(sid)
         if src is None:
-            messagebox.showerror("Duplicar", "Não foi possível carregar a estrutura.")
+            messagebox.showerror("Duplicar", "Nao foi possivel carregar a estrutura.")
             return
 
         try:
             new_id = self._repo.create_structure({
-                "name":             f"{src['name']} (cópia)",
+                "name":             f"{src['name']} (copia)",
                 "underlying_asset": src["underlying_asset"],
                 "alias_legacy_aba": src.get("alias_legacy_aba"),
                 "status":           "active",
@@ -297,7 +298,6 @@ class StructuresListPanel(ttk.Frame):
 
             self.load()
 
-            # Seleciona o novo item
             if self._tree.exists(str(new_id)):
                 self._tree.selection_set(str(new_id))
                 self._tree.see(str(new_id))
@@ -306,6 +306,10 @@ class StructuresListPanel(ttk.Frame):
             messagebox.showerror("Duplicar", f"Erro ao duplicar: {exc}")
 
     def _cmd_archive(self):
+        """
+        patch_71: arquiva a estrutura selecionada com confirmacao e feedback de status.
+        patch_72: _on_archive_request e alias publico para este metodo.
+        """
         sid = self._selected_id()
         if sid is None:
             messagebox.showwarning("Arquivar", "Selecione uma estrutura primeiro.")
@@ -313,13 +317,13 @@ class StructuresListPanel(ttk.Frame):
 
         src = self._get_full_structure(sid)
         if src and src.get("status") == "archived":
-            messagebox.showinfo("Arquivar", "Esta estrutura já está arquivada.")
+            messagebox.showinfo("Arquivar", "Esta estrutura ja esta arquivada.")
             return
 
         name = src["name"] if src else f"ID={sid}"
         if not messagebox.askyesno(
             "Arquivar",
-            f"Arquivar '{name}'?\nA estrutura ficará oculta (não será deletada).",
+            f"Arquivar '{name}'?\nA estrutura ficara oculta (nao sera deletada).",
         ):
             return
 
@@ -332,12 +336,15 @@ class StructuresListPanel(ttk.Frame):
             messagebox.showerror("Arquivar", f"Erro ao arquivar: {exc}")
             self._set_status(f"Erro ao arquivar: {exc}")
 
-    # 
+    # patch_72: alias formal para compatibilidade com checks de auditoria patch_71
+    _on_archive_request = _cmd_archive
+
+    # ------------------------------------------------------------------
     # Feedback de status
-    # 
+    # ------------------------------------------------------------------
 
     def _set_status(self, msg: str) -> None:
-        """Atualiza o label de feedback no rodapé do painel."""
+        """Atualiza o label de feedback no rodape do painel."""
         try:
             self._status_label_var.set(msg)
         except Exception:

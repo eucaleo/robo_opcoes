@@ -469,9 +469,13 @@ def snapshot_aba(ref: "StructureRef") -> str:
 # ------------------------------------------------------------------
 
 class DerivedService:
-    """Fachada OO sobre as funções standalone do derived_service.
-    patch_65: get_payoff_by_aba() não exposta -- use get_payoff_by_structure_id().
+    """Fachada OO sobre as funcoes standalone do derived_service.
+    patch_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
+    get_payoff_by_aba() ausente por decisao de design (patch_65): interface simplificada.
     """
+
+    # patch_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
+    # Chamadores legados devem migrar para get_payoff_by_structure_id().
 
     def get_payoff_by_structure_id(self, structure_id: int):
         """Retorna pontos de payoff para a estrutura informada."""

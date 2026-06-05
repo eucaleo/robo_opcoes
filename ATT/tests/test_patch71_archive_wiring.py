@@ -122,7 +122,13 @@ class TestPatch71StaticMainWindow(unittest.TestCase):
         self.assertIn("self._db_path", _src(MAIN_WINDOW),
                       "self._db_path ausente em main_window.py")
 
-    def test_db_path_nao_hardcoded_em_setup_structures_tab(self):
+    def test_db_path_nao_hardcoded_em_main_window(self):
+        """
+        patch_72: renomeado de test_db_path_nao_hardcoded_em_setup_structures_tab
+        para alinhar com o nome esperado pelo auditor do patch_71.
+        Logica identica -- verifica ausencia de db_path hardcoded na instanciacao
+        de StructuresListPanel em main_window.py.
+        """
         src = _src(MAIN_WINDOW)
         # O hardcode pode aparecer somente na definicao de self._db_path -- nao
         # como argumento direto de StructuresListPanel

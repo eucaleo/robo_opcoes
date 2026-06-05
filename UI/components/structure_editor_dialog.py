@@ -45,14 +45,21 @@ class StructureEditorDialog(tk.Toplevel):
         parent: tk.Widget,
         structure_id: Optional[int] = None,
         db_path: str = "dados/app.db",
+        *,
+        _repo=None,                          # <-- injecao de dependencia (testes)
     ):
         super().__init__(parent)
 
-        self._repo         = StructuresRepository(db_path)
         self._structure_id = structure_id
+        self._db_path      = db_path
         self.saved         = False
+        self._legs_rows: list[dict] = []
 
-        self._legs_rows: list[dict] = []   # lista de dicts de legs em edicao
+        # Injeta repositorio mockado em testes, ou cria o real em producao
+        if _repo is not None:
+            self._repo = _repo
+        else:
+            self._repo = StructuresRepository(db_path)
 
         # Variaveis de formulario -- inicializadas ANTES de _build_ui
         # para que _load_existing() possa fazer .set() mesmo se chamado
@@ -118,8 +125,8 @@ class StructureEditorDialog(tk.Toplevel):
         leg_toolbar.pack(fill="x", pady=(0, 4))
         ttk.Button(leg_toolbar, text="+ Leg",    command=self._cmd_add_leg).pack(side="left", padx=2)
         ttk.Button(leg_toolbar, text="Remover",  command=self._cmd_remove_leg).pack(side="left", padx=2)
-        ttk.Button(leg_toolbar, text="",         command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
-        ttk.Button(leg_toolbar, text="",         command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
+        ttk.Button(leg_toolbar, text="▲",        command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
+        ttk.Button(leg_toolbar, text="▼",        command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
 
         # Treeview de legs
         leg_frame = ttk.Frame(legs_outer)
@@ -153,7 +160,7 @@ class StructureEditorDialog(tk.Toplevel):
         btn_bar = ttk.Frame(self)
         btn_bar.pack(fill="x", padx=8, pady=8)
 
-        ttk.Button(btn_bar, text="Cancelar",     command=self.destroy).pack(side="right", padx=4)
+        ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
         ttk.Button(btn_bar, text="[SAVE] Salvar", command=self._cmd_save).pack(side="right", padx=4)
 
     def _build_leg_form(self, parent: tk.Widget):
@@ -299,7 +306,6 @@ class StructureEditorDialog(tk.Toplevel):
         }
         self._legs_rows.append(new_leg)
         self._refresh_leg_tree()
-        # Seleciona o novo item
         new_iid = str(len(self._legs_rows) - 1)
         self._leg_tree.selection_set(new_iid)
         self._on_leg_double_click()

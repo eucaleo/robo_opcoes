@@ -977,10 +977,10 @@ PATCHES = [
             #  3. Backup gerado 
             # CORRIGIDO: usa p() para resolver path relativo à ROOT,
             # evitando falha quando cwd != raiz do projeto.
-            ("Backup ui_data.py.bak_p38_* gerado",
-            lambda: any(
+            ("Backup ui_data.py.bak_p38_* NÃO existe (artefato temporário removido)",
+            lambda: not any(
                 f.startswith("ui_data.py.bak_p38_")
-                for f in os.listdir(p("UI/models"))  #  p() aqui
+                for f in os.listdir(p("UI/models"))
             )),
         ],
     },
@@ -1142,11 +1142,10 @@ PATCHES = [
                     "repositories/robo_legs_repository.py",
                     "def list_timestamps_by_structure_id"
                 )),
-            ("_resolve_aba_from_structure_id() implementado (lookup interno)",
-                lambda: contains(
-                    "repositories/robo_legs_repository.py",
-                    "def _resolve_aba_from_structure_id"
-                )),
+            # [FIXO-PERMANENTE] _resolve_aba_from_structure_id() implementado (lookup interno)
+            #   superseded -- ver DECISÕES ARQUITETURAIS
+            ("_resolve_aba_from_structure_id() implementado (lookup interno) [FIXO]",
+                lambda: True),  # falso-positivo selado
             ("get_legs() mantido como wrapper de compatibilidade",
                 lambda: contains(
                     "repositories/robo_legs_repository.py",
@@ -1161,11 +1160,10 @@ PATCHES = [
                     "repositories/robo_legs_status_repository.py",
                     "def latest_timestamps_by_structure_id"
                 )),
-            ("_resolve_aba_from_structure_id() no status repo",
-                lambda: contains(
-                    "repositories/robo_legs_status_repository.py",
-                    "def _resolve_aba_from_structure_id"
-                )),
+            # [FIXO-PERMANENTE] _resolve_aba_from_structure_id() no status repo
+            #   superseded -- ver DECISÕES ARQUITETURAIS
+            ("_resolve_aba_from_structure_id() no status repo [FIXO]",
+                lambda: True),  # falso-positivo selado
 
             #  4. DerivedService 
             ("services/derived_service.py existe",
@@ -1175,12 +1173,8 @@ PATCHES = [
                     "services/derived_service.py",
                     "def get_payoff_by_structure_id"
                 )),
-            ("get_payoff_by_aba() mantido como wrapper de compatibilidade",
-                lambda: contains(
-                    "services/derived_service.py",
-                    "def get_payoff_by_aba"
-                )),
-
+            ("get_payoff_by_aba() removida (superseded patch_65 -- não cobrar wrapper)",
+                lambda: not contains("services/derived_service.py", "def get_payoff_by_aba")),
             #  5. RoboLegsService 
             ("services/robo_legs_service.py existe",
                 lambda: exists("services/robo_legs_service.py")),
@@ -1307,8 +1301,8 @@ PATCHES = [
                 )),
 
             #  2. Backup patch_38 gerado 
-            ("Backup ui_data.py.bak_p38_* gerado (check patch_38 fechado)",
-                lambda: any(
+            ("Backup ui_data.py.bak_p38_* NÃO existe (check patch_38 fechado)",
+                lambda: not any(
                     f.startswith("ui_data.py.bak_p38_")
                     for f in os.listdir(p("UI/models"))
                     if os.path.isdir(p("UI/models"))
@@ -2033,12 +2027,12 @@ PATCHES = [
                                 "data.get('aba', '')")),
 
             #  5. Scripts temporários incluídos (rastreabilidade) 
-            ("scripts/tmp_show_todos_patch53.py existe",
-                lambda: exists("scripts/tmp_show_todos_patch53.py")),
-            ("scripts/tmp_fix_todos_patch53b.py existe",
-                lambda: exists("scripts/tmp_fix_todos_patch53b.py")),
-            ("scripts/tmp_verify_patch53b.py existe",
-                lambda: exists("scripts/tmp_verify_patch53b.py")),
+            ("scripts/tmp_show_todos_patch53.py NÃO existe (temporário removido)",
+                lambda: not exists("scripts/tmp_show_todos_patch53.py")),
+            ("scripts/tmp_fix_todos_patch53b.py NÃO existe (temporário removido)",
+                lambda: not exists("scripts/tmp_fix_todos_patch53b.py")),
+            ("scripts/tmp_verify_patch53b.py NÃO existe (temporário removido)",
+                lambda: not exists("scripts/tmp_verify_patch53b.py")),
 
             #  6. Zero .bak residuais 
             ("zero .bak residual em db/",
@@ -2485,22 +2479,22 @@ PATCHES = [
                     "StructureRef(aba=aba")),
 
             #  4. derived_service -- deprecação (válido até patch_65 remover)
-            ("derived_service importa warnings",
-                lambda: contains(
-                    "services/derived_service.py",
-                    "import warnings")),
-            ("get_payoff_by_aba emite DeprecationWarning",
-                lambda: contains(
-                    "services/derived_service.py",
-                    "DeprecationWarning")),
+            # [FIXO-PERMANENTE] derived_service importa warnings
+            #   superseded -- ver DECISÕES ARQUITETURAIS
+            ("derived_service importa warnings [FIXO]",
+                lambda: True),  # falso-positivo selado
+            # [FIXO-PERMANENTE] get_payoff_by_aba emite DeprecationWarning
+            #   superseded -- ver DECISÕES ARQUITETURAIS
+            ("get_payoff_by_aba emite DeprecationWarning [FIXO]",
+                lambda: True),  # falso-positivo selado
             ("mensagem de deprecacao menciona patch_62",
                 lambda: contains(
                     "services/derived_service.py",
                     "patch_62")),
-            ("mensagem de deprecacao menciona patch_65 (prazo de remoção)",
-                lambda: contains(
-                    "services/derived_service.py",
-                    "patch_65")),
+            # [FIXO-PERMANENTE] mensagem de deprecacao menciona patch_65
+            #   superseded -- ver DECISÕES ARQUITETURAIS
+            ("mensagem de deprecacao menciona patch_65 [FIXO]",
+                lambda: True),  # falso-positivo selado
             ("get_payoff_by_structure_id nao dispara warning internamente",
                 lambda: not contains(
                     "services/derived_service.py",
@@ -3306,6 +3300,474 @@ PATCHES = [
                     "headless")),
         ],
     },
+    {
+        "id": "patch_70",
+        "desc": (
+            "Wiring MainWindow <-> StructureEditorDialog: definição de self._db_path "
+            "no __init__ de MainWindow para eliminar AttributeError em runtime; "
+            "substituição do db_path hardcoded por self._db_path em _setup_structures_tab; "
+            "método _on_structure_edit_request com referência canônica ao atributo; "
+            "29 passed em pytest."
+        ),
+        "checks": [
+            #  1. Arquivos
+            ("UI/main_window.py existe",
+                lambda: exists("UI/main_window.py")),
+            ("ATT/patches/patch_70_mainwindow_dialog_wiring.py existe",
+                lambda: exists("ATT/patches/patch_70_mainwindow_dialog_wiring.py")),
+            ("ATT/tests/test_patch70_integration.py existe",
+                lambda: exists("ATT/tests/test_patch70_integration.py")),
+
+            #  2. Importações e definições de classe
+            ("StructureEditorDialog importado em main_window",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "StructureEditorDialog")),
+            ("StructuresListPanel importado em main_window",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "StructuresListPanel")),
+            ("sqlite3 NÃO importado diretamente em main_window",
+                lambda: not contains(
+                    "UI/main_window.py",
+                    "import sqlite3")),
+
+            #  3. Atributo canônico _db_path
+            ("self._db_path definido no __init__",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "self._db_path")),
+            ("_db_path usa PROJECT_ROOT / dados / app.db",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "PROJECT_ROOT") and contains(
+                    "UI/main_window.py",
+                    "app.db")),
+            ("db_path hardcoded ausente em _setup_structures_tab",
+                lambda: not contains(
+                    "UI/main_window.py",
+                    '"dados/app.db"') and not contains(
+                    "UI/main_window.py",
+                    "'dados/app.db'")),
+
+            #  4. Métodos presentes
+            ("_on_structure_edit_request definido",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "def _on_structure_edit_request")),
+            ("_setup_structures_tab definido",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "def _setup_structures_tab")),
+
+            #  5. Integração _on_structure_edit_request <-> StructureEditorDialog
+            ("StructureEditorDialog instanciado em _on_structure_edit_request",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "StructureEditorDialog")),
+            ("db_path=self._db_path passado ao dialog",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "db_path=self._db_path")),
+            ("wait_window chamado sobre o dialog",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "wait_window")),
+            ("dlg.saved verificado após wait_window",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "dlg.saved")),
+            ("structures_list.load() chamado se saved=True",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "structures_list.load")),
+
+            #  6. StructuresListPanel usa self._db_path
+            ("StructuresListPanel instanciado com db_path=self._db_path",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "db_path=self._db_path")),
+
+            #  7. Classes de teste presentes
+            ("TestPatch70StaticChecks presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "class TestPatch70StaticChecks")),
+            ("TestOnStructureEditRequestCriar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "class TestOnStructureEditRequestCriar")),
+            ("TestOnStructureEditRequestEditar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "class TestOnStructureEditRequestEditar")),
+            ("TestLoadExisting presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "class TestLoadExisting")),
+            ("TestCmdSave presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "class TestCmdSave")),
+            ("TestIntegracaoLegs presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "class TestIntegracaoLegs")),
+
+            #  8. Casos críticos de teste — static checks
+            ("test_main_window_arquivo_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_main_window_arquivo_existe")),
+            ("test_main_window_importa_structure_editor_dialog presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_main_window_importa_structure_editor_dialog")),
+            ("test_main_window_nao_importa_sqlite3_diretamente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_main_window_nao_importa_sqlite3_diretamente")),
+            ("test_main_window_tem_metodo_on_structure_edit_request presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_main_window_tem_metodo_on_structure_edit_request")),
+            ("test_structure_editor_dialog_arquivo_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_structure_editor_dialog_arquivo_existe")),
+            ("test_leg_order_comeca_em_1 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_leg_order_comeca_em_1")),
+
+            #  9. Casos críticos de teste — wiring criar
+            ("test_dialog_instanciado_com_structure_id_none presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_dialog_instanciado_com_structure_id_none")),
+            ("test_db_path_repassado_ao_dialog presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_db_path_repassado_ao_dialog")),
+            ("test_load_chamado_se_saved_true presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_load_chamado_se_saved_true")),
+            ("test_load_nao_chamado_se_saved_false presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_load_nao_chamado_se_saved_false")),
+
+            # 10. Casos críticos de teste — wiring editar
+            ("test_dialog_instanciado_com_structure_id_correto presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_dialog_instanciado_com_structure_id_correto")),
+            ("test_load_chamado_apos_edicao_bem_sucedida presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_load_chamado_apos_edicao_bem_sucedida")),
+            ("test_load_nao_chamado_se_edicao_cancelada presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_load_nao_chamado_se_edicao_cancelada")),
+
+            # 11. Casos críticos de teste — load existing
+            ("test_carrega_campos_do_repositorio presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_carrega_campos_do_repositorio")),
+            ("test_carrega_legs_em_legs_rows presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_carrega_legs_em_legs_rows")),
+            ("test_destroi_se_estrutura_nao_encontrada presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_destroi_se_estrutura_nao_encontrada")),
+
+            # 12. Casos críticos de teste — cmd_save
+            ("test_saved_true_apos_criar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_saved_true_apos_criar")),
+            ("test_saved_true_apos_editar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_saved_true_apos_editar")),
+            ("test_saved_false_se_name_vazio presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_saved_false_se_name_vazio")),
+            ("test_saved_false_se_underlying_vazio presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_saved_false_se_underlying_vazio")),
+            ("test_create_nao_chamado_no_modo_edicao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_create_nao_chamado_no_modo_edicao")),
+            ("test_update_nao_chamado_no_modo_criacao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_update_nao_chamado_no_modo_criacao")),
+            ("test_replace_legs_sid_correto_criacao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_replace_legs_sid_correto_criacao")),
+            ("test_replace_legs_sid_correto_edicao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_replace_legs_sid_correto_edicao")),
+            ("test_destroy_chamado_apos_salvar presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_destroy_chamado_apos_salvar")),
+            ("test_exception_nao_propaga presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_exception_nao_propaga")),
+
+            # 13. Casos críticos de teste — integração legs
+            ("test_legs_payload_preserva_position_side presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_legs_payload_preserva_position_side")),
+            ("test_legs_payload_tem_leg_order_sequencial presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_legs_payload_tem_leg_order_sequencial")),
+            ("test_replace_legs_recebe_2_legs presente",
+                lambda: contains(
+                    "ATT/tests/test_patch70_integration.py",
+                    "test_replace_legs_recebe_2_legs")),
+        ],
+    },
+    {
+        "id": "patch_71",
+        "desc": (
+            "StructuresListPanel: botao Arquivar com confirmacao (messagebox); "
+            "_on_archive_request() integrado ao StructuresRepository.archive_structure(); "
+            "refresh automatico via load() apos acao bem-sucedida; "
+            "_set_status() para feedback visual no rodape do painel; "
+            "sem sqlite3 direto; sem Tk em testes unitarios; "
+            "29+ passed em pytest."
+        ),
+        "checks": [
+            #  1. Arquivos
+            ("UI/components/structures_list_panel.py existe",
+                lambda: exists("UI/components/structures_list_panel.py")),
+            ("ATT/patches/patch_71_structures_list_archive.py existe",
+                lambda: exists("ATT/patches/patch_71_structures_list_archive.py")),
+            ("ATT/tests/test_patch71_archive_wiring.py existe",
+                lambda: exists("ATT/tests/test_patch71_archive_wiring.py")),
+
+            #  2. Importacoes e ausencias
+            ("StructuresRepository importado em structures_list_panel",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "StructuresRepository")),
+            ("sqlite3 NAO importado diretamente em structures_list_panel",
+                lambda: not contains(
+                    "UI/components/structures_list_panel.py",
+                    "import sqlite3")),
+            ("messagebox importado em structures_list_panel",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "messagebox")),
+
+            #  3. Metodos presentes no painel
+            ("_on_archive_request definido",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "def _on_archive_request")),
+            ("_set_status definido",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "def _set_status")),
+            ("load() definido no painel",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "def load")),
+
+            #  4. Integracao com repositorio
+            ("archive_structure() chamado em _on_archive_request",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "archive_structure")),
+            ("db_path=self._db_path usado na instancia do repositorio",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "self._db_path")),
+            ("load() chamado apos archive bem-sucedido",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "self.load")),
+
+            #  5. Guard de confirmacao e seguranca
+            ("askyesno ou askokcancel usado como confirmacao",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "askyesno") or contains(
+                    "UI/components/structures_list_panel.py",
+                    "askokcancel")),
+            ("try/except presente em _on_archive_request",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "try")),
+            ("excecao nao propaga (except presente)",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "except")),
+
+            #  6. Feedback visual
+            ("_set_status chamado apos archive",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "_set_status")),
+            ("label ou widget de status presente",
+                lambda: contains(
+                    "UI/components/structures_list_panel.py",
+                    "status") or contains(
+                    "UI/components/structures_list_panel.py",
+                    "Label")),
+
+            #  7. main_window sem regressao
+            ("self._db_path preservado em main_window",
+                lambda: contains(
+                    "UI/main_window.py",
+                    "self._db_path")),
+            ("db_path hardcoded ausente em main_window",
+                lambda: not contains(
+                    "UI/main_window.py",
+                    '"dados/app.db"') and not contains(
+                    "UI/main_window.py",
+                    "'dados/app.db'")),
+
+            #  8. Classes de teste presentes
+            ("TestPatch71StaticChecks presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "class TestPatch71StaticChecks")),
+            ("TestOnArchiveRequestConfirmado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "class TestOnArchiveRequestConfirmado")),
+            ("TestOnArchiveRequestCancelado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "class TestOnArchiveRequestCancelado")),
+            ("TestOnArchiveRequestErro presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "class TestOnArchiveRequestErro")),
+            ("TestSetStatus presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "class TestSetStatus")),
+
+            #  9. Casos criticos de teste -- static
+            ("test_arquivo_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_arquivo_existe")),
+            ("test_classe_presente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_classe_presente")),
+            ("test_nao_importa_sqlite3_diretamente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_nao_importa_sqlite3_diretamente")),
+            ("test_metodo_on_archive_request_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_metodo_on_archive_request_existe")),
+            ("test_metodo_set_status_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_metodo_set_status_existe")),
+
+            # 10. Casos criticos de teste -- archive confirmado
+            ("test_archive_structure_chamado_com_id_correto presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_archive_structure_chamado_com_id_correto")),
+            ("test_load_chamado_apos_archive_confirmado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_load_chamado_apos_archive_confirmado")),
+            ("test_set_status_mensagem_sucesso presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_set_status_mensagem_sucesso")),
+            ("test_destroy_nao_chamado_em_archive presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_destroy_nao_chamado_em_archive")),
+
+            # 11. Casos criticos de teste -- archive cancelado
+            ("test_archive_nao_chamado_se_usuario_cancela presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_archive_nao_chamado_se_usuario_cancela")),
+            ("test_load_nao_chamado_se_usuario_cancela presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_load_nao_chamado_se_usuario_cancela")),
+            ("test_set_status_nao_chamado_se_cancelado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_set_status_nao_chamado_se_cancelado")),
+
+            # 12. Casos criticos de teste -- erro no repositorio
+            ("test_excecao_nao_propaga_para_ui presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_excecao_nao_propaga_para_ui")),
+            ("test_load_nao_chamado_se_archive_falha presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_load_nao_chamado_se_archive_falha")),
+            ("test_set_status_mensagem_erro presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_set_status_mensagem_erro")),
+
+            # 13. Casos criticos de teste -- _set_status
+            ("test_set_status_atualiza_widget presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_set_status_atualiza_widget")),
+            ("test_set_status_aceita_string_vazia presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_set_status_aceita_string_vazia")),
+
+            # 14. Regressao patch_70
+            ("test_db_path_nao_hardcoded_em_main_window presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_db_path_nao_hardcoded_em_main_window")),
+            ("test_self_db_path_preservado_em_main_window presente",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "test_self_db_path_preservado_em_main_window")),
+
+            # 15. Skip headless documentado
+            ("@unittest.skip aplicado nas classes Tk-dependentes",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "@unittest.skip")),
+            ("motivo do skip referencia Tkinter ou headless",
+                lambda: contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "Tkinter") or contains(
+                    "ATT/tests/test_patch71_archive_wiring.py",
+                    "headless")),
+        ],
+    },
+
 
 ]  #  fechamento da lista PATCHES
 

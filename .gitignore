@@ -66,3 +66,4 @@ scripts/tmp_*.py
 # Scripts temporarios de patches
 scripts/tmp_*.py
 ATT/tests/failures_log.txt
+ATT/tests/failures_log.txt
