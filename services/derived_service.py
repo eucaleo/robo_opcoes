@@ -340,13 +340,11 @@ def get_all_payoff_curves():
         ]
 
 
-def get_payoff_by_structure_id(structure_id: int):
+def get_payoff_by_aba(ref):
     """
-    patch_56: constrói StructureRef.from_id() e delega.
-    patch_62: chamada interna usa ref.db_pair() diretamente.
-    Único ponto de entrada para leitura de payoff por estrutura.
+    patch_56: busca payoff_curve_points usando um StructureRef.
+    Interpola col via db_pair() e passa val como parâmetro seguro.
     """
-    ref = StructureRef.from_id(structure_id)
     col, val = ref.db_pair()
     with connect_derived() as conn:
         cursor = conn.cursor()
@@ -369,6 +367,14 @@ def get_payoff_by_structure_id(structure_id: int):
             for row in cursor.fetchall()
         ]
 
+
+def get_payoff_by_structure_id(structure_id: int):
+    """
+    patch_56: constrói StructureRef.from_id() e delega para get_payoff_by_aba.
+    Único ponto de entrada para leitura de payoff por estrutura.
+    """
+    ref = StructureRef.from_id(structure_id)
+    return get_payoff_by_aba(ref)
 
 def get_recent_decisions():
     with connect_derived() as conn:
