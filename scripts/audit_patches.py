@@ -2771,7 +2771,541 @@ PATCHES = [
                     "test_import_warnings_removido")),
         ],
     },
+    {
+        "id": "patch_66",
+        "desc": "Importa legs legadas (RTD/manual) para o modelo canônico (structure_legs); "
+                "idempotente via has_legs(); serial Excel → ISO; 5 abas migradas (JA_MIGRADO); "
+                "29 testes passando.",
+        "checks": [
+            #  1. Arquivos
+            ("ATT/patches/patch_66_import_legacy_structures.py existe",
+                lambda: exists("ATT/patches/patch_66_import_legacy_structures.py")),
+            ("ATT/tests/test_patch66.py existe",
+                lambda: exists("ATT/tests/test_patch66.py")),
 
+            #  2. Funções públicas presentes no patch
+            ("excel_serial_to_iso() definida",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "def excel_serial_to_iso")),
+            ("map_position_side() definida",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "def map_position_side")),
+            ("get_structures_by_alias() definida",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "def get_structures_by_alias")),
+            ("has_legs() definida",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "def has_legs")),
+            ("get_latest_snapshot() definida",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "def get_latest_snapshot")),
+            ("import_legs_for_structure() definida",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "def import_legs_for_structure")),
+
+            #  3. Idempotência garantida
+            ("lógica JA_MIGRADO / SKIP presente",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "JA_MIGRADO")),
+            ("has_legs() usada como guarda no loop principal",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "has_legs(")),
+
+            #  4. Base epoch correta para serial Excel
+            ("epoch 1899-12-30 usada em excel_serial_to_iso",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "1899, 12, 30")),
+
+            #  5. DeprecationWarning sinalizado (utcnow)
+            ("utcnow() identificado — aviso conhecido, não bloqueia execução",
+                lambda: contains(
+                    "ATT/patches/patch_66_import_legacy_structures.py",
+                    "utcnow")),
+
+            #  6. Classes de teste
+            ("TestExcelSerialToIso presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestExcelSerialToIso")),
+            ("TestMapPositionSide presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestMapPositionSide")),
+            ("TestSafeConversions presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestSafeConversions")),
+            ("TestGetStructuresByAlias presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestGetStructuresByAlias")),
+            ("TestHasLegs presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestHasLegs")),
+            ("TestGetLatestSnapshot presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestGetLatestSnapshot")),
+            ("TestImportLegsForStructure presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "class TestImportLegsForStructure")),
+
+            #  7. Casos críticos de teste
+            ("test_valor_conhecido_46157 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_valor_conhecido_46157")),
+            ("test_valor_conhecido_46129 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_valor_conhecido_46129")),
+            ("test_referencia_cruzada_serial_vs_timestamp presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_referencia_cruzada_serial_vs_timestamp")),
+            ("test_sem_legs_retorna_false presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_sem_legs_retorna_false")),
+            ("test_com_legs_retorna_true presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_com_legs_retorna_true")),
+            ("test_manual_mais_recente_tem_prioridade presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_manual_mais_recente_tem_prioridade")),
+            ("test_import_basico presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_import_basico")),
+            ("test_leg_order_sequencial presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_leg_order_sequencial")),
+            ("test_strike_nulo_levanta_erro presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_strike_nulo_levanta_erro")),
+            ("test_cv_invalido_levanta_erro presente",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "test_cv_invalido_levanta_erro")),
+
+            #  8. Cobertura das 5 abas legadas
+            ("alias BOVA11 referenciado nos testes",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "BOVA11")),
+            ("alias EMBJ3 referenciado nos testes",
+                lambda: contains(
+                    "ATT/tests/test_patch66.py",
+                    "EMBJ3")),
+        ],
+    },
+    {
+        "id": "patch_67",
+        "desc": (
+            "Auditoria baseline fase 8: script 75_audit_fase8_baseline.py com "
+            "7 checkers (databases, structures_repo, derived_repo, derived_service, "
+            "bootstrap_schema, audit_artifacts, att_patches); geração de relatórios "
+            "Markdown e JSON em ATT/reports/; regressão patch_65 confirmada; "
+            "fix importlib Python 3.13 (sys.modules antes de exec_module); "
+            "40 testes passando."
+        ),
+        "checks": [
+            #  1. Arquivos
+            ("scripts/75_audit_fase8_baseline.py existe",
+                lambda: exists("scripts/75_audit_fase8_baseline.py")),
+            ("ATT/tests/test_patch67.py existe",
+                lambda: exists("ATT/tests/test_patch67.py")),
+            ("ATT/reports/fase8_baseline.md existe",
+                lambda: exists("ATT/reports/fase8_baseline.md")),
+            ("ATT/reports/fase8_baseline.json existe",
+                lambda: exists("ATT/reports/fase8_baseline.json")),
+
+            #  2. Funções públicas no script
+            ("run_audit() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def run_audit")),
+            ("gerar_markdown() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def gerar_markdown")),
+            ("gerar_json() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def gerar_json")),
+
+            #  3. Checkers individuais presentes
+            ("check_databases() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_databases")),
+            ("check_structures_repository() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_structures_repository")),
+            ("check_derived_repo() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_derived_repo")),
+            ("check_derived_service() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_derived_service")),
+            ("check_bootstrap_schema() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_bootstrap_schema")),
+            ("check_audit_artifacts() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_audit_artifacts")),
+            ("check_att_patches() definida",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "def check_att_patches")),
+
+            #  4. AuditReport como dataclass
+            ("AuditReport definida como dataclass",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "class AuditReport")),
+            ("AuditReport possui campo checks",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "checks")),
+            ("AuditReport possui contadores total_ok/warn/fail",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "total_ok")),
+
+            #  5. Fix importlib Python 3.13
+            ("sys.modules registrado antes de exec_module no teste",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "sys.modules[_MODULE_NAME] = module")),
+            ("_MODULE_NAME definido como 'audit_fase8'",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    '_MODULE_NAME = "audit_fase8"')),
+
+            #  6. Classes de teste presentes
+            ("TestRunAudit presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "class TestRunAudit")),
+            ("TestCheckersIndividuais presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "class TestCheckersIndividuais")),
+            ("TestGeracaoArtefatos presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "class TestGeracaoArtefatos")),
+            ("TestRegressaoPatch65 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "class TestRegressaoPatch65")),
+            ("TestIntegridadeGeral presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "class TestIntegridadeGeral")),
+
+            #  7. Casos críticos de teste
+            ("test_run_audit_nao_lanca_excecao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_run_audit_nao_lanca_excecao")),
+            ("test_todas_categorias_presentes presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_todas_categorias_presentes")),
+            ("test_contadores_consistentes presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_contadores_consistentes")),
+            ("test_gerar_markdown_cria_arquivo presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_gerar_markdown_cria_arquivo")),
+            ("test_gerar_json_valido presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_gerar_json_valido")),
+            ("test_arquivo_real_existe_apos_execucao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_arquivo_real_existe_apos_execucao")),
+            ("test_json_real_existe_apos_execucao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_json_real_existe_apos_execucao")),
+
+            #  8. Regressão patch_65 verificada
+            ("test_get_payoff_by_aba_removida_status_ok presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_get_payoff_by_aba_removida_status_ok")),
+            ("check_derived_service verifica remoção de get_payoff_by_aba",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "get_payoff_by_aba")),
+
+            #  9. Integridade geral
+            ("test_sem_fail_critico_em_infra_db presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_sem_fail_critico_em_infra_db")),
+            ("test_derived_service_tem_funcoes_canonicas presente",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "test_derived_service_tem_funcoes_canonicas")),
+            ("funções canônicas save_payoff_curve/save_decision/cleanup_derived verificadas",
+                lambda: contains(
+                    "ATT/tests/test_patch67.py",
+                    "save_payoff_curve")),
+
+            # 10. Cobertura das 7 categorias de auditoria
+            ("categoria infra_db coberta",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "infra_db")),
+            ("categoria att_patches coberta",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "att_patches")),
+            ("categoria bootstrap_schema coberta",
+                lambda: contains(
+                    "scripts/75_audit_fase8_baseline.py",
+                    "bootstrap_schema")),
+        ],
+    },
+    {
+        "id": "patch_69",
+        "desc": (
+            "Editor de estruturas (StructureEditorDialog): diálogo Tkinter para criação "
+            "e edição de estruturas de opções com legs dinâmicas; integração com "
+            "StructuresRepository (create/update/replace_legs); _build_legs_payload() "
+            "como lógica pura testável; separação create vs update em _cmd_save(); "
+            "sem importação direta de sqlite3; "
+            "11 passed, 11 skipped (headless) em pytest."
+        ),
+        "checks": [
+            #  1. Arquivos
+            ("UI/components/structure_editor_dialog.py existe",
+                lambda: exists("UI/components/structure_editor_dialog.py")),
+            ("ATT/tests/test_patch69_structure_editor.py existe",
+                lambda: exists("ATT/tests/test_patch69_structure_editor.py")),
+
+            #  2. Classe principal e importações
+            ("StructureEditorDialog definida",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "class StructureEditorDialog")),
+            ("herda de tk.Toplevel ou Toplevel",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "Toplevel")),
+            ("StructuresRepository importado",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "StructuresRepository")),
+            ("sqlite3 NÃO importado diretamente",
+                lambda: not contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "import sqlite3")),
+
+            #  3. Métodos públicos/privados presentes
+            ("__init__ aceita db_path",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "db_path")),
+            ("_build_legs_payload() definida",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "def _build_legs_payload")),
+            ("_cmd_save() definida",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "def _cmd_save")),
+            ("_load_existing() definida",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "def _load_existing")),
+            ("_add_leg_row() definida",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "def _add_leg_row")),
+
+            #  4. Integração com repositório
+            ("create_structure() chamado em _cmd_save",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "create_structure")),
+            ("update_structure() chamado em _cmd_save",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "update_structure")),
+            ("replace_legs() chamado em _cmd_save",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "replace_legs")),
+
+            #  5. Lógica de leg_order canônica
+            ("leg_order começa em 1 (não 0)",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "leg_order")),
+            ("enumerate com start=1 ou atribuição explícita leg_order",
+                lambda: contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "start=1") or contains(
+                    "UI/components/structure_editor_dialog.py",
+                    "leg_order")),
+
+            #  6. Classes de teste presentes
+            ("TestBuildLegsPayload presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "class TestBuildLegsPayload")),
+            ("TestLoadExisting presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "class TestLoadExisting")),
+            ("TestCmdSaveCreate presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "class TestCmdSaveCreate")),
+            ("TestCmdSaveUpdate presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "class TestCmdSaveUpdate")),
+            ("TestPatch69StaticChecks presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "class TestPatch69StaticChecks")),
+
+            #  7. Casos críticos de teste — lógica pura
+            ("test_lista_vazia_retorna_lista_vazia presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_lista_vazia_retorna_lista_vazia")),
+            ("test_leg_order_comeca_em_1 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_leg_order_comeca_em_1")),
+            ("test_leg_order_sequencial presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_leg_order_sequencial")),
+            ("test_campos_originais_preservados presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_campos_originais_preservados")),
+            ("test_duas_legs_sem_contaminar_indices presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_duas_legs_sem_contaminar_indices")),
+            ("test_nao_modifica_legs_rows_original presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_nao_modifica_legs_rows_original")),
+
+            #  8. Casos críticos de teste — integração Tk (skip headless)
+            ("test_carrega_campos_do_repositorio presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_carrega_campos_do_repositorio")),
+            ("test_carrega_legs_em_legs_rows presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_carrega_legs_em_legs_rows")),
+            ("test_destroi_se_estrutura_nao_encontrada presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_destroi_se_estrutura_nao_encontrada")),
+            ("test_create_structure_chamado_com_campos_corretos presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_create_structure_chamado_com_campos_corretos")),
+            ("test_name_vazio_nao_chama_create presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_name_vazio_nao_chama_create")),
+            ("test_underlying_vazio_nao_chama_create presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_underlying_vazio_nao_chama_create")),
+            ("test_replace_legs_chamado_apos_create presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_replace_legs_chamado_apos_create")),
+            ("test_saved_true_apos_sucesso presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_saved_true_apos_sucesso")),
+            ("test_create_nao_e_chamado_no_modo_edicao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_create_nao_e_chamado_no_modo_edicao")),
+            ("test_replace_legs_usa_structure_id_existente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_replace_legs_usa_structure_id_existente")),
+            ("test_update_structure_chamado_com_structure_id_correto presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_update_structure_chamado_com_structure_id_correto")),
+
+            #  9. Checks estáticos presentes
+            ("test_arquivo_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_arquivo_existe")),
+            ("test_classe_presente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_classe_presente")),
+            ("test_importavel presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_importavel")),
+            ("test_construtor_aceita_db_path presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_construtor_aceita_db_path")),
+            ("test_nao_importa_sqlite3_diretamente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "test_nao_importa_sqlite3_diretamente")),
+
+            # 10. Skip headless documentado
+            ("@unittest.skip aplicado nas classes Tk-dependentes",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "@unittest.skip")),
+            ("motivo do skip referencia Tkinter ou headless",
+                lambda: contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "Tkinter") or contains(
+                    "ATT/tests/test_patch69_structure_editor.py",
+                    "headless")),
+        ],
+    },
 
 ]  #  fechamento da lista PATCHES
 
