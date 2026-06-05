@@ -31,12 +31,12 @@ from repositories.structures_repository import StructuresRepository
 # 
 _COLUMNS = ("id", "name", "underlying_asset", "alias", "status", "legs")
 _HEADERS = {
-    "id":               ("ID",       45,  tk.CENTER),
-    "name":             ("Nome",     220, tk.W),
-    "underlying_asset": ("Ativo",    80,  tk.CENTER),
-    "alias":            ("Aba/Alias",110, tk.W),
-    "status":           ("Status",   70,  tk.CENTER),
-    "legs":             ("Legs",     45,  tk.CENTER),
+    "id":               ("ID",       45,  "center"),
+    "name":             ("Nome",     220, "w"),
+    "underlying_asset": ("Ativo",    80,  "center"),
+    "alias":            ("Aba/Alias",110, "w"),
+    "status":           ("Status",   70,  "center"),
+    "legs":             ("Legs",     45,  "center"),
 }
 
 
@@ -55,6 +55,7 @@ class StructuresListPanel(ttk.Frame):
 
         self._on_structure_selected = on_structure_selected
         self._on_request_edit       = on_request_edit
+        self._db_path               = db_path
         self._repo                  = StructuresRepository(db_path)
         self._current_rows: list[dict] = []   # cache da última lista carregada
 
@@ -144,6 +145,15 @@ class StructuresListPanel(ttk.Frame):
                 side="left", padx=2, pady=2
             )
 
+
+        # Label de feedback de status no rodapé do painel
+        self._status_label_var = tk.StringVar(value="")
+        ttk.Label(
+            self,
+            textvariable=self._status_label_var,
+            foreground="#555555",
+            anchor="w",
+        ).pack(fill="x", padx=4, pady=(0, 2))
     # 
     # Carregamento / filtro
     # 
@@ -317,5 +327,18 @@ class StructuresListPanel(ttk.Frame):
             self._repo.archive_structure(sid)
             self._on_structure_selected(None)
             self.load()
+            self._set_status(f"Estrutura '{name}' arquivada.")
         except Exception as exc:
             messagebox.showerror("Arquivar", f"Erro ao arquivar: {exc}")
+            self._set_status(f"Erro ao arquivar: {exc}")
+
+    # 
+    # Feedback de status
+    # 
+
+    def _set_status(self, msg: str) -> None:
+        """Atualiza o label de feedback no rodapé do painel."""
+        try:
+            self._status_label_var.set(msg)
+        except Exception:
+            pass
