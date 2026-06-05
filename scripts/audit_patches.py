@@ -2404,6 +2404,374 @@ PATCHES = [
                 lambda: exists("ATT/patches/patch_59.py")),
         ],
     },
+    {
+        "id": "patch_62",
+        "desc": "Extrai AbaResolverMixin -- elimina duplicação de _resolve_aba_from_structure_id entre repositories e depreca get_payoff_by_aba()",
+        "checks": [
+            #  1. Mixin -- criação e contrato
+            ("repositories/_aba_resolver_mixin.py existe",
+                lambda: exists("repositories/_aba_resolver_mixin.py")),
+            ("AbaResolverMixin definido no mixin",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "class AbaResolverMixin")),
+            ("_resolve_aba_from_structure_id definido no mixin",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "def _resolve_aba_from_structure_id")),
+            ("_get_resolver_conn() hook presente no mixin",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "def _get_resolver_conn")),
+            ("mixin usa _get_resolver_conn (não chama sqlite_conn direto)",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "self._get_resolver_conn()")),
+            ("guard structure_id None presente no mixin",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "structure_id is None")),
+            ("mixin trata excecao sem propagar (try/except)",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "except Exception")),
+            ("mixin usa logger.exception para erros",
+                lambda: contains(
+                    "repositories/_aba_resolver_mixin.py",
+                    "logger.exception")),
+
+            #  2. robo_legs_repository -- herança e limpeza
+            ("robo_legs_repository importa AbaResolverMixin",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "from repositories._aba_resolver_mixin import AbaResolverMixin")),
+            ("RoboLegsRepository herda AbaResolverMixin",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "class RoboLegsRepository(AbaResolverMixin)")),
+            ("_resolve_aba_from_structure_id NAO definido localmente em robo_legs_repository",
+                lambda: not contains(
+                    "repositories/robo_legs_repository.py",
+                    "def _resolve_aba_from_structure_id")),
+            ("get_legs_by_structure_id passa StructureRef (não str nua)",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "StructureRef(aba=aba")),
+            ("has_manual_by_structure_id presente",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def has_manual_by_structure_id")),
+            ("list_timestamps_by_structure_id presente",
+                lambda: contains(
+                    "repositories/robo_legs_repository.py",
+                    "def list_timestamps_by_structure_id")),
+
+            #  3. robo_legs_status_repository -- herança e limpeza
+            ("robo_legs_status_repository importa AbaResolverMixin",
+                lambda: contains(
+                    "repositories/robo_legs_status_repository.py",
+                    "from repositories._aba_resolver_mixin import AbaResolverMixin")),
+            ("RoboLegsStatusRepository herda AbaResolverMixin",
+                lambda: contains(
+                    "repositories/robo_legs_status_repository.py",
+                    "class RoboLegsStatusRepository(AbaResolverMixin)")),
+            ("_resolve_aba_from_structure_id NAO definido localmente em robo_legs_status_repository",
+                lambda: not contains(
+                    "repositories/robo_legs_status_repository.py",
+                    "def _resolve_aba_from_structure_id")),
+            ("latest_timestamps_by_structure_id passa StructureRef",
+                lambda: contains(
+                    "repositories/robo_legs_status_repository.py",
+                    "StructureRef(aba=aba")),
+
+            #  4. derived_service -- deprecação (válido até patch_65 remover)
+            ("derived_service importa warnings",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "import warnings")),
+            ("get_payoff_by_aba emite DeprecationWarning",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "DeprecationWarning")),
+            ("mensagem de deprecacao menciona patch_62",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "patch_62")),
+            ("mensagem de deprecacao menciona patch_65 (prazo de remoção)",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "patch_65")),
+            ("get_payoff_by_structure_id nao dispara warning internamente",
+                lambda: not contains(
+                    "services/derived_service.py",
+                    "get_payoff_by_aba(ref)")),
+
+            #  5. Testes formais
+            ("ATT/tests/test_patch62.py existe",
+                lambda: exists("ATT/tests/test_patch62.py")),
+            ("FakeRepository presente nos testes",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "class FakeRepository")),
+            ("_get_resolver_conn sobrescrito no FakeRepository",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def _get_resolver_conn")),
+            ("TestAbaResolverMixin presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "class TestAbaResolverMixin")),
+            ("test_resolve_existente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_resolve_existente")),
+            ("test_resolve_alias_vazio_retorna_none presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_resolve_alias_vazio_retorna_none")),
+            ("test_resolve_alias_null_retorna_none presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_resolve_alias_null_retorna_none")),
+            ("test_resolve_id_inexistente_retorna_none presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_resolve_id_inexistente_retorna_none")),
+            ("test_resolve_structure_id_none_retorna_none presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_resolve_structure_id_none_retorna_none")),
+            ("test_resolve_nao_lanca_excecao_em_falha presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_resolve_nao_lanca_excecao_em_falha")),
+
+            #  6. Fechamento -- TestGetPayoffByAbaDeprecation
+            ("TestGetPayoffByAbaDeprecation presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "class TestGetPayoffByAbaDeprecation")),
+            ("test_emite_deprecation_warning presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_emite_deprecation_warning")),
+
+            #  7. Sem duplicação
+            ("TestSemDuplicacao presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "class TestSemDuplicacao")),
+            ("test_robo_legs_nao_define_resolve_local presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_robo_legs_nao_define_resolve_local")),
+            ("test_robo_legs_status_nao_define_resolve_local presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_robo_legs_status_nao_define_resolve_local")),
+            ("test_ambos_herdam_mixin presente",
+                lambda: contains(
+                    "ATT/tests/test_patch62.py",
+                    "def test_ambos_herdam_mixin")),
+        ],
+    },
+    {
+        "id": "patch_63",
+        "desc": "REST API /structures/{id}/legs -- POST/PUT/DELETE (add_leg, replace_legs, remove_leg) + fix leg_order >= 0",
+        "checks": [
+            #  1. Arquivos principais
+            ("api/structures_controller.py existe",
+                lambda: exists("api/structures_controller.py")),
+            ("ATT/tests/test_patch63_legs_endpoints.py existe",
+                lambda: exists("ATT/tests/test_patch63_legs_endpoints.py")),
+
+            #  2. Endpoints implementados no controller
+            ("POST /structures/{id}/legs implementado (add_leg)",
+                lambda: contains(
+                    "api/structures_controller.py", "def add_leg")),
+            ("PUT /structures/{id}/legs implementado (replace_legs)",
+                lambda: contains(
+                    "api/structures_controller.py", "def replace_legs")),
+            ("DELETE /structures/{id}/legs/{leg_id} implementado (remove_leg)",
+                lambda: contains(
+                    "api/structures_controller.py", "def remove_leg")),
+
+            #  3. Fix principal: leg_order >= 0 (era >= 1)
+            ("fix: leg_order aceita ge=0 no schema de entrada",
+                lambda: contains(
+                    "api/structures_controller.py", "ge=0")),
+
+            #  4. Respostas HTTP corretas
+            ("POST retorna 201",
+                lambda: contains(
+                    "api/structures_controller.py", "status_code=201")),
+            ("PUT retorna 204",
+                lambda: contains(
+                    "api/structures_controller.py", "status_code=204")),
+            ("DELETE retorna 204",
+                lambda: contains(
+                    "api/structures_controller.py", "status_code=204")),
+
+            #  5. Tratamento de erros
+            ("404 tratado quando estrutura não encontrada (legs)",
+                lambda: contains(
+                    "api/structures_controller.py", "404")),
+            ("400 tratado para ValueError em legs",
+                lambda: contains(
+                    "api/structures_controller.py", "400")),
+
+            #  6. Classes de teste presentes
+            ("TestAddLeg presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py", "class TestAddLeg")),
+            ("TestReplaceLegs presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py", "class TestReplaceLegs")),
+            ("TestRemoveLeg presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py", "class TestRemoveLeg")),
+
+            #  7. Casos críticos -- fix leg_order=0
+            ("test_add_leg_aceita_leg_order_zero presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_add_leg_aceita_leg_order_zero")),
+            ("test_replace_legs_aceita_leg_order_zero presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_replace_legs_aceita_leg_order_zero")),
+            ("test_add_leg_422_leg_order_negativo presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_add_leg_422_leg_order_negativo")),
+
+            #  8. Cobertura de status HTTP nos testes
+            ("test_add_leg_retorna_201 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_add_leg_retorna_201")),
+            ("test_replace_legs_retorna_204 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_replace_legs_retorna_204")),
+            ("test_remove_leg_retorna_204 presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_remove_leg_retorna_204")),
+
+            #  9. Cobertura de 404 nos testes
+            ("test_add_leg_404_estrutura_inexistente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_add_leg_404_estrutura_inexistente")),
+            ("test_replace_legs_404_estrutura_inexistente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_replace_legs_404_estrutura_inexistente")),
+            ("test_remove_leg_404_estrutura_inexistente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_remove_leg_404_estrutura_inexistente")),
+            ("test_remove_leg_404_leg_inexistente presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_remove_leg_404_leg_inexistente")),
+
+            #  10. Validações 422 nos testes
+            ("test_add_leg_422_position_side_invalido presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_add_leg_422_position_side_invalido")),
+            ("test_add_leg_422_option_type_invalido presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_add_leg_422_option_type_invalido")),
+            ("test_replace_legs_422_lista_vazia presente",
+                lambda: contains(
+                    "ATT/tests/test_patch63_legs_endpoints.py",
+                    "test_replace_legs_422_lista_vazia")),
+        ],
+    },
+    {
+        "id": "patch_65",
+        "desc": "Remove get_payoff_by_aba() depreciada (patch_62) -- remoção definitiva; callers migrados para get_payoff_by_structure_id()",
+        "checks": [
+            #  1. Arquivos
+            ("services/derived_service.py existe",
+                lambda: exists("services/derived_service.py")),
+            ("ATT/tests/test_patch65.py existe",
+                lambda: exists("ATT/tests/test_patch65.py")),
+
+            #  2. Remoção definitiva -- função e resíduos do aviso de deprecação
+            ("get_payoff_by_aba() removida de derived_service.py",
+                lambda: not contains(
+                    "services/derived_service.py",
+                    "def get_payoff_by_aba")),
+            ("DeprecationWarning de patch_62 removido junto com a função",
+                lambda: not contains(
+                    "services/derived_service.py",
+                    "DeprecationWarning")),
+            ("referência patch_65 ausente em derived_service (autorreferência desnecessária)",
+                lambda: not contains(
+                    "services/derived_service.py",
+                    "patch_65")),
+
+            #  3. Substituto preservado
+            ("get_payoff_by_structure_id() preservado",
+                lambda: contains(
+                    "services/derived_service.py",
+                    "def get_payoff_by_structure_id")),
+
+            #  4. Limpeza de imports
+            ("import warnings removido de derived_service (sem função depreciada)",
+                lambda: not contains(
+                    "services/derived_service.py",
+                    "import warnings")),
+
+            #  5. Nenhum caller interno usa get_payoff_by_aba()
+            ("derived_service não chama get_payoff_by_aba() internamente",
+                lambda: not contains(
+                    "services/derived_service.py",
+                    "get_payoff_by_aba(")),
+            ("derived_repo não referencia get_payoff_by_aba()",
+                lambda: not contains(
+                    "db/derived_repo.py",
+                    "get_payoff_by_aba")),
+
+            #  6. Classes de teste
+            ("TestGetPayoffByAbaRemovida presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "class TestGetPayoffByAbaRemovida")),
+            ("TestGetPayoffByStructureIdPreservado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "class TestGetPayoffByStructureIdPreservado")),
+            ("TestSemWarningResidual presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "class TestSemWarningResidual")),
+
+            #  7. Casos críticos
+            ("test_funcao_removida_nao_existe presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "test_funcao_removida_nao_existe")),
+            ("test_get_payoff_by_structure_id_funciona presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "test_get_payoff_by_structure_id_funciona")),
+            ("test_sem_deprecation_warning presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "test_sem_deprecation_warning")),
+            ("test_import_warnings_removido presente",
+                lambda: contains(
+                    "ATT/tests/test_patch65.py",
+                    "test_import_warnings_removido")),
+        ],
+    },
+
 
 ]  #  fechamento da lista PATCHES
 

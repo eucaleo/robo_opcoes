@@ -1,16 +1,12 @@
 # services/derived_service.py
 """
 patch_30/patch_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
-patch_62           -- get_payoff_by_aba() marcada como depreciada.
-patch_65           -- get_payoff_by_aba() REMOVIDA.
-                   -- _ABA_TO_STRUCTURE_ID e _ABA_CACHE_LOADED REMOVIDOS (não usados externamente).
-  - from __future__ garantido como linha 1
+patch_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
 """
 from __future__ import annotations
 
 import json
 import sqlite3
-import warnings
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -344,16 +340,11 @@ def get_all_payoff_curves():
         ]
 
 
-# patch_65: get_payoff_by_aba() REMOVIDA.
-# Use get_payoff_by_structure_id(structure_id) como substituto canônico.
-
-
 def get_payoff_by_structure_id(structure_id: int):
     """
     patch_56: constrói StructureRef.from_id() e delega.
-    patch_62: chamada interna usa ref.db_pair() diretamente,
-              evitando disparar o DeprecationWarning de get_payoff_by_aba().
-    patch_65: único ponto de entrada para leitura de payoff por estrutura.
+    patch_62: chamada interna usa ref.db_pair() diretamente.
+    Único ponto de entrada para leitura de payoff por estrutura.
     """
     ref = StructureRef.from_id(structure_id)
     col, val = ref.db_pair()

@@ -9,10 +9,9 @@ Executar:
 
 from __future__ import annotations
 
-import ast
 import sys
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,7 +24,6 @@ TARGET_FILES = [
     "db/derived_repo.py",
 ]
 
-# Padroes que indicam uso operacional de 'aba' (nao apenas comentario)
 WRAPPER_PATTERNS = [
     "_resolve_aba_from_structure_id",
     "get_payoff_by_aba",
@@ -43,7 +41,6 @@ WRAPPER_PATTERNS = [
     "_unwrap_aba",
 ]
 
-# Padroes que indicam que a linha e apenas bridge/alias -- nao e residuo perigoso
 BRIDGE_OK_PATTERNS = [
     "alias_legacy_aba",
     "_unwrap_aba",
@@ -63,7 +60,7 @@ class WrapperOccurrence:
     linha: int
     conteudo: str
     pattern: str
-    classificacao: str  -- "BRIDGE_OK" | "WRAPPER_ATIVO" | "RESIDUO_SUSPEITO"
+    classificacao: str  # "BRIDGE_OK" | "WRAPPER_ATIVO" | "RESIDUO_SUSPEITO"
 
 
 def classificar(linha: str, pattern: str) -> str:
@@ -103,7 +100,7 @@ def auditar_arquivo(rel_path: str) -> List[WrapperOccurrence]:
                     pattern=pattern,
                     classificacao=clf,
                 ))
-                break  -- um match por linha
+                break  # um match por linha
     return ocorrencias
 
 
@@ -116,16 +113,16 @@ def main() -> None:
     todas: List[WrapperOccurrence] = []
 
     for rel in TARGET_FILES:
-        print(f"\n-- {rel} " + "-" * (60 - len(rel)))
+        print(f"\n-- {rel} " + "-" * max(1, 60 - len(rel)))
         ocorrencias = auditar_arquivo(rel)
         if not ocorrencias:
             print("  [OK] nenhum padrao de wrapper encontrado")
         for oc in ocorrencias:
             marker = {
-                "BRIDGE_OK": "  [OK]  ",
-                "WRAPPER_ATIVO": "  [WRAP]",
-                "RESIDUO_SUSPEITO": "  [!]  ",
-            }.get(oc.classificacao, "  [?]  ")
+                "BRIDGE_OK":        "  [OK]  ",
+                "WRAPPER_ATIVO":    "  [WRAP]",
+                "RESIDUO_SUSPEITO": "  [!]   ",
+            }.get(oc.classificacao, "  [?]   ")
             print(f"{marker} L{oc.linha:04d} | {oc.conteudo[:80]}")
         todas.extend(ocorrencias)
 
@@ -146,10 +143,13 @@ def main() -> None:
         for o in suspeitos:
             print(f"    {o.arquivo}:{o.linha} -- {o.conteudo.strip()[:70]}")
 
-    print("\n  Wrappers ativos (precisam de decisao arquitetural):")
-    for o in wrappers:
-        print(f"    {o.arquivo}:{o.linha} -- {o.conteudo.strip()[:70]}")
+    if wrappers:
+        print("\n  Wrappers ativos (precisam de decisao arquitetural):")
+        for o in wrappers:
+            print(f"    {o.arquivo}:{o.linha} -- {o.conteudo.strip()[:70]}")
 
+    print("=" * 70)
+    print(f"\n  Total ocorrencias: {len(todas)}")
     print("=" * 70)
 
 

@@ -1,10 +1,22 @@
+# bootstrap_structures_schema.py
+"""
+Garante o schema SQLite da aplicação (idempotente).
+Cria tabelas e índices se ainda não existirem.
+"""
+from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
 
 DB_PATH = Path("dados/app.db")
 
 
+# ---------------------------------------------------------------------------
+# DDL principal
+# ---------------------------------------------------------------------------
+
 def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
+    """Cria todas as tabelas e índices necessários (idempotente)."""
     db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -12,56 +24,56 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         conn.execute("PRAGMA foreign_keys = ON;")
 
         # ------------------------------------------------------------------ #
-        #  structures                                                          #
+        # structures                                                           #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS structures (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                underlying_asset TEXT NOT NULL,
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                name             TEXT    NOT NULL,
+                underlying_asset TEXT    NOT NULL,
                 alias_legacy_aba TEXT,
-                status TEXT NOT NULL DEFAULT 'active',
-                notes TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
+                status           TEXT    NOT NULL DEFAULT 'active',
+                notes            TEXT,
+                created_at       TEXT    NOT NULL,
+                updated_at       TEXT    NOT NULL
             )
             """
         )
 
         # ------------------------------------------------------------------ #
-        #  structure_legs                                                      #
+        # structure_legs                                                       #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS structure_legs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                structure_id INTEGER NOT NULL,
-                position_side TEXT NOT NULL,
-                option_type TEXT NOT NULL,
-                symbol TEXT,
-                strike REAL NOT NULL,
-                expiration_date TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
-                premium REAL,
-                multiplier REAL NOT NULL DEFAULT 1,
-                leg_order INTEGER NOT NULL,
-                notes TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id    INTEGER NOT NULL,
+                position_side   TEXT    NOT NULL,
+                option_type     TEXT    NOT NULL,
+                symbol          TEXT,
+                strike          REAL    NOT NULL,
+                expiration_date TEXT    NOT NULL,
+                quantity        INTEGER NOT NULL,
+                premium         REAL,
+                multiplier      REAL    NOT NULL DEFAULT 1,
+                leg_order       INTEGER NOT NULL,
+                notes           TEXT,
+                created_at      TEXT    NOT NULL,
+                updated_at      TEXT    NOT NULL,
                 FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE
             )
             """
         )
 
         # ------------------------------------------------------------------ #
-        #  pricing_executions                                                  #
+        # pricing_executions                                                   #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS pricing_executions (
                 id                INTEGER PRIMARY KEY AUTOINCREMENT,
-                created_at        TEXT NOT NULL,
+                created_at        TEXT    NOT NULL,
                 structure_id      INTEGER,
                 underlying_asset  TEXT,
                 reference_date    TEXT,
@@ -80,7 +92,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        #  índices -- structures                                                #
+        # Índices -- structures                                                #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -97,7 +109,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        #  índices -- structure_legs                                            #
+        # Índices -- structure_legs                                            #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -114,7 +126,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        #  índices -- pricing_executions                                        #
+        # Índices -- pricing_executions                                        #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -140,9 +152,11 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         conn.commit()
 
 
-# ------------------------------------------------------------------
-# Tabela: pricing_executions  (adicionada no patch_23)
-# ------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Bootstrap auxiliar de pricing_executions (patch_23)
+# Mantido como função independente para uso em migrações pontuais.
+# ---------------------------------------------------------------------------
+
 _PRICING_EXECUTIONS_DDL = """
 CREATE TABLE IF NOT EXISTS pricing_executions (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -157,7 +171,7 @@ CREATE TABLE IF NOT EXISTS pricing_executions (
 );
 """
 
-_PRICING_EXECUTIONS_INDEXES = [
+_PRICING_EXECUTIONS_INDEXES: list[str] = [
     "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id   ON pricing_executions (structure_id);",
     "CREATE INDEX IF NOT EXISTS idx_pricing_executions_reference_date ON pricing_executions (reference_date);",
     "CREATE INDEX IF NOT EXISTS idx_pricing_executions_status         ON pricing_executions (status);",
@@ -165,8 +179,8 @@ _PRICING_EXECUTIONS_INDEXES = [
 ]
 
 
-def bootstrap_pricing_executions(conn):
-    """Garante tabela pricing_executions e seus indices (idempotente)."""
+def bootstrap_pricing_executions(conn: sqlite3.Connection) -> None:
+    """Garante tabela pricing_executions e seus índices (idempotente)."""
     cur = conn.cursor()
     cur.executescript(_PRICING_EXECUTIONS_DDL)
     for idx in _PRICING_EXECUTIONS_INDEXES:

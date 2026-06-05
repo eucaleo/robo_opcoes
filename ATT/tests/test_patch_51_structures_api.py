@@ -57,6 +57,227 @@ FAKE_STRUCTURE = {
 
 FAKE_SUMMARY = {k: v for k, v in FAKE_STRUCTURE.items() if k != "legs"}
 
+# ---------------------------------------------------------------------------
+# patch_63 -- Testes dos endpoints de legs
+# ---------------------------------------------------------------------------
+
+FAKE_LEG_PAYLOAD = {
+    "position_side":   "LONG",
+    "option_type":     "CALL",
+    "strike":          38.0,
+    "expiration_date": "2026-07-18",
+    "quantity":        1,
+    "multiplier":      100.0,
+    "leg_order":       1,
+    "symbol":          "PETRJ240",
+    "premium":         1.25,
+    "notes":           None,
+}
+
+REPLACE_LEGS_PAYLOAD = {
+    "legs": [FAKE_LEG_PAYLOAD]
+}
+
+
+@pytest.fixture()
+def client_legs(mock_repo):
+    """Client com add_leg e replace_legs mockados."""
+    mock_repo.add_leg.return_value = 10
+    mock_repo.replace_legs.return_value = None
+
+    with patch("api.structures_controller._repo", mock_repo):
+        from api.structures_controller import router
+
+        app = FastAPI()
+        app.include_router(router)
+        yield TestClient(app), mock_repo
+
+
+class TestLegsEndpoints:
+    """Testes dos endpoints de pernas (patch_63)."""
+
+    # ------------------------------------------------------------------ #
+    # POST /structures/{id}/legs                                          #
+    # ------------------------------------------------------------------ #
+
+    def test_add_leg_retorna_201(self, client_legs):
+        tc, _ = client_legs
+        resp = tc.post("/structures/1/legs", json=FAKE_LEG_PAYLOAD)
+        assert resp.status_code == 201
+
+    def test_add_leg_retorna_leg_id(self, client_legs):
+        tc, _ = client_legs
+        resp = tc.post("/structures/1/legs", json=FAKE_LEG_PAYLOAD)
+        assert resp.json() == {"leg_id": 10}
+
+    def test_add_leg_repo_chamado_com_structure_id_correto(self, client_legs):
+        tc, repo = client_legs
+        tc.post("/structures/1/legs", json=FAKE_LEG_PAYLOAD)
+        args = repo.add_leg.call_args[0]
+        assert args[0] == 1
+
+    def test_add_leg_repo_chamado_com_payload_correto(self, client_legs):
+        tc, repo = client_legs
+        tc.post("/structures/1/legs", json=FAKE_LEG_PAYLOAD)
+        args = repo.add_leg.call_args[0]
+        assert args[1]["strike"] == 38.0
+        assert args[1]["position_side"] == "LONG"
+
+    def test_add_leg_404_estrutura_inexistente(self, client_legs):
+        tc, repo = client_legs
+        repo.get_structure.return_value = None
+        resp = tc.post("/structures/999/legs", json=FAKE_LEG_PAYLOAD)
+        assert resp.status_code == 404
+
+    def test_add_leg_400_quando_repo_levanta_value_error(self, client_legs):
+        tc, repo = client_legs
+        repo.add_leg.side_effect = ValueError("leg inválida")
+        resp = tc.post("/structures/1/legs", json=FAKE_LEG_PAYLOAD)
+        assert resp.status_code == 400
+        assert "leg inválida" in resp.json()["detail"]
+
+    def test_add_leg_422_position_side_invalido(self, client_legs):
+        tc, _ = client_legs
+        payload = {**FAKE_LEG_PAYLOAD, "position_side": "BUY"}
+        resp = tc.post("/structures/1/legs", json=payload)
+        assert resp.status_code == 422
+
+    def test_add_leg_422_option_type_invalido(self, client_legs):
+        tc, _ = client_legs
+        payload = {**FAKE_LEG_PAYLOAD, "option_type": "FUTURES"}
+        resp = tc.post("/structures/1/legs", json=payload)
+        assert resp.status_code == 422
+
+    def test_add_leg_422_strike_zero(self, client_legs):
+        tc, _ = client_legs
+        payload = {**FAKE_LEG_PAYLOAD, "strike": 0}
+        resp = tc.post("/structures/1/legs", json=payload)
+        assert resp.status_code == 422
+
+    def test_add_leg_422_quantity_zero(self, client_legs):
+        tc, _ = client_legs
+        payload = {**FAKE_LEG_PAYLOAD, "quantity": 0}
+        resp = tc.post("/structures/1/legs", json=payload)
+        assert resp.status_code == 422
+
+    def test_add_leg_aceita_leg_order_zero(self, client_legs):
+        """patch_63 fix: leg_order=0 deve ser aceito (antes rejeitado)."""
+        tc, _ = client_legs
+        payload = {**FAKE_LEG_PAYLOAD, "leg_order": 0}
+        resp = tc.post("/structures/1/legs", json=payload)
+        assert resp.status_code == 201
+
+    def test_add_leg_422_leg_order_negativo(self, client_legs):
+        tc, _ = client_legs
+        payload = {**FAKE_LEG_PAYLOAD, "leg_order": -1}
+        resp = tc.post("/structures/1/legs", json=payload)
+        assert resp.status_code == 422
+
+    # ------------------------------------------------------------------ #
+    # PUT /structures/{id}/legs                                           #
+    # ------------------------------------------------------------------ #
+
+    def test_replace_legs_retorna_204(self, client_legs):
+        tc, _ = client_legs
+        resp = tc.put("/structures/1/legs", json=REPLACE_LEGS_PAYLOAD)
+        assert resp.status_code == 204
+
+    def test_replace_legs_sem_body_na_resposta(self, client_legs):
+        tc, _ = client_legs
+        resp = tc.put("/structures/1/legs", json=REPLACE_LEGS_PAYLOAD)
+        assert resp.content == b""
+
+    def test_replace_legs_repo_chamado_com_structure_id_correto(self, client_legs):
+        tc, repo = client_legs
+        tc.put("/structures/1/legs", json=REPLACE_LEGS_PAYLOAD)
+        args = repo.replace_legs.call_args[0]
+        assert args[0] == 1
+
+    def test_replace_legs_repo_recebe_lista_com_um_item(self, client_legs):
+        tc, repo = client_legs
+        tc.put("/structures/1/legs", json=REPLACE_LEGS_PAYLOAD)
+        args = repo.replace_legs.call_args[0]
+        assert len(args[1]) == 1
+
+    def test_replace_legs_repo_recebe_dados_corretos(self, client_legs):
+        tc, repo = client_legs
+        tc.put("/structures/1/legs", json=REPLACE_LEGS_PAYLOAD)
+        leg = repo.replace_legs.call_args[0][1][0]
+        assert leg["strike"] == 38.0
+        assert leg["option_type"] == "CALL"
+
+    def test_replace_legs_404_estrutura_inexistente(self, client_legs):
+        tc, repo = client_legs
+        repo.get_structure.return_value = None
+        resp = tc.put("/structures/999/legs", json=REPLACE_LEGS_PAYLOAD)
+        assert resp.status_code == 404
+
+    def test_replace_legs_400_quando_repo_levanta_value_error(self, client_legs):
+        tc, repo = client_legs
+        repo.replace_legs.side_effect = ValueError("leg inválida no replace")
+        resp = tc.put("/structures/1/legs", json=REPLACE_LEGS_PAYLOAD)
+        assert resp.status_code == 400
+
+    def test_replace_legs_422_lista_vazia(self, client_legs):
+        """Lista vazia viola min_length=1 do schema."""
+        tc, _ = client_legs
+        resp = tc.put("/structures/1/legs", json={"legs": []})
+        assert resp.status_code == 422
+
+    def test_replace_legs_aceita_leg_order_zero(self, client_legs):
+        """patch_63 fix: leg_order=0 deve ser aceito no replace também."""
+        tc, _ = client_legs
+        payload = {"legs": [{**FAKE_LEG_PAYLOAD, "leg_order": 0}]}
+        resp = tc.put("/structures/1/legs", json=payload)
+        assert resp.status_code == 204
+
+    # ------------------------------------------------------------------ #
+    # DELETE /structures/{id}/legs/{leg_id}                               #
+    # ------------------------------------------------------------------ #
+
+    def test_remove_leg_retorna_204(self, client_legs):
+        """Mock do _connect para simular leg existente."""
+        tc, repo = client_legs
+
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = {"id": 10}
+        mock_conn.__enter__ = MagicMock(return_value=mock_conn)
+        mock_conn.__exit__ = MagicMock(return_value=False)
+        repo._connect = MagicMock(return_value=mock_conn)
+
+        resp = tc.delete("/structures/1/legs/10")
+        assert resp.status_code == 204
+
+    def test_remove_leg_404_estrutura_inexistente(self, client_legs):
+        tc, repo = client_legs
+        repo.get_structure.return_value = None
+        resp = tc.delete("/structures/999/legs/10")
+        assert resp.status_code == 404
+
+    def test_remove_leg_404_leg_inexistente(self, client_legs):
+        tc, repo = client_legs
+
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_conn.__enter__ = MagicMock(return_value=mock_conn)
+        mock_conn.__exit__ = MagicMock(return_value=False)
+        repo._connect = MagicMock(return_value=mock_conn)
+
+        resp = tc.delete("/structures/1/legs/999")
+        assert resp.status_code == 404
+
+    def test_remove_leg_404_detalhe_contem_leg_id(self, client_legs):
+        tc, repo = client_legs
+
+        mock_conn = MagicMock()
+        mock_conn.execute.return_value.fetchone.return_value = None
+        mock_conn.__enter__ = MagicMock(return_value=mock_conn)
+        mock_conn.__exit__ = MagicMock(return_value=False)
+        repo._connect = MagicMock(return_value=mock_conn)
+
+        resp = tc.delete("/structures/1/legs/999")
+        assert "999" in resp.json()["detail"]
+
 
 # ---------------------------------------------------------------------------
 # Fixtures
