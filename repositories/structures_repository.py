@@ -4,12 +4,14 @@ Repositório canônico de estruturas e suas pernas (legs).
 
 PATCH_11: conexões SQLite fechadas explicitamente via try/finally.
 PATCH_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
-PATCH_63: fix _validate_leg — leg_order aceita >= 0 (era >= 1, bug).
-          add_leg e replace_legs já existiam; expostos via API neste patch.
+PATCH_63: fix _validate_leg -- leg_order aceita >= 0 (era >= 1, bug).
 PATCH_70: revertido leg_order para >= 1 (0 é inválido; patch_63 era equivocado).
+PATCH_72: audit trail -- toda mutacao registrada em structure_audit_log.
+          _log_action() interno; atomico na mesma transacao do metodo.
 """
 from __future__ import annotations
 
+import json
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
@@ -19,6 +21,11 @@ from typing import Any
 VALID_POSITION_SIDES: frozenset[str] = frozenset({"LONG", "SHORT"})
 VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
 VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
+
+# Acoes validas registradas no audit log
+AUDIT_ACTIONS: frozenset[str] = frozenset(
+    {"CREATE", "UPDATE", "ARCHIVE", "ADD_LEG", "REPLACE_LEGS"}
+)
 
 
 # ---------------------------------------------------------------------------
@@ -117,7 +124,6 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("multiplier must be > 0")
 
     try:
-        # PATCH_70: leg_order deve ser >= 1 (0 é inválido — reverte patch_63)
         leg_order = int(leg.get("leg_order", 0))
     except Exception as exc:
         raise ValueError("leg_order must be integer") from exc
@@ -139,16 +145,16 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
         notes = str(notes).strip() or None
 
     return {
-        "position_side":  position_side,
-        "option_type":    option_type,
-        "symbol":         symbol,
-        "strike":         strike,
+        "position_side":   position_side,
+        "option_type":     option_type,
+        "symbol":          symbol,
+        "strike":          strike,
         "expiration_date": expiration_date,
-        "quantity":       quantity,
-        "premium":        premium,
-        "multiplier":     multiplier,
-        "leg_order":      leg_order,
-        "notes":          notes,
+        "quantity":        quantity,
+        "premium":         premium,
+        "multiplier":      multiplier,
+        "leg_order":       leg_order,
+        "notes":           notes,
     }
 
 
@@ -185,27 +191,15 @@ class StructuresRepository:
         rows = conn.execute(
             """
             SELECT
-                id,
-                structure_id,
-                position_side,
-                option_type,
-                symbol,
-                strike,
-                expiration_date,
-                quantity,
-                premium,
-                multiplier,
-                leg_order,
-                notes,
-                created_at,
-                updated_at
+                id, structure_id, position_side, option_type, symbol,
+                strike, expiration_date, quantity, premium, multiplier,
+                leg_order, notes, created_at, updated_at
             FROM structure_legs
             WHERE structure_id = ?
             ORDER BY leg_order ASC, id ASC
             """,
             (structure_id,),
         ).fetchall()
-
         return [dict(row) for row in rows]
 
     def _ensure_structure_exists(
@@ -215,9 +209,50 @@ class StructuresRepository:
             "SELECT id FROM structures WHERE id = ?",
             (structure_id,),
         ).fetchone()
-
         if row is None:
             raise ValueError(f"structure not found: {structure_id}")
+
+    # ------------------------------------------------------------------
+    # PATCH_72 -- Audit log interno
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _log_action(
+        conn: sqlite3.Connection,
+        structure_id: int,
+        action: str,
+        before: dict[str, Any] | None = None,
+        after: dict[str, Any] | None = None,
+        notes: str | None = None,
+        changed_by: str | None = None,
+    ) -> None:
+        """
+        Insere uma linha em structure_audit_log dentro da conexao ativa.
+        Deve ser chamado ANTES do conn.commit() do metodo pai para garantir
+        atomicidade. Nao abre conexao propria -- usa a conexao passada.
+        Falhas sao silenciadas para nao derrubar a operacao principal.
+        """
+        try:
+            conn.execute(
+                """
+                INSERT INTO structure_audit_log
+                    (structure_id, action, changed_by, changed_at,
+                     before_json, after_json, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    structure_id,
+                    action,
+                    changed_by,
+                    _utc_now_iso(),
+                    json.dumps(before, ensure_ascii=False) if before is not None else None,
+                    json.dumps(after,  ensure_ascii=False) if after  is not None else None,
+                    notes,
+                ),
+            )
+        except Exception:
+            # Log nao pode derrubar operacao principal
+            pass
 
     # ------------------------------------------------------------------
     # CREATE
@@ -242,8 +277,19 @@ class StructuresRepository:
                     payload["notes"], now, now,
                 ),
             )
+            new_id = int(cursor.lastrowid)
+
+            # PATCH_72: registrar criacao no audit log
+            self._log_action(
+                conn,
+                structure_id=new_id,
+                action="CREATE",
+                before=None,
+                after={**payload, "id": new_id, "created_at": now, "updated_at": now},
+            )
+
             conn.commit()
-            return int(cursor.lastrowid)
+            return new_id
         except Exception:
             conn.rollback()
             raise
@@ -307,6 +353,9 @@ class StructuresRepository:
         if current is None:
             raise ValueError(f"structure not found: {structure_id}")
 
+        # snapshot antes da mudanca (sem legs para manter log enxuto)
+        before_snap = {k: v for k, v in current.items() if k != "legs"}
+
         merged = {
             "name":             data.get("name",             current["name"]),
             "underlying_asset": data.get("underlying_asset", current["underlying_asset"]),
@@ -332,6 +381,16 @@ class StructuresRepository:
                     payload["notes"], now, structure_id,
                 ),
             )
+
+            # PATCH_72: registrar atualizacao no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="UPDATE",
+                before=before_snap,
+                after={**payload, "id": structure_id, "updated_at": now},
+            )
+
             conn.commit()
         except Exception:
             conn.rollback()
@@ -344,7 +403,13 @@ class StructuresRepository:
     # ------------------------------------------------------------------
 
     def archive_structure(self, structure_id: int) -> None:
+        current = self.get_structure(structure_id)
+        if current is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+        before_snap = {k: v for k, v in current.items() if k != "legs"}
         now = _utc_now_iso()
+
         conn = self._connect()
         try:
             self._ensure_structure_exists(conn, structure_id)
@@ -352,6 +417,16 @@ class StructuresRepository:
                 "UPDATE structures SET status=?, updated_at=? WHERE id=?",
                 ("archived", now, structure_id),
             )
+
+            # PATCH_72: registrar arquivamento no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="ARCHIVE",
+                before=before_snap,
+                after={**before_snap, "status": "archived", "updated_at": now},
+            )
+
             conn.commit()
         except Exception:
             conn.rollback()
@@ -364,7 +439,6 @@ class StructuresRepository:
     # ------------------------------------------------------------------
 
     def add_leg(self, structure_id: int, leg_data: dict[str, Any]) -> int:
-        """Adiciona uma perna à estrutura e retorna o ID gerado."""
         leg = _validate_leg(leg_data)
         now = _utc_now_iso()
 
@@ -387,13 +461,23 @@ class StructuresRepository:
                     leg["leg_order"], leg["notes"], now, now,
                 ),
             )
+            leg_id = int(cursor.lastrowid)
 
             conn.execute(
                 "UPDATE structures SET updated_at=? WHERE id=?",
                 (now, structure_id),
             )
+
+            # PATCH_72: registrar adicao de leg no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="ADD_LEG",
+                after={**leg, "id": leg_id, "structure_id": structure_id},
+            )
+
             conn.commit()
-            return int(cursor.lastrowid)
+            return leg_id
         except Exception:
             conn.rollback()
             raise
@@ -403,7 +487,6 @@ class StructuresRepository:
     def replace_legs(
         self, structure_id: int, legs: list[dict[str, Any]]
     ) -> None:
-        """Substitui todas as pernas da estrutura atomicamente."""
         validated_legs = [_validate_leg(leg) for leg in legs]
         now = _utc_now_iso()
 
@@ -437,6 +520,15 @@ class StructuresRepository:
                 "UPDATE structures SET updated_at=? WHERE id=?",
                 (now, structure_id),
             )
+
+            # PATCH_72: registrar substituicao de legs no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="REPLACE_LEGS",
+                after={"legs_count": len(validated_legs), "replaced_at": now},
+            )
+
             conn.commit()
         except Exception:
             conn.rollback()
@@ -496,3 +588,71 @@ class StructuresRepository:
         if result is None:
             return None
         return int(result["id"])
+
+    # ------------------------------------------------------------------
+    # AUDIT LOG -- leitura (patch_72)
+    # ------------------------------------------------------------------
+
+    def get_audit_log(
+        self,
+        structure_id: int,
+        limit: int = 50,
+    ) -> list[dict[str, Any]]:
+        """
+        Retorna o historico de mutacoes de uma estrutura ordenado do mais
+        recente para o mais antigo. Limite padrao: 50 registros.
+        """
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                """
+                SELECT id, structure_id, action, changed_by,
+                       changed_at, before_json, after_json, notes
+                FROM structure_audit_log
+                WHERE structure_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (structure_id, limit),
+            ).fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
+    def get_full_audit_log(
+        self,
+        limit: int = 200,
+        action: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Retorna audit log global, opcionalmente filtrado por action.
+        Util para scripts de governanca e relatorios de fase 8.
+        """
+        conn = self._connect()
+        try:
+            if action:
+                rows = conn.execute(
+                    """
+                    SELECT id, structure_id, action, changed_by,
+                           changed_at, before_json, after_json, notes
+                    FROM structure_audit_log
+                    WHERE action = ?
+                    ORDER BY id DESC
+                    LIMIT ?
+                    """,
+                    (action, limit),
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    """
+                    SELECT id, structure_id, action, changed_by,
+                           changed_at, before_json, after_json, notes
+                    FROM structure_audit_log
+                    ORDER BY id DESC
+                    LIMIT ?
+                    """,
+                    (limit,),
+                ).fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()

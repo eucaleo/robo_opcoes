@@ -1,7 +1,9 @@
-# bootstrap_structures_schema.py
+# infra/bootstrap_structures_schema.py
 """
 Garante o schema SQLite da aplicação (idempotente).
 Cria tabelas e índices se ainda não existirem.
+
+PATCH_72: adicionada tabela structure_audit_log para rastreabilidade de mudancas.
 """
 from __future__ import annotations
 
@@ -92,7 +94,31 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        # Índices -- structures                                                #
+        # structure_audit_log  [PATCH_72]                                      #
+        # Rastreia toda mutacao em structures: CREATE, UPDATE, ARCHIVE,        #
+        # ADD_LEG, REPLACE_LEGS.                                               #
+        # before_json / after_json sao snapshots do estado da estrutura        #
+        # (sem legs) serializado em JSON.                                      #
+        # changed_by e reservado para autenticacao futura; NULL por ora.       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structures                                                #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -100,7 +126,6 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             ON structures(underlying_asset)
             """
         )
-
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structures_alias_legacy_aba
@@ -109,7 +134,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        # Índices -- structure_legs                                            #
+        # Indices -- structure_legs                                            #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -117,7 +142,6 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             ON structure_legs(structure_id)
             """
         )
-
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id_leg_order
@@ -126,7 +150,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        # Índices -- pricing_executions                                        #
+        # Indices -- pricing_executions                                        #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -134,18 +158,38 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             ON pricing_executions(structure_id)
             """
         )
-
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at
             ON pricing_executions(created_at)
             """
         )
-
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_pricing_executions_status
             ON pricing_executions(execution_status)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_audit_log  [PATCH_72]                          #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+            ON structure_audit_log(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+            ON structure_audit_log(changed_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_action
+            ON structure_audit_log(action)
             """
         )
 
