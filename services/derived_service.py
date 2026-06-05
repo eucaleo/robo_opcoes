@@ -460,3 +460,4 @@ def snapshot_aba(ref: "StructureRef") -> str:
     """Retorna aba_str canônico a partir de um StructureRef."""
     aba_str = ref.aba if hasattr(ref, "aba") and ref.aba else str(ref.structure_id)
     return aba_str
+
