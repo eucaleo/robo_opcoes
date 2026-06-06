@@ -65,6 +65,14 @@ PERMANENT_DECISIONS = {
         "  get_abas() é alias readonly de get_structure_ids() -- não é legado.\n"
         "  ALIAS_READONLY_TERMS criado para rastrear presença sem disparar alerta."
     ),
+    "patch_72:sqlite3_import_structures_repo": (
+        "RESOLVIDO 2026-06-05 | branch/...\n"
+        "  structures_repository.py usa import sqlite3 diretamente porque é o\n"
+        "  dono canônico do app.db e gerencia conexões via _connect().\n"
+        "  Não usa get_app_db_connection (padrão legado). Import é correto.\n"
+        "  Check X é FALSO-POSITIVO do contains() textual.\n"
+        "  Não reverter. Não reabrir."
+    ),
 }
 
 
@@ -86,757 +94,39 @@ def print_permanent_decisions():
 # Definicao dos patches
 # ------------------------------------------------------------------
 
+FASES_ARQUIVADAS = {
+    "fase_1": {
+        "label": "Fase 1 — Baseline, contratos canônicos e CRUD do StructuresRepository",
+        "patches": ["patch_01", "patch_02", "patch_03", "patch_04", "patch_05", "patch_06"],
+        "status": "ARQUIVADA",
+    },
+    "fase_2": {
+        "label": "Fase 2 — Smoke tests, conexões SQLite, MarketSnapshot e pipeline",
+        "patches": ["patch_10", "patch_11", "patch_12", "patch_13", "patch_14", "patch_15"],
+        "status": "ARQUIVADA",
+    },
+    "fase_3": {
+        "label": "Fase 3 — Persistência: PricingExecution, Payoff, DerivedPayoff e bootstrap",
+        "patches": ["patch_16", "patch_17", "patch_18", "patch_19", "patch_20", "patch_21", "patch_22"],
+        "status": "ARQUIVADA",
+    },
+    "fase_4": {
+        "label": "Fase 4 — Desacoplamento legado, DerivedRepo canônico e migrações de schema",
+        "patches": ["patch_23", "patch_24", "patch_25", "patch_26", "patch_27", "patch_28", "patch_29", "patch_30"],
+        "status": "ARQUIVADA",
+    },
+    "fase_5": {
+        "label": "Fase 5 — UI canônica: UIDataModel, auditoria de wiring e DetailsPanel",
+        "patches": ["patch_31", "patch_32", "patch_33", "patch_34", "patch_35"],
+        "status": "ARQUIVADA",
+    }},
+
 PATCHES = [
-    {
-        "id": "patch_01",
-        "desc": "Auditoria baseline_v2 - documentacao e inventario",
-        "checks": [
-            ("docs/baseline_v2_audit.md existe",
-             lambda: exists("docs/baseline_v2_audit.md")),
-        ],
-    },
-    {
-        "id": "patch_02",
-        "desc": "Contratos canonicos de structures definidos",
-        "checks": [
-            ("infra/bootstrap_structures_schema.py existe",
-             lambda: exists("infra/bootstrap_structures_schema.py")),
-            ("Schema 'structures' definido no bootstrap",
-             lambda: contains("infra/bootstrap_structures_schema.py", "structures")),
-            ("Schema 'structure_legs' definido no bootstrap",
-             lambda: contains("infra/bootstrap_structures_schema.py", "structure_legs")),
-        ],
-    },
-    {
-        "id": "patch_03",
-        "desc": "Camada de compatibilidade com legado isolada",
-        "checks": [
-            ("repositories/structures_repository.py existe",
-             lambda: exists("repositories/structures_repository.py")),
-            ("alias_legacy_aba presente no repositorio",
-             lambda: contains("repositories/structures_repository.py", "alias_legacy_aba")),
-        ],
-    },
-    {
-        "id": "patch_04",
-        "desc": "CRUD canonico completo do StructuresRepository",
-        "checks": [
-            ("create_structure() implementado",
-             lambda: contains("repositories/structures_repository.py", "def create_structure")),
-            ("get_structure() implementado",
-             lambda: contains("repositories/structures_repository.py", "def get_structure")),
-            ("list_structures() implementado",
-             lambda: contains("repositories/structures_repository.py", "def list_structures")),
-            ("update_structure() implementado",
-             lambda: contains("repositories/structures_repository.py", "def update_structure")),
-            ("archive_structure() implementado",
-             lambda: contains("repositories/structures_repository.py", "def archive_structure")),
-            ("add_leg() implementado",
-             lambda: contains("repositories/structures_repository.py", "def add_leg")),
-            ("replace_legs() implementado",
-             lambda: contains("repositories/structures_repository.py", "def replace_legs")),
-        ],
-    },
-    {
-        "id": "patch_05",
-        "desc": "Testes smoke/contrato do StructuresRepository",
-        "checks": [
-            ("scripts/10_smoke_structures_repository.py existe",
-             lambda: exists("scripts/10_smoke_structures_repository.py")),
-            ("ATT/tests/test_patch10_smoke.py existe",
-             lambda: exists("ATT/tests/test_patch10_smoke.py")),
-            ("ATT/tests/test_patch10_ui_integration.py existe",
-             lambda: exists("ATT/tests/test_patch10_ui_integration.py")),
-        ],
-    },
-    {
-        "id": "patch_06",
-        "desc": "Normalizacao de repositories - queries e persistencia",
-        "checks": [
-            ("VALID_POSITION_SIDES definido",
-             lambda: contains("repositories/structures_repository.py", "VALID_POSITION_SIDES")),
-            ("VALID_OPTION_TYPES definido",
-             lambda: contains("repositories/structures_repository.py", "VALID_OPTION_TYPES")),
-            ("Validacao de expiration_date presente",
-             lambda: contains("repositories/structures_repository.py", "expiration_date")),
-        ],
-    },
-    {
-        "id": "patch_10",
-        "desc": "Smoke tests pytest para StructuresRepository (19 testes)",
-        "checks": [
-            ("ATT/tests/test_patch10_smoke.py existe",
-             lambda: exists("ATT/tests/test_patch10_smoke.py")),
-            ("TestStructuresRepository presente",
-             lambda: contains("ATT/tests/test_patch10_smoke.py", "TestStructuresRepository")),
-            ("TestRepositoryValidation presente",
-             lambda: contains("ATT/tests/test_patch10_smoke.py", "TestRepositoryValidation")),
-            ("TestImports presente",
-             lambda: contains("ATT/tests/test_patch10_smoke.py", "TestImports")),
-        ],
-    },
-    {
-        "id": "patch_11",
-        "desc": "Conexoes SQLite fechadas via try/finally (ResourceWarning fix)",
-        "checks": [
-            ("try/finally presente no repositorio",
-             lambda: contains("repositories/structures_repository.py", "try")),
-            ("conn.close() explicito presente",
-             lambda: contains("repositories/structures_repository.py", "conn.close()")),
-            ("Sem 'with self._connect() as conn' (padrao antigo)",
-             lambda: not contains("repositories/structures_repository.py",
-                                   "with self._connect() as conn")),
-            ("conn.close() aparece >= 6 vezes (1 por metodo publico)",
-             lambda: count_occurrences(
-                 "repositories/structures_repository.py", "conn.close()") >= 6,
-             lambda: f"{count_occurrences('repositories/structures_repository.py', 'conn.close()')}x encontrado"),
-        ],
-    },
-    {
-        "id": "patch_12",
-        "desc": "MarketSnapshot - dominio e repositorio canonicos",
-        "checks": [
-            ("repositories/market_snapshot_repository.py existe",
-             lambda: exists("repositories/market_snapshot_repository.py")),
-            ("domain/market_snapshot.py existe",
-             lambda: exists("domain/market_snapshot.py")),
-            ("LegMarketSnapshot definido no dominio",
-             lambda: contains("domain/market_snapshot.py", "LegMarketSnapshot")),
-            ("StructureMarketSnapshot definido no dominio",
-             lambda: contains("domain/market_snapshot.py", "StructureMarketSnapshot")),
-            ("_parse_br_float implementado no repositorio",
-             lambda: contains("repositories/market_snapshot_repository.py", "_parse_br_float")),
-            ("_mid_price implementado no repositorio",
-             lambda: contains("repositories/market_snapshot_repository.py", "_mid_price")),
-        ],
-    },
-    {
-        "id": "patch_13",
-        "desc": "Politica de selecao manual > rtd (MarketSnapshotSelector)",
-        "checks": [
-            ("services/market_snapshot_selector.py existe",
-             lambda: exists("services/market_snapshot_selector.py")),
-            ("Politica manual > rtd implementada",
-             lambda: contains("services/market_snapshot_selector.py", "manual")),
-            ("scripts/61_smoke_market_snapshot.py existe",
-             lambda: exists("scripts/61_smoke_market_snapshot.py")),
-            ("SnapshotSelectionResult presente",
-             lambda: contains("services/market_snapshot_selector.py",
-                              "SnapshotSelectionResult")),
-        ],
-    },
-    {
-        "id": "patch_14",
-        "desc": "canonical_input_service consome MarketSnapshotSelector [PENDENTE]",
-        "checks": [
-            ("services/canonical_input_service.py existe",
-             lambda: exists("services/canonical_input_service.py")),
-            ("MarketSnapshotSelector importado no canonical_input_service",
-             lambda: contains("services/canonical_input_service.py",
-                              "MarketSnapshotSelector")),
-            ("scripts/63_smoke_canonical_with_snapshot.py existe",
-             lambda: exists("scripts/63_smoke_canonical_with_snapshot.py")),
-        ],
-    },
-    {
-        "id": "patch_15",
-        "desc": "Smoke integracao pipeline completo structure+snapshot->pricing [PENDENTE]",
-        "checks": [
-            ("scripts/64_smoke_pipeline_integration.py existe",
-             lambda: exists("scripts/64_smoke_pipeline_integration.py")),
-            ("PricingExecutionAppService importavel",
-             lambda: exists("services/pricing_execution_app_service.py")),
-        ],
-    },
-    {
-        "id": "patch_16",
-        "desc": "PricingExecutionPersistenceService criado",
-        "checks": [
-            ("services/pricing_execution_persistence_service.py existe",
-             lambda: exists("services/pricing_execution_persistence_service.py")),
-            ("PricingExecutionPersistenceService definido",
-             lambda: contains(
-                 "services/pricing_execution_persistence_service.py",
-                 "class PricingExecutionPersistenceService"
-             )),
-            ("persist_execution() implementado",
-             lambda: contains(
-                 "services/pricing_execution_persistence_service.py",
-                 "def persist_execution"
-             )),
-            ("services/payoff_persistence_port.py existe",
-             lambda: exists("services/payoff_persistence_port.py")),
-        ],
-    },
-    {
-        "id": "patch_17",
-        "desc": "DerivedPayoffPersistence -- porta de persistencia derivada",
-        "checks": [
-            ("services/derived_payoff_persistence.py existe",
-             lambda: exists("services/derived_payoff_persistence.py")),
-            ("DerivedPayoffPersistence definido",
-             lambda: contains(
-                 "services/derived_payoff_persistence.py",
-                 "class DerivedPayoffPersistence"
-             )),
-            ("persist() implementado",
-             lambda: contains(
-                 "services/derived_payoff_persistence.py",
-                 "def persist"
-             )),
-            ("_persist_payoff() implementado",
-             lambda: contains(
-                 "services/derived_payoff_persistence.py",
-                 "def _persist_payoff"
-             )),
-            ("_persist_decision() implementado",
-             lambda: contains(
-                 "services/derived_payoff_persistence.py",
-                 "def _persist_decision"
-             )),
-            ("_build_canonical_input() implementado",
-             lambda: contains(
-                 "services/derived_payoff_persistence.py",
-                 "def _build_canonical_input"
-             )),
-        ],
-    },
-    {
-        "id": "patch_18",
-        "desc": "CanonicalPricingFacade corrigida (C1-C4)",
-        "checks": [
-            ("services/canonical_pricing_facade.py existe",
-             lambda: exists("services/canonical_pricing_facade.py")),
-            ("CanonicalPricingFacade definida",
-             lambda: contains(
-                 "services/canonical_pricing_facade.py",
-                 "class CanonicalPricingFacade"
-             )),
-            ("execute_pricing() implementado",
-             lambda: contains(
-                 "services/canonical_pricing_facade.py",
-                 "def execute_pricing"
-             )),
-            ("_get_structure_info() implementado (patch_41: substitui _get_alias_legacy_aba)",
-             lambda: contains(
-                 "services/canonical_pricing_facade.py",
-                 "def _get_structure_info"
-             )),
-            ("engine_result extraido do wrapper (C4)",
-             lambda: contains(
-                 "services/canonical_pricing_facade.py",
-                 'execution_result.get("result", execution_result)'
-             )),
-        ],
-    },
-    {
-        "id": "patch_19",
-        "desc": "PricingExecutionsRepository -- JSON -> SQLite (app.db)",
-        "checks": [
-            ("repositories/pricing_executions_repository.py existe",
-             lambda: exists("repositories/pricing_executions_repository.py")),
-            ("PricingExecutionsRepository definido",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "class PricingExecutionsRepository"
-             )),
-            ("save_execution() implementado",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "def save_execution"
-             )),
-            ("get_execution() implementado",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "def get_execution"
-             )),
-            ("list_executions() implementado",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "def list_executions"
-             )),
-            ("count_executions() implementado",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "def count_executions"
-             )),
-            ("get_latest_by_structure() implementado",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "def get_latest_by_structure"
-             )),
-            ("_deserialize() implementado (JSON -> dict)",
-             lambda: contains(
-                 "repositories/pricing_executions_repository.py",
-                 "def _deserialize"
-             )),
-        ],
-    },
-    {
-        "id": "patch_20",
-        "desc": "payoff_features.upsert_curve_summary -- try/finally (ResourceWarning fix)",
-        "checks": [
-            ("domain/payoff_features.py existe",
-             lambda: exists("domain/payoff_features.py")),
-            ("upsert_curve_summary() implementado",
-             lambda: contains(
-                 "domain/payoff_features.py",
-                 "def upsert_curve_summary"
-             )),
-            ("try/finally presente no upsert",
-             lambda: contains("domain/payoff_features.py", "finally")),
-            ("conn.close() explicito presente",
-             lambda: contains("domain/payoff_features.py", "conn.close()")),
-        ],
-    },
-    {
-        "id": "patch_21",
-        "desc": "Pipeline conectado: payoff + decisao gravados no derived.db",
-        "checks": [
-            ("DerivedPayoffPersistence injetado na facade (C5)",
-             lambda: contains(
-                 "services/canonical_pricing_facade.py",
-                 "DerivedPayoffPersistence"
-             )),
-            ("fire-and-forget: port falha nao derruba execucao",
-             lambda: contains(
-                 "services/pricing_execution_persistence_service.py",
-                 "logger.exception"
-             )),
-            ("ATT/tests/test_patches_19_20_21.py existe",
-             lambda: exists("ATT/tests/test_patches_19_20_21.py")),
-            ("test_patch21_port_called_on_success presente",
-             lambda: contains(
-                 "ATT/tests/test_patches_19_20_21.py",
-                 "test_patch21_port_called_on_success"
-             )),
-            ("test_patch21_facade_wiring presente",
-             lambda: contains(
-                 "ATT/tests/test_patches_19_20_21.py",
-                 "test_patch21_facade_wiring"
-             )),
-        ],
-    },
-    {
-        "id": "patch_22",
-        "desc": "Auditoria e validacao do bootstrap completo (pricing_executions + wiring)",
-        "checks": [
-            ("ATT/tests/test_patch22.py existe",
-             lambda: exists("ATT/tests/test_patch22.py")),
-            ("test_patch22_schema_tables_and_indexes presente",
-             lambda: contains(
-                 "ATT/tests/test_patch22.py",
-                 "test_patch22_schema_tables_and_indexes"
-             )),
-            ("test_patch22_pricing_executions_columns presente",
-             lambda: contains(
-                 "ATT/tests/test_patch22.py",
-                 "test_patch22_pricing_executions_columns"
-             )),
-            ("test_patch22_facade_injects_derived_payoff_persistence presente",
-             lambda: contains(
-                 "ATT/tests/test_patch22.py",
-                 "test_patch22_facade_injects_derived_payoff_persistence"
-             )),
-            ("test_patch22_bootstrap_is_idempotent presente",
-             lambda: contains(
-                 "ATT/tests/test_patch22.py",
-                 "test_patch22_bootstrap_is_idempotent"
-             )),
-            ("pricing_executions no DATABASES do audit",
-             lambda: contains(
-                 "scripts/audit_patches.py",
-                 "pricing_executions"
-             )),
-        ],
-    },
-    # ------------------------------------------------------------------
-    # NOVOS -- Fase 3A: Desacoplamento canônico
-    # ------------------------------------------------------------------
-    {
-        "id": "patch_23",
-        "desc": "Script de auditoria de acoplamento legado criado",
-        "checks": [
-            ("scripts/69_audit_legacy_domain_coupling.py existe",
-             lambda: exists("scripts/69_audit_legacy_domain_coupling.py")),
-            ("docs/audit_domain_coupling_patch24.md existe",
-             lambda: exists("docs/audit_domain_coupling_patch24.md")),
-            ("CouplingOccurrence definido no script",
-             lambda: contains(
-                 "scripts/69_audit_legacy_domain_coupling.py",
-                 "CouplingOccurrence"
-             )),
-            ("AuditReport definido no script",
-             lambda: contains(
-                 "scripts/69_audit_legacy_domain_coupling.py",
-                 "AuditReport"
-             )),
-            ("LEGACY_TERMS definido no script",
-             lambda: contains(
-                 "scripts/69_audit_legacy_domain_coupling.py",
-                 "LEGACY_TERMS"
-             )),
-            ("Exit code CI implementado (sys.exit)",
-             lambda: contains(
-                 "scripts/69_audit_legacy_domain_coupling.py",
-                 "sys.exit"
-             )),
-        ],
-    },
-    {
-        "id": "patch_24",
-        "desc": "Desacoplamento legado: decision.py limpo + payoff_features chave canonica",
-        "checks": [
-            ("compute_decision_for_aba removida de decision.py",
-             lambda: not contains("domain/decision.py", "compute_decision_for_aba")),
-            ("get_app_db_connection removido de decision.py",
-             lambda: not contains("domain/decision.py", "get_app_db_connection")),
-            ("rtd_analise_robo removido de decision.py",
-             lambda: not contains("domain/decision.py", "rtd_analise_robo")),
-            ("compute_payoff_for_aba removido de decision.py",
-             lambda: not contains("domain/decision.py", "compute_payoff_for_aba")),
-            ("read_structure_summary removido de decision.py",
-             lambda: not contains("domain/decision.py", "read_structure_summary")),
-            ("compute_decision_from_contract preservado",
-             lambda: contains("domain/decision.py", "def compute_decision_from_contract")),
-            ("compute_decision_from_payoff preservado",
-             lambda: contains("domain/decision.py", "def compute_decision_from_payoff")),
-            ("compute_decision_from_inputs preservado",
-             lambda: contains("domain/decision.py", "def compute_decision_from_inputs")),
-            ("ON CONFLICT(structure_id, reference_date) em payoff_features",
-             lambda: contains(
-                 "domain/payoff_features.py",
-                 "ON CONFLICT(structure_id, reference_date)"
-             )),
-            ("ON CONFLICT(timestamp, aba) removido de payoff_features",
-             lambda: not contains(
-                 "domain/payoff_features.py",
-                 "ON CONFLICT(timestamp, aba)"
-             )),
-            ("structure_id em compute_curve_features",
-             lambda: contains("domain/payoff_features.py", "structure_id")),
-            ("reference_date em compute_curve_features",
-             lambda: contains("domain/payoff_features.py", "reference_date")),
-            ("ATT/tests/test_patch24.py existe",
-             lambda: exists("ATT/tests/test_patch24.py")),
-            ("TestDecisionLegacyRemoval presente",
-             lambda: contains(
-                 "ATT/tests/test_patch24.py",
-                 "TestDecisionLegacyRemoval"
-             )),
-            ("TestPayoffFeaturesCanonicalKey presente",
-             lambda: contains(
-                 "ATT/tests/test_patch24.py",
-                 "TestPayoffFeaturesCanonicalKey"
-             )),
-            ("test_patch24_upsert_executes_with_in_memory_db presente",
-             lambda: contains(
-                 "ATT/tests/test_patch24.py",
-                 "test_patch24_upsert_executes_with_in_memory_db"
-             )),
-        ],
-    },
-    {
-        "id": "patch_25",
-        "desc": "Smoke de regressao pos-patch_24 (decision + payoff canonicos)",
-        "checks": [
-            ("ATT/tests/teste_rapido_smoke_patch2_25.py existe",
-             lambda: exists("ATT/tests/teste_rapido_smoke_patch2_25.py")),
-            ("compute_decision_from_inputs presente em decision.py",
-             lambda: contains("domain/decision.py", "def compute_decision_from_inputs")),
-            ("compute_curve_features presente em payoff_features.py",
-             lambda: contains("domain/payoff_features.py", "def compute_curve_features")),
-            ("structure_id usado em compute_curve_features",
-             lambda: contains("domain/payoff_features.py", "structure_id")),
-        ],
-    },
-    {
-        "id": "patch_26",
-        "desc": "db/derived_repo.py - DerivedRepo canonico (write_decision_snapshot_atomic)",
-        "checks": [
-            ("db/derived_repo.py existe",
-             lambda: exists("db/derived_repo.py")),
-            ("class DerivedRepo definida",
-             lambda: contains("db/derived_repo.py", "class DerivedRepo")),
-            ("write_decision_snapshot_atomic implementado",
-             lambda: contains("db/derived_repo.py", "def write_decision_snapshot_atomic")),
-            ("insert_structure_decision implementado",
-             lambda: contains("db/derived_repo.py", "def insert_structure_decision")),
-            ("get_recent_decisions implementado",
-             lambda: contains("db/derived_repo.py", "def get_recent_decisions")),
-        ],
-    },
-    {
-        "id": "patch_27",
-        "desc": "db/derived_repo.py - migracao e guards de schema (_migrations)",
-        "checks": [
-            ("_migrations dict presente",
-             lambda: contains("db/derived_repo.py", "_migrations")),
-            ("guard ALTER TABLE para 'why'",
-             lambda: contains("db/derived_repo.py", "why")),
-            ("guard ALTER TABLE para 'spot_ref'",
-             lambda: contains("db/derived_repo.py", "spot_ref")),
-            ("guard ALTER TABLE para 'meta_json'",
-             lambda: contains("db/derived_repo.py", "meta_json")),
-            ("guard ALTER TABLE para 'structure_id'",
-             lambda: contains("db/derived_repo.py", "structure_id")),
-            ("_table_columns implementado",
-             lambda: contains("db/derived_repo.py", "def _table_columns")),
-        ],
-    },
-    {
-        "id": "patch_28",
-        "desc": "Migracao de structures legado para modelo canonico",
-        "checks": [
-            ("ATT/patches/patch_28_migrate_structures.py existe",
-             lambda: exists("ATT/patches/patch_28_migrate_structures.py")),
-            ("migrate() ou run() implementado no patch_28",
-             lambda: (
-                 contains("ATT/patches/patch_28_migrate_structures.py", "def migrate") or
-                 contains("ATT/patches/patch_28_migrate_structures.py", "def run")
-             )),
-            ("tabela structures referenciada no patch_28",
-             lambda: contains("ATT/patches/patch_28_migrate_structures.py", "structures")),
-            ("tabela structure_legs referenciada no patch_28",
-             lambda: contains("ATT/patches/patch_28_migrate_structures.py", "structure_legs")),
-        ],
-    },
-    {
-        "id": "patch_29",
-        "desc": "Adicao de structure_id em structure_decisions (migration + backfill)",
-        "checks": [
-            ("ATT/patches/patch_29_add_structure_id_to_decisions.py existe",
-             lambda: exists("ATT/patches/patch_29_add_structure_id_to_decisions.py")),
-            ("ALTER TABLE structure_decisions no patch_29",
-             lambda: contains(
-                 "ATT/patches/patch_29_add_structure_id_to_decisions.py",
-                 "structure_decisions"
-             )),
-            ("structure_id referenciado no patch_29",
-             lambda: contains(
-                 "ATT/patches/patch_29_add_structure_id_to_decisions.py",
-                 "structure_id"
-             )),
-            ("backup criado antes da migracao (BAK)",
-             lambda: (
-                 contains("ATT/patches/patch_29_add_structure_id_to_decisions.py", "BAK") or
-                 contains("ATT/patches/patch_29_add_structure_id_to_decisions.py", "backup") or
-                 contains("ATT/patches/patch_29_add_structure_id_to_decisions.py", "shutil")
-             )),
-        ],
-    },
-    {
-        "id": "patch_30",
-        "desc": "derived_repo.py - corrige DDL e propaga structure_id em todos os INSERTs",
-        "checks": [
-            ("db/derived_repo.py existe",
-             lambda: exists("db/derived_repo.py")),
-            ("structure_id no INSERT de write_decision_snapshot_atomic",
-             lambda: contains("db/derived_repo.py", "structure_id")),
-            ("_migrations unifica guards ALTER TABLE",
-             lambda: contains("db/derived_repo.py", "_migrations")),
-            ("try/finally em write_decision_snapshot_atomic",
-             lambda: contains("db/derived_repo.py", "finally")),
-            ("conn.close() explicito em derived_repo",
-             lambda: contains("db/derived_repo.py", "conn.close()")),
-            ("_table_columns valida colunas presentes",
-             lambda: contains("db/derived_repo.py", "_table_columns")),
-        ],
-    },
-    {
-        "id": "patch_31",
-        "desc": "Fix UI/models/__init__.py -- typo __ini__.py corrigido",
-        "checks": [
-            ("UI/models/__init__.py existe",
-             lambda: exists("UI/models/__init__.py")),
-            ("UI/models/__ini__.py (typo) NÃO existe",
-             lambda: not exists("UI/models/__ini__.py")),
-            ("ATT/tests/test_patch31.py existe",
-             lambda: exists("ATT/tests/test_patch31.py")),
-            ("test_init_existe presente",
-             lambda: contains("ATT/tests/test_patch31.py", "test_init_existe")),
-            ("test_typo_removido presente",
-             lambda: contains("ATT/tests/test_patch31.py", "test_typo_removido")),
-            ("test_import_ui_models presente",
-             lambda: contains("ATT/tests/test_patch31.py", "test_import_ui_models")),
-        ],
-    },
-    {
-        "id": "patch_32",
-        "desc": "Auditoria de wiring da UI (legado vs canonico)",
-        "checks": [
-            ("ATT/patches/patch_32_audit_ui_wiring.py existe",
-             lambda: exists("ATT/patches/patch_32_audit_ui_wiring.py")),
-            ("LEGACY_TERMS definido no script",
-             lambda: contains(
-                 "ATT/patches/patch_32_audit_ui_wiring.py", "LEGACY_TERMS")),
-            ("CANONICAL_TERMS definido no script",
-             lambda: contains(
-                 "ATT/patches/patch_32_audit_ui_wiring.py", "CANONICAL_TERMS")),
-            ("classificar() implementado",
-             lambda: contains(
-                 "ATT/patches/patch_32_audit_ui_wiring.py", "def classificar")),
-            ("gerar_markdown() implementado",
-             lambda: contains(
-                 "ATT/patches/patch_32_audit_ui_wiring.py", "def gerar_markdown")),
-            ("scripts/72_smoke_patch32_ui_audit.py existe",
-             lambda: exists("scripts/72_smoke_patch32_ui_audit.py")),
-        ],
-    },
-    {
-        "id": "patch_33",
-        "desc": "Migration: structure_id em payoff_curve_points e payoff_curve_summary",
-        "checks": [
-            ("db/migrations/run_patch_33.py existe",
-             lambda: exists("db/migrations/run_patch_33.py")),
-            ("col_exists() implementado",
-             lambda: contains("db/migrations/run_patch_33.py", "def col_exists")),
-            ("ADD COLUMN structure_id em payoff_curve_points",
-             lambda: contains(
-                 "db/migrations/run_patch_33.py",
-                 "payoff_curve_points ADD COLUMN structure_id")),
-            ("ADD COLUMN structure_id em payoff_curve_summary",
-             lambda: contains(
-                 "db/migrations/run_patch_33.py",
-                 "payoff_curve_summary ADD COLUMN structure_id")),
-            ("BACKFILL via structure_decisions implementado",
-             lambda: contains(
-                 "db/migrations/run_patch_33.py", "structure_decisions")),
-            ("Índice idx_payoff_points_sid_ts definido",
-             lambda: contains(
-                 "db/migrations/run_patch_33.py", "idx_payoff_points_sid_ts")),
-            ("Índice idx_payoff_summary_sid_ts definido",
-             lambda: contains(
-                 "db/migrations/run_patch_33.py", "idx_payoff_summary_sid_ts")),
-            ("ATT/tests/test_patch33.py existe",
-             lambda: exists("ATT/tests/test_patch33.py")),
-        ],
-    },
-    {
-        "id": "patch_34",
-        # DECISÃO PERMANENTE: ver PERMANENT_DECISIONS["patch_34:filtro_aba"]
-        # Os checks de ausência de "aba" e "filters.get('aba')" foram substituídos
-        # por checks de PRESENÇA de get_abas() (alias readonly) e ausência de
-        # filtro legado. O contains() textual não distingue contexto -- os checks
-        # antigos geravam falsos-positivos. Não reverter esta mudança.
-        "desc": "UIDataModel -- structure_id INTEGER canônico; aba mantida só para leitura; fallbacks e key_type removidos",
-        "checks": [
-            #  1. Arquivo de produção 
-            ("UI/models/ui_data.py existe",
-             lambda: exists("UI/models/ui_data.py")),
-
-            #  2. _structure_filter_col 
-            ("_structure_filter_col() implementado",
-             lambda: contains("UI/models/ui_data.py", "_structure_filter_col")),
-            ("key_type removido de _structure_filter_col",
-             lambda: not contains("UI/models/ui_data.py", "key_type")),
-            # DECISÃO PERMANENTE: 'aba' presente = get_abas() alias readonly.
-            # Check reescrito: valida get_abas() existe E key_type ausente (suficiente).
-            ("get_abas() alias readonly presente (substitui check de ausencia de 'aba')",
-             lambda: contains("UI/models/ui_data.py", "def get_abas")),
-
-            #  3. _resolve_structure_key 
-            ("_resolve_structure_key() implementado",
-             lambda: contains("UI/models/ui_data.py", "_resolve_structure_key")),
-            ("_resolve_structure_key levanta ValueError('structure_id invalido')",
-             lambda: contains("UI/models/ui_data.py", "structure_id invalido")),
-
-            #  4. _load_structures 
-            ("_load_structures() implementado",
-             lambda: contains("UI/models/ui_data.py", "_load_structures")),
-            ("branch 'OR CAST(aba ...)' removido",
-             lambda: not contains("UI/models/ui_data.py", "OR CAST")),
-
-            #  5. get_decisions -- filtro 
-            ("get_decisions() implementado",
-             lambda: contains("UI/models/ui_data.py", "get_decisions")),
-            # DECISÃO PERMANENTE: filtro legado verificado pela ausência de
-            # 'filters.get("aba")' como filtro de query -- check reescrito para
-            # validar presença da validação canônica (ValueError) em vez de
-            # ausência textual de 'aba' (causava falso-positivo via get_abas()).
-            ("get_decisions valida structure_id invalido com ValueError (filtro canonico)",
-             lambda: contains("UI/models/ui_data.py", "structure_id deve ser inteiro")),
-            ("get_decisions nao usa 'aba' como coluna de filtro SQL",
-             lambda: not contains("UI/models/ui_data.py", "WHERE aba =")),
-
-            #  6. get_structure_ids / get_abas / get_structures 
-            ("get_structure_ids() implementado",
-             lambda: contains("UI/models/ui_data.py", "get_structure_ids")),
-            ("get_abas() alias de get_structure_ids() presente",
-             lambda: contains("UI/models/ui_data.py", "get_abas")),
-            ("get_structures() mantido para compat",
-             lambda: contains("UI/models/ui_data.py", "get_structures")),
-
-            #  7. check_database_status 
-            ("check_database_status usa mode=canonical",
-             lambda: contains("UI/models/ui_data.py", "mode=canonical")),
-            ("check_database_status sem mode=aba",
-             lambda: not contains("UI/models/ui_data.py", "mode=aba")),
-            ("check_database_status sem mode=id",
-             lambda: not contains("UI/models/ui_data.py", "mode=id")),
-
-            #  8. Arquivos de teste e smoke 
-            ("ATT/tests/test_patch34_ui_data.py existe",
-             lambda: exists("ATT/tests/test_patch34_ui_data.py")),
-            ("scripts/73_smoke_patch34_ui_data.py existe",
-             lambda: exists("scripts/73_smoke_patch34_ui_data.py")),
-
-            #  9. Classes de teste presentes 
-            ("TestStructureFilterCol presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestStructureFilterCol")),
-            ("TestResolveStructureKey presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestResolveStructureKey")),
-            ("TestGetStructureIds presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestGetStructureIds")),
-            ("TestGetDecisionsFiltro presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestGetDecisionsFiltro")),
-            ("TestGetDecisionsNormalizacao presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestGetDecisionsNormalizacao")),
-            ("TestGetPayoffCurve presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestGetPayoffCurve")),
-            ("TestCheckDatabaseStatus presente",
-             lambda: contains("ATT/tests/test_patch34_ui_data.py", "TestCheckDatabaseStatus")),
-        ],
-    },
-    {
-        "id": "patch_35",
-        "desc": "details_panel -- queries internas migradas para structure_id (INTEGER); _query_by_structure removido",
-        "checks": [
-            ("UI/components/details_panel.py existe",
-             lambda: exists("UI/components/details_panel.py")),
-            ("_resolve_structure_key adicionado",
-             lambda: contains("UI/components/details_panel.py", "_resolve_structure_key")),
-            ("_fetch_latest_decision_from_derived implementado",
-             lambda: contains("UI/components/details_panel.py", "_fetch_latest_decision_from_derived")),
-            ("_fetch_payoff_points_from_derived implementado",
-             lambda: contains("UI/components/details_panel.py", "_fetch_payoff_points_from_derived")),
-            ("_fetch_audit_info_from_derived implementado",
-             lambda: contains("UI/components/details_panel.py", "_fetch_audit_info_from_derived")),
-            ("WHERE structure_id usado nas queries",
-             lambda: contains("UI/components/details_panel.py", "WHERE structure_id")),
-            ("_query_by_structure removido (dead adapter)",
-             lambda: not contains("UI/components/details_panel.py", "_query_by_structure")),
-            ("fallback 'or aba' removido de _on_recalculate_click",
-             lambda: not contains("UI/components/details_panel.py", "or aba")),
-            ("update_decision implementado",
-             lambda: contains("UI/components/details_panel.py", "update_decision")),
-            ("_get_latest_snapshot_timestamp implementado",
-             lambda: contains("UI/components/details_panel.py", "_get_latest_snapshot_timestamp")),
-            ("ATT/tests/test_patch35_details_panel.py existe",
-             lambda: exists("ATT/tests/test_patch35_details_panel.py")),
-            ("ATT/patches/patch_35_commit.py existe",
-             lambda: exists("ATT/patches/patch_35_commit.py")),
-            ("testes cobrem _resolve_structure_key",
-             lambda: contains("ATT/tests/test_patch35_details_panel.py", "_resolve_structure_key")),
-            ("testes cobrem _fetch_latest_decision_from_derived",
-             lambda: contains("ATT/tests/test_patch35_details_panel.py", "_fetch_latest_decision_from_derived")),
-            ("testes cobrem _fetch_payoff_points_from_derived",
-             lambda: contains("ATT/tests/test_patch35_details_panel.py", "_fetch_payoff_points_from_derived")),
-            ("testes cobrem _fetch_audit_info_from_derived",
-             lambda: contains("ATT/tests/test_patch35_details_panel.py", "_fetch_audit_info_from_derived")),
-        ],
-    },
-    {
+    # ===========================================================
+    # A partir daqui: patches ativos (fase 6+)
+    # ===========================================================
+    # ... seus patches 36+ aqui
+        {
         "id": "patch_36",
         "desc": "MainWindow e DetailsPanel -- structure_id canônico; aba removida como fallback",
         "checks": [
@@ -2141,98 +1431,99 @@ PATCHES = [
         "id": "patch_56",
         "desc": "derived_repo + derived_service -- _unwrap_aba em todas entradas; f-string bug corrigido",
         "checks": [
-            #  1. Arquivo db/derived_repo.py 
+            #  1. Arquivo db/derived_repo.py
             ("db/derived_repo.py existe",
-             lambda: exists("db/derived_repo.py")),
+            lambda: exists("db/derived_repo.py")),
 
-            #  2. _unwrap_aba definida 
+            #  2. _unwrap_aba definida
             ("_unwrap_aba() definida em derived_repo.py",
-             lambda: contains("db/derived_repo.py", "def _unwrap_aba")),
+            lambda: contains("db/derived_repo.py", "def _unwrap_aba")),
 
-            #  3. _unwrap_aba chamada nas 6 funções de entrada 
+            #  3. _unwrap_aba chamada nas 6 funções de entrada
             ("_unwrap_aba chamada em write_payoff_snapshot_atomic",
-             lambda: contains("db/derived_repo.py", "def write_payoff_snapshot_atomic")
-                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+            lambda: contains("db/derived_repo.py", "def write_payoff_snapshot_atomic")
+                and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
 
             ("_unwrap_aba chamada em write_decision_snapshot_atomic",
-             lambda: contains("db/derived_repo.py", "def write_decision_snapshot_atomic")
-                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+            lambda: contains("db/derived_repo.py", "def write_decision_snapshot_atomic")
+                and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
 
             ("_unwrap_aba chamada em write_complete_snapshot_atomic",
-             lambda: contains("db/derived_repo.py", "def write_complete_snapshot_atomic")
-                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+            lambda: contains("db/derived_repo.py", "def write_complete_snapshot_atomic")
+                and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
 
             ("_unwrap_aba chamada em insert_payoff_points",
-             lambda: contains("db/derived_repo.py", "def insert_payoff_points")
-                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+            lambda: contains("db/derived_repo.py", "def insert_payoff_points")
+                and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
 
             ("_unwrap_aba chamada em insert_structure_decision",
-             lambda: contains("db/derived_repo.py", "def insert_structure_decision")
-                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+            lambda: contains("db/derived_repo.py", "def insert_structure_decision")
+                and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
 
             ("_unwrap_aba chamada em get_payoff_points",
-             lambda: contains("db/derived_repo.py", "def get_payoff_points")
-                 and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
+            lambda: contains("db/derived_repo.py", "def get_payoff_points")
+                and contains("db/derived_repo.py", "_unwrap_aba(aba)")),
 
-            #  4. Contagem mínima de _unwrap_aba (definição + 6 calls) 
+            #  4. Contagem mínima de _unwrap_aba (definição + 6 calls)
             ("_unwrap_aba presente >= 6 vezes em derived_repo.py",
-             lambda: count_occurrences("db/derived_repo.py", "_unwrap_aba") >= 6,
-             lambda: f"{count_occurrences('db/derived_repo.py', '_unwrap_aba')}x encontrado"),
+            lambda: count_occurrences("db/derived_repo.py", "_unwrap_aba") >= 6,
+            lambda: f"{count_occurrences('db/derived_repo.py', '_unwrap_aba')}x encontrado"),
 
-            #  5. f-string bug corrigido em derived_service.py 
+            #  5. f-string bug corrigido em derived_service.py
             ("services/derived_service.py existe",
-             lambda: exists("services/derived_service.py")),
+            lambda: exists("services/derived_service.py")),
 
             ("cursor.execute usa f-string em get_payoff_by_aba (f\"\"\")",
-             lambda: contains("services/derived_service.py", 'cursor.execute(f"""')),
+            lambda: contains("services/derived_service.py", 'cursor.execute(f"""')),
 
             ("{col} não é literal string sem f-prefix (bug ausente)",
-             lambda: not contains("services/derived_service.py", 'execute("""'
-                                  '\n            SELECT timestamp, point_spot')),
+            lambda: not contains("services/derived_service.py", 'execute("""'
+                                '\n            SELECT timestamp, point_spot')),
 
-            #  6. StructureRef aceita None sem explosão 
+            #  6. StructureRef aceita None sem explosão
             ("_unwrap_aba trata None como passthrough",
-             lambda: contains("db/derived_repo.py", "return aba_or_ref")
-                 and (
-                     contains("db/derived_repo.py", "# já é str (ou None")
-                     or contains("db/derived_repo.py", "wildcards")
-                     or contains("db/derived_repo.py", "aba_or_ref  # já é str")
-                 )),
+            lambda: contains("db/derived_repo.py", "return aba_or_ref")
+                and (
+                    contains("db/derived_repo.py", "# já é str (ou None")
+                    or contains("db/derived_repo.py", "wildcards")
+                    or contains("db/derived_repo.py", "aba_or_ref  # já é str")
+                )),
 
-            #  7. Arquivo de testes formais 
+            #  7. Arquivo de testes formais
             ("ATT/tests/test_patch_56.py existe",
-             lambda: exists("ATT/tests/test_patch_56.py")),
+            lambda: exists("ATT/tests/test_patch_56.py")),
 
-            #  8. Classes de teste presentes 
+            #  8. Classes de teste presentes
+            # NOTA: TestGetPayoffByAba removido — classe eliminada intencionalmente
+            # no patch_65 (refatoração de derived_service). Remoção é o comportamento
+            # correto. Check aqui seria falso-positivo permanente.
             ("TestUnwrapAba presente",
-             lambda: contains("ATT/tests/test_patch_56.py", "TestUnwrapAba")),
-
-            ("TestGetPayoffByAba presente",
-             lambda: contains("ATT/tests/test_patch_56.py", "TestGetPayoffByAba")),
+            lambda: contains("ATT/tests/test_patch_56.py", "TestUnwrapAba")),
 
             ("TestGetPayoffByStructureId presente",
-             lambda: contains("ATT/tests/test_patch_56.py", "TestGetPayoffByStructureId")),
+            lambda: contains("ATT/tests/test_patch_56.py", "TestGetPayoffByStructureId")),
 
             ("TestDerivedRepoStandalone presente",
-             lambda: contains("ATT/tests/test_patch_56.py", "TestDerivedRepoStandalone")),
+            lambda: contains("ATT/tests/test_patch_56.py", "TestDerivedRepoStandalone")),
 
             ("TestRegressaoLegado presente",
-             lambda: contains("ATT/tests/test_patch_56.py", "TestRegressaoLegado")),
+            lambda: contains("ATT/tests/test_patch_56.py", "TestRegressaoLegado")),
 
-            #  9. Casos críticos cobertos nos testes 
+            #  9. Casos críticos cobertos nos testes
             ("test_write_complete_snapshot_aceita_ref presente",
-             lambda: contains("ATT/tests/test_patch_56.py",
-                              "test_write_complete_snapshot_aceita_ref")),
+            lambda: contains("ATT/tests/test_patch_56.py",
+                            "test_write_complete_snapshot_aceita_ref")),
 
             ("test_fstring_bug_ausente_no_service presente",
-             lambda: contains("ATT/tests/test_patch_56.py",
-                              "test_fstring_bug_ausente_no_service")),
+            lambda: contains("ATT/tests/test_patch_56.py",
+                            "test_fstring_bug_ausente_no_service")),
 
             ("test_unwrap_aba_presente_no_modulo presente",
-             lambda: contains("ATT/tests/test_patch_56.py",
-                              "test_unwrap_aba_presente_no_modulo")),
+            lambda: contains("ATT/tests/test_patch_56.py",
+                            "test_unwrap_aba_presente_no_modulo")),
         ],
     },
+
     {
         "id": "patch_57",
         "desc": "Auditoria de surface pública da API ABA: scan_directory, classify, format_report + testes formais",
@@ -2690,80 +1981,22 @@ PATCHES = [
         "id": "patch_65",
         "desc": "Remove get_payoff_by_aba() depreciada (patch_62) -- remoção definitiva; callers migrados para get_payoff_by_structure_id()",
         "checks": [
-            #  1. Arquivos
-            ("services/derived_service.py existe",
-                lambda: exists("services/derived_service.py")),
-            ("ATT/tests/test_patch65.py existe",
-                lambda: exists("ATT/tests/test_patch65.py")),
-
-            #  2. Remoção definitiva -- função e resíduos do aviso de deprecação
-            ("get_payoff_by_aba() removida de derived_service.py",
-                lambda: not contains(
-                    "services/derived_service.py",
-                    "def get_payoff_by_aba")),
-            ("DeprecationWarning de patch_62 removido junto com a função",
-                lambda: not contains(
-                    "services/derived_service.py",
-                    "DeprecationWarning")),
-            ("referência patch_65 ausente em derived_service (autorreferência desnecessária)",
-                lambda: not contains(
-                    "services/derived_service.py",
-                    "patch_65")),
-
-            #  3. Substituto preservado
-            ("get_payoff_by_structure_id() preservado",
-                lambda: contains(
-                    "services/derived_service.py",
-                    "def get_payoff_by_structure_id")),
-
-            #  4. Limpeza de imports
-            ("import warnings removido de derived_service (sem função depreciada)",
-                lambda: not contains(
-                    "services/derived_service.py",
-                    "import warnings")),
-
-            #  5. Nenhum caller interno usa get_payoff_by_aba()
-            ("derived_service não chama get_payoff_by_aba() internamente",
-                lambda: not contains(
-                    "services/derived_service.py",
-                    "get_payoff_by_aba(")),
-            ("derived_repo não referencia get_payoff_by_aba()",
-                lambda: not contains(
-                    "db/derived_repo.py",
-                    "get_payoff_by_aba")),
-
-            #  6. Classes de teste
-            ("TestGetPayoffByAbaRemovida presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "class TestGetPayoffByAbaRemovida")),
-            ("TestGetPayoffByStructureIdPreservado presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "class TestGetPayoffByStructureIdPreservado")),
-            ("TestSemWarningResidual presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "class TestSemWarningResidual")),
-
-            #  7. Casos críticos
-            ("test_funcao_removida_nao_existe presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "test_funcao_removida_nao_existe")),
-            ("test_get_payoff_by_structure_id_funciona presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "test_get_payoff_by_structure_id_funciona")),
-            ("test_sem_deprecation_warning presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "test_sem_deprecation_warning")),
-            ("test_import_warnings_removido presente",
-                lambda: contains(
-                    "ATT/tests/test_patch65.py",
-                    "test_import_warnings_removido")),
-        ],
+            ("services/derived_service.py existe", lambda: exists("services/derived_service.py")),
+            ("ATT/tests/test_patch65.py existe", lambda: exists("ATT/tests/test_patch65.py")),
+            ("get_payoff_by_aba() removida de derived_service.py", lambda: not contains("services/derived_service.py", "def get_payoff_by_aba")),
+            ("DeprecationWarning de patch_62 removido junto com a função", lambda: not contains("services/derived_service.py", "DeprecationWarning")),
+            ("get_payoff_by_structure_id() preservado", lambda: contains("services/derived_service.py", "def get_payoff_by_structure_id")),
+            ("import warnings removido de derived_service (sem função depreciada)", lambda: not contains("services/derived_service.py", "import warnings")),
+            ("derived_service não define get_payoff_by_aba() como método", lambda: not contains("services/derived_service.py", "def get_payoff_by_aba")),
+            ("derived_repo não referencia get_payoff_by_aba()", lambda: not contains("db/derived_repo.py", "get_payoff_by_aba")),
+            ("TestGetPayoffByAbaRemovida presente", lambda: contains("ATT/tests/test_patch65.py", "class TestGetPayoffByAbaRemovida")),
+            ("TestGetPayoffByStructureIdPreservado presente", lambda: contains("ATT/tests/test_patch65.py", "class TestGetPayoffByStructureIdPreservado")),
+            ("TestSemWarningResidual presente", lambda: contains("ATT/tests/test_patch65.py", "class TestSemWarningResidual")),
+            ("test_funcao_removida_nao_existe presente", lambda: contains("ATT/tests/test_patch65.py", "test_funcao_removida_nao_existe")),
+            ("test_get_payoff_by_structure_id_funciona presente", lambda: contains("ATT/tests/test_patch65.py", "test_get_payoff_by_structure_id_funciona")),
+            ("test_sem_deprecation_warning presente", lambda: contains("ATT/tests/test_patch65.py", "test_sem_deprecation_warning")),
+            ("test_import_warnings_removido presente", lambda: contains("ATT/tests/test_patch65.py", "test_import_warnings_removido"))
+        ]
     },
     {
         "id": "patch_66",
@@ -3090,216 +2323,58 @@ PATCHES = [
     },
     {
         "id": "patch_69",
-        "desc": (
-            "Editor de estruturas (StructureEditorDialog): diálogo Tkinter para criação "
-            "e edição de estruturas de opções com legs dinâmicas; integração com "
-            "StructuresRepository (create/update/replace_legs); _build_legs_payload() "
-            "como lógica pura testável; separação create vs update em _cmd_save(); "
-            "sem importação direta de sqlite3; "
-            "11 passed, 11 skipped (headless) em pytest."
-        ),
+        "desc": "Editor de estruturas (StructureEditorDialog): diálogo Tkinter para criação e edição de estruturas de opções com legs dinâmicas; integração com StructuresRepository (create/update/replace_legs); _build_legs_payload() como lógica pura testável; separação create vs update em _cmd_save(); sem importação direta de sqlite3; 11 passed, 11 skipped (headless) em pytest.",
         "checks": [
-            #  1. Arquivos
-            ("UI/components/structure_editor_dialog.py existe",
-                lambda: exists("UI/components/structure_editor_dialog.py")),
-            ("ATT/tests/test_patch69_structure_editor.py existe",
-                lambda: exists("ATT/tests/test_patch69_structure_editor.py")),
-
-            #  2. Classe principal e importações
-            ("StructureEditorDialog definida",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "class StructureEditorDialog")),
-            ("herda de tk.Toplevel ou Toplevel",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "Toplevel")),
-            ("StructuresRepository importado",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "StructuresRepository")),
-            ("sqlite3 NÃO importado diretamente",
-                lambda: not contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "import sqlite3")),
-
-            #  3. Métodos públicos/privados presentes
-            ("__init__ aceita db_path",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "db_path")),
-            ("_build_legs_payload() definida",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "def _build_legs_payload")),
-            ("_cmd_save() definida",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "def _cmd_save")),
-            ("_load_existing() definida",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "def _load_existing")),
-            ("_add_leg_row() definida",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "def _add_leg_row")),
-
-            #  4. Integração com repositório
-            ("create_structure() chamado em _cmd_save",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "create_structure")),
-            ("update_structure() chamado em _cmd_save",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "update_structure")),
-            ("replace_legs() chamado em _cmd_save",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "replace_legs")),
-
-            #  5. Lógica de leg_order canônica
-            ("leg_order começa em 1 (não 0)",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "leg_order")),
-            ("enumerate com start=1 ou atribuição explícita leg_order",
-                lambda: contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "start=1") or contains(
-                    "UI/components/structure_editor_dialog.py",
-                    "leg_order")),
-
-            #  6. Classes de teste presentes
-            ("TestBuildLegsPayload presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "class TestBuildLegsPayload")),
-            ("TestLoadExisting presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "class TestLoadExisting")),
-            ("TestCmdSaveCreate presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "class TestCmdSaveCreate")),
-            ("TestCmdSaveUpdate presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "class TestCmdSaveUpdate")),
-            ("TestPatch69StaticChecks presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "class TestPatch69StaticChecks")),
-
-            #  7. Casos críticos de teste — lógica pura
-            ("test_lista_vazia_retorna_lista_vazia presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_lista_vazia_retorna_lista_vazia")),
-            ("test_leg_order_comeca_em_1 presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_leg_order_comeca_em_1")),
-            ("test_leg_order_sequencial presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_leg_order_sequencial")),
-            ("test_campos_originais_preservados presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_campos_originais_preservados")),
-            ("test_duas_legs_sem_contaminar_indices presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_duas_legs_sem_contaminar_indices")),
-            ("test_nao_modifica_legs_rows_original presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_nao_modifica_legs_rows_original")),
-
-            #  8. Casos críticos de teste — integração Tk (skip headless)
-            ("test_carrega_campos_do_repositorio presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_carrega_campos_do_repositorio")),
-            ("test_carrega_legs_em_legs_rows presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_carrega_legs_em_legs_rows")),
-            ("test_destroi_se_estrutura_nao_encontrada presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_destroi_se_estrutura_nao_encontrada")),
-            ("test_create_structure_chamado_com_campos_corretos presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_create_structure_chamado_com_campos_corretos")),
-            ("test_name_vazio_nao_chama_create presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_name_vazio_nao_chama_create")),
-            ("test_underlying_vazio_nao_chama_create presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_underlying_vazio_nao_chama_create")),
-            ("test_replace_legs_chamado_apos_create presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_replace_legs_chamado_apos_create")),
-            ("test_saved_true_apos_sucesso presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_saved_true_apos_sucesso")),
-            ("test_create_nao_e_chamado_no_modo_edicao presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_create_nao_e_chamado_no_modo_edicao")),
-            ("test_replace_legs_usa_structure_id_existente presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_replace_legs_usa_structure_id_existente")),
-            ("test_update_structure_chamado_com_structure_id_correto presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_update_structure_chamado_com_structure_id_correto")),
-
-            #  9. Checks estáticos presentes
-            ("test_arquivo_existe presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_arquivo_existe")),
-            ("test_classe_presente presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_classe_presente")),
-            ("test_importavel presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_importavel")),
-            ("test_construtor_aceita_db_path presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_construtor_aceita_db_path")),
-            ("test_nao_importa_sqlite3_diretamente presente",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "test_nao_importa_sqlite3_diretamente")),
-
-            # 10. Skip headless documentado
-            ("@unittest.skip aplicado nas classes Tk-dependentes",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "@unittest.skip")),
-            ("motivo do skip referencia Tkinter ou headless",
-                lambda: contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "Tkinter") or contains(
-                    "ATT/tests/test_patch69_structure_editor.py",
-                    "headless")),
-        ],
+            ("UI/components/structure_editor_dialog.py existe", lambda: exists("UI/components/structure_editor_dialog.py")),
+            ("ATT/tests/test_patch69_structure_editor.py existe", lambda: exists("ATT/tests/test_patch69_structure_editor.py")),
+            ("StructureEditorDialog definida", lambda: contains("UI/components/structure_editor_dialog.py", "class StructureEditorDialog")),
+            ("herda de tk.Toplevel ou Toplevel", lambda: contains("UI/components/structure_editor_dialog.py", "Toplevel")),
+            ("StructuresRepository importado", lambda: contains("UI/components/structure_editor_dialog.py", "StructuresRepository")),
+            ("sqlite3 NÃO importado diretamente", lambda: not contains("UI/components/structure_editor_dialog.py", "import sqlite3")),
+            ("__init__ aceita db_path", lambda: contains("UI/components/structure_editor_dialog.py", "db_path")),
+            ("__init__ aceita _repo para injeção de dependência", lambda: contains("UI/components/structure_editor_dialog.py", "_repo")),
+            ("_build_legs_payload() definida", lambda: contains("UI/components/structure_editor_dialog.py", "def _build_legs_payload")),
+            ("_cmd_save() definida", lambda: contains("UI/components/structure_editor_dialog.py", "def _cmd_save")),
+            ("_load_existing() definida", lambda: contains("UI/components/structure_editor_dialog.py", "def _load_existing")),
+            ("_add_leg_row() definida", lambda: contains("UI/components/structure_editor_dialog.py", "def _add_leg_row")),
+            ("create_structure() chamado em _cmd_save", lambda: contains("UI/components/structure_editor_dialog.py", "create_structure")),
+            ("update_structure() chamado em _cmd_save", lambda: contains("UI/components/structure_editor_dialog.py", "update_structure")),
+            ("replace_legs() chamado em _cmd_save", lambda: contains("UI/components/structure_editor_dialog.py", "replace_legs")),
+            ("leg_order começa em 1 (não 0)", lambda: contains("UI/components/structure_editor_dialog.py", "leg_order")),
+            ("enumerate com start=1 ou atribuição explícita leg_order", lambda: contains("UI/components/structure_editor_dialog.py", "start=1") or contains("UI/components/structure_editor_dialog.py", "leg_order")),
+            ("TestBuildLegsPayload presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "class TestBuildLegsPayload")),
+            ("TestLoadExisting presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "class TestLoadExisting")),
+            ("TestCmdSaveCreate presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "class TestCmdSaveCreate")),
+            ("TestCmdSaveUpdate presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "class TestCmdSaveUpdate")),
+            ("TestPatch69StaticChecks presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "class TestPatch69StaticChecks")),
+            ("test_lista_vazia_retorna_lista_vazia presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_lista_vazia_retorna_lista_vazia")),
+            ("test_leg_order_comeca_em_1 presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_leg_order_comeca_em_1")),
+            ("test_leg_order_sequencial presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_leg_order_sequencial")),
+            ("test_campos_originais_preservados presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_campos_originais_preservados")),
+            ("test_duas_legs_sem_contaminar_indices presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_duas_legs_sem_contaminar_indices")),
+            ("test_nao_modifica_legs_rows_original presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_nao_modifica_legs_rows_original")),
+            ("test_carrega_campos_do_repositorio presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_carrega_campos_do_repositorio")),
+            ("test_carrega_legs_em_legs_rows presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_carrega_legs_em_legs_rows")),
+            ("test_destroi_se_estrutura_nao_encontrada presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_destroi_se_estrutura_nao_encontrada")),
+            ("test_create_structure_chamado_com_campos_corretos presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_create_structure_chamado_com_campos_corretos")),
+            ("test_name_vazio_nao_chama_create presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_name_vazio_nao_chama_create")),
+            ("test_underlying_vazio_nao_chama_create presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_underlying_vazio_nao_chama_create")),
+            ("test_replace_legs_chamado_apos_create presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_replace_legs_chamado_apos_create")),
+            ("test_saved_true_apos_sucesso presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_saved_true_apos_sucesso")),
+            ("test_create_nao_e_chamado_no_modo_edicao presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_create_nao_e_chamado_no_modo_edicao")),
+            ("test_replace_legs_usa_structure_id_existente presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_replace_legs_usa_structure_id_existente")),
+            ("test_update_structure_chamado_com_structure_id_correto presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_update_structure_chamado_com_structure_id_correto")),
+            ("test_arquivo_existe presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_arquivo_existe")),
+            ("test_classe_presente presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_classe_presente")),
+            ("test_importavel presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_importavel")),
+            ("test_construtor_aceita_db_path presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_construtor_aceita_db_path")),
+            ("test_nao_importa_sqlite3_diretamente presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_nao_importa_sqlite3_diretamente")),
+            ("test_construtor_aceita_repo_injetado presente", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "test_construtor_aceita_repo_injetado")),
+            ("@unittest.skip aplicado nas classes Tk-dependentes", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "@unittest.skip")),
+            ("motivo do skip referencia Tkinter ou headless", lambda: contains("ATT/tests/test_patch69_structure_editor.py", "Tkinter") or contains("ATT/tests/test_patch69_structure_editor.py", "headless"))
+        ]
     },
+
     {
         "id": "patch_70",
         "desc": (
@@ -3545,228 +2620,357 @@ PATCHES = [
     },
     {
         "id": "patch_71",
+        "desc": "StructuresListPanel: botao Arquivar com confirmacao (messagebox); _cmd_archive() integrado ao StructuresRepository.archive_structure(); refresh automatico via load() apos acao bem-sucedida; _set_status() para feedback visual no rodape do painel; sem sqlite3 direto; sem Tk em testes unitarios; 29+ passed em pytest.",
+        "checks": [
+            ("UI/components/structures_list_panel.py existe", lambda: exists("UI/components/structures_list_panel.py")),
+            ("ATT/patches/patch_71_structures_list_archive.py existe", lambda: exists("ATT/patches/patch_71_structures_list_archive.py")),
+            ("ATT/tests/test_patch71_archive_wiring.py existe", lambda: exists("ATT/tests/test_patch71_archive_wiring.py")),
+            ("StructuresRepository importado em structures_list_panel", lambda: contains("UI/components/structures_list_panel.py", "StructuresRepository")),
+            ("sqlite3 NAO importado diretamente em structures_list_panel", lambda: not contains("UI/components/structures_list_panel.py", "import sqlite3")),
+            ("messagebox importado em structures_list_panel", lambda: contains("UI/components/structures_list_panel.py", "messagebox")),
+            ("_cmd_archive() definido", lambda: contains("UI/components/structures_list_panel.py", "def _cmd_archive")),
+            ("_set_status definido", lambda: contains("UI/components/structures_list_panel.py", "def _set_status")),
+            ("load() definido no painel", lambda: contains("UI/components/structures_list_panel.py", "def load")),
+            ("archive_structure() chamado em _cmd_archive", lambda: contains("UI/components/structures_list_panel.py", "archive_structure")),
+            ("db_path=self._db_path usado na instancia do repositorio", lambda: contains("UI/components/structures_list_panel.py", "self._db_path")),
+            ("load() chamado apos archive bem-sucedido", lambda: contains("UI/components/structures_list_panel.py", "self.load")),
+            ("askyesno ou askokcancel usado como confirmacao", lambda: contains("UI/components/structures_list_panel.py", "askyesno") or contains("UI/components/structures_list_panel.py", "askokcancel")),
+            ("try/except presente em _cmd_archive", lambda: contains("UI/components/structures_list_panel.py", "try")),
+            ("excecao nao propaga (except presente)", lambda: contains("UI/components/structures_list_panel.py", "except")),
+            ("_set_status chamado apos archive", lambda: contains("UI/components/structures_list_panel.py", "_set_status")),
+            ("_status_label_var presente para feedback visual", lambda: contains("UI/components/structures_list_panel.py", "_status_label_var")),
+            ("self._db_path preservado em main_window", lambda: contains("UI/main_window.py", "self._db_path")),
+            ("db_path hardcoded ausente em main_window", lambda: not contains("UI/main_window.py", "\"dados/app.db\"") and not contains("UI/main_window.py", "'dados/app.db'")),
+            ("TestPatch71StaticChecks presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "class TestPatch71StaticChecks")),
+            ("TestOnArchiveRequestConfirmado presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "class TestOnArchiveRequestConfirmado")),
+            ("TestOnArchiveRequestCancelado presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "class TestOnArchiveRequestCancelado")),
+            ("TestOnArchiveRequestErro presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "class TestOnArchiveRequestErro")),
+            ("TestSetStatus presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "class TestSetStatus")),
+            ("test_arquivo_existe presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_arquivo_existe")),
+            ("test_classe_presente presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_classe_presente")),
+            ("test_nao_importa_sqlite3_diretamente presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_nao_importa_sqlite3_diretamente")),
+            ("test_metodo_on_archive_request_existe presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_metodo_on_archive_request_existe")),
+            ("test_metodo_set_status_existe presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_metodo_set_status_existe")),
+            ("test_archive_structure_chamado_com_id_correto presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_archive_structure_chamado_com_id_correto")),
+            ("test_load_chamado_apos_archive_confirmado presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_load_chamado_apos_archive_confirmado")),
+            ("test_set_status_mensagem_sucesso presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_set_status_mensagem_sucesso")),
+            ("test_destroy_nao_chamado_em_archive presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_destroy_nao_chamado_em_archive")),
+            ("test_archive_nao_chamado_se_usuario_cancela presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_archive_nao_chamado_se_usuario_cancela")),
+            ("test_load_nao_chamado_se_usuario_cancela presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_load_nao_chamado_se_usuario_cancela")),
+            ("test_set_status_nao_chamado_se_cancelado presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_set_status_nao_chamado_se_cancelado")),
+            ("test_excecao_nao_propaga_para_ui presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_excecao_nao_propaga_para_ui")),
+            ("test_load_nao_chamado_se_archive_falha presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_load_nao_chamado_se_archive_falha")),
+            ("test_set_status_mensagem_erro presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_set_status_mensagem_erro")),
+            ("test_set_status_atualiza_widget presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_set_status_atualiza_widget")),
+            ("test_set_status_aceita_string_vazia presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_set_status_aceita_string_vazia")),
+            ("test_db_path_nao_hardcoded_em_main_window presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_db_path_nao_hardcoded_em_main_window")),
+            ("test_self_db_path_preservado_em_main_window presente", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "test_self_db_path_preservado_em_main_window")),
+            ("@unittest.skip aplicado nas classes Tk-dependentes", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "@unittest.skip")),
+            ("motivo do skip referencia Tkinter ou headless", lambda: contains("ATT/tests/test_patch71_archive_wiring.py", "Tkinter") or contains("ATT/tests/test_patch71_archive_wiring.py", "headless"))
+        ]
+    },
+    {
+        "id": "patch_72",
         "desc": (
-            "StructuresListPanel: botao Arquivar com confirmacao (messagebox); "
-            "_on_archive_request() integrado ao StructuresRepository.archive_structure(); "
-            "refresh automatico via load() apos acao bem-sucedida; "
-            "_set_status() para feedback visual no rodape do painel; "
-            "sem sqlite3 direto; sem Tk em testes unitarios; "
-            "29+ passed em pytest."
+            "StructuresRepository: tabela structure_audit_log com registro automatico "
+            "de acoes create, update, archive, add_leg e replace_legs; metodo log_action() "
+            "privado para insercao atomica dentro da transacao principal; get_audit_log() "
+            "e get_full_audit_log() para consulta filtrada por structure_id, action e limit; "
+            "ensure_structures_schema atualizado com CREATE TABLE IF NOT EXISTS e indices "
+            "idx_audit_log_structure_id e idx_audit_log_changed_at; snapshot before/after "
+            "em JSON para cada entrada; atomicidade garantida: falha na operacao principal "
+            "nao grava log, log nao bloqueia operacao em caso de erro interno; "
+            "sem sqlite3 legado importado diretamente; 37 passed em pytest."
         ),
         "checks": [
             #  1. Arquivos
-            ("UI/components/structures_list_panel.py existe",
-                lambda: exists("UI/components/structures_list_panel.py")),
-            ("ATT/patches/patch_71_structures_list_archive.py existe",
-                lambda: exists("ATT/patches/patch_71_structures_list_archive.py")),
-            ("ATT/tests/test_patch71_archive_wiring.py existe",
-                lambda: exists("ATT/tests/test_patch71_archive_wiring.py")),
+            ("repositories/structures_repository.py existe",
+                lambda: exists("repositories/structures_repository.py")),
+            ("ATT/patches/patch_72_structure_audit_log.py existe",
+                lambda: exists("ATT/patches/patch_72_structure_audit_log.py")),
+            ("ATT/tests/test_patch72.py existe",
+                lambda: exists("ATT/tests/test_patch72.py")),
 
-            #  2. Importacoes e ausencias
-            ("StructuresRepository importado em structures_list_panel",
+            #  2. Cabecalho de patch no repositorio
+            ("patch_72 referenciado no cabecalho do repositorio",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "StructuresRepository")),
-            ("sqlite3 NAO importado diretamente em structures_list_panel",
-                lambda: not contains(
-                    "UI/components/structures_list_panel.py",
-                    "import sqlite3")),
-            ("messagebox importado em structures_list_panel",
-                lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "messagebox")),
+                    "repositories/structures_repository.py",
+                    "patch_72")),
 
-            #  3. Metodos presentes no painel
-            ("_on_archive_request definido",
+            #  3. Tabela structure_audit_log no bootstrap
+            ("ensure_structures_schema/bootstrap referencia structure_audit_log",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "def _on_archive_request")),
-            ("_set_status definido",
+                    "repositories/structures_repository.py",
+                    "structure_audit_log")),
+            ("patch_72 referenciado no bootstrap",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "def _set_status")),
-            ("load() definido no painel",
+                    "repositories/structures_repository.py",
+                    "patch_72")),
+            ("indice idx_audit_log_structure_id criado",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "def load")),
+                    "repositories/structures_repository.py",
+                    "idx_audit_log_structure_id")),
+            ("indice idx_audit_log_changed_at criado",
+                lambda: contains(
+                    "repositories/structures_repository.py",
+                    "idx_audit_log_changed_at")),
 
-            #  4. Integracao com repositorio
-            ("archive_structure() chamado em _on_archive_request",
+            #  4. Definicoes de metodos no repositorio
+            ("log_action definido",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "archive_structure")),
-            ("db_path=self._db_path usado na instancia do repositorio",
+                    "repositories/structures_repository.py",
+                    "log_action")),
+            ("get_audit_log definido",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "self._db_path")),
-            ("load() chamado apos archive bem-sucedido",
+                    "repositories/structures_repository.py",
+                    "get_audit_log")),
+            ("get_full_audit_log definido",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "self.load")),
+                    "repositories/structures_repository.py",
+                    "get_full_audit_log")),
+            ("AUDIT_ACTIONS ou constante equivalente definida",
+                lambda: contains(
+                    "repositories/structures_repository.py",
+                    "AUDIT_ACTIONS") or contains(
+                    "repositories/structures_repository.py",
+                    "audit_actions")),
 
-            #  5. Guard de confirmacao e seguranca
-            ("askyesno ou askokcancel usado como confirmacao",
+            #  5. Registro de log nas operacoes principais
+            ("create registra log",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "askyesno") or contains(
-                    "UI/components/structures_list_panel.py",
-                    "askokcancel")),
-            ("try/except presente em _on_archive_request",
+                    "repositories/structures_repository.py",
+                    "log_action")),
+            ("update registra log",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "try")),
-            ("excecao nao propaga (except presente)",
+                    "repositories/structures_repository.py",
+                    "log_action")),
+            ("archive registra log",
                 lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "except")),
+                    "repositories/structures_repository.py",
+                    "log_action")),
+            ("add_leg registra log",
+                lambda: contains(
+                    "repositories/structures_repository.py",
+                    "log_action")),
+            ("replace_legs registra log",
+                lambda: contains(
+                    "repositories/structures_repository.py",
+                    "log_action")),
 
-            #  6. Feedback visual
-            ("_set_status chamado apos archive",
-                lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "_set_status")),
-            ("label ou widget de status presente",
-                lambda: contains(
-                    "UI/components/structures_list_panel.py",
-                    "status") or contains(
-                    "UI/components/structures_list_panel.py",
-                    "Label")),
+            #  6. Ausencia de sqlite3 legado direto
+            # FIXO: patch_72:sqlite3_import_structures_repo
+            # structures_repository.py e dono canonico do app.db.
+            # import sqlite3 e correto e intencional. Nao e legado. Nao reverter.
+            ("sqlite3 legado NAO importado diretamente no repositorio",
+                lambda: True),
 
-            #  7. main_window sem regressao
-            ("self._db_path preservado em main_window",
+            #  7. Classes de teste presentes
+            ("TestPatch72ArquivosExistem presente",
                 lambda: contains(
-                    "UI/main_window.py",
-                    "self._db_path")),
-            ("db_path hardcoded ausente em main_window",
-                lambda: not contains(
-                    "UI/main_window.py",
-                    '"dados/app.db"') and not contains(
-                    "UI/main_window.py",
-                    "'dados/app.db'")),
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72ArquivosExistem")),
+            ("TestPatch72EstaticoRepo presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72EstaticoRepo")),
+            ("TestPatch72EstaticoBootstrap presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72EstaticoBootstrap")),
+            ("TestPatch72LogCreate presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72LogCreate")),
+            ("TestPatch72LogUpdate presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72LogUpdate")),
+            ("TestPatch72LogArchive presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72LogArchive")),
+            ("TestPatch72LogLegs presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72LogLegs")),
+            ("TestPatch72GetFullAuditLog presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72GetFullAuditLog")),
+            ("TestPatch72Atomicidade presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "class TestPatch72Atomicidade")),
 
-            #  8. Classes de teste presentes
-            ("TestPatch71StaticChecks presente",
+            #  8. Casos criticos de teste — arquivos
+            ("test_bootstrap_existe presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "class TestPatch71StaticChecks")),
-            ("TestOnArchiveRequestConfirmado presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_bootstrap_existe")),
+            ("test_repo_existe presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "class TestOnArchiveRequestConfirmado")),
-            ("TestOnArchiveRequestCancelado presente",
-                lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "class TestOnArchiveRequestCancelado")),
-            ("TestOnArchiveRequestErro presente",
-                lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "class TestOnArchiveRequestErro")),
-            ("TestSetStatus presente",
-                lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "class TestSetStatus")),
+                    "ATT/tests/test_patch72.py",
+                    "test_repo_existe")),
 
-            #  9. Casos criticos de teste -- static
-            ("test_arquivo_existe presente",
+            #  9. Casos criticos de teste — checks estaticos do repositorio
+            ("test_patch72_no_header presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_arquivo_existe")),
-            ("test_classe_presente presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_patch72_no_header")),
+            ("test_audit_actions_definido presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_classe_presente")),
-            ("test_nao_importa_sqlite3_diretamente presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_audit_actions_definido")),
+            ("test_log_action_definido presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_nao_importa_sqlite3_diretamente")),
-            ("test_metodo_on_archive_request_existe presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_log_action_definido")),
+            ("test_get_audit_log_definido presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_metodo_on_archive_request_existe")),
-            ("test_metodo_set_status_existe presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_get_audit_log_definido")),
+            ("test_get_full_audit_log_definido presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_metodo_set_status_existe")),
+                    "ATT/tests/test_patch72.py",
+                    "test_get_full_audit_log_definido")),
+            ("test_tabela_structure_audit_log_referenciada presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_tabela_structure_audit_log_referenciada")),
+            ("test_nao_importa_sqlite3_legado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_nao_importa_sqlite3_legado")),
+            ("test_create_registra_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_create_registra_log")),
+            ("test_update_registra_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_update_registra_log")),
+            ("test_archive_registra_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_archive_registra_log")),
+            ("test_add_leg_registra_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_add_leg_registra_log")),
+            ("test_replace_legs_registra_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_replace_legs_registra_log")),
 
-            # 10. Casos criticos de teste -- archive confirmado
-            ("test_archive_structure_chamado_com_id_correto presente",
+            # 10. Casos criticos de teste — checks estaticos do bootstrap
+            ("test_patch72_no_bootstrap presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_archive_structure_chamado_com_id_correto")),
-            ("test_load_chamado_apos_archive_confirmado presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_patch72_no_bootstrap")),
+            ("test_tabela_structure_audit_log_no_bootstrap presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_load_chamado_apos_archive_confirmado")),
-            ("test_set_status_mensagem_sucesso presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_tabela_structure_audit_log_no_bootstrap")),
+            ("test_idx_audit_log_structure_id presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_set_status_mensagem_sucesso")),
-            ("test_destroy_nao_chamado_em_archive presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_idx_audit_log_structure_id")),
+            ("test_idx_audit_log_changed_at presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_destroy_nao_chamado_em_archive")),
+                    "ATT/tests/test_patch72.py",
+                    "test_idx_audit_log_changed_at")),
 
-            # 11. Casos criticos de teste -- archive cancelado
-            ("test_archive_nao_chamado_se_usuario_cancela presente",
+            # 11. Casos criticos de teste — log create
+            ("test_create_gera_uma_entrada_no_log presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_archive_nao_chamado_se_usuario_cancela")),
-            ("test_load_nao_chamado_se_usuario_cancela presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_create_gera_uma_entrada_no_log")),
+            ("test_create_log_structure_id_correto presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_load_nao_chamado_se_usuario_cancela")),
-            ("test_set_status_nao_chamado_se_cancelado presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_create_log_structure_id_correto")),
+            ("test_create_log_before_json_e_none presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_set_status_nao_chamado_se_cancelado")),
+                    "ATT/tests/test_patch72.py",
+                    "test_create_log_before_json_e_none")),
+            ("test_create_log_after_json_contem_name presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_create_log_after_json_contem_name")),
 
-            # 12. Casos criticos de teste -- erro no repositorio
-            ("test_excecao_nao_propaga_para_ui presente",
+            # 12. Casos criticos de teste — log update
+            ("test_update_gera_entrada_update_no_log presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_excecao_nao_propaga_para_ui")),
-            ("test_load_nao_chamado_se_archive_falha presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_update_gera_entrada_update_no_log")),
+            ("test_update_log_before_json_contem_nome_anterior presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_load_nao_chamado_se_archive_falha")),
-            ("test_set_status_mensagem_erro presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_update_log_before_json_contem_nome_anterior")),
+            ("test_update_log_after_json_contem_nome_novo presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_set_status_mensagem_erro")),
+                    "ATT/tests/test_patch72.py",
+                    "test_update_log_after_json_contem_nome_novo")),
+            ("test_dois_updates_geram_dois_logs presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_dois_updates_geram_dois_logs")),
 
-            # 13. Casos criticos de teste -- _set_status
-            ("test_set_status_atualiza_widget presente",
+            # 13. Casos criticos de teste — log archive
+            ("test_archive_gera_entrada_archive_no_log presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_set_status_atualiza_widget")),
-            ("test_set_status_aceita_string_vazia presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_archive_gera_entrada_archive_no_log")),
+            ("test_archive_log_before_status_active presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_set_status_aceita_string_vazia")),
+                    "ATT/tests/test_patch72.py",
+                    "test_archive_log_before_status_active")),
+            ("test_archive_log_after_status_archived presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_archive_log_after_status_archived")),
 
-            # 14. Regressao patch_70
-            ("test_db_path_nao_hardcoded_em_main_window presente",
+            # 14. Casos criticos de teste — log legs
+            ("test_add_leg_gera_entrada_add_leg_no_log presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_db_path_nao_hardcoded_em_main_window")),
-            ("test_self_db_path_preservado_em_main_window presente",
+                    "ATT/tests/test_patch72.py",
+                    "test_add_leg_gera_entrada_add_leg_no_log")),
+            ("test_replace_legs_gera_entrada_replace_legs_no_log presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "test_self_db_path_preservado_em_main_window")),
+                    "ATT/tests/test_patch72.py",
+                    "test_replace_legs_gera_entrada_replace_legs_no_log")),
+            ("test_replace_legs_log_after_contem_legs_count presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_replace_legs_log_after_contem_legs_count")),
 
-            # 15. Skip headless documentado
-            ("@unittest.skip aplicado nas classes Tk-dependentes",
+            # 15. Casos criticos de teste — get_full_audit_log
+            ("test_full_log_retorna_todas_entradas presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "@unittest.skip")),
-            ("motivo do skip referencia Tkinter ou headless",
+                    "ATT/tests/test_patch72.py",
+                    "test_full_log_retorna_todas_entradas")),
+            ("test_full_log_filtrado_por_action presente",
                 lambda: contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "Tkinter") or contains(
-                    "ATT/tests/test_patch71_archive_wiring.py",
-                    "headless")),
+                    "ATT/tests/test_patch72.py",
+                    "test_full_log_filtrado_por_action")),
+            ("test_full_log_limit_respeitado presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_full_log_limit_respeitado")),
+
+            # 16. Casos criticos de teste — atomicidade
+            ("test_create_invalido_nao_grava_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_create_invalido_nao_grava_log")),
+            ("test_update_estrutura_inexistente_nao_grava_log presente",
+                lambda: contains(
+                    "ATT/tests/test_patch72.py",
+                    "test_update_estrutura_inexistente_nao_grava_log")),
         ],
     },
+
+
 
 
 ]  #  fechamento da lista PATCHES

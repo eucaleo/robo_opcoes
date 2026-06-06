@@ -155,8 +155,9 @@ class TestPatch72EstaticoRepo(unittest.TestCase):
         self.assertIn('"REPLACE_LEGS"', self.src)
 
     def test_nao_importa_sqlite3_legado(self):
-        # log_action nao deve abrir conexao propria
-        self.assertNotIn("sqlite3.connect", self.src.split("def _log_action")[1].split("def ")[0])
+        # _log_action nao deve abrir conexao propria via sqlite3.connect
+        body_after_log = self.src.split("def _log_action")[1].split("def ")[0]
+        self.assertNotIn("sqlite3.connect", body_after_log)
 
 
 class TestPatch72EstaticoBootstrap(unittest.TestCase):

@@ -127,7 +127,7 @@ class TestBuildLegsPayload(unittest.TestCase):
 class TestLoadExisting(unittest.TestCase):
 
     def setUp(self):
-        import tkinter as tk
+        import Tkinter as Tk
         self.root = tk.Tk()
         self.root.withdraw()
         self._tk_patchers = _start_tk_patches()
