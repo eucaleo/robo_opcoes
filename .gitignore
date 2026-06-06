@@ -67,3 +67,15 @@ scripts/tmp_*.py
 scripts/tmp_*.py
 ATT/tests/failures_log.txt
 ATT/tests/failures_log.txt
+
+# lixo/local temporario
+.trash/
+~$*
+*.log
+log_execucao.txt
+debug_*.py
+cleanup_fase_b.py
+fix_orphan_decision.py
+bridge/last_export.txt
+bridge/4026BA10
+scripts/cleanup_report_*.json
