@@ -91,14 +91,27 @@ def _resolve_storage_key(
     structure_name: Any = None,
     underlying_asset: Any = None,
 ) -> str:
+    # 1. aba explícita tem prioridade máxima
     resolved_aba = _safe_str(aba)
     if resolved_aba:
         return resolved_aba
 
-    resolved_structure_id = _safe_str(structure_id)
-    if resolved_structure_id:
-        return f"structure:{resolved_structure_id}"
+    # 2. structure_id → resolver alias_legacy_aba via cache (FIX patch_66)
+    resolved_sid = _safe_str(structure_id)
+    if resolved_sid:
+        try:
+            sid_int = int(resolved_sid)
+            if not _ABA_CACHE_LOADED:
+                _load_aba_cache()
+            id_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+            alias = id_to_aba.get(sid_int)
+            if alias:
+                return alias  # "BOVA11" em vez de "structure:7"
+        except (ValueError, TypeError):
+            pass
+        return f"structure:{resolved_sid}"  # fallback sem alias
 
+    # 3. fallbacks por nome/ativo
     resolved_structure_name = _safe_str(structure_name)
     if resolved_structure_name:
         return resolved_structure_name
