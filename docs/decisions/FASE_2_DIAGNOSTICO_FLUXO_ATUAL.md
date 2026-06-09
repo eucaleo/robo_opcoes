@@ -128,3 +128,54 @@ Decisão provisória:
 - criar posteriormente um gateway específico para `LISTA_RTD.xlsx`;
 - avaliar em fase própria se os arquivos legados serão movidos para `legacy/`, `scripts/legacy/` ou removidos.
 
+
+## Complemento: verificação de inicializador legado e CI
+
+Foi verificado o conteúdo de `db/init_excel_schema.py`.
+
+Resultado:
+
+- o arquivo apenas importa `SCHEMA_EXCEL_SQL`;
+- executa `conn.executescript(SCHEMA_EXCEL_SQL)`;
+- aplica o schema legado no SQLite;
+- não contém lógica de negócio;
+- não foi encontrada chamada operacional direta para `init_excel_schema` fora de referências de inventário/auditoria.
+
+Também foi executada busca filtrada excluindo documentação, relatórios, auditorias e `ATT`.
+
+Resultado operacional restante:
+
+| Arquivo | Papel | Classificação |
+|---|---|---|
+| `db/import_excel.py` | Importador das abas legadas de `OPERACOES_E_OPCOES.xlsx` | Legado isolado |
+| `db/schema_excel.py` | Definição das tabelas derivadas das abas antigas | Schema legado auxiliar |
+| `db/init_excel_schema.py` | Aplicador manual do schema legado | Inicializador legado isolado |
+| `scripts/ci_snapshot_canonicality.sh` | Checagem de canonicalidade do banco bruto | Script de verificação transitória |
+
+### Observação sobre `scripts/ci_snapshot_canonicality.sh`
+
+O script exige como obrigatórias as tabelas:
+
+- `rtd_analise_robo`
+- `rtd_analise_robo_legs`
+
+As tabelas legadas:
+
+- `robo_snapshot`
+- `robo_legs_snapshot`
+
+são tratadas apenas como opcionais, emitindo `[WARN]` se ausentes.
+
+Portanto, o script não caracteriza dependência bloqueante do novo fluxo em relação às tabelas legadas. Ele apenas mantém uma checagem compatível com o período de transição.
+
+### Observação sobre `ATT/`
+
+A pasta `ATT/` contém patches, checks, testes e relatórios auxiliares/históricos. As referências encontradas ali não devem ser interpretadas automaticamente como dependência do fluxo operacional atual.
+
+Decisão provisória:
+
+- manter `ATT/` fora da análise do núcleo operacional da Fase 2;
+- tratar `ATT/` como acervo técnico/histórico até decisão específica;
+- não remover nem migrar `ATT/` nesta fase;
+- classificar referências legadas dentro de `ATT/` como evidência histórica, não como acoplamento ativo do sistema novo.
+
