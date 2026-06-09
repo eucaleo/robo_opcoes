@@ -79,3 +79,24 @@ fix_orphan_decision.py
 bridge/last_export.txt
 bridge/4026BA10
 scripts/cleanup_report_*.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Temporarios de editor/SO
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Relatorios locais de limpeza/auditoria
+_cleanup_reports/
+_repo_audit/
+candidatos_limpeza_cache.txt
+
+# Lixeira local
+.trash/
