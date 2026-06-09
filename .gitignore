@@ -100,3 +100,6 @@ candidatos_limpeza_cache.txt
 
 # Lixeira local
 .trash/
+
+# Contexto local de smoke tests
+scripts/.smoke_context.json
