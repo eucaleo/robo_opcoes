@@ -8,6 +8,9 @@ PATCH_63: fix _validate_leg -- leg_order aceita >= 0 (era >= 1, bug).
 PATCH_70: revertido leg_order para >= 1 (0 é inválido; patch_63 era equivocado).
 PATCH_72: audit trail -- toda mutacao registrada em structure_audit_log.
           _log_action() interno; atomico na mesma transacao do metodo.
+          get_audit_log() e get_full_audit_log() para consulta.
+          ensure_audit_schema() cria tabela e indices idx_audit_log_structure_id
+          e idx_audit_log_changed_at.
 """
 from __future__ import annotations
 
@@ -22,7 +25,7 @@ VALID_POSITION_SIDES: frozenset[str] = frozenset({"LONG", "SHORT"})
 VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
 VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
 
-# Acoes validas registradas no audit log
+# Acoes validas registradas no audit log -- PATCH_72
 AUDIT_ACTIONS: frozenset[str] = frozenset(
     {"CREATE", "UPDATE", "ARCHIVE", "ADD_LEG", "REPLACE_LEGS"}
 )
@@ -211,6 +214,46 @@ class StructuresRepository:
         ).fetchone()
         if row is None:
             raise ValueError(f"structure not found: {structure_id}")
+
+    # ------------------------------------------------------------------
+    # PATCH_72 -- Schema do audit log
+    # ------------------------------------------------------------------
+
+    def ensure_audit_schema(self, conn: sqlite3.Connection) -> None:
+        """
+        Cria a tabela structure_audit_log e seus indices caso nao existam.
+        Deve ser chamado dentro de uma conexao aberta, antes do primeiro uso.
+        Idempotente (CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS).
+
+        PATCH_72
+        """
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+                ON structure_audit_log (structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+                ON structure_audit_log (changed_at)
+            """
+        )
 
     # ------------------------------------------------------------------
     # PATCH_72 -- Audit log interno

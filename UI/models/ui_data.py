@@ -1,4 +1,6 @@
 # UI/models/ui_data.py
+# PATCH_36_E: eliminar self._conn compartilhada
+# Toda conexao de leitura passa a ser por chamada (igual a _connect_derived_threadsafe)
 from src.domain.refs.structure_ref import StructureRef
 import sqlite3
 from sqlite3 import Row
@@ -63,7 +65,7 @@ class UIDataModel:
         )
         print(f"[UI] Usando derived DB: {self.derived_db_path}")
 
-        self._conn: Optional[sqlite3.Connection] = None
+        # PATCH_36_E: self._conn REMOVIDO -- cada metodo abre sua propria conexao
         self._consolidations_table: Optional[str] = None
         self._payoff_table: Optional[str] = None
         self._consolidations_cols: Dict[str, str] = {}
@@ -73,20 +75,26 @@ class UIDataModel:
         self._payoff_cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
         self._payoff_cache_max = 128
 
+    # PATCH_36_E: _connect agora e sempre uma nova conexao por chamada
     def _connect(self) -> sqlite3.Connection:
-        if not self._conn:
-            if not self.derived_db_path.exists():
-                raise FileNotFoundError(
-                    f"Banco derived.db não encontrado em: {self.derived_db_path}"
-                )
-            self._conn = sqlite3.connect(str(self.derived_db_path))
-            self._conn.row_factory = sqlite3.Row
-        return self._conn
+        if not self.derived_db_path.exists():
+            raise FileNotFoundError(
+                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+            )
+        conn = sqlite3.connect(str(self.derived_db_path))
+        conn.row_factory = sqlite3.Row
+        return conn
 
     def _list_tables(self) -> List[str]:
+        # PATCH_36_E: abre e fecha conexao local
         conn = self._connect()
-        cur = conn.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        return [r["name"] for r in cur.fetchall()]
+        try:
+            cur = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
+            return [r["name"] for r in cur.fetchall()]
+        finally:
+            conn.close()
 
     def _detect_tables(self):
         tables = self._list_tables()
@@ -105,9 +113,13 @@ class UIDataModel:
                 break
 
     def _inspect_columns(self, table: str) -> List[str]:
+        # PATCH_36_E: abre e fecha conexao local
         conn = self._connect()
-        cur = conn.execute(f"PRAGMA table_info({table})")
-        return [r["name"] for r in cur.fetchall()]
+        try:
+            cur = conn.execute(f"PRAGMA table_info({table})")
+            return [r["name"] for r in cur.fetchall()]
+        finally:
+            conn.close()
 
     def _build_consolidations_colmap(self):
         cols = self._inspect_columns(self._consolidations_table)
@@ -131,6 +143,9 @@ class UIDataModel:
                 "spot":         ["point_spot"],
                 "pl":           ["point_pl"],
                 "timestamp":    ["timestamp"],
+                # PATCH_36_F: structure_id e opcional aqui --
+                # pode nao existir ainda se a migration ainda nao rodou.
+                # _structure_filter_col vai lancar RuntimeError com mensagem clara.
                 "structure_id": ["structure_id"],   #  patch_34: único identificador canônico
             }
             print(f"[UI] Usando contrato canônico para {self._payoff_table}")
@@ -142,12 +157,22 @@ class UIDataModel:
             m = _first_match(cols, candidates)
             if m:
                 colmap[alias] = m
+            # PATCH_36_F: nao lanca erro se structure_id ausente --
+            # isso ocorre antes da migration e e tratado em _structure_filter_col
+
         self._payoff_cols = colmap
 
         if ("spot" not in self._payoff_cols) or ("pl" not in self._payoff_cols):
             raise RuntimeError(
                 f"Tabela {self._payoff_table} não apresenta colunas obrigatórias "
                 f"para payoff (point_spot/point_pl ou spot/pl)."
+            )
+
+        # PATCH_36_F: aviso explicito quando structure_id ausente (pre-migration)
+        if "structure_id" not in self._payoff_cols:
+            print(
+                f"[UI] AVISO: {self._payoff_table} nao tem coluna structure_id. "
+                "Execute a migration (patch_36) para habilitar filtro canonico."
             )
 
     # ------------------------------------------------------------------
@@ -190,29 +215,27 @@ class UIDataModel:
         self._cache_structures = self._load_structures()
 
     def _load_structures(self) -> List[str]:
-        """
-        patch_34: usa exclusivamente structure_id como chave canonica.
-        Fallback aba removido.
-        """
-        conn = self._connect()
+        # PATCH_36_E: abre e fecha conexao local
         c = self._consolidations_cols
-
         if not c.get("structure_id"):
             raise RuntimeError(
                 "Coluna 'structure_id' nao encontrada em "
                 f"{self._consolidations_table}. "
                 "Execute a migration do patch_33 antes de continuar."
             )
-
         sid_col = c["structure_id"]
-        q = (
-            f"SELECT DISTINCT CAST({sid_col} AS TEXT) AS structure_id "
-            f"FROM {self._consolidations_table} "
-            f"WHERE {sid_col} IS NOT NULL "
-            f"ORDER BY structure_id"
-        )
-        rows = conn.execute(q).fetchall()
-        return [r["structure_id"] for r in rows]
+        conn = self._connect()
+        try:
+            q = (
+                f"SELECT DISTINCT CAST({sid_col} AS TEXT) AS structure_id "
+                f"FROM {self._consolidations_table} "
+                f"WHERE {sid_col} IS NOT NULL "
+                f"ORDER BY structure_id"
+            )
+            rows = conn.execute(q).fetchall()
+            return [r["structure_id"] for r in rows]
+        finally:
+            conn.close()
 
     def get_structures(self) -> List[str]:
         """Alias de get_structure_ids() para compatibilidade."""
@@ -233,14 +256,12 @@ class UIDataModel:
     def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
         """
         Retorna lista de decisões.
-         patch_33: filtra por structure_id quando disponível;
-        fallback transparente para aba.
-         patch_3a: select_parts deriva aba de structure_id (e vice-versa)
-        quando a coluna física não existe na tabela.
+        patch_33: filtra por structure_id quando disponível.
+        patch_36_E: conn local por chamada.
         """
         if not self._consolidations_table:
             self.refresh()
-        conn = self._connect()
+
         c = self._consolidations_cols
 
         # Expressão para pl_pct_of_max
@@ -256,7 +277,7 @@ class UIDataModel:
         else:
             pl_pct_expr = "NULL"
 
-        #  patch_3a: deriva aba <-> structure_id quando coluna física ausente
+        # patch_3a: deriva aba <-> structure_id quando coluna física ausente
         select_parts = []
         for alias in [
             "timestamp", "structure_id", "aba", "decision", "level",
@@ -266,15 +287,13 @@ class UIDataModel:
             if src:
                 select_parts.append(f"{src} AS {alias}")
             elif alias == "aba":
-                # aba ausente: deriva de structure_id (sem prefixo, cast TEXT)
                 sid_src = c.get("structure_id")
                 if sid_src:
                     select_parts.append(f"CAST({sid_src} AS TEXT) AS aba")
                 else:
                     select_parts.append("NULL AS aba")
             elif alias == "structure_id":
-                # structure_id ausente: deriva de aba quando for numérica (legado)
-                aba_src = c.get("aba")  # patch_53b: aba é coluna TEXT do banco; StructureRef é criado na camada de serviço
+                aba_src = c.get("aba")
                 if aba_src:
                     select_parts.append(
                         f"CASE WHEN CAST({aba_src} AS TEXT) GLOB '[0-9]*' "
@@ -308,7 +327,6 @@ class UIDataModel:
                 except Exception:
                     pass
 
-            #  patch_33: filtro por structure_id ou aba (compat)
             structure_filter = filters.get("structure_id")
             if structure_filter is not None:
                 try:
@@ -319,8 +337,7 @@ class UIDataModel:
                         f"structure_id deve ser inteiro; recebido: {structure_filter!r}"
                     ) from exc
 
-            #  patch_3a: filtro por aba (ticker TEXT) -- campo independente no banco
-            aba_filter = filters.get("aba")  # patch_53b: filtro por aba TEXT -- compat legado
+            aba_filter = filters.get("aba")
             if aba_filter is not None:
                 where.append("t.aba = ?")
                 params.append(str(aba_filter))
@@ -347,20 +364,23 @@ class UIDataModel:
             {where_sql}
             ORDER BY t.timestamp DESC
         """
-        rows = conn.execute(sql, params).fetchall()
+
+        # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
+        conn = self._connect()
+        try:
+            rows = conn.execute(sql, params).fetchall()
+        finally:
+            conn.close()  # ✅ sempre fechada, mesmo em erro
 
         result = []
         for r in rows:
             item = dict(r)
 
-            #  patch_3a: adapter layer -- garante ambos os campos sempre presentes
-            # structure_id é autoritativo (int); aba é TEXT derivado
             if item.get("structure_id") is None and item.get("aba") is not None:
-                # legado: tenta extrair int de aba
                 try:
                     item["structure_id"] = int(item["aba"])
                 except (TypeError, ValueError):
-                    pass  # aba não-numérica: structure_id permanece None
+                    pass
 
             if item.get("aba") is None and item.get("structure_id") is not None:
                 item["aba"] = str(item["structure_id"])
@@ -647,10 +667,9 @@ class UIDataModel:
         self._cache_structures = []
         self._payoff_cache = {}
 
+    # _connect_derived_threadsafe agora e apenas alias de _connect
     def _connect_derived_threadsafe(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(str(self.derived_db_path))
-        conn.row_factory = sqlite3.Row
-        return conn
+        return self._connect()
 
     def _cache_get(self, key: Tuple) -> Optional[Any]:
         try:

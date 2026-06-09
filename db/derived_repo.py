@@ -13,16 +13,21 @@ patch_33:
 
 patch_55:
   - Suporte a StructureRef como argumento aba em _extract_ts_aba e get_recent_decisions
+
+patch_56:
+  - fix: _MIGRATIONS removido (inexistente), _apply_schema reescrito sem IndentationError
+  - fix: _DDL_PAYOFF_IDX -> _DDL_PAYOFF_IDX_STRUCTURE
+  - fix: existing_payoff_cols -> existing_cols
+  - fix: 5 placeholders -> 6 nos INSERTs com structure_id
 """
 from __future__ import annotations
-
 
 import json
 import sqlite3
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-# patch_55:StructureRef
+# patch_55: StructureRef
 try:
     from src.domain.refs.structure_ref import StructureRef as _StructureRef
 except ImportError:
@@ -37,16 +42,8 @@ except ImportError:
 PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 
 # ---------------------------------------------------------------------------
-# Utilitários de schema (nível módulo -- usados por funções avulsas legadas)
+# patch_56: helper de compatibilidade StructureRef -> str
 # ---------------------------------------------------------------------------
-
-
-#  patch_56: helper de compatibilidade StructureRef  str 
-try:
-    from src.domain.refs.structure_ref import StructureRef as _StructureRef
-except ImportError:
-    _StructureRef = None  # compatibilidade se módulo ainda não instalado
-
 
 def _unwrap_aba(aba_or_ref) -> str:
     """
@@ -64,7 +61,7 @@ def _unwrap_aba(aba_or_ref) -> str:
         return resolved
     return aba_or_ref  # já é str (ou None, para wildcards)
 
-# 
+
 def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
     cur = conn.cursor()
     cur.execute(f"PRAGMA table_info({table_name})")
@@ -74,16 +71,18 @@ def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
 # ---------------------------------------------------------------------------
 # DDL
 # ---------------------------------------------------------------------------
+# PATCH_36_A: adicionar structure_id ao DDL de payoff_curve_points
 
 _DDL_PAYOFF_CURVE_POINTS = """
 CREATE TABLE IF NOT EXISTS payoff_curve_points (
-    timestamp  TEXT NOT NULL,
-    aba        TEXT NOT NULL,
-    spot_ref   REAL,
-    point_spot REAL NOT NULL,
-    point_pl   REAL NOT NULL,
-    meta_json  TEXT,
-    created_at TEXT DEFAULT (datetime('now'))
+    timestamp    TEXT NOT NULL,
+    aba          TEXT NOT NULL,
+    structure_id INTEGER,
+    spot_ref     REAL,
+    point_spot   REAL NOT NULL,
+    point_pl     REAL NOT NULL,
+    meta_json    TEXT,
+    created_at   TEXT DEFAULT (datetime('now'))
 )
 """
 
@@ -92,9 +91,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_payoff_snapshot
 ON payoff_curve_points (timestamp, aba, point_spot)
 """
 
-_DDL_PAYOFF_IDX = """
-CREATE INDEX IF NOT EXISTS ix_payoff_aba_ts
-ON payoff_curve_points (aba, timestamp)
+# PATCH_36_B: index por structure_id para queries canônicas
+_DDL_PAYOFF_IDX_STRUCTURE = """
+CREATE INDEX IF NOT EXISTS ix_payoff_structure_id
+ON payoff_curve_points (structure_id, timestamp)
 """
 
 _DDL_STRUCTURE_DECISIONS = """
@@ -132,15 +132,12 @@ CREATE INDEX IF NOT EXISTS idx_decisions_ts
 ON structure_decisions (timestamp)
 """
 
-# Migrations incrementais (guard ALTER TABLE)
-_MIGRATIONS: Dict[str, str] = {
-    "why":          "ALTER TABLE structure_decisions ADD COLUMN why          TEXT",
-    "spot_ref":     "ALTER TABLE structure_decisions ADD COLUMN spot_ref     REAL",
-    "meta_json":    "ALTER TABLE structure_decisions ADD COLUMN meta_json    TEXT",
-    "structure_id": "ALTER TABLE structure_decisions ADD COLUMN structure_id INTEGER",
+# PATCH_36_C: migration incremental (guard ALTER TABLE)
+_PAYOFF_MIGRATIONS: Dict[str, str] = {
+    "structure_id": (
+        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
+    ),
 }
-
-_migrations = _MIGRATIONS
 
 # ---------------------------------------------------------------------------
 # Helpers internos (nível módulo -- reutilizados pela classe e shims)
@@ -172,22 +169,31 @@ def _normalize_why_fields(
 
 def _apply_schema(conn: sqlite3.Connection) -> None:
     """Cria tabelas, índices e aplica migrations. Idempotente."""
+    # Tabelas base
     conn.execute(_DDL_PAYOFF_CURVE_POINTS)
     conn.execute(_DDL_PAYOFF_UNIQUE_IDX)
-    conn.execute(_DDL_PAYOFF_IDX)
     conn.execute(_DDL_STRUCTURE_DECISIONS)
 
-    existing_cols = _table_columns(conn, "structure_decisions")
-    for col, sql in _MIGRATIONS.items():
+    # PATCH_36_A: migration incremental payoff_curve_points
+    existing_cols = _table_columns(conn, "payoff_curve_points")
+    for col, sql in _PAYOFF_MIGRATIONS.items():
         if col not in existing_cols:
             try:
                 conn.execute(sql)
             except sqlite3.OperationalError:
                 pass
 
+    # PATCH_36_B: index structure_id no payoff (após migration)
+    try:
+        conn.execute(_DDL_PAYOFF_IDX_STRUCTURE)
+    except sqlite3.OperationalError:
+        pass
+
+    # Índices de structure_decisions
     conn.execute(_DDL_DECISIONS_UNIQUE_IDX)
     conn.execute(_DDL_DECISIONS_IDX_ABA)
     conn.execute(_DDL_DECISIONS_IDX_TS)
+
     conn.commit()
 
 
@@ -209,6 +215,7 @@ class DerivedRepo:
     Repositório canônico para derived.db.
     patch_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
     patch_55: suporte a StructureRef como argumento aba.
+    patch_56: correções de bugs em _apply_schema e INSERTs do payoff.
     """
 
     def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
@@ -257,7 +264,6 @@ class DerivedRepo:
         Permite tanto a API nova (só dict) quanto a legada (ts, aba, dict).
         patch_55: desempacota StructureRef se necessário.
         """
-        # patch_55: desempacotar StructureRef
         if _StructureRef is not None and isinstance(aba, _StructureRef):
             _ref = aba
             aba = _ref.aba
@@ -329,14 +335,16 @@ class DerivedRepo:
         timestamp: Optional[str] = None,
         aba: Optional[str] = None,
         meta: Optional[Dict[str, Any]] = None,
+        structure_id: Optional[int] = None,
     ) -> int:
         """
         DELETE anterior + INSERT novos pontos.
         timestamp e aba podem ser passados explicitamente ou via meta dict.
         Retorna contagem inserida.
         """
-        ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba")       or "unknown"
+        ts  = timestamp    or (meta or {}).get("timestamp")    or datetime.now().isoformat()
+        ab  = aba          or (meta or {}).get("aba")          or "unknown"
+        sid = structure_id or (meta or {}).get("structure_id")
 
         conn = self._connect()
         try:
@@ -346,10 +354,11 @@ class DerivedRepo:
                 "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
+            # fix patch_56: 6 colunas → 6 placeholders
             sql = """
                 INSERT INTO payoff_curve_points
-                    (timestamp, aba, point_spot, point_pl, meta_json)
-                VALUES (?, ?, ?, ?, ?)
+                    (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             count = 0
             for p in points or []:
@@ -363,7 +372,7 @@ class DerivedRepo:
                     x, y = float(x), float(y)
                 else:
                     continue
-                cur.execute(sql, (ts, ab, x, y, meta_json))
+                cur.execute(sql, (ts, ab, sid, x, y, meta_json))
                 count += 1
             conn.commit()
             return count
@@ -377,19 +386,22 @@ class DerivedRepo:
         aba: Optional[str] = None,
         spot_ref: Optional[float] = None,
         meta: Optional[Dict[str, Any]] = None,
+        structure_id: Optional[int] = None,
     ) -> int:
         """INSERT OR REPLACE idempotente por (timestamp, aba, point_spot)."""
-        ts = timestamp or (meta or {}).get("timestamp") or datetime.now().isoformat()
-        ab = aba       or (meta or {}).get("aba")       or "unknown"
+        ts  = timestamp    or (meta or {}).get("timestamp")    or datetime.now().isoformat()
+        ab  = aba          or (meta or {}).get("aba")          or "unknown"
+        sid = structure_id or (meta or {}).get("structure_id")
 
         conn = self._connect()
         try:
             meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
             cur = conn.cursor()
+            # fix patch_56: 6 colunas → 6 placeholders
             sql = """
                 INSERT OR REPLACE INTO payoff_curve_points
-                    (timestamp, aba, point_spot, point_pl, meta_json)
-                VALUES (?, ?, ?, ?, ?)
+                    (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             count = 0
             for p in points or []:
@@ -403,7 +415,7 @@ class DerivedRepo:
                     x, y = float(x), float(y)
                 else:
                     continue
-                cur.execute(sql, (ts, ab, x, y, meta_json))
+                cur.execute(sql, (ts, ab, sid, x, y, meta_json))
                 count += 1
             conn.commit()
             return count
@@ -424,6 +436,7 @@ class DerivedRepo:
     ) -> Dict[str, int]:
         """Grava pontos + decisão atomicamente em uma única transação."""
         ts, ab = self._extract_ts_aba(decision_dict, timestamp, aba)
+        sid = decision_dict.get("structure_id")
 
         conn = self._connect()
         try:
@@ -435,10 +448,11 @@ class DerivedRepo:
                 "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
+            # fix patch_56: 6 colunas → 6 placeholders
             sql_p = """
                 INSERT INTO payoff_curve_points
-                    (timestamp, aba, point_spot, point_pl, meta_json)
-                VALUES (?, ?, ?, ?, ?)
+                    (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+                VALUES (?, ?, ?, ?, ?, ?)
             """
             count = 0
             for p in points or []:
@@ -452,7 +466,7 @@ class DerivedRepo:
                     x, y = float(x), float(y)
                 else:
                     continue
-                cur.execute(sql_p, (ts, ab, x, y, meta_json))
+                cur.execute(sql_p, (ts, ab, sid, x, y, meta_json))
                 count += 1
 
             # --- decisão ---
