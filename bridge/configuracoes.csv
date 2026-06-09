@@ -1,5 +1,5 @@
-Ôªø"Par√¢metro";"Valor";"Descri√ß√£o"
-"Delta m√°ximo CALL";"0.38";"Delta m√°ximo antes de acionar roll na call"
-"PL alvo roll";"90";"Lucro estimado em R$ para encerrar a opera√ß√£o"
-"Slippage";"0.01";"Diferen√ßa esperada bid-ask na execu√ß√£o real"
-"TimeFrame Snapshot (min)";"10";"Intervalo de registro autom√°tico do rob√¥"
+Par‚metro,Valor,DescriÁ„o
+Delta m·ximo CALL,0.38,Delta m·ximo antes de acionar roll na call
+PL alvo roll,90,Lucro estimado em R$ para encerrar a operaÁ„o
+Slippage,0.01,DiferenÁa esperada bid-ask na execuÁ„o real
+TimeFrame Snapshot (min),10,Intervalo de registro autom·tico do robÙ
