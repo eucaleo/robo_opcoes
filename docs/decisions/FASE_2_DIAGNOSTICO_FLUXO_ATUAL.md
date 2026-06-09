@@ -86,3 +86,45 @@ Decisão:
 Conclusão:
 
 O fluxo novo não deve reconstruir o sistema em torno dos dados obsoletos. A Fase 2 deve mapear o legado existente e preparar a transição para um modelo onde a `LISTA_RTD.xlsx` alimenta dados RTD brutos, enquanto as estruturas operacionais nascem e vivem no banco do sistema.
+
+## Achados complementares do grep de dependências legadas
+
+Foi executada busca por referências a:
+
+- `ANALISE_ROBO`
+- `ANALISE_ROBO_LEGS`
+- `HIST_ROBO`
+- `LISTA RTD`
+- `LISTA_RTD`
+
+Resultado:
+
+### Código com dependência direta de fontes legadas
+
+| Arquivo | Papel atual | Classificação |
+|---|---|---|
+| `db/import_excel.py` | Importa `OPERACOES_E_OPCOES.xlsx` e suas abas legadas para tabelas SQLite auxiliares | Legado isolado / importador antigo |
+| `db/schema_excel.py` | Define tabelas SQLite derivadas das abas antigas | Schema legado auxiliar |
+| `db/init_excel_schema.py` | Aplica `SCHEMA_EXCEL_SQL` | Inicializador do schema legado |
+| `scripts/pre66_02_inspect_timestamps_by_aba.py` | Inspeciona timestamps por aba e cruza com `structures.alias_legacy_aba` | Script diagnóstico antigo |
+
+### Observações
+
+- `db/import_excel.py` não consome `LISTA_RTD.xlsx`.
+- `db/import_excel.py` ainda aponta para `OPERACOES_E_OPCOES.xlsx`.
+- `db/schema_excel.py` modela dados derivados das abas `ANALISE_ROBO`, `ANALISE_ROBO_LEGS` e `HIST_ROBO`.
+- `scripts/pre66_02_inspect_timestamps_by_aba.py` é somente leitura, mas ainda depende de conceitos legados como `aba` e `alias_legacy_aba`.
+- As demais referências encontradas estão em documentação histórica, relatórios gerados ou artefatos de auditoria.
+
+### Conclusão
+
+As dependências legadas estão concentradas e não devem ser tratadas como núcleo do novo fluxo.
+
+Decisão provisória:
+
+- manter esses arquivos sem alteração durante a Fase 2;
+- não expandir novas funcionalidades em cima deles;
+- não adaptar o domínio novo ao modelo de `aba`;
+- criar posteriormente um gateway específico para `LISTA_RTD.xlsx`;
+- avaliar em fase própria se os arquivos legados serão movidos para `legacy/`, `scripts/legacy/` ou removidos.
+
