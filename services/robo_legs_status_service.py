@@ -48,7 +48,7 @@ class RoboLegsStatusService:
         else:
             aba = getattr(ref, "aba", None) or str(ref)
 
-        manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba=aba)
+        manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
 
         if manual_latest is not None:
             chosen_fonte = FonteType.MANUAL
@@ -71,29 +71,6 @@ class RoboLegsStatusService:
 
         delta = requested_ts - chosen_ts
 
-        if delta <= ttl:
-            freshness = DataFreshness.FRESH
-            reason = "within_ttl"
-        else:
-            freshness = DataFreshness.STALE
-            reason = "older_than_ttl"
-
-        return RoboLegsStatusDTO(
-            aba=aba,
-            requested_ts=requested_ts,
-            ttl=ttl,
-            chosen_fonte=chosen_fonte,
-            chosen_ts=chosen_ts,
-            manual_latest_ts=manual_latest,
-            rtd_latest_ts=rtd_latest,
-            freshness=freshness,
-            reason=reason,
-        )
-
-
-        delta = requested_ts - chosen_ts
-
-        # se chosen_ts está no futuro, delta é negativo -> consideramos fresh
         if delta <= ttl:
             freshness = DataFreshness.FRESH
             reason = "within_ttl"

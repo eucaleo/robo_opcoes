@@ -38,7 +38,7 @@ class RoboLegsService:
         """
         # bridge legado: selector ainda opera por aba
         aba = ref.aba if isinstance(ref, StructureRef) else str(ref)
-        legs = self.repo.get_legs(aba=aba, timestamp=timestamp)
+        legs = self.repo.get_legs(ref=ref, timestamp=timestamp)
         if validate:
             report = validate_legs(legs)
             if not report.is_ok():
