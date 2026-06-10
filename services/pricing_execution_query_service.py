@@ -58,7 +58,13 @@ class PricingExecutionQueryService:
             reference_date=reference_date,
         )
 
-        executions = self.pricing_executions_repository.list_executions()
+        executions = self.pricing_executions_repository.list_executions(
+            page=1,
+            page_size=10_000,
+            status=status,
+            structure_id=structure_id,
+            reference_date=reference_date
+        )
 
         summaries = []
         for execution in executions:
@@ -66,8 +72,8 @@ class PricingExecutionQueryService:
             persisted_total_quantity = execution.get("total_quantity")
             persisted_theoretical_value = execution.get("theoretical_value")
 
-            nested_result = execution.get("result", {})
-            engine_result = nested_result.get("result", {})
+            nested_result = execution.get("result", {}) or {}
+            engine_result = nested_result.get("result", nested_result)
             metrics = engine_result.get("metrics", {})
             valuation = engine_result.get("valuation", {})
 
