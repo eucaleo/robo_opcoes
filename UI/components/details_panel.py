@@ -45,10 +45,6 @@ class DetailsPanel(ttk.LabelFrame):
     # Caminhos de DB
     # ------------------------------------------------------------------
 
-    def _raw_db_path(self) -> Path:
-        if self._project_root:
-            return Path(self._project_root) / "dados" / "app.db"
-        return Path("dados") / "app.db"
 
     def _derived_db_path(self) -> Path:
         project_root = Path(__file__).resolve().parents[2]
