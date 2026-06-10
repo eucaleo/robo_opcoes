@@ -1,30 +1,27 @@
 # repositories/market_snapshot_repository.py
 """
-patch_13 - Repositorio canonico de snapshots de mercado.
+Repositorio canonico de snapshots de mercado.
 
 Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
 normaliza os campos e retorna objetos LegMarketSnapshot prontos para uso.
-
-Schema real confirmado por 62_inspect_snapshot_tables.py (2026-05-27):
-  - Nao existe coluna 'last'; mid = (bid + ask) / 2 calculado aqui.
-  - Valores armazenados como TEXT com virgula decimal (pt-BR).
-  - rtd_analise_robo_legs   : colunas [0-19]
-  - manual_analise_robo_legs: colunas [0-21] + source + created_at
 """
 from __future__ import annotations
-
 from src.domain.refs.structure_ref import StructureRef
 
 import sqlite3
 from pathlib import Path
 from typing import Optional
 
-from domain.market_snapshot import LegMarketSnapshot, SnapshotSource, StructureMarketSnapshot
+from domain.market_snapshot import (
+    LegMarketSnapshot,
+    SnapshotSource,
+    StructureMarketSnapshot,
+)
 
 # --- Caminhos ----------------------------------------------------------------
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_DEFAULT_DB   = _PROJECT_ROOT / "dados" / "app.db"
+_DEFAULT_DB = _PROJECT_ROOT / "dados" / "app.db"
 
 # --- SQL ---------------------------------------------------------------------
 
@@ -51,7 +48,7 @@ _SQL_RTD_LEGS = """
         dte,
         pl_realista
     FROM rtd_analise_robo_legs
-    WHERE {ref.db_column()} = ?
+    WHERE aba = ?
     ORDER BY timestamp DESC
 """
 
@@ -80,7 +77,7 @@ _SQL_MANUAL_LEGS = """
         source,
         created_at
     FROM manual_analise_robo_legs
-    WHERE {ref.db_column()} = ?
+    WHERE aba = ?
     ORDER BY timestamp DESC
 """
 
@@ -99,12 +96,21 @@ _SQL_RTD_SUMMARY = """
         spread_pct_medio,
         alertas_v2
     FROM rtd_analise_robo
-    WHERE {ref.db_column()} = ?
+    WHERE aba = ?
     ORDER BY rowid DESC
     LIMIT 1
 """
 
 # --- Helpers -----------------------------------------------------------------
+
+def _ref_to_aba(ref: StructureRef | str) -> str:
+    """Aceita StructureRef ou str e devolve a string da aba."""
+    if isinstance(ref, StructureRef):
+        if ref.aba:
+            return str(ref.aba)
+        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+    return str(ref)
+
 
 def _parse_br_float(value) -> Optional[float]:
     # Converte string pt-BR ('1,38' ou '1,38E-02') para float.
@@ -129,47 +135,49 @@ def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
 
 
 def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
-    # Converte uma linha do banco em LegMarketSnapshot.
     bid = _parse_br_float(row["bid"])
     ask = _parse_br_float(row["ask"])
     mid = _mid_price(bid, ask)
 
     return LegMarketSnapshot(
-        aba             = row["aba"],
-        ativo           = row["ativo"],
-        cv              = row["cv"],
-        call_put        = row["call_put"],
-        quant           = _parse_br_float(row["quant"]),
-        valor_executado = _parse_br_float(row["valor_executado"]),
-        bid             = bid,
-        ask             = ask,
-        mid             = mid,
-        spread          = _parse_br_float(row["spread"]),
-        spread_pct      = _parse_br_float(row["spread_pct"]),
-        iv              = _parse_br_float(row["iv"]),
-        delta           = _parse_br_float(row["delta"]),
-        gamma           = _parse_br_float(row["gamma"]),
-        theta           = _parse_br_float(row["theta"]),
-        vega            = _parse_br_float(row["vega"]),
-        strike          = _parse_br_float(row["strike"]),
-        vencimento      = row["vencimento"],
-        dte             = _parse_br_float(row["dte"]),
-        pl_realista     = _parse_br_float(row["pl_realista"]),
-        timestamp       = row["timestamp"],
-        source          = source,
+        aba=row["aba"],
+        ativo=row["ativo"],
+        cv=row["cv"],
+        call_put=row["call_put"],
+        quant=_parse_br_float(row["quant"]),
+        valor_executado=_parse_br_float(row["valor_executado"]),
+        bid=bid,
+        ask=ask,
+        mid=mid,
+        spread=_parse_br_float(row["spread"]),
+        spread_pct=_parse_br_float(row["spread_pct"]),
+        iv=_parse_br_float(row["iv"]),
+        delta=_parse_br_float(row["delta"]),
+        gamma=_parse_br_float(row["gamma"]),
+        theta=_parse_br_float(row["theta"]),
+        vega=_parse_br_float(row["vega"]),
+        strike=_parse_br_float(row["strike"]),
+        vencimento=row["vencimento"],
+        dte=_parse_br_float(row["dte"]),
+        pl_realista=_parse_br_float(row["pl_realista"]),
+        timestamp=row["timestamp"],
+        source=source,
     )
 
 
 # --- Repositorio -------------------------------------------------------------
 
+
 class MarketSnapshotRepository:
-    # Acesso de leitura aos snapshots de mercado.
-    #
-    # Metodos:
-    #   get_rtd_legs(aba)     -> lista de LegMarketSnapshot (source=RTD)
-    #   get_manual_legs(aba)  -> lista de LegMarketSnapshot (source=MANUAL)
-    #   get_rtd_summary(aba)  -> dict com cabecalho RTD (ou None)
-    #   get_structure(aba)    -> StructureMarketSnapshot completo
+    """
+    Acesso de leitura aos snapshots de mercado.
+
+    Metodos:
+      get_rtd_legs(aba)     -> lista de LegMarketSnapshot source=RTD
+      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+      get_rtd_summary(aba)  -> dict com cabecalho RTD ou None
+      get_structure(aba)    -> StructureMarketSnapshot completo
+    """
 
     def __init__(self, db_path: Path | str = _DEFAULT_DB) -> None:
         self._db_path = Path(db_path)
@@ -183,14 +191,14 @@ class MarketSnapshotRepository:
 
     # -- RTD ------------------------------------------------------------------
 
-    def get_rtd_legs(self, ref: StructureRef) -> list[LegMarketSnapshot]:
-        # Retorna as legs RTD mais recentes para uma aba.
+    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+        aba = _ref_to_aba(ref)
         with self._connect() as conn:
             rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
         return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
 
-    def get_rtd_summary(self, ref: StructureRef) -> Optional[dict]:
-        # Retorna o cabecalho RTD da estrutura (linha mais recente).
+    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+        aba = _ref_to_aba(ref)
         with self._connect() as conn:
             row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
         if row is None:
@@ -199,8 +207,8 @@ class MarketSnapshotRepository:
 
     # -- Manual ---------------------------------------------------------------
 
-    def get_manual_legs(self, ref: StructureRef) -> list[LegMarketSnapshot]:
-        # Retorna as legs manuais mais recentes para uma aba.
+    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+        aba = _ref_to_aba(ref)
         with self._connect() as conn:
             rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
         return [_row_to_leg(r, SnapshotSource.MANUAL) for r in rows]
@@ -209,35 +217,38 @@ class MarketSnapshotRepository:
 
     def get_structure(
         self,
-        ref: StructureRef,
+        ref: StructureRef | str,
         source: SnapshotSource = SnapshotSource.RTD,
     ) -> StructureMarketSnapshot:
-        # Retorna um StructureMarketSnapshot completo para a aba informada.
-        #   source=RTD    -> legs de rtd_analise_robo_legs + summary de rtd_analise_robo
-        #   source=MANUAL -> legs de manual_analise_robo_legs (sem summary)
+        aba = _ref_to_aba(ref)
+
         if source == SnapshotSource.RTD:
-            legs    = self.get_rtd_legs(aba)
-            summary = self.get_rtd_summary(aba)
+            legs = self.get_rtd_legs(ref)
+            summary = self.get_rtd_summary(ref)
         else:
-            legs    = self.get_manual_legs(aba)
+            legs = self.get_manual_legs(ref)
             summary = None
 
         def _f(key: str) -> Optional[float]:
-            return _parse_br_float(summary[key]) if summary and summary.get(key) is not None else None
+            return (
+                _parse_br_float(summary[key])
+                if summary and summary.get(key) is not None
+                else None
+            )
 
         return StructureMarketSnapshot(
-            aba               = aba,
-            legs              = legs,
-            source            = source,
-            spot              = _f("spot"),
-            num_pernas        = int(_f("num_pernas"))  if _f("num_pernas") is not None else None,
-            dte_min           = int(_f("dte_min"))     if _f("dte_min")    is not None else None,
-            pl_realista_total = _f("pl_realista_total"),
-            delta_liq         = _f("delta_liq"),
-            gamma_liq         = _f("gamma_liq"),
-            theta_liq         = _f("theta_liq"),
-            vega_liq          = _f("vega_liq"),
-            spread_medio      = _f("spread_medio"),
-            spread_pct_medio  = _f("spread_pct_medio"),
-            alertas_v2        = summary.get("alertas_v2") if summary else None,
+            aba=aba,
+            legs=legs,
+            source=source,
+            spot=_f("spot"),
+            num_pernas=int(_f("num_pernas")) if _f("num_pernas") is not None else None,
+            dte_min=int(_f("dte_min")) if _f("dte_min") is not None else None,
+            pl_realista_total=_f("pl_realista_total"),
+            delta_liq=_f("delta_liq"),
+            gamma_liq=_f("gamma_liq"),
+            theta_liq=_f("theta_liq"),
+            vega_liq=_f("vega_liq"),
+            spread_medio=_f("spread_medio"),
+            spread_pct_medio=_f("spread_pct_medio"),
+            alertas_v2=summary.get("alertas_v2") if summary else None,
         )
