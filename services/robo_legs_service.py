@@ -5,8 +5,9 @@ patch_40 -- get_legs_by_structure_id() como ponto de entrada canonico.
 patch_57 -- correcoes:
   - from __future__ movido para primeira linha (SyntaxError fix)
   - get_legs(): parametro renomeado para ref: StructureRef; aba extraida de ref
+patch_compat -- compatibilidade com repos/fakes legados que ainda aceitam
+  get_legs(aba, timestamp).
 """
-
 
 from typing import Any, List, Optional
 
@@ -34,11 +35,20 @@ class RoboLegsService:
     ) -> List[RoboLegDTO]:
         """
         Wrapper de compatibilidade legado.
-        patch_57: extrai aba do StructureRef; nao usa 'aba' como variavel solta.
+
+        Aceita StructureRef ou string de aba. Primeiro tenta a API nova
+        get_legs(ref=..., timestamp=...). Se o repo/fake for legado, usa
+        get_legs(aba, timestamp).
         """
-        # bridge legado: selector ainda opera por aba
         aba = ref.aba if isinstance(ref, StructureRef) else str(ref)
-        legs = self.repo.get_legs(ref=ref, timestamp=timestamp)
+
+        try:
+            legs = self.repo.get_legs(ref=ref, timestamp=timestamp)
+        except TypeError as exc:
+            if "unexpected keyword argument" not in str(exc):
+                raise
+            legs = self.repo.get_legs(aba, timestamp)
+
         if validate:
             report = validate_legs(legs)
             if not report.is_ok():

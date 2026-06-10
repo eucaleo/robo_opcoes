@@ -2,18 +2,22 @@ from __future__ import annotations
 """
 patch_57c -- RoboLegsStatusService.
   - from __future__ garantido como linha 1
+patch_compat -- compatibilidade com status_repo.latest_timestamps(aba)
+  em fakes/repos legados.
 """
-
-from src.domain.refs.structure_ref import StructureRef
 
 from dataclasses import dataclass
 from datetime import timedelta
 from typing import Optional
 
+from src.domain.refs.structure_ref import StructureRef
 from dto.robo_leg_dto import FonteType
 from dto.robo_legs_status_dto import DataFreshness, RoboLegsStatusDTO
 from repositories.robo_legs_repository import RoboLegsRepository
-from repositories.robo_legs_status_repository import RoboLegsStatusRepository, RoboLegsStatusRepoConfig
+from repositories.robo_legs_status_repository import (
+    RoboLegsStatusRepository,
+    RoboLegsStatusRepoConfig,
+)
 from utils.leg_normalizers import parse_timestamp
 from validators.timestamp_validator import validate_ttl
 
@@ -31,24 +35,38 @@ class RoboLegsStatusService:
         freshness: Optional[RoboLegsFreshnessConfig] = None,
     ):
         self.repo = repo or RoboLegsRepository()
-        self.status_repo = status_repo or RoboLegsStatusRepository(RoboLegsStatusRepoConfig())
+        self.status_repo = status_repo or RoboLegsStatusRepository(
+            RoboLegsStatusRepoConfig()
+        )
         self.freshness = freshness or RoboLegsFreshnessConfig()
 
-# services/robo_legs_status_service.py
-# SUBSTITUA o método status() inteiro por este:
-
-    def status(self, ref: StructureRef, requested_timestamp: object, ttl_seconds: Optional[int] = None) -> RoboLegsStatusDTO:
+    def status(
+        self,
+        ref: StructureRef,
+        requested_timestamp: object,
+        ttl_seconds: Optional[int] = None,
+    ) -> RoboLegsStatusDTO:
         requested_ts = parse_timestamp(requested_timestamp)
-        ttl = timedelta(seconds=ttl_seconds if ttl_seconds is not None else self.freshness.default_ttl_seconds)
+        ttl = timedelta(
+            seconds=(
+                ttl_seconds
+                if ttl_seconds is not None
+                else self.freshness.default_ttl_seconds
+            )
+        )
         validate_ttl(ttl)
 
-        # patch_57c: extrair aba de ref (StructureRef ou str direto)
         if isinstance(ref, str):
             aba = ref
         else:
             aba = getattr(ref, "aba", None) or str(ref)
 
-        manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+        try:
+            manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+        except TypeError as exc:
+            if "unexpected keyword argument" not in str(exc):
+                raise
+            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
 
         if manual_latest is not None:
             chosen_fonte = FonteType.MANUAL
