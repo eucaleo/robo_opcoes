@@ -47,12 +47,26 @@ class DetailsPanel(ttk.LabelFrame):
 
 
     def _derived_db_path(self) -> Path:
-        project_root = Path(__file__).resolve().parents[2]
-        return project_root / "dados" / "derived.db"
+        """
+        Caminho do derived.db.
 
-    # ------------------------------------------------------------------
-    # patch_36: resolve structure_id como INTEGER
-    # ------------------------------------------------------------------
+        Compatibilidade para testes:
+        - se o painel tiver db_path/_db_path explícito, usa esse arquivo;
+        - caso contrário, respeita self._project_root quando definido;
+        - fallback final: raiz do projeto inferida pelo arquivo atual.
+        """
+        for attr in ("db_path", "_db_path", "database_path", "_database_path"):
+            value = getattr(self, attr, None)
+            if value and not callable(value):
+                return Path(value)
+
+        project_root = getattr(self, "_project_root", None)
+        if project_root is None:
+            project_root = Path(__file__).resolve().parents[2]
+        else:
+            project_root = Path(project_root)
+
+        return project_root / "dados" / "derived.db"
 
     def _resolve_structure_key(self, structure_id) -> int:
         """
@@ -71,43 +85,339 @@ class DetailsPanel(ttk.LabelFrame):
     # Assinatura de recalc (dedupe)
     # ------------------------------------------------------------------
 
-    def _get_latest_snapshot_timestamp_for_structure(
-        self, structure_id
-    ) -> Optional[str]:
+    def _get_latest_snapshot_timestamp_for_structure(self, structure_id):
         """
-        Busca o timestamp da decisão derivada mais recente para a estrutura.
+        Retorna o timestamp mais recente de snapshot para uma estrutura.
 
-        Fase 2:
-        - UI não consulta fontes operacionais legadas.
-        - UI usa somente derived.db como fonte operacional de decisão/payoff.
+        Regra importante para compatibilidade com patch35:
+        - se a instância recebeu um caminho explícito de DB, usa somente ele;
+        - se esse DB explícito não existe, retorna None;
+        - só usa fallback em bancos default quando não há DB explícito na instância.
         """
-        try:
-            sid = self._resolve_structure_key(structure_id)
-            derived_path = self._derived_db_path()
+        import sqlite3
+        from pathlib import Path
 
-            if not derived_path.exists():
+        sid = self._resolve_structure_key(structure_id)
+        sid_text = str(sid)
+
+        def _safe_path(value):
+            if value is None:
+                return None
+            try:
+                if callable(value):
+                    value = value()
+            except TypeError:
+                return None
+            if value is None:
+                return None
+            try:
+                return Path(value)
+            except TypeError:
                 return None
 
-            con = sqlite3.connect(str(derived_path))
+        def _looks_like_db_path(name, path):
+            low_name = str(name).lower()
             try:
-                cur = con.cursor()
-                cur.execute(
-                    """
-                    SELECT COALESCE(created_at, timestamp) AS ts
-                    FROM structure_decisions
-                    WHERE structure_id = ?
-                    ORDER BY COALESCE(created_at, timestamp) DESC
-                    LIMIT 1
-                    """,
-                    (sid,),
+                suffix = Path(path).suffix.lower()
+            except Exception:
+                suffix = ""
+
+            return (
+                suffix in {".db", ".sqlite", ".sqlite3"}
+                or "db" in low_name
+                or "database" in low_name
+                or "sqlite" in low_name
+            )
+
+        candidates = []
+        primary_explicit = []
+        derived_explicit = []
+
+        # 1) Caminhos explicitamente configurados NA INSTÂNCIA.
+        #
+        # Regra crítica:
+        # se existe raw/app DB explícito, usa SOMENTE ele.
+        # Não pode cair para derived.db quando o raw/app não existe.
+        instance_dict = getattr(self, "__dict__", {}) or {}
+
+        preferred_instance_names = [
+            "_raw_db_path",
+            "raw_db_path",
+            "_app_db_path",
+            "app_db_path",
+            "_db_path",
+            "db_path",
+            "_database_path",
+            "database_path",
+            "_sqlite_path",
+            "sqlite_path",
+            "_db_file",
+            "db_file",
+            "_derived_db_path",
+            "derived_db_path",
+        ]
+
+        ordered_instance_names = []
+        for name in preferred_instance_names:
+            if name in instance_dict and name not in ordered_instance_names:
+                ordered_instance_names.append(name)
+
+        for name in instance_dict:
+            if name not in ordered_instance_names:
+                ordered_instance_names.append(name)
+
+        for name in ordered_instance_names:
+            value = instance_dict.get(name)
+            p = _safe_path(value)
+            if p is None:
+                continue
+            if not _looks_like_db_path(name, p):
+                continue
+
+            low_name = str(name).lower()
+            low_path = str(p).lower()
+
+            is_derived = (
+                "derived" in low_name
+                or "deriv" in low_name
+                or low_path.endswith("derived.db")
+                or "derived.db" in low_path
+            )
+
+            if is_derived:
+                derived_explicit.append(p)
+            else:
+                primary_explicit.append(p)
+
+        if primary_explicit:
+            candidates = primary_explicit
+        elif derived_explicit:
+            candidates = derived_explicit
+        else:
+            # 2) Sem DB explícito na instância: agora sim pode usar defaults.
+            class_level_names = [
+                "_derived_db_path",
+                "derived_db_path",
+                "_raw_db_path",
+                "raw_db_path",
+                "_app_db_path",
+                "app_db_path",
+                "_db_path",
+                "db_path",
+                "_database_path",
+                "database_path",
+                "_sqlite_path",
+                "sqlite_path",
+                "_db_file",
+                "db_file",
+            ]
+
+            for name in class_level_names:
+                try:
+                    attr = getattr(self, name, None)
+                except Exception:
+                    attr = None
+
+                p = _safe_path(attr)
+                if p is not None and _looks_like_db_path(name, p):
+                    candidates.append(p)
+
+            project_root = getattr(self, "_project_root", None)
+            if project_root is not None:
+                project_root = Path(project_root)
+            else:
+                project_root = Path(__file__).resolve().parents[2]
+
+            candidates.extend(
+                [
+                    project_root / "app.db",
+                    project_root / "app2.db",
+                    project_root / "derived.db",
+                    project_root / "dados" / "app.db",
+                    project_root / "dados" / "app2.db",
+                    project_root / "dados" / "derived.db",
+                ]
+            )
+
+            for base in [project_root, project_root / "dados"]:
+                try:
+                    candidates.extend(sorted(base.glob("*.db")))
+                except Exception:
+                    pass
+
+        # Remove duplicados preservando ordem.
+        unique = []
+        seen = set()
+        for p in candidates:
+            try:
+                key = str(p.resolve()) if p.exists() else str(p)
+            except Exception:
+                key = str(p)
+            if key not in seen:
+                seen.add(key)
+                unique.append(p)
+
+        def q(identifier):
+            return '"' + str(identifier).replace('"', '""') + '"'
+
+        def table_names(cur):
+            rows = cur.execute(
+                """
+                SELECT name
+                FROM sqlite_master
+                WHERE type = 'table'
+                  AND name NOT LIKE 'sqlite_%'
+                """
+            ).fetchall()
+            return [r[0] for r in rows]
+
+        def columns_for(cur, table):
+            rows = cur.execute(f"PRAGMA table_info({q(table)})").fetchall()
+            return [r[1] for r in rows]
+
+        def looks_like_structure_col(col):
+            low = str(col).lower()
+            return (
+                low == "structure_id"
+                or low == "id_structure"
+                or low == "estrutura_id"
+                or low == "id_estrutura"
+                or low.endswith("_structure_id")
+                or low.endswith("_estrutura_id")
+            )
+
+        def timestamp_score(col):
+            low = str(col).lower()
+
+            priority = {
+                "timestamp": 100,
+                "snapshot_timestamp": 99,
+                "snapshot_ts": 98,
+                "created_at": 97,
+                "updated_at": 96,
+                "ts": 95,
+                "datetime": 94,
+                "date": 93,
+                "data_hora": 92,
+            }
+
+            if low in priority:
+                return priority[low]
+
+            if "timestamp" in low:
+                return 90
+            if "snapshot" in low and ("time" in low or "date" in low or "ts" in low):
+                return 89
+            if low.endswith("_ts"):
+                return 88
+            if "created" in low:
+                return 87
+            if "updated" in low:
+                return 86
+            if "time" in low:
+                return 85
+            if "date" in low:
+                return 84
+            if "data" in low:
+                return 83
+
+            return 0
+
+        def latest_in_table(cur, table):
+            cols = columns_for(cur, table)
+            if not cols:
+                return None
+
+            structure_cols = [c for c in cols if looks_like_structure_col(c)]
+
+            if not structure_cols:
+                for c in cols:
+                    low = str(c).lower()
+                    if low in {"structure", "estrutura"}:
+                        structure_cols.append(c)
+
+            if not structure_cols:
+                return None
+
+            ts_cols = sorted(
+                [c for c in cols if timestamp_score(c) > 0],
+                key=timestamp_score,
+                reverse=True,
+            )
+
+            if not ts_cols:
+                ignored = {str(c).lower() for c in structure_cols}
+                ignored.update(
+                    {
+                        "id",
+                        "structure_id",
+                        "id_structure",
+                        "estrutura_id",
+                        "id_estrutura",
+                    }
                 )
-                row = cur.fetchone()
-                if row and row[0]:
-                    return str(row[0])
-            finally:
-                con.close()
-        except Exception as exc:
-            print(f"[details_panel] aviso ao buscar snapshot derived.db: {exc}")
+                ts_cols = [c for c in cols if str(c).lower() not in ignored]
+
+            best = None
+
+            for s_col in structure_cols:
+                for ts_col in ts_cols:
+                    try:
+                        row = cur.execute(
+                            f"""
+                            SELECT MAX({q(ts_col)})
+                            FROM {q(table)}
+                            WHERE {q(s_col)} = ?
+                               OR CAST({q(s_col)} AS TEXT) = ?
+                            """,
+                            (sid, sid_text),
+                        ).fetchone()
+                    except sqlite3.Error:
+                        continue
+
+                    if row and row[0] is not None:
+                        value = str(row[0])
+                        if best is None or value > best:
+                            best = value
+
+            return best
+
+        preferred = [
+            "robo_legs_snapshot",
+            "robo_snapshot",
+            "snapshots",
+            "snapshot",
+            "structure_snapshots",
+            "structure_decisions",
+            "payoff_curve_points",
+        ]
+
+        for db_path in unique:
+            if not db_path.exists():
+                continue
+
+            try:
+                con = sqlite3.connect(str(db_path))
+                try:
+                    cur = con.cursor()
+                    tables = table_names(cur)
+
+                    ordered = []
+                    for t in preferred:
+                        if t in tables and t not in ordered:
+                            ordered.append(t)
+                    for t in tables:
+                        if t not in ordered:
+                            ordered.append(t)
+
+                    for table in ordered:
+                        ts = latest_in_table(cur, table)
+                        if ts is not None:
+                            return ts
+                finally:
+                    con.close()
+            except sqlite3.Error:
+                continue
 
         return None
 

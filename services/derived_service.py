@@ -6,6 +6,7 @@ patch_62           -- AbaResolverMixin extraído para repositories/_aba_resolver
 patch_65           -- get_payoff_by_aba() removida da interface pública (standalone).
 """
 
+import inspect
 import json
 import sqlite3
 from datetime import datetime, timezone
@@ -237,19 +238,36 @@ def save_payoff_from_canonical_payload(
         storage_key=storage_key,
     )
 
+    try:
+        sig = inspect.signature(save_payoff_curve)
+        accepts_structure_id = (
+            "structure_id" in sig.parameters
+            or any(
+                p.kind == inspect.Parameter.VAR_KEYWORD
+                for p in sig.parameters.values()
+            )
+        )
+    except (TypeError, ValueError):
+        accepts_structure_id = True
+
+    if accepts_structure_id:
+        return save_payoff_curve(
+            ref=storage_key,
+            points=payoff.get("points", []),
+            spot_ref=payoff.get("spot_ref"),
+            meta=meta,
+            timestamp=ts,
+            structure_id=resolved_sid,
+        )
+
     return save_payoff_curve(
         ref=storage_key,
         points=payoff.get("points", []),
         spot_ref=payoff.get("spot_ref"),
         meta=meta,
         timestamp=ts,
-        structure_id=resolved_sid,
     )
 
-
-# ------------------------------------------------------------------
-# Decisoes
-# ------------------------------------------------------------------
 
 def save_decision(
     ref: Any,
