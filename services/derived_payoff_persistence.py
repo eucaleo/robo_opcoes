@@ -32,7 +32,8 @@ class DerivedPayoffPersistence:
             logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
             return
 
-        status = result.get("status", "")
+        inner = result.get("result", result) if isinstance(result, dict) else{}
+        status = inner.get("status", "")
         if status not in ("success", "ok", "completed"):
             logger.debug(
                 "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
@@ -86,16 +87,22 @@ class DerivedPayoffPersistence:
         result: dict[str, Any],
     ) -> None:
         try:
-            valuation = result.get("valuation") or {}
-            metrics   = result.get("metrics")   or {}
+            if not isinstance(result, dict):
+                inner = {}
+            else:
+                inner = result.get("result") or result
+
+            valuation = inner.get("valuation") or {}
+            metrics   = inner.get("metrics")   or {}
 
             theoretical_value = valuation.get("theoretical_value")
             pl_max            = valuation.get("pl_max")
             pl_atual          = valuation.get("pl_atual") or theoretical_value
             dte_min           = metrics.get("dte_min")
-            spot_ref          = pricing_payload.get("spot_price") or (
-                (pricing_payload.get("market") or {}).get("spot_price")
-            )
+            spot_ref          = pricing_payload.get("spot_price")
+            
+            if spot_ref is None:
+                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
 
             pl_pct_of_max = None
             if pl_max and pl_atual is not None:
@@ -114,8 +121,8 @@ class DerivedPayoffPersistence:
                 "spot_ref":      spot_ref,
                 "why": {
                     "source":           "pricing_engine",
-                    "engine":           result.get("engine"),
-                    "execution_status": result.get("status"),
+                    "engine":           inner.get("engine"),
+                    "execution_status": inner.get("status"),
                     "theoretical_value": theoretical_value,
                 },
                 "meta": {
