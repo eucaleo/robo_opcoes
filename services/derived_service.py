@@ -162,6 +162,7 @@ def save_payoff_curve(
     spot_ref: Optional[float] = None,
     meta: Optional[Dict[str, Any]] = None,
     timestamp: Optional[str] = None,
+    structure_id: Any = None,
 ) -> int:
     """
     patch_57: 'ref' aceita StructureRef, str ou None.
@@ -169,7 +170,11 @@ def save_payoff_curve(
     """
     ts           = timestamp or _now_iso()
     storage_key  = _unwrap_ref(ref) or "unknown"
-    resolved_sid = _resolve_structure_id(storage_key)
+    resolved_sid = (
+        int(structure_id)
+        if structure_id is not None
+        else _resolve_structure_id(storage_key)
+    )
 
     norm_points: List[Tuple[float, float]] = []
     for p in points or []:
@@ -197,6 +202,7 @@ def save_payoff_curve(
             points=norm_points,
             spot_ref=spot_ref,
             meta=effective_meta,
+            structure_id=resolved_sid,
         )
 
 
@@ -237,6 +243,7 @@ def save_payoff_from_canonical_payload(
         spot_ref=payoff.get("spot_ref"),
         meta=meta,
         timestamp=ts,
+        structure_id=resolved_sid,
     )
 
 

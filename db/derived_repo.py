@@ -679,8 +679,11 @@ def write_payoff_snapshot_atomic(
     aba: str,
     points: List,
     meta: Optional[Dict[str, Any]] = None,
+    structure_id: Optional[int] = None,
 ) -> int:
     ensure_derived_tables(conn)
+    if structure_id is None and isinstance(meta, dict):
+        structure_id = meta.get("structure_id") or meta.get("payload_structure_id")
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     aba = _unwrap_aba(aba)
     cur = conn.cursor()
@@ -690,8 +693,8 @@ def write_payoff_snapshot_atomic(
     )
     sql = """
         INSERT INTO payoff_curve_points
-            (timestamp, aba, point_spot, point_pl, meta_json)
-        VALUES (?, ?, ?, ?, ?)
+            (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+        VALUES (?, ?, ?, ?, ?, ?)
     """
     count = 0
     for p in points or []:
@@ -705,7 +708,7 @@ def write_payoff_snapshot_atomic(
             x, y = float(x), float(y)
         else:
             continue
-        cur.execute(sql, (timestamp, aba, x, y, meta_json))
+        cur.execute(sql, (timestamp, aba, structure_id, x, y, meta_json))
         count += 1
     return count
 
@@ -758,7 +761,7 @@ def write_complete_snapshot_atomic(
     ensure_derived_tables(conn)
     aba = _unwrap_aba(aba)
     with conn:
-        pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta)
+        pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta, structure_id=decision_dict.get("structure_id"))
         did = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
     return {"points_count": pc, "decision_id": did}
 
@@ -770,15 +773,18 @@ def insert_payoff_points(
     points: List[PayoffPoint],
     spot_ref: Optional[float] = None,
     meta: Optional[Dict[str, Any]] = None,
+    structure_id: Optional[int] = None,
 ) -> int:
     ensure_derived_tables(conn)
+    if structure_id is None and isinstance(meta, dict):
+        structure_id = meta.get("structure_id") or meta.get("payload_structure_id")
     aba = _unwrap_aba(aba)
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     cur = conn.cursor()
     sql = """
         INSERT OR REPLACE INTO payoff_curve_points
-            (timestamp, aba, point_spot, point_pl, meta_json)
-        VALUES (?, ?, ?, ?, ?)
+            (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+        VALUES (?, ?, ?, ?, ?, ?)
     """
     count = 0
     for p in points or []:
@@ -792,7 +798,7 @@ def insert_payoff_points(
             x, y = float(x), float(y)
         else:
             continue
-        cur.execute(sql, (timestamp, aba, x, y, meta_json))
+        cur.execute(sql, (timestamp, aba, structure_id, x, y, meta_json))
         count += 1
     conn.commit()
     return count
