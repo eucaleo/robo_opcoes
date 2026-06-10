@@ -79,66 +79,38 @@ class DetailsPanel(ttk.LabelFrame):
         self, structure_id
     ) -> Optional[str]:
         """
-        Busca o timestamp do snapshot mais recente no app.db para a estrutura.
-        patch_36: usa apenas structure_id (INT); legado aba removido.
-        PATCH_36_G: resolve structure_id -> aba via structures.alias_legacy_aba
-        e busca timestamp em rtd_analise_robo_legs WHERE aba = ?
-        Fallback: busca direta em structure_decisions do derived.db.
+        Busca o timestamp da decisão derivada mais recente para a estrutura.
+
+        Fase 2:
+        - UI não consulta app.db para snapshot RTD.
+        - UI não consulta rtd_analise_robo_legs.
+        - UI usa somente derived.db como fonte operacional de decisão/payoff.
         """
-        # --- Tentativa 1: app.db via aba ---
-        db_path = self._raw_db_path()
-        if db_path.exists():
-            try:                                          # fix: Try -> try
-                con = sqlite3.connect(str(db_path))
-                try:
-                    cur = con.cursor()
-
-                    # Resolve aba a partir de structure_id
-                    cur.execute(
-                        "SELECT alias_legacy_aba FROM structures WHERE id = ? LIMIT 1",
-                        (self._resolve_structure_key(structure_id),),
-                    )
-                    row = cur.fetchone()
-                    aba = row[0] if row and row[0] else None
-
-                    if aba:
-                        # Verifica se rtd_analise_robo_legs existe
-                        cur.execute(
-                            "SELECT 1 FROM sqlite_master "
-                            "WHERE type='table' AND name='rtd_analise_robo_legs' LIMIT 1"
-                        )
-                        if cur.fetchone():
-                            cur.execute(
-                                "SELECT MAX(timestamp) FROM rtd_analise_robo_legs "
-                                "WHERE aba = ?",
-                                (aba,),
-                            )
-                            row_ts = cur.fetchone()
-                            if row_ts and row_ts[0]:
-                                return str(row_ts[0])
-                finally:
-                    con.close()
-            except Exception as exc:
-                print(f"[details_panel] aviso ao buscar snapshot app.db: {exc}")
-
-        # --- Tentativa 2: derived.db (fallback confiavel) ---
         try:
+            sid = self._resolve_structure_key(structure_id)
             derived_path = self._derived_db_path()
-            if derived_path.exists():
-                con = sqlite3.connect(str(derived_path))
-                try:
-                    sid = self._resolve_structure_key(structure_id)
-                    cur = con.cursor()
-                    cur.execute(
-                        "SELECT MAX(created_at) FROM structure_decisions "
-                        "WHERE structure_id = ?",
-                        (sid,),
-                    )
-                    row = cur.fetchone()
-                    if row and row[0]:
-                        return str(row[0])
-                finally:
-                    con.close()
+
+            if not derived_path.exists():
+                return None
+
+            con = sqlite3.connect(str(derived_path))
+            try:
+                cur = con.cursor()
+                cur.execute(
+                    """
+                    SELECT COALESCE(created_at, timestamp) AS ts
+                    FROM structure_decisions
+                    WHERE structure_id = ?
+                    ORDER BY COALESCE(created_at, timestamp) DESC
+                    LIMIT 1
+                    """,
+                    (sid,),
+                )
+                row = cur.fetchone()
+                if row and row[0]:
+                    return str(row[0])
+            finally:
+                con.close()
         except Exception as exc:
             print(f"[details_panel] aviso ao buscar snapshot derived.db: {exc}")
 
