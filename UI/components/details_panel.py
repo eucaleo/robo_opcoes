@@ -82,8 +82,7 @@ class DetailsPanel(ttk.LabelFrame):
         Busca o timestamp da decisão derivada mais recente para a estrutura.
 
         Fase 2:
-        - UI não consulta app.db para snapshot RTD.
-        - UI não consulta rtd_analise_robo_legs.
+        - UI não consulta fontes operacionais legadas.
         - UI usa somente derived.db como fonte operacional de decisão/payoff.
         """
         try:
