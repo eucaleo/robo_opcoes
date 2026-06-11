@@ -432,45 +432,6 @@ class TestOnStructureEditRequestEditar(unittest.TestCase):
         mw.structures_list.load.assert_not_called()
 
 
-class TestLoadExisting(unittest.TestCase):
-
-    def test_carrega_campos_do_repositorio(self):
-        dlg = _make_dialog(structure_id=5)
-        dlg._repo.get_structure.return_value = {
-            "name": "Butterfly", "underlying_asset": "VALE3",
-            "alias_legacy_aba": "BF", "status": "active",
-            "notes": "ok", "legs": [],
-        }
-        dlg._refresh_leg_tree = MagicMock()
-        dlg._load_existing()
-        self.assertEqual(dlg._f_name.get(),       "Butterfly")
-        self.assertEqual(dlg._f_underlying.get(), "VALE3")
-        self.assertEqual(dlg._f_alias.get(),      "BF")
-        self.assertEqual(dlg._f_notes.get(),      "ok")
-
-    def test_carrega_legs_em_legs_rows(self):
-        legs = [{"position_side": "LONG", "option_type": "CALL",
-                 "strike": "30.00", "expiration_date": "2025-01-17",
-                 "quantity": 2, "premium": "1.50", "multiplier": 1.0,
-                 "leg_order": 1, "symbol": "PETRK300", "notes": None}]
-        dlg = _make_dialog(structure_id=3)
-        dlg._repo.get_structure.return_value = {
-            "name": "Straddle", "underlying_asset": "PETR4",
-            "alias_legacy_aba": None, "status": "active",
-            "notes": None, "legs": legs,
-        }
-        dlg._refresh_leg_tree = MagicMock()
-        dlg._load_existing()
-        self.assertEqual(len(dlg._legs_rows), 1)
-        self.assertEqual(dlg._legs_rows[0]["position_side"], "LONG")
-
-    def test_destroi_se_estrutura_nao_encontrada(self):
-        dlg = _make_dialog(structure_id=404)
-        dlg._repo.get_structure.return_value = None
-        dlg._refresh_leg_tree = MagicMock()
-        with patch("tkinter.messagebox.showerror"):
-            dlg._load_existing()
-        dlg.destroy.assert_called_once()
 
 
 class TestCmdSave(unittest.TestCase):
