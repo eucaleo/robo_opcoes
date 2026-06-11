@@ -167,10 +167,41 @@ def check_run_all_checks_targets_exist() -> None:
     log("OK", "run_all_checks.py referencia apenas checks existentes")
 
 
+
+ALLOWED_SCRIPTS = {
+    "scripts/run_derived_pipeline.py",
+    "scripts/validate_derived_db.py",
+}
+
+
+def check_scripts_allowlist() -> None:
+    files = git_ls_files()
+
+    script_files = sorted(
+        path.replace("\\", "/")
+        for path in files
+        if path.replace("\\", "/").startswith("scripts/")
+    )
+
+    unexpected = [
+        path
+        for path in script_files
+        if path not in ALLOWED_SCRIPTS
+    ]
+
+    if unexpected:
+        log("FAIL", "scripts/ contém arquivos fora da allowlist operacional:")
+        for path in unexpected:
+            print(f"  - {path}")
+        raise AssertionError(f"{len(unexpected)} arquivo(s) inesperado(s) em scripts/")
+
+    log("OK", "scripts/ contém apenas scripts operacionais permitidos")
+
 def main() -> int:
     try:
         log("INFO", "Iniciando verificação residual de limpeza")
         check_forbidden_files_absent()
+        check_scripts_allowlist()
         check_run_all_checks_targets_exist()
         check_forbidden_text_absent()
         log("OK", "Verificação residual de limpeza concluída com sucesso")
