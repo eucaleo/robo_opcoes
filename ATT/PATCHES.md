@@ -33,4 +33,3 @@ Rastreabilidade completa de mudancas em structures.
 - `AUDIT_ACTIONS` frozenset definido como contrato de acoes validas
 - 3 indices: `idx_audit_log_structure_id`, `idx_audit_log_changed_at`, `idx_audit_log_action`
 - `ATT/tests/test_patch72.py` -- 26 testes (checks estaticos + funcionais + atomicidade)
-- `scripts/76_smoke_patch72_audit_log.py` -- smoke end-to-end

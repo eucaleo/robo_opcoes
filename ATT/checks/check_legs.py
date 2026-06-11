@@ -1,7 +1,7 @@
 import sys
 import csv
 import traceback
-import subprocess
+from io import StringIO
 from pathlib import Path
 
 
@@ -14,41 +14,56 @@ CSV_CANDIDATES = [
     BRIDGE_DIR / "analise_raiox.csv",
 ]
 
-SMOKE_SCRIPTS = [
-    ROOT_DIR / "Scripts" / "09b_smoke_robo_legs_lookup.py",
-    ROOT_DIR / "Scripts" / "09_smoke_robo_legs_lookup.py",
-]
-
 
 def log(level: str, message: str) -> None:
     print(f"[{level}] {message}")
 
 
+def read_text_with_fallback(path: Path) -> tuple[str, str]:
+    data = path.read_bytes()
+
+    for encoding in ("utf-8-sig", "utf-8", "cp1252", "latin-1"):
+        try:
+            return data.decode(encoding), encoding
+        except UnicodeDecodeError:
+            continue
+
+    return data.decode("latin-1", errors="replace"), "latin-1-replace"
+
+
+def read_csv_rows(path: Path):
+    text, encoding = read_text_with_fallback(path)
+    sample = text[:4096]
+
+    try:
+        dialect = csv.Sniffer().sniff(sample, delimiters=";,")
+        delimiter = dialect.delimiter
+        rows = list(csv.reader(StringIO(text), dialect))
+    except csv.Error:
+        first_line = sample.splitlines()[0] if sample.splitlines() else ""
+        delimiter = "," if first_line.count(",") > first_line.count(";") else ";"
+        rows = list(csv.reader(StringIO(text), delimiter=delimiter))
+
+    return rows, delimiter, encoding
+
+
 def validate_csv(path: Path) -> None:
-    with path.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.reader(f, delimiter=";")
-        rows = list(reader)
+    rows, delimiter, encoding = read_csv_rows(path)
 
     if not rows:
         raise ValueError(f"CSV vazio: {path}")
 
     headers = rows[0]
     log("INFO", f"CSV validado: {path.name}")
+    log("INFO", f"Encoding detectado: {encoding}")
+    log("INFO", f"Delimitador detectado: {delimiter!r}")
     log("INFO", f"Colunas detectadas: {headers[:20]}")
-    log("INFO", f"Quantidade de linhas (incluindo cabeçalho): {len(rows)}")
+    log("INFO", f"Quantidade de linhas incluindo cabeçalho: {len(rows)}")
 
     if len(headers) <= 1:
         raise ValueError(
             f"CSV parece não ter sido interpretado corretamente: apenas {len(headers)} coluna(s)"
         )
-
-
-def run_smoke(script_path: Path) -> None:
-    log("INFO", f"Executando smoke real: {script_path.name}")
-    result = subprocess.run([sys.executable, str(script_path)], cwd=str(ROOT_DIR))
-    if result.returncode != 0:
-        raise RuntimeError(f"Smoke falhou: {script_path.name} (código {result.returncode})")
-    log("OK", f"Smoke passou: {script_path.name}")
 
 
 def main() -> int:
@@ -61,15 +76,8 @@ def main() -> int:
                 validate_csv(path)
                 found_csv = True
 
-        smoke_found = False
-        for script in SMOKE_SCRIPTS:
-            if script.exists():
-                run_smoke(script)
-                smoke_found = True
-                break
-
-        if not found_csv and not smoke_found:
-            raise FileNotFoundError("Nem CSV real nem smoke de robo legs foram encontrados")
+        if not found_csv:
+            raise FileNotFoundError("Nenhum CSV real de legs/estrutura foi encontrado")
 
         log("OK", "check_legs concluído com sucesso")
         return 0

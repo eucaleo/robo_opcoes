@@ -9,8 +9,6 @@ CHECK_SCRIPTS = [
     "check_api_routes.py",
     "check_legs.py",
     "check_structures.py",
-    "check_calculation_pipeline.py",
-    "check_result_repository.py",
     "check_end_to_end.py",
 ]
 

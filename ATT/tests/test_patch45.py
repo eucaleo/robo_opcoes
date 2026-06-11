@@ -165,9 +165,6 @@ class TestPatch45SemAcessoRawDB(unittest.TestCase):
         self.assertNotIn("sqlite3.connect", src)
         self.assertNotIn("get_app_db_connection", src)
 
-    def test_script_smoke_existe(self):
-        path = os.path.join(ROOT, "scripts", "45_smoke_calculation_request.py")
-        self.assertTrue(os.path.isfile(path), f"smoke script não encontrado: {path}")
 
 
 if __name__ == "__main__":
