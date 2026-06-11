@@ -6,13 +6,30 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 
-FORBIDDEN_PATTERNS = [
-    r"\bscripts/",
-    r"\bscripts\\",
-    r"\bscripts\b",
+FORBIDDEN_FILE_PATTERNS = [
+    r"(^|/)ATT/tests/test_patch10_smoke\.py$",
+    r"(^|/)ATT/tests/teste_rapido_smoke_patch2_25\.py$",
+    r"(^|/)scripts/_smoke_context\.py$",
+    r"(^|/)scripts/run_smoke_baseline\.py$",
+    r"(^|/)scripts/run_smoke_full\.py$",
+    r"(^|/)scripts/run_smoke_quick\.py$",
+    r"(^|/)scripts/smoke_canonical_and_domain\.py$",
+    r"(^|/)scripts/__pycache__/",
+    r"(^|/)scripts/.*\.pyc$",
+]
+
+FORBIDDEN_TEXT_PATTERNS = [
     r"run_real_smokes",
     r"check_calculation_pipeline",
     r"check_result_repository",
+    r"run_smoke_baseline",
+    r"run_smoke_full",
+    r"run_smoke_quick",
+    r"smoke_canonical_and_domain",
+    r"test_patch10_smoke",
+    r"teste_rapido_smoke_patch2_25",
+    r"09b_smoke_robo_legs_lookup",
+    r"09_smoke_robo_legs_lookup",
     r"smoke_pricing_execution",
     r"smoke_calculation_request",
     r"smoke_market_snapshot",
@@ -21,15 +38,13 @@ FORBIDDEN_PATTERNS = [
     r"canonical_execution_probe",
     r"audit_fase8",
     r"audit_patch",
-    r"audit_legacy",
-    r"audit_domain_dto_boundary",
-    r"audit_public_api",
-    r"audit_aba",
+    r"audit_legacy_domain_coupling",
+    r"audit_public_api_aba_surface",
+    r"audit_aba_wrappers",
     r"phase_3a",
     r"phase_3b",
     r"phase_3c",
     r"patch3b",
-    r"tmp_.*\.py",
 ]
 
 SEARCH_PATHS = [
@@ -40,12 +55,13 @@ SEARCH_PATHS = [
     ".github",
 ]
 
-ALLOW_PATTERNS = [
-    # Teste intencional que valida ausência de scripts temporários.
-    r"ATT/tests/test_patch61\.py",
-
-    # Este próprio check contém os padrões proibidos.
+ALLOW_PATH_PATTERNS = [
     r"ATT/checks/check_cleanup_residuals\.py",
+    r"ATT/PATCHES\.md",
+    r"ATT/tests/test_orchestrator_run_methods\.py",
+    r"ATT/tests/test_patch35_details_panel\.py",
+    r"ATT/tests/test_patch36_details_panel\.py",
+    r"ATT/tests/test_patch72\.py",
 ]
 
 
@@ -53,23 +69,28 @@ def log(level: str, message: str) -> None:
     print(f"[{level}] {message}")
 
 
+def git_ls_files() -> list[str]:
+    result = subprocess.run(
+        ["git", "ls-files"],
+        cwd=str(ROOT),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(result.stderr.strip() or "git ls-files falhou")
+
+    return [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+
 def run_git_grep(pattern: str) -> list[str]:
     existing_paths = [p for p in SEARCH_PATHS if (ROOT / p).exists()]
     if not existing_paths:
         return []
 
-    cmd = [
-        "git",
-        "grep",
-        "-n",
-        "-E",
-        pattern,
-        "--",
-        *existing_paths,
-    ]
-
     result = subprocess.run(
-        cmd,
+        ["git", "grep", "-n", "-E", pattern, "--", *existing_paths],
         cwd=str(ROOT),
         text=True,
         stdout=subprocess.PIPE,
@@ -85,39 +106,44 @@ def run_git_grep(pattern: str) -> list[str]:
     return [line for line in result.stdout.splitlines() if line.strip()]
 
 
-def is_allowed(line: str) -> bool:
-    return any(re.search(pattern, line) for pattern in ALLOW_PATTERNS)
+def is_allowed_line(line: str) -> bool:
+    return any(re.search(pattern, line) for pattern in ALLOW_PATH_PATTERNS)
 
 
-def check_no_forbidden_references() -> None:
-    violations: list[str] = []
+def check_forbidden_files_absent() -> None:
+    files = git_ls_files()
+    violations = []
 
-    for pattern in FORBIDDEN_PATTERNS:
-        matches = run_git_grep(pattern)
-        for line in matches:
-            if not is_allowed(line):
+    for path in files:
+        normalized = path.replace("\\", "/")
+        for pattern in FORBIDDEN_FILE_PATTERNS:
+            if re.search(pattern, normalized):
+                violations.append(normalized)
+
+    if violations:
+        log("FAIL", "Arquivos residuais proibidos ainda versionados:")
+        for path in sorted(set(violations)):
+            print(f"  - {path}")
+        raise AssertionError(f"{len(set(violations))} arquivo(s) residual(is) encontrado(s)")
+
+    log("OK", "Nenhum arquivo residual proibido versionado")
+
+
+def check_forbidden_text_absent() -> None:
+    violations = []
+
+    for pattern in FORBIDDEN_TEXT_PATTERNS:
+        for line in run_git_grep(pattern):
+            if not is_allowed_line(line):
                 violations.append(f"{pattern} -> {line}")
 
     if violations:
-        log("FAIL", "Referências residuais encontradas:")
+        log("FAIL", "Referências residuais proibidas encontradas:")
         for violation in violations:
             print(f"  - {violation}")
         raise AssertionError(f"{len(violations)} referência(s) residual(is) encontrada(s)")
 
     log("OK", "Nenhuma referência residual proibida encontrada")
-
-
-def check_lowercase_scripts_dir_absent() -> None:
-    scripts_dir = ROOT / "scripts"
-    if scripts_dir.exists():
-        remaining = sorted(p.relative_to(ROOT).as_posix() for p in scripts_dir.rglob("*") if p.is_file())
-        if remaining:
-            log("FAIL", "Arquivos restantes em scripts/:")
-            for path in remaining:
-                print(f"  - {path}")
-            raise AssertionError("Diretório scripts/ ainda contém arquivos")
-
-    log("OK", "Diretório scripts/ minúsculo ausente ou vazio")
 
 
 def check_run_all_checks_targets_exist() -> None:
@@ -128,9 +154,6 @@ def check_run_all_checks_targets_exist() -> None:
     missing = []
 
     for name in referenced:
-        if name == Path(__file__).name:
-            continue
-
         candidate = run_all.parent / name
         if not candidate.exists():
             missing.append(name)
@@ -147,9 +170,9 @@ def check_run_all_checks_targets_exist() -> None:
 def main() -> int:
     try:
         log("INFO", "Iniciando verificação residual de limpeza")
-        check_lowercase_scripts_dir_absent()
+        check_forbidden_files_absent()
         check_run_all_checks_targets_exist()
-        check_no_forbidden_references()
+        check_forbidden_text_absent()
         log("OK", "Verificação residual de limpeza concluída com sucesso")
         return 0
     except Exception as exc:

@@ -10,6 +10,7 @@ CHECK_SCRIPTS = [
     "check_legs.py",
     "check_structures.py",
     "check_end_to_end.py",
+    "check_cleanup_residuals.py",
 ]
 
 
