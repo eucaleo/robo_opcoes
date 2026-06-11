@@ -1,4 +1,4 @@
-# ATT/tests/test_patch69_structure_editor.py
+# Testes do dialogo de edicao de estruturas
 """
 patch_69 -- Testes unitarios de StructureEditorDialog
 

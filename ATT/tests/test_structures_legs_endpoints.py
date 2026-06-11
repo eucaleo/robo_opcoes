@@ -1,4 +1,4 @@
-# tests/test_patch63_legs_endpoints.py
+# Testes dos endpoints de legs de estruturas
 """
 PATCH_63 — Testes dos endpoints de legs na API de estruturas.
 

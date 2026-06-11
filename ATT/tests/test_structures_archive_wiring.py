@@ -1,4 +1,4 @@
-# ATT/tests/test_patch71_archive_wiring.py
+# Testes de wiring do arquivo de estruturas
 """
 Testes do patch_71:
     - structures_list_panel.py: self._db_path, _set_status, feedback em _cmd_archive

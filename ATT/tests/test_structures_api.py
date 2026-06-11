@@ -1,4 +1,4 @@
-# ATT/tests/test_patch_51_structures_api.py
+# Testes da API de estruturas
 """
 patch_51 -- testes de contrato da API REST de estruturas.
 

@@ -10,7 +10,7 @@ get_structures() lazy-load consolidado; comentário regex corrigido
 Over-removal do patch_37 corrigido: get_abas() recolocado como alias readonly
 de get_structure_ids() conforme PERMANENT_DECISIONS[patch_34:filtro_aba].
 5 testes de regressão restaurados (test_regression_aba_compat, test_ui_data_migration,
-test_patch34_ui_data).
+testes de dados da UI).
 
 ## patch_56 -- StructureRef Propagation (2026-06-03 20:59)
 - Corrigido bug f-string em get_payoff_by_aba()
@@ -32,4 +32,4 @@ Rastreabilidade completa de mudancas em structures.
 - `get_audit_log(structure_id)` e `get_full_audit_log(limit, action)` adicionados ao repo
 - `AUDIT_ACTIONS` frozenset definido como contrato de acoes validas
 - 3 indices: `idx_audit_log_structure_id`, `idx_audit_log_changed_at`, `idx_audit_log_action`
-- `ATT/tests/test_patch72.py` -- 26 testes (checks estaticos + funcionais + atomicidade)
+- Testes consolidados de checks estaticos, funcionais e atomicidade
