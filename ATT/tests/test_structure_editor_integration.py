@@ -319,7 +319,7 @@ def _make_main_window():
 # 1–6. Classes de teste (inalteradas)
 # ===========================================================================
 
-class TestPatch70StaticChecks(unittest.TestCase):
+class TestStructureEditorIntegrationStaticChecks(unittest.TestCase):
 
     def test_main_window_arquivo_existe(self):
         self.assertTrue(

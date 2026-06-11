@@ -35,7 +35,7 @@ def _src(path: Path) -> str:
 # 1. Checks estaticos -- structures_list_panel.py
 # ---------------------------------------------------------------------------
 
-class TestPatch71StaticChecks(unittest.TestCase):
+class TestStructuresArchiveWiringStaticChecks(unittest.TestCase):
 
     def test_arquivo_existe(self):
         self.assertTrue(
@@ -112,7 +112,7 @@ class TestPatch71StaticChecks(unittest.TestCase):
 # 2. Checks estaticos -- main_window.py
 # ---------------------------------------------------------------------------
 
-class TestPatch71StaticMainWindow(unittest.TestCase):
+class TestStructuresArchiveWiringMainWindow(unittest.TestCase):
 
     def test_main_window_arquivo_existe(self):
         self.assertTrue(MAIN_WINDOW.exists(),

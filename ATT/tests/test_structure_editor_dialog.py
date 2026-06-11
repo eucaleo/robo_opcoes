@@ -355,7 +355,7 @@ class TestCmdSaveUpdate(unittest.TestCase):
 # Bloco 5 -- Verificacoes estaticas
 # ===========================================================================
 
-class TestPatch69StaticChecks(unittest.TestCase):
+class TestStructureEditorDialogStaticChecks(unittest.TestCase):
 
     def test_arquivo_existe(self):
         path = os.path.join(
