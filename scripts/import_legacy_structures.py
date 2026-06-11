@@ -1,5 +1,5 @@
 """
-patch_66_import_legacy_structures.py
+import_legacy_structures.py
 =====================================
 Fase 7 — Migracao definitiva das legs legadas para o modelo canonico.
 
@@ -21,7 +21,7 @@ Conversoes aplicadas:
 Idempotente: se structure_legs ja tiver registros para o structure_id,
              a aba e pulada sem erro.
 
-Autor: patch_66 | 2026-06-04
+Origem: extraido do patch_66 | 2026-06-04
 """
 
 from __future__ import annotations
@@ -248,7 +248,7 @@ def run():
     now_iso = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S+00:00")
 
     print("=" * 70)
-    print(f"patch_66 -- import legacy structures -> canonico")
+    print(f"import legacy structures -> canonico")
     print(f"DRY_RUN  = {DRY_RUN}")
     print(f"DB       = {DB_PATH}")
     print(f"NOW      = {now_iso}")

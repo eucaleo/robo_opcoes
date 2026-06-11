@@ -248,27 +248,5 @@ class TestPatch59SintaxeArquivos(unittest.TestCase):
                 except SyntaxError as exc:
                     self.fail(f"SyntaxError em {rel}: {exc}")
 
-
-# ---------------------------------------------------------------------------
-# Script de patch existe e e importavel
-# ---------------------------------------------------------------------------
-
-class TestPatch59ScriptExiste(unittest.TestCase):
-
-    def test_script_patch59_existe(self):
-        p = ROOT / "ATT/patches/patch_59_bugfix_surface_audit.py"
-        self.assertTrue(p.exists(), "patch_59_bugfix_surface_audit.py deve existir")
-
-    def test_script_patch59_sintaxe(self):
-        p = ROOT / "ATT/patches/patch_59_bugfix_surface_audit.py"
-        if not p.exists():
-            self.skipTest("script nao existe ainda")
-        src = p.read_text(encoding="utf-8")
-        try:
-            ast.parse(src)
-        except SyntaxError as exc:
-            self.fail(f"SyntaxError no script do patch_59: {exc}")
-
-
 if __name__ == "__main__":
     unittest.main(verbosity=2)

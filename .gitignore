@@ -37,7 +37,7 @@ OPERACOES_E_OPCOES.xlsx
 BAK/**
 ATT/reports/**
 # manter scripts reprodutíveis versionados:
-!ATT/patches/**
+!ATT/patches/.gitkeep
 !ATT/tests/**
 !ATT/**/.gitkeep
 # --- /v2 hygiene ---

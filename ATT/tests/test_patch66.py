@@ -18,7 +18,7 @@ import pytest
 # Adiciona raiz ao path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from ATT.patches.patch_66_import_legacy_structures import (
+from scripts.import_legacy_structures import (
     excel_serial_to_iso,
     map_position_side,
     safe_float,

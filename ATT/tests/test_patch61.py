@@ -49,12 +49,6 @@ class TestPatch61TmpScriptsRemovidos(unittest.TestCase):
         )
 
 
-class TestPatch61PatchScriptExiste(unittest.TestCase):
-
-    def test_patch_script_existe(self):
-        patch = ROOT / "ATT" / "patches" / "patch_61_cleanup_tmp_scripts.py"
-        self.assertTrue(patch.exists(), f"Script do patch nao encontrado: {patch}")
-
 
 if __name__ == "__main__":
     unittest.main()
