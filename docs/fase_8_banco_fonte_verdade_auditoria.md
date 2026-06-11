@@ -267,3 +267,212 @@ Objetivos:
 - confirmar se alias_legacy_aba é suficiente para vincular estrutura com pernas legadas;
 - verificar se há dados suficientes para popular structure_legs;
 - definir se a migração será feita agora ou deixada como entrada controlada para a Fase 9.
+
+## Auditoria complementar: vínculo entre estruturas e pernas legadas
+
+Foi executada inspeção das tabelas centrais da Fase 8 para avaliar se as estruturas persistidas em `structures` possuem vínculo confiável com pernas vindas das tabelas RTD legadas.
+
+### Tabelas inspecionadas em dados/app.db
+
+- structures
+- structure_legs
+- rtd_analise_robo_legs
+- manual_analise_robo_legs
+- rtd_option_quotes
+- pricing_executions
+- rtd_analise_robo
+- rtd_consolidacoes
+
+### Tabelas inspecionadas em dados/derived.db
+
+- structure_decisions
+- payoff_curve_points
+- payoff_curve_summary
+
+## Resultado da inspeção de structures
+
+A tabela `structures` possui 5 registros:
+
+- id 44: BOVA11, alias_legacy_aba BOVA11
+- id 45: EMBJ3, alias_legacy_aba EMBJ3
+- id 46: PRIO3, alias_legacy_aba PRIO3
+- id 47: SBSP3, alias_legacy_aba SBSP3
+- id 48: SMAL11, alias_legacy_aba SMAL11
+
+Colunas relevantes:
+
+- id
+- name
+- underlying_asset
+- alias_legacy_aba
+- status
+- notes
+- created_at
+- updated_at
+
+## Resultado da inspeção de structure_legs
+
+A tabela `structure_legs` existe, mas permanece vazia.
+
+Total encontrado:
+
+- structure_legs: 0
+
+Colunas disponíveis para normalização:
+
+- id
+- structure_id
+- position_side
+- option_type
+- symbol
+- strike
+- expiration_date
+- quantity
+- premium
+- multiplier
+- leg_order
+- notes
+- created_at
+- updated_at
+
+Conclusão:
+
+- O schema operacional de pernas já existe.
+- Ainda não há dados normalizados nessa tabela.
+- A normalização pode ser tecnicamente viável, mas exige mapeamento explícito e testado dos campos legados.
+
+## Resultado da inspeção de rtd_analise_robo_legs
+
+A tabela `rtd_analise_robo_legs` possui 20 registros.
+
+Cada uma das 5 estruturas possui 4 pernas.
+
+Campos relevantes encontrados:
+
+- timestamp
+- aba
+- ativo
+- cv
+- call_put
+- quant
+- valor_executado
+- bid
+- ask
+- spread
+- spread_pct
+- iv
+- delta
+- gamma
+- theta
+- vega
+- strike
+- vencimento
+- dte
+- pl_realista
+
+Leitura inicial:
+
+- `aba` é a chave legada que identifica a estrutura.
+- `ativo` representa o código da opção.
+- `cv` representa compra/venda no legado.
+- `call_put` representa CALL ou PUT.
+- `quant` representa quantidade.
+- `valor_executado` pode servir como prêmio/preço executado.
+- `strike` e `vencimento` podem alimentar os campos normalizados de perna.
+- Os campos de gregas e mercado podem alimentar snapshots, não necessariamente `structure_legs`.
+
+## Resultado do vínculo structures x rtd_analise_robo_legs
+
+Consulta realizada:
+
+- structures.alias_legacy_aba x rtd_analise_robo_legs.aba
+
+Resultado:
+
+- BOVA11 encontrou 4 pernas RTD
+- EMBJ3 encontrou 4 pernas RTD
+- PRIO3 encontrou 4 pernas RTD
+- SBSP3 encontrou 4 pernas RTD
+- SMAL11 encontrou 4 pernas RTD
+
+Não foram encontradas abas em `rtd_analise_robo_legs` sem estrutura correspondente.
+
+Não foram encontradas estruturas sem pernas em `rtd_analise_robo_legs`.
+
+## Classificação do cenário
+
+Classificação:
+
+- Cenário A: vínculo perfeito
+
+Conclusão:
+
+- `alias_legacy_aba` é suficiente, no estado atual do banco, para vincular cada estrutura persistida às suas pernas legadas.
+- Há dados suficientes para criar uma migração controlada para popular `structure_legs`.
+- A migração não deve ser feita automaticamente sem antes definir regras formais de conversão de `cv`, `call_put`, `quant`, `valor_executado` e `vencimento`.
+
+## Observações sobre pricing_executions
+
+A tabela `pricing_executions` possui 15 registros.
+
+Os registros analisados já carregam payloads com pernas canônicas dentro de `pricing_payload`, incluindo:
+
+- structure_id
+- underlying_asset
+- reference_date
+- legs
+- quantity
+- price
+- asset
+- option_type
+- strike
+- expiry
+- iv
+- delta
+- gamma
+- theta
+- vega
+- source
+
+Leitura:
+
+- Além da ponte direta com `rtd_analise_robo_legs`, existe uma segunda fonte já parcialmente canonizada dentro de `pricing_executions.pricing_payload`.
+- Essa fonte pode ser útil para validação cruzada, mas não deve substituir uma migração explícita e auditável para `structure_legs`.
+
+## Observações sobre dados derivados
+
+A tabela `structure_decisions` possui decisões associadas a `structure_id`.
+
+A tabela `payoff_curve_points` possui pontos de curva associados a `structure_id`.
+
+A tabela `payoff_curve_summary` existe, mas está vazia.
+
+Leitura:
+
+- Parte dos derivados já referencia estruturas por `structure_id`.
+- Isso reforça que `structures.id` já está sendo usado como identificador operacional em parte do sistema.
+- A ausência de `structure_legs` continua sendo a principal lacuna para completar o banco como fonte da verdade operacional.
+
+## Decisão técnica após auditoria complementar
+
+A próxima etapa técnica da Fase 8 deve ser preparar uma leitura/migração controlada das pernas.
+
+Antes de inserir dados em `structure_legs`, devem ser definidos e testados os mapeamentos:
+
+- rtd_analise_robo_legs.aba -> structures.alias_legacy_aba
+- structures.id -> structure_legs.structure_id
+- rtd_analise_robo_legs.cv -> structure_legs.position_side
+- rtd_analise_robo_legs.call_put -> structure_legs.option_type
+- rtd_analise_robo_legs.ativo -> structure_legs.symbol
+- rtd_analise_robo_legs.strike -> structure_legs.strike
+- rtd_analise_robo_legs.vencimento -> structure_legs.expiration_date
+- rtd_analise_robo_legs.quant -> structure_legs.quantity
+- rtd_analise_robo_legs.valor_executado -> structure_legs.premium
+- ordem estável das pernas -> structure_legs.leg_order
+
+Critério recomendado:
+
+- criar primeiro função ou serviço de leitura canônica;
+- cobrir com testes;
+- só depois decidir se haverá backfill persistente em `structure_legs`.
+
