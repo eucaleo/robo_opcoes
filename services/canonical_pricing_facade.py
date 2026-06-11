@@ -133,8 +133,8 @@ def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
     Procura spot positivo no app.db.
 
     Caso confirmado:
-      rtd_analise_robo.aba = SMAL11
-      rtd_analise_robo.spot = 124.66
+      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+      spot observado = 124.66
     """
     if not underlying_asset:
         return 0.0

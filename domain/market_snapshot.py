@@ -3,7 +3,7 @@
 Objetos de domínio para snapshots de mercado.
 
 alteracao_12: LegMarketSnapshot, SnapshotSource
-alteracao_13: StructureMarketSnapshot (agrega legs + cabeçalho RTD)
+alteracao_13: StructureMarketSnapshot (agrega legs + cabeçalho de mercado)
 """
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ class LegMarketSnapshot:
 @dataclass
 class StructureMarketSnapshot:
     """
-    Agrega o cabeçalho da estrutura (rtd_analise_robo) e suas legs.
+    Agrega o cabeçalho de mercado da estrutura e suas legs.
 
     Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
       aba, spot, num_pernas, dte_min, pl_realista_total,
@@ -71,7 +71,7 @@ class StructureMarketSnapshot:
     legs               : list[LegMarketSnapshot]        = field(default_factory=list)
     source             : SnapshotSource                 = SnapshotSource.RTD
 
-    #  cabeçalho RTD / summary 
+    #  cabeçalho de mercado / summary 
     spot               : Optional[float] = None
     num_pernas         : Optional[int]   = None
     dte_min            : Optional[int]   = None
