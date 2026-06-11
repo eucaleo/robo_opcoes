@@ -11,19 +11,10 @@ import json
 import csv
 from datetime import datetime
 
-CANDIDATE_CONSOLIDATION_TABLES = [
-    "structure_decisions",
-    "rtd_consolidacoes",
-    "rtd_consolidations",
-    "decisions",
-    "rtd_decisions",
-]
-CANDIDATE_PAYOFF_TABLES = [
-    "payoff_curve_points",
-    "rtd_payoff_points",
-    "rtd_payoff_curva",
-    "payoff_points",
-]
+from repositories.ui_data_table_candidates import (
+    CANDIDATE_CONSOLIDATION_TABLES,
+    CANDIDATE_PAYOFF_TABLES,
+)
 
 # Mapeamento de colunas preferidas -> alternativas
 COLUMN_ALIASES = {
