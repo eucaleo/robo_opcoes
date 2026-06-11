@@ -1,6 +1,13 @@
 # tests/test_ui_data_migration.py
 import pytest
-from tests.paths import DB_PATH, PROJECT_ROOT
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
 from UI.models.ui_data import UIDataModel
 
 
