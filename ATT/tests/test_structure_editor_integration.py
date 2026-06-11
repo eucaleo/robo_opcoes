@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # Testes de integracao do editor de estruturas
 """
-patch_70 -- Testes de integração: StructureEditorDialog x MainWindow.
+Testes de integração: StructureEditorDialog x MainWindow.
 """
 
 import ast

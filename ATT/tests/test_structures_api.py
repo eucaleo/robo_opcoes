@@ -1,6 +1,6 @@
 # Testes da API de estruturas
 """
-patch_51 -- testes de contrato da API REST de estruturas.
+Testes de contrato da API REST de estruturas.
 
 Usa TestClient do FastAPI (repositório mockado via unittest.mock).
 Cobertura: POST / GET (lista) / GET (detalhe) / PATCH / DELETE
@@ -58,7 +58,7 @@ FAKE_STRUCTURE = {
 FAKE_SUMMARY = {k: v for k, v in FAKE_STRUCTURE.items() if k != "legs"}
 
 # ---------------------------------------------------------------------------
-# patch_63 -- Testes dos endpoints de legs
+# Testes dos endpoints de legs
 # ---------------------------------------------------------------------------
 
 FAKE_LEG_PAYLOAD = {
@@ -94,7 +94,7 @@ def client_legs(mock_repo):
 
 
 class TestLegsEndpoints:
-    """Testes dos endpoints de pernas (patch_63)."""
+    """Testes dos endpoints de pernas."""
 
     # ------------------------------------------------------------------ #
     # POST /structures/{id}/legs                                          #
@@ -161,7 +161,7 @@ class TestLegsEndpoints:
         assert resp.status_code == 422
 
     def test_add_leg_aceita_leg_order_zero(self, client_legs):
-        """patch_63 fix: leg_order=0 deve ser aceito (antes rejeitado)."""
+        """Regressao: leg_order=0 deve ser aceito, sem rejeicao indevida."""
         tc, _ = client_legs
         payload = {**FAKE_LEG_PAYLOAD, "leg_order": 0}
         resp = tc.post("/structures/1/legs", json=payload)
@@ -225,7 +225,7 @@ class TestLegsEndpoints:
         assert resp.status_code == 422
 
     def test_replace_legs_aceita_leg_order_zero(self, client_legs):
-        """patch_63 fix: leg_order=0 deve ser aceito no replace também."""
+        """Regressao: leg_order=0 deve ser aceito no replace tambem."""
         tc, _ = client_legs
         payload = {"legs": [{**FAKE_LEG_PAYLOAD, "leg_order": 0}]}
         resp = tc.put("/structures/1/legs", json=payload)

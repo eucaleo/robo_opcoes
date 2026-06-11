@@ -1,6 +1,6 @@
 # Testes dos endpoints de legs de estruturas
 """
-PATCH_63 — Testes dos endpoints de legs na API de estruturas.
+Testes dos endpoints de legs na API de estruturas.
 
 Cobre:
     POST   /structures/{id}/legs           — add_leg
@@ -147,7 +147,7 @@ class TestAddLeg:
         assert resp.status_code == 422
 
     def test_add_leg_aceita_leg_order_zero(self, client_legs):
-        """patch_63 FIX principal: leg_order=0 deve ser aceito."""
+        """Regressao principal: leg_order=0 deve ser aceito."""
         tc, _ = client_legs
         payload = {**FAKE_LEG_PAYLOAD, "leg_order": 0}
         resp = tc.post("/structures/1/legs", json=payload)
@@ -215,7 +215,7 @@ class TestReplaceLegs:
         assert resp.status_code == 422
 
     def test_replace_legs_aceita_leg_order_zero(self, client_legs):
-        """patch_63 FIX: leg_order=0 deve ser aceito no replace também."""
+        """Regressao: leg_order=0 deve ser aceito no replace tambem."""
         tc, _ = client_legs
         payload = {"legs": [{**FAKE_LEG_PAYLOAD, "leg_order": 0}]}
         resp = tc.put("/structures/1/legs", json=payload)

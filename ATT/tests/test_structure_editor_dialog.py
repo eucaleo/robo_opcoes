@@ -1,6 +1,6 @@
 # Testes do dialogo de edicao de estruturas
 """
-patch_69 -- Testes unitarios de StructureEditorDialog
+Testes unitarios de StructureEditorDialog
 
 Estrategia: injecao direta de _repo via parametro de construtor.
 Nao depende de patch de namespace, funciona independentemente

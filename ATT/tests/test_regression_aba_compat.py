@@ -66,7 +66,7 @@ def test_decisions_tem_ambos_campos(model):
 def test_aba_e_structure_id_identicos(model):
     """
     patch_3a: structure_id e int canonico; aba e ticker legado (ex: 'SBSP3').
-    Nao sao mais identicos -- esse e o comportamento correto apos o patch_34.
+    Nao sao mais identicos -- esse e o comportamento correto apos a migracao para structure_id.
     Verificamos apenas que ambos existem e sao nao-nulos.
     """
     decisions = model.get_decisions()
@@ -130,7 +130,7 @@ def test_payoff_curve_info_nao_quebra_com_aba(model):
     """
     patch_3a: get_payoff_curve_info() recebe structure_id (int) -- nao mais aba ticker.
     Teste atualizado para usar structure_id canonico.
-    Aba como chave de lookup foi removida no patch_34.
+    Aba como chave de lookup foi removida na migracao para structure_id.
     """
     decisions = model.get_decisions()
     if not decisions:

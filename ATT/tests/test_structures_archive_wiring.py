@@ -1,6 +1,6 @@
 # Testes de wiring do arquivo de estruturas
 """
-Testes do patch_71:
+Testes do fluxo de arquivamento de estruturas:
     - structures_list_panel.py: self._db_path, _set_status, feedback em _cmd_archive
     - main_window.py: self._db_path no __init__, ausencia de hardcode
 
@@ -124,8 +124,8 @@ class TestStructuresArchiveWiringMainWindow(unittest.TestCase):
 
     def test_db_path_nao_hardcoded_em_main_window(self):
         """
-        patch_72: renomeado de test_db_path_nao_hardcoded_em_setup_structures_tab
-        para alinhar com o nome esperado pelo auditor do patch_71.
+        Renomeado de test_db_path_nao_hardcoded_em_setup_structures_tab
+        para alinhar com o nome esperado pela auditoria de wiring.
         Logica identica -- verifica ausencia de db_path hardcoded na instanciacao
         de StructuresListPanel em main_window.py.
         """
