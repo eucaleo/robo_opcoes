@@ -197,11 +197,32 @@ def check_scripts_allowlist() -> None:
 
     log("OK", "scripts/ contém apenas scripts operacionais permitidos")
 
+
+
+def check_no_patch_tests() -> None:
+    files = git_ls_files()
+
+    patch_tests = sorted(
+        item.replace("\\", "/")
+        for item in files
+        if item.replace("\\", "/").startswith("ATT/tests/test_patch")
+        and item.replace("\\", "/").endswith(".py")
+    )
+
+    if patch_tests:
+        log("FAIL", "Arquivos test_patch*.py ainda versionados em ATT/tests:")
+        for item in patch_tests:
+            print(f"  - {item}")
+        raise AssertionError(f"{len(patch_tests)} arquivo(s) test_patch*.py encontrado(s)")
+
+    log("OK", "Nenhum arquivo test_patch*.py versionado em ATT/tests")
+
 def main() -> int:
     try:
         log("INFO", "Iniciando verificação residual de limpeza")
         check_forbidden_files_absent()
         check_scripts_allowlist()
+        check_no_patch_tests()
         check_run_all_checks_targets_exist()
         check_forbidden_text_absent()
         log("OK", "Verificação residual de limpeza concluída com sucesso")
