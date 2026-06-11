@@ -125,7 +125,7 @@ class TestStructuresArchiveWiringMainWindow(unittest.TestCase):
     def test_db_path_nao_hardcoded_em_main_window(self):
         """
         Renomeado de test_db_path_nao_hardcoded_em_setup_structures_tab
-        para alinhar com o nome esperado pela auditoria de wiring.
+        para alinhar com o nome esperado pela verificação de wiring.
         Logica identica -- verifica ausencia de db_path hardcoded na instanciacao
         de StructuresListPanel em main_window.py.
         """

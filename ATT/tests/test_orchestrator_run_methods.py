@@ -233,7 +233,7 @@ class TestRunDecision:
 
 
 # ---------------------------------------------------------------------------
-# Smoke test real -- sem mock
+# Sanidade real -- sem mock
 # ---------------------------------------------------------------------------
 
 class TestRunPayoffIntegration:
@@ -242,7 +242,7 @@ class TestRunPayoffIntegration:
     Pula automaticamente se o domínio não estiver configurado.
     """
 
-    def test_smoke_run_payoff_call_chain(self):
+    def test_sanidade_run_payoff_call_chain(self):
         pytest.importorskip("domain.payoff")
 
         leg = _make_leg(

@@ -27,7 +27,7 @@ def structures(model):
 
 
 # 
-# Smoke -- banco acessível
+# Sanidade -- banco acessível
 # 
 
 def test_db_existe():
@@ -53,7 +53,7 @@ def test_get_structures_nao_vazia(structures):
 
 
 def test_get_abas_alias_de_get_structures(model, structures):
-    assert hasattr(model, "get_abas"), "get_abas() deve existir para compatibilidade"
+    assert hasattr(model, "get_abas"), "get_abas() deve existir para continuidade operacional"
     assert callable(model.get_abas), "get_abas() deve ser callable"
     assert model.get_abas() == structures, (
         "get_abas() deve retornar o mesmo que get_structures()"
@@ -80,7 +80,7 @@ def test_decisions_tem_aba(decisions):
 
 def test_structure_id_igual_a_aba(decisions):
     """
-    patch_3a: structure_id (int) e aba (ticker str) sao campos distintos.
+    migração structure_id: structure_id (int) e aba (ticker str) sao campos distintos.
     Verificamos que structure_id e int positivo e aba e str nao-vazia.
     """
     for d in decisions:
@@ -107,7 +107,7 @@ def test_decisions_tem_timestamp(decisions):
 
 def test_filtro_por_structure_id(model, structures):
     """
-    patch_3a: structures retorna lista de str numericas; converte para int
+    migração structure_id: structures retorna lista de str numericas; converte para int
     antes de comparar com d["structure_id"] que e sempre int canonico.
     """
     sid_str = structures[0]          # ex: '36'
@@ -121,9 +121,9 @@ def test_filtro_por_structure_id(model, structures):
         )
 
 
-def test_filtro_por_aba_compat(model, decisions):
+def test_filtro_por_aba_continuidade(model, decisions):
     """
-    patch_3a: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
     Verificamos que filtrar por aba de uma decisao real retorna >= 1 resultado
     e que todos os resultados tem a aba correspondente.
     """
@@ -158,10 +158,10 @@ def test_payoff_curve_info_tem_structure_id(model, decisions):
     assert "structure_id" in info, "info do payoff deve conter 'structure_id'"
 
 
-def test_payoff_curve_info_aba_compat(model, decisions):
+def test_payoff_curve_info_aba_continuidade(model, decisions):
     d0 = decisions[0]
     _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
-    assert "aba" in info, "info do payoff deve ainda conter 'aba' (compat)"
+    assert "aba" in info, "info do payoff deve ainda conter 'aba' (continuidade)"
     assert info["aba"] == d0["structure_id"], (
         f"info['aba']='{info['aba']}' != structure_id='{d0['structure_id']}'"
     )
