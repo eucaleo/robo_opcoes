@@ -144,6 +144,8 @@ bridge/analise_raiox.csv
 ANALISE_ROBO_LEGS
 ANALISE_ROBO
 ANALISE_RAIOX
+HIST_ROBO
+bridge/hist_robo.csv
 ```
 
 Módulos relacionados:
@@ -279,6 +281,8 @@ Mantê-las aumenta ambiguidade e risco de regressão.
 | `bridge/analise_robo.csv` | legado | manter apenas enquanto houver consumidor |
 | `bridge/analise_robo_legs.csv` | legado | manter apenas enquanto houver consumidor |
 | `bridge/analise_raiox.csv` | legado | manter apenas enquanto houver consumidor |
+| `bridge/hist_robo.csv` | legado | manter apenas como referência histórica ou migração pontual |
+| `HIST_ROBO` | legado | não usar como fonte viva do sistema |
 | `OPERACOES_E_OPCOES.xlsm` | entrada bruta/configuração | separar dados de mercado, operação e parâmetros |
 | `CONFIGURACOES` | configuração | manter separado de dados operacionais |
 | `run_derived_pipeline.py` | operacional de processamento | manter como script autorizado |
@@ -362,13 +366,13 @@ descartável       -> remover quando identificado com segurança
 ## 5. Próxima fase sugerida
 
 ```text
-Fase 4 - Definição da Fonte Canônica
+Fase 4 - Auditoria de Dependência do Excel
 ```
 
 Objetivo esperado:
 
 ```text
-Definir explicitamente qual fonte passa a ser a referência principal para estruturas, pernas, preços, gregas e resultados.
+Descobrir exatamente onde o sistema ainda depende das abas do Excel, CSVs derivados antigos, leituras diretas da bridge e cálculos prontos vindos da planilha.
 ```
 
 ## Conclusão
