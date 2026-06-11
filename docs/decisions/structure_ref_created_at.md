@@ -19,7 +19,7 @@ produção e DDL de teste mínimo.
 
 ## Fix aplicado
 
-# patch_55 -- Decisão Arquitetural: created_at removido do INSERT explícito
+# Decisão Arquitetural: created_at removido do INSERT explícito
 
 **Data:** 2026-06-03  
 **Branch:** patch/53-structure-ref  

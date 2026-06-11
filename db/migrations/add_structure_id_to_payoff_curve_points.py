@@ -1,11 +1,11 @@
-# db/migrations/run_patch_33.py
+# db/migrations/add_structure_id_to_payoff_curve_points.py
 """
-Executa patch_33: adiciona structure_id em payoff_curve_points
+Migration: adiciona structure_id em payoff_curve_points
 e payoff_curve_summary, com backfill via structure_decisions.
 
 Uso:
-    python db/migrations/run_patch_33.py
-    python db/migrations/run_patch_33.py --db dados/derived.db
+    python db/migrations/add_structure_id_to_payoff_curve_points.py
+    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/derived.db
 """
 
 import sqlite3
@@ -112,7 +112,7 @@ def run(db_path: pathlib.Path):
             pct = (rows[1] / rows[0] * 100) if rows[0] else 0
             print(f"  {table}: {rows[1]}/{rows[0]} linhas preenchidas ({pct:.1f}%)")
 
-        print("\n[OK] patch_33 aplicado com sucesso.")
+        print("\n[OK] Migration de structure_id aplicada com sucesso.")
 
     except Exception as e:
         print(f"[ERRO] {e}")
