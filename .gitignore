@@ -1,13 +1,10 @@
 dados/*.db
 > bridge/*.csv
-> __pycache__/
-> *.pyc
 > *.log
 > *.tmp
 > 
 
 # Python
-__pycache__/
 *.py[cod]
 
 # SQLite / DB
@@ -45,9 +42,6 @@ ATT/reports/**
 !ATT/**/.gitkeep
 # --- /v2 hygiene ---
 
-__pycache__/
-*.pyc
-.pytest_cache/
 ATT/temporario/
 project_context.json
 module_inventory.json
@@ -81,10 +75,8 @@ bridge/4026BA10
 scripts/cleanup_report_*.json
 
 # Python cache
-__pycache__/
 *.py[cod]
 *$py.class
-.pytest_cache/
 
 # Temporarios de editor/SO
 *.swp
@@ -103,3 +95,8 @@ candidatos_limpeza_cache.txt
 
 # Contexto local de smoke tests
 scripts/.smoke_context.json
+
+# Python/cache
+__pycache__/
+*.pyc
+.pytest_cache/
