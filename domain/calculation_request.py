@@ -1,5 +1,5 @@
 """
-patch_45 -- Contrato canônico de entrada para cálculo.
+alteracao_45 -- Contrato canônico de entrada para cálculo.
 
 Define os DTOs imutáveis que o domínio recebe:
   CalculationRequest

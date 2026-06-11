@@ -89,7 +89,7 @@ class DetailsPanel(ttk.LabelFrame):
         """
         Retorna o timestamp mais recente de snapshot para uma estrutura.
 
-        Regra importante para compatibilidade com patch35:
+        Regra importante para compatibilidade com alteracao_35:
         - se a instância recebeu um caminho explícito de DB, usa somente ele;
         - se esse DB explícito não existe, retorna None;
         - só usa fallback em bancos default quando não há DB explícito na instância.
@@ -588,7 +588,7 @@ class DetailsPanel(ttk.LabelFrame):
 
         self.timestamp_label.config(text=decision_data.get("timestamp", "N/A"))
 
-        # patch_36: structure_id é autoritativo; aba removido
+        # alteracao_36: structure_id é autoritativo; aba removido
         structure_id = decision_data.get("structure_id") or "N/A"
         self.structure_label.config(text=str(structure_id))
 
@@ -711,7 +711,7 @@ class DetailsPanel(ttk.LabelFrame):
         self, structure_id
     ) -> Optional[Dict[str, Any]]:
         """
-        patch_36: filtra por structure_id (INTEGER) em structure_decisions.
+        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
         Legado aba removido.
         """
         sid = self._resolve_structure_key(structure_id)
@@ -751,7 +751,7 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _fetch_payoff_points_from_derived(self, structure_id):
         """
-        patch_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
         Legado aba removido.
         """
         sid = self._resolve_structure_key(structure_id)
@@ -779,7 +779,7 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _fetch_audit_info_from_derived(self, structure_id) -> Dict[str, Any]:
         """
-        patch_36: filtra por structure_id (INTEGER).
+        alteracao_36: filtra por structure_id (INTEGER).
         Legado aba removido.
         """
         sid = self._resolve_structure_key(structure_id)
@@ -883,7 +883,7 @@ class DetailsPanel(ttk.LabelFrame):
             )
             return
 
-        # patch_36: structure_id é único identificador
+        # alteracao_36: structure_id é único identificador
         structure_id = decision.get("structure_id")
         if not structure_id:
             self.lbl_recalc_status.config(

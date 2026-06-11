@@ -1,11 +1,11 @@
 # services/canonical_pricing_facade.py
 """
-patch_17 -- Fachada canônica corrigida.
-patch_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+alteracao_17 -- Fachada canônica corrigida.
+alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
            no PricingExecutionPersistenceService.
-patch_41 -- Corrige underlying_asset no pricing_payload.
+alteracao_41 -- Corrige underlying_asset no pricing_payload.
 
-Correções patch_41:
+Correções alteracao_41:
   C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
       busca alias_legacy_aba E underlying_asset em uma única query.
   C7: _snapshot_result_to_payload() recebe underlying_asset explícito --

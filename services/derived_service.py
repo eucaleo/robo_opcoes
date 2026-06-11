@@ -1,9 +1,9 @@
 from __future__ import annotations
 # services/derived_service.py
 """
-patch_30/patch_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
-patch_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
-patch_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+alteracao_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
+alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
 """
 
 import inspect
@@ -78,7 +78,7 @@ def _safe_str(value: Any) -> Optional[str]:
 
 def _unwrap_ref(ref: Any) -> Optional[str]:
     """
-    patch_57: extrai string aba de StructureRef ou passa str diretamente.
+    alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
     Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
     """
     if isinstance(ref, StructureRef):
@@ -97,7 +97,7 @@ def _resolve_storage_key(
     if resolved_aba:
         return resolved_aba
 
-    # 2. structure_id → resolver alias_legacy_aba via cache (FIX patch_66)
+    # 2. structure_id → resolver alias_legacy_aba via cache (FIX alteracao_66)
     resolved_sid = _safe_str(structure_id)
     if resolved_sid:
         try:
@@ -166,7 +166,7 @@ def save_payoff_curve(
     structure_id: Any = None,
 ) -> int:
     """
-    patch_57: 'ref' aceita StructureRef, str ou None.
+    alteracao_57: 'ref' aceita StructureRef, str ou None.
     _unwrap_ref() extrai a string aba de forma segura.
     """
     ts           = timestamp or _now_iso()
@@ -275,7 +275,7 @@ def save_decision(
     timestamp: Optional[str] = None,
 ) -> int:
     """
-    patch_57: 'ref' aceita StructureRef, str ou None.
+    alteracao_57: 'ref' aceita StructureRef, str ou None.
     """
     ts           = timestamp or _now_iso()
     storage_key  = _unwrap_ref(ref) or "unknown"
@@ -381,8 +381,8 @@ def get_all_payoff_curves():
 
 def get_payoff_by_structure_id(structure_id: int):
     """
-    patch_56/patch_65: único ponto de entrada canônico para leitura de payoff.
-    get_payoff_by_aba() removida da interface pública (patch_65).
+    alteracao_56/alteracao_65: único ponto de entrada canônico para leitura de payoff.
+    get_payoff_by_aba() removida da interface pública (alteracao_65).
     """
     ref = StructureRef.from_id(structure_id)
     col, val = ref.db_pair()
@@ -480,7 +480,7 @@ def get_recent_decisions():
 
 
 # ---------------------------------------------------------------------------
-# patch_59 -- format_report + snapshot_aba (surface canônica)
+# alteracao_59 -- format_report + snapshot_aba (surface canônica)
 # ---------------------------------------------------------------------------
 
 def format_report(entries) -> str:
@@ -501,18 +501,18 @@ def snapshot_aba(ref: "StructureRef") -> str:
 
 
 # ------------------------------------------------------------------
-# patch_65 -- DerivedService: fachada orientada a objetos
+# alteracao_65 -- DerivedService: fachada orientada a objetos
 # get_payoff_by_aba() removida da interface pública.
 # get_payoff_by_structure_id() é o único ponto de entrada canônico.
 # ------------------------------------------------------------------
 
 class DerivedService:
     """Fachada OO sobre as funcoes standalone do derived_service.
-    patch_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
-    get_payoff_by_aba() ausente por decisao de design (patch_65): interface simplificada.
+    alteracao_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
+    get_payoff_by_aba() ausente por decisao de design (alteracao_65): interface simplificada.
     """
 
-    # patch_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
+    # alteracao_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
     # Chamadores legados devem migrar para get_payoff_by_structure_id().
 
     def get_payoff_by_structure_id(self, structure_id: int):

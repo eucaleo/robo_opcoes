@@ -1,5 +1,5 @@
 # UI/models/ui_data.py
-# PATCH_36_E: eliminar self._conn compartilhada
+# alteracao_36_E: eliminar self._conn compartilhada
 # Toda conexao de leitura passa a ser por chamada (igual a _connect_derived_threadsafe)
 from src.domain.refs.structure_ref import StructureRef
 import sqlite3
@@ -28,7 +28,7 @@ CANDIDATE_PAYOFF_TABLES = [
 # Mapeamento de colunas preferidas -> alternativas
 COLUMN_ALIASES = {
     "timestamp":     ["timestamp", "ts", "decided_at", "dt_ref"],
-    "structure_id":  ["structure_id"],                              #  patch_33: chave canônica
+    "structure_id":  ["structure_id"],                              #  alteracao_33: chave canônica
     "aba":           ["aba", "sheet", "tab"],                       # mantido para compat
     "decision":      ["decision", "decisao", "action"],
     "level":         ["level", "nivel", "severity_level"],
@@ -44,7 +44,7 @@ COLUMN_ALIASES = {
 
 PAYOFF_COLUMN_ALIASES = {
     "timestamp": ["timestamp", "ts", "dt_ref"],
-    "structure_id": ["structure_id"],   #  patch_33
+    "structure_id": ["structure_id"],   #  alteracao_33
     "spot":      ["point_spot", "spot", "underlying", "x", "s_t"],
     "pl":        ["point_pl", "pl", "pl_value", "y", "payoff", "pl_venc"],
 }
@@ -65,7 +65,7 @@ class UIDataModel:
         )
         print(f"[UI] Usando derived DB: {self.derived_db_path}")
 
-        # PATCH_36_E: self._conn REMOVIDO -- cada metodo abre sua propria conexao
+        # alteracao_36_E: self._conn REMOVIDO -- cada metodo abre sua propria conexao
         self._consolidations_table: Optional[str] = None
         self._payoff_table: Optional[str] = None
         self._consolidations_cols: Dict[str, str] = {}
@@ -75,7 +75,7 @@ class UIDataModel:
         self._payoff_cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
         self._payoff_cache_max = 128
 
-    # PATCH_36_E: _connect agora e sempre uma nova conexao por chamada
+    # alteracao_36_E: _connect agora e sempre uma nova conexao por chamada
     def _connect(self) -> sqlite3.Connection:
         if not self.derived_db_path.exists():
             raise FileNotFoundError(
@@ -86,7 +86,7 @@ class UIDataModel:
         return conn
 
     def _list_tables(self) -> List[str]:
-        # PATCH_36_E: abre e fecha conexao local
+        # alteracao_36_E: abre e fecha conexao local
         conn = self._connect()
         try:
             cur = conn.execute(
@@ -113,7 +113,7 @@ class UIDataModel:
                 break
 
     def _inspect_columns(self, table: str) -> List[str]:
-        # PATCH_36_E: abre e fecha conexao local
+        # alteracao_36_E: abre e fecha conexao local
         conn = self._connect()
         try:
             cur = conn.execute(f"PRAGMA table_info({table})")
@@ -143,10 +143,10 @@ class UIDataModel:
                 "spot":         ["point_spot"],
                 "pl":           ["point_pl"],
                 "timestamp":    ["timestamp"],
-                # PATCH_36_F: structure_id e opcional aqui --
+                # alteracao_36_F: structure_id e opcional aqui --
                 # pode nao existir ainda se a migration ainda nao rodou.
                 # _structure_filter_col vai lancar RuntimeError com mensagem clara.
-                "structure_id": ["structure_id"],   #  patch_34: único identificador canônico
+                "structure_id": ["structure_id"],   #  alteracao_34: único identificador canônico
             }
             print(f"[UI] Usando contrato canônico para {self._payoff_table}")
         else:
@@ -157,7 +157,7 @@ class UIDataModel:
             m = _first_match(cols, candidates)
             if m:
                 colmap[alias] = m
-            # PATCH_36_F: nao lanca erro se structure_id ausente --
+            # alteracao_36_F: nao lanca erro se structure_id ausente --
             # isso ocorre antes da migration e e tratado em _structure_filter_col
 
         self._payoff_cols = colmap
@@ -168,32 +168,32 @@ class UIDataModel:
                 f"para payoff (point_spot/point_pl ou spot/pl)."
             )
 
-        # PATCH_36_F: aviso explicito quando structure_id ausente (pre-migration)
+        # alteracao_36_F: aviso explicito quando structure_id ausente (pre-migration)
         if "structure_id" not in self._payoff_cols:
             print(
                 f"[UI] AVISO: {self._payoff_table} nao tem coluna structure_id. "
-                "Execute a migration (patch_36) para habilitar filtro canonico."
+                "Execute a migration (alteracao_36) para habilitar filtro canonico."
             )
 
     # ------------------------------------------------------------------
-    #  patch_33: resolve a coluna de filtro por estrutura
+    #  alteracao_33: resolve a coluna de filtro por estrutura
     #   Prioriza structure_id; cai em aba se structure_id não mapeado.
     # ------------------------------------------------------------------
     def _structure_filter_col(self, colmap: Dict[str, str]) -> str:
         """
-        patch_34: retorna apenas o nome da coluna structure_id.
+        alteracao_34: retorna apenas o nome da coluna structure_id.
         Branch aba removido -- schemas sem structure_id nao sao mais suportados.
         """
         if colmap.get("structure_id"):
             return colmap["structure_id"]
         raise RuntimeError(
             "Coluna 'structure_id' nao encontrada no colmap. "
-            "Execute a migration do patch_33 antes de continuar."
+            "Execute a migration do alteracao_33 antes de continuar."
         )
 
     def _resolve_structure_key(self, structure_id: str) -> int:
         """
-        patch_34: structure_id e sempre INTEGER.
+        alteracao_34: structure_id e sempre INTEGER.
         Aceita str ("7") ou int (7). Lanca ValueError se nao conversivel.
         """
         try:
@@ -215,13 +215,13 @@ class UIDataModel:
         self._cache_structures = self._load_structures()
 
     def _load_structures(self) -> List[str]:
-        # PATCH_36_E: abre e fecha conexao local
+        # alteracao_36_E: abre e fecha conexao local
         c = self._consolidations_cols
         if not c.get("structure_id"):
             raise RuntimeError(
                 "Coluna 'structure_id' nao encontrada em "
                 f"{self._consolidations_table}. "
-                "Execute a migration do patch_33 antes de continuar."
+                "Execute a migration do alteracao_33 antes de continuar."
             )
         sid_col = c["structure_id"]
         conn = self._connect()
@@ -244,20 +244,20 @@ class UIDataModel:
         return list(self._cache_structures)
 
     def get_structure_ids(self) -> List[str]:
-        """patch_34: metodo canonico. Substitui get_structures()."""
+        """alteracao_34: metodo canonico. Substitui get_structures()."""
         if not self._cache_structures:
             self._cache_structures = self._load_structures()
         return list(self._cache_structures)
 
     def get_abas(self) -> list:
-        """Alias readonly de get_structure_ids() -- compat UI (patch_34:filtro_aba)."""
+        """Alias readonly de get_structure_ids() -- compat UI (alteracao_34:filtro_aba)."""
         return self.get_structure_ids()
 
     def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
         """
         Retorna lista de decisões.
-        patch_33: filtra por structure_id quando disponível.
-        patch_36_E: conn local por chamada.
+        alteracao_33: filtra por structure_id quando disponível.
+        alteracao_36_E: conn local por chamada.
         """
         if not self._consolidations_table:
             self.refresh()
@@ -409,7 +409,7 @@ class UIDataModel:
 
     def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
         """
-         patch_33: resolve chave via _structure_filter_col.
+         alteracao_33: resolve chave via _structure_filter_col.
         Aceita structure_id como inteiro ou string numerica ("7").
         Strings nao-numericas lancam ValueError.
         """
@@ -438,8 +438,8 @@ class UIDataModel:
                 f"Tabela {self._payoff_table} não possui colunas esperadas para payoff."
             )
 
-        #  patch_33: resolve coluna de estrutura
-        # patch_34: structure_id e sempre INTEGER
+        #  alteracao_33: resolve coluna de estrutura
+        # alteracao_34: structure_id e sempre INTEGER
         filter_col = self._structure_filter_col(p)
         filter_val = self._resolve_structure_key(structure_id)
 
@@ -486,7 +486,7 @@ class UIDataModel:
         self, structure_id: str, timestamp: str
     ) -> Tuple[List[Dict], Dict]:
         """
-         patch_33: usa structure_id como chave primária quando disponível.
+         alteracao_33: usa structure_id como chave primária quando disponível.
         Fallback para aba mantido para compatibilidade.
         """
         import time
@@ -509,8 +509,8 @@ class UIDataModel:
             return cached.get("points", []), cached.get("info", {})
 
         p = self._payoff_cols
-        #  patch_33: resolve coluna + valor de filtro
-        # patch_34: structure_id e sempre INTEGER
+        #  alteracao_33: resolve coluna + valor de filtro
+        # alteracao_34: structure_id e sempre INTEGER
         filter_col = self._structure_filter_col(p)
 
         conn = self._connect_derived_threadsafe()
@@ -523,8 +523,8 @@ class UIDataModel:
                 "used_timestamp": timestamp,
                 "fallback": False,
                 "source_table": self._payoff_table,
-                "filter_col": filter_col,       #  patch_33: auditoria
-                "filter_val": filter_val,       #  patch_33: auditoria
+                "filter_col": filter_col,       #  alteracao_33: auditoria
+                "filter_val": filter_val,       #  alteracao_33: auditoria
                 "count_points": 0,
                 "created_at": None,
                 "meta_json": None,
@@ -647,11 +647,11 @@ class UIDataModel:
         n_structures = len(self._cache_structures)
         payoff_ok = bool(self._payoff_table)
 
-        #  patch_33: reporta qual coluna de filtro está ativa
+        #  alteracao_33: reporta qual coluna de filtro está ativa
         p = self._payoff_cols
         try:
             filter_col = self._structure_filter_col(p)
-            filter_info = f"{filter_col} (mode=canonical)"  # patch_34: sempre canonico
+            filter_info = f"{filter_col} (mode=canonical)"  # alteracao_34: sempre canonico
         except Exception:
             filter_info = "N/A"
 
@@ -660,7 +660,7 @@ class UIDataModel:
             f"Consolidações: {ctbl} (linhas: {cnt}, estruturas: {n_structures})\n"
             f"Timestamp mais recente: {last_ts}\n"
             f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
-            f"Filtro de estrutura ativo: {filter_info}"    #  patch_33
+            f"Filtro de estrutura ativo: {filter_info}"    #  alteracao_33
         )
 
     def clear_cache(self):

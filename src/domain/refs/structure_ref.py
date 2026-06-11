@@ -1,8 +1,8 @@
 """
 StructureRef -- encapsula a identidade de uma estrutura.
 
-patch_53:  introdução do tipo
-patch_54:  from_aba() resolve alias  structure_id via lookup real
+alteracao_53:  introdução do tipo
+alteracao_54:  from_aba() resolve alias  structure_id via lookup real
            from_id() cria ref canônica diretamente por structure_id
            db_column() retorna coluna correta conforme disponibilidade
 
@@ -126,7 +126,7 @@ class StructureRef:
         """
         Retorna o nome da coluna a usar em queries SQL.
 
-        Regra (patch_54):
+        Regra (alteracao_54):
           - Se tiver structure_id  'structure_id'  (canônico)
           - Senão                'aba'             (fallback legado)
         """

@@ -1,7 +1,7 @@
 # repositories/robo_legs_status_repository.py
 """
-patch_40 -- método canônico por structure_id adicionado
-patch_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
+alteracao_40 -- método canônico por structure_id adicionado
+alteracao_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
              (elimina duplicação com robo_legs_repository)
 """
 from __future__ import annotations
@@ -32,7 +32,7 @@ class RoboLegsStatusRepository(AbaResolverMixin):
     """
     Repository de status de legs do robô.
 
-    patch_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
+    alteracao_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
               não é mais definido localmente.
     """
 
@@ -63,8 +63,8 @@ class RoboLegsStatusRepository(AbaResolverMixin):
         return (m, r)
 
     # ------------------------------------------------------------------ #
-    # patch_40: método canônico por structure_id                          #
-    # patch_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
+    # alteracao_40: método canônico por structure_id                          #
+    # alteracao_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
     # ------------------------------------------------------------------ #
 
     def latest_timestamps_by_structure_id(

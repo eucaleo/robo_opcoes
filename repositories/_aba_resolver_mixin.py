@@ -13,8 +13,8 @@ Para testes, sobrescreva _get_resolver_conn() retornando
 a conexão desejada (ex: sqlite3 in-memory).
 
 Histórico:
-    patch_40 -- método criado em robo_legs_repository e robo_legs_status_repository
-    patch_62 -- extraído para mixin, eliminando duplicação
+    alteracao_40 -- método criado em robo_legs_repository e robo_legs_status_repository
+    alteracao_62 -- extraído para mixin, eliminando duplicação
 """
 
 from __future__ import annotations

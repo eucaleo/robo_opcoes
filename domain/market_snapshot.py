@@ -2,8 +2,8 @@
 """
 Objetos de domínio para snapshots de mercado.
 
-patch_12: LegMarketSnapshot, SnapshotSource
-patch_13: StructureMarketSnapshot (agrega legs + cabeçalho RTD)
+alteracao_12: LegMarketSnapshot, SnapshotSource
+alteracao_13: StructureMarketSnapshot (agrega legs + cabeçalho RTD)
 """
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 """
-patch_57c -- RoboLegsStatusService.
+alteracao_57c -- RoboLegsStatusService.
   - from __future__ garantido como linha 1
 patch_compat -- compatibilidade com status_repo.latest_timestamps(aba)
   em fakes/repos legados.

@@ -5,16 +5,16 @@ Tabelas: payoff_curve_points, structure_decisions
 
 Contrato canônico payoff: point_spot / point_pl (opção B).
 
-patch_33:
-  - Encapsula lógica em classe DerivedRepo (resolve patch_26 / patch_30)
+alteracao_33:
+  - Encapsula lógica em classe DerivedRepo (resolve alteracao_26 / alteracao_30)
   - Gerenciamento de conexão interno com try/finally + conn.close() explícito
-  - Adiciona get_recent_decisions() (gap patch_26)
+  - Adiciona get_recent_decisions() (gap alteracao_26)
   - Mantém funções avulsas como shims para compatibilidade com callers legados
 
-patch_55:
+alteracao_55:
   - Suporte a StructureRef como argumento aba em _extract_ts_aba e get_recent_decisions
 
-patch_56:
+alteracao_56:
   - fix: _MIGRATIONS removido (inexistente), _apply_schema reescrito sem IndentationError
   - fix: _DDL_PAYOFF_IDX -> _DDL_PAYOFF_IDX_STRUCTURE
   - fix: existing_payoff_cols -> existing_cols
@@ -27,7 +27,7 @@ import sqlite3
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-# patch_55: StructureRef
+# alteracao_55: StructureRef
 try:
     from src.domain.refs.structure_ref import StructureRef as _StructureRef
 except ImportError:
@@ -42,12 +42,12 @@ except ImportError:
 PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 
 # ---------------------------------------------------------------------------
-# patch_56: helper de compatibilidade StructureRef -> str
+# alteracao_56: helper de compatibilidade StructureRef -> str
 # ---------------------------------------------------------------------------
 
 def _unwrap_aba(aba_or_ref) -> str:
     """
-    patch_56: aceita str ou StructureRef no parâmetro 'aba'.
+    alteracao_56: aceita str ou StructureRef no parâmetro 'aba'.
     Extrai .aba como string canônica quando recebe StructureRef.
     Compatibilidade retroativa: callers que passam str continuam funcionando.
     """
@@ -71,7 +71,7 @@ def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
 # ---------------------------------------------------------------------------
 # DDL
 # ---------------------------------------------------------------------------
-# PATCH_36_A: adicionar structure_id ao DDL de payoff_curve_points
+# alteracao_36_A: adicionar structure_id ao DDL de payoff_curve_points
 
 _DDL_PAYOFF_CURVE_POINTS = """
 CREATE TABLE IF NOT EXISTS payoff_curve_points (
@@ -91,7 +91,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS ux_payoff_snapshot
 ON payoff_curve_points (timestamp, aba, point_spot)
 """
 
-# PATCH_36_B: index por structure_id para queries canônicas
+# alteracao_36_B: index por structure_id para queries canônicas
 _DDL_PAYOFF_IDX_STRUCTURE = """
 CREATE INDEX IF NOT EXISTS ix_payoff_structure_id
 ON payoff_curve_points (structure_id, timestamp)
@@ -132,7 +132,7 @@ CREATE INDEX IF NOT EXISTS idx_decisions_ts
 ON structure_decisions (timestamp)
 """
 
-# PATCH_36_C: migration incremental (guard ALTER TABLE)
+# alteracao_36_C: migration incremental (guard ALTER TABLE)
 _PAYOFF_MIGRATIONS: Dict[str, str] = {
     "structure_id": (
         "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
@@ -174,7 +174,7 @@ def _apply_schema(conn: sqlite3.Connection) -> None:
     conn.execute(_DDL_PAYOFF_UNIQUE_IDX)
     conn.execute(_DDL_STRUCTURE_DECISIONS)
 
-    # PATCH_36_A: migration incremental payoff_curve_points
+    # alteracao_36_A: migration incremental payoff_curve_points
     existing_cols = _table_columns(conn, "payoff_curve_points")
     for col, sql in _PAYOFF_MIGRATIONS.items():
         if col not in existing_cols:
@@ -183,7 +183,7 @@ def _apply_schema(conn: sqlite3.Connection) -> None:
             except sqlite3.OperationalError:
                 pass
 
-    # PATCH_36_B: index structure_id no payoff (após migration)
+    # alteracao_36_B: index structure_id no payoff (após migration)
     try:
         conn.execute(_DDL_PAYOFF_IDX_STRUCTURE)
     except sqlite3.OperationalError:
@@ -213,9 +213,9 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
 class DerivedRepo:
     """
     Repositório canônico para derived.db.
-    patch_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
-    patch_55: suporte a StructureRef como argumento aba.
-    patch_56: correções de bugs em _apply_schema e INSERTs do payoff.
+    alteracao_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
+    alteracao_55: suporte a StructureRef como argumento aba.
+    alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
     """
 
     def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
@@ -262,7 +262,7 @@ class DerivedRepo:
         """
         Extrai timestamp e aba do dict ou dos parâmetros explícitos.
         Permite tanto a API nova (só dict) quanto a legada (ts, aba, dict).
-        patch_55: desempacota StructureRef se necessário.
+        alteracao_55: desempacota StructureRef se necessário.
         """
         if _StructureRef is not None and isinstance(aba, _StructureRef):
             _ref = aba
@@ -354,7 +354,7 @@ class DerivedRepo:
                 "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
-            # fix patch_56: 6 colunas → 6 placeholders
+            # fix alteracao_56: 6 colunas → 6 placeholders
             sql = """
                 INSERT INTO payoff_curve_points
                     (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
@@ -397,7 +397,7 @@ class DerivedRepo:
         try:
             meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
             cur = conn.cursor()
-            # fix patch_56: 6 colunas → 6 placeholders
+            # fix alteracao_56: 6 colunas → 6 placeholders
             sql = """
                 INSERT OR REPLACE INTO payoff_curve_points
                     (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
@@ -448,7 +448,7 @@ class DerivedRepo:
                 "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
                 (ab, ts),
             )
-            # fix patch_56: 6 colunas → 6 placeholders
+            # fix alteracao_56: 6 colunas → 6 placeholders
             sql_p = """
                 INSERT INTO payoff_curve_points
                     (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
@@ -535,7 +535,7 @@ class DerivedRepo:
         ticker: Optional[str] = None,
         limit: int = 50,
     ) -> List[Dict[str, Any]]:
-        # patch_55: desempacotar StructureRef
+        # alteracao_55: desempacotar StructureRef
         if _StructureRef is not None and isinstance(aba, _StructureRef):
             if structure_id is None and aba.structure_id is not None:
                 structure_id = aba.structure_id

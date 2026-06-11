@@ -1,8 +1,8 @@
 from __future__ import annotations
 # services/robo_legs_service.py
 """
-patch_40 -- get_legs_by_structure_id() como ponto de entrada canonico.
-patch_57 -- correcoes:
+alteracao_40 -- get_legs_by_structure_id() como ponto de entrada canonico.
+alteracao_57 -- correcoes:
   - from __future__ movido para primeira linha (SyntaxError fix)
   - get_legs(): parametro renomeado para ref: StructureRef; aba extraida de ref
 patch_compat -- compatibilidade com repos/fakes legados que ainda aceitam
@@ -65,7 +65,7 @@ class RoboLegsService:
         validate: bool = True,
     ) -> List[RoboLegDTO]:
         """
-        patch_40: ponto de entrada canonico por structure_id.
+        alteracao_40: ponto de entrada canonico por structure_id.
         Delega para repo.get_legs_by_structure_id() e valida.
         """
         legs = self.repo.get_legs_by_structure_id(

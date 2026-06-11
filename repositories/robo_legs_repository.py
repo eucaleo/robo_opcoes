@@ -1,7 +1,7 @@
 # repositories/robo_legs_repository.py
 """
-patch_40 -- métodos canônicos por structure_id adicionados
-patch_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
+alteracao_40 -- métodos canônicos por structure_id adicionados
+alteracao_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
              (elimina duplicação com robo_legs_status_repository)
 """
 from __future__ import annotations
@@ -21,7 +21,7 @@ def _to_aba(ref) -> str:
     """Aceita StructureRef ou str e devolve a string da aba."""
     if isinstance(ref, str):
         return ref
-    return ref.aba  # StructureRef.aba (patch_53)
+    return ref.aba  # StructureRef.aba (alteracao_53)
 
 
 @dataclass(frozen=True)
@@ -42,7 +42,7 @@ class RoboLegsRepository(AbaResolverMixin):
 
     Portanto a leitura precisa ser tolerante a ambas as representações.
 
-    patch_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
+    alteracao_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
               não é mais definido localmente.
     """
 
@@ -226,8 +226,8 @@ class RoboLegsRepository(AbaResolverMixin):
         return candidates
 
     # ------------------------------------------------------------------ #
-    # patch_40: métodos canônicos por structure_id                        #
-    # patch_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
+    # alteracao_40: métodos canônicos por structure_id                        #
+    # alteracao_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
     # ------------------------------------------------------------------ #
 
     def get_legs_by_structure_id(
@@ -245,7 +245,7 @@ class RoboLegsRepository(AbaResolverMixin):
             raise ValueError(
                 f"structure_id={structure_id} sem alias_legacy_aba em structures"
             )
-        # patch_62: passa StructureRef em vez de str nua -- semântica explícita
+        # alteracao_62: passa StructureRef em vez de str nua -- semântica explícita
         ref = StructureRef(aba=aba, structure_id=structure_id)
         return self.get_legs(ref=ref, timestamp=timestamp)
 

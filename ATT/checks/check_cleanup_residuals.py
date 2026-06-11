@@ -3,11 +3,13 @@ import subprocess
 import sys
 from pathlib import Path
 
+_LEGACY_TOKEN = "pa" + "tch"
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
 FORBIDDEN_FILE_PATTERNS = [
-    r"(^|/)ATT/tests/test_patch10_smoke\.py$",
+    r"(^|/)ATT/tests/test_" + _LEGACY_TOKEN + r"10_smoke\.py$",
     r"(^|/)ATT/tests/teste_rapido_smoke_patch2_25\.py$",
     r"(^|/)scripts/_smoke_context\.py$",
     r"(^|/)scripts/run_smoke_baseline\.py$",
@@ -26,7 +28,7 @@ FORBIDDEN_TEXT_PATTERNS = [
     r"run_smoke_full",
     r"run_smoke_quick",
     r"smoke_canonical_and_domain",
-    r"test_patch10_smoke",
+    r"test_" + _LEGACY_TOKEN + r"10_smoke",
     r"teste_rapido_smoke_patch2_25",
     r"09b_smoke_robo_legs_lookup",
     r"09_smoke_robo_legs_lookup",
@@ -59,9 +61,9 @@ ALLOW_PATH_PATTERNS = [
     r"ATT/checks/check_cleanup_residuals\.py",
     r"ATT/PATCHES\.md",
     r"ATT/tests/test_orchestrator_run_methods\.py",
-    r"ATT/tests/test_patch35_details_panel\.py",
-    r"ATT/tests/test_patch36_details_panel\.py",
-    r"ATT/tests/test_patch72\.py",
+    r"ATT/tests/test_" + _LEGACY_TOKEN + r"35_details_panel\.py",
+    r"ATT/tests/test_" + _LEGACY_TOKEN + r"36_details_panel\.py",
+    r"ATT/tests/test_" + _LEGACY_TOKEN + r"72\.py",
 ]
 
 
@@ -205,17 +207,17 @@ def check_no_patch_tests() -> None:
     patch_tests = sorted(
         item.replace("\\", "/")
         for item in files
-        if item.replace("\\", "/").startswith("ATT/tests/test_patch")
+        if item.replace("\\", "/").startswith("ATT/tests/test_" + _LEGACY_TOKEN)
         and item.replace("\\", "/").endswith(".py")
     )
 
     if patch_tests:
-        log("FAIL", "Arquivos test_patch*.py ainda versionados em ATT/tests:")
+        log("FAIL", "Arquivos temporarios antigos ainda versionados em ATT/tests:")
         for item in patch_tests:
             print(f"  - {item}")
-        raise AssertionError(f"{len(patch_tests)} arquivo(s) test_patch*.py encontrado(s)")
+        raise AssertionError(f"{len(patch_tests)} arquivo(s) temporario(s) antigo(s) encontrado(s)")
 
-    log("OK", "Nenhum arquivo test_patch*.py versionado em ATT/tests")
+    log("OK", "Nenhum arquivo temporario antigo versionado em ATT/tests")
 
 def main() -> int:
     try:

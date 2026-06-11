@@ -3,7 +3,7 @@
 Garante o schema SQLite da aplicação (idempotente).
 Cria tabelas e índices se ainda não existirem.
 
-PATCH_72: adicionada tabela structure_audit_log para rastreabilidade de mudancas.
+alteracao_72: adicionada tabela structure_audit_log para rastreabilidade de mudancas.
 """
 from __future__ import annotations
 
@@ -94,7 +94,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        # structure_audit_log  [PATCH_72]                                      #
+        # structure_audit_log  [alteracao_72]                                      #
         # Rastreia toda mutacao em structures: CREATE, UPDATE, ARCHIVE,        #
         # ADD_LEG, REPLACE_LEGS.                                               #
         # before_json / after_json sao snapshots do estado da estrutura        #
@@ -172,7 +172,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
-        # Indices -- structure_audit_log  [PATCH_72]                          #
+        # Indices -- structure_audit_log  [alteracao_72]                          #
         # ------------------------------------------------------------------ #
         conn.execute(
             """
@@ -197,7 +197,7 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Bootstrap auxiliar de pricing_executions (patch_23)
+# Bootstrap auxiliar de pricing_executions (alteracao_23)
 # Mantido como função independente para uso em migrações pontuais.
 # ---------------------------------------------------------------------------
 

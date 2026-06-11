@@ -51,7 +51,7 @@ class PricingExecutionPersistenceService:
         )
 
         # ------------------------------------------------------------------ #
-        #  patch_21 -- persistência derivada (payoff + decisão)                #
+        #  alteracao_21 -- persistência derivada (payoff + decisão)                #
         #  Fire-and-forget: falha aqui nunca derruba a execução principal.    #
         # ------------------------------------------------------------------ #
         if self._payoff_port is not None:

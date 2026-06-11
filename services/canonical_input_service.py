@@ -1,7 +1,7 @@
 from __future__ import annotations
 # services/canonical_input_service.py
 """
-patch_25 — Separa responsabilidades de resolução de snapshot:
+alteracao_25 — Separa responsabilidades de resolução de snapshot:
   - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
   - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
   - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
@@ -111,7 +111,7 @@ class CanonicalInputService:
         }
 
     # ──────────────────────────────────────────────────────────────────────────
-    # Resolução de snapshot — PATCH_25: duas responsabilidades separadas
+    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
     # ──────────────────────────────────────────────────────────────────────────
 
     def _resolve_snapshot(
@@ -234,7 +234,7 @@ class CanonicalInputService:
         return latest[:10]               # "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DD"
 
     # ──────────────────────────────────────────────────────────────────────────
-    # Enriquecimento de legs canônicas / fallback (inalterado do patch_13)
+    # Enriquecimento de legs canônicas / fallback (inalterado do alteracao_13)
     # ──────────────────────────────────────────────────────────────────────────
 
     def _build_meta(

@@ -2,11 +2,11 @@
 """
 Repositório canônico de estruturas e suas pernas (legs).
 
-PATCH_11: conexões SQLite fechadas explicitamente via try/finally.
-PATCH_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
-PATCH_63: fix _validate_leg -- leg_order aceita >= 0 (era >= 1, bug).
-PATCH_70: revertido leg_order para >= 1 (0 é inválido; patch_63 era equivocado).
-PATCH_72: audit trail -- toda mutacao registrada em structure_audit_log.
+alteracao_11: conexões SQLite fechadas explicitamente via try/finally.
+alteracao_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
+alteracao_63: fix _validate_leg -- leg_order aceita >= 0 (era >= 1, bug).
+alteracao_70: revertido leg_order para >= 1 (0 é inválido; alteracao_63 era equivocado).
+alteracao_72: audit trail -- toda mutacao registrada em structure_audit_log.
           _log_action() interno; atomico na mesma transacao do metodo.
           get_audit_log() e get_full_audit_log() para consulta.
           ensure_audit_schema() cria tabela e indices idx_audit_log_structure_id
@@ -25,7 +25,7 @@ VALID_POSITION_SIDES: frozenset[str] = frozenset({"LONG", "SHORT"})
 VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
 VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
 
-# Acoes validas registradas no audit log -- PATCH_72
+# Acoes validas registradas no audit log -- alteracao_72
 AUDIT_ACTIONS: frozenset[str] = frozenset(
     {"CREATE", "UPDATE", "ARCHIVE", "ADD_LEG", "REPLACE_LEGS"}
 )
@@ -216,7 +216,7 @@ class StructuresRepository:
             raise ValueError(f"structure not found: {structure_id}")
 
     # ------------------------------------------------------------------
-    # PATCH_72 -- Schema do audit log
+    # alteracao_72 -- Schema do audit log
     # ------------------------------------------------------------------
 
     def ensure_audit_schema(self, conn: sqlite3.Connection) -> None:
@@ -225,7 +225,7 @@ class StructuresRepository:
         Deve ser chamado dentro de uma conexao aberta, antes do primeiro uso.
         Idempotente (CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS).
 
-        PATCH_72
+        alteracao_72
         """
         conn.execute(
             """
@@ -256,7 +256,7 @@ class StructuresRepository:
         )
 
     # ------------------------------------------------------------------
-    # PATCH_72 -- Audit log interno
+    # alteracao_72 -- Audit log interno
     # ------------------------------------------------------------------
 
     @staticmethod
@@ -322,7 +322,7 @@ class StructuresRepository:
             )
             new_id = int(cursor.lastrowid)
 
-            # PATCH_72: registrar criacao no audit log
+            # alteracao_72: registrar criacao no audit log
             self._log_action(
                 conn,
                 structure_id=new_id,
@@ -425,7 +425,7 @@ class StructuresRepository:
                 ),
             )
 
-            # PATCH_72: registrar atualizacao no audit log
+            # alteracao_72: registrar atualizacao no audit log
             self._log_action(
                 conn,
                 structure_id=structure_id,
@@ -461,7 +461,7 @@ class StructuresRepository:
                 ("archived", now, structure_id),
             )
 
-            # PATCH_72: registrar arquivamento no audit log
+            # alteracao_72: registrar arquivamento no audit log
             self._log_action(
                 conn,
                 structure_id=structure_id,
@@ -511,7 +511,7 @@ class StructuresRepository:
                 (now, structure_id),
             )
 
-            # PATCH_72: registrar adicao de leg no audit log
+            # alteracao_72: registrar adicao de leg no audit log
             self._log_action(
                 conn,
                 structure_id=structure_id,
@@ -564,7 +564,7 @@ class StructuresRepository:
                 (now, structure_id),
             )
 
-            # PATCH_72: registrar substituicao de legs no audit log
+            # alteracao_72: registrar substituicao de legs no audit log
             self._log_action(
                 conn,
                 structure_id=structure_id,
@@ -595,7 +595,7 @@ class StructuresRepository:
             conn.close()
 
     # ------------------------------------------------------------------
-    # LOOKUP POR ALIAS LEGADO (patch_42)
+    # LOOKUP POR ALIAS LEGADO (alteracao_42)
     # ------------------------------------------------------------------
 
     def get_structure_by_alias(self, alias: str) -> dict[str, Any] | None:
@@ -633,7 +633,7 @@ class StructuresRepository:
         return int(result["id"])
 
     # ------------------------------------------------------------------
-    # AUDIT LOG -- leitura (patch_72)
+    # AUDIT LOG -- leitura (alteracao_72)
     # ------------------------------------------------------------------
 
     def get_audit_log(

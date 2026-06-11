@@ -1,7 +1,7 @@
 # api/structures_controller.py
 """
-patch_51 -- Exposição REST do CRUD de estruturas.
-patch_63 -- Endpoints de legs:
+alteracao_51 -- Exposição REST do CRUD de estruturas.
+alteracao_63 -- Endpoints de legs:
     POST   /structures/{id}/legs            adiciona uma perna
     PUT    /structures/{id}/legs            substitui todas as pernas (atômico)
     DELETE /structures/{id}/legs/{leg_id}   remove perna individual
@@ -42,7 +42,7 @@ class UpdateStructureRequest(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# Schemas de entrada — legs  (patch_63)
+# Schemas de entrada — legs  (alteracao_63)
 # ---------------------------------------------------------------------------
 
 class LegRequest(BaseModel):
@@ -53,7 +53,7 @@ class LegRequest(BaseModel):
     expiration_date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
     quantity: int        = Field(..., gt=0)
     multiplier: float    = Field(default=1.0, gt=0)
-    # patch_63 fix: leg_order >= 0
+    # alteracao_63 fix: leg_order >= 0
     leg_order: int       = Field(default=0, ge=0)
     symbol: str | None   = None
     premium: float | None = None
@@ -107,7 +107,7 @@ def _get_or_404(structure_id: int) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# Endpoints — estrutura (patch_51, inalterados)
+# Endpoints — estrutura (alteracao_51, inalterados)
 # ---------------------------------------------------------------------------
 
 @router.post("/structures", response_model=CreateStructureResponse, status_code=201)
@@ -161,7 +161,7 @@ def archive_structure(structure_id: int) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Endpoints — legs  (patch_63)
+# Endpoints — legs  (alteracao_63)
 # ---------------------------------------------------------------------------
 
 @router.post(

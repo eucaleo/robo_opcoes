@@ -1,8 +1,8 @@
 # services/calculation_orchestrator.py
-# PATCH_45: CalculationRequest contract + build_calculation_request
-# PATCH_46: _request_to_payoff_dict, run_payoff, run_decision
-# PATCH_47: run_full_pipeline, multiplier fix (1.0), run_decision auto-extract
-# PATCH_48: CalculationOrchestrator class, build_calculation_request_from_db,
+# alteracao_45: CalculationRequest contract + build_calculation_request
+# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+# alteracao_47: run_full_pipeline, multiplier fix (1.0), run_decision auto-extract
+# alteracao_48: CalculationOrchestrator class, build_calculation_request_from_db,
 #           run_full_pipeline_from_db
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from domain.decision import compute_decision_from_contract
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Mapeamento legado -> canonico (mantido do patch_45)
+# Mapeamento legado -> canonico (mantido do alteracao_45)
 # ---------------------------------------------------------------------------
 _CV_TO_SIDE = {"C": "LONG", "V": "SHORT", "LONG": "LONG", "SHORT": "SHORT"}
 _CP_NORM    = {"CALL": "CALL", "PUT": "PUT", "C": "CALL", "P": "PUT"}
@@ -44,7 +44,7 @@ def _normalize_option_type(raw: str) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Funcao legada build_calculation_request (patch_45 -- mantida para
+# Funcao legada build_calculation_request (alteracao_45 -- mantida para
 # retrocompatibilidade com testes anteriores)
 # ---------------------------------------------------------------------------
 def build_calculation_request(
@@ -54,7 +54,7 @@ def build_calculation_request(
 ) -> CalculationRequest:
     """
     Monta um CalculationRequest a partir de dicts vindos do repositorio.
-    Mantida para retrocompatibilidade (patch_45).
+    Mantida para retrocompatibilidade (alteracao_45).
     """
     if not isinstance(legs_rows, list) or len(legs_rows) == 0:
         raise ValueError("legs_rows nao pode ser vazio")
@@ -105,14 +105,14 @@ def build_calculation_request(
 
 
 # ---------------------------------------------------------------------------
-# Funcoes legadas de pipeline (patch_46/47 -- mantidas para
+# Funcoes legadas de pipeline (alteracao_46/47 -- mantidas para
 # retrocompatibilidade com testes anteriores)
 # ---------------------------------------------------------------------------
 def _request_to_payoff_dict(
     request: CalculationRequest,
     extra_meta: Optional[dict] = None,
 ) -> dict:
-    """patch_47: multiplier usa leg.multiplier com fallback 1.0."""
+    """alteracao_47: multiplier usa leg.multiplier com fallback 1.0."""
     legs = []
     for leg in request.structure.legs:
         legs.append({
@@ -170,7 +170,7 @@ def run_decision(
     pl_max: Optional[float] = None,
     dte_min: Optional[int] = None,
 ) -> dict:
-    """patch_47: extrai pl_max/pl_atual/dte_min automaticamente."""
+    """alteracao_47: extrai pl_max/pl_atual/dte_min automaticamente."""
     _pl_max = pl_max
     if _pl_max is None and payoff:
         _pl_max = float(payoff.get("pl_max") or 0.0)
@@ -202,7 +202,7 @@ def run_full_pipeline(
     step_pct: float = 0.01,
     extra_meta: Optional[dict] = None,
 ) -> dict:
-    """patch_47: pipeline completo payoff + decision."""
+    """alteracao_47: pipeline completo payoff + decision."""
     payoff_result = run_payoff(
         request,
         low_pct=low_pct,
@@ -221,7 +221,7 @@ def run_full_pipeline(
 
 
 # ===========================================================================
-# PATCH_48 -- CalculationOrchestrator (classe canonica)
+# alteracao_48 -- CalculationOrchestrator (classe canonica)
 # ===========================================================================
 
 class CalculationOrchestrator:
@@ -231,7 +231,7 @@ class CalculationOrchestrator:
     Responsabilidades:
     - Montar CalculationRequest a partir de dicts ja normalizados
     - Executar payoff e decisao sem acessar raw DB diretamente
-    - Montar CalculationRequest a partir dos repositorios canonicos (patch_48)
+    - Montar CalculationRequest a partir dos repositorios canonicos (alteracao_48)
 
     via repositórios injetados.
     """
@@ -402,7 +402,7 @@ class CalculationOrchestrator:
         }
 
     # ------------------------------------------------------------------
-    # PATCH_48 -- resolucao via repositorios canonicos
+    # alteracao_48 -- resolucao via repositorios canonicos
     # ------------------------------------------------------------------
 
     def build_calculation_request_from_db(

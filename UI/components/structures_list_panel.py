@@ -1,10 +1,10 @@
 # UI/components/structures_list_panel.py
 """
-StructuresListPanel -- patch_10 / Fase 5
+StructuresListPanel -- alteracao_10 / Fase 5
 Lista de estruturas com filtro de status, botoes CRUD e duplicar.
 
-patch_72: alias _on_archive_request -> _cmd_archive adicionado para
-          compatibilidade com checks de auditoria do patch_71.
+alteracao_72: alias _on_archive_request -> _cmd_archive adicionado para
+          compatibilidade com checks de auditoria do alteracao_71.
 
 Contrato com main_window.py:
     StructuresListPanel(
@@ -307,8 +307,8 @@ class StructuresListPanel(ttk.Frame):
 
     def _cmd_archive(self):
         """
-        patch_71: arquiva a estrutura selecionada com confirmacao e feedback de status.
-        patch_72: _on_archive_request e alias publico para este metodo.
+        alteracao_71: arquiva a estrutura selecionada com confirmacao e feedback de status.
+        alteracao_72: _on_archive_request e alias publico para este metodo.
         """
         sid = self._selected_id()
         if sid is None:
@@ -336,7 +336,7 @@ class StructuresListPanel(ttk.Frame):
             messagebox.showerror("Arquivar", f"Erro ao arquivar: {exc}")
             self._set_status(f"Erro ao arquivar: {exc}")
 
-    # patch_72: alias formal para compatibilidade com checks de auditoria patch_71
+    # alteracao_72: alias formal para compatibilidade com checks de auditoria alteracao_71
     _on_archive_request = _cmd_archive
 
     # ------------------------------------------------------------------

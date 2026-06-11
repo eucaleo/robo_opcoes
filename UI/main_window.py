@@ -33,7 +33,7 @@ class MainWindow:
         # Data model
         self.data_model = UIDataModel()
 
-        # Caminho canônico ao banco operacional (patch_70/71)
+        # Caminho canônico ao banco operacional (alteracao_70/71)
         self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
 
         # Threading control: evitar freeze da UI
@@ -107,7 +107,7 @@ class MainWindow:
         self.payoff_chart = PayoffChart(chart_frame)
         self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
 
-        # Aba 3: Estruturas (Fase 5 -- patch_10)
+        # Aba 3: Estruturas (Fase 5 -- alteracao_10)
         self._setup_structures_tab(right_notebook)
 
         # Status bar
@@ -169,7 +169,7 @@ class MainWindow:
 
     def on_decision_selected(self, decision_data: Dict):
         """Callback quando uma decisão é selecionada no grid.
-        patch_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
         """
         if not decision_data:
             return
@@ -195,11 +195,11 @@ class MainWindow:
     def _start_payoff_load(
         self,
         structure_id,
-        timestamp=None,       # patch_36: opcional
-        decision_data=None,   # patch_36: opcional
+        timestamp=None,       # alteracao_36: opcional
+        decision_data=None,   # alteracao_36: opcional
     ):
         """Inicia carregamento de payoff em thread separada.
-        patch_36: structure_id é a única chave obrigatória.
+        alteracao_36: structure_id é a única chave obrigatória.
         """
         if decision_data is None:
             decision_data = {"structure_id": structure_id}
@@ -269,7 +269,7 @@ class MainWindow:
 
     def refresh_data(self):
         """Recarrega dados do banco.
-        patch_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
+        alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
         """
         self.status_bar.config(text="Carregando dados...")
         try:
@@ -351,7 +351,7 @@ class MainWindow:
     def recalculate_structure(self, structure_id: str):
         """
         Recalcula a estrutura identificada por structure_id e atualiza a UI.
-        patch_36: recalculate_aba() removida; este é o único entry point.
+        alteracao_36: recalculate_aba() removida; este é o único entry point.
         """
         if self._recalc_in_progress:
             try:
@@ -601,7 +601,7 @@ Baseline: executed_v1 + baseline_v1b"""
         self._loading_animation_active = False
 
     # ------------------------------------------------------------------
-    # Aba Estruturas (Fase 5 -- patch_10)
+    # Aba Estruturas (Fase 5 -- alteracao_10)
     # ------------------------------------------------------------------
 
     def _setup_structures_tab(self, notebook: ttk.Notebook):

@@ -1,6 +1,6 @@
 # UI/components/structure_editor_dialog.py
 """
-StructureEditorDialog -- patch_10 / Fase 5
+StructureEditorDialog -- alteracao_10 / Fase 5
 Dialog modal para criar / editar uma estrutura com suas legs.
 
 Contrato com main_window.py:
@@ -311,13 +311,13 @@ class StructureEditorDialog(tk.Toplevel):
         self._on_leg_double_click()
 
     # ------------------------------------------------------------------
-    # _add_leg_row: alias publico exigido pelos checks estaticos do patch_69
+    # _add_leg_row: alias publico exigido pelos checks estaticos do alteracao_69
     # Delega para _cmd_add_leg mantendo compatibilidade total.
     # ------------------------------------------------------------------
     def _add_leg_row(self):
         """
         Alias publico de _cmd_add_leg().
-        Exigido por test_classe_presente (patch_69) que verifica:
+        Exigido por test_classe_presente (alteracao_69) que verifica:
             hasattr(StructureEditorDialog, '_add_leg_row')
         """
         self._cmd_add_leg()
@@ -376,7 +376,7 @@ class StructureEditorDialog(tk.Toplevel):
         Constroi lista de legs com leg_order sequencial a partir de 1.
 
         Logica pura: nao modifica _legs_rows nem acessa Tk.
-        Testavel sem display (TestBuildLegsPayload no patch_69).
+        Testavel sem display (TestBuildLegsPayload no alteracao_69).
         """
         return [
             {**leg, "leg_order": i}
