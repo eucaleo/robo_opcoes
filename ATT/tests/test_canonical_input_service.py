@@ -54,6 +54,16 @@ class FakeRoboLegsService:
         return self._legs
 
 
+
+class FakeLegacyFallback:
+    def __init__(self, legs, meta):
+        self._legs = legs
+        self._meta = meta
+
+    def load(self, structure, reference_date):
+        return self._legs, self._meta
+
+
 class CanonicalInputServiceTests(unittest.TestCase):
     def test_should_always_prefer_canonical_legs_when_structure_already_has_legs(self):
         structure = {
@@ -168,6 +178,37 @@ class CanonicalInputServiceTests(unittest.TestCase):
         self.assertNotIn("legacy_timestamp", result["meta"])
         self.assertEqual(result["structure"]["legs"], [])
         self.assertNotIn("alias_legacy_aba", result["structure"])
+
+
+    def test_should_return_empty_when_legacy_fallback_returns_no_legs(self):
+        structure = {
+            "id": 7,
+            "name": "BOVA11 Condor Maio/2026",
+            "underlying_asset": "BOVA11",
+            "alias_legacy_aba": "BOVA11",
+            "legs": [],
+        }
+
+        service = CanonicalInputService(
+            repository=FakeRepository(structure),
+            market_snapshot_provider=FakeMarketSnapshotProvider(),
+            prefer_canonical_legs=True,
+            enable_legacy_legs_fallback=True,
+        )
+
+        service.legacy_robo_legs_fallback = FakeLegacyFallback(
+            legs=[],
+            meta={"fallback_reason": "no_legacy_legs_found"},
+        )
+
+        enriched, meta = service._enrich_structure_with_legs(
+            structure=structure,
+            reference_date="2026-05-18",
+        )
+
+        self.assertEqual(enriched["legs"], [])
+        self.assertEqual(meta["legs_source"], "empty")
+        self.assertEqual(meta["fallback_reason"], "no_legacy_legs_found")
 
 
 if __name__ == "__main__":
