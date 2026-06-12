@@ -30,6 +30,7 @@ from pathlib import Path
 from typing import Any
 
 from repositories.market_snapshot_repository import MarketSnapshotRepository
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
 from services.derived_payoff_persistence import DerivedPayoffPersistence
 from services.market_snapshot_selector import MarketSnapshotSelector
 from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
@@ -332,6 +333,7 @@ class CanonicalPricingFacade:
 
         self._persister = persistence_service or PricingExecutionPersistenceService(
             payoff_persistence_port=DerivedPayoffPersistence(),
+            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
         )
 
     def execute_pricing(
