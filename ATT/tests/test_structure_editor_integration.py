@@ -473,11 +473,22 @@ class TestCmdSave(unittest.TestCase):
         dlg._cmd_save()
         dlg._repo.update_structure.assert_not_called()
 
+
     def test_replace_legs_sid_correto_criacao(self):
         dlg = self._dlg(structure_id=None)
-        dlg._repo.create_structure.return_value = 77
+        dlg._repo.create_structure_with_legs.return_value = 77
+
         dlg._cmd_save()
-        dlg._repo.replace_legs.assert_called_once_with(77, [])
+
+        dlg._repo.create_structure_with_legs.assert_called_once()
+        args, _kwargs = dlg._repo.create_structure_with_legs.call_args
+
+        self.assertEqual(len(args), 2)
+        self.assertIsInstance(args[0], dict)
+        self.assertEqual(args[1], [])
+
+        dlg._repo.create_structure.assert_not_called()
+        dlg._repo.replace_legs.assert_not_called()
 
     def test_replace_legs_sid_correto_edicao(self):
         dlg = self._dlg(structure_id=88)
@@ -496,13 +507,13 @@ class TestCmdSave(unittest.TestCase):
             dlg._cmd_save()
         self.assertFalse(dlg.saved)
 
+
     def test_exception_nao_propaga(self):
         dlg = self._dlg(structure_id=None)
-        dlg._repo.create_structure.side_effect = Exception("DB offline")
+        dlg._repo.create_structure_with_legs.side_effect = Exception("DB offline")
         with patch("tkinter.messagebox.showerror"):
             dlg._cmd_save()
         self.assertFalse(dlg.saved)
-
 
 class TestIntegracaoLegs(unittest.TestCase):
 
@@ -525,11 +536,18 @@ class TestIntegracaoLegs(unittest.TestCase):
         ]
         return dlg
 
+
     def test_replace_legs_recebe_2_legs(self):
         dlg = self._dlg_com_legs(structure_id=None)
-        dlg._repo.create_structure.return_value = 5
+        dlg._repo.create_structure_with_legs.return_value = 5
+
         dlg._cmd_save()
-        _, legs_arg = dlg._repo.replace_legs.call_args[0]
+
+        dlg._repo.create_structure_with_legs.assert_called_once()
+        args, _kwargs = dlg._repo.create_structure_with_legs.call_args
+
+        legs_arg = args[1]
+
         self.assertEqual(len(legs_arg), 2)
 
     def test_legs_payload_tem_leg_order_sequencial(self):

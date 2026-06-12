@@ -411,8 +411,10 @@ class StructureEditorDialog(tk.Toplevel):
         try:
             if self._structure_id is None:
                 # --- Modo criacao ---
-                sid = self._repo.create_structure(structure_data)
-                self._repo.replace_legs(sid, legs_payload)
+                sid = self._repo.create_structure_with_legs(
+                    structure_data,
+                    legs_payload,
+                )
             else:
                 # --- Modo edicao ---
                 sid = self._structure_id

@@ -218,6 +218,7 @@ class TestCmdSaveCreate(unittest.TestCase):
             _repo=self.mock_repo,   # <-- injecao direta
         )
 
+
     def test_create_structure_chamado_com_campos_corretos(self):
         dlg = self._make_dialog()
         dlg._f_name.set("PRIO3 Trava")
@@ -228,13 +229,17 @@ class TestCmdSaveCreate(unittest.TestCase):
 
         dlg._cmd_save()
 
-        self.mock_repo.create_structure.assert_called_once()
-        args = self.mock_repo.create_structure.call_args[0][0]
-        self.assertEqual(args["name"],             "PRIO3 Trava")
-        self.assertEqual(args["underlying_asset"], "PRIO3")
-        self.assertEqual(args["alias_legacy_aba"], "PRIO3")
-        self.assertEqual(args["status"],           "active")
-        self.assertIsNone(args["notes"])
+        self.mock_repo.create_structure_with_legs.assert_called_once()
+        args, _kwargs = self.mock_repo.create_structure_with_legs.call_args
+
+        structure_arg = args[0]
+
+        self.assertEqual(structure_arg["name"], "PRIO3 Trava")
+        self.assertEqual(structure_arg["underlying_asset"], "PRIO3")
+        self.assertEqual(structure_arg["alias_legacy_aba"], "PRIO3")
+        self.assertEqual(structure_arg["status"], "active")
+        self.assertIsNone(structure_arg["notes"])
+
 
     def test_replace_legs_chamado_apos_create(self):
         dlg = self._make_dialog()
@@ -249,10 +254,18 @@ class TestCmdSaveCreate(unittest.TestCase):
 
         dlg._cmd_save()
 
-        self.mock_repo.replace_legs.assert_called_once()
-        sid_arg, legs_arg = self.mock_repo.replace_legs.call_args[0]
-        self.assertEqual(sid_arg, 42)
-        self.assertEqual(legs_arg[0]["leg_order"], 1)
+        self.mock_repo.create_structure_with_legs.assert_called_once()
+        args, _kwargs = self.mock_repo.create_structure_with_legs.call_args
+
+        structure_arg = args[0]
+        legs_arg = args[1]
+
+        self.assertEqual(structure_arg["name"], "X")
+        self.assertEqual(structure_arg["underlying_asset"], "Y")
+        self.assertEqual(len(legs_arg), 1)
+        self.assertEqual(legs_arg[0]["position_side"], "LONG")
+        self.assertEqual(legs_arg[0]["option_type"], "CALL")
+        self.assertEqual(legs_arg[0]["strike"], 100.0)
 
     def test_saved_true_apos_sucesso(self):
         dlg = self._make_dialog()
