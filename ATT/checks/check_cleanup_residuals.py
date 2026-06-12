@@ -67,6 +67,20 @@ ALLOW_PATH_PATTERNS = [
 ]
 
 
+ALLOWED_SCRIPTS = {
+    "scripts/apply_fase9_atomic_create.py",
+    "scripts/apply_fase9_atomic_create.sh",
+    "scripts/apply_fase9_update_tests_atomic_create.py",
+    "scripts/check_rota_desenvolvimento.py",
+    "scripts/import_legacy_structure_legs.py",
+    "scripts/patch_derived_payoff_timestamp_consistency.sh",
+    "scripts/purge_derived_snapshots.py",
+    "scripts/repair_derived_db_consistency.py",
+    "scripts/run_derived_pipeline.py",
+    "scripts/validate_derived_db.py",
+}
+
+
 def log(level: str, message: str) -> None:
     print(f"[{level}] {message}")
 
@@ -169,13 +183,6 @@ def check_run_all_checks_targets_exist() -> None:
     log("OK", "run_all_checks.py referencia apenas checks existentes")
 
 
-
-ALLOWED_SCRIPTS = {
-    "scripts/run_derived_pipeline.py",
-    "scripts/validate_derived_db.py",
-}
-
-
 def check_scripts_allowlist() -> None:
     files = git_ls_files()
 
@@ -200,7 +207,6 @@ def check_scripts_allowlist() -> None:
     log("OK", "scripts/ contém apenas scripts operacionais permitidos")
 
 
-
 def check_no_patch_tests() -> None:
     files = git_ls_files()
 
@@ -218,6 +224,7 @@ def check_no_patch_tests() -> None:
         raise AssertionError(f"{len(patch_tests)} arquivo(s) temporario(s) antigo(s) encontrado(s)")
 
     log("OK", "Nenhum arquivo temporario antigo versionado em ATT/tests")
+
 
 def main() -> int:
     try:
