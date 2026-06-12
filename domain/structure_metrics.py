@@ -220,9 +220,9 @@ def compute_realistic_price(leg: dict[str, Any]) -> float | None:
 
     return None
 
-
 def compute_pl_realista(leg: dict[str, Any]) -> float | None:
     quantity = leg_quantity(leg)
+
     entry_price = _first_float(
         leg,
         (
@@ -235,13 +235,29 @@ def compute_pl_realista(leg: dict[str, Any]) -> float | None:
             "preço_entrada",
         ),
     )
+
     realistic_price = compute_realistic_price(leg)
+
+    if entry_price is None:
+        premium = _first_float(leg, ("premium", "premio", "prêmio"))
+
+        if premium is not None:
+            entry_price = premium
+
+            bid = _first_float(leg, ("bid",))
+            ask = _first_float(leg, ("ask",))
+            mid = _first_float(leg, ("mid",))
+
+            if mid is None:
+                mid = compute_mid(bid, ask)
+
+            if mid is not None:
+                realistic_price = mid
 
     if quantity is None or entry_price is None or realistic_price is None:
         return _first_float(leg, ("pl_realista",))
 
     return (realistic_price - entry_price) * quantity * position_multiplier(leg)
-
 
 def compute_greek_exposure(leg: dict[str, Any], greek_name: str) -> float | None:
     greek_value = _first_float(leg, (greek_name,))

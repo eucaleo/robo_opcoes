@@ -1,4 +1,6 @@
 from __future__ import annotations
+from domain.structure_metrics import compute_structure_metrics_from_canonical_input
+
 # services/canonical_input_service.py
 """
 alteracao_25 — Separa responsabilidades de resolução de snapshot:
@@ -98,6 +100,7 @@ class CanonicalInputService:
         )
 
         assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
         assembled_meta  = assembled.get("meta") or {}
 
         return {
@@ -109,6 +112,7 @@ class CanonicalInputService:
                 **snapshot_meta,
             },
         }
+
 
     # ──────────────────────────────────────────────────────────────────────────
     # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
@@ -319,6 +323,46 @@ class CanonicalInputService:
                 fallback_meta.get("fallback_reason") if fallback_meta else "no_legs_available"
             ),
         )
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Métricas internas da estrutura
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _enrich_assembled_with_structure_metrics(
+        self,
+        assembled: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Calcula métricas internas a partir do input canônico montado e injeta
+        os campos agregados no bloco market.
+
+        Mantém o contrato existente e apenas acrescenta campos opcionais já
+        previstos no domínio de MarketSnapshot.
+        """
+        structure_metrics = compute_structure_metrics_from_canonical_input(assembled)
+
+        market = assembled.get("market") or {}
+        meta = assembled.get("meta") or {}
+
+        return {
+            **assembled,
+            "market": {
+                **market,
+                "dte_min": structure_metrics.get("dte_min"),
+                "pl_realista_total": structure_metrics.get("pl_realista_total"),
+                "delta_liq": structure_metrics.get("delta_liq"),
+                "gamma_liq": structure_metrics.get("gamma_liq"),
+                "theta_liq": structure_metrics.get("theta_liq"),
+                "vega_liq": structure_metrics.get("vega_liq"),
+                "spread_medio": structure_metrics.get("spread_medio"),
+                "spread_pct_medio": structure_metrics.get("spread_pct_medio"),
+            },
+            "meta": {
+                **meta,
+                "structure_metrics_source": "internal_engine",
+            },
+        }
+
 
     # ──────────────────────────────────────────────────────────────────────────
     # Utilitários
