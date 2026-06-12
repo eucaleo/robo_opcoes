@@ -118,6 +118,64 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
         )
 
         # ------------------------------------------------------------------ #
+        # structure_snapshots  [fase_11]                                      #
+        # Histórico operacional oficial gerado pelo sistema.                  #
+        # Uma linha representa um snapshot consolidado de uma estrutura.       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_snapshots (
+                id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at            TEXT    NOT NULL,
+                structure_id          INTEGER NOT NULL,
+                pricing_execution_id  INTEGER,
+                underlying_asset      TEXT,
+                reference_date        TEXT,
+                snapshot_source       TEXT    NOT NULL DEFAULT 'system',
+                structure_json        TEXT    NOT NULL,
+                market_json           TEXT,
+                metrics_json          TEXT,
+                payoff_json           TEXT,
+                decision_json         TEXT,
+                alerts_json           TEXT,
+                operation_state_json  TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (pricing_execution_id) REFERENCES pricing_executions(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_leg_snapshots  [fase_11]                                  #
+        # Histórico detalhado das pernas pertencentes a cada snapshot.         #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_leg_snapshots (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                snapshot_id      INTEGER NOT NULL,
+                structure_id     INTEGER NOT NULL,
+                leg_id           INTEGER,
+                leg_order        INTEGER,
+                position_side    TEXT,
+                option_type      TEXT,
+                symbol           TEXT,
+                strike           REAL,
+                expiration_date  TEXT,
+                quantity         INTEGER,
+                premium          REAL,
+                multiplier       REAL,
+                metrics_json     TEXT,
+                market_json      TEXT,
+                raw_json         TEXT,
+                FOREIGN KEY (snapshot_id) REFERENCES structure_snapshots(id) ON DELETE CASCADE,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
         # Indices -- structures                                                #
         # ------------------------------------------------------------------ #
         conn.execute(
@@ -190,6 +248,62 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
             CREATE INDEX IF NOT EXISTS idx_audit_log_action
             ON structure_audit_log(action)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_snapshots  [fase_11]                           #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_id
+            ON structure_snapshots(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_created_at
+            ON structure_snapshots(created_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_created
+            ON structure_snapshots(structure_id, created_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_reference_date
+            ON structure_snapshots(reference_date)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_pricing_execution_id
+            ON structure_snapshots(pricing_execution_id)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_leg_snapshots  [fase_11]                       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_snapshot_id
+            ON structure_leg_snapshots(snapshot_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_structure_id
+            ON structure_leg_snapshots(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_leg_id
+            ON structure_leg_snapshots(leg_id)
             """
         )
 
