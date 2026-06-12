@@ -5,7 +5,10 @@ from typing import Any, Dict, Optional
 
 from domain.decision import compute_decision_from_payoff
 from domain.payoff import compute_payoff_from_canonical_input
-from domain.structure_metrics import compute_dte_min_from_canonical_input
+from domain.structure_metrics import (
+    compute_dte_min_from_canonical_input,
+    compute_structure_metrics_from_canonical_input,
+)
 
 
 class StructureAnalysisService:
@@ -28,10 +31,18 @@ class StructureAnalysisService:
             reference_date=reference_date,
         )
 
-        # 2. Calcula DTE inferido
+        # 2. Calcula métricas internas da estrutura
+        structure_metrics = compute_structure_metrics_from_canonical_input(canonical_input)
+
+        # 3. Calcula DTE inferido preservando o contrato legado
+        #
+        # Mantemos compute_dte_min_from_canonical_input como fonte explícita do
+        # dte_min_inferred para compatibilidade com testes e integrações já
+        # existentes. O motor novo também calcula dte_min, mas nesta etapa ele é
+        # exposto dentro de structure_metrics.
         dte_min_inferred = compute_dte_min_from_canonical_input(canonical_input)
 
-        # 3. DTE efetivo: explícito > inferido > 0
+        # 4. DTE efetivo: explícito > inferido > 0
         if dte_min is not None:
             dte_min_effective = dte_min
         elif dte_min_inferred is not None:
@@ -39,10 +50,18 @@ class StructureAnalysisService:
         else:
             dte_min_effective = 0
 
-        # 4. Calcula payoff
+        # 5. Spread efetivo: explícito > calculado internamente
+        spread_pct_medio_inferred = structure_metrics.get("spread_pct_medio")
+
+        if spread_pct_medio is not None:
+            spread_pct_medio_effective = spread_pct_medio
+        else:
+            spread_pct_medio_effective = spread_pct_medio_inferred
+
+        # 6. Calcula payoff
         payoff = compute_payoff_from_canonical_input(canonical_input)
 
-        # 5. Valida payoff -- se inválido, retorna HOLD com erro estruturado
+        # 7. Valida payoff -- se inválido, retorna HOLD com erro estruturado
         if not payoff or not payoff.get("pl_max"):
             why_dict = {
                 "error": "payoff is required",
@@ -63,35 +82,39 @@ class StructureAnalysisService:
             return {
                 "canonical_input": canonical_input,
                 "metrics": {
-                    "dte_min_inferred":  dte_min_inferred,
-                    "dte_min_effective": dte_min_effective,
-                    "spread_pct_medio":  spread_pct_medio,
+                    "dte_min_inferred":             dte_min_inferred,
+                    "dte_min_effective":            dte_min_effective,
+                    "spread_pct_medio":             spread_pct_medio_effective,
+                    "spread_pct_medio_inferred":    spread_pct_medio_inferred,
+                    "structure_metrics":            structure_metrics,
                 },
                 "payoff":   payoff,
                 "decision": decision,
             }
 
-        # 6. Computa decisão -- passa TODOS os parâmetros como keyword
+        # 8. Computa decisão -- passa TODOS os parâmetros como keyword
         decision = compute_decision_from_payoff(
             payoff=payoff,
             dte_min=dte_min_effective,
-            spread_pct_medio=spread_pct_medio,
+            spread_pct_medio=spread_pct_medio_effective,
             thresholds=thresholds,
             dte_gate=dte_gate,
         )
 
-        # 7. Injeta dte_min no retorno (esperado pelos testes)
+        # 9. Injeta dte_min no retorno (esperado pelos testes)
         decision["dte_min"] = dte_min_effective
 
-        # 8. Injeta dte_gate em why (esperado por test_propagates_custom_thresholds_and_dte_gate)
+        # 10. Injeta dte_gate em why (esperado por test_propagates_custom_thresholds_and_dte_gate)
         decision["why"]["dte_gate"] = dte_gate
 
         return {
             "canonical_input": canonical_input,
             "metrics": {
-                "dte_min_inferred":  dte_min_inferred,
-                "dte_min_effective": dte_min_effective,
-                "spread_pct_medio":  spread_pct_medio,
+                "dte_min_inferred":             dte_min_inferred,
+                "dte_min_effective":            dte_min_effective,
+                "spread_pct_medio":             spread_pct_medio_effective,
+                "spread_pct_medio_inferred":    spread_pct_medio_inferred,
+                "structure_metrics":            structure_metrics,
             },
             "payoff":   payoff,
             "decision": decision,
