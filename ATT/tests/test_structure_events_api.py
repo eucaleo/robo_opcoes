@@ -36,6 +36,26 @@ FAKE_EVENT = {
     "updated_at": "2026-06-12T00:00:00Z",
 }
 
+
+FAKE_EFFECTIVE_STATE = {
+    "structure_id": 1,
+    "structure_status": "active",
+    "is_closed": False,
+    "effective_quantity_by_leg": {
+        "10": 100,
+        "11": -100,
+    },
+    "applied_events": [
+        {
+            "id": 7,
+            "event_type": "opening",
+            "event_status": "registered",
+            "quantity": 100,
+        }
+    ],
+    "ignored_events": [],
+}
+
 EVENT_PAYLOAD = {
     "event_type": "opening",
     "event_date": "2026-06-12",
@@ -63,6 +83,7 @@ def mock_events_service():
     service.list_events.return_value = [FAKE_EVENT]
     service.get_event.return_value = FAKE_EVENT
     service.cancel_event.return_value = {**FAKE_EVENT, "event_status": "cancelled"}
+    service.apply_events_to_structure.return_value = FAKE_EFFECTIVE_STATE
     return service
 
 
@@ -268,3 +289,39 @@ class TestCancelStructureEvent:
         service.cancel_event.return_value = 7
         resp = tc.post("/structure-events/7/cancel", json={})
         assert resp.json() == {"event_id": 7}
+
+
+class TestGetStructureEffectiveState:
+    def test_get_effective_state_retorna_200(self, client):
+        tc, _, _ = client
+        resp = tc.get("/structures/1/effective")
+        assert resp.status_code == 200
+
+    def test_get_effective_state_retorna_estado_efetivo(self, client):
+        tc, _, _ = client
+        resp = tc.get("/structures/1/effective")
+        body = resp.json()
+        assert body["structure_id"] == 1
+        assert body["is_closed"] is False
+        assert body["effective_quantity_by_leg"]["10"] == 100
+        assert body["applied_events"][0]["id"] == 7
+
+    def test_get_effective_state_chama_service(self, client):
+        tc, _, service = client
+        tc.get("/structures/1/effective")
+        service.apply_events_to_structure.assert_called_once_with(FAKE_STRUCTURE)
+
+    def test_get_effective_state_404_estrutura_inexistente(self, client):
+        tc, repo, service = client
+        repo.get_structure.return_value = None
+        resp = tc.get("/structures/999/effective")
+        assert resp.status_code == 404
+        service.apply_events_to_structure.assert_not_called()
+
+    def test_get_effective_state_400_quando_service_levanta_value_error(self, client):
+        tc, _, service = client
+        service.apply_events_to_structure.side_effect = ValueError("invalid structure_id")
+        resp = tc.get("/structures/1/effective")
+        assert resp.status_code == 400
+        assert "invalid structure_id" in resp.json()["detail"]
+
