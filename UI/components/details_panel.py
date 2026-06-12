@@ -8,9 +8,10 @@ from pathlib import Path
 
 
 class DetailsPanel(ttk.LabelFrame):
-    def __init__(self, parent, on_recalculate=None):
+    def __init__(self, parent, on_recalculate=None, app_db_path=None):
         super().__init__(parent)
         self._on_recalculate_cb = on_recalculate
+        self._app_db_path = str(app_db_path) if app_db_path else None
         self._recalc_in_progress = False
         self._last_recalc_signature = None
         self._current_decision = None
@@ -67,6 +68,24 @@ class DetailsPanel(ttk.LabelFrame):
             project_root = Path(project_root)
 
         return project_root / "dados" / "derived.db"
+
+    def _operational_app_db_path(self) -> Path:
+        """
+        Caminho do app.db usado para estado operacional.
+
+        Importante: não usa self._db_path porque _derived_db_path() já trata
+        esse atributo como caminho do derived.db em testes/compatibilidade.
+        """
+        if self._app_db_path:
+            return Path(self._app_db_path)
+
+        project_root = getattr(self, "_project_root", None)
+        if project_root is None:
+            project_root = Path(__file__).resolve().parents[2]
+        else:
+            project_root = Path(project_root)
+
+        return project_root / "dados" / "app.db"
 
     def _resolve_structure_key(self, structure_id) -> int:
         """
@@ -799,9 +818,10 @@ class DetailsPanel(ttk.LabelFrame):
         """
         Busca estado efetivo pela camada local já existente.
 
-        A UI atualmente não usa HTTP. Por isso este método reaproveita os singletons
-        do controller de estruturas. Se a camada local não estiver disponível,
-        falha silenciosamente e mantém N/A na tela.
+        A UI atualmente não usa HTTP. Por isso este método usa diretamente
+        repositories/services com o mesmo app.db da UI.
+        Se a camada local não estiver disponível, falha silenciosamente
+        e mantém N/A na tela.
         """
         try:
             sid = self._resolve_structure_key(structure_id)
@@ -809,9 +829,17 @@ class DetailsPanel(ttk.LabelFrame):
             return None
 
         try:
-            from api.structures_controller import (
-                _repo as structures_repo,
-                _events_service as events_service,
+            from repositories.structures_repository import StructuresRepository
+            from repositories.structure_events_repository import (
+                StructureEventsRepository,
+            )
+            from services.structure_events_service import StructureEventsService
+
+            app_db_path = self._operational_app_db_path()
+            structures_repo = StructuresRepository(app_db_path)
+            events_repo = StructureEventsRepository(app_db_path)
+            events_service = StructureEventsService(
+                structure_events_repository=events_repo
             )
 
             structure = structures_repo.get_structure(sid)

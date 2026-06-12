@@ -97,6 +97,7 @@ class MainWindow:
         self.details_panel = DetailsPanel(
             details_frame,
             on_recalculate=self.recalculate_structure,
+            app_db_path=self._db_path,
         )
         self.details_panel.pack(fill="both", expand=True, padx=5, pady=5)
 
