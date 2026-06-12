@@ -26,19 +26,29 @@ from typing import Any
 
 VALID_EVENT_TYPES: frozenset[str] = frozenset(
     {
-        "open",
+        # Canônicos Fase 12
+        "opening",
         "adjustment",
-        "roll",
+        "rollover",
         "partial_close",
-        "total_close",
+        "full_close",
         "manual_close",
         "note",
+        "assignment",
+        "exercise",
+        "expiration",
+
+        # Aliases legados mantidos por compatibilidade
+        "open",
+        "roll",
+        "total_close",
     }
 )
 
 VALID_EVENT_STATUS: frozenset[str] = frozenset(
     {
         "registered",
+        "confirmed",
         "cancelled",
     }
 )
@@ -47,6 +57,10 @@ VALID_EVENT_SOURCES: frozenset[str] = frozenset(
     {
         "system",
         "manual",
+        "import",
+        "broker",
+
+        # Alias legado
         "legacy_import",
     }
 )
@@ -63,13 +77,13 @@ def _normalize_optional_text(value: Any) -> str | None:
     return normalized or None
 
 
-def _json_dumps(value: dict[str, Any] | None) -> str | None:
+def _json_dumps(value: Any | None) -> str | None:
     if value is None:
         return None
     return json.dumps(value, ensure_ascii=False, sort_keys=True)
 
 
-def _json_loads(value: str | None) -> dict[str, Any] | None:
+def _json_loads(value: str | None) -> Any | None:
     if value is None:
         return None
     return json.loads(value)

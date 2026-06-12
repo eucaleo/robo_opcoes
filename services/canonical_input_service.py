@@ -25,9 +25,11 @@ from src.domain.refs.structure_ref import StructureRef
 from typing import Any
 
 from repositories.structures_repository import StructuresRepository
+from repositories.structure_events_repository import StructureEventsRepository
 from services.legacy_robo_legs_fallback import LegacyRoboLegsFallback
 from services.market_snapshot_provider import MarketSnapshotProvider
 from services.market_snapshot_selector import MarketSnapshotSelector
+from services.structure_events_service import StructureEventsService
 from services.structure_market_input_assembler import assemble_structure_market_input
 
 
@@ -38,9 +40,11 @@ class CanonicalInputService:
         market_snapshot_provider: MarketSnapshotProvider | None = None,
         market_snapshot_selector: MarketSnapshotSelector | None = None,
         robo_legs_service: Any | None = None,  # injeção explícita
+        structure_events_service: StructureEventsService | None = None,
         prefer_canonical_legs: bool = True,
         enable_legacy_legs_fallback: bool = True,
         allow_legacy_name_fallback: bool = False,
+        enable_structure_events: bool = True,
     ):
         self.repository                  = repository or StructuresRepository()
         self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
@@ -66,6 +70,17 @@ class CanonicalInputService:
             robo_legs_service=self.robo_legs_service,
             allow_name_fallback=self.allow_legacy_name_fallback,
         )
+
+        if structure_events_service is not None:
+            self.structure_events_service = structure_events_service
+        elif enable_structure_events and getattr(self.repository, "db_path", None):
+            self.structure_events_service = StructureEventsService(
+                structure_events_repository=StructureEventsRepository(
+                    db_path=self.repository.db_path,
+                )
+            )
+        else:
+            self.structure_events_service = None
 
     # ──────────────────────────────────────────────────────────────────────────
     # API pública
@@ -99,6 +114,10 @@ class CanonicalInputService:
             reference_date=effective_reference_date,
         )
 
+        enriched_structure, events_meta = self._apply_structure_events(
+            structure=enriched_structure,
+        )
+
         assembled       = assemble_structure_market_input(enriched_structure, snapshot)
         assembled       = self._enrich_assembled_with_structure_metrics(assembled)
         assembled_meta  = assembled.get("meta") or {}
@@ -109,6 +128,7 @@ class CanonicalInputService:
                 **assembled_meta,
                 "reference_date": effective_reference_date,
                 **enrichment_meta,
+                **events_meta,
                 **snapshot_meta,
             },
         }
@@ -323,6 +343,37 @@ class CanonicalInputService:
                 fallback_meta.get("fallback_reason") if fallback_meta else "no_legs_available"
             ),
         )
+
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Eventos operacionais
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _apply_structure_events(
+        self,
+        structure: dict[str, Any],
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        if self.structure_events_service is None:
+            return structure, {
+                "structure_events_enabled": False,
+                "structure_events_applied": 0,
+            }
+
+        effective_structure = self.structure_events_service.apply_events_to_structure(
+            structure=structure,
+        )
+
+        operational_state = effective_structure.get("operational_state") or {}
+
+        return effective_structure, {
+            "structure_events_enabled": True,
+            "structure_events_applied": operational_state.get("events_applied", 0),
+            "structure_events_ignored_cancelled": operational_state.get(
+                "events_ignored_cancelled",
+                0,
+            ),
+            "structure_operational_closed": operational_state.get("is_closed", False),
+        }
 
     # ──────────────────────────────────────────────────────────────────────────
     # Métricas internas da estrutura
