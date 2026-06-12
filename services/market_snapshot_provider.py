@@ -8,6 +8,26 @@ DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
         "interest_rate": 0.1175,
         "volatility": 0.22,
     },
+    "SMAL11": {
+        "spot_price": 124.66,
+        "interest_rate": 0.1175,
+        "volatility": 0.30,
+    },
+    "SBSP3": {
+        "spot_price": 168.67,
+        "interest_rate": 0.1175,
+        "volatility": 0.28,
+    },
+    "PRIO3": {
+        "spot_price": 66.84,
+        "interest_rate": 0.1175,
+        "volatility": 0.35,
+    },
+    "EMBJ3": {
+        "spot_price": 87.37,
+        "interest_rate": 0.1175,
+        "volatility": 0.32,
+    },
     "PETR4": {
         "spot_price": 37.42,
         "interest_rate": 0.1175,
