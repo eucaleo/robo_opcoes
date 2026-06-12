@@ -66,6 +66,44 @@ ON payoff_points(created_at);
 
 CREATE INDEX IF NOT EXISTS idx_payoff_points_strategy
 ON payoff_points(strategy_type);
+
+-- Eventos operacionais de estruturas
+CREATE TABLE IF NOT EXISTS structure_events (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    structure_id   INTEGER NOT NULL,
+    leg_id         INTEGER,
+    event_type     TEXT    NOT NULL,
+    event_status   TEXT    NOT NULL DEFAULT 'registered',
+    event_date     TEXT    NOT NULL,
+    quantity       INTEGER,
+    price          REAL,
+    symbol         TEXT,
+    source         TEXT    NOT NULL DEFAULT 'manual',
+    notes          TEXT,
+    metadata_json  TEXT,
+    created_at     TEXT    NOT NULL,
+    updated_at     TEXT    NOT NULL,
+    FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE,
+    FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_structure_events_structure_id
+ON structure_events(structure_id);
+
+CREATE INDEX IF NOT EXISTS idx_structure_events_leg_id
+ON structure_events(leg_id);
+
+CREATE INDEX IF NOT EXISTS idx_structure_events_event_type
+ON structure_events(event_type);
+
+CREATE INDEX IF NOT EXISTS idx_structure_events_event_status
+ON structure_events(event_status);
+
+CREATE INDEX IF NOT EXISTS idx_structure_events_event_date
+ON structure_events(event_date);
+
+CREATE INDEX IF NOT EXISTS idx_structure_events_structure_date
+ON structure_events(structure_id, event_date);
 """
 
 
