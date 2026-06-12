@@ -1,5 +1,6 @@
 # services/derived_payoff_persistence.py
 import logging
+from datetime import datetime, timezone
 from typing import Any
 
 from domain.payoff import compute_payoff_from_canonical_input
@@ -41,8 +42,25 @@ class DerivedPayoffPersistence:
             )
             return
 
-        self._persist_payoff(pricing_payload, result)
-        self._persist_decision(pricing_payload, result)
+        # Timestamp único para payoff + decisão.
+        # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+        snapshot_ts = datetime.now(timezone.utc).isoformat()
+
+        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+        if not payoff_saved:
+            logger.warning(
+                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+                pricing_payload.get("structure_id"),
+            )
+            return
+
+        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+        if not decision_saved:
+            logger.error(
+                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+                pricing_payload.get("structure_id"),
+                snapshot_ts,
+            )
 
     # -------------------------------------------------------------- #
     #  payoff                                                          #
@@ -52,7 +70,8 @@ class DerivedPayoffPersistence:
         self,
         pricing_payload: dict[str, Any],
         result: dict[str, Any],
-    ) -> None:
+        snapshot_ts: str,
+    ) -> bool:
         try:
             canonical_input = self._build_canonical_input(pricing_payload, result)
             payoff_result = compute_payoff_from_canonical_input(canonical_input)
@@ -62,20 +81,22 @@ class DerivedPayoffPersistence:
                     "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
                     pricing_payload.get("structure_id"),
                 )
-                return
+                return False
 
-            save_payoff_from_canonical_payload(payoff_result)
+            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
             logger.info(
                 "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
                 len(payoff_result["points"]),
                 pricing_payload.get("structure_id"),
             )
+            return True
 
         except Exception:
             logger.exception(
                 "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
                 pricing_payload.get("structure_id"),
             )
+            return False
 
     # -------------------------------------------------------------- #
     #  decisão                                                         #
@@ -85,7 +106,8 @@ class DerivedPayoffPersistence:
         self,
         pricing_payload: dict[str, Any],
         result: dict[str, Any],
-    ) -> None:
+        snapshot_ts: str,
+    ) -> bool:
         try:
             if not isinstance(result, dict):
                 inner = {}
@@ -138,17 +160,20 @@ class DerivedPayoffPersistence:
                 structure_id=pricing_payload.get("structure_id"),
                 structure_name=pricing_payload.get("structure_name"),
                 underlying_asset=pricing_payload.get("underlying_asset"),
+                timestamp=snapshot_ts,
             )
             logger.info(
                 "derived_payoff_persistence: decisão gravada -- structure_id=%s",
                 pricing_payload.get("structure_id"),
             )
+            return True
 
         except Exception:
             logger.exception(
                 "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
                 pricing_payload.get("structure_id"),
             )
+            return False
 
     # -------------------------------------------------------------- #
     #  helpers                                                         #
