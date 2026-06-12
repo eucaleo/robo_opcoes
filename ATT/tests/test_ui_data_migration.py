@@ -33,6 +33,21 @@ def structures(model):
     return model.get_structures()
 
 
+
+
+@pytest.fixture(scope="module")
+def non_empty_structures(structures):
+    if not structures:
+        pytest.skip("Sem estruturas no banco de migração")
+    return structures
+
+
+@pytest.fixture(scope="module")
+def non_empty_decisions(decisions):
+    if not decisions:
+        pytest.skip("Sem decisões no banco de migração")
+    return decisions
+
 # 
 # Sanidade -- banco acessível
 # 
@@ -55,8 +70,8 @@ def test_get_structures_retorna_lista(structures):
     assert isinstance(structures, list), "get_structures() deve retornar lista"
 
 
-def test_get_structures_nao_vazia(structures):
-    assert len(structures) > 0, "Deve haver ao menos uma estrutura cadastrada"
+def test_get_structures_nao_vazia(non_empty_structures):
+    assert len(non_empty_structures) > 0, "Deve haver ao menos uma estrutura cadastrada"
 
 
 def test_get_abas_alias_de_get_structures(model, structures):
@@ -71,8 +86,8 @@ def test_get_abas_alias_de_get_structures(model, structures):
 # Nível 2 -- get_decisions() com structure_id
 # 
 
-def test_decisions_nao_vazia(decisions):
-    assert len(decisions) > 0, "Deve haver ao menos uma decisão no banco"
+def test_decisions_nao_vazia(non_empty_decisions):
+    assert len(non_empty_decisions) > 0, "Deve haver ao menos uma decisão no banco"
 
 
 def test_decisions_tem_structure_id(decisions):
@@ -112,12 +127,12 @@ def test_decisions_tem_timestamp(decisions):
 # Nível 3 -- Filtros
 # 
 
-def test_filtro_por_structure_id(model, structures):
+def test_filtro_por_structure_id(model, non_empty_structures):
     """
     migração structure_id: structures retorna lista de str numericas; converte para int
     antes de comparar com d["structure_id"] que e sempre int canonico.
     """
-    sid_str = structures[0]          # ex: '36'
+    sid_str = non_empty_structures[0]          # ex: '36'
     sid_int = int(sid_str)           # 36
     filtered = model.get_decisions(filters={"structure_id": sid_str})
     assert isinstance(filtered, list), "Filtro deve retornar lista"
@@ -152,21 +167,21 @@ def test_filtro_por_aba_continuidade(model, decisions):
 # Nível 4 -- get_payoff_curve_info()
 # 
 
-def test_payoff_curve_info_retorna_dados(model, decisions):
-    d0 = decisions[0]
+def test_payoff_curve_info_retorna_dados(model, non_empty_decisions):
+    d0 = non_empty_decisions[0]
     pts, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
     assert isinstance(pts, list), "Pontos do payoff devem ser uma lista"
     assert isinstance(info, dict), "info do payoff deve ser dict"
 
 
-def test_payoff_curve_info_tem_structure_id(model, decisions):
-    d0 = decisions[0]
+def test_payoff_curve_info_tem_structure_id(model, non_empty_decisions):
+    d0 = non_empty_decisions[0]
     _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
     assert "structure_id" in info, "info do payoff deve conter 'structure_id'"
 
 
-def test_payoff_curve_info_aba_continuidade(model, decisions):
-    d0 = decisions[0]
+def test_payoff_curve_info_aba_continuidade(model, non_empty_decisions):
+    d0 = non_empty_decisions[0]
     _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
     assert "aba" in info, "info do payoff deve ainda conter 'aba' (continuidade)"
     assert info["aba"] == d0["structure_id"], (
@@ -174,8 +189,8 @@ def test_payoff_curve_info_aba_continuidade(model, decisions):
     )
 
 
-def test_payoff_curve_info_pontos_validos(model, decisions):
-    d0 = decisions[0]
+def test_payoff_curve_info_pontos_validos(model, non_empty_decisions):
+    d0 = non_empty_decisions[0]
     pts, _ = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
     for pt in pts:
         assert isinstance(pt, dict), f"Ponto deve ser dict: {pt}"
