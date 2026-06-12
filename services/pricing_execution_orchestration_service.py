@@ -1,6 +1,7 @@
 import time
 from typing import Any
 
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
 from services.pricing_execution_persistence_service import (
     PricingExecutionPersistenceService,
 )
