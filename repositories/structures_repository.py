@@ -339,6 +339,106 @@ class StructuresRepository:
         finally:
             conn.close()
 
+
+    def create_structure_with_legs(
+        self,
+        data: dict[str, Any],
+        legs: list[dict[str, Any]],
+    ) -> int:
+        """
+        Cria uma estrutura e suas legs em uma única transação.
+
+        Garante que não exista estrutura persistida sem legs caso a gravação
+        de alguma perna falhe.
+        """
+        payload = _normalize_structure_payload(data)
+        validated_legs = [_validate_leg(leg) for leg in legs]
+
+        if not validated_legs:
+            raise ValueError("estrutura deve ter ao menos uma leg")
+
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            cursor = conn.execute(
+                """
+                INSERT INTO structures (
+                    name, underlying_asset, alias_legacy_aba,
+                    status, notes, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload["name"],
+                    payload["underlying_asset"],
+                    payload["alias_legacy_aba"],
+                    payload["status"],
+                    payload["notes"],
+                    now,
+                    now,
+                ),
+            )
+            new_id = int(cursor.lastrowid)
+
+            self._log_action(
+                conn,
+                structure_id=new_id,
+                action="CREATE",
+                before=None,
+                after={
+                    **payload,
+                    "id": new_id,
+                    "created_at": now,
+                    "updated_at": now,
+                },
+            )
+
+            for leg in validated_legs:
+                conn.execute(
+                    """
+                    INSERT INTO structure_legs (
+                        structure_id, position_side, option_type, symbol,
+                        strike, expiration_date, quantity, premium,
+                        multiplier, leg_order, notes, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        new_id,
+                        leg["position_side"],
+                        leg["option_type"],
+                        leg["symbol"],
+                        leg["strike"],
+                        leg["expiration_date"],
+                        leg["quantity"],
+                        leg["premium"],
+                        leg["multiplier"],
+                        leg["leg_order"],
+                        leg["notes"],
+                        now,
+                        now,
+                    ),
+                )
+
+            self._log_action(
+                conn,
+                structure_id=new_id,
+                action="REPLACE_LEGS",
+                before=None,
+                after={
+                    "legs_count": len(validated_legs),
+                    "replaced_at": now,
+                },
+            )
+
+            conn.commit()
+            return new_id
+
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
     # ------------------------------------------------------------------
     # READ
     # ------------------------------------------------------------------
