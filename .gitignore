@@ -100,3 +100,5 @@ scripts/.smoke_context.json
 __pycache__/
 *.pyc
 .pytest_cache/
+
+*.bak-*
