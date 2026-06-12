@@ -380,6 +380,31 @@ def _validate_record_structure_event_request(
         )
 
 
+
+@router.get(
+    "/structures/{structure_id}/effective",
+    response_model=dict[str, _StructureEventsAny],
+)
+def get_structure_effective_state(
+    structure_id: int,
+) -> dict[str, _StructureEventsAny]:
+    """
+    Retorna a estrutura com eventos operacionais aplicados.
+
+    Não persiste alterações nas legs. Apenas calcula o estado efetivo:
+    - quantity efetiva por leg;
+    - _original_quantity por leg;
+    - operational_status por leg;
+    - operational_state agregado da estrutura.
+    """
+    structure = _get_or_404(structure_id)
+
+    try:
+        return _events_service.apply_events_to_structure(structure)
+    except ValueError as exc:
+        raise _structure_events_value_error_to_http(exc) from exc
+
+
 @router.post(
     "/structures/{structure_id}/events",
     response_model=dict[str, _StructureEventsAny],

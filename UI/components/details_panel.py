@@ -432,7 +432,7 @@ class DetailsPanel(ttk.LabelFrame):
     # ------------------------------------------------------------------
 
     def _setup_widgets(self):
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
         # Informações Básicas
@@ -527,9 +527,45 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.breakevens_label.grid(row=2, column=3, sticky="ew")
 
+        # Estado Operacional
+        operational_frame = ttk.LabelFrame(self, text="Estado Operacional", padding=5)
+        operational_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=5)
+        operational_frame.grid_columnconfigure(1, weight=1)
+        operational_frame.grid_columnconfigure(3, weight=1)
+
+        ttk.Label(operational_frame, text="Eventos aplicados:").grid(
+            row=0, column=0, sticky="w", padx=(0, 5)
+        )
+        self.operational_events_applied_label = ttk.Label(
+            operational_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.operational_events_applied_label.grid(
+            row=0, column=1, sticky="ew", padx=(0, 10)
+        )
+
+        ttk.Label(operational_frame, text="Cancelados ignorados:").grid(
+            row=0, column=2, sticky="w", padx=(0, 5)
+        )
+        self.operational_cancelled_ignored_label = ttk.Label(
+            operational_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.operational_cancelled_ignored_label.grid(
+            row=0, column=3, sticky="ew"
+        )
+
+        ttk.Label(operational_frame, text="Status:").grid(
+            row=1, column=0, sticky="w", padx=(0, 5)
+        )
+        self.operational_status_label = ttk.Label(
+            operational_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.operational_status_label.grid(
+            row=1, column=1, columnspan=3, sticky="ew"
+        )
+
         # Rationale JSON
         json_frame = ttk.LabelFrame(self, text="Rationale / Why JSON", padding=5)
-        json_frame.grid(row=2, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
+        json_frame.grid(row=3, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
         json_frame.grid_rowconfigure(0, weight=1)
         json_frame.grid_columnconfigure(0, weight=1)
 
@@ -544,7 +580,7 @@ class DetailsPanel(ttk.LabelFrame):
 
         # Auditoria & Ações
         audit_frame = ttk.LabelFrame(self, text="Auditoria & Ações", padding=5)
-        audit_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=5)
+        audit_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
         audit_frame.grid_columnconfigure(1, weight=1)
         audit_frame.grid_columnconfigure(3, weight=1)
 
@@ -633,6 +669,10 @@ class DetailsPanel(ttk.LabelFrame):
         self.source_label.config(text="N/A")
         self.created_at_label.config(text="N/A")
         self.lbl_recalc_status.config(text="", foreground="gray")
+        self._clear_operational_state()
+
+        if structure_id != "N/A":
+            self._refresh_operational_state_for_structure(structure_id)
 
     def update_breakevens(self, breakevens, pl_at_spot_ref):
         if breakevens:
@@ -664,6 +704,9 @@ class DetailsPanel(ttk.LabelFrame):
             self.level_label, self.pl_atual_label, self.pl_max_label,
             self.ratio_label, self.dte_label, self.spot_ref_label,
             self.breakevens_label, self.source_label, self.created_at_label,
+            self.operational_events_applied_label,
+            self.operational_cancelled_ignored_label,
+            self.operational_status_label,
         ]:
             lbl.config(text="N/A")
         self.why_text.delete("1.0", tk.END)
@@ -689,6 +732,103 @@ class DetailsPanel(ttk.LabelFrame):
                 )
         except Exception:
             self._recalc_in_progress = False
+
+    def _clear_operational_state(self):
+        for label_name in [
+            "operational_events_applied_label",
+            "operational_cancelled_ignored_label",
+            "operational_status_label",
+        ]:
+            label = getattr(self, label_name, None)
+            if label is not None:
+                label.config(text="N/A")
+
+    def update_operational_state(self, effective_structure: Dict[str, Any]):
+        """
+        Atualiza os widgets de Estado Operacional.
+
+        Aceita o formato retornado por StructureEventsService.apply_events_to_structure:
+        {
+            "legs": [...],
+            "operational_state": {
+                "events_applied": int,
+                "events_ignored_cancelled": int,
+                "is_closed": bool,
+            }
+        }
+
+        Também aceita formatos legados/testes com:
+        - is_closed no topo;
+        - applied_events;
+        - ignored_events.
+        """
+        if not isinstance(effective_structure, dict):
+            self._clear_operational_state()
+            return
+
+        state = effective_structure.get("operational_state")
+        if not isinstance(state, dict):
+            state = {}
+
+        applied = state.get("events_applied")
+        if applied is None and isinstance(effective_structure.get("applied_events"), list):
+            applied = len(effective_structure.get("applied_events") or [])
+
+        ignored = state.get("events_ignored_cancelled")
+        if ignored is None and isinstance(effective_structure.get("ignored_events"), list):
+            ignored = len(effective_structure.get("ignored_events") or [])
+
+        is_closed = state.get("is_closed", effective_structure.get("is_closed"))
+
+        if is_closed is True:
+            status_text = "Encerrada"
+        elif is_closed is False:
+            status_text = "Aberta"
+        else:
+            status_text = "N/A"
+
+        self.operational_events_applied_label.config(
+            text=str(applied) if applied is not None else "N/A"
+        )
+        self.operational_cancelled_ignored_label.config(
+            text=str(ignored) if ignored is not None else "N/A"
+        )
+        self.operational_status_label.config(text=status_text)
+
+    def _fetch_effective_structure_local(self, structure_id) -> Optional[Dict[str, Any]]:
+        """
+        Busca estado efetivo pela camada local já existente.
+
+        A UI atualmente não usa HTTP. Por isso este método reaproveita os singletons
+        do controller de estruturas. Se a camada local não estiver disponível,
+        falha silenciosamente e mantém N/A na tela.
+        """
+        try:
+            sid = self._resolve_structure_key(structure_id)
+        except Exception:
+            return None
+
+        try:
+            from api.structures_controller import (
+                _repo as structures_repo,
+                _events_service as events_service,
+            )
+
+            structure = structures_repo.get_structure(sid)
+            if not structure:
+                return None
+
+            effective = events_service.apply_events_to_structure(structure)
+            return effective if isinstance(effective, dict) else None
+        except Exception:
+            return None
+
+    def _refresh_operational_state_for_structure(self, structure_id):
+        effective = self._fetch_effective_structure_local(structure_id)
+        if effective:
+            self.update_operational_state(effective)
+        else:
+            self._clear_operational_state()
 
     # ------------------------------------------------------------------
     # Helpers internos
