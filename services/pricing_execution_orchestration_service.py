@@ -20,7 +20,10 @@ class PricingExecutionOrchestrationService:
             pricing_input_service=self.pricing_input_service,
         )
         self.pricing_execution_persistence_service = (
-            pricing_execution_persistence_service or PricingExecutionPersistenceService()
+            pricing_execution_persistence_service
+            or PricingExecutionPersistenceService(
+                system_snapshots_repository=SystemSnapshotsRepository(),
+            )
         )
 
     def execute_and_persist(
