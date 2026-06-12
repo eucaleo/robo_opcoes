@@ -241,3 +241,261 @@ def remove_leg(structure_id: int, leg_id: int) -> None:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     finally:
         conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Endpoints — eventos operacionais
+# ---------------------------------------------------------------------------
+
+from datetime import datetime as _StructureEventsDateTime
+from typing import Any as _StructureEventsAny
+
+from fastapi import HTTPException as _StructureEventsHTTPException
+from pydantic import BaseModel as _StructureEventsBaseModel
+
+from services.structure_events_service import (
+    StructureEventsService as _StructureEventsService,
+)
+
+
+_events_service = _StructureEventsService()
+
+
+_STRUCTURE_EVENT_TYPES = {
+    "opening",
+    "adjustment",
+    "rollover",
+    "partial_close",
+    "full_close",
+    "manual_close",
+    "note",
+    "assignment",
+    "exercise",
+    "expiration",
+}
+
+_STRUCTURE_EVENT_STATUSES = {
+    "registered",
+    "confirmed",
+    "cancelled",
+}
+
+_STRUCTURE_EVENT_SOURCES = {
+    "manual",
+    "system",
+    "import",
+    "broker",
+}
+
+
+class RecordStructureEventRequest(_StructureEventsBaseModel):
+    event_type: str
+    event_date: str
+    leg_id: int | None = None
+    event_status: str = "registered"
+    quantity: int | None = None
+    price: float | None = None
+    symbol: str | None = None
+    source: str = "manual"
+    notes: str | None = None
+    metadata: dict[str, _StructureEventsAny] | list[_StructureEventsAny] | None = None
+
+
+class CancelStructureEventRequest(_StructureEventsBaseModel):
+    notes: str | None = None
+
+
+def _structure_events_model_dump(model: _StructureEventsBaseModel) -> dict[str, _StructureEventsAny]:
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
+
+
+def _structure_events_result_payload(result: _StructureEventsAny) -> dict[str, _StructureEventsAny]:
+    if isinstance(result, dict):
+        return result
+    return {"event_id": result}
+
+
+def _structure_events_value_error_to_http(exc: ValueError) -> _StructureEventsHTTPException:
+    message = str(exc)
+    status_code = 404 if "not found" in message else 400
+    return _StructureEventsHTTPException(status_code=status_code, detail=message)
+
+
+def _ensure_structure_exists_for_events(structure_id: int) -> None:
+    structure = _repo.get_structure(structure_id)
+    if structure is None:
+        raise _StructureEventsHTTPException(
+            status_code=404,
+            detail=f"structure not found: {structure_id}",
+        )
+
+
+def _validate_record_structure_event_request(
+    request: RecordStructureEventRequest,
+) -> None:
+    if request.event_type not in _STRUCTURE_EVENT_TYPES:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="invalid event_type",
+        )
+
+    try:
+        _StructureEventsDateTime.strptime(request.event_date, "%Y-%m-%d")
+    except ValueError as exc:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="event_date must be in YYYY-MM-DD format",
+        ) from exc
+
+    if request.leg_id is not None and request.leg_id <= 0:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="leg_id must be greater than zero",
+        )
+
+    if request.event_status not in _STRUCTURE_EVENT_STATUSES:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="invalid event_status",
+        )
+
+    if request.quantity is not None and request.quantity < 0:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="quantity must be greater than or equal to zero",
+        )
+
+    if request.price is not None and request.price < 0:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="price must be greater than or equal to zero",
+        )
+
+    if request.source not in _STRUCTURE_EVENT_SOURCES:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="invalid source",
+        )
+
+
+@router.post(
+    "/structures/{structure_id}/events",
+    response_model=dict[str, _StructureEventsAny],
+    status_code=201,
+)
+def record_structure_event(
+    structure_id: int,
+    request: RecordStructureEventRequest,
+) -> dict[str, _StructureEventsAny]:
+    _ensure_structure_exists_for_events(structure_id)
+    _validate_record_structure_event_request(request)
+
+    try:
+        result = _events_service.record_event(
+            structure_id=structure_id,
+            **_structure_events_model_dump(request),
+        )
+    except ValueError as exc:
+        raise _structure_events_value_error_to_http(exc) from exc
+
+    return _structure_events_result_payload(result)
+
+
+@router.get(
+    "/structures/{structure_id}/events",
+    response_model=list[dict[str, _StructureEventsAny]],
+)
+def list_structure_events(
+    structure_id: int,
+    include_cancelled: bool = False,
+) -> list[dict[str, _StructureEventsAny]]:
+    _ensure_structure_exists_for_events(structure_id)
+
+    try:
+        return _events_service.list_events_for_structure(
+            structure_id,
+            include_cancelled=include_cancelled,
+        )
+    except ValueError as exc:
+        raise _structure_events_value_error_to_http(exc) from exc
+
+
+@router.get(
+    "/structure-events",
+    response_model=list[dict[str, _StructureEventsAny]],
+)
+def list_events(
+    structure_id: int | None = None,
+    event_type: str | None = None,
+    event_status: str | None = None,
+    include_cancelled: bool = False,
+    limit: int = 100,
+    offset: int = 0,
+) -> list[dict[str, _StructureEventsAny]]:
+    if structure_id is not None and structure_id <= 0:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="structure_id must be greater than zero",
+        )
+
+    if limit <= 0:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="limit must be greater than zero",
+        )
+
+    if offset < 0:
+        raise _StructureEventsHTTPException(
+            status_code=422,
+            detail="offset must be greater than or equal to zero",
+        )
+
+    try:
+        return _events_service.list_events(
+            structure_id=structure_id,
+            event_type=event_type,
+            event_status=event_status,
+            include_cancelled=include_cancelled,
+            limit=limit,
+            offset=offset,
+        )
+    except ValueError as exc:
+        raise _structure_events_value_error_to_http(exc) from exc
+
+
+@router.get(
+    "/structure-events/{event_id}",
+    response_model=dict[str, _StructureEventsAny],
+)
+def get_structure_event(event_id: int) -> dict[str, _StructureEventsAny]:
+    try:
+        event = _events_service.get_event(event_id)
+    except ValueError as exc:
+        raise _structure_events_value_error_to_http(exc) from exc
+
+    if event is None:
+        raise _StructureEventsHTTPException(
+            status_code=404,
+            detail=f"event not found: {event_id}",
+        )
+
+    return event
+
+
+@router.post(
+    "/structure-events/{event_id}/cancel",
+    response_model=dict[str, _StructureEventsAny],
+)
+def cancel_structure_event(
+    event_id: int,
+    request: CancelStructureEventRequest,
+) -> dict[str, _StructureEventsAny]:
+    try:
+        result = _events_service.cancel_event(event_id, notes=request.notes)
+    except ValueError as exc:
+        raise _structure_events_value_error_to_http(exc) from exc
+
+    return _structure_events_result_payload(result)
+
