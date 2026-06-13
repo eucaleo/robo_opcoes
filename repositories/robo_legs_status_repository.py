@@ -39,6 +39,30 @@ class RoboLegsStatusRepository(AbaResolverMixin):
     def __init__(self, config: Optional[RoboLegsStatusRepoConfig] = None):
         self.config = config or RoboLegsStatusRepoConfig()
 
+    @staticmethod
+    def _latest_parsed_timestamp(values) -> Optional[datetime]:
+        """
+        Retorna o maior timestamp cronológico após parse.
+
+        Evita SELECT MAX(timestamp), que é textual no SQLite e pode errar
+        quando há mistura de formatos ISO e BR.
+        """
+        latest: Optional[datetime] = None
+
+        for value in values:
+            if value is None:
+                continue
+
+            try:
+                parsed = parse_timestamp(value)
+            except Exception:
+                continue
+
+            if latest is None or parsed > latest:
+                latest = parsed
+
+        return latest
+
     def latest_timestamps(
         self,
         ref: StructureRef,
@@ -46,20 +70,25 @@ class RoboLegsStatusRepository(AbaResolverMixin):
         """
         Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
         Se não houver, retorna (None, None).
+
+        O cálculo do maior timestamp é feito em Python, não via MAX(timestamp),
+        para evitar erro de ordenação textual com formatos mistos.
         """
         aba = _to_aba(ref)
-        with sqlite_conn(self.config.app_db_path) as conn:
-            row_m = conn.execute(
-                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
-                (aba,),
-            ).fetchone()
-            row_r = conn.execute(
-                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?",
-                (aba,),
-            ).fetchone()
 
-        m = parse_timestamp(row_m["ts"]) if row_m and row_m["ts"] else None
-        r = parse_timestamp(row_r["ts"]) if row_r and row_r["ts"] else None
+        with sqlite_conn(self.config.app_db_path) as conn:
+            rows_m = conn.execute(
+                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ?",
+                (aba,),
+            ).fetchall()
+            rows_r = conn.execute(
+                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ?",
+                (aba,),
+            ).fetchall()
+
+        m = self._latest_parsed_timestamp([row["timestamp"] for row in rows_m])
+        r = self._latest_parsed_timestamp([row["timestamp"] for row in rows_r])
+
         return (m, r)
 
     # ------------------------------------------------------------------ #

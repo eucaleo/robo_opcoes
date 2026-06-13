@@ -94,41 +94,79 @@ class RoboLegsRepository(AbaResolverMixin):
             cur = conn.execute(sql, (aba, *ts_candidates))
             return cur.fetchone() is not None
 
+    @staticmethod
+    def _sort_timestamp_values(values: List[Any]) -> List[str]:
+        """
+        Ordena timestamps cronologicamente usando parse_timestamp().
+
+        Motivo:
+        O banco legado pode misturar formatos como:
+        - YYYY-MM-DD HH:MM:SS
+        - DD/MM/YYYY HH:MM:SS
+
+        Portanto ORDER BY timestamp no SQLite não é confiável, pois ordena texto.
+        """
+        parsed = []
+        fallback = []
+        seen = set()
+
+        for value in values:
+            if value is None:
+                continue
+
+            raw = str(value).strip()
+            if not raw or raw in seen:
+                continue
+
+            seen.add(raw)
+
+            try:
+                parsed.append((parse_timestamp(raw), raw))
+            except Exception:
+                fallback.append(raw)
+
+        parsed.sort(key=lambda item: item[0])
+        fallback.sort()
+
+        return [raw for _, raw in parsed] + fallback
+
     def list_timestamps(
         self,
         ref: StructureRef,
         prefer: str = "manual_then_rtd",
     ) -> List[str]:
-        """Lista timestamps disponíveis para a aba."""
+        """Lista timestamps disponíveis para a aba em ordem cronológica."""
         aba = _to_aba(ref)
         prefer = (prefer or "").strip().lower()
+
         with sqlite_conn(self.config.app_db_path) as conn:
             if prefer == "all":
-                rows = conn.execute(
-                    """
-                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
-                    UNION
-                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?
-                    ORDER BY timestamp
-                    """,
-                    (aba, aba),
+                rows_m = conn.execute(
+                    "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ?",
+                    (aba,),
                 ).fetchall()
-                return [r["timestamp"] for r in rows]
+                rows_r = conn.execute(
+                    "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ?",
+                    (aba,),
+                ).fetchall()
+
+                values = [r["timestamp"] for r in rows_m] + [r["timestamp"] for r in rows_r]
+                return self._sort_timestamp_values(values)
 
             rows_m = conn.execute(
-                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs "
-                "WHERE aba = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs WHERE aba = ?",
                 (aba,),
             ).fetchall()
+
             if rows_m:
-                return [r["timestamp"] for r in rows_m]
+                return self._sort_timestamp_values([r["timestamp"] for r in rows_m])
 
             rows_r = conn.execute(
-                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs "
-                "WHERE aba = ? ORDER BY timestamp",
+                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs WHERE aba = ?",
                 (aba,),
             ).fetchall()
-            return [r["timestamp"] for r in rows_r]
+
+            return self._sort_timestamp_values([r["timestamp"] for r in rows_r])
 
     def _query_legs(
         self,
