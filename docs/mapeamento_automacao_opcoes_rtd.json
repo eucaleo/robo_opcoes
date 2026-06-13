@@ -1,0 +1,2905 @@
+{
+  "phase": "ROTA_MESTRE_2_FASE_1",
+  "generated_at": "2026-06-13T20:17:04",
+  "functional_changes": false,
+  "total_findings": 200,
+  "findings": [
+    {
+      "path": "dados/pricing_executions.json",
+      "role": "dados_local",
+      "level": "forte",
+      "score": 821,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 502,
+        "ui": 2,
+        "calculo": 314
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 565,
+      "path_hits": {
+        "rtd": 1,
+        "opcoes": 1
+      },
+      "content_hits": {
+        "rtd": 84,
+        "excel": 74,
+        "bridge": 87,
+        "opcoes": 35,
+        "persistencia": 45,
+        "servicos": 71,
+        "ui": 125,
+        "calculo": 38
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 454,
+      "path_hits": {
+        "excel": 1
+      },
+      "content_hits": {
+        "rtd": 40,
+        "excel": 136,
+        "bridge": 168,
+        "opcoes": 10,
+        "persistencia": 51,
+        "servicos": 12,
+        "ui": 27,
+        "calculo": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_analysis_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 282,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "opcoes": 8,
+        "servicos": 143,
+        "ui": 4,
+        "calculo": 124
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structures_archive_wiring.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 226,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 33,
+        "ui": 191
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 218,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 25,
+        "excel": 32,
+        "bridge": 15,
+        "opcoes": 8,
+        "persistencia": 46,
+        "servicos": 30,
+        "ui": 52,
+        "calculo": 10
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_execution_query_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 208,
+      "path_hits": {
+        "servicos": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 48,
+        "servicos": 73,
+        "calculo": 81
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/fase_8_banco_fonte_verdade_auditoria.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 202,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 67,
+        "excel": 36,
+        "bridge": 3,
+        "opcoes": 24,
+        "persistencia": 11,
+        "servicos": 7,
+        "ui": 26,
+        "calculo": 28
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/validacoes/fase-17-mapa-pastas-arquivos.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 195,
+      "path_hits": {
+        "ui": 1
+      },
+      "content_hits": {
+        "rtd": 6,
+        "excel": 28,
+        "bridge": 32,
+        "opcoes": 3,
+        "persistencia": 19,
+        "servicos": 20,
+        "ui": 64,
+        "calculo": 20
+      },
+      "note": ""
+    },
+    {
+      "path": "services/calculation_orchestrator.py",
+      "role": "services",
+      "level": "forte",
+      "score": 178,
+      "path_hits": {
+        "servicos": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "rtd": 13,
+        "opcoes": 45,
+        "persistencia": 8,
+        "servicos": 2,
+        "ui": 11,
+        "calculo": 90
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/baseline_v1.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 176,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 9,
+        "excel": 31,
+        "bridge": 5,
+        "opcoes": 13,
+        "persistencia": 45,
+        "servicos": 14,
+        "ui": 30,
+        "calculo": 29
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/MAPA_MODULOS_FUNCOES.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 175,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 17,
+        "excel": 15,
+        "bridge": 3,
+        "persistencia": 29,
+        "servicos": 12,
+        "ui": 31,
+        "calculo": 68
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 173,
+      "path_hits": {
+        "excel": 1,
+        "bridge": 1
+      },
+      "content_hits": {
+        "rtd": 25,
+        "excel": 45,
+        "bridge": 61,
+        "opcoes": 3,
+        "persistencia": 11,
+        "servicos": 5,
+        "ui": 15,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/FASE_6_CAMADA_CANONICA_LEITURA.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 169,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 49,
+        "excel": 16,
+        "bridge": 22,
+        "opcoes": 5,
+        "persistencia": 25,
+        "servicos": 27,
+        "ui": 20,
+        "calculo": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "services/canonical_input_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 165,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "rtd": 3,
+        "bridge": 1,
+        "opcoes": 4,
+        "persistencia": 16,
+        "servicos": 75,
+        "ui": 4,
+        "calculo": 33
+      },
+      "note": "Prioritário para auditoria de input canônico."
+    },
+    {
+      "path": "db/derived_repo.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 150,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 35,
+        "persistencia": 54,
+        "calculo": 61
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/main_window.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 145,
+      "path_hits": {
+        "ui": 2
+      },
+      "content_hits": {
+        "rtd": 1,
+        "excel": 1,
+        "bridge": 11,
+        "opcoes": 8,
+        "persistencia": 2,
+        "ui": 68,
+        "calculo": 48
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_execution_persistence_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 141,
+      "path_hits": {
+        "servicos": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 52,
+        "servicos": 25,
+        "calculo": 56
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_execution_controller.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 137,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 83,
+        "ui": 12,
+        "calculo": 39
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_execution_app_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 127,
+      "path_hits": {
+        "servicos": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 72,
+        "calculo": 49
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/executed_v1.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 123,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 13,
+        "excel": 12,
+        "bridge": 12,
+        "opcoes": 14,
+        "persistencia": 16,
+        "servicos": 3,
+        "ui": 9,
+        "calculo": 44
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/baseline_v1a.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 121,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 24,
+        "excel": 19,
+        "bridge": 39,
+        "persistencia": 15,
+        "servicos": 4,
+        "ui": 7,
+        "calculo": 13
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/models/ui_data.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 118,
+      "path_hits": {
+        "ui": 2
+      },
+      "content_hits": {
+        "bridge": 4,
+        "opcoes": 7,
+        "persistencia": 15,
+        "ui": 22,
+        "calculo": 64
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/mapear_automacao_opcoes_rtd.py",
+      "role": "scripts",
+      "level": "forte",
+      "score": 118,
+      "path_hits": {
+        "rtd": 1,
+        "opcoes": 1
+      },
+      "content_hits": {
+        "rtd": 15,
+        "excel": 10,
+        "bridge": 15,
+        "opcoes": 14,
+        "persistencia": 16,
+        "servicos": 22,
+        "ui": 11,
+        "calculo": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/components/details_panel.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 112,
+      "path_hits": {
+        "ui": 3
+      },
+      "content_hits": {
+        "opcoes": 5,
+        "persistencia": 33,
+        "servicos": 10,
+        "ui": 16,
+        "calculo": 39
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_input_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 108,
+      "path_hits": {
+        "servicos": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 54,
+        "ui": 11,
+        "calculo": 37
+      },
+      "note": ""
+    },
+    {
+      "path": "services/canonical_pricing_facade.py",
+      "role": "services",
+      "level": "forte",
+      "score": 108,
+      "path_hits": {
+        "servicos": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "rtd": 1,
+        "opcoes": 5,
+        "persistencia": 15,
+        "servicos": 33,
+        "ui": 3,
+        "calculo": 42
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 107,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 13,
+        "excel": 25,
+        "bridge": 20,
+        "opcoes": 4,
+        "persistencia": 10,
+        "servicos": 13,
+        "ui": 17,
+        "calculo": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/patch_derived_payoff_timestamp_consistency.sh",
+      "role": "scripts",
+      "level": "forte",
+      "score": 106,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 8,
+        "ui": 13,
+        "calculo": 82
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_execution_persistence_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 106,
+      "path_hits": {
+        "servicos": 3,
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 19,
+        "servicos": 6,
+        "ui": 5,
+        "calculo": 64
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 103,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 13,
+        "excel": 44,
+        "bridge": 4,
+        "opcoes": 3,
+        "persistencia": 19,
+        "servicos": 2,
+        "ui": 14,
+        "calculo": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "services/derived_payoff_persistence.py",
+      "role": "services",
+      "level": "forte",
+      "score": 97,
+      "path_hits": {
+        "servicos": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 6,
+        "ui": 2,
+        "calculo": 80
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_editor_dialog.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 90,
+      "path_hits": {
+        "ui": 1
+      },
+      "content_hits": {
+        "opcoes": 19,
+        "persistencia": 4,
+        "ui": 64
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_editor_integration.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 88,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 6,
+        "persistencia": 7,
+        "ui": 75
+      },
+      "note": ""
+    },
+    {
+      "path": "bridge_ingest_csv.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 88,
+      "path_hits": {
+        "bridge": 3
+      },
+      "content_hits": {
+        "rtd": 8,
+        "excel": 6,
+        "bridge": 54,
+        "persistencia": 6,
+        "ui": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "services/derived_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 87,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "opcoes": 17,
+        "persistencia": 7,
+        "servicos": 6,
+        "ui": 1,
+        "calculo": 47
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_canonical_input_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 84,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "opcoes": 8,
+        "persistencia": 13,
+        "servicos": 48,
+        "ui": 5,
+        "calculo": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_execution_orchestration_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 84,
+      "path_hits": {
+        "servicos": 3,
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 5,
+        "servicos": 33,
+        "calculo": 34
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/rtd_option_quotes_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 82,
+      "path_hits": {
+        "rtd": 2,
+        "opcoes": 1,
+        "persistencia": 2
+      },
+      "content_hits": {
+        "rtd": 14,
+        "bridge": 1,
+        "opcoes": 25,
+        "persistencia": 7
+      },
+      "note": "Prioritário para auditoria de persistência RTD."
+    },
+    {
+      "path": "ATT/tests/test_orchestrator_run_methods.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 81,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 1,
+        "opcoes": 13,
+        "servicos": 20,
+        "calculo": 47
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_execution_orchestration_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 75,
+      "path_hits": {
+        "servicos": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 39,
+        "ui": 1,
+        "calculo": 29
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/market_snapshot_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 75,
+      "path_hits": {
+        "persistencia": 2
+      },
+      "content_hits": {
+        "rtd": 20,
+        "excel": 5,
+        "opcoes": 15,
+        "persistencia": 9
+      },
+      "note": "Prioritário para auditoria de persistência de snapshot."
+    },
+    {
+      "path": "ATT/tests/test_robo_legs_repository.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 74,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "rtd": 8,
+        "excel": 11,
+        "opcoes": 22,
+        "persistencia": 30
+      },
+      "note": ""
+    },
+    {
+      "path": "mapear_repositorio.sh",
+      "role": "outros",
+      "level": "forte",
+      "score": 70,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 5,
+        "excel": 8,
+        "bridge": 12,
+        "opcoes": 2,
+        "persistencia": 2,
+        "ui": 41
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 66,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 8,
+        "excel": 4,
+        "opcoes": 14,
+        "persistencia": 35,
+        "servicos": 4,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/structures_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 66,
+      "path_hits": {
+        "persistencia": 2
+      },
+      "content_hits": {
+        "opcoes": 32,
+        "persistencia": 22,
+        "ui": 6
+      },
+      "note": ""
+    },
+    {
+      "path": "services/structure_analysis_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 66,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "opcoes": 5,
+        "servicos": 8,
+        "ui": 2,
+        "calculo": 42
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_events_api.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 64,
+      "path_hits": {},
+      "content_hits": {
+        "servicos": 64
+      },
+      "note": ""
+    },
+    {
+      "path": "dados/audit_domain_coupling_patch24.json",
+      "role": "dados_local",
+      "level": "forte",
+      "score": 62,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 6,
+        "excel": 3,
+        "opcoes": 3,
+        "persistencia": 18,
+        "ui": 3,
+        "calculo": 29
+      },
+      "note": ""
+    },
+    {
+      "path": "logs/audit_cleanup_20260602_1203.txt",
+      "role": "outros",
+      "level": "forte",
+      "score": 62,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 6,
+        "servicos": 12,
+        "ui": 6,
+        "calculo": 38
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_execution_app_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 61,
+      "path_hits": {
+        "servicos": 3,
+        "calculo": 1
+      },
+      "content_hits": {
+        "rtd": 1,
+        "servicos": 20,
+        "ui": 1,
+        "calculo": 27
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/components/structure_editor_dialog.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 59,
+      "path_hits": {
+        "ui": 3
+      },
+      "content_hits": {
+        "opcoes": 19,
+        "persistencia": 6,
+        "ui": 25
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_execution_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 57,
+      "path_hits": {
+        "servicos": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 17,
+        "ui": 2,
+        "calculo": 32
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/components/payoff_chart.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 57,
+      "path_hits": {
+        "ui": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 10,
+        "persistencia": 1,
+        "ui": 11,
+        "calculo": 26
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_system_snapshots_repository.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 56,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 12,
+        "persistencia": 28,
+        "ui": 1,
+        "calculo": 12
+      },
+      "note": ""
+    },
+    {
+      "path": "services/market_snapshot_selector.py",
+      "role": "services",
+      "level": "forte",
+      "score": 52,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "rtd": 13,
+        "persistencia": 6,
+        "servicos": 4
+      },
+      "note": "Prioritário para auditoria de seleção de snapshot."
+    },
+    {
+      "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 50,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 3,
+        "excel": 3,
+        "opcoes": 18,
+        "persistencia": 24,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/validacoes/plano-testes-ciclo-2.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 50,
+      "path_hits": {},
+      "content_hits": {
+        "bridge": 3,
+        "persistencia": 8,
+        "servicos": 15,
+        "ui": 9,
+        "calculo": 15
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/calculation_request.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 50,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "rtd": 4,
+        "bridge": 1,
+        "opcoes": 26,
+        "ui": 11,
+        "calculo": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "infra/bootstrap_structures_schema.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 50,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 4,
+        "persistencia": 7,
+        "calculo": 36
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_execution_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 50,
+      "path_hits": {
+        "servicos": 3,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 13,
+        "ui": 1,
+        "calculo": 24
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_executions_repository.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 49,
+      "path_hits": {
+        "persistencia": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 24,
+        "ui": 1,
+        "calculo": 18
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_payoff_chart.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 48,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 1,
+        "ui": 17,
+        "calculo": 27
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_robo_legs_status_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 47,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "rtd": 22,
+        "servicos": 22
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/system_snapshots_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 47,
+      "path_hits": {
+        "persistencia": 2
+      },
+      "content_hits": {
+        "opcoes": 4,
+        "persistencia": 16,
+        "calculo": 21
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_execution_query_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 47,
+      "path_hits": {
+        "servicos": 3,
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 12,
+        "servicos": 1,
+        "calculo": 22
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/robo_legs_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 46,
+      "path_hits": {
+        "persistencia": 2
+      },
+      "content_hits": {
+        "rtd": 10,
+        "excel": 9,
+        "opcoes": 11,
+        "persistencia": 10
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/SQL_SURFACE_MAP_v2.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 45,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 3,
+        "excel": 2,
+        "persistencia": 8,
+        "servicos": 9,
+        "ui": 14,
+        "calculo": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_events_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 44,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "persistencia": 4,
+        "servicos": 36,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/components/structures_list_panel.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 44,
+      "path_hits": {
+        "ui": 3
+      },
+      "content_hits": {
+        "opcoes": 5,
+        "persistencia": 5,
+        "ui": 25
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/apply_fase9_atomic_create.py",
+      "role": "scripts",
+      "level": "forte",
+      "score": 44,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 4,
+        "persistencia": 11,
+        "ui": 29
+      },
+      "note": ""
+    },
+    {
+      "path": "db/migrations/add_structure_id_to_payoff_curve_points.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 43,
+      "path_hits": {
+        "persistencia": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 9,
+        "calculo": 28
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/market_snapshot.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 42,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 5,
+        "opcoes": 34,
+        "calculo": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_legacy_structure_legs_importer.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 39,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 10,
+        "persistencia": 27,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_events_effective_state.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 39,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 4,
+        "persistencia": 13,
+        "servicos": 22
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_metrics.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 39,
+      "path_hits": {
+        "calculo": 2
+      },
+      "content_hits": {
+        "opcoes": 8,
+        "calculo": 25
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/pricing_executions_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 38,
+      "path_hits": {
+        "persistencia": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 1,
+        "persistencia": 8,
+        "ui": 1,
+        "calculo": 19
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_input_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 36,
+      "path_hits": {
+        "servicos": 3,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 13,
+        "ui": 4,
+        "calculo": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/structure_events_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 35,
+      "path_hits": {
+        "persistencia": 2
+      },
+      "content_hits": {
+        "rtd": 2,
+        "opcoes": 4,
+        "persistencia": 21,
+        "ui": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "services/market_snapshot_provider.py",
+      "role": "services",
+      "level": "forte",
+      "score": 35,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "servicos": 5,
+        "ui": 1
+      },
+      "note": "Prioritário para auditoria de snapshot."
+    },
+    {
+      "path": "services/structure_events_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 35,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "opcoes": 10,
+        "persistencia": 14,
+        "servicos": 1,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/auditoria_fase_9_cadastro_estruturas.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 34,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 2,
+        "persistencia": 15,
+        "servicos": 5,
+        "ui": 12
+      },
+      "note": ""
+    },
+    {
+      "path": "services/robo_legs_status_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 34,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "rtd": 8,
+        "opcoes": 5,
+        "persistencia": 10,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "services/structure_market_input_assembler.py",
+      "role": "services",
+      "level": "forte",
+      "score": 34,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "servicos": 3,
+        "ui": 2
+      },
+      "note": "Prioritário para auditoria de input de mercado."
+    },
+    {
+      "path": "db/writer.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 33,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 11,
+        "persistencia": 13,
+        "calculo": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "dados/RTD_LINKS.csv",
+      "role": "dados_local",
+      "level": "forte",
+      "score": 32,
+      "path_hits": {
+        "rtd": 2,
+        "bridge": 1
+      },
+      "content_hits": {
+        "opcoes": 3
+      },
+      "note": "Prioritário para auditoria do contrato RTD/Excel."
+    },
+    {
+      "path": "utils/leg_normalizers.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 32,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 4,
+        "excel": 12,
+        "opcoes": 15,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/checks/check_structures.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 30,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 4,
+        "bridge": 11,
+        "opcoes": 2,
+        "persistencia": 3,
+        "ui": 7,
+        "calculo": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_robo_legs_status_repository.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 30,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "rtd": 8,
+        "excel": 7,
+        "persistencia": 12
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_system_snapshots_schema.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 30,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 16,
+        "calculo": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_ui_data_migration.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 30,
+      "path_hits": {
+        "persistencia": 1,
+        "ui": 1
+      },
+      "content_hits": {
+        "persistencia": 2,
+        "ui": 9,
+        "calculo": 13
+      },
+      "note": ""
+    },
+    {
+      "path": "api/structures_controller.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 30,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 9,
+        "servicos": 13,
+        "ui": 5,
+        "calculo": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/checks/check_end_to_end.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 29,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 4,
+        "bridge": 9,
+        "opcoes": 2,
+        "persistencia": 3,
+        "ui": 8,
+        "calculo": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/checks/check_legs.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 29,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 2,
+        "bridge": 26,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "api/pricing_execution_controller.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 29,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 10,
+        "calculo": 16
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/payoff_features.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 29,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "rtd": 1,
+        "opcoes": 10,
+        "persistencia": 13,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structures_repository.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 28,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 16,
+        "persistencia": 7,
+        "ui": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/AUDITORIA_ROTA_MESTRE_2.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 28,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 6,
+        "bridge": 3,
+        "opcoes": 6,
+        "ui": 13
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/payoff.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 28,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 16,
+        "calculo": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/decision.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 27,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 8,
+        "calculo": 19
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/robo_legs_status_repository.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 26,
+      "path_hits": {
+        "persistencia": 2
+      },
+      "content_hits": {
+        "rtd": 3,
+        "excel": 2,
+        "opcoes": 6,
+        "persistencia": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_market_snapshot_provider.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 25,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "servicos": 21,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/check_rota_desenvolvimento.py",
+      "role": "scripts",
+      "level": "forte",
+      "score": 25,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 4,
+        "bridge": 5,
+        "persistencia": 9,
+        "ui": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/import_legacy_structure_legs.py",
+      "role": "scripts",
+      "level": "forte",
+      "score": 25,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 1,
+        "persistencia": 16,
+        "servicos": 4,
+        "ui": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "services/legacy_robo_legs_fallback.py",
+      "role": "services",
+      "level": "forte",
+      "score": 25,
+      "path_hits": {
+        "servicos": 2
+      },
+      "content_hits": {
+        "opcoes": 9,
+        "servicos": 10
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_engine_stub.py",
+      "role": "services",
+      "level": "forte",
+      "score": 25,
+      "path_hits": {
+        "servicos": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "ui": 2,
+        "calculo": 14
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_engine_stub.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 23,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 2,
+        "ui": 2,
+        "calculo": 16
+      },
+      "note": ""
+    },
+    {
+      "path": "debug_bridge_writer.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 22,
+      "path_hits": {
+        "bridge": 1
+      },
+      "content_hits": {
+        "rtd": 1,
+        "excel": 6,
+        "bridge": 9,
+        "persistencia": 2,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/baseline_v2.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 22,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 5,
+        "excel": 5,
+        "bridge": 4,
+        "persistencia": 2,
+        "ui": 2,
+        "calculo": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "services/pricing_payload_adapter.py",
+      "role": "services",
+      "level": "forte",
+      "score": 22,
+      "path_hits": {
+        "servicos": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 5,
+        "ui": 4,
+        "calculo": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structures_api.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 10,
+        "persistencia": 7,
+        "ui": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "db/schema.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "persistencia": 4,
+        "calculo": 14
+      },
+      "note": ""
+    },
+    {
+      "path": "debug_bridge_mainwindow.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {
+        "bridge": 1
+      },
+      "content_hits": {
+        "excel": 4,
+        "bridge": 7,
+        "persistencia": 2,
+        "ui": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 4,
+        "excel": 1,
+        "bridge": 3,
+        "persistencia": 1,
+        "servicos": 6,
+        "ui": 4,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/structure_metrics.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {
+        "calculo": 2
+      },
+      "content_hits": {
+        "opcoes": 1,
+        "calculo": 14
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/apply_fase9_update_tests_atomic_create.py",
+      "role": "scripts",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 4,
+        "ui": 17
+      },
+      "note": ""
+    },
+    {
+      "path": "services/robo_legs_service.py",
+      "role": "services",
+      "level": "forte",
+      "score": 21,
+      "path_hits": {
+        "servicos": 3
+      },
+      "content_hits": {
+        "rtd": 1,
+        "opcoes": 2,
+        "persistencia": 5,
+        "servicos": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_robo_legs_service.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 20,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "opcoes": 4,
+        "servicos": 13
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/ui_data_table_candidates.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 20,
+      "path_hits": {
+        "persistencia": 1,
+        "ui": 1
+      },
+      "content_hits": {
+        "rtd": 6,
+        "persistencia": 1,
+        "ui": 2,
+        "calculo": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "services/legacy_structure_legs_importer.py",
+      "role": "services",
+      "level": "forte",
+      "score": 20,
+      "path_hits": {
+        "servicos": 2
+      },
+      "content_hits": {
+        "persistencia": 12,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "services/legacy_structure_legs_reader.py",
+      "role": "services",
+      "level": "forte",
+      "score": 20,
+      "path_hits": {
+        "servicos": 2
+      },
+      "content_hits": {
+        "rtd": 1,
+        "excel": 1,
+        "persistencia": 10,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_robo_leg_mapper.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 19,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 17,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_events_repository.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 19,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 3,
+        "persistencia": 12,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "db/import_excel.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 19,
+      "path_hits": {
+        "excel": 1
+      },
+      "content_hits": {
+        "excel": 9,
+        "opcoes": 5,
+        "persistencia": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "services/robo_leg_mapper.py",
+      "role": "services",
+      "level": "forte",
+      "score": 19,
+      "path_hits": {
+        "servicos": 2
+      },
+      "content_hits": {
+        "opcoes": 13
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/conftest.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 18,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 1,
+        "persistencia": 7,
+        "ui": 10
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_legacy_robo_legs_fallback.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 18,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 4,
+        "servicos": 14
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_pricing_payload_adapter.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 18,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 6,
+        "servicos": 2,
+        "calculo": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/roteiro_v2.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 18,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 3,
+        "excel": 4,
+        "bridge": 5,
+        "ui": 4,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/checks/check_api_routes.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 17,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 13,
+        "opcoes": 3,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/checks/check_cleanup_residuals.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 17,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 1,
+        "ui": 12,
+        "calculo": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/debug_utils.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 17,
+      "path_hits": {
+        "ui": 1
+      },
+      "content_hits": {
+        "ui": 8,
+        "calculo": 6
+      },
+      "note": ""
+    },
+    {
+      "path": "db/init_excel_schema.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 17,
+      "path_hits": {
+        "excel": 1,
+        "persistencia": 1
+      },
+      "content_hits": {
+        "excel": 5,
+        "persistencia": 6
+      },
+      "note": ""
+    },
+    {
+      "path": "limpar_repositorio_seguro.sh",
+      "role": "outros",
+      "level": "forte",
+      "score": 17,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 12,
+        "bridge": 1,
+        "opcoes": 3,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "db/schema_excel.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 16,
+      "path_hits": {
+        "excel": 1,
+        "persistencia": 1
+      },
+      "content_hits": {
+        "excel": 5,
+        "opcoes": 2,
+        "persistencia": 2,
+        "calculo": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/validacoes/fechamento-rota-mestre-v1.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 16,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 3,
+        "excel": 1,
+        "bridge": 3,
+        "ui": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "services/payoff_persistence_port.py",
+      "role": "services",
+      "level": "forte",
+      "score": 16,
+      "path_hits": {
+        "servicos": 2,
+        "calculo": 1
+      },
+      "content_hits": {
+        "servicos": 2,
+        "calculo": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/components/decisions_grid.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 15,
+      "path_hits": {
+        "ui": 2
+      },
+      "content_hits": {
+        "opcoes": 6,
+        "persistencia": 1,
+        "ui": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/components/filters_panel.py",
+      "role": "ui",
+      "level": "forte",
+      "score": 15,
+      "path_hits": {
+        "ui": 3
+      },
+      "content_hits": {
+        "opcoes": 1,
+        "ui": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "dados/migrations/004_pricing_executions_new_columns.sql",
+      "role": "dados_local",
+      "level": "forte",
+      "score": 15,
+      "path_hits": {
+        "persistencia": 1,
+        "calculo": 1
+      },
+      "content_hits": {
+        "calculo": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/_aba_resolver_mixin.py",
+      "role": "repositories",
+      "level": "forte",
+      "score": 15,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 9,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/3B_CLOSURE_REPORT.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 14,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 6,
+        "servicos": 3,
+        "ui": 2,
+        "calculo": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "dto/robo_leg_dto.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 14,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 2,
+        "opcoes": 12
+      },
+      "note": ""
+    },
+    {
+      "path": "db/reader.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 13,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 4,
+        "calculo": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "debug_bridge_check_after_vba.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 13,
+      "path_hits": {
+        "bridge": 1
+      },
+      "content_hits": {
+        "excel": 1,
+        "bridge": 7,
+        "ui": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/EVOLUCAO_PRICING_PAYOFF.md",
+      "role": "docs",
+      "level": "forte",
+      "score": 13,
+      "path_hits": {
+        "calculo": 2
+      },
+      "content_hits": {
+        "calculo": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/canonical_validators.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 13,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 4,
+        "ui": 9
+      },
+      "note": ""
+    },
+    {
+      "path": "services/structure_input_mapper.py",
+      "role": "services",
+      "level": "forte",
+      "score": 13,
+      "path_hits": {
+        "servicos": 2
+      },
+      "content_hits": {
+        "opcoes": 6,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_market_input_assembler.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 12,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "opcoes": 2,
+        "servicos": 5,
+        "ui": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structures_legs_endpoints.py",
+      "role": "outros",
+      "level": "forte",
+      "score": 12,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 10,
+        "persistencia": 1,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "infra/sqlite_conn.py",
+      "role": "db_infra",
+      "level": "forte",
+      "score": 12,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "opcoes": 2,
+        "persistencia": 7
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/repair_derived_db_consistency.py",
+      "role": "scripts",
+      "level": "forte",
+      "score": 12,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 4,
+        "calculo": 8
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_derived_service.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 11,
+      "path_hits": {
+        "servicos": 1
+      },
+      "content_hits": {
+        "servicos": 3,
+        "calculo": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "bridge/analise_robo_legs.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 11,
+      "path_hits": {
+        "excel": 1,
+        "bridge": 2
+      },
+      "content_hits": {
+        "opcoes": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "find_structure.sh",
+      "role": "outros",
+      "level": "medio",
+      "score": 11,
+      "path_hits": {},
+      "content_hits": {
+        "ui": 11
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/run_derived_pipeline.py",
+      "role": "scripts",
+      "level": "medio",
+      "score": 11,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 1,
+        "servicos": 3,
+        "ui": 5,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "domain/contracts.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 10,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 10
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_decision.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {},
+      "content_hits": {
+        "ui": 1,
+        "calculo": 8
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_payoff_canonical.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "opcoes": 2,
+        "calculo": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "bridge/analise_robo.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {
+        "excel": 1,
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/hist_robo.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {
+        "excel": 1,
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "create_payoff_summary_table.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {
+        "calculo": 1
+      },
+      "content_hits": {
+        "persistencia": 2,
+        "calculo": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/decisions/structure_ref_created_at.md",
+      "role": "docs",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 8,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "src/domain/refs/structure_ref.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 9,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 5,
+        "persistencia": 3,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "db/sqlite.py",
+      "role": "db_infra",
+      "level": "medio",
+      "score": 7,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {
+        "persistencia": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/apply_fase9_atomic_create.sh",
+      "role": "scripts",
+      "level": "medio",
+      "score": 7,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 3,
+        "ui": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/purge_derived_snapshots.py",
+      "role": "scripts",
+      "level": "medio",
+      "score": 7,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 5,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "scripts/validate_derived_db.py",
+      "role": "scripts",
+      "level": "medio",
+      "score": 7,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 3,
+        "ui": 2,
+        "calculo": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "LISTA_RTD.xlsx",
+      "role": "outros",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "rtd": 1,
+        "excel": 1
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "OPERACOES_E_OPCOES.xlsm",
+      "role": "outros",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "excel": 1,
+        "opcoes": 1
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "UI/components/__init__.py",
+      "role": "ui",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "ui": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/analise_raiox.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/configuracoes.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/consolidacoes.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/encerramentos_manuais.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/rolls_detectados.csv",
+      "role": "bridge",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "bridge": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "docs/migracoes/fase-14-migracao-dados-legados.md",
+      "role": "docs",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 4,
+        "excel": 1,
+        "persistencia": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/validacoes/fase-15-validacao-integrada.md",
+      "role": "docs",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 1,
+        "ui": 4,
+        "calculo": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "dto/robo_legs_status_dto.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {},
+      "content_hits": {
+        "rtd": 1,
+        "opcoes": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "run_ui.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "ui": 1
+      },
+      "content_hits": {
+        "ui": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "services/__init__.py",
+      "role": "services",
+      "level": "medio",
+      "score": 6,
+      "path_hits": {
+        "servicos": 2
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_structure_input_mapper.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 5,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 3,
+        "servicos": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "db/config.py",
+      "role": "db_infra",
+      "level": "medio",
+      "score": 5,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "validators/leg_validator.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 5,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "validators/validators__init__.py",
+      "role": "outros",
+      "level": "medio",
+      "score": 5,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 5
+      },
+      "note": ""
+    },
+    {
+      "path": "db/init_db.py",
+      "role": "db_infra",
+      "level": "baixo",
+      "score": 4,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/3A_CONSOLIDADO.md",
+      "role": "docs",
+      "level": "baixo",
+      "score": 4,
+      "path_hits": {},
+      "content_hits": {
+        "servicos": 1,
+        "calculo": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/DATABASE_LOCATOR.md",
+      "role": "docs",
+      "level": "baixo",
+      "score": 4,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 3,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/DB_PATHS.md",
+      "role": "docs",
+      "level": "baixo",
+      "score": 4,
+      "path_hits": {},
+      "content_hits": {
+        "bridge": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/validacoes/fase-16-limpeza-versionamento-release.md",
+      "role": "docs",
+      "level": "baixo",
+      "score": 4,
+      "path_hits": {},
+      "content_hits": {
+        "ui": 4
+      },
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_canonical_validators.py",
+      "role": "outros",
+      "level": "baixo",
+      "score": 3,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 2,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "UI/__init__.py",
+      "role": "ui",
+      "level": "baixo",
+      "score": 3,
+      "path_hits": {
+        "ui": 1
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "UI/models/__init__.py",
+      "role": "ui",
+      "level": "baixo",
+      "score": 3,
+      "path_hits": {
+        "ui": 1
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "bridge/last_export.txt",
+      "role": "bridge",
+      "level": "baixo",
+      "score": 3,
+      "path_hits": {
+        "bridge": 1
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "main.py",
+      "role": "outros",
+      "level": "baixo",
+      "score": 3,
+      "path_hits": {},
+      "content_hits": {
+        "calculo": 3
+      },
+      "note": ""
+    },
+    {
+      "path": "repositories/__init__.py",
+      "role": "repositories",
+      "level": "baixo",
+      "score": 3,
+      "path_hits": {
+        "persistencia": 1
+      },
+      "content_hits": {},
+      "note": ""
+    },
+    {
+      "path": "ATT/tests/test_contracts.py",
+      "role": "outros",
+      "level": "baixo",
+      "score": 2,
+      "path_hits": {},
+      "content_hits": {
+        "opcoes": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/AUDITORIA_FASE_11_SNAPSHOTS_HISTORICO.md",
+      "role": "docs",
+      "level": "baixo",
+      "score": 2,
+      "path_hits": {},
+      "content_hits": {
+        "excel": 1,
+        "ui": 1
+      },
+      "note": ""
+    },
+    {
+      "path": "validate_db.py",
+      "role": "outros",
+      "level": "baixo",
+      "score": 2,
+      "path_hits": {},
+      "content_hits": {
+        "persistencia": 2
+      },
+      "note": ""
+    },
+    {
+      "path": "docs/changelog.md",
+      "role": "docs",
+      "level": "baixo",
+      "score": 1,
+      "path_hits": {},
+      "content_hits": {
+        "ui": 1
+      },
+      "note": ""
+    }
+  ]
+}

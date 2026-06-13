@@ -106,3 +106,36 @@ test -f docs/AUDITORIA_ROTA_MESTRE_2.md
 grep -n "INICIO ROTA_MESTRE_2" docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
 grep -n "Fase 0" docs/AUDITORIA_ROTA_MESTRE_2.md
 git diff -- docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md docs/AUDITORIA_ROTA_MESTRE_2.md
+
+---
+
+## Fase 1 — Mapeamento automatizado de RTD, Excel, Bridge, Serviços e UI
+
+### Status
+
+Iniciada.
+
+### Objetivo
+
+Executar mapeamento amplo de referências relacionadas a RTD, Excel, bridge, opções, persistência, serviços, cálculo e UI.
+
+### Arquivos alterados
+
+- `scripts/mapear_automacao_opcoes_rtd.py`
+- `docs/mapeamento_automacao_opcoes_rtd.md`
+- `docs/mapeamento_automacao_opcoes_rtd.json`
+- `docs/AUDITORIA_ROTA_MESTRE_2.md`
+
+### Alterações funcionais
+
+Nenhuma.
+
+### Testes executados
+
+```bash
+python -m py_compile scripts/mapear_automacao_opcoes_rtd.py
+python scripts/mapear_automacao_opcoes_rtd.py
+test -f docs/mapeamento_automacao_opcoes_rtd.md
+test -f docs/mapeamento_automacao_opcoes_rtd.json
+grep -n "Mapeamento automação opções RTD" docs/mapeamento_automacao_opcoes_rtd.md
+git status --short
