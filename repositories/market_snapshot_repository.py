@@ -9,8 +9,11 @@ from __future__ import annotations
 from src.domain.refs.structure_ref import StructureRef
 
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
+
+from utils.leg_normalizers import parse_timestamp
 
 from domain.market_snapshot import (
     LegMarketSnapshot,
@@ -49,7 +52,6 @@ _SQL_RTD_LEGS = """
         pl_realista
     FROM rtd_analise_robo_legs
     WHERE aba = ?
-    ORDER BY timestamp DESC
 """
 
 _SQL_MANUAL_LEGS = """
@@ -78,7 +80,6 @@ _SQL_MANUAL_LEGS = """
         created_at
     FROM manual_analise_robo_legs
     WHERE aba = ?
-    ORDER BY timestamp DESC
 """
 
 _SQL_RTD_SUMMARY = """
@@ -132,6 +133,25 @@ def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
     if ask is not None:
         return ask
     return None
+
+
+
+def _sort_rows_by_timestamp_desc(rows: list[sqlite3.Row]) -> list[sqlite3.Row]:
+    """
+    Ordena rows por timestamp cronológico decrescente.
+
+    Evita ORDER BY timestamp no SQLite, pois o banco legado pode misturar
+    formatos ISO e BR, fazendo a ordenação textual ficar incorreta.
+    """
+    def _key(row: sqlite3.Row):
+        raw = "" if row["timestamp"] is None else str(row["timestamp"]).strip()
+
+        try:
+            return (1, parse_timestamp(raw), raw)
+        except Exception:
+            return (0, datetime.min, raw)
+
+    return sorted(rows, key=_key, reverse=True)
 
 
 def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
@@ -195,6 +215,7 @@ class MarketSnapshotRepository:
         aba = _ref_to_aba(ref)
         with self._connect() as conn:
             rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
+        rows = _sort_rows_by_timestamp_desc(rows)
         return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
 
     def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
@@ -211,6 +232,7 @@ class MarketSnapshotRepository:
         aba = _ref_to_aba(ref)
         with self._connect() as conn:
             rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
+        rows = _sort_rows_by_timestamp_desc(rows)
         return [_row_to_leg(r, SnapshotSource.MANUAL) for r in rows]
 
     # -- Estrutura completa ---------------------------------------------------
