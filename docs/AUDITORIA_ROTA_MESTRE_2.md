@@ -139,3 +139,115 @@ test -f docs/mapeamento_automacao_opcoes_rtd.md
 test -f docs/mapeamento_automacao_opcoes_rtd.json
 grep -n "Mapeamento automação opções RTD" docs/mapeamento_automacao_opcoes_rtd.md
 git status --short
+
+---
+
+## Fase 1 — Encerramento com lista priorizada
+
+### Status
+
+Encerrada.
+
+### Base utilizada
+
+- `docs/mapeamento_automacao_opcoes_rtd.md`
+- `docs/mapeamento_automacao_opcoes_rtd.json`
+- `docs/lista_priorizada_automacao_opcoes_rtd.md`
+
+### Resultado do mapeamento bruto
+
+O mapeamento automatizado identificou alto volume de candidatos, incluindo documentação, testes e arquivos derivados.
+
+Resumo do relatório bruto:
+
+- Total de achados: 200
+- Candidatos fortes: 152
+- Candidatos médios: 33
+- Candidatos baixos: 15
+
+### Decisão de priorização
+
+Foi criada lista priorizada separando arquivos operacionais de ruído documental/histórico.
+
+Prioridade máxima para as próximas fases:
+
+- `dados/RTD_LINKS.csv`
+- `repositories/rtd_option_quotes_repository.py`
+- `services/market_snapshot_provider.py`
+- `services/market_snapshot_selector.py`
+- `repositories/market_snapshot_repository.py`
+- `services/structure_market_input_assembler.py`
+- `services/canonical_input_service.py`
+
+### Alterações funcionais
+
+Nenhuma.
+
+### Arquivos alterados nesta etapa
+
+- `docs/lista_priorizada_automacao_opcoes_rtd.md`
+- `docs/AUDITORIA_ROTA_MESTRE_2.md`
+
+### Testes/conferências executados
+
+```bash
+sed -n '1,220p' docs/lista_priorizada_automacao_opcoes_rtd.md
+git status --short
+git diff --stat
+
+
+---
+
+## Fase 1 — Encerramento com lista priorizada
+
+### Status
+
+Encerrada.
+
+### Base utilizada
+
+- `docs/mapeamento_automacao_opcoes_rtd.md`
+- `docs/mapeamento_automacao_opcoes_rtd.json`
+- `docs/lista_priorizada_automacao_opcoes_rtd.md`
+
+### Resultado do mapeamento bruto
+
+O mapeamento automatizado identificou alto volume de candidatos, incluindo documentação, testes e arquivos derivados.
+
+Resumo do relatório bruto:
+
+- Total de achados: 200
+- Candidatos fortes: 152
+- Candidatos médios: 33
+- Candidatos baixos: 15
+
+### Decisão de priorização
+
+Foi criada lista priorizada separando arquivos operacionais de ruído documental/histórico.
+
+Prioridade máxima para as próximas fases:
+
+- `dados/RTD_LINKS.csv`
+- `repositories/rtd_option_quotes_repository.py`
+- `services/market_snapshot_provider.py`
+- `services/market_snapshot_selector.py`
+- `repositories/market_snapshot_repository.py`
+- `services/structure_market_input_assembler.py`
+- `services/canonical_input_service.py`
+
+### Alterações funcionais
+
+Nenhuma.
+
+### Arquivos alterados nesta etapa
+
+- `docs/lista_priorizada_automacao_opcoes_rtd.md`
+- `docs/AUDITORIA_ROTA_MESTRE_2.md`
+
+### Testes/conferências executados
+
+```bash
+sed -n '1,220p' docs/lista_priorizada_automacao_opcoes_rtd.md
+git status --short
+git diff --stat
+
