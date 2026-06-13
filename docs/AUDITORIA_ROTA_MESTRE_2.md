@@ -293,3 +293,79 @@ Nenhuma.
 sed -n '1,220p' docs/fase_2_diagnostico_csvs_rtd_excel.md
 git status --short
 git diff --stat
+
+---
+
+## Fase 2 — Encerramento com mapa do contrato RTD/Excel
+
+### Status
+
+Encerrada.
+
+### Base utilizada
+
+- `docs/fase_2_auditoria_contrato_rtd_excel.md`
+- `docs/fase_2_diagnostico_csvs_rtd_excel.md`
+- `docs/fase_2_diagnostico_csvs_rtd_excel.json`
+- `docs/fase_2_mapa_contrato_rtd_excel.md`
+
+### Achados principais
+
+A Fase 2 identificou dois formatos principais de contrato:
+
+1. Contrato atributo/valor:
+   - `dados/RTD_LINKS.csv`
+
+2. Contratos tabulares operacionais/exportados:
+   - `bridge/analise_robo_legs.csv`
+   - `bridge/analise_robo.csv`
+   - `bridge/hist_robo.csv`
+   - demais arquivos `bridge/*.csv`
+
+### Arquivos classificados como prioritários
+
+- `dados/RTD_LINKS.csv`
+- `bridge/analise_robo_legs.csv`
+- `bridge/analise_robo.csv`
+- `bridge/hist_robo.csv`
+
+### Achados de compatibilidade
+
+Foram registrados:
+
+- divergência de delimitador em `bridge/encerramentos_manuais.csv`
+- sinais de encoding inconsistente em `bridge/configuracoes.csv`
+- sinais de encoding inconsistente em `bridge/rolls_detectados.csv`
+- diferença de nomes de colunas entre contratos RTD e bridge
+- provável dependência indireta do Excel `.xlsm`
+
+### Alterações funcionais
+
+Nenhuma.
+
+### Arquivos alterados nesta etapa
+
+- `docs/fase_2_mapa_contrato_rtd_excel.md`
+- `docs/AUDITORIA_ROTA_MESTRE_2.md`
+
+### Testes/conferências executados
+
+```bash
+sed -n '1,260p' docs/fase_2_mapa_contrato_rtd_excel.md
+git status --short
+git diff --stat
+```
+
+### Decisão tomada
+
+A Fase 2 está encerrada.
+
+A próxima fase deve auditar a persistência de cotações RTD/opções, com foco em:
+
+- `repositories/rtd_option_quotes_repository.py`
+- `repositories/market_snapshot_repository.py`
+- `services/market_snapshot_provider.py`
+- `services/market_snapshot_selector.py`
+
+Nenhuma alteração em UI, banco, schema, cálculo, ingestão, serviços operacionais, CSVs ou Excel operacional foi realizada.
+
