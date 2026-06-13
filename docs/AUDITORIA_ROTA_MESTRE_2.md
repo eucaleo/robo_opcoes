@@ -251,3 +251,45 @@ sed -n '1,220p' docs/lista_priorizada_automacao_opcoes_rtd.md
 git status --short
 git diff --stat
 
+
+---
+
+## Fase 2 — Auditoria do contrato RTD/Excel e arquivos de entrada
+
+### Status
+
+Iniciada.
+
+### Objetivo
+
+Auditar o contrato entre RTD, Excel e arquivos locais de entrada, sem alteração funcional.
+
+### Base da fase anterior
+
+- `docs/lista_priorizada_automacao_opcoes_rtd.md`
+
+### Arquivos principais sob auditoria
+
+- `dados/RTD_LINKS.csv`
+- `bridge/analise_robo.csv`
+- `bridge/analise_robo_legs.csv`
+- `bridge/hist_robo.csv`
+- `bridge/configuracoes.csv`
+- `OPERACOES_E_OPCOES.xlsm`
+
+### Arquivos gerados nesta etapa
+
+- `docs/fase_2_auditoria_contrato_rtd_excel.md`
+- `docs/fase_2_diagnostico_csvs_rtd_excel.md`
+- `docs/fase_2_diagnostico_csvs_rtd_excel.json`
+
+### Alterações funcionais
+
+Nenhuma.
+
+### Testes/conferências executados
+
+```bash
+sed -n '1,220p' docs/fase_2_diagnostico_csvs_rtd_excel.md
+git status --short
+git diff --stat

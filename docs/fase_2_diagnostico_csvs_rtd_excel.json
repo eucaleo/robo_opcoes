@@ -1,0 +1,723 @@
+[
+  {
+    "path": "dados/RTD_LINKS.csv",
+    "exists": true,
+    "size_bytes": 393,
+    "header": [
+      "codigo_opcao",
+      "ativo_base",
+      "campo",
+      "valor",
+      "atualizado_em"
+    ],
+    "sample_rows": [
+      [
+        "PETRA123",
+        "PETR4",
+        "call_put",
+        "CALL",
+        "2026-06-06 17:50:00"
+      ],
+      [
+        "PETRA123",
+        "PETR4",
+        "strike",
+        "32.50",
+        "2026-06-06 17:50:00"
+      ],
+      [
+        "PETRA123",
+        "PETR4",
+        "vencimento",
+        "2026-07-19",
+        "2026-06-06 17:50:00"
+      ],
+      [
+        "PETRA123",
+        "PETR4",
+        "ultimo_preco",
+        "1.23",
+        "2026-06-06 17:50:00"
+      ],
+      [
+        "PETRA123",
+        "PETR4",
+        "bid",
+        "1.20",
+        "2026-06-06 17:50:00"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 7,
+    "error": null
+  },
+  {
+    "path": "bridge/analise_robo.csv",
+    "exists": true,
+    "size_bytes": 548,
+    "header": [
+      "ABA",
+      "SPOT",
+      "NUM_PERNAS",
+      "DTE_MIN",
+      "PL_REALISTA_TOTAL",
+      "DELTA_LIQ",
+      "GAMMA_LIQ",
+      "THETA_LIQ",
+      "VEGA_LIQ",
+      "SPREAD_MEDIO",
+      "SPREAD_PCT_MEDIO",
+      "ALERTAS_V2"
+    ],
+    "sample_rows": [
+      [
+        "EMBJ3",
+        "87.37",
+        "4",
+        "31",
+        "-30500",
+        "1776.5",
+        "166.2",
+        "-57810",
+        "38685.2",
+        "5.3125",
+        "55.9624333",
+        "Delta alto; Vega alto"
+      ],
+      [
+        "BOVA11",
+        "194.27",
+        "4",
+        "31",
+        "-3590",
+        "322.5",
+        "75.6",
+        "-108220",
+        "59739.7",
+        "0.045",
+        "1.68087761",
+        "Vega alto"
+      ],
+      [
+        "PRIO3",
+        "66.84",
+        "4",
+        "3",
+        "-4014",
+        "-612.31",
+        "9.34",
+        "-39257",
+        "-13363.59",
+        "0.085",
+        "4.448687402",
+        "Vega alto"
+      ],
+      [
+        "SMAL11",
+        "124.66",
+        "4",
+        "3",
+        "-2442.44",
+        "-954.16",
+        "-83.06",
+        "-15642",
+        "-31771.26",
+        "0.035",
+        "17.39775066",
+        "Vega alto"
+      ],
+      [
+        "SBSP3",
+        "168.67",
+        "4",
+        "31",
+        "-7074",
+        "218.39",
+        "24.34",
+        "-14343",
+        "20309.02",
+        "0.4",
+        "18.1535543",
+        "Vega alto"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 5,
+    "error": null
+  },
+  {
+    "path": "bridge/analise_robo_legs.csv",
+    "exists": true,
+    "size_bytes": 2911,
+    "header": [
+      "TIMESTAMP",
+      "ABA",
+      "ATIVO",
+      "C/V",
+      "CALL_/_PUT",
+      "QUANT",
+      "VALOR_EXECUTADO",
+      "BID",
+      "ASK",
+      "SPREAD",
+      "SPREAD_PCT",
+      "IV",
+      "DELTA",
+      "GAMMA",
+      "THETA",
+      "VEGA",
+      "STRIKE",
+      "VENCIMENTO",
+      "DTE",
+      "PL_REALISTA"
+    ],
+    "sample_rows": [
+      [
+        "14/04/2026 17:55:51",
+        "EMBJ3",
+        "EMBJE868",
+        "C",
+        "CALL",
+        "7000",
+        "1.38",
+        "4.84",
+        "4.93",
+        "0.09",
+        "1.842374616",
+        "37.78",
+        "0.5909",
+        "0.039",
+        "4.85",
+        "10.2557",
+        "86.81",
+        "5/15/2026 3:00",
+        "31",
+        "24220"
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "EMBJ3",
+        "EMBJE704",
+        "V",
+        "CALL",
+        "4000",
+        "8.35",
+        "0",
+        "21.03",
+        "21.03",
+        "200",
+        "38.57",
+        "0.982",
+        "0.0043",
+        "18.55",
+        "1.1667",
+        "69.81",
+        "5/15/2026 3:00",
+        "31",
+        "-50720"
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "EMBJ3",
+        "EMBJQ878",
+        "V",
+        "PUT",
+        "4000",
+        "4.85",
+        "3.72",
+        "3.82",
+        "0.1",
+        "2.652519894",
+        "48.58",
+        "-0.4484",
+        "0.0308",
+        "4.74",
+        "10.442",
+        "87.81",
+        "5/15/2026 3:00",
+        "31",
+        "4120"
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "EMBJ3",
+        "EMBJQ660",
+        "C",
+        "PUT",
+        "7000",
+        "1.3",
+        "0.14",
+        "0.17",
+        "0.03",
+        "19.35483871",
+        "57.13",
+        "-0.0322",
+        "0.0048",
+        "0.2",
+        "1.9043",
+        "65.31",
+        "5/15/2026 3:00",
+        "31",
+        "-8120"
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "BOVA11",
+        "BOVAE195",
+        "C",
+        "CALL",
+        "5000",
+        "1.74",
+        "5.69",
+        "5.72",
+        "0.03",
+        "0.525854514",
+        "20.26",
+        "0.5739",
+        "0.033",
+        "5.7",
+        "23.0109",
+        "195",
+        "5/15/2026 3:00",
+        "31",
+        "19750"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 20,
+    "error": null
+  },
+  {
+    "path": "bridge/hist_robo.csv",
+    "exists": true,
+    "size_bytes": 214901,
+    "header": [
+      "TIMESTAMP",
+      "ABA",
+      "ATIVO",
+      "C/V",
+      "QUANT",
+      "VALOR_EXECUTADO",
+      "BID",
+      "ASK",
+      "DELTA",
+      "GAMMA",
+      "THETA",
+      "VEGA",
+      "PL_REALISTA"
+    ],
+    "sample_rows": [
+      [
+        "9/4/2026 16:36",
+        "EMBJ3",
+        "EMBJE868",
+        "C",
+        "7000",
+        "1.38",
+        "0",
+        "0",
+        "0",
+        "0",
+        "4.15",
+        "0",
+        "-966000"
+      ],
+      [
+        "9/4/2026 16:36",
+        "EMBJ3",
+        "EMBJE704",
+        "V",
+        "4000",
+        "8.35",
+        "0",
+        "0",
+        "0",
+        "0",
+        "17.71",
+        "0",
+        "3340000"
+      ],
+      [
+        "9/4/2026 16:36",
+        "EMBJ3",
+        "EMBJQ878",
+        "V",
+        "4000",
+        "4.85",
+        "0",
+        "0",
+        "0",
+        "0",
+        "4.75",
+        "0",
+        "1940000"
+      ],
+      [
+        "9/4/2026 16:36",
+        "EMBJ3",
+        "EMBJQ660",
+        "C",
+        "7000",
+        "1.3",
+        "0",
+        "0",
+        "0",
+        "0.0054",
+        "0.21",
+        "0",
+        "-910000"
+      ],
+      [
+        "9/4/2026 16:47",
+        "EMBJ3",
+        "EMBJE868",
+        "C",
+        "7000",
+        "1.38",
+        "3.96",
+        "4.09",
+        "0.5216",
+        "0.0379",
+        "4.15",
+        "10.7266",
+        "1806000"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 2400,
+    "error": null
+  },
+  {
+    "path": "bridge/configuracoes.csv",
+    "exists": true,
+    "size_bytes": 286,
+    "header": [
+      "Par�metro",
+      "Valor",
+      "Descri��o"
+    ],
+    "sample_rows": [
+      [
+        "Delta m�ximo CALL",
+        "0.38",
+        "Delta m�ximo antes de acionar roll na call"
+      ],
+      [
+        "PL alvo roll",
+        "90",
+        "Lucro estimado em R$ para encerrar a opera��o"
+      ],
+      [
+        "Slippage",
+        "0.01",
+        "Diferen�a esperada bid-ask na execu��o real"
+      ],
+      [
+        "TimeFrame Snapshot (min)",
+        "10",
+        "Intervalo de registro autom�tico do rob�"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 4,
+    "error": null
+  },
+  {
+    "path": "bridge/analise_raiox.csv",
+    "exists": true,
+    "size_bytes": 1062,
+    "header": [
+      "ABA",
+      "TIMESTAMP",
+      "ANALISE_RAIOX"
+    ],
+    "sample_rows": [
+      [
+        "EMBJ3",
+        "14/04/2026 17:55:51",
+        "ABA: EMBJ3 | Pernas: 4 | Vi�s: ALTADelta Liq: 1776.5 | Gamma Liq: 166.2 | Vega Liq: 38685.2PL Total: R$ -30,500.00Top Delta: EMBJE868, EMBJQ878Top PL: EMBJE868, EMBJQ878"
+      ],
+      [
+        "BOVA11",
+        "14/04/2026 17:55:51",
+        "ABA: BOVA11 | Pernas: 4 | Vi�s: ALTADelta Liq: 322.5 | Gamma Liq: 75.6 | Vega Liq: 59739.7PL Total: R$ -3,590.00Top Delta: BOVAE195, BOVAQ195Top PL: BOVAE195, BOVAQ195"
+      ],
+      [
+        "PRIO3",
+        "14/04/2026 17:55:51",
+        "ABA: PRIO3 | Pernas: 4 | Vi�s: BAIXADelta Liq: -612.3 | Gamma Liq: 9.3 | Vega Liq: -13363.6PL Total: R$ -4,014.00Top Delta: PRIOQ720, PRIOD750Top PL: PRIOE515, PRIOP600"
+      ],
+      [
+        "SMAL11",
+        "14/04/2026 17:55:51",
+        "ABA: SMAL11 | Pernas: 4 | Vi�s: BAIXADelta Liq: -954.2 | Gamma Liq: -83.1 | Vega Liq: -31771.3PL Total: R$ -2,442.44Top Delta: SMALQ119, SMALD139Top PL: SMALQ119, SMALD139"
+      ],
+      [
+        "SBSP3",
+        "14/04/2026 17:55:51",
+        "ABA: SBSP3 | Pernas: 4 | Vi�s: ALTADelta Liq: 218.4 | Gamma Liq: 24.3 | Vega Liq: 20309.0PL Total: R$ -7,074.00Top Delta: SBSPE175, SBSPQ166Top PL: SBSPE175, SBSPQ166"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 25,
+    "error": null
+  },
+  {
+    "path": "bridge/consolidacoes.csv",
+    "exists": true,
+    "size_bytes": 421,
+    "header": [
+      "TIMESTAMP",
+      "ABA",
+      "PERNAS_ABERTAS",
+      "TOTAL_EXECUTADO_ABERTO",
+      "TOTAL_ATUAL_ABERTO",
+      "GANHO_ATUAL_ABERTO",
+      "PL_REALIZADO",
+      "PL_TOTAL",
+      "OBS"
+    ],
+    "sample_rows": [
+      [
+        "14/04/2026 17:55:51",
+        "EMBJ3",
+        "4",
+        "-34040",
+        "-64540",
+        "-30500",
+        "0",
+        "-30500",
+        ""
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "BOVA11",
+        "4",
+        "-104620",
+        "-108210",
+        "-3590",
+        "0",
+        "-3590",
+        ""
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "PRIO3",
+        "4",
+        "-35375",
+        "-39389",
+        "-4014",
+        "0",
+        "-4014",
+        ""
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "SMAL11",
+        "4",
+        "-14801.56",
+        "-17244",
+        "-2442.44",
+        "0",
+        "-2442.44",
+        ""
+      ],
+      [
+        "14/04/2026 17:55:51",
+        "SBSP3",
+        "4",
+        "-9364",
+        "-16438",
+        "-7074",
+        "0",
+        "-7074",
+        ""
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 5,
+    "error": null
+  },
+  {
+    "path": "bridge/encerramentos_manuais.csv",
+    "exists": true,
+    "size_bytes": 291,
+    "header": [
+      "Data",
+      "ABA",
+      "Código",
+      "Tipo",
+      "Qtd",
+      "Preço Real",
+      "Motivo",
+      "Observação",
+      "",
+      "",
+      ""
+    ],
+    "sample_rows": [
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      [
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    ],
+    "delimiter": ";",
+    "row_count_estimate": 6,
+    "error": null
+  },
+  {
+    "path": "bridge/rolls_detectados.csv",
+    "exists": true,
+    "size_bytes": 2097,
+    "header": [
+      "Data",
+      "ABA",
+      "Evento",
+      "C�digo_Rolado",
+      "Qtd",
+      "Pre�o_Saida",
+      "C�digo_Entrada",
+      "Pre�o_Entrada",
+      "PL_Real",
+      "PL_Estimado",
+      "Dif_%",
+      "Obs"
+    ],
+    "sample_rows": [
+      [
+        "13/04/2026 10:22:14",
+        "BOVA11",
+        "OPEN",
+        "BOVAE195",
+        "5000",
+        "",
+        "BOVAE195",
+        "$ 1.74",
+        "",
+        "",
+        "",
+        "[EVENT_ID=b6948e36] Nova posi��o"
+      ],
+      [
+        "13/04/2026 10:22:14",
+        "BOVA11",
+        "OPEN",
+        "BOVAQ164",
+        "10000",
+        "",
+        "BOVAQ164",
+        "$ 1.75",
+        "",
+        "",
+        "",
+        "[EVENT_ID=aa2d48b0] Nova posi��o"
+      ],
+      [
+        "13/04/2026 10:22:14",
+        "BOVA11",
+        "OPEN",
+        "BOVAE166",
+        "4000",
+        "",
+        "BOVAE166",
+        "$ 26.45",
+        "",
+        "",
+        "",
+        "[EVENT_ID=6a58108a] Nova posi��o"
+      ],
+      [
+        "13/04/2026 10:22:14",
+        "BOVA11",
+        "OPEN",
+        "BOVAQ195",
+        "4000",
+        "",
+        "BOVAQ195",
+        "$ 6.26",
+        "",
+        "",
+        "",
+        "[EVENT_ID=6f8b8eb1] Nova posi��o"
+      ],
+      [
+        "13/04/2026 10:22:14",
+        "PRIO3",
+        "OPEN",
+        "PRIOP600",
+        "1700",
+        "",
+        "PRIOP600",
+        "$ 0.46",
+        "",
+        "",
+        "",
+        "[EVENT_ID=0988d366] Nova posi��o"
+      ]
+    ],
+    "delimiter": ",",
+    "row_count_estimate": 20,
+    "error": null
+  }
+]
