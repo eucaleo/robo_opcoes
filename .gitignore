@@ -1,104 +1,96 @@
+# Dados locais / bancos SQLite
+dados/
 dados/*.db
-> bridge/*.csv
-> *.log
-> *.tmp
-> 
-
-# Python
-*.py[cod]
-
-# SQLite / DB
 *.db
 *.sqlite
 *.sqlite3
+SEU_CAMINHO_DO_DB.sqlite3
 
-# Logs / temp
+# Excel local / arquivos operacionais
+OPERACOES_E_OPCOES.xlsm
+OPERACOES_E_OPCOES.xlsx
+LISTA_RTD.xlsx
+
+# Bridge / artefatos exportados
+bridge/*.csv
+bridge/last_export.txt
+bridge/4026BA10
+
+# Logs / temporários
 logs/
-reports/
+*.log
+log_execucao.txt
+*.tmp
 .tables/
 .payoff_check_tmp
 __debug_payoff.png
 
+# Python / cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
 # Backups locais
 *.bak
+*.bak-*
 *.backup.*
 *.backup_*
 *.backup_debug_*
+*.bak_p*
+*.bak_p*b
 backup_*/
 backup_Data_*/
 
-# Excel exports / bridge artifacts (se não forem parte do produto)
-SEU_CAMINHO_DO_DB.sqlite3
-dados/
-OPERACOES_E_OPCOES.xlsm
-OPERACOES_E_OPCOES.xlsx
-
-# --- v2 hygiene: backups e artefatos temporários ---
+# Backups e artefatos temporários v2
 BAK/**
 ATT/reports/**
-# manter scripts reprodutíveis versionados:
+
+# Manter scripts e testes reprodutíveis versionados
 !ATT/patches/.gitkeep
 !ATT/tests/**
 !ATT/**/.gitkeep
-# --- /v2 hygiene ---
 
+# Temporários internos
 ATT/temporario/
 project_context.json
 module_inventory.json
 main.py.txt
 
+# Auditorias e scripts temporários
 scripts/auditoria_*.md
-
-# Excecoes: artefatos de auditoria rastreados
-*.bak_p*
 scripts/tmp_*.py
+scripts/cleanup_report_*.json
+scripts/.smoke_context.json
 
-# Backups de patches (gerados automaticamente, nao versionados)
-*.bak_p*
-*.bak_p*b
-
-# Scripts temporarios de patches
-scripts/tmp_*.py
+# Arquivos temporários específicos
 ATT/tests/failures_log.txt
-ATT/tests/failures_log.txt
-
-# lixo/local temporario
-.trash/
-~$*
-*.log
-log_execucao.txt
 debug_*.py
 cleanup_fase_b.py
 fix_orphan_decision.py
-bridge/last_export.txt
-bridge/4026BA10
-scripts/cleanup_report_*.json
 
-# Python cache
-*.py[cod]
-*$py.class
-
-# Temporarios de editor/SO
+# Lixo/local temporário
+.trash/
+~$*
 *.swp
 *.swo
 *~
 .DS_Store
 Thumbs.db
 
-# Relatorios locais de limpeza/auditoria
+# Relatórios locais de limpeza/auditoria
 _cleanup_reports/
 _repo_audit/
 candidatos_limpeza_cache.txt
 
-# Lixeira local
-.trash/
+# Reforço: caches dentro de ATT/tests não devem ser versionados
+ATT/tests/__pycache__/
+ATT/tests/**/__pycache__/
+ATT/tests/**/*.pyc
+ATT/tests/**/*.pyo
 
-# Contexto local de smoke tests
-scripts/.smoke_context.json
-
-# Python/cache
-__pycache__/
-*.pyc
-.pytest_cache/
-
-*.bak-*
+# Reforço: caches dentro de ATT/checks não devem ser versionados
+ATT/checks/__pycache__/
+ATT/checks/**/__pycache__/
+ATT/checks/**/*.pyc
+ATT/checks/**/*.pyo
