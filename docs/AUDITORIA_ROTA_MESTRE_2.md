@@ -1,0 +1,108 @@
+# AUDITORIA ROTA_MESTRE_2
+
+Arquivo vivo de auditoria da ROTA_MESTRE_2.
+
+Este documento deve ser atualizado ao final de cada fase, registrando comandos executados, testes, resultados, decisões, pendências e commit relacionado.
+
+## Regras de auditoria
+
+Para cada fase encerrada, registrar obrigatoriamente:
+
+- fase
+- objetivo
+- arquivos auditados
+- arquivos alterados
+- comandos executados
+- testes executados
+- resultado
+- pendências
+- decisão tomada
+- commit relacionado
+
+Antes de qualquer alteração funcional, deve existir mapa de impacto contendo:
+
+- arquivos que serão alterados
+- arquivos apenas auditados
+- risco esperado
+- testes que validarão a mudança
+- plano de reversão
+
+---
+
+## Fase 0 — Marco de Controle e Congelamento da Rota
+
+### Status
+
+Em preparação para encerramento.
+
+### Data/hora
+
+13/06/2026 18:38 BRT
+
+### Objetivo
+
+Formalizar a ROTA_MESTRE_2 como documento norteador do novo ciclo de desenvolvimento, preservando o encerramento da ROTA_MESTRE_1 e impedindo reabertura indevida de fases anteriores.
+
+### Arquivos auditados
+
+- docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
+- docs/AUDITORIA_ROTA_MESTRE_2.md
+
+### Arquivos alterados
+
+- docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
+- docs/AUDITORIA_ROTA_MESTRE_2.md
+
+### Alterações funcionais
+
+Nenhuma.
+
+### Mapa de impacto
+
+#### Arquivos que serão alterados
+
+- docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
+- docs/AUDITORIA_ROTA_MESTRE_2.md
+
+#### Arquivos apenas auditados
+
+- docs/
+- estado do Git
+
+#### Risco esperado
+
+Baixo. Alteração exclusivamente documental.
+
+Não há impacto em:
+
+- UI
+- banco de dados
+- repositórios
+- serviços
+- cálculo
+- ingestão
+- bridge
+- scripts operacionais
+
+#### Testes que validarão a mudança
+
+- Conferência de existência dos arquivos documentais.
+- Conferência do conteúdo mínimo da ROTA_MESTRE_2.
+- Conferência do conteúdo mínimo da auditoria.
+- Conferência de diff antes do commit.
+- Conferência de status do Git.
+
+#### Plano de reversão
+
+Restaurar os arquivos documentais pelo Git ou remover o arquivo de auditoria caso ainda não esteja versionado.
+
+### Comandos executados
+
+```bash
+git status
+git branch --show-current
+test -f docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
+test -f docs/AUDITORIA_ROTA_MESTRE_2.md
+grep -n "INICIO ROTA_MESTRE_2" docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
+grep -n "Fase 0" docs/AUDITORIA_ROTA_MESTRE_2.md
+git diff -- docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md docs/AUDITORIA_ROTA_MESTRE_2.md
