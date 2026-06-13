@@ -1,0 +1,4673 @@
+{
+  "fase": "Fase 3",
+  "tema": "Auditoria da persistencia de cotacoes RTD/opcoes",
+  "db": "dados\\app.db",
+  "db_info": {
+    "db_exists": true,
+    "tables": {
+      "rtd_option_quotes": {
+        "exists": true,
+        "columns": [
+          {
+            "cid": 0,
+            "name": "id",
+            "type": "INTEGER",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 1
+          },
+          {
+            "cid": 1,
+            "name": "codigo_opcao",
+            "type": "TEXT",
+            "notnull": 1,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "ativo_base",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "call_put",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "strike",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "vencimento",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "ultimo_preco",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "ultima_quantidade",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "bid",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "ask",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "volume",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "iv",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "delta",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "gamma",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "theta",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 15,
+            "name": "vega",
+            "type": "REAL",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 16,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 1,
+            "default_value": "'rtd_links'",
+            "pk": 0
+          },
+          {
+            "cid": 17,
+            "name": "raw_json",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 18,
+            "name": "updated_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "default_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          },
+          {
+            "cid": 19,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 1,
+            "default_value": "CURRENT_TIMESTAMP",
+            "pk": 0
+          }
+        ],
+        "row_count": 1,
+        "sample_rows": [
+          {
+            "id": 4,
+            "codigo_opcao": "PETRA123",
+            "ativo_base": "PETR4",
+            "call_put": "CALL",
+            "strike": 32.5,
+            "vencimento": "2026-07-19",
+            "ultimo_preco": 1.23,
+            "ultima_quantidade": null,
+            "bid": 1.2,
+            "ask": 1.25,
+            "volume": 10000.0,
+            "iv": null,
+            "delta": null,
+            "gamma": null,
+            "theta": null,
+            "vega": null,
+            "source": "rtd_links_csv",
+            "raw_json": "[{\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"call_put\", \"valor\": \"CALL\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"strike\", \"valor\": \"32.50\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"vencimento\", \"valor\": \"2026-07-19\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ultimo_preco\", \"valor\": \"1.23\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"bid\", \"valor\": \"1.20\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ask\", \"valor\": \"1.25\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"volume\", \"valor\": \"10000\", \"atualizado_em\": \"2026-06-06 17:50:00\"}]",
+            "updated_at": "2026-06-06 21:02:13",
+            "created_at": "2026-06-06 21:02:13"
+          }
+        ],
+        "create_sql": "CREATE TABLE rtd_option_quotes (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n    codigo_opcao TEXT NOT NULL,\n    ativo_base TEXT,\n\n    call_put TEXT,\n    strike REAL,\n    vencimento TEXT,\n\n    ultimo_preco REAL,\n    ultima_quantidade REAL,\n\n    bid REAL,\n    ask REAL,\n    volume REAL,\n\n    iv REAL,\n    delta REAL,\n    gamma REAL,\n    theta REAL,\n    vega REAL,\n\n    source TEXT NOT NULL DEFAULT 'rtd_links',\n    raw_json TEXT,\n\n    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    UNIQUE(codigo_opcao)\n)"
+      },
+      "rtd_analise_robo_legs": {
+        "exists": true,
+        "columns": [
+          {
+            "cid": 0,
+            "name": "timestamp",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 1,
+            "name": "aba",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "ativo",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "cv",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "call_put",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "quant",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "valor_executado",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "bid",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "ask",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "spread",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "spread_pct",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "iv",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "delta",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "gamma",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "theta",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 15,
+            "name": "vega",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 16,
+            "name": "strike",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 17,
+            "name": "vencimento",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 18,
+            "name": "dte",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 19,
+            "name": "pl_realista",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 20,
+            "name": "timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          }
+        ],
+        "row_count": 20,
+        "sample_rows": [
+          {
+            "timestamp": "14/04/2026 17:55:51",
+            "aba": "EMBJ3",
+            "ativo": "EMBJE868",
+            "cv": "C",
+            "call_put": "CALL",
+            "quant": "7000",
+            "valor_executado": "1.38",
+            "bid": "4.84",
+            "ask": "4.93",
+            "spread": "0.09",
+            "spread_pct": "1.842374616",
+            "iv": "37.78",
+            "delta": "0.5909",
+            "gamma": "0.039",
+            "theta": "4.85",
+            "vega": "10.2557",
+            "strike": "86.81",
+            "vencimento": "5/15/2026 3:00",
+            "dte": "31",
+            "pl_realista": "24220",
+            "timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista": null
+          },
+          {
+            "timestamp": "14/04/2026 17:55:51",
+            "aba": "EMBJ3",
+            "ativo": "EMBJE704",
+            "cv": "V",
+            "call_put": "CALL",
+            "quant": "4000",
+            "valor_executado": "8.35",
+            "bid": "0",
+            "ask": "21.03",
+            "spread": "21.03",
+            "spread_pct": "200",
+            "iv": "38.57",
+            "delta": "0.982",
+            "gamma": "0.0043",
+            "theta": "18.55",
+            "vega": "1.1667",
+            "strike": "69.81",
+            "vencimento": "5/15/2026 3:00",
+            "dte": "31",
+            "pl_realista": "-50720",
+            "timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista": null
+          },
+          {
+            "timestamp": "14/04/2026 17:55:51",
+            "aba": "EMBJ3",
+            "ativo": "EMBJQ878",
+            "cv": "V",
+            "call_put": "PUT",
+            "quant": "4000",
+            "valor_executado": "4.85",
+            "bid": "3.72",
+            "ask": "3.82",
+            "spread": "0.1",
+            "spread_pct": "2.652519894",
+            "iv": "48.58",
+            "delta": "-0.4484",
+            "gamma": "0.0308",
+            "theta": "4.74",
+            "vega": "10.442",
+            "strike": "87.81",
+            "vencimento": "5/15/2026 3:00",
+            "dte": "31",
+            "pl_realista": "4120",
+            "timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista": null
+          }
+        ],
+        "create_sql": "CREATE TABLE \"rtd_analise_robo_legs\" (\"timestamp\" TEXT, \"aba\" TEXT, \"ativo\" TEXT, \"cv\" TEXT, \"call_put\" TEXT, \"quant\" TEXT, \"valor_executado\" TEXT, \"bid\" TEXT, \"ask\" TEXT, \"spread\" TEXT, \"spread_pct\" TEXT, \"iv\" TEXT, \"delta\" TEXT, \"gamma\" TEXT, \"theta\" TEXT, \"vega\" TEXT, \"strike\" TEXT, \"vencimento\" TEXT, \"dte\" TEXT, \"pl_realista\" TEXT, \"timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista\" TEXT)"
+      },
+      "rtd_analise_robo": {
+        "exists": true,
+        "columns": [
+          {
+            "cid": 0,
+            "name": "aba",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 1,
+            "name": "spot",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "num_pernas",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "dte_min",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "pl_realista_total",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "delta_liq",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "gamma_liq",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "theta_liq",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "vega_liq",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "spread_medio",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "spread_pct_medio",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "alertas_v2",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "aba_spot_num_pernas_dte_min_pl_realista_total_delta_liq_gamma_liq_theta_liq_vega_liq_spread_medio_spread_pct_medio_alertas_v2",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          }
+        ],
+        "row_count": 5,
+        "sample_rows": [
+          {
+            "aba": "EMBJ3",
+            "spot": "87.37",
+            "num_pernas": "4",
+            "dte_min": "31",
+            "pl_realista_total": "-30500",
+            "delta_liq": "1776.5",
+            "gamma_liq": "166.2",
+            "theta_liq": "-57810",
+            "vega_liq": "38685.2",
+            "spread_medio": "5.3125",
+            "spread_pct_medio": "55.9624333",
+            "alertas_v2": "Delta alto; Vega alto",
+            "aba_spot_num_pernas_dte_min_pl_realista_total_delta_liq_gamma_liq_theta_liq_vega_liq_spread_medio_spread_pct_medio_alertas_v2": null
+          },
+          {
+            "aba": "BOVA11",
+            "spot": "194.27",
+            "num_pernas": "4",
+            "dte_min": "31",
+            "pl_realista_total": "-3590",
+            "delta_liq": "322.5",
+            "gamma_liq": "75.6",
+            "theta_liq": "-108220",
+            "vega_liq": "59739.7",
+            "spread_medio": "0.045",
+            "spread_pct_medio": "1.68087761",
+            "alertas_v2": "Vega alto",
+            "aba_spot_num_pernas_dte_min_pl_realista_total_delta_liq_gamma_liq_theta_liq_vega_liq_spread_medio_spread_pct_medio_alertas_v2": null
+          },
+          {
+            "aba": "PRIO3",
+            "spot": "66.84",
+            "num_pernas": "4",
+            "dte_min": "3",
+            "pl_realista_total": "-4014",
+            "delta_liq": "-612.31",
+            "gamma_liq": "9.34",
+            "theta_liq": "-39257",
+            "vega_liq": "-13363.59",
+            "spread_medio": "0.085",
+            "spread_pct_medio": "4.448687402",
+            "alertas_v2": "Vega alto",
+            "aba_spot_num_pernas_dte_min_pl_realista_total_delta_liq_gamma_liq_theta_liq_vega_liq_spread_medio_spread_pct_medio_alertas_v2": null
+          }
+        ],
+        "create_sql": "CREATE TABLE \"rtd_analise_robo\" (\"aba\" TEXT, \"spot\" TEXT, \"num_pernas\" TEXT, \"dte_min\" TEXT, \"pl_realista_total\" TEXT, \"delta_liq\" TEXT, \"gamma_liq\" TEXT, \"theta_liq\" TEXT, \"vega_liq\" TEXT, \"spread_medio\" TEXT, \"spread_pct_medio\" TEXT, \"alertas_v2\" TEXT, \"aba_spot_num_pernas_dte_min_pl_realista_total_delta_liq_gamma_liq_theta_liq_vega_liq_spread_medio_spread_pct_medio_alertas_v2\" TEXT)"
+      },
+      "manual_analise_robo_legs": {
+        "exists": true,
+        "columns": [
+          {
+            "cid": 0,
+            "name": "timestamp",
+            "type": "TEXT",
+            "notnull": 1,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 1,
+            "name": "aba",
+            "type": "TEXT",
+            "notnull": 1,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 2,
+            "name": "ativo",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 3,
+            "name": "cv",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 4,
+            "name": "call_put",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 5,
+            "name": "quant",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 6,
+            "name": "valor_executado",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 7,
+            "name": "bid",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 8,
+            "name": "ask",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 9,
+            "name": "spread",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 10,
+            "name": "spread_pct",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 11,
+            "name": "iv",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 12,
+            "name": "delta",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 13,
+            "name": "gamma",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 14,
+            "name": "theta",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 15,
+            "name": "vega",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 16,
+            "name": "strike",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 17,
+            "name": "vencimento",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 18,
+            "name": "dte",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 19,
+            "name": "pl_realista",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": null,
+            "pk": 0
+          },
+          {
+            "cid": 20,
+            "name": "source",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": "'manual'",
+            "pk": 0
+          },
+          {
+            "cid": 21,
+            "name": "created_at",
+            "type": "TEXT",
+            "notnull": 0,
+            "default_value": "datetime('now')",
+            "pk": 0
+          }
+        ],
+        "row_count": 0,
+        "sample_rows": [],
+        "create_sql": "CREATE TABLE manual_analise_robo_legs (\n  timestamp       TEXT NOT NULL,\n  aba             TEXT NOT NULL,\n  ativo           TEXT,\n  cv              TEXT,\n  call_put        TEXT,\n  quant           TEXT,\n  valor_executado TEXT,\n  bid             TEXT,\n  ask             TEXT,\n  spread          TEXT,\n  spread_pct      TEXT,\n  iv              TEXT,\n  delta           TEXT,\n  gamma           TEXT,\n  theta           TEXT,\n  vega            TEXT,\n  strike          TEXT,\n  vencimento      TEXT,\n  dte             TEXT,\n  pl_realista     TEXT,\n  source          TEXT DEFAULT 'manual',\n  created_at      TEXT DEFAULT (datetime('now'))\n)"
+      }
+    }
+  },
+  "target_files": {
+    "repositories/rtd_option_quotes_repository.py": {
+      "exists": true,
+      "line_count": 119,
+      "has_insert": false,
+      "has_update": false,
+      "has_delete": false,
+      "has_create_table": false,
+      "mentions_rtd_option_quotes": true,
+      "mentions_rtd_analise_robo_legs": false,
+      "mentions_rtd_analise_robo": false,
+      "mentions_manual_analise_robo_legs": false
+    },
+    "repositories/market_snapshot_repository.py": {
+      "exists": true,
+      "line_count": 254,
+      "has_insert": false,
+      "has_update": false,
+      "has_delete": false,
+      "has_create_table": false,
+      "mentions_rtd_option_quotes": false,
+      "mentions_rtd_analise_robo_legs": true,
+      "mentions_rtd_analise_robo": true,
+      "mentions_manual_analise_robo_legs": true
+    },
+    "services/market_snapshot_provider.py": {
+      "exists": true,
+      "line_count": 70,
+      "has_insert": false,
+      "has_update": false,
+      "has_delete": false,
+      "has_create_table": false,
+      "mentions_rtd_option_quotes": false,
+      "mentions_rtd_analise_robo_legs": false,
+      "mentions_rtd_analise_robo": false,
+      "mentions_manual_analise_robo_legs": false
+    },
+    "services/market_snapshot_selector.py": {
+      "exists": true,
+      "line_count": 107,
+      "has_insert": false,
+      "has_update": false,
+      "has_delete": false,
+      "has_create_table": false,
+      "mentions_rtd_option_quotes": false,
+      "mentions_rtd_analise_robo_legs": false,
+      "mentions_rtd_analise_robo": false,
+      "mentions_manual_analise_robo_legs": false
+    }
+  },
+  "references": {
+    "rtd_option_quotes": [
+      {
+        "path": "_repo_audit/rota_mestre_2_fase1/mapear_automacao_opcoes_rtd_backup_20260613_185438.py",
+        "matches": [
+          {
+            "line": 107,
+            "text": "\"rtd_option_quotes\","
+          },
+          {
+            "line": 145,
+            "text": "\"scripts/patch_73_rtd_option_quotes.py\","
+          },
+          {
+            "line": 147,
+            "text": "\"repositories/rtd_option_quotes_repository.py\","
+          },
+          {
+            "line": 346,
+            "text": "if \"repositories/rtd_option_quotes_repository.py\" in existing_paths:"
+          },
+          {
+            "line": 348,
+            "text": "\"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções.\""
+          },
+          {
+            "line": 351,
+            "text": "if \"scripts/patch_73_rtd_option_quotes.py\" in existing_paths:"
+          },
+          {
+            "line": 353,
+            "text": "\"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções.\""
+          }
+        ],
+        "total_matches_in_file": 7
+      },
+      {
+        "path": "docs/AUDITORIA_ROTA_MESTRE_2.md",
+        "matches": [
+          {
+            "line": 175,
+            "text": "- `repositories/rtd_option_quotes_repository.py`"
+          },
+          {
+            "line": 231,
+            "text": "- `repositories/rtd_option_quotes_repository.py`"
+          },
+          {
+            "line": 365,
+            "text": "- `repositories/rtd_option_quotes_repository.py`"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 238,
+            "text": "repositories/rtd_option_quotes_repository.py"
+          },
+          {
+            "line": 244,
+            "text": "rtd_option_quotes"
+          },
+          {
+            "line": 306,
+            "text": "rtd_option_quotes"
+          },
+          {
+            "line": 317,
+            "text": "repositories/rtd_option_quotes_repository.py"
+          },
+          {
+            "line": 501,
+            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 280,
+            "text": "| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_6_CAMADA_CANONICA_LEITURA.md",
+        "matches": [
+          {
+            "line": 84,
+            "text": "- `repositories/rtd_option_quotes_repository.py`"
+          },
+          {
+            "line": 91,
+            "text": "- `rtd_option_quotes`"
+          },
+          {
+            "line": 97,
+            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+          },
+          {
+            "line": 205,
+            "text": "- `repositories/rtd_option_quotes_repository.py`"
+          },
+          {
+            "line": 255,
+            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/fase_8_banco_fonte_verdade_auditoria.md",
+        "matches": [
+          {
+            "line": 105,
+            "text": "- rtd_option_quotes"
+          },
+          {
+            "line": 123,
+            "text": "- rtd_option_quotes: 1"
+          },
+          {
+            "line": 138,
+            "text": "- rtd_option_quotes"
+          },
+          {
+            "line": 146,
+            "text": "- rtd_option_quotes possui apenas um registro no estado analisado."
+          },
+          {
+            "line": 261,
+            "text": "- rtd_option_quotes"
+          },
+          {
+            "line": 281,
+            "text": "- rtd_option_quotes"
+          }
+        ],
+        "total_matches_in_file": 6
+      },
+      {
+        "path": "docs/lista_priorizada_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 36,
+            "text": "### `repositories/rtd_option_quotes_repository.py`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/mapeamento_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 324,
+            "text": "### `repositories/rtd_option_quotes_repository.py`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md",
+        "matches": [
+          {
+            "line": 748,
+            "text": "repositories/rtd_option_quotes_repository.py"
+          },
+          {
+            "line": 813,
+            "text": "scripts/patch_73_rtd_option_quotes.py"
+          },
+          {
+            "line": 877,
+            "text": "•\tcriar tabela nova antes de auditar rtd_option_quotes_repository.py"
+          },
+          {
+            "line": 991,
+            "text": "•\tconfirmar se rtd_option_quotes existe no banco"
+          },
+          {
+            "line": 995,
+            "text": "•\tauditar repositories/rtd_option_quotes_repository.py"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "repositories/rtd_option_quotes_repository.py",
+        "matches": [
+          {
+            "line": 1,
+            "text": "# repositories/rtd_option_quotes_repository.py"
+          },
+          {
+            "line": 12,
+            "text": "Leitura da tabela rtd_option_quotes."
+          },
+          {
+            "line": 48,
+            "text": "FROM rtd_option_quotes"
+          },
+          {
+            "line": 80,
+            "text": "FROM rtd_option_quotes"
+          },
+          {
+            "line": 112,
+            "text": "FROM rtd_option_quotes"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "scripts/mapear_automacao_opcoes_rtd.py",
+        "matches": [
+          {
+            "line": 69,
+            "text": "\"repositories/rtd_option_quotes_repository.py\": \"Prioritário para auditoria de persistência RTD.\","
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "rtd_analise_robo_legs": [
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+        "matches": [
+          {
+            "line": 65,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 132,
+            "text": "INSERT INTO rtd_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 142,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 180,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 25,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 54,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 79,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 133,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 158,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 26,
+            "text": "\"INSERT INTO rtd_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 48,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 36,
+            "text": "CsvSpec(\"analise_robo_legs.csv\",       \"rtd_analise_robo_legs\",       \"replace\"),"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/baseline_v1a.md",
+        "matches": [
+          {
+            "line": 51,
+            "text": "ANALISE_ROBO_LEGS\trtd_analise_robo_legs\treplace\t[OK]"
+          },
+          {
+            "line": 61,
+            "text": "-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);"
+          },
+          {
+            "line": 85,
+            "text": "Input: ler rtd_analise_robo_legs (em vez de COM/Excel)"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/baseline_v2.md",
+        "matches": [
+          {
+            "line": 8,
+            "text": "| rtd_analise_robo_legs     |        [v]         |                         | Legs (pernas) de cada estrutura                        |"
+          },
+          {
+            "line": 27,
+            "text": "- `rtd_analise_robo_legs`, associando `aba`, `timestamp`, detalhes das pernas"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 160,
+            "text": "- `rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/executed_v1.md",
+        "matches": [
+          {
+            "line": 45,
+            "text": "Você confirmou que em rtd_analise_robo_legs os campos são:"
+          },
+          {
+            "line": 48,
+            "text": "Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:"
+          },
+          {
+            "line": 71,
+            "text": "*\tlegs vindo de rtd_analise_robo_legs com outro timestamp"
+          },
+          {
+            "line": 91,
+            "text": "# ANTES (PROBLEMÁTICO)cursor.execute(\"\"\"    SELECT * FROM rtd_analise_robo_legs     WHERE aba = ?     ORDER BY timestamp DESC, strike     LIMIT 10\"\"\", (aba,))"
+          },
+          {
+            "line": 112,
+            "text": "# Resolve timestamp mais recente se não informado    ts = timestamp    if ts is None:        cursor.execute(            \"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",            (aba,)        )        row = cursor.fetchon"
+          },
+          {
+            "line": 114,
+            "text": "# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        \"\"\"SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike\"\"\",        (aba, ts)    )    # ... rest"
+          },
+          {
+            "line": 130,
+            "text": "$ python -c \"import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()\""
+          },
+          {
+            "line": 169,
+            "text": "3.\tSe houver \"curva estranha\", verificar sincronia timestamp entre rtd_analise_robo e rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 8
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 179,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 215,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 308,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 461,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 498,
+            "text": "- vínculo com RTD: ainda indireto por alias/tabelas rtd_analise_robo_legs e manual_analise_robo_legs"
+          },
+          {
+            "line": 501,
+            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+          }
+        ],
+        "total_matches_in_file": 6
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 138,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 277,
+            "text": "| `rtd_analise_robo_legs` | legado | isolar e substituir progressivamente |"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+        "matches": [
+          {
+            "line": 81,
+            "text": "bridge_ingest_csv.py:36:    CsvSpec(\"analise_robo_legs.csv\",       \"rtd_analise_robo_legs\",       \"replace\"),"
+          },
+          {
+            "line": 89,
+            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 90,
+            "text": "repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs"
+          },
+          {
+            "line": 93,
+            "text": "repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 95,
+            "text": "repositories/robo_legs_repository.py:72:            table=\"rtd_analise_robo_legs\","
+          },
+          {
+            "line": 98,
+            "text": "repositories/robo_legs_repository.py:111:                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 100,
+            "text": "repositories/robo_legs_repository.py:127:                \"SELECT DISTINCT timestamp FROM rtd_analise_robo_legs \""
+          },
+          {
+            "line": 102,
+            "text": "repositories/robo_legs_status_repository.py:57:                \"SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?\","
+          },
+          {
+            "line": 244,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 283,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 393,
+            "text": "rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 11
+      },
+      {
+        "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+        "matches": [
+          {
+            "line": 134,
+            "text": "rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_6_CAMADA_CANONICA_LEITURA.md",
+        "matches": [
+          {
+            "line": 67,
+            "text": "- `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 89,
+            "text": "- `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 101,
+            "text": "- `manual_analise_robo_legs > rtd_analise_robo_legs`"
+          },
+          {
+            "line": 256,
+            "text": "- A regra `manual_analise_robo_legs > rtd_analise_robo_legs` deve ser preservada."
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "docs/fase_8_banco_fonte_verdade_auditoria.md",
+        "matches": [
+          {
+            "line": 100,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 118,
+            "text": "- rtd_analise_robo_legs: 20"
+          },
+          {
+            "line": 152,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 251,
+            "text": "- A próxima ação técnica deve mapear como as estruturas existentes em structures se relacionam com rtd_analise_robo_legs e como esse vínculo pode ser migrado ou normalizado sem corromper dados."
+          },
+          {
+            "line": 259,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 279,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 344,
+            "text": "## Resultado da inspeção de rtd_analise_robo_legs"
+          },
+          {
+            "line": 346,
+            "text": "A tabela `rtd_analise_robo_legs` possui 20 registros."
+          },
+          {
+            "line": 384,
+            "text": "## Resultado do vínculo structures x rtd_analise_robo_legs"
+          },
+          {
+            "line": 388,
+            "text": "- structures.alias_legacy_aba x rtd_analise_robo_legs.aba"
+          },
+          {
+            "line": 398,
+            "text": "Não foram encontradas abas em `rtd_analise_robo_legs` sem estrutura correspondente."
+          },
+          {
+            "line": 400,
+            "text": "Não foram encontradas estruturas sem pernas em `rtd_analise_robo_legs`."
+          },
+          {
+            "line": 439,
+            "text": "- Além da ponte direta com `rtd_analise_robo_legs`, existe uma segunda fonte já parcialmente canonizada dentro de `pricing_executions.pricing_payload`."
+          },
+          {
+            "line": 462,
+            "text": "- rtd_analise_robo_legs.aba -> structures.alias_legacy_aba"
+          },
+          {
+            "line": 464,
+            "text": "- rtd_analise_robo_legs.cv -> structure_legs.position_side"
+          },
+          {
+            "line": 465,
+            "text": "- rtd_analise_robo_legs.call_put -> structure_legs.option_type"
+          },
+          {
+            "line": 466,
+            "text": "- rtd_analise_robo_legs.ativo -> structure_legs.symbol"
+          },
+          {
+            "line": 467,
+            "text": "- rtd_analise_robo_legs.strike -> structure_legs.strike"
+          },
+          {
+            "line": 468,
+            "text": "- rtd_analise_robo_legs.vencimento -> structure_legs.expiration_date"
+          },
+          {
+            "line": 469,
+            "text": "- rtd_analise_robo_legs.quant -> structure_legs.quantity"
+          }
+        ],
+        "total_matches_in_file": 21
+      },
+      {
+        "path": "docs/MAPA_MODULOS_FUNCOES.md",
+        "matches": [
+          {
+            "line": 338,
+            "text": "## rtd_analise_robo_legs"
+          },
+          {
+            "line": 341,
+            "text": "- linha 60: `\"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",`"
+          },
+          {
+            "line": 342,
+            "text": "- linha 60: `\"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",`"
+          },
+          {
+            "line": 343,
+            "text": "- linha 72: `SELECT * FROM rtd_analise_robo_legs`"
+          },
+          {
+            "line": 344,
+            "text": "- linha 72: `SELECT * FROM rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/roteiro_v2.md",
+        "matches": [
+          {
+            "line": 6,
+            "text": "- Estruturas/abas populadas via `rtd_analise_robo`, legs em `rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/SQL_SURFACE_MAP_v2.md",
+        "matches": [
+          {
+            "line": 6,
+            "text": "| rtd_analise_robo_legs   | SELECT            | domain/payoff.py                                 |"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/market_snapshot_repository.py",
+        "matches": [
+          {
+            "line": 5,
+            "text": "Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 50,
+            "text": "FROM rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "repositories/robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 35,
+            "text": "manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 72,
+            "text": "table=\"rtd_analise_robo_legs\","
+          },
+          {
+            "line": 111,
+            "text": "SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 127,
+            "text": "\"SELECT DISTINCT timestamp FROM rtd_analise_robo_legs \""
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "repositories/robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 57,
+            "text": "\"SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?\","
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "rtd_analise_robo": [
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+        "matches": [
+          {
+            "line": 65,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 132,
+            "text": "INSERT INTO rtd_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 142,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 180,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 25,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 54,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 79,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 133,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 158,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 26,
+            "text": "\"INSERT INTO rtd_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 48,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 35,
+            "text": "CsvSpec(\"analise_robo.csv\",            \"rtd_analise_robo\",            \"replace\"),"
+          },
+          {
+            "line": 36,
+            "text": "CsvSpec(\"analise_robo_legs.csv\",       \"rtd_analise_robo_legs\",       \"replace\"),"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/baseline_v1a.md",
+        "matches": [
+          {
+            "line": 50,
+            "text": "ANALISE_ROBO\trtd_analise_robo\treplace\t[OK]"
+          },
+          {
+            "line": 51,
+            "text": "ANALISE_ROBO_LEGS\trtd_analise_robo_legs\treplace\t[OK]"
+          },
+          {
+            "line": 61,
+            "text": "-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);"
+          },
+          {
+            "line": 85,
+            "text": "Input: ler rtd_analise_robo_legs (em vez de COM/Excel)"
+          },
+          {
+            "line": 89,
+            "text": "Input: usar dados de rtd_analise_robo + rtd_consolidacoes"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/baseline_v2.md",
+        "matches": [
+          {
+            "line": 7,
+            "text": "| rtd_analise_robo          |        [v]         |                         | Estrutura principal dos robôs                          |"
+          },
+          {
+            "line": 8,
+            "text": "| rtd_analise_robo_legs     |        [v]         |                         | Legs (pernas) de cada estrutura                        |"
+          },
+          {
+            "line": 24,
+            "text": "- `SELECT DISTINCT aba FROM rtd_analise_robo`"
+          },
+          {
+            "line": 27,
+            "text": "- `rtd_analise_robo_legs`, associando `aba`, `timestamp`, detalhes das pernas"
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 159,
+            "text": "- `rtd_analise_robo`"
+          },
+          {
+            "line": 160,
+            "text": "- `rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/executed_v1.md",
+        "matches": [
+          {
+            "line": 45,
+            "text": "Você confirmou que em rtd_analise_robo_legs os campos são:"
+          },
+          {
+            "line": 48,
+            "text": "Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:"
+          },
+          {
+            "line": 70,
+            "text": "*\tsummary (spot) vindo de rtd_analise_robo com um timestamp"
+          },
+          {
+            "line": 71,
+            "text": "*\tlegs vindo de rtd_analise_robo_legs com outro timestamp"
+          },
+          {
+            "line": 91,
+            "text": "# ANTES (PROBLEMÁTICO)cursor.execute(\"\"\"    SELECT * FROM rtd_analise_robo_legs     WHERE aba = ?     ORDER BY timestamp DESC, strike     LIMIT 10\"\"\", (aba,))"
+          },
+          {
+            "line": 112,
+            "text": "# Resolve timestamp mais recente se não informado    ts = timestamp    if ts is None:        cursor.execute(            \"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",            (aba,)        )        row = cursor.fetchon"
+          },
+          {
+            "line": 114,
+            "text": "# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        \"\"\"SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike\"\"\",        (aba, ts)    )    # ... rest"
+          },
+          {
+            "line": 130,
+            "text": "$ python -c \"import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()\""
+          },
+          {
+            "line": 169,
+            "text": "3.\tSe houver \"curva estranha\", verificar sincronia timestamp entre rtd_analise_robo e rtd_analise_robo_legs"
+          },
+          {
+            "line": 185,
+            "text": "**Bug:** compute_decision_for_aba() calculava `pl_atual` via `pl_realista_total` (rtd_analise_robo),"
+          },
+          {
+            "line": 215,
+            "text": "**Bug:** compute_decision_for_aba() calculava `pl_atual` via `pl_realista_total` (rtd_analise_robo),"
+          }
+        ],
+        "total_matches_in_file": 11
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 179,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 215,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 217,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 307,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 308,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 460,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 461,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 498,
+            "text": "- vínculo com RTD: ainda indireto por alias/tabelas rtd_analise_robo_legs e manual_analise_robo_legs"
+          },
+          {
+            "line": 501,
+            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+          }
+        ],
+        "total_matches_in_file": 9
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 138,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 140,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 277,
+            "text": "| `rtd_analise_robo_legs` | legado | isolar e substituir progressivamente |"
+          },
+          {
+            "line": 279,
+            "text": "| `rtd_analise_robo` | legado | isolar e substituir progressivamente |"
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+        "matches": [
+          {
+            "line": 80,
+            "text": "bridge_ingest_csv.py:35:    CsvSpec(\"analise_robo.csv\",            \"rtd_analise_robo\",            \"replace\"),"
+          },
+          {
+            "line": 81,
+            "text": "bridge_ingest_csv.py:36:    CsvSpec(\"analise_robo_legs.csv\",       \"rtd_analise_robo_legs\",       \"replace\"),"
+          },
+          {
+            "line": 88,
+            "text": "domain/market_snapshot.py:58:    Agrega o cabeçalho da estrutura (rtd_analise_robo) e suas legs."
+          },
+          {
+            "line": 89,
+            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 90,
+            "text": "repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs"
+          },
+          {
+            "line": 92,
+            "text": "repositories/market_snapshot_repository.py:98:    FROM rtd_analise_robo"
+          },
+          {
+            "line": 93,
+            "text": "repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 95,
+            "text": "repositories/robo_legs_repository.py:72:            table=\"rtd_analise_robo_legs\","
+          },
+          {
+            "line": 98,
+            "text": "repositories/robo_legs_repository.py:111:                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 100,
+            "text": "repositories/robo_legs_repository.py:127:                \"SELECT DISTINCT timestamp FROM rtd_analise_robo_legs \""
+          },
+          {
+            "line": 102,
+            "text": "repositories/robo_legs_status_repository.py:57:                \"SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?\","
+          },
+          {
+            "line": 103,
+            "text": "services/canonical_pricing_facade.py:136:      rtd_analise_robo.aba = SMAL11"
+          },
+          {
+            "line": 104,
+            "text": "services/canonical_pricing_facade.py:137:      rtd_analise_robo.spot = 124.66"
+          },
+          {
+            "line": 243,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 244,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 282,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 283,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 392,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 393,
+            "text": "rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 19
+      },
+      {
+        "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+        "matches": [
+          {
+            "line": 133,
+            "text": "rtd_analise_robo"
+          },
+          {
+            "line": 134,
+            "text": "rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/FASE_6_CAMADA_CANONICA_LEITURA.md",
+        "matches": [
+          {
+            "line": 66,
+            "text": "- `rtd_analise_robo`"
+          },
+          {
+            "line": 67,
+            "text": "- `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 88,
+            "text": "- `rtd_analise_robo`"
+          },
+          {
+            "line": 89,
+            "text": "- `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 101,
+            "text": "- `manual_analise_robo_legs > rtd_analise_robo_legs`"
+          },
+          {
+            "line": 145,
+            "text": "- `rtd_analise_robo`"
+          },
+          {
+            "line": 166,
+            "text": "- `services/canonical_pricing_facade.py` possui exemplos/documentação citando `rtd_analise_robo`."
+          },
+          {
+            "line": 256,
+            "text": "- A regra `manual_analise_robo_legs > rtd_analise_robo_legs` deve ser preservada."
+          }
+        ],
+        "total_matches_in_file": 8
+      },
+      {
+        "path": "docs/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md",
+        "matches": [
+          {
+            "line": 39,
+            "text": "- Removidas referências textuais/documentais diretas a `rtd_analise_robo`."
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/fase_8_banco_fonte_verdade_auditoria.md",
+        "matches": [
+          {
+            "line": 99,
+            "text": "- rtd_analise_robo"
+          },
+          {
+            "line": 100,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 117,
+            "text": "- rtd_analise_robo: 5"
+          },
+          {
+            "line": 118,
+            "text": "- rtd_analise_robo_legs: 20"
+          },
+          {
+            "line": 151,
+            "text": "- rtd_analise_robo"
+          },
+          {
+            "line": 152,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 251,
+            "text": "- A próxima ação técnica deve mapear como as estruturas existentes em structures se relacionam com rtd_analise_robo_legs e como esse vínculo pode ser migrado ou normalizado sem corromper dados."
+          },
+          {
+            "line": 259,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 279,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 283,
+            "text": "- rtd_analise_robo"
+          },
+          {
+            "line": 344,
+            "text": "## Resultado da inspeção de rtd_analise_robo_legs"
+          },
+          {
+            "line": 346,
+            "text": "A tabela `rtd_analise_robo_legs` possui 20 registros."
+          },
+          {
+            "line": 384,
+            "text": "## Resultado do vínculo structures x rtd_analise_robo_legs"
+          },
+          {
+            "line": 388,
+            "text": "- structures.alias_legacy_aba x rtd_analise_robo_legs.aba"
+          },
+          {
+            "line": 398,
+            "text": "Não foram encontradas abas em `rtd_analise_robo_legs` sem estrutura correspondente."
+          },
+          {
+            "line": 400,
+            "text": "Não foram encontradas estruturas sem pernas em `rtd_analise_robo_legs`."
+          },
+          {
+            "line": 439,
+            "text": "- Além da ponte direta com `rtd_analise_robo_legs`, existe uma segunda fonte já parcialmente canonizada dentro de `pricing_executions.pricing_payload`."
+          },
+          {
+            "line": 462,
+            "text": "- rtd_analise_robo_legs.aba -> structures.alias_legacy_aba"
+          },
+          {
+            "line": 464,
+            "text": "- rtd_analise_robo_legs.cv -> structure_legs.position_side"
+          },
+          {
+            "line": 465,
+            "text": "- rtd_analise_robo_legs.call_put -> structure_legs.option_type"
+          }
+        ],
+        "total_matches_in_file": 25
+      },
+      {
+        "path": "docs/MAPA_MODULOS_FUNCOES.md",
+        "matches": [
+          {
+            "line": 322,
+            "text": "## rtd_analise_robo"
+          },
+          {
+            "line": 325,
+            "text": "- linha 154: `cursor.execute(\"SELECT aba, pl_realista_total FROM rtd_analise_robo ORDER BY aba\")`"
+          },
+          {
+            "line": 326,
+            "text": "- linha 154: `cursor.execute(\"SELECT aba, pl_realista_total FROM rtd_analise_robo ORDER BY aba\")`"
+          },
+          {
+            "line": 328,
+            "text": "- linha 94: `SELECT * FROM rtd_analise_robo`"
+          },
+          {
+            "line": 329,
+            "text": "- linha 94: `SELECT * FROM rtd_analise_robo`"
+          },
+          {
+            "line": 330,
+            "text": "- linha 234: `cursor.execute(\"SELECT DISTINCT aba FROM rtd_analise_robo ORDER BY aba\")`"
+          },
+          {
+            "line": 331,
+            "text": "- linha 234: `cursor.execute(\"SELECT DISTINCT aba FROM rtd_analise_robo ORDER BY aba\")`"
+          },
+          {
+            "line": 333,
+            "text": "- linha 38: `SELECT DISTINCT aba FROM rtd_analise_robo`"
+          },
+          {
+            "line": 334,
+            "text": "- linha 38: `SELECT DISTINCT aba FROM rtd_analise_robo`"
+          },
+          {
+            "line": 338,
+            "text": "## rtd_analise_robo_legs"
+          },
+          {
+            "line": 341,
+            "text": "- linha 60: `\"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",`"
+          },
+          {
+            "line": 342,
+            "text": "- linha 60: `\"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",`"
+          },
+          {
+            "line": 343,
+            "text": "- linha 72: `SELECT * FROM rtd_analise_robo_legs`"
+          },
+          {
+            "line": 344,
+            "text": "- linha 72: `SELECT * FROM rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 14
+      },
+      {
+        "path": "docs/roteiro_v2.md",
+        "matches": [
+          {
+            "line": 6,
+            "text": "- Estruturas/abas populadas via `rtd_analise_robo`, legs em `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 14,
+            "text": "- `SELECT DISTINCT aba FROM rtd_analise_robo`"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/SQL_SURFACE_MAP_v2.md",
+        "matches": [
+          {
+            "line": 5,
+            "text": "| rtd_analise_robo        | SELECT            | domain/decision.py, domain/payoff.py, scripts/run_derived_pipeline.py |"
+          },
+          {
+            "line": 6,
+            "text": "| rtd_analise_robo_legs   | SELECT            | domain/payoff.py                                 |"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "repositories/market_snapshot_repository.py",
+        "matches": [
+          {
+            "line": 5,
+            "text": "Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 50,
+            "text": "FROM rtd_analise_robo_legs"
+          },
+          {
+            "line": 98,
+            "text": "FROM rtd_analise_robo"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "repositories/robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 35,
+            "text": "manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 72,
+            "text": "table=\"rtd_analise_robo_legs\","
+          },
+          {
+            "line": 111,
+            "text": "SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 127,
+            "text": "\"SELECT DISTINCT timestamp FROM rtd_analise_robo_legs \""
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "repositories/robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 57,
+            "text": "\"SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?\","
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "manual_analise_robo_legs": [
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+        "matches": [
+          {
+            "line": 50,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 151,
+            "text": "INSERT INTO manual_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 127,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 49,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 103,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 123,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 128,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 153,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 6
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 14,
+            "text": "conn.execute(\"CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 18,
+            "text": "\"INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 22,
+            "text": "\"INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 47,
+            "text": "conn.execute(\"CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 180,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 216,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 309,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 462,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 498,
+            "text": "- vínculo com RTD: ainda indireto por alias/tabelas rtd_analise_robo_legs e manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 139,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 278,
+            "text": "| `manual_analise_robo_legs` | legado | isolar e substituir progressivamente |"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+        "matches": [
+          {
+            "line": 89,
+            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 91,
+            "text": "repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs"
+          },
+          {
+            "line": 93,
+            "text": "repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 94,
+            "text": "repositories/robo_legs_repository.py:63:            table=\"manual_analise_robo_legs\","
+          },
+          {
+            "line": 96,
+            "text": "repositories/robo_legs_repository.py:87:            FROM manual_analise_robo_legs"
+          },
+          {
+            "line": 97,
+            "text": "repositories/robo_legs_repository.py:109:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 99,
+            "text": "repositories/robo_legs_repository.py:119:                \"SELECT DISTINCT timestamp FROM manual_analise_robo_legs \""
+          },
+          {
+            "line": 101,
+            "text": "repositories/robo_legs_status_repository.py:53:                \"SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?\","
+          },
+          {
+            "line": 284,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 394,
+            "text": "manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 10
+      },
+      {
+        "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+        "matches": [
+          {
+            "line": 158,
+            "text": "manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_6_CAMADA_CANONICA_LEITURA.md",
+        "matches": [
+          {
+            "line": 90,
+            "text": "- `manual_analise_robo_legs`"
+          },
+          {
+            "line": 101,
+            "text": "- `manual_analise_robo_legs > rtd_analise_robo_legs`"
+          },
+          {
+            "line": 256,
+            "text": "- A regra `manual_analise_robo_legs > rtd_analise_robo_legs` deve ser preservada."
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/fase_8_banco_fonte_verdade_auditoria.md",
+        "matches": [
+          {
+            "line": 96,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 114,
+            "text": "- manual_analise_robo_legs: 0"
+          },
+          {
+            "line": 158,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 260,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 280,
+            "text": "- manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "repositories/market_snapshot_repository.py",
+        "matches": [
+          {
+            "line": 5,
+            "text": "Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 79,
+            "text": "FROM manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "repositories/robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 35,
+            "text": "manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 63,
+            "text": "table=\"manual_analise_robo_legs\","
+          },
+          {
+            "line": 87,
+            "text": "FROM manual_analise_robo_legs"
+          },
+          {
+            "line": 109,
+            "text": "SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 119,
+            "text": "\"SELECT DISTINCT timestamp FROM manual_analise_robo_legs \""
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "repositories/robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 53,
+            "text": "\"SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?\","
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "RTD_LINKS": [
+      {
+        "path": "_repo_audit/rota_mestre_2_fase1/mapear_automacao_opcoes_rtd_backup_20260613_185438.py",
+        "matches": [
+          {
+            "line": 55,
+            "text": "\"RTD_LINKS\","
+          },
+          {
+            "line": 146,
+            "text": "\"dados/RTD_LINKS.csv\","
+          },
+          {
+            "line": 327,
+            "text": "if \"dados/RTD_LINKS.csv\" in existing_paths:"
+          },
+          {
+            "line": 329,
+            "text": "\"Auditar dados/RTD_LINKS.csv como possível fonte fixa de links RTD antes de criar nova estrutura.\""
+          },
+          {
+            "line": 333,
+            "text": "\"Verificar se a lista fixa de links RTD precisa ser criada, pois dados/RTD_LINKS.csv não foi encontrado.\""
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/AUDITORIA_ROTA_MESTRE_2.md",
+        "matches": [
+          {
+            "line": 174,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 230,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 273,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 317,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 327,
+            "text": "- `dados/RTD_LINKS.csv`"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/fase_2_auditoria_contrato_rtd_excel.md",
+        "matches": [
+          {
+            "line": 15,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 36,
+            "text": "1. Qual é o papel de `dados/RTD_LINKS.csv`?"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/fase_2_diagnostico_csvs_rtd_excel.md",
+        "matches": [
+          {
+            "line": 7,
+            "text": "## `dados/RTD_LINKS.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 250,
+            "text": "CSV exportado da aba RTD_LINKS"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/fase_2_mapa_contrato_rtd_excel.md",
+        "matches": [
+          {
+            "line": 19,
+            "text": "### `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 151,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 221,
+            "text": "### 1. Qual é o papel de `dados/RTD_LINKS.csv`?"
+          },
+          {
+            "line": 235,
+            "text": "- `dados/RTD_LINKS.csv`, para atributos RTD/opções"
+          },
+          {
+            "line": 252,
+            "text": "- `ATIVO` em arquivos de pernas contra `codigo_opcao` em `RTD_LINKS.csv`"
+          },
+          {
+            "line": 267,
+            "text": "- `dados/RTD_LINKS.csv`"
+          },
+          {
+            "line": 287,
+            "text": "1. `dados/RTD_LINKS.csv`"
+          }
+        ],
+        "total_matches_in_file": 7
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 53,
+            "text": "CSV exportado da aba RTD_LINKS"
+          },
+          {
+            "line": 333,
+            "text": "Cotações RTD e exportações da aba RTD_LINKS são entrada bruta."
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/lista_priorizada_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 28,
+            "text": "### `dados/RTD_LINKS.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/mapeamento_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 700,
+            "text": "### `dados/RTD_LINKS.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md",
+        "matches": [
+          {
+            "line": 35,
+            "text": "- Fase 2 — Auditoria do contrato dados/RTD_LINKS.csv"
+          },
+          {
+            "line": 39,
+            "text": "- Fase 6 — Importador somente-leitura do RTD_LINKS"
+          },
+          {
+            "line": 643,
+            "text": "dados/RTD_LINKS.csv"
+          },
+          {
+            "line": 936,
+            "text": "- O arquivo dados/RTD_LINKS.csv é tratado como dado local operacional. O contrato versionado deve ser documentado em docs/, e não depender do versionamento direto do CSV real."
+          },
+          {
+            "line": 938,
+            "text": "- RTD_LINKS.csv deve ser auditado inicialmente como catálogo/contrato de conexão RTD, não como fonte definitiva de snapshots de mercado, até que seu schema real confirme essa função."
+          },
+          {
+            "line": 956,
+            "text": "Fase 2 — Auditoria do contrato dados/RTD_LINKS.csv"
+          },
+          {
+            "line": 984,
+            "text": "•\tsaber exatamente quais campos existem no RTD_LINKS.csv"
+          },
+          {
+            "line": 1047,
+            "text": "Fase 6 — Importador somente-leitura do RTD_LINKS"
+          },
+          {
+            "line": 1049,
+            "text": "Criar importador inicial que leia dados/RTD_LINKS.csv, normalize campos e valide dados, sem ainda alterar UI ou cálculo."
+          },
+          {
+            "line": 1107,
+            "text": "RTD_LINKS.csv→ importação→ persistência→ snapshot→ cálculo→ UI"
+          }
+        ],
+        "total_matches_in_file": 10
+      },
+      {
+        "path": "docs/validacoes/fase-17-mapa-pastas-arquivos.md",
+        "matches": [
+          {
+            "line": 363,
+            "text": "dados/RTD_LINKS.csv"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/rtd_option_quotes_repository.py",
+        "matches": [
+          {
+            "line": 14,
+            "text": "Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "scripts/mapear_automacao_opcoes_rtd.py",
+        "matches": [
+          {
+            "line": 75,
+            "text": "\"dados/RTD_LINKS.csv\": \"Prioritário para auditoria do contrato RTD/Excel.\","
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "analise_robo_legs": [
+      {
+        "path": "_repo_audit/rota_mestre_2_fase1/mapear_automacao_opcoes_rtd_backup_20260613_185438.py",
+        "matches": [
+          {
+            "line": 72,
+            "text": "\"analise_robo_legs\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/checks/check_end_to_end.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "ROOT_DIR / \"bridge\" / \"analise_robo_legs.csv\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/checks/check_legs.py",
+        "matches": [
+          {
+            "line": 12,
+            "text": "BRIDGE_DIR / \"analise_robo_legs.csv\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/checks/check_structures.py",
+        "matches": [
+          {
+            "line": 16,
+            "text": "ROOT_DIR / \"bridge\" / \"analise_robo_legs.csv\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+        "matches": [
+          {
+            "line": 50,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 65,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 132,
+            "text": "INSERT INTO rtd_analise_robo_legs ("
+          },
+          {
+            "line": 151,
+            "text": "INSERT INTO manual_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 127,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 142,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 180,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 25,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          },
+          {
+            "line": 49,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 54,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 79,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 103,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 123,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 128,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 133,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 153,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 158,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 11
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 14,
+            "text": "conn.execute(\"CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 15,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 18,
+            "text": "\"INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 22,
+            "text": "\"INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 26,
+            "text": "\"INSERT INTO rtd_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 47,
+            "text": "conn.execute(\"CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 48,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          }
+        ],
+        "total_matches_in_file": 7
+      },
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 36,
+            "text": "CsvSpec(\"analise_robo_legs.csv\",       \"rtd_analise_robo_legs\",       \"replace\"),"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/AUDITORIA_ROTA_MESTRE_2.md",
+        "matches": [
+          {
+            "line": 275,
+            "text": "- `bridge/analise_robo_legs.csv`"
+          },
+          {
+            "line": 320,
+            "text": "- `bridge/analise_robo_legs.csv`"
+          },
+          {
+            "line": 328,
+            "text": "- `bridge/analise_robo_legs.csv`"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/baseline_v1a.md",
+        "matches": [
+          {
+            "line": 51,
+            "text": "ANALISE_ROBO_LEGS\trtd_analise_robo_legs\treplace\t[OK]"
+          },
+          {
+            "line": 61,
+            "text": "-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);"
+          },
+          {
+            "line": 85,
+            "text": "Input: ler rtd_analise_robo_legs (em vez de COM/Excel)"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/baseline_v2.md",
+        "matches": [
+          {
+            "line": 8,
+            "text": "| rtd_analise_robo_legs     |        [v]         |                         | Legs (pernas) de cada estrutura                        |"
+          },
+          {
+            "line": 27,
+            "text": "- `rtd_analise_robo_legs`, associando `aba`, `timestamp`, detalhes das pernas"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 160,
+            "text": "- `rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/executed_v1.md",
+        "matches": [
+          {
+            "line": 45,
+            "text": "Você confirmou que em rtd_analise_robo_legs os campos são:"
+          },
+          {
+            "line": 48,
+            "text": "Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:"
+          },
+          {
+            "line": 71,
+            "text": "*\tlegs vindo de rtd_analise_robo_legs com outro timestamp"
+          },
+          {
+            "line": 91,
+            "text": "# ANTES (PROBLEMÁTICO)cursor.execute(\"\"\"    SELECT * FROM rtd_analise_robo_legs     WHERE aba = ?     ORDER BY timestamp DESC, strike     LIMIT 10\"\"\", (aba,))"
+          },
+          {
+            "line": 112,
+            "text": "# Resolve timestamp mais recente se não informado    ts = timestamp    if ts is None:        cursor.execute(            \"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",            (aba,)        )        row = cursor.fetchon"
+          },
+          {
+            "line": 114,
+            "text": "# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        \"\"\"SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike\"\"\",        (aba, ts)    )    # ... rest"
+          },
+          {
+            "line": 130,
+            "text": "$ python -c \"import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()\""
+          },
+          {
+            "line": 169,
+            "text": "3.\tSe houver \"curva estranha\", verificar sincronia timestamp entre rtd_analise_robo e rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 8
+      },
+      {
+        "path": "docs/fase_2_auditoria_contrato_rtd_excel.md",
+        "matches": [
+          {
+            "line": 17,
+            "text": "- `bridge/analise_robo_legs.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/fase_2_diagnostico_csvs_rtd_excel.md",
+        "matches": [
+          {
+            "line": 55,
+            "text": "## `bridge/analise_robo_legs.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 179,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 180,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 215,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 216,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 308,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 309,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 461,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 462,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 474,
+            "text": "bridge/analise_robo_legs.csv"
+          },
+          {
+            "line": 498,
+            "text": "- vínculo com RTD: ainda indireto por alias/tabelas rtd_analise_robo_legs e manual_analise_robo_legs"
+          },
+          {
+            "line": 501,
+            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+          },
+          {
+            "line": 513,
+            "text": "- bridge/analise_robo.csv, bridge/analise_robo_legs.csv e bridge/analise_raiox.csv ainda aparecem em checks"
+          }
+        ],
+        "total_matches_in_file": 12
+      },
+      {
+        "path": "docs/fase_2_mapa_contrato_rtd_excel.md",
+        "matches": [
+          {
+            "line": 47,
+            "text": "### `bridge/analise_robo_legs.csv`"
+          },
+          {
+            "line": 156,
+            "text": "- `bridge/analise_robo_legs.csv`"
+          },
+          {
+            "line": 160,
+            "text": "### 2. `bridge/analise_robo_legs.csv` é o contrato operacional mais rico"
+          },
+          {
+            "line": 188,
+            "text": "O arquivo possui volume maior e cabeçalho mais reduzido que `analise_robo_legs.csv`."
+          },
+          {
+            "line": 236,
+            "text": "- `bridge/analise_robo_legs.csv`, para pernas operacionais"
+          },
+          {
+            "line": 268,
+            "text": "- `bridge/analise_robo_legs.csv`"
+          },
+          {
+            "line": 288,
+            "text": "2. `bridge/analise_robo_legs.csv`"
+          }
+        ],
+        "total_matches_in_file": 7
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 138,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 139,
+            "text": "manual_analise_robo_legs"
+          },
+          {
+            "line": 142,
+            "text": "bridge/analise_robo_legs.csv"
+          },
+          {
+            "line": 277,
+            "text": "| `rtd_analise_robo_legs` | legado | isolar e substituir progressivamente |"
+          },
+          {
+            "line": 278,
+            "text": "| `manual_analise_robo_legs` | legado | isolar e substituir progressivamente |"
+          },
+          {
+            "line": 282,
+            "text": "| `bridge/analise_robo_legs.csv` | legado | manter apenas enquanto houver consumidor |"
+          }
+        ],
+        "total_matches_in_file": 6
+      },
+      {
+        "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+        "matches": [
+          {
+            "line": 69,
+            "text": "ATT/checks/check_end_to_end.py:15:    ROOT_DIR / \"bridge\" / \"analise_robo_legs.csv\","
+          },
+          {
+            "line": 72,
+            "text": "ATT/checks/check_legs.py:12:    BRIDGE_DIR / \"analise_robo_legs.csv\","
+          },
+          {
+            "line": 76,
+            "text": "ATT/checks/check_structures.py:16:    ROOT_DIR / \"bridge\" / \"analise_robo_legs.csv\","
+          },
+          {
+            "line": 81,
+            "text": "bridge_ingest_csv.py:36:    CsvSpec(\"analise_robo_legs.csv\",       \"rtd_analise_robo_legs\",       \"replace\"),"
+          },
+          {
+            "line": 89,
+            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 90,
+            "text": "repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs"
+          },
+          {
+            "line": 91,
+            "text": "repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs"
+          },
+          {
+            "line": 93,
+            "text": "repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 94,
+            "text": "repositories/robo_legs_repository.py:63:            table=\"manual_analise_robo_legs\","
+          },
+          {
+            "line": 95,
+            "text": "repositories/robo_legs_repository.py:72:            table=\"rtd_analise_robo_legs\","
+          },
+          {
+            "line": 96,
+            "text": "repositories/robo_legs_repository.py:87:            FROM manual_analise_robo_legs"
+          },
+          {
+            "line": 97,
+            "text": "repositories/robo_legs_repository.py:109:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 98,
+            "text": "repositories/robo_legs_repository.py:111:                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 99,
+            "text": "repositories/robo_legs_repository.py:119:                \"SELECT DISTINCT timestamp FROM manual_analise_robo_legs \""
+          },
+          {
+            "line": 100,
+            "text": "repositories/robo_legs_repository.py:127:                \"SELECT DISTINCT timestamp FROM rtd_analise_robo_legs \""
+          },
+          {
+            "line": 101,
+            "text": "repositories/robo_legs_status_repository.py:53:                \"SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?\","
+          },
+          {
+            "line": 102,
+            "text": "repositories/robo_legs_status_repository.py:57:                \"SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?\","
+          },
+          {
+            "line": 113,
+            "text": "ATT/checks/check_legs.py:12:    BRIDGE_DIR / \"analise_robo_legs.csv\","
+          },
+          {
+            "line": 232,
+            "text": "analise_robo_legs.csv"
+          },
+          {
+            "line": 244,
+            "text": "rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 25
+      },
+      {
+        "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+        "matches": [
+          {
+            "line": 111,
+            "text": "analise_robo_legs.csv"
+          },
+          {
+            "line": 134,
+            "text": "rtd_analise_robo_legs"
+          },
+          {
+            "line": 158,
+            "text": "manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/FASE_6_CAMADA_CANONICA_LEITURA.md",
+        "matches": [
+          {
+            "line": 67,
+            "text": "- `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 89,
+            "text": "- `rtd_analise_robo_legs`"
+          },
+          {
+            "line": 90,
+            "text": "- `manual_analise_robo_legs`"
+          },
+          {
+            "line": 101,
+            "text": "- `manual_analise_robo_legs > rtd_analise_robo_legs`"
+          },
+          {
+            "line": 256,
+            "text": "- A regra `manual_analise_robo_legs > rtd_analise_robo_legs` deve ser preservada."
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/fase_8_banco_fonte_verdade_auditoria.md",
+        "matches": [
+          {
+            "line": 96,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 100,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 114,
+            "text": "- manual_analise_robo_legs: 0"
+          },
+          {
+            "line": 118,
+            "text": "- rtd_analise_robo_legs: 20"
+          },
+          {
+            "line": 152,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 158,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 251,
+            "text": "- A próxima ação técnica deve mapear como as estruturas existentes em structures se relacionam com rtd_analise_robo_legs e como esse vínculo pode ser migrado ou normalizado sem corromper dados."
+          },
+          {
+            "line": 259,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 260,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 279,
+            "text": "- rtd_analise_robo_legs"
+          },
+          {
+            "line": 280,
+            "text": "- manual_analise_robo_legs"
+          },
+          {
+            "line": 344,
+            "text": "## Resultado da inspeção de rtd_analise_robo_legs"
+          },
+          {
+            "line": 346,
+            "text": "A tabela `rtd_analise_robo_legs` possui 20 registros."
+          },
+          {
+            "line": 384,
+            "text": "## Resultado do vínculo structures x rtd_analise_robo_legs"
+          },
+          {
+            "line": 388,
+            "text": "- structures.alias_legacy_aba x rtd_analise_robo_legs.aba"
+          },
+          {
+            "line": 398,
+            "text": "Não foram encontradas abas em `rtd_analise_robo_legs` sem estrutura correspondente."
+          },
+          {
+            "line": 400,
+            "text": "Não foram encontradas estruturas sem pernas em `rtd_analise_robo_legs`."
+          },
+          {
+            "line": 439,
+            "text": "- Além da ponte direta com `rtd_analise_robo_legs`, existe uma segunda fonte já parcialmente canonizada dentro de `pricing_executions.pricing_payload`."
+          },
+          {
+            "line": 462,
+            "text": "- rtd_analise_robo_legs.aba -> structures.alias_legacy_aba"
+          },
+          {
+            "line": 464,
+            "text": "- rtd_analise_robo_legs.cv -> structure_legs.position_side"
+          }
+        ],
+        "total_matches_in_file": 26
+      },
+      {
+        "path": "docs/lista_priorizada_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 147,
+            "text": "- `bridge/analise_robo_legs.csv` — `bridge` — score `11`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/MAPA_MODULOS_FUNCOES.md",
+        "matches": [
+          {
+            "line": 338,
+            "text": "## rtd_analise_robo_legs"
+          },
+          {
+            "line": 341,
+            "text": "- linha 60: `\"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",`"
+          },
+          {
+            "line": 342,
+            "text": "- linha 60: `\"SELECT MAX(timestamp) FROM rtd_analise_robo_legs WHERE aba = ?\",`"
+          },
+          {
+            "line": 343,
+            "text": "- linha 72: `SELECT * FROM rtd_analise_robo_legs`"
+          },
+          {
+            "line": 344,
+            "text": "- linha 72: `SELECT * FROM rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/mapeamento_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 1239,
+            "text": "- `bridge/analise_robo_legs.csv` — `bridge` — score `11`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md",
+        "matches": [
+          {
+            "line": 214,
+            "text": "•\tanalise_robo_legs.csv"
+          },
+          {
+            "line": 619,
+            "text": "bridge/analise_robo_legs.csv"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/roteiro_v2.md",
+        "matches": [
+          {
+            "line": 6,
+            "text": "- Estruturas/abas populadas via `rtd_analise_robo`, legs em `rtd_analise_robo_legs`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/SQL_SURFACE_MAP_v2.md",
+        "matches": [
+          {
+            "line": 6,
+            "text": "| rtd_analise_robo_legs   | SELECT            | domain/payoff.py                                 |"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/validacoes/fase-17-mapa-pastas-arquivos.md",
+        "matches": [
+          {
+            "line": 159,
+            "text": "| `bridge/analise_robo_legs.csv` | Sim | Versionado |"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/market_snapshot_repository.py",
+        "matches": [
+          {
+            "line": 5,
+            "text": "Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+          },
+          {
+            "line": 50,
+            "text": "FROM rtd_analise_robo_legs"
+          },
+          {
+            "line": 79,
+            "text": "FROM manual_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "repositories/robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 35,
+            "text": "manual_analise_robo_legs > rtd_analise_robo_legs"
+          },
+          {
+            "line": 63,
+            "text": "table=\"manual_analise_robo_legs\","
+          },
+          {
+            "line": 72,
+            "text": "table=\"rtd_analise_robo_legs\","
+          },
+          {
+            "line": 87,
+            "text": "FROM manual_analise_robo_legs"
+          },
+          {
+            "line": 109,
+            "text": "SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 111,
+            "text": "SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?"
+          },
+          {
+            "line": 119,
+            "text": "\"SELECT DISTINCT timestamp FROM manual_analise_robo_legs \""
+          },
+          {
+            "line": 127,
+            "text": "\"SELECT DISTINCT timestamp FROM rtd_analise_robo_legs \""
+          }
+        ],
+        "total_matches_in_file": 8
+      },
+      {
+        "path": "repositories/robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 53,
+            "text": "\"SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?\","
+          },
+          {
+            "line": 57,
+            "text": "\"SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?\","
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "services/legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 21,
+            "text": "structures.alias_legacy_aba -> *_analise_robo_legs.aba"
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "analise_robo.csv": [
+      {
+        "path": "ATT/checks/check_end_to_end.py",
+        "matches": [
+          {
+            "line": 16,
+            "text": "ROOT_DIR / \"bridge\" / \"analise_robo.csv\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/checks/check_legs.py",
+        "matches": [
+          {
+            "line": 13,
+            "text": "BRIDGE_DIR / \"analise_robo.csv\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/checks/check_structures.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "ROOT_DIR / \"bridge\" / \"analise_robo.csv\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 35,
+            "text": "CsvSpec(\"analise_robo.csv\",            \"rtd_analise_robo\",            \"replace\"),"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/AUDITORIA_ROTA_MESTRE_2.md",
+        "matches": [
+          {
+            "line": 274,
+            "text": "- `bridge/analise_robo.csv`"
+          },
+          {
+            "line": 321,
+            "text": "- `bridge/analise_robo.csv`"
+          },
+          {
+            "line": 329,
+            "text": "- `bridge/analise_robo.csv`"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/fase_2_auditoria_contrato_rtd_excel.md",
+        "matches": [
+          {
+            "line": 16,
+            "text": "- `bridge/analise_robo.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/fase_2_diagnostico_csvs_rtd_excel.md",
+        "matches": [
+          {
+            "line": 31,
+            "text": "## `bridge/analise_robo.csv`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md",
+        "matches": [
+          {
+            "line": 473,
+            "text": "bridge/analise_robo.csv"
+          },
+          {
+            "line": 513,
+            "text": "- bridge/analise_robo.csv, bridge/analise_robo_legs.csv e bridge/analise_raiox.csv ainda aparecem em checks"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/fase_2_mapa_contrato_rtd_excel.md",
+        "matches": [
+          {
+            "line": 33,
+            "text": "### `bridge/analise_robo.csv`"
+          },
+          {
+            "line": 155,
+            "text": "- `bridge/analise_robo.csv`"
+          },
+          {
+            "line": 180,
+            "text": "### 3. `bridge/analise_robo.csv` é agregado por estrutura/aba"
+          },
+          {
+            "line": 243,
+            "text": "- `bridge/analise_robo.csv`"
+          },
+          {
+            "line": 269,
+            "text": "- `bridge/analise_robo.csv`"
+          },
+          {
+            "line": 289,
+            "text": "3. `bridge/analise_robo.csv`"
+          }
+        ],
+        "total_matches_in_file": 6
+      },
+      {
+        "path": "docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md",
+        "matches": [
+          {
+            "line": 141,
+            "text": "bridge/analise_robo.csv"
+          },
+          {
+            "line": 281,
+            "text": "| `bridge/analise_robo.csv` | legado | manter apenas enquanto houver consumidor |"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+        "matches": [
+          {
+            "line": 70,
+            "text": "ATT/checks/check_end_to_end.py:16:    ROOT_DIR / \"bridge\" / \"analise_robo.csv\","
+          },
+          {
+            "line": 73,
+            "text": "ATT/checks/check_legs.py:13:    BRIDGE_DIR / \"analise_robo.csv\","
+          },
+          {
+            "line": 75,
+            "text": "ATT/checks/check_structures.py:15:    ROOT_DIR / \"bridge\" / \"analise_robo.csv\","
+          },
+          {
+            "line": 80,
+            "text": "bridge_ingest_csv.py:35:    CsvSpec(\"analise_robo.csv\",            \"rtd_analise_robo\",            \"replace\"),"
+          },
+          {
+            "line": 114,
+            "text": "ATT/checks/check_legs.py:13:    BRIDGE_DIR / \"analise_robo.csv\","
+          },
+          {
+            "line": 231,
+            "text": "analise_robo.csv"
+          },
+          {
+            "line": 371,
+            "text": "analise_robo.csv"
+          }
+        ],
+        "total_matches_in_file": 7
+      },
+      {
+        "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+        "matches": [
+          {
+            "line": 110,
+            "text": "analise_robo.csv"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/lista_priorizada_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 149,
+            "text": "- `bridge/analise_robo.csv` — `bridge` — score `9`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/mapeamento_automacao_opcoes_rtd.md",
+        "matches": [
+          {
+            "line": 1245,
+            "text": "- `bridge/analise_robo.csv` — `bridge` — score `9`"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md",
+        "matches": [
+          {
+            "line": 213,
+            "text": "•\tanalise_robo.csv"
+          },
+          {
+            "line": 618,
+            "text": "bridge/analise_robo.csv"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/validacoes/fase-17-mapa-pastas-arquivos.md",
+        "matches": [
+          {
+            "line": 158,
+            "text": "| `bridge/analise_robo.csv` | Sim | Versionado |"
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "INSERT INTO": [
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer.py",
+        "matches": [
+          {
+            "line": 56,
+            "text": "INSERT INTO structures ("
+          },
+          {
+            "line": 73,
+            "text": "INSERT INTO structure_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+        "matches": [
+          {
+            "line": 90,
+            "text": "INSERT INTO structures ("
+          },
+          {
+            "line": 110,
+            "text": "INSERT INTO structure_legs ("
+          },
+          {
+            "line": 132,
+            "text": "INSERT INTO rtd_analise_robo_legs ("
+          },
+          {
+            "line": 151,
+            "text": "INSERT INTO manual_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 174,
+            "text": "INSERT INTO structures"
+          },
+          {
+            "line": 180,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 237,
+            "text": "INSERT INTO structures"
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 49,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 54,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 79,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 103,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 123,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 128,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 133,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          },
+          {
+            "line": 153,
+            "text": "INSERT INTO manual_analise_robo_legs"
+          },
+          {
+            "line": 158,
+            "text": "INSERT INTO rtd_analise_robo_legs"
+          }
+        ],
+        "total_matches_in_file": 9
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 18,
+            "text": "\"INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 22,
+            "text": "\"INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          },
+          {
+            "line": 26,
+            "text": "\"INSERT INTO rtd_analise_robo_legs (aba, timestamp) VALUES (?, ?)\","
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "ATT/tests/test_system_snapshots_repository.py",
+        "matches": [
+          {
+            "line": 15,
+            "text": "INSERT INTO structures ("
+          },
+          {
+            "line": 49,
+            "text": "INSERT INTO structure_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "db/derived_repo.py",
+        "matches": [
+          {
+            "line": 359,
+            "text": "INSERT INTO payoff_curve_points"
+          },
+          {
+            "line": 453,
+            "text": "INSERT INTO payoff_curve_points"
+          },
+          {
+            "line": 695,
+            "text": "INSERT INTO payoff_curve_points"
+          },
+          {
+            "line": 732,
+            "text": "INSERT INTO structure_decisions"
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "db/writer.py",
+        "matches": [
+          {
+            "line": 72,
+            "text": "INSERT INTO payoff_curve_points"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/decisions/structure_ref_created_at.md",
+        "matches": [
+          {
+            "line": 47,
+            "text": "INSERT INTO structure_decisions"
+          },
+          {
+            "line": 53,
+            "text": "INSERT INTO structure_decisions"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/MAPA_MODULOS_FUNCOES.md",
+        "matches": [
+          {
+            "line": 267,
+            "text": "- linha 71: `INSERT INTO payoff_curve_points`"
+          },
+          {
+            "line": 268,
+            "text": "- linha 71: `INSERT INTO payoff_curve_points`"
+          },
+          {
+            "line": 293,
+            "text": "- linha 175: `INSERT INTO payoff_curve_summary (`"
+          },
+          {
+            "line": 294,
+            "text": "- linha 175: `INSERT INTO payoff_curve_summary (`"
+          },
+          {
+            "line": 351,
+            "text": "- linha 214: `INSERT INTO rtd_consolidacoes (`"
+          },
+          {
+            "line": 352,
+            "text": "- linha 214: `INSERT INTO rtd_consolidacoes (`"
+          },
+          {
+            "line": 413,
+            "text": "- linha 113: `INSERT INTO structure_decisions`"
+          },
+          {
+            "line": 414,
+            "text": "- linha 113: `INSERT INTO structure_decisions`"
+          }
+        ],
+        "total_matches_in_file": 8
+      },
+      {
+        "path": "domain/payoff_features.py",
+        "matches": [
+          {
+            "line": 146,
+            "text": "INSERT INTO payoff_curve_summary ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/pricing_executions_repository.py",
+        "matches": [
+          {
+            "line": 58,
+            "text": "INSERT INTO pricing_executions ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/structure_events_repository.py",
+        "matches": [
+          {
+            "line": 322,
+            "text": "INSERT INTO structure_events ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/structures_repository.py",
+        "matches": [
+          {
+            "line": 281,
+            "text": "INSERT INTO structure_audit_log"
+          },
+          {
+            "line": 312,
+            "text": "INSERT INTO structures ("
+          },
+          {
+            "line": 366,
+            "text": "INSERT INTO structures ("
+          },
+          {
+            "line": 399,
+            "text": "INSERT INTO structure_legs ("
+          },
+          {
+            "line": 594,
+            "text": "INSERT INTO structure_legs ("
+          },
+          {
+            "line": 648,
+            "text": "INSERT INTO structure_legs ("
+          }
+        ],
+        "total_matches_in_file": 6
+      },
+      {
+        "path": "repositories/system_snapshots_repository.py",
+        "matches": [
+          {
+            "line": 113,
+            "text": "INSERT INTO structure_snapshots ("
+          },
+          {
+            "line": 171,
+            "text": "INSERT INTO structure_leg_snapshots ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "scripts/apply_fase9_atomic_create.py",
+        "matches": [
+          {
+            "line": 83,
+            "text": "INSERT INTO structures ("
+          },
+          {
+            "line": 116,
+            "text": "INSERT INTO structure_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      }
+    ],
+    "UPDATE ": [
+      {
+        "path": "api/structures_controller.py",
+        "matches": [
+          {
+            "line": 233,
+            "text": "\"UPDATE structures SET updated_at=? WHERE id=?\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "db/migrations/add_structure_id_to_payoff_curve_points.py",
+        "matches": [
+          {
+            "line": 30,
+            "text": "UPDATE payoff_curve_points"
+          },
+          {
+            "line": 55,
+            "text": "UPDATE payoff_curve_summary"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md",
+        "matches": [
+          {
+            "line": 344,
+            "text": "Mapear todos os SELECT/INSERT/UPDATE envolvendo rtd_*, manual_* e tabelas legadas do Excel."
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/SQL_SURFACE_MAP_v2.md",
+        "matches": [
+          {
+            "line": 9,
+            "text": "|                         | INSERT/UPDATE     | db/writer.py, db/derived_repo.py                 |"
+          },
+          {
+            "line": 12,
+            "text": "|                         | INSERT/UPDATE     | db/writer.py, db/derived_repo.py                 |"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "domain/payoff_features.py",
+        "matches": [
+          {
+            "line": 163,
+            "text": "ON CONFLICT(structure_id, reference_date) DO UPDATE SET"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/structure_events_repository.py",
+        "matches": [
+          {
+            "line": 386,
+            "text": "UPDATE structure_events"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/structures_repository.py",
+        "matches": [
+          {
+            "line": 516,
+            "text": "UPDATE structures"
+          },
+          {
+            "line": 560,
+            "text": "\"UPDATE structures SET status=?, updated_at=? WHERE id=?\","
+          },
+          {
+            "line": 610,
+            "text": "\"UPDATE structures SET updated_at=? WHERE id=?\","
+          },
+          {
+            "line": 663,
+            "text": "\"UPDATE structures SET updated_at=? WHERE id=?\","
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "scripts/repair_derived_db_consistency.py",
+        "matches": [
+          {
+            "line": 199,
+            "text": "UPDATE structure_decisions"
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "DELETE FROM": [
+      {
+        "path": "api/structures_controller.py",
+        "matches": [
+          {
+            "line": 229,
+            "text": "\"DELETE FROM structure_legs WHERE id=?\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 154,
+            "text": "conn.execute(f'DELETE FROM \"{table}\"')"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "db/derived_repo.py",
+        "matches": [
+          {
+            "line": 298,
+            "text": "\"DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?\","
+          },
+          {
+            "line": 354,
+            "text": "\"DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?\","
+          },
+          {
+            "line": 448,
+            "text": "\"DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?\","
+          },
+          {
+            "line": 474,
+            "text": "\"DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?\","
+          },
+          {
+            "line": 611,
+            "text": "f\"DELETE FROM payoff_curve_points \""
+          },
+          {
+            "line": 623,
+            "text": "f\"DELETE FROM structure_decisions \""
+          },
+          {
+            "line": 691,
+            "text": "\"DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?\","
+          },
+          {
+            "line": 726,
+            "text": "\"DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?\","
+          },
+          {
+            "line": 909,
+            "text": "DELETE FROM payoff_curve_points"
+          },
+          {
+            "line": 921,
+            "text": "DELETE FROM structure_decisions"
+          }
+        ],
+        "total_matches_in_file": 10
+      },
+      {
+        "path": "docs/MAPA_MODULOS_FUNCOES.md",
+        "matches": [
+          {
+            "line": 253,
+            "text": "- linha 211: `DELETE FROM payoff_curve_points`"
+          },
+          {
+            "line": 254,
+            "text": "- linha 211: `DELETE FROM payoff_curve_points`"
+          },
+          {
+            "line": 405,
+            "text": "- linha 223: `DELETE FROM structure_decisions`"
+          },
+          {
+            "line": 406,
+            "text": "- linha 223: `DELETE FROM structure_decisions`"
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "repositories/structures_repository.py",
+        "matches": [
+          {
+            "line": 641,
+            "text": "\"DELETE FROM structure_legs WHERE structure_id=?\","
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "scripts/purge_derived_snapshots.py",
+        "matches": [
+          {
+            "line": 108,
+            "text": "cur = con.execute(f\"DELETE FROM {table}\")"
+          },
+          {
+            "line": 118,
+            "text": "f\"DELETE FROM {table} WHERE timestamp < ?\","
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "scripts/repair_derived_db_consistency.py",
+        "matches": [
+          {
+            "line": 244,
+            "text": "f\"DELETE FROM structure_decisions WHERE id IN ({placeholders})\","
+          },
+          {
+            "line": 275,
+            "text": "DELETE FROM payoff_curve_points"
+          }
+        ],
+        "total_matches_in_file": 2
+      }
+    ],
+    "CREATE TABLE": [
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer.py",
+        "matches": [
+          {
+            "line": 14,
+            "text": "CREATE TABLE structures ("
+          },
+          {
+            "line": 27,
+            "text": "CREATE TABLE structure_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+        "matches": [
+          {
+            "line": 17,
+            "text": "CREATE TABLE structures ("
+          },
+          {
+            "line": 30,
+            "text": "CREATE TABLE structure_legs ("
+          },
+          {
+            "line": 50,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 65,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+        "matches": [
+          {
+            "line": 117,
+            "text": "CREATE TABLE structures ("
+          },
+          {
+            "line": 127,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 142,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "ATT/tests/test_pricing_executions_repository.py",
+        "matches": [
+          {
+            "line": 14,
+            "text": "CREATE TABLE pricing_executions ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_repository.py",
+        "matches": [
+          {
+            "line": 11,
+            "text": "CREATE TABLE manual_analise_robo_legs ("
+          },
+          {
+            "line": 25,
+            "text": "CREATE TABLE rtd_analise_robo_legs ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "ATT/tests/test_robo_legs_status_repository.py",
+        "matches": [
+          {
+            "line": 14,
+            "text": "conn.execute(\"CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 15,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 47,
+            "text": "conn.execute(\"CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          },
+          {
+            "line": 48,
+            "text": "conn.execute(\"CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)\")"
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "ATT/tests/test_structures_archive_wiring.py",
+        "matches": [
+          {
+            "line": 536,
+            "text": "\"CREATE TABLE IF NOT EXISTS structures \""
+          },
+          {
+            "line": 542,
+            "text": "\"CREATE TABLE IF NOT EXISTS structure_legs \""
+          },
+          {
+            "line": 573,
+            "text": "\"CREATE TABLE IF NOT EXISTS structures \""
+          },
+          {
+            "line": 579,
+            "text": "\"CREATE TABLE IF NOT EXISTS structure_legs \""
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 145,
+            "text": "conn.execute(f'CREATE TABLE IF NOT EXISTS \"{table}\" ({cols_sql})')"
+          },
+          {
+            "line": 176,
+            "text": "f'CREATE TABLE IF NOT EXISTS \"{table}\" '"
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "create_payoff_summary_table.py",
+        "matches": [
+          {
+            "line": 4,
+            "text": "CREATE TABLE IF NOT EXISTS payoff_curve_summary ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "db/derived_repo.py",
+        "matches": [
+          {
+            "line": 77,
+            "text": "CREATE TABLE IF NOT EXISTS payoff_curve_points ("
+          },
+          {
+            "line": 101,
+            "text": "CREATE TABLE IF NOT EXISTS structure_decisions ("
+          }
+        ],
+        "total_matches_in_file": 2
+      },
+      {
+        "path": "db/schema.py",
+        "matches": [
+          {
+            "line": 7,
+            "text": "CREATE TABLE IF NOT EXISTS payoff_curve_points ("
+          },
+          {
+            "line": 25,
+            "text": "CREATE TABLE IF NOT EXISTS structure_decisions ("
+          },
+          {
+            "line": 56,
+            "text": "CREATE TABLE IF NOT EXISTS payoff_points ("
+          },
+          {
+            "line": 71,
+            "text": "CREATE TABLE IF NOT EXISTS structure_events ("
+          }
+        ],
+        "total_matches_in_file": 4
+      },
+      {
+        "path": "db/schema_excel.py",
+        "matches": [
+          {
+            "line": 5,
+            "text": "CREATE TABLE IF NOT EXISTS robo_config ("
+          },
+          {
+            "line": 17,
+            "text": "CREATE TABLE IF NOT EXISTS robo_snapshot ("
+          },
+          {
+            "line": 38,
+            "text": "CREATE TABLE IF NOT EXISTS robo_legs_snapshot ("
+          },
+          {
+            "line": 68,
+            "text": "CREATE TABLE IF NOT EXISTS robo_legs_history ("
+          },
+          {
+            "line": 90,
+            "text": "CREATE TABLE IF NOT EXISTS encerramentos_manuais ("
+          }
+        ],
+        "total_matches_in_file": 5
+      },
+      {
+        "path": "docs/baseline_v1a.md",
+        "matches": [
+          {
+            "line": 61,
+            "text": "-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);"
+          },
+          {
+            "line": 64,
+            "text": "-- Ajustado para compatibilidade com ingestor atualCREATE TABLE payoff_curve_points (    id INTEGER PRIMARY KEY AUTOINCREMENT,    timestamp TEXT NOT NULL,    aba TEXT NOT NULL,    s_t REAL NOT NULL,    pl_venc REAL NOT NULL,    spot_ref REA"
+          },
+          {
+            "line": 65,
+            "text": "CREATE TABLE structure_decisions (    id INTEGER PRIMARY KEY AUTOINCREMENT,    timestamp TEXT NOT NULL,    aba TEXT NOT NULL,    decision TEXT NOT NULL,    level INTEGER NOT NULL,    pl_atual REAL,    pl_max REAL,    pl_pct_of_max REAL,    "
+          }
+        ],
+        "total_matches_in_file": 3
+      },
+      {
+        "path": "docs/executed_v1.md",
+        "matches": [
+          {
+            "line": 82,
+            "text": "### Análise do Schema```sql-- Tabela alvo: payoff_curve_pointsCREATE TABLE payoff_curve_points (    timestamp TEXT NOT NULL,    aba TEXT NOT NULL,    spot_ref REAL,    point_spot REAL NOT NULL,    -- coordenada X    point_pl REAL NOT NULL, "
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md",
+        "matches": [
+          {
+            "line": 86,
+            "text": "db/schema_excel.py:90:CREATE TABLE IF NOT EXISTS encerramentos_manuais ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "docs/MAPA_MODULOS_FUNCOES.md",
+        "matches": [
+          {
+            "line": 8,
+            "text": "- linha 101: `conn.execute(f'CREATE TABLE IF NOT EXISTS \"{table}\" ({cols_sql})')`"
+          },
+          {
+            "line": 9,
+            "text": "- linha 101: `conn.execute(f'CREATE TABLE IF NOT EXISTS \"{table}\" ({cols_sql})')`"
+          },
+          {
+            "line": 11,
+            "text": "- linha 4: `CREATE TABLE IF NOT EXISTS payoff_curve_summary (`"
+          },
+          {
+            "line": 12,
+            "text": "- linha 4: `CREATE TABLE IF NOT EXISTS payoff_curve_summary (`"
+          },
+          {
+            "line": 14,
+            "text": "- linha 19: `CREATE TABLE IF NOT EXISTS payoff_curve_points (`"
+          },
+          {
+            "line": 15,
+            "text": "- linha 19: `CREATE TABLE IF NOT EXISTS payoff_curve_points (`"
+          },
+          {
+            "line": 16,
+            "text": "- linha 42: `CREATE TABLE IF NOT EXISTS structure_decisions (`"
+          },
+          {
+            "line": 17,
+            "text": "- linha 42: `CREATE TABLE IF NOT EXISTS structure_decisions (`"
+          },
+          {
+            "line": 19,
+            "text": "- linha 7: `CREATE TABLE IF NOT EXISTS payoff_curve_points (`"
+          },
+          {
+            "line": 20,
+            "text": "- linha 7: `CREATE TABLE IF NOT EXISTS payoff_curve_points (`"
+          },
+          {
+            "line": 21,
+            "text": "- linha 25: `CREATE TABLE IF NOT EXISTS structure_decisions (`"
+          },
+          {
+            "line": 22,
+            "text": "- linha 25: `CREATE TABLE IF NOT EXISTS structure_decisions (`"
+          },
+          {
+            "line": 23,
+            "text": "- linha 51: `CREATE TABLE IF NOT EXISTS payoff_points (`"
+          },
+          {
+            "line": 24,
+            "text": "- linha 51: `CREATE TABLE IF NOT EXISTS payoff_points (`"
+          },
+          {
+            "line": 26,
+            "text": "- linha 5: `CREATE TABLE IF NOT EXISTS robo_config (`"
+          },
+          {
+            "line": 27,
+            "text": "- linha 5: `CREATE TABLE IF NOT EXISTS robo_config (`"
+          },
+          {
+            "line": 28,
+            "text": "- linha 17: `CREATE TABLE IF NOT EXISTS robo_snapshot (`"
+          },
+          {
+            "line": 29,
+            "text": "- linha 17: `CREATE TABLE IF NOT EXISTS robo_snapshot (`"
+          },
+          {
+            "line": 30,
+            "text": "- linha 38: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`"
+          },
+          {
+            "line": 31,
+            "text": "- linha 38: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`"
+          }
+        ],
+        "total_matches_in_file": 24
+      },
+      {
+        "path": "docs/SQL_SURFACE_MAP_v2.md",
+        "matches": [
+          {
+            "line": 21,
+            "text": "- Operações base: CREATE TABLE, SELECT, INSERT, UPDATE, DELETE."
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "infra/bootstrap_structures_schema.py",
+        "matches": [
+          {
+            "line": 33,
+            "text": "CREATE TABLE IF NOT EXISTS structures ("
+          },
+          {
+            "line": 51,
+            "text": "CREATE TABLE IF NOT EXISTS structure_legs ("
+          },
+          {
+            "line": 76,
+            "text": "CREATE TABLE IF NOT EXISTS pricing_executions ("
+          },
+          {
+            "line": 106,
+            "text": "CREATE TABLE IF NOT EXISTS structure_audit_log ("
+          },
+          {
+            "line": 127,
+            "text": "CREATE TABLE IF NOT EXISTS structure_snapshots ("
+          },
+          {
+            "line": 154,
+            "text": "CREATE TABLE IF NOT EXISTS structure_leg_snapshots ("
+          },
+          {
+            "line": 319,
+            "text": "CREATE TABLE IF NOT EXISTS pricing_executions ("
+          }
+        ],
+        "total_matches_in_file": 7
+      },
+      {
+        "path": "repositories/structure_events_repository.py",
+        "matches": [
+          {
+            "line": 199,
+            "text": "CREATE TABLE IF NOT EXISTS structure_events ("
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "repositories/structures_repository.py",
+        "matches": [
+          {
+            "line": 226,
+            "text": "Idempotente (CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS)."
+          },
+          {
+            "line": 232,
+            "text": "CREATE TABLE IF NOT EXISTS structure_audit_log ("
+          }
+        ],
+        "total_matches_in_file": 2
+      }
+    ],
+    "to_sql": [
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 156,
+            "text": "df.to_sql(table, conn, if_exists=\"append\", index=False)"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "db/import_excel.py",
+        "matches": [
+          {
+            "line": 83,
+            "text": "df.to_sql(table, conn, if_exists=\"append\", index=False)"
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ],
+    "executemany": [
+      {
+        "path": "bridge_ingest_csv.py",
+        "matches": [
+          {
+            "line": 190,
+            "text": "conn.executemany(sql, df[cols].values.tolist())"
+          }
+        ],
+        "total_matches_in_file": 1
+      },
+      {
+        "path": "db/writer.py",
+        "matches": [
+          {
+            "line": 71,
+            "text": "cursor.executemany(\"\"\""
+          }
+        ],
+        "total_matches_in_file": 1
+      }
+    ]
+  }
+}
