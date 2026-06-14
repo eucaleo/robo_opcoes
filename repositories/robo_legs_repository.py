@@ -17,6 +17,73 @@ from src.domain.refs.structure_ref import StructureRef
 from utils.leg_normalizers import parse_timestamp, parse_vencimento
 
 
+_ROBO_LEGS_SELECT_CANDIDATES = [
+    "id",
+    "leg_id",
+    "aba",
+    "timestamp",
+    "cv",
+    "lado",
+    "c_v",
+    "call_put",
+    "cp",
+    "tipo",
+    "callput",
+    "strike",
+    "k",
+    "preco_exercicio",
+    "quant",
+    "qty",
+    "qtd",
+    "quantidade",
+    "ativo",
+    "ticker",
+    "cod_ativo",
+    "vencimento",
+    "vcto",
+    "expiry",
+    "expiracao",
+    "preco",
+    "price",
+    "premium",
+]
+
+
+def _quote_sql_identifier(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _table_columns(conn, table_name: str) -> List[str]:
+    rows = conn.execute(f"PRAGMA table_info({_quote_sql_identifier(table_name)})").fetchall()
+    columns = []
+    for row in rows:
+        if isinstance(row, dict):
+            columns.append(row["name"])
+        else:
+            try:
+                columns.append(row["name"])
+            except Exception:
+                columns.append(row[1])
+    return columns
+
+
+def _robo_legs_select_columns(conn, table_name: str) -> List[str]:
+    existing = set(_table_columns(conn, table_name))
+    selected = [
+        col for col in _ROBO_LEGS_SELECT_CANDIDATES
+        if col in existing
+    ]
+
+    required = {"aba", "timestamp"}
+    missing_required = sorted(required - set(selected))
+    if missing_required:
+        raise ValueError(
+            f"Tabela {table_name!r} sem colunas obrigatórias: {missing_required!r}"
+        )
+
+    return selected
+
+
 def _to_aba(ref) -> str:
     """Aceita StructureRef ou str e devolve a string da aba."""
     if isinstance(ref, str):
@@ -176,14 +243,16 @@ class RoboLegsRepository(AbaResolverMixin):
         fonte: FonteType,
     ) -> List[RoboLegDTO]:
         placeholders = ",".join("?" for _ in ts_candidates)
-        sql = f"""
-            SELECT *
-            FROM {table}
-            WHERE aba = ?
-              AND timestamp IN ({placeholders})
-        """
 
         with sqlite_conn(self.config.app_db_path) as conn:
+            select_columns = _robo_legs_select_columns(conn, table)
+            select_sql = ", ".join(_quote_sql_identifier(col) for col in select_columns)
+            sql = f"""
+                SELECT {select_sql}
+                FROM {_quote_sql_identifier(table)}
+                WHERE aba = ?
+                  AND timestamp IN ({placeholders})
+            """
             rows = conn.execute(sql, (aba, *ts_candidates)).fetchall()
 
         out: List[RoboLegDTO] = []
