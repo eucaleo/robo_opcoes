@@ -25,6 +25,19 @@ _JSON_COLUMNS_LEG = {
     "raw_json",
 }
 
+_SNAPSHOT_COLUMNS = (
+    "id, created_at, structure_id, pricing_execution_id, underlying_asset, "
+    "reference_date, snapshot_source, structure_json, market_json, "
+    "metrics_json, payoff_json, decision_json, alerts_json, "
+    "operation_state_json"
+)
+
+_LEG_SNAPSHOT_COLUMNS = (
+    "id, snapshot_id, structure_id, leg_id, leg_order, position_side, "
+    "option_type, symbol, strike, expiration_date, quantity, premium, "
+    "multiplier, metrics_json, market_json, raw_json"
+)
+
 
 def _utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -211,8 +224,8 @@ class SystemSnapshotsRepository:
 
         with self._connect() as conn:
             snapshot_row = conn.execute(
-                """
-                SELECT *
+                f"""
+                SELECT {_SNAPSHOT_COLUMNS}
                 FROM structure_snapshots
                 WHERE id = ?
                 """,
@@ -225,8 +238,8 @@ class SystemSnapshotsRepository:
             snapshot = self._decode_snapshot_row(snapshot_row)
 
             leg_rows = conn.execute(
-                """
-                SELECT *
+                f"""
+                SELECT {_LEG_SNAPSHOT_COLUMNS}
                 FROM structure_leg_snapshots
                 WHERE snapshot_id = ?
                 ORDER BY leg_order, id
@@ -251,8 +264,8 @@ class SystemSnapshotsRepository:
 
         with self._connect() as conn:
             rows = conn.execute(
-                """
-                SELECT *
+                f"""
+                SELECT {_SNAPSHOT_COLUMNS}
                 FROM structure_snapshots
                 WHERE structure_id = ?
                 ORDER BY created_at DESC, id DESC

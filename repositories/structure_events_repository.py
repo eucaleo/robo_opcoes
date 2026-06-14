@@ -24,6 +24,13 @@ from pathlib import Path
 from typing import Any
 
 
+_STRUCTURE_EVENT_COLUMNS = (
+    "id, structure_id, leg_id, event_type, event_status, event_date, "
+    "quantity, price, symbol, source, notes, metadata_json, "
+    "created_at, updated_at"
+)
+
+
 VALID_EVENT_TYPES: frozenset[str] = frozenset(
     {
         # Canônicos Fase 12
@@ -411,8 +418,8 @@ class StructureEventsRepository:
         try:
             self.ensure_schema_on_connection(conn)
             row = conn.execute(
-                """
-                SELECT *
+                f"""
+                SELECT {_STRUCTURE_EVENT_COLUMNS}
                 FROM structure_events
                 WHERE id = ?
                 """,
@@ -476,7 +483,7 @@ class StructureEventsRepository:
             self.ensure_schema_on_connection(conn)
             rows = conn.execute(
                 f"""
-                SELECT *
+                SELECT {_STRUCTURE_EVENT_COLUMNS}
                 FROM structure_events
                 {where_sql}
                 ORDER BY event_date ASC, id ASC
