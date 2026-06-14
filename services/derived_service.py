@@ -343,6 +343,41 @@ def save_decision_from_canonical_payload(
     )
 
 
+
+
+def _parse_timestamp_for_sort(value):
+    """Normaliza timestamp textual para ordenação segura em Python."""
+    if value is None:
+        return datetime.min
+
+    text = str(value).strip()
+    if not text:
+        return datetime.min
+
+    normalized = text.replace("Z", "+00:00")
+
+    try:
+        dt = datetime.fromisoformat(normalized)
+    except ValueError:
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M"):
+            try:
+                dt = datetime.strptime(text, fmt)
+                break
+            except ValueError:
+                continue
+        else:
+            return datetime.min
+
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+    return dt
+
+
+def _timestamp_sort_key(value):
+    return _parse_timestamp_for_sort(value), "" if value is None else str(value)
+
+
 # ------------------------------------------------------------------
 # Cleanup
 # ------------------------------------------------------------------
@@ -365,9 +400,10 @@ def get_all_payoff_curves():
         cursor.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            ORDER BY timestamp DESC, point_spot
         """)
-        return [
+        rows = cursor.fetchall()
+
+        data = [
             {
                 "timestamp":  row[0],
                 "aba":        row[1],
@@ -375,8 +411,17 @@ def get_all_payoff_curves():
                 "point_pl":   row[3],
                 "meta_json":  json.loads(row[4]) if row[4] else None,
             }
-            for row in cursor.fetchall()
+            for row in rows
         ]
+
+        data.sort(
+            key=lambda item: (
+                _timestamp_sort_key(item.get("timestamp")),
+                -(float(item.get("point_spot") or 0.0)),
+            ),
+            reverse=True,
+        )
+        return data
 
 
 def get_payoff_by_structure_id(structure_id: int):
@@ -435,13 +480,16 @@ def get_recent_decisions():
         cursor.execute(f"""
             SELECT {", ".join(select_cols)}
             FROM structure_decisions
-            ORDER BY timestamp DESC
-            LIMIT 50
         """)
 
+        rows = [dict(row) for row in cursor.fetchall()]
+        rows.sort(
+            key=lambda item: _timestamp_sort_key(item.get("timestamp")),
+            reverse=True,
+        )
+
         decisions = []
-        for row in cursor.fetchall():
-            item = dict(row)
+        for item in rows[:50]:
             why_val      = item.get("why")
             why_json_val = item.get("why_json")
 

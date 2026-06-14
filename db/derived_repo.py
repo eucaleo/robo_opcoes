@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # alteracao_55: StructureRef
@@ -66,6 +66,79 @@ def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
     cur = conn.cursor()
     cur.execute(f"PRAGMA table_info({table_name})")
     return [row[1] for row in cur.fetchall()]
+
+
+
+
+_STRUCTURE_DECISION_SELECT_COLUMNS = [
+    "id",
+    "timestamp",
+    "aba",
+    "structure_id",
+    "decision",
+    "level",
+    "pl_atual",
+    "pl_max",
+    "pl_pct_of_max",
+    "dte_min",
+    "why_json",
+    "spot_ref",
+    "meta_json",
+    "created_at",
+    "why",
+]
+
+
+def _parse_timestamp_for_sort(value: Any) -> datetime:
+    """Normaliza timestamp textual para ordenação segura em Python."""
+    if value is None:
+        return datetime.min
+
+    text = str(value).strip()
+    if not text:
+        return datetime.min
+
+    normalized = text.replace("Z", "+00:00")
+
+    try:
+        dt = datetime.fromisoformat(normalized)
+    except ValueError:
+        for fmt in ("%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M"):
+            try:
+                dt = datetime.strptime(text, fmt)
+                break
+            except ValueError:
+                continue
+        else:
+            return datetime.min
+
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+    return dt
+
+
+def _timestamp_sort_key(value: Any) -> Tuple[datetime, str]:
+    return _parse_timestamp_for_sort(value), "" if value is None else str(value)
+
+
+def _sort_payoff_rows_desc(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    rows.sort(
+        key=lambda item: (
+            _timestamp_sort_key(item.get("timestamp")),
+            -(float(item.get("point_spot") or 0.0)),
+        ),
+        reverse=True,
+    )
+    return rows
+
+
+def _structure_decision_select_columns(conn: sqlite3.Connection) -> List[str]:
+    existing = set(_table_columns(conn, "structure_decisions"))
+    return [
+        col for col in _STRUCTURE_DECISION_SELECT_COLUMNS
+        if col in existing
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -509,8 +582,6 @@ class DerivedRepo:
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
                     WHERE aba = ?
-                    ORDER BY timestamp DESC, point_spot
-                    LIMIT 100
                     """,
                     (aba,),
                 )
@@ -519,12 +590,11 @@ class DerivedRepo:
                     """
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
-                    ORDER BY timestamp DESC, point_spot
-                    LIMIT 100
                     """
                 )
             cols = [d[0] for d in cur.description]
-            return [dict(zip(cols, r)) for r in cur.fetchall()]
+            rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+            return _sort_payoff_rows_desc(rows)[:100]
         finally:
             conn.close()
 
@@ -557,12 +627,26 @@ class DerivedRepo:
                 params.append(ticker)
 
             where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
-            params.append(limit)
+            select_cols = _structure_decision_select_columns(conn)
+
             rows = conn.execute(
-                f"SELECT * FROM structure_decisions {where} ORDER BY id DESC LIMIT ?",
+                f"""
+                SELECT {", ".join(select_cols)}
+                FROM structure_decisions
+                {where}
+                """,
                 params,
             ).fetchall()
-            return [dict(r) for r in rows]
+
+            data = [dict(r) for r in rows]
+            data.sort(
+                key=lambda item: (
+                    _timestamp_sort_key(item.get("timestamp")),
+                    int(item.get("id") or 0),
+                ),
+                reverse=True,
+            )
+            return data[:limit]
         finally:
             conn.close()
 
@@ -858,18 +942,15 @@ def get_payoff_points(
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             WHERE aba = ?
-            ORDER BY timestamp DESC, point_spot
-            LIMIT 100
         """, (aba,))
     else:
         cur.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            ORDER BY timestamp DESC, point_spot
-            LIMIT 100
         """)
     cols = [d[0] for d in cur.description]
-    return [dict(zip(cols, r)) for r in cur.fetchall()]
+    rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+    return _sort_payoff_rows_desc(rows)[:100]
 
 
 def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
