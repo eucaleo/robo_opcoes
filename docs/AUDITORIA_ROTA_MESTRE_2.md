@@ -369,3 +369,60 @@ A próxima fase deve auditar a persistência de cotações RTD/opções, com foc
 
 Nenhuma alteração em UI, banco, schema, cálculo, ingestão, serviços operacionais, CSVs ou Excel operacional foi realizada.
 
+
+---
+
+## Checkpoint reconciliado — subciclo técnico SQL/timestamp clean
+
+### Contexto
+
+Durante a evolução da branch `ciclo-2-testes-evolucao`, foi executado um subciclo técnico identificado na interação assistida como:
+
+- Fase 5;
+- Fase 6A;
+- Fase 6B;
+- Fase 6C;
+- Fase 6D;
+- Fase 6E;
+- Fase 6F.
+
+Essas fases não foram gravadas com esses rótulos nos assuntos dos commits, mas estão reconciliadas oficialmente no checkpoint:
+
+`docs/checkpoints/ciclo-2-sql-timestamp-clean.md`
+
+### Mapeamento oficial
+
+| Fase técnica | Commit | Descrição |
+|---|---|---|
+| Fase 5 | `233fe8b` | Ordena snapshots de mercado cronologicamente |
+| Fase 6A | `46463fb` | Explicita colunas de execuções de pricing |
+| Fase 6B | `3f01728` | Explicita colunas de eventos e snapshots |
+| Fase 6C | `5a2fd34` | Normaliza consultas derived legadas com `StructureRef` |
+| Fase 6D | `d7291ae` | Ordena leituras derived por timestamp em Python |
+| Fase 6E | `0d75092` | Remove `SELECT *` real restante de `robo_legs_repository.py` |
+| Fase 6F | `14483c2` | Remove literais SQL inseguros remanescentes em comentários |
+
+### Tag de fechamento
+
+`ciclo-2-sql-timestamp-clean`
+
+### Commit documental posterior
+
+`4283d67 docs: registra checkpoint sql timestamp clean`
+
+### Decisão de rota
+
+A partir deste registro, a continuidade da rota deve considerar como ponto de partida o estado posterior ao checkpoint `ciclo-2-sql-timestamp-clean`.
+
+Não deve ser aberta uma nova frente baseada em fases antigas ou em numeração histórica sem reconciliar previamente com:
+
+- histórico Git;
+- checkpoint;
+- auditoria da rota;
+- testes executados;
+- estado atual da branch.
+
+### Status
+
+Checkpoint técnico reconciliado documentalmente.
+
