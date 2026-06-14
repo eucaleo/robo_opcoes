@@ -6,6 +6,13 @@ from typing import Any, Optional
 
 DB_PATH = Path("dados/app.db")
 
+_EXECUTION_COLUMNS = (
+    "id, created_at, structure_id, underlying_asset, reference_date, "
+    "execution_status, execution_engine, error_message, "
+    "duration_ms, number_of_legs, total_quantity, theoretical_value, "
+    "pricing_payload, result"
+)
+
 
 class PricingExecutionsRepository:
 
@@ -100,7 +107,7 @@ class PricingExecutionsRepository:
         try:
             cur = conn.cursor()
             cur.execute(
-                "SELECT * FROM pricing_executions WHERE id = ?",
+                f"SELECT {_EXECUTION_COLUMNS} FROM pricing_executions WHERE id = ?",
                 (execution_id,),
             )
             row = cur.fetchone()
@@ -143,7 +150,7 @@ class PricingExecutionsRepository:
             cur = conn.cursor()
             cur.execute(
                 f"""
-                SELECT * FROM pricing_executions
+                SELECT {_EXECUTION_COLUMNS} FROM pricing_executions
                 {where}
                 ORDER BY created_at DESC
                 LIMIT ? OFFSET ?
@@ -205,7 +212,7 @@ class PricingExecutionsRepository:
             cur = conn.cursor()
             cur.execute(
                 f"""
-                SELECT * FROM pricing_executions
+                SELECT {_EXECUTION_COLUMNS} FROM pricing_executions
                 WHERE structure_id = ? {date_filter}
                 ORDER BY created_at DESC
                 LIMIT 1
