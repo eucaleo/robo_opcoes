@@ -2,13 +2,33 @@
 """
 Reader para análise de dados derivados do SQLite.
 """
-from src.domain.refs.structure_ref import StructureRef
-import sqlite3
+from __future__ import annotations
+
 import json
-import pandas as pd
-from datetime import datetime, timedelta
-from typing import List, Dict, Any, Optional, Tuple
+import sqlite3
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import pandas as pd
+
+from src.domain.refs.structure_ref import StructureRef
+
+
+_STRUCTURE_DECISION_COLUMNS = [
+    "timestamp",
+    "decision",
+    "dte_min",
+    "pl_atual",
+    "pl_max",
+    "created_at",
+    "pl_pct_of_max",
+    "ratio",
+    "pl_min",
+    "spread_pct_medio",
+    "why",
+    "why_json",
+]
 
 
 class PayoffReader:
@@ -27,6 +47,33 @@ class PayoffReader:
         cursor = conn.execute(f"PRAGMA table_info({table_name})")
         return [row["name"] for row in cursor.fetchall()]
 
+    def _resolve_ref_filter(
+        self,
+        conn: sqlite3.Connection,
+        table_name: str,
+        ref: StructureRef,
+    ) -> Tuple[str, Any]:
+        """
+        Resolve coluna/valor para StructureRef respeitando o schema real.
+
+        Preferência:
+          - structure_id quando ref é canônico e a coluna existe;
+          - aba como fallback legado quando necessário/disponível.
+        """
+        columns = set(self._get_table_columns(conn, table_name))
+        column, value = ref.db_pair()
+
+        if column in columns:
+            return column, value
+
+        if column == "structure_id" and "aba" in columns and ref.aba is not None:
+            return "aba", ref.aba
+
+        raise ValueError(
+            f"Não foi possível consultar {table_name} com {ref!r}. "
+            f"Coluna preferida={column!r}; colunas disponíveis={sorted(columns)!r}."
+        )
+
     def _parse_json_maybe(self, value):
         if value is None:
             return None
@@ -39,99 +86,149 @@ class PayoffReader:
                 return None
         return None
 
-    def get_payoff_curve(self, ref: StructureRef, timestamp: Optional[str] = None) -> pd.DataFrame:
+    @staticmethod
+    def _parse_timestamp(value: Any) -> datetime:
+        if value is None:
+            return datetime.min
+
+        text = str(value).strip()
+        if not text:
+            return datetime.min
+
+        normalized = text.replace("Z", "+00:00")
+
+        try:
+            dt = datetime.fromisoformat(normalized)
+        except ValueError:
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M"):
+                try:
+                    dt = datetime.strptime(text, fmt)
+                    break
+                except ValueError:
+                    continue
+            else:
+                return datetime.min
+
+        if dt.tzinfo is not None:
+            dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+        return dt
+
+    @classmethod
+    def _timestamp_sort_key(cls, value: Any) -> Tuple[datetime, str]:
+        return cls._parse_timestamp(value), "" if value is None else str(value)
+
+    def _latest_timestamp(
+        self,
+        conn: sqlite3.Connection,
+        table_name: str,
+        column: str,
+        value: Any,
+    ) -> Optional[str]:
+        rows = conn.execute(
+            f"""
+            SELECT DISTINCT timestamp
+            FROM {table_name}
+            WHERE {column} = ?
+            """,
+            (value,),
+        ).fetchall()
+
+        timestamps = [row["timestamp"] for row in rows]
+        if not timestamps:
+            return None
+
+        return max(timestamps, key=self._timestamp_sort_key)
+
+    def get_payoff_curve(
+        self,
+        ref: StructureRef,
+        timestamp: Optional[str] = None,
+    ) -> pd.DataFrame:
         """
         Retorna pontos do payoff curve como DataFrame.
 
         Args:
-            aba: Nome da aba/estratégia
-            timestamp: Timestamp específico (None = mais recente)
+            ref: Referência canônica/legada da estrutura.
+            timestamp: Timestamp específico. Se None, usa o mais recente por comparação em Python.
 
         Returns:
-            DataFrame com colunas [spot, pl, timestamp, spot_ref]
+            DataFrame com colunas [spot, pl, timestamp, spot_ref, meta].
         """
         with self._get_connection() as conn:
-            if timestamp:
-                query = """
-                    SELECT point_spot as spot, point_pl as pl,
-                           timestamp, spot_ref, meta_json
-                    FROM payoff_curve_points
-                    WHERE {ref.db_column()} = ? AND timestamp = ?
-                    ORDER BY point_spot
-                """
-                params = (aba, timestamp)
-            else:
-                query = """
-                    SELECT point_spot as spot, point_pl as pl,
-                           timestamp, spot_ref, meta_json
-                    FROM payoff_curve_points
-                    WHERE {ref.db_column()} = ? AND timestamp = (
-                        SELECT MAX(timestamp) FROM payoff_curve_points WHERE {ref.db_column()} = ?
-                    )
-                    ORDER BY point_spot
-                """
-                params = (aba, aba)
+            column, value = self._resolve_ref_filter(conn, "payoff_curve_points", ref)
 
-            df = pd.read_sql_query(query, conn, params=params)
+            if timestamp is None:
+                timestamp = self._latest_timestamp(
+                    conn,
+                    "payoff_curve_points",
+                    column,
+                    value,
+                )
+                if timestamp is None:
+                    return pd.DataFrame(columns=["spot", "pl", "timestamp", "spot_ref", "meta"])
+
+            query = f"""
+                SELECT point_spot AS spot,
+                       point_pl AS pl,
+                       timestamp,
+                       spot_ref,
+                       meta_json
+                FROM payoff_curve_points
+                WHERE {column} = ? AND timestamp = ?
+                ORDER BY point_spot
+            """
+            df = pd.read_sql_query(query, conn, params=(value, timestamp))
 
             if "meta_json" in df.columns:
-                df["meta"] = df["meta_json"].apply(
-                    lambda x: json.loads(x) if x else None
-                )
+                df["meta"] = df["meta_json"].apply(self._parse_json_maybe)
                 df = df.drop("meta_json", axis=1)
 
             return df
 
-    def get_decision_history(self, ref: StructureRef, days_back: int = 30) -> pd.DataFrame:
+    def get_decision_history(
+        self,
+        ref: StructureRef,
+        days_back: int = 30,
+    ) -> pd.DataFrame:
         """
         Retorna histórico de decisões como DataFrame.
 
         Args:
-            aba: Nome da aba/estratégia
-            days_back: Número de dias para retroceder
+            ref: Referência canônica/legada da estrutura.
+            days_back: Número de dias para retroceder.
 
         Returns:
-            DataFrame com histórico de decisões
+            DataFrame com histórico de decisões.
         """
-        cutoff_date = (datetime.now() - timedelta(days=days_back)).isoformat()
+        cutoff_dt = datetime.now() - timedelta(days=days_back)
 
         with self._get_connection() as conn:
+            column, value = self._resolve_ref_filter(conn, "structure_decisions", ref)
             columns = self._get_table_columns(conn, "structure_decisions")
 
             selected_cols = [
-                "timestamp",
-                "decision",
-                "dte_min",
-                "pl_atual",
-                "pl_max",
-                "created_at",
+                col for col in _STRUCTURE_DECISION_COLUMNS
+                if col in columns
             ]
-
-            if "pl_pct_of_max" in columns:
-                selected_cols.append("pl_pct_of_max")
-
-            if "ratio" in columns and "pl_pct_of_max" not in columns:
-                selected_cols.append("ratio")
-
-            if "pl_min" in columns:
-                selected_cols.append("pl_min")
-
-            if "spread_pct_medio" in columns:
-                selected_cols.append("spread_pct_medio")
-
-            if "why" in columns:
-                selected_cols.append("why")
-            if "why_json" in columns:
-                selected_cols.append("why_json")
 
             query = f"""
                 SELECT {", ".join(selected_cols)}
                 FROM structure_decisions
-                WHERE {ref.db_column()} = ? AND timestamp >= ?
-                ORDER BY timestamp DESC
+                WHERE {column} = ?
             """
 
-            df = pd.read_sql_query(query, conn, params=(aba, cutoff_date))
+            df = pd.read_sql_query(query, conn, params=(value,))
+
+            if df.empty:
+                return df
+
+            if "timestamp" in df.columns:
+                df["_ts_sort"] = df["timestamp"].apply(self._parse_timestamp)
+                df = df[df["_ts_sort"] >= cutoff_dt]
+                df = df.sort_values("_ts_sort", ascending=False)
+                df = df.drop("_ts_sort", axis=1)
+                df = df.reset_index(drop=True)
 
             if "pl_pct_of_max" not in df.columns and "ratio" in df.columns:
                 df["pl_pct_of_max"] = df["ratio"]
