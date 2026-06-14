@@ -44,7 +44,7 @@ class RoboLegsStatusRepository(AbaResolverMixin):
         """
         Retorna o maior timestamp cronológico após parse.
 
-        Evita SELECT MAX(timestamp), que é textual no SQLite e pode errar
+        Evita agregação SQL sobre o campo textual de data, que pode errar
         quando há mistura de formatos ISO e BR.
         """
         latest: Optional[datetime] = None
@@ -71,7 +71,7 @@ class RoboLegsStatusRepository(AbaResolverMixin):
         Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
         Se não houver, retorna (None, None).
 
-        O cálculo do maior timestamp é feito em Python, não via MAX(timestamp),
+        O cálculo da data mais recente é feito em Python, não via agregação SQL,
         para evitar erro de ordenação textual com formatos mistos.
         """
         aba = _to_aba(ref)

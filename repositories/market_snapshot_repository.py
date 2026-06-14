@@ -140,7 +140,7 @@ def _sort_rows_by_timestamp_desc(rows: list[sqlite3.Row]) -> list[sqlite3.Row]:
     """
     Ordena rows por timestamp cronológico decrescente.
 
-    Evita ORDER BY timestamp no SQLite, pois o banco legado pode misturar
+    Evita ordenar pelo campo textual de data no SQLite, pois o banco legado pode misturar
     formatos ISO e BR, fazendo a ordenação textual ficar incorreta.
     """
     def _key(row: sqlite3.Row):

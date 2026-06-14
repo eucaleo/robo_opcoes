@@ -171,7 +171,7 @@ class RoboLegsRepository(AbaResolverMixin):
         - YYYY-MM-DD HH:MM:SS
         - DD/MM/YYYY HH:MM:SS
 
-        Portanto ORDER BY timestamp no SQLite não é confiável, pois ordena texto.
+        Portanto ordenar pelo campo textual de data no SQLite não é confiável.
         """
         parsed = []
         fallback = []
