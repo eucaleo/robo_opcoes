@@ -656,3 +656,23 @@ d3a9dcc test: preserve option price source in pricing execution persistence
 8eb79f8 docs: registra fechamento fase 10b rastreabilidade preco rtd
 ```
 
+
+## Fase 10C — Validação da execução com preço RTD rastreável
+
+### Objetivo
+
+Validar que o preço efetivo oriundo de `rtd_option_quotes` é aplicado ao payload canônico de pricing e que os metadados de rastreabilidade da cotação RTD permanecem disponíveis na execução.
+
+### Alterações realizadas
+
+- `_resolve_effective_leg_price` passou a preservar metadados de rastreabilidade da cotação RTD.
+- Legs com preço resolvido por `rtd_option_quotes` passaram a carregar rastreabilidade da origem do preço.
+- O payload canônico de pricing passou a refletir o preço RTD efetivo e sua origem.
+- Testes unitários e de integração foram atualizados para validar o contrato.
+
+### Arquivos alterados
+
+```text
+M       ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
+M       ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
+M       services/canonical_pricing_facade.py
