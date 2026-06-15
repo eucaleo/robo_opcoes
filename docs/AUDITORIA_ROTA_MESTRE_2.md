@@ -618,3 +618,41 @@ git diff --name-status fase-10a-rastreabilidade-preco-rtd...HEAD
 git show --name-status --stat --oneline d3a9dcc
 python -m pytest ATT/tests/test_pricing_execution_price_source_persistence.py -v
 python -m pytest ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v
+
+```
+
+### Resultados
+
+```text
+git diff --name-status fase-10a-rastreabilidade-preco-rtd...HEAD
+A       ATT/tests/test_pricing_execution_price_source_persistence.py
+```
+
+```text
+python -m pytest ATT/tests/test_pricing_execution_price_source_persistence.py -v
+3 passed in 0.27s
+```
+
+```text
+python -m pytest ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v
+4 passed in 1.52s
+```
+
+### Decisão tomada
+
+A Fase 10B foi validada como alteração isolada sobre a Fase 10A.
+
+A rastreabilidade da origem do preço RTD agora está coberta também na camada de persistência de execuções de pricing.
+
+### Pendências
+
+- Abrir PR empilhado contra `fase-10a-rastreabilidade-preco-rtd`.
+- Prosseguir para a Fase 10C em branch empilhada sobre esta fase.
+
+### Commits relacionados
+
+```text
+d3a9dcc test: preserve option price source in pricing execution persistence
+8eb79f8 docs: registra fechamento fase 10b rastreabilidade preco rtd
+```
+
