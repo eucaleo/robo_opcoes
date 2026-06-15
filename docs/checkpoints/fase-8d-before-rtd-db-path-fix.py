@@ -130,55 +130,6 @@ def _quote_ident(name: str) -> str:
     return '"' + name.replace('"', '""') + '"'
 
 
-def _sqlite_table_exists(db_path: Path, table_name: str) -> bool:
-    """Retorna True se a tabela existir no SQLite informado."""
-    if not db_path.exists():
-        return False
-
-    try:
-        with sqlite3.connect(str(db_path)) as conn:
-            row = conn.execute(
-                """
-                SELECT 1
-                FROM sqlite_master
-                WHERE type = 'table'
-                  AND name = ?
-                LIMIT 1
-                """,
-                (table_name,),
-            ).fetchone()
-
-        return row is not None
-    except Exception:
-        return False
-
-
-def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
-    """
-    Resolve o banco correto para rtd_option_quotes.
-
-    Em alguns fluxos a facade é instanciada com dados/derived.db, mas
-    rtd_option_quotes vive em dados/app.db.
-    """
-    candidates: list[Path] = []
-
-    for candidate in (
-        primary_db_path,
-        primary_db_path.parent / "app.db",
-        Path("dados/app.db"),
-    ):
-        candidate = Path(candidate)
-        if candidate not in candidates:
-            candidates.append(candidate)
-
-    for candidate in candidates:
-        if _sqlite_table_exists(candidate, "rtd_option_quotes"):
-            return candidate
-
-    # Fallback conservador: mantém comportamento anterior.
-    return primary_db_path
-
-
 def _is_manual_source(value: Any) -> bool:
     """Retorna True quando a fonte da leg é manual."""
     if value is None:
@@ -530,10 +481,7 @@ class CanonicalPricingFacade:
         self._db_path  = Path(db_path)
         self._repo     = MarketSnapshotRepository(db_path=self._db_path)
         self._selector = MarketSnapshotSelector(repository=self._repo)
-        self._rtd_option_quotes_db_path = _resolve_rtd_option_quotes_db_path(self._db_path)
-        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(
-            db_path=self._rtd_option_quotes_db_path,
-        )
+        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(db_path=self._db_path)
         self._engine   = pricing_execution_service or PricingExecutionService()
 
         self._persister = persistence_service or PricingExecutionPersistenceService(
