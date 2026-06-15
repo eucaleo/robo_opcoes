@@ -656,7 +656,6 @@ d3a9dcc test: preserve option price source in pricing execution persistence
 8eb79f8 docs: registra fechamento fase 10b rastreabilidade preco rtd
 ```
 
-
 ## Fase 10C — Validação da execução com preço RTD rastreável
 
 ### Objetivo
@@ -672,7 +671,43 @@ Validar que o preço efetivo oriundo de `rtd_option_quotes` é aplicado ao paylo
 
 ### Arquivos alterados
 
-```text
+~~~text
 M       ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
 M       ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
 M       services/canonical_pricing_facade.py
+~~~
+
+### Testes executados
+
+~~~text
+python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py -v
+12 passed in 1.32s
+~~~
+
+~~~text
+python -m pytest ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py -v
+1 passed in 1.24s
+~~~
+
+~~~text
+python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v
+16 passed in 1.44s
+~~~
+
+### Decisão tomada
+
+A Fase 10C foi validada como branch empilhada sobre a Fase 10B.
+
+A execução de pricing agora preserva a rastreabilidade da cotação RTD usada para resolver o preço efetivo da leg.
+
+### Commits relacionados
+
+~~~text
+7800e70 feat: preserve rtd option quote traceability in pricing payload
+b16c6c2 docs: registra fechamento fase 10c rastreabilidade preco rtd
+~~~
+
+### Pendências
+
+- Abrir PR empilhado contra `fase-10b-rastreabilidade-preco-rtd-persistencia`.
+- Prosseguir para a Fase 10D a partir de `fase-10d-endurecimento-rastreabilidade-preco-rtd`.
