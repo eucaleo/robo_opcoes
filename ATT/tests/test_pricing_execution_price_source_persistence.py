@@ -253,3 +253,157 @@ def test_persistence_service_passes_price_source_to_system_snapshot_legs():
         snapshot_call["operation_state_json"]["pricing_payload"]["legs"][0]["price_source"]
         == "rtd_option_quotes"
     )
+
+
+def _assert_fase_10e_full_rtd_traceability(leg):
+    assert leg["price_source"] == "rtd_option_quotes"
+    assert leg["rtd_price_field"] == "ultimo_preco"
+    assert leg["rtd_quote_codigo_opcao"] == "ABCD11"
+    assert leg["rtd_quote_ativo_base"] == "ABCD"
+    assert leg["rtd_price_source"] == "rtd_option_quotes"
+    assert leg["rtd_price_updated_at"] == "2026-06-15T10:01:00"
+    assert leg["rtd_price_created_at"] == "2026-06-15T10:01:00"
+
+
+def test_fase_10e_pricing_executions_repository_preserves_full_rtd_traceability_on_get_and_list(tmp_path):
+    db_path = tmp_path / "app.db"
+    _create_pricing_executions_schema(db_path)
+
+    repository = PricingExecutionsRepository(db_path=db_path)
+
+    pricing_payload = {
+        "structure_id": 123,
+        "structure_name": "Teste RTD completo",
+        "underlying_asset": "ABCD",
+        "reference_date": "2026-06-15",
+        "spot_price": 100.0,
+        "interest_rate": 0.1,
+        "volatility": 0.25,
+        "legs": [
+            {
+                "option_type": "CALL",
+                "symbol": "ABCD11",
+                "asset": "ABCD11",
+                "strike": 100.0,
+                "expiration_date": "2026-07-17",
+                "quantity": 1,
+                "price": 9.99,
+                "premium": 9.99,
+                "price_source": "rtd_option_quotes",
+                "rtd_price_field": "ultimo_preco",
+                "rtd_quote_codigo_opcao": "ABCD11",
+                "rtd_quote_ativo_base": "ABCD",
+                "rtd_price_source": "rtd_option_quotes",
+                "rtd_price_updated_at": "2026-06-15T10:01:00",
+                "rtd_price_created_at": "2026-06-15T10:01:00",
+            }
+        ],
+    }
+
+    result = {
+        "result": {
+            "status": "ok",
+            "engine": "test-engine",
+            "metrics": {
+                "number_of_legs": 1,
+                "total_quantity": 1,
+            },
+            "valuation": {
+                "theoretical_value": 9.99,
+            },
+        }
+    }
+
+    record = repository.save_execution(
+        pricing_payload=pricing_payload,
+        result=result,
+        execution_status="ok",
+        execution_engine="test-engine",
+        number_of_legs=1,
+        total_quantity=1,
+        theoretical_value=9.99,
+    )
+
+    loaded = repository.get_execution(record["id"])
+    assert loaded is not None
+    _assert_fase_10e_full_rtd_traceability(
+        loaded["pricing_payload"]["legs"][0]
+    )
+
+    executions = repository.list_executions()
+    assert len(executions) == 1
+    _assert_fase_10e_full_rtd_traceability(
+        executions[0]["pricing_payload"]["legs"][0]
+    )
+
+
+def test_fase_10e_persistence_service_passes_full_rtd_traceability_to_system_snapshot():
+    fake_repository = FakePricingExecutionsRepository()
+    fake_snapshots_repository = FakeSystemSnapshotsRepository()
+
+    service = PricingExecutionPersistenceService(
+        pricing_executions_repository=fake_repository,
+        system_snapshots_repository=fake_snapshots_repository,
+    )
+
+    pricing_payload = {
+        "structure_id": 123,
+        "structure_name": "Teste Snapshot RTD completo",
+        "underlying_asset": "ABCD",
+        "reference_date": "2026-06-15",
+        "spot_price": 100.0,
+        "interest_rate": 0.1,
+        "volatility": 0.25,
+        "meta": {},
+        "legs": [
+            {
+                "option_type": "CALL",
+                "symbol": "ABCD11",
+                "asset": "ABCD11",
+                "strike": 100.0,
+                "expiration_date": "2026-07-17",
+                "quantity": 1,
+                "price": 9.99,
+                "premium": 9.99,
+                "price_source": "rtd_option_quotes",
+                "rtd_price_field": "ultimo_preco",
+                "rtd_quote_codigo_opcao": "ABCD11",
+                "rtd_quote_ativo_base": "ABCD",
+                "rtd_price_source": "rtd_option_quotes",
+                "rtd_price_updated_at": "2026-06-15T10:01:00",
+                "rtd_price_created_at": "2026-06-15T10:01:00",
+            }
+        ],
+    }
+
+    result = {
+        "result": {
+            "status": "ok",
+            "engine": "test-engine",
+            "metrics": {
+                "number_of_legs": 1,
+                "total_quantity": 1,
+            },
+            "valuation": {
+                "theoretical_value": 9.99,
+            },
+        }
+    }
+
+    response = service.persist_execution(
+        pricing_payload=pricing_payload,
+        result=result,
+        duration_ms=15,
+    )
+
+    assert response["snapshot_id"] == 321
+
+    snapshot_call = fake_snapshots_repository.calls[0]
+
+    _assert_fase_10e_full_rtd_traceability(
+        snapshot_call["legs"][0]
+    )
+
+    _assert_fase_10e_full_rtd_traceability(
+        snapshot_call["operation_state_json"]["pricing_payload"]["legs"][0]
+    )
