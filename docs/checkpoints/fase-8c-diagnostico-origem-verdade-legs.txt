@@ -1,0 +1,332 @@
+# Fase 8C — Diagnóstico da origem da verdade das legs atuais
+
+Objetivo: comparar fontes candidatas de legs com rtd_option_quotes.
+Modo: somente leitura.
+
+====================================================================================================
+DB: dados\app.db
+====================================================================================================
+
+== Tabelas relacionadas a legs/robo/rtd/structure/option/quote ==
+manual_analise_robo_legs
+rtd_analise_raiox
+rtd_analise_robo
+rtd_analise_robo_legs
+rtd_configuracoes
+rtd_consolidacoes
+rtd_encerramentos_manuais
+rtd_hist_robo
+rtd_option_quotes
+rtd_rolls_detectados
+structure_audit_log
+structure_events
+structure_leg_snapshots
+structure_legs
+structure_snapshots
+structures
+
+== Existência das tabelas candidatas ==
+structure_legs: SIM
+rtd_analise_robo_legs: SIM
+analise_robo_legs: NAO
+robo_legs: NAO
+rtd_option_quotes: SIM
+structures: SIM
+
+== Schemas das tabelas candidatas existentes ==
+
+-- structure_legs
+{'cid': 0, 'name': 'id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1}
+{'cid': 1, 'name': 'structure_id', 'type': 'INTEGER', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 2, 'name': 'position_side', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 3, 'name': 'option_type', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 4, 'name': 'symbol', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 5, 'name': 'strike', 'type': 'REAL', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 6, 'name': 'expiration_date', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 7, 'name': 'quantity', 'type': 'INTEGER', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 8, 'name': 'premium', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 9, 'name': 'multiplier', 'type': 'REAL', 'notnull': 1, 'dflt_value': '1', 'pk': 0}
+{'cid': 10, 'name': 'leg_order', 'type': 'INTEGER', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 11, 'name': 'notes', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 12, 'name': 'created_at', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 13, 'name': 'updated_at', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+
+-- rtd_analise_robo_legs
+{'cid': 0, 'name': 'timestamp', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 1, 'name': 'aba', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 2, 'name': 'ativo', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 3, 'name': 'cv', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 4, 'name': 'call_put', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 5, 'name': 'quant', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 6, 'name': 'valor_executado', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 7, 'name': 'bid', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 8, 'name': 'ask', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 9, 'name': 'spread', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 10, 'name': 'spread_pct', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 11, 'name': 'iv', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 12, 'name': 'delta', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 13, 'name': 'gamma', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 14, 'name': 'theta', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 15, 'name': 'vega', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 16, 'name': 'strike', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 17, 'name': 'vencimento', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 18, 'name': 'dte', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 19, 'name': 'pl_realista', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 20, 'name': 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+
+-- rtd_option_quotes
+{'cid': 0, 'name': 'id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1}
+{'cid': 1, 'name': 'codigo_opcao', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 2, 'name': 'ativo_base', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 3, 'name': 'call_put', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 4, 'name': 'strike', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 5, 'name': 'vencimento', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 6, 'name': 'ultimo_preco', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 7, 'name': 'ultima_quantidade', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 8, 'name': 'bid', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 9, 'name': 'ask', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 10, 'name': 'volume', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 11, 'name': 'iv', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 12, 'name': 'delta', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 13, 'name': 'gamma', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 14, 'name': 'theta', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 15, 'name': 'vega', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 16, 'name': 'source', 'type': 'TEXT', 'notnull': 1, 'dflt_value': "'rtd_links'", 'pk': 0}
+{'cid': 17, 'name': 'raw_json', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 18, 'name': 'updated_at', 'type': 'TEXT', 'notnull': 1, 'dflt_value': 'CURRENT_TIMESTAMP', 'pk': 0}
+{'cid': 19, 'name': 'created_at', 'type': 'TEXT', 'notnull': 1, 'dflt_value': 'CURRENT_TIMESTAMP', 'pk': 0}
+
+-- structures
+{'cid': 0, 'name': 'id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1}
+{'cid': 1, 'name': 'name', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 2, 'name': 'underlying_asset', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 3, 'name': 'alias_legacy_aba', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 4, 'name': 'status', 'type': 'TEXT', 'notnull': 1, 'dflt_value': "'active'", 'pk': 0}
+{'cid': 5, 'name': 'notes', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 6, 'name': 'created_at', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 7, 'name': 'updated_at', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+
+== Amostra das tabelas candidatas existentes ==
+
+-- structure_legs
+{'id': 58, 'structure_id': 44, 'position_side': 'LONG', 'option_type': 'CALL', 'symbol': 'BOVAE195', 'strike': 195.0, 'expiration_date': '2026-05-15', 'quantity': 5000, 'premium': None, 'multiplier': 1.0, 'leg_order': 1, 'notes': None, 'created_at': '2026-06-12T00:28:25.118252+00:00', 'updated_at': '2026-06-12T00:28:25.118252+00:00'}
+{'id': 59, 'structure_id': 44, 'position_side': 'SHORT', 'option_type': 'CALL', 'symbol': 'BOVAE166', 'strike': 166.0, 'expiration_date': '2026-05-15', 'quantity': 4000, 'premium': None, 'multiplier': 1.0, 'leg_order': 2, 'notes': None, 'created_at': '2026-06-12T00:28:25.118252+00:00', 'updated_at': '2026-06-12T00:28:25.118252+00:00'}
+{'id': 60, 'structure_id': 44, 'position_side': 'SHORT', 'option_type': 'PUT', 'symbol': 'BOVAQ195', 'strike': 195.0, 'expiration_date': '2026-05-15', 'quantity': 4000, 'premium': None, 'multiplier': 1.0, 'leg_order': 3, 'notes': None, 'created_at': '2026-06-12T00:28:25.118252+00:00', 'updated_at': '2026-06-12T00:28:25.118252+00:00'}
+{'id': 61, 'structure_id': 44, 'position_side': 'LONG', 'option_type': 'PUT', 'symbol': 'BOVAQ164', 'strike': 164.0, 'expiration_date': '2026-05-15', 'quantity': 10000, 'premium': None, 'multiplier': 1.0, 'leg_order': 4, 'notes': None, 'created_at': '2026-06-12T00:28:25.118252+00:00', 'updated_at': '2026-06-12T00:28:25.118252+00:00'}
+{'id': 62, 'structure_id': 45, 'position_side': 'LONG', 'option_type': 'CALL', 'symbol': 'EMBJE868', 'strike': 86.81, 'expiration_date': '2026-05-15', 'quantity': 7000, 'premium': None, 'multiplier': 1.0, 'leg_order': 1, 'notes': None, 'created_at': '2026-06-12T00:28:26.451743+00:00', 'updated_at': '2026-06-12T00:28:26.451743+00:00'}
+{'id': 63, 'structure_id': 45, 'position_side': 'SHORT', 'option_type': 'CALL', 'symbol': 'EMBJE704', 'strike': 69.81, 'expiration_date': '2026-05-15', 'quantity': 4000, 'premium': None, 'multiplier': 1.0, 'leg_order': 2, 'notes': None, 'created_at': '2026-06-12T00:28:26.451743+00:00', 'updated_at': '2026-06-12T00:28:26.451743+00:00'}
+{'id': 64, 'structure_id': 45, 'position_side': 'SHORT', 'option_type': 'PUT', 'symbol': 'EMBJQ878', 'strike': 87.81, 'expiration_date': '2026-05-15', 'quantity': 4000, 'premium': None, 'multiplier': 1.0, 'leg_order': 3, 'notes': None, 'created_at': '2026-06-12T00:28:26.451743+00:00', 'updated_at': '2026-06-12T00:28:26.451743+00:00'}
+{'id': 65, 'structure_id': 45, 'position_side': 'LONG', 'option_type': 'PUT', 'symbol': 'EMBJQ660', 'strike': 65.31, 'expiration_date': '2026-05-15', 'quantity': 7000, 'premium': None, 'multiplier': 1.0, 'leg_order': 4, 'notes': None, 'created_at': '2026-06-12T00:28:26.451743+00:00', 'updated_at': '2026-06-12T00:28:26.451743+00:00'}
+{'id': 66, 'structure_id': 46, 'position_side': 'LONG', 'option_type': 'CALL', 'symbol': 'PRIOD750', 'strike': 75.0, 'expiration_date': '2026-04-17', 'quantity': 1000, 'premium': None, 'multiplier': 1.0, 'leg_order': 1, 'notes': None, 'created_at': '2026-06-12T00:28:27.741509+00:00', 'updated_at': '2026-06-12T00:28:27.741509+00:00'}
+{'id': 67, 'structure_id': 46, 'position_side': 'SHORT', 'option_type': 'CALL', 'symbol': 'PRIOE515', 'strike': 51.5, 'expiration_date': '2026-05-15', 'quantity': 1700, 'premium': None, 'multiplier': 1.0, 'leg_order': 2, 'notes': None, 'created_at': '2026-06-12T00:28:27.741509+00:00', 'updated_at': '2026-06-12T00:28:27.741509+00:00'}
+{'id': 68, 'structure_id': 46, 'position_side': 'SHORT', 'option_type': 'PUT', 'symbol': 'PRIOQ720', 'strike': 72.0, 'expiration_date': '2026-05-15', 'quantity': 1700, 'premium': None, 'multiplier': 1.0, 'leg_order': 3, 'notes': None, 'created_at': '2026-06-12T00:28:27.741509+00:00', 'updated_at': '2026-06-12T00:28:27.741509+00:00'}
+{'id': 69, 'structure_id': 46, 'position_side': 'LONG', 'option_type': 'PUT', 'symbol': 'PRIOP600', 'strike': 60.0, 'expiration_date': '2026-04-17', 'quantity': 1700, 'premium': None, 'multiplier': 1.0, 'leg_order': 4, 'notes': None, 'created_at': '2026-06-12T00:28:27.741509+00:00', 'updated_at': '2026-06-12T00:28:27.741509+00:00'}
+{'id': 70, 'structure_id': 47, 'position_side': 'LONG', 'option_type': 'CALL', 'symbol': 'SBSPE175', 'strike': 174.73, 'expiration_date': '2026-05-15', 'quantity': 2300, 'premium': None, 'multiplier': 1.0, 'leg_order': 1, 'notes': None, 'created_at': '2026-06-12T00:28:29.048572+00:00', 'updated_at': '2026-06-12T00:28:29.048572+00:00'}
+{'id': 71, 'structure_id': 47, 'position_side': 'SHORT', 'option_type': 'CALL', 'symbol': 'SBSPE155', 'strike': 154.76, 'expiration_date': '2026-05-15', 'quantity': 1200, 'premium': None, 'multiplier': 1.0, 'leg_order': 2, 'notes': None, 'created_at': '2026-06-12T00:28:29.048572+00:00', 'updated_at': '2026-06-12T00:28:29.048572+00:00'}
+{'id': 72, 'structure_id': 47, 'position_side': 'SHORT', 'option_type': 'PUT', 'symbol': 'SBSPQ166', 'strike': 165.74, 'expiration_date': '2026-05-15', 'quantity': 1200, 'premium': None, 'multiplier': 1.0, 'leg_order': 3, 'notes': None, 'created_at': '2026-06-12T00:28:29.048572+00:00', 'updated_at': '2026-06-12T00:28:29.048572+00:00'}
+{'id': 73, 'structure_id': 47, 'position_side': 'LONG', 'option_type': 'PUT', 'symbol': 'SBSPQ131', 'strike': 130.8, 'expiration_date': '2026-05-15', 'quantity': 2300, 'premium': None, 'multiplier': 1.0, 'leg_order': 4, 'notes': None, 'created_at': '2026-06-12T00:28:29.048572+00:00', 'updated_at': '2026-06-12T00:28:29.048572+00:00'}
+{'id': 74, 'structure_id': 48, 'position_side': 'LONG', 'option_type': 'CALL', 'symbol': 'SMALD139', 'strike': 139.0, 'expiration_date': '2026-04-17', 'quantity': 1800, 'premium': None, 'multiplier': 1.0, 'leg_order': 1, 'notes': None, 'created_at': '2026-06-12T00:28:30.365471+00:00', 'updated_at': '2026-06-12T00:28:30.365471+00:00'}
+{'id': 75, 'structure_id': 48, 'position_side': 'SHORT', 'option_type': 'CALL', 'symbol': 'SMALE119', 'strike': 119.0, 'expiration_date': '2026-05-15', 'quantity': 1600, 'premium': None, 'multiplier': 1.0, 'leg_order': 2, 'notes': None, 'created_at': '2026-06-12T00:28:30.365471+00:00', 'updated_at': '2026-06-12T00:28:30.365471+00:00'}
+{'id': 76, 'structure_id': 48, 'position_side': 'SHORT', 'option_type': 'PUT', 'symbol': 'SMALQ119', 'strike': 119.0, 'expiration_date': '2026-05-15', 'quantity': 1600, 'premium': None, 'multiplier': 1.0, 'leg_order': 3, 'notes': None, 'created_at': '2026-06-12T00:28:30.365471+00:00', 'updated_at': '2026-06-12T00:28:30.365471+00:00'}
+{'id': 77, 'structure_id': 48, 'position_side': 'LONG', 'option_type': 'PUT', 'symbol': 'SMALP970', 'strike': 97.0, 'expiration_date': '2026-04-17', 'quantity': 1800, 'premium': None, 'multiplier': 1.0, 'leg_order': 4, 'notes': None, 'created_at': '2026-06-12T00:28:30.365471+00:00', 'updated_at': '2026-06-12T00:28:30.365471+00:00'}
+
+-- rtd_analise_robo_legs
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'EMBJ3', 'ativo': 'EMBJE868', 'cv': 'C', 'call_put': 'CALL', 'quant': '7000', 'valor_executado': '1.38', 'bid': '4.84', 'ask': '4.93', 'spread': '0.09', 'spread_pct': '1.842374616', 'iv': '37.78', 'delta': '0.5909', 'gamma': '0.039', 'theta': '4.85', 'vega': '10.2557', 'strike': '86.81', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '24220', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'EMBJ3', 'ativo': 'EMBJE704', 'cv': 'V', 'call_put': 'CALL', 'quant': '4000', 'valor_executado': '8.35', 'bid': '0', 'ask': '21.03', 'spread': '21.03', 'spread_pct': '200', 'iv': '38.57', 'delta': '0.982', 'gamma': '0.0043', 'theta': '18.55', 'vega': '1.1667', 'strike': '69.81', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-50720', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'EMBJ3', 'ativo': 'EMBJQ878', 'cv': 'V', 'call_put': 'PUT', 'quant': '4000', 'valor_executado': '4.85', 'bid': '3.72', 'ask': '3.82', 'spread': '0.1', 'spread_pct': '2.652519894', 'iv': '48.58', 'delta': '-0.4484', 'gamma': '0.0308', 'theta': '4.74', 'vega': '10.442', 'strike': '87.81', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '4120', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'EMBJ3', 'ativo': 'EMBJQ660', 'cv': 'C', 'call_put': 'PUT', 'quant': '7000', 'valor_executado': '1.3', 'bid': '0.14', 'ask': '0.17', 'spread': '0.03', 'spread_pct': '19.35483871', 'iv': '57.13', 'delta': '-0.0322', 'gamma': '0.0048', 'theta': '0.2', 'vega': '1.9043', 'strike': '65.31', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-8120', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'BOVA11', 'ativo': 'BOVAE195', 'cv': 'C', 'call_put': 'CALL', 'quant': '5000', 'valor_executado': '1.74', 'bid': '5.69', 'ask': '5.72', 'spread': '0.03', 'spread_pct': '0.525854514', 'iv': '20.26', 'delta': '0.5739', 'gamma': '0.033', 'theta': '5.7', 'vega': '23.0109', 'strike': '195', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '19750', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'BOVA11', 'ativo': 'BOVAE166', 'cv': 'V', 'call_put': 'CALL', 'quant': '4000', 'valor_executado': '26.445', 'bid': '30.27', 'ask': '30.38', 'spread': '0.11', 'spread_pct': '0.362737016', 'iv': '0', 'delta': '1', 'gamma': '0', 'theta': '30.42', 'vega': '0', 'strike': '166', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-15740', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'BOVA11', 'ativo': 'BOVAQ195', 'cv': 'V', 'call_put': 'PUT', 'quant': '4000', 'valor_executado': '6.26', 'bid': '4.23', 'ask': '4.26', 'spread': '0.03', 'spread_pct': '0.706713781', 'iv': '21.91', 'delta': '-0.4315', 'gamma': '0.0306', 'theta': '4.26', 'vega': '23.0612', 'strike': '195', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '8000', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'BOVA11', 'ativo': 'BOVAQ164', 'cv': 'C', 'call_put': 'PUT', 'quant': '10000', 'valor_executado': '1.75', 'bid': '0.19', 'ask': '0.2', 'spread': '0.01', 'spread_pct': '5.128205128', 'iv': '32.23', 'delta': '-0.0273', 'gamma': '0.0033', 'theta': '0.2', 'vega': '3.693', 'strike': '164', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-15600', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'PRIO3', 'ativo': 'PRIOD750', 'cv': 'C', 'call_put': 'CALL', 'quant': '1000', 'valor_executado': '0.41', 'bid': '0.34', 'ask': '0.37', 'spread': '0.03', 'spread_pct': '8.450704225', 'iv': '66.41', 'delta': '0.1243', 'gamma': '0.0328', 'theta': '0.37', 'vega': '1.9308', 'strike': '75', 'vencimento': '4/17/2026 3:00', 'dte': '3', 'pl_realista': '-70', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'PRIO3', 'ativo': 'PRIOE515', 'cv': 'V', 'call_put': 'CALL', 'quant': '1700', 'valor_executado': '16.64', 'bid': '16.16', 'ask': '16.32', 'spread': '0.16', 'spread_pct': '0.985221675', 'iv': '72.51', 'delta': '0.9131', 'gamma': '0.0108', 'theta': '16.66', 'vega': '3.1934', 'strike': '51.5', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '544', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'PRIO3', 'ativo': 'PRIOQ720', 'cv': 'V', 'call_put': 'PUT', 'quant': '1700', 'valor_executado': '4.87', 'bid': '7.36', 'ask': '7.48', 'spread': '0.12', 'spread_pct': '1.617250674', 'iv': '56.64', 'delta': '-0.6069', 'gamma': '0.0336', 'theta': '7.1', 'vega': '7.7646', 'strike': '72', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-4437', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'PRIO3', 'ativo': 'PRIOP600', 'cv': 'C', 'call_put': 'PUT', 'quant': '1700', 'valor_executado': '0.46', 'bid': '0.43', 'ask': '0.46', 'spread': '0.03', 'spread_pct': '6.741573034', 'iv': '72.27', 'delta': '-0.1271', 'gamma': '0.0306', 'theta': '0.45', 'vega': '1.9613', 'strike': '60', 'vencimento': '4/17/2026 3:00', 'dte': '3', 'pl_realista': '-51', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SMAL11', 'ativo': 'SMALD139', 'cv': 'C', 'call_put': 'CALL', 'quant': '1800', 'valor_executado': '0.2158', 'bid': '0.02', 'ask': '0.04', 'spread': '0.02', 'spread_pct': '66.66666667', 'iv': '31.25', 'delta': '0.0085', 'gamma': '0.0042', 'theta': '0.02', 'vega': '0.407', 'strike': '139', 'vencimento': '4/17/2026 3:00', 'dte': '3', 'pl_realista': '-352.44', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SMAL11', 'ativo': 'SMALE119', 'cv': 'V', 'call_put': 'CALL', 'quant': '1600', 'valor_executado': '7.56', 'bid': '8.71', 'ask': '8.79', 'spread': '0.08', 'spread_pct': '0.914285714', 'iv': '18.43', 'delta': '0.8645', 'gamma': '0.0314', 'theta': '7.72', 'vega': '8.1963', 'strike': '119', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-1968', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SMAL11', 'ativo': 'SMALQ119', 'cv': 'V', 'call_put': 'PUT', 'quant': '1600', 'valor_executado': '2.35', 'bid': '1.97', 'ask': '2.01', 'spread': '0.04', 'spread_pct': '2.010050251', 'iv': '33.45', 'delta': '-0.2605', 'gamma': '0.0258', 'theta': '2.09', 'vega': '12.2274', 'strike': '119', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '544', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SMAL11', 'ativo': 'SMALP970', 'cv': 'C', 'call_put': 'PUT', 'quant': '1800', 'valor_executado': '0.37', 'bid': '0', 'ask': '0', 'spread': '0', 'spread_pct': '', 'iv': '62.5', 'delta': '-0.0017', 'gamma': '0.0005', 'theta': '0.01', 'vega': '0.0967', 'strike': '97', 'vencimento': '4/17/2026 3:00', 'dte': '3', 'pl_realista': '-666', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SBSP3', 'ativo': 'SBSPE175', 'cv': 'C', 'call_put': 'CALL', 'quant': '2300', 'valor_executado': '1.48', 'bid': '3.73', 'ask': '3.94', 'spread': '0.21', 'spread_pct': '5.475880052', 'iv': '27.83', 'delta': '0.413', 'gamma': '0.0275', 'theta': '4.04', 'vega': '19.844', 'strike': '174.73', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '5175', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SBSP3', 'ativo': 'SBSPE155', 'cv': 'V', 'call_put': 'CALL', 'quant': '1200', 'valor_executado': '7.87', 'bid': '16.35', 'ask': '17.46', 'spread': '1.11', 'spread_pct': '6.566104703', 'iv': '26.49', 'delta': '0.9', 'gamma': '0.013', 'theta': '16.61', 'vega': '8.9426', 'strike': '154.76', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-11508', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SBSP3', 'ativo': 'SBSPQ166', 'cv': 'V', 'call_put': 'PUT', 'quant': '1200', 'valor_executado': '4.61', 'bid': '3.68', 'ask': '3.79', 'spread': '0.11', 'spread_pct': '2.945113788', 'iv': '29.48', 'delta': '-0.3481', 'gamma': '0.0246', 'theta': '3.68', 'vega': '18.8364', 'strike': '165.74', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '984', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+{'timestamp': '14/04/2026 17:55:51', 'aba': 'SBSP3', 'ativo': 'SBSPQ131', 'cv': 'C', 'call_put': 'PUT', 'quant': '2300', 'valor_executado': '0.96', 'bid': '0.21', 'ask': '0.38', 'spread': '0.17', 'spread_pct': '57.62711864', 'iv': '49.07', 'delta': '-0.0301', 'gamma': '0.0027', 'theta': '0.31', 'vega': '3.4794', 'strike': '130.8', 'vencimento': '5/15/2026 3:00', 'dte': '31', 'pl_realista': '-1725', 'timestamp_aba_ativo_c_v_call_put_quant_valor_executado_bid_ask_spread_spread_pct_iv_delta_gamma_theta_vega_strike_vencimento_dte_pl_realista': None}
+
+-- rtd_option_quotes
+{'id': 34, 'codigo_opcao': 'SMALF129', 'ativo_base': 'SMAL11', 'call_put': 'CALL', 'strike': 129.0, 'vencimento': '2026-06-19', 'ultimo_preco': 0.01, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': 0.0041, 'gamma': 0.0017, 'theta': -0.0107, 'vega': 0.1651, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 0.0, "ativo_base": "SMAL11", "bid": 0.0, "codigo_opcao": "SMALF129", "delta": 0.0041, "gamma": 0.0017, "iv": 0.0, "option_type": "Call", "status": "", "strike": 129.0, "theta": -0.0107, "ultima_quantidade": 0.0, "ultimo_preco": 0.01, "vega": 0.1651, "vencimento": 46192.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 35, 'codigo_opcao': 'SMALF103', 'ativo_base': 'SMAL11', 'call_put': 'CALL', 'strike': 103.0, 'vencimento': '2026-06-19', 'ultimo_preco': 5.85, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': 0.9173, 'gamma': 0.0357, 'theta': -0.1347, 'vega': 2.0827, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 0.0, "ativo_base": "SMAL11", "bid": 0.0, "codigo_opcao": "SMALF103", "delta": 0.9173, "gamma": 0.0357, "iv": 0.0, "option_type": "Call", "status": "", "strike": 103.0, "theta": -0.1347, "ultima_quantidade": 0.0, "ultimo_preco": 5.85, "vega": 2.0827, "vencimento": 46192.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 36, 'codigo_opcao': 'SMALR127', 'ativo_base': 'SMAL11', 'call_put': 'PUT', 'strike': 127.0, 'vencimento': '2026-06-19', 'ultimo_preco': 17.9, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': -1.0, 'gamma': 0.0, 'theta': 0.0722, 'vega': 0.0, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 0.0, "ativo_base": "SMAL11", "bid": 0.0, "codigo_opcao": "SMALR127", "delta": -1.0, "gamma": 0.0, "iv": 0.0, "option_type": "Put", "status": "", "strike": 127.0, "theta": 0.0722, "ultima_quantidade": 0.0, "ultimo_preco": 17.9, "vega": 0.0, "vencimento": 46192.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 37, 'codigo_opcao': 'SMALR108', 'ativo_base': 'SMAL11', 'call_put': 'PUT', 'strike': 108.0, 'vencimento': '2026-06-19', 'ultimo_preco': 1.06, 'ultima_quantidade': 0.0, 'bid': 0.6, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': -0.414, 'gamma': 0.1123, 'theta': -0.1428, 'vega': 5.3238, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 0.0, "ativo_base": "SMAL11", "bid": 0.6, "codigo_opcao": "SMALR108", "delta": -0.414, "gamma": 0.1123, "iv": 0.0, "option_type": "Put", "status": "", "strike": 108.0, "theta": -0.1428, "ultima_quantidade": 0.0, "ultimo_preco": 1.06, "vega": 5.3238, "vencimento": 46192.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 38, 'codigo_opcao': 'PRIOG800', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 80.0, 'vencimento': '2026-07-17', 'ultimo_preco': 0.09, 'ultima_quantidade': 0.0, 'bid': 0.02, 'ask': 4.0, 'volume': 0.0, 'iv': 0.0, 'delta': 0.0301, 'gamma': 0.0086, 'theta': -0.0123, 'vega': 1.2908, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 4.0, "ativo_base": "PRIO3", "bid": 0.02, "codigo_opcao": "PRIOG800", "delta": 0.0301, "gamma": 0.0086, "iv": 0.0, "option_type": "Call", "status": "", "strike": 80.0, "theta": -0.0123, "ultima_quantidade": 0.0, "ultimo_preco": 0.09, "vega": 1.2908, "vencimento": 46220.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 39, 'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'vencimento': '2026-08-21', 'ultimo_preco': 11.9, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': 0.8882, 'gamma': 0.0172, 'theta': -0.0456, 'vega': 5.1444, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 0.0, "ativo_base": "PRIO3", "bid": 0.0, "codigo_opcao": "PRIOH515", "delta": 0.8882, "gamma": 0.0172, "iv": 0.0, "option_type": "Call", "status": "", "strike": 51.5, "theta": -0.0456, "ultima_quantidade": 0.0, "ultimo_preco": 11.9, "vega": 5.1444, "vencimento": 46255.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 40, 'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'vencimento': '2026-08-21', 'ultimo_preco': 6.63, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 13.5, 'volume': 0.0, 'iv': 0.0, 'delta': -1.0, 'gamma': 0.0, 'theta': 0.0387, 'vega': 0.0, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 13.5, "ativo_base": "PRIO3", "bid": 0.0, "codigo_opcao": "PRIOT700", "delta": -1.0, "gamma": 0.0, "iv": 0.0, "option_type": "Put", "status": "", "strike": 70.0, "theta": 0.0387, "ultima_quantidade": 0.0, "ultimo_preco": 6.63, "vega": 0.0, "vencimento": 46255.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+{'id': 41, 'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'vencimento': '2026-07-17', 'ultimo_preco': 0.31, 'ultima_quantidade': 0.0, 'bid': 0.03, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': -0.083, 'gamma': 0.0195, 'theta': -0.0219, 'vega': 2.8929, 'source': 'lista_rtd_excel', 'raw_json': '{"ask": 0.0, "ativo_base": "PRIO3", "bid": 0.03, "codigo_opcao": "PRIOS525", "delta": -0.083, "gamma": 0.0195, "iv": 0.0, "option_type": "Put", "status": "", "strike": 52.5, "theta": -0.0219, "ultima_quantidade": 0.0, "ultimo_preco": 0.31, "vega": 2.8929, "vencimento": 46220.125, "volume": 0.0}', 'updated_at': '2026-06-15 09:31:45', 'created_at': '2026-06-15 11:39:33'}
+
+-- structures
+{'id': 44, 'name': 'BOVA11', 'underlying_asset': 'BOVA11', 'alias_legacy_aba': 'BOVA11', 'status': 'archived', 'notes': None, 'created_at': '2026-06-10T11:50:06.095131+00:00', 'updated_at': '2026-06-13T12:19:09.661659+00:00'}
+{'id': 45, 'name': 'EMBJ3', 'underlying_asset': 'EMBJ3', 'alias_legacy_aba': 'EMBJ3', 'status': 'active', 'notes': None, 'created_at': '2026-06-10T11:50:06.095131+00:00', 'updated_at': '2026-06-12T00:28:26.451743+00:00'}
+{'id': 46, 'name': 'PRIO3', 'underlying_asset': 'PRIO3', 'alias_legacy_aba': 'PRIO3', 'status': 'active', 'notes': None, 'created_at': '2026-06-10T11:50:06.095131+00:00', 'updated_at': '2026-06-12T00:28:27.741509+00:00'}
+{'id': 47, 'name': 'SBSP3', 'underlying_asset': 'SBSP3', 'alias_legacy_aba': 'SBSP3', 'status': 'active', 'notes': None, 'created_at': '2026-06-10T11:50:06.095131+00:00', 'updated_at': '2026-06-12T00:28:29.048572+00:00'}
+{'id': 48, 'name': 'SMAL11', 'underlying_asset': 'SMAL11', 'alias_legacy_aba': 'SMAL11', 'status': 'active', 'notes': None, 'created_at': '2026-06-10T11:50:06.095131+00:00', 'updated_at': '2026-06-12T00:28:30.365471+00:00'}
+
+== Comparação de símbolos/códigos entre fontes ==
+
+-- structure_legs
+coluna_codigo_detectada: symbol
+total_codigos: 20
+BOVAE166
+BOVAE195
+BOVAQ164
+BOVAQ195
+EMBJE704
+EMBJE868
+EMBJQ660
+EMBJQ878
+PRIOD750
+PRIOE515
+PRIOP600
+PRIOQ720
+SBSPE155
+SBSPE175
+SBSPQ131
+SBSPQ166
+SMALD139
+SMALE119
+SMALP970
+SMALQ119
+
+-- rtd_analise_robo_legs
+coluna_codigo_detectada: ativo
+total_codigos: 20
+BOVAE166
+BOVAE195
+BOVAQ164
+BOVAQ195
+EMBJE704
+EMBJE868
+EMBJQ660
+EMBJQ878
+PRIOD750
+PRIOE515
+PRIOP600
+PRIOQ720
+SBSPE155
+SBSPE175
+SBSPQ131
+SBSPQ166
+SMALD139
+SMALE119
+SMALP970
+SMALQ119
+
+-- rtd_option_quotes
+coluna_codigo_detectada: codigo_opcao
+total_codigos: 8
+PRIOG800
+PRIOH515
+PRIOS525
+PRIOT700
+SMALF103
+SMALF129
+SMALR108
+SMALR127
+
+-- structures
+coluna_codigo_detectada: None
+total_codigos: 0
+
+== Comparação contra rtd_option_quotes ==
+
+-- Fonte: structure_legs
+total_fonte: 20
+total_rtd_option_quotes: 8
+matches_exatos: 0
+matches:
+somente_na_fonte:
+BOVAE166
+BOVAE195
+BOVAQ164
+BOVAQ195
+EMBJE704
+EMBJE868
+EMBJQ660
+EMBJQ878
+PRIOD750
+PRIOE515
+PRIOP600
+PRIOQ720
+SBSPE155
+SBSPE175
+SBSPQ131
+SBSPQ166
+SMALD139
+SMALE119
+SMALP970
+SMALQ119
+somente_em_rtd_option_quotes:
+PRIOG800
+PRIOH515
+PRIOS525
+PRIOT700
+SMALF103
+SMALF129
+SMALR108
+SMALR127
+
+-- Fonte: rtd_analise_robo_legs
+total_fonte: 20
+total_rtd_option_quotes: 8
+matches_exatos: 0
+matches:
+somente_na_fonte:
+BOVAE166
+BOVAE195
+BOVAQ164
+BOVAQ195
+EMBJE704
+EMBJE868
+EMBJQ660
+EMBJQ878
+PRIOD750
+PRIOE515
+PRIOP600
+PRIOQ720
+SBSPE155
+SBSPE175
+SBSPQ131
+SBSPQ166
+SMALD139
+SMALE119
+SMALP970
+SMALQ119
+somente_em_rtd_option_quotes:
+PRIOG800
+PRIOH515
+PRIOS525
+PRIOT700
+SMALF103
+SMALF129
+SMALR108
+SMALR127
+====================================================================================================
+DB: dados\derived.db
+====================================================================================================
+
+== Tabelas relacionadas a legs/robo/rtd/structure/option/quote ==
+structure_decisions
+
+== Existência das tabelas candidatas ==
+structure_legs: NAO
+rtd_analise_robo_legs: NAO
+analise_robo_legs: NAO
+robo_legs: NAO
+rtd_option_quotes: NAO
+structures: NAO
+
+== Schemas das tabelas candidatas existentes ==
+
+== Amostra das tabelas candidatas existentes ==
+
+== Comparação de símbolos/códigos entre fontes ==
+
+# Fim do diagnóstico Fase 8C
