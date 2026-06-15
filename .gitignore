@@ -97,3 +97,5 @@ ATT/checks/**/*.pyo
 
 # Backups locais de banco
 /dados/backups/
+
+_backup_local/
