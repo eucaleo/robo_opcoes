@@ -1,0 +1,16 @@
+# Fase 8F - Início da auditoria do fluxo RTD no CanonicalPricingFacade
+
+Base de partida:
+- Fase 8D integrou rtd_option_quotes ao CanonicalPricingFacade.
+- Fase 8E adicionou cobertura regressiva para resolução correta do db path de rtd_option_quotes.
+- Commit base observado:
+  - bcb6ddb test: add RTD facade db path regression coverage
+
+Objetivo preliminar:
+- Auditar o fluxo efetivo de consumo das cotações RTD pelo CanonicalPricingFacade.
+- Identificar se já existe cobertura regressiva para prioridade/fallback de fonte de preço.
+- Não alterar código funcional nesta etapa inicial.
+- Não alterar schema, UI, bancos em dados/, bridge/, importadores ou motor de cálculo.
+
+Estado esperado:
+- Somente documentação/checkpoint poderá ser criado nesta primeira auditoria.

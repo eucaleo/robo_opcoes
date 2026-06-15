@@ -1,0 +1,43 @@
+# Fase 8F - Conclusão da cobertura regressiva de resolução de preço RTD
+
+Resumo:
+- Auditamos o fluxo de consumo de rtd_option_quotes no CanonicalPricingFacade.
+- Foi identificada ausência de testes específicos para:
+  - _pick_rtd_option_price
+  - _lookup_rtd_option_quote
+  - _resolve_effective_leg_price
+  - integração da resolução de preço RTD em _snapshot_result_to_payload
+
+Alteração realizada:
+- Adicionado teste regressivo:
+  - ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
+
+Cobertura adicionada:
+- ultimo_preco tem prioridade.
+- fallback para price e last_price.
+- fallback para mid de bid/ask.
+- fallback para bid.
+- fallback para ask.
+- ausência de preço positivo retorna None.
+- lookup tenta código original e uppercase.
+- exceção no repository não quebra o fluxo.
+- preço manual explícito preserva o preço original do snapshot.
+- fonte não manual usa preço RTD quando disponível.
+- ausência de cotação RTD preserva preço original do snapshot.
+- _snapshot_result_to_payload propaga o preço RTD para price e premium da leg canônica.
+
+Testes executados:
+- python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py -q
+  - Resultado: 12 passed
+- python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_db_path.py ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py -q
+  - Resultado: 18 passed
+
+Restrições respeitadas:
+- Nenhuma alteração funcional no CanonicalPricingFacade.
+- Nenhuma alteração em schema.
+- Nenhuma alteração em UI.
+- Nenhuma alteração em bancos em dados/.
+- Nenhuma alteração em bridge/, importadores ou motor de cálculo.
+
+Conclusão:
+- Fase 8F concluída com cobertura regressiva para a prioridade/fallback de preços RTD no fluxo do CanonicalPricingFacade.
