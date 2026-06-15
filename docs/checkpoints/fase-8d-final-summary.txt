@@ -1,0 +1,16 @@
+===== status =====
+?? docs/checkpoints/fase-8d-final-summary.txt
+
+===== ultimos commits =====
+3de5680 fase-8d: resolver db path correto para rtd option quotes
+a319b22 docs: adicionar checkpoints auxiliares da fase 8d
+2b4cb1f fase-8d: integrar rtd option quotes no canonical pricing facade
+f53a1aa docs: registra conclusao origem verdade legs fase 8c
+589cb3f docs: registra diagnostico origem verdade legs fase 8c
+
+===== pytest =====
+585 passed, 10 skipped
+
+===== smoke rtd db path =====
+facade db_path: dados\derived.db
+rtd db_path: dados\app.db
