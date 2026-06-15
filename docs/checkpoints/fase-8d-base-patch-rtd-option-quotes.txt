@@ -1,0 +1,670 @@
+===== services/canonical_pricing_facade.py :: imports + helpers =====
+     1	# services/canonical_pricing_facade.py
+     2	"""
+     3	alteracao_17 -- Fachada canônica corrigida.
+     4	alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+     5	           no PricingExecutionPersistenceService.
+     6	alteracao_41 -- Corrige underlying_asset no pricing_payload.
+     7	
+     8	Correções alteracao_41:
+     9	  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+    10	      busca alias_legacy_aba E underlying_asset em uma única query.
+    11	  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+    12	      elimina uso de selection_result.aba como underlying_asset
+    13	      (aba legada  ativo subjacente real).
+    14	  C8: execute_pricing() passa underlying_asset para o payload builder.
+    15	
+    16	Correções anteriores mantidas:
+    17	  C1: sel.select(aba=...) -- parâmetro correto
+    18	  C2: alias_legacy_aba buscado via query antes de chamar o selector
+    19	  C3: orquestração direta repo  selector  execute_payload()
+    20	  C4: engine_result extraído do wrapper antes de passar ao persister
+    21	  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+    22	"""
+    23	from __future__ import annotations
+    24	
+    25	
+    26	import sqlite3
+    27	import time
+    28	from datetime import datetime
+    29	from pathlib import Path
+    30	from typing import Any
+    31	
+    32	from repositories.market_snapshot_repository import MarketSnapshotRepository
+    33	from repositories.system_snapshots_repository import SystemSnapshotsRepository
+    34	from services.derived_payoff_persistence import DerivedPayoffPersistence
+    35	from services.market_snapshot_selector import MarketSnapshotSelector
+    36	from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+    37	from services.pricing_execution_service import PricingExecutionService
+    38	
+    39	_DEFAULT_DB = Path("dados/app.db")
+    40	
+    41	
+    42	#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+    43	
+    44	def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+    45	    """
+    46	    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+    47	
+    48	    Raises ValueError se:
+    49	      - estrutura não existir
+    50	      - alias_legacy_aba for nulo (sem aba legada mapeada)
+    51	    """
+    52	    with sqlite3.connect(str(db_path)) as conn:
+    53	        conn.row_factory = sqlite3.Row
+    54	        row = conn.execute(
+    55	            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+    56	            (structure_id,),
+    57	        ).fetchone()
+    58	
+    59	    if row is None:
+    60	        raise ValueError(f"structure not found: {structure_id}")
+    61	
+    62	    aba = row["alias_legacy_aba"]
+    63	    if not aba:
+    64	        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+    65	
+    66	    underlying_asset = row["underlying_asset"]  # NOT NULL -- sempre presente
+    67	
+    68	    return aba, underlying_asset
+    69	
+    70	
+    71	#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+    72	
+    73	
+    74	
+    75	def _to_float(value: Any, default: float = 0.0) -> float:
+    76	    try:
+    77	        if value is None or value == "":
+    78	            return default
+    79	
+    80	        if isinstance(value, str):
+    81	            text = value.strip()
+    82	            text = text.replace("R$", "").replace("$", "").strip()
+    83	
+    84	            # Remove espaços internos comuns em valores monetários.
+    85	            text = text.replace(" ", "")
+    86	
+    87	            # Caso BR simples: "124,66"
+    88	            if "," in text and "." not in text:
+    89	                text = text.replace(",", ".")
+    90	
+    91	            return float(text)
+    92	
+    93	        return float(value)
+    94	    except Exception:
+    95	        return default
+    96	
+    97	
+    98	def _normalize_expiration_date(value: Any) -> str | None:
+    99	    if not value:
+   100	        return None
+   101	
+   102	    text = str(value).strip()
+   103	
+   104	    formats = [
+   105	        "%m/%d/%Y %H:%M",
+   106	        "%m/%d/%Y %H:%M:%S",
+   107	        "%Y-%m-%d",
+   108	        "%Y-%m-%dT%H:%M:%S",
+   109	    ]
+   110	
+   111	    for fmt in formats:
+   112	        try:
+   113	            return datetime.strptime(text, fmt).date().isoformat()
+   114	        except ValueError:
+   115	            pass
+   116	
+   117	    return text
+   118	
+   119	
+   120	def _pick(data: dict[str, Any], *names: str) -> Any:
+   121	    for name in names:
+   122	        value = data.get(name)
+   123	        if value is not None:
+   124	            return value
+   125	    return None
+   126	
+   127	
+   128	def _quote_ident(name: str) -> str:
+   129	    return '"' + name.replace('"', '""') + '"'
+   130	
+   131	
+   132	def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+   133	    """
+   134	    Procura spot positivo no app.db.
+   135	
+   136	    Caso confirmado:
+   137	      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+   138	      spot observado = 124.66
+   139	    """
+   140	    if not underlying_asset:
+
+===== services/canonical_pricing_facade.py :: spot + payload builder =====
+   132	def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+   133	    """
+   134	    Procura spot positivo no app.db.
+   135	
+   136	    Caso confirmado:
+   137	      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+   138	      spot observado = 124.66
+   139	    """
+   140	    if not underlying_asset:
+   141	        return 0.0
+   142	
+   143	    symbol_candidates = {
+   144	        "aba",
+   145	        "ativo",
+   146	        "asset",
+   147	        "symbol",
+   148	        "ticker",
+   149	        "underlying_asset",
+   150	        "codigo",
+   151	        "papel",
+   152	    }
+   153	
+   154	    price_candidates = {
+   155	        "spot",
+   156	        "spot_price",
+   157	        "underlying_price",
+   158	        "last_price",
+   159	        "price",
+   160	        "preco",
+   161	        "preco_atual",
+   162	        "valor",
+   163	        "cotacao",
+   164	        "ultimo",
+   165	        "fechamento",
+   166	        "close",
+   167	    }
+   168	
+   169	    try:
+   170	        with sqlite3.connect(str(db_path)) as conn:
+   171	            tables = conn.execute(
+   172	                "SELECT name FROM sqlite_master WHERE type = 'table'"
+   173	            ).fetchall()
+   174	
+   175	            for (table_name,) in tables:
+   176	                columns_info = conn.execute(
+   177	                    f"PRAGMA table_info({_quote_ident(table_name)})"
+   178	                ).fetchall()
+   179	
+   180	                columns = [row[1] for row in columns_info]
+   181	                lower_to_real = {col.lower(): col for col in columns}
+   182	
+   183	                symbol_cols = [
+   184	                    lower_to_real[name]
+   185	                    for name in symbol_candidates
+   186	                    if name in lower_to_real
+   187	                ]
+   188	
+   189	                price_cols = [
+   190	                    lower_to_real[name]
+   191	                    for name in price_candidates
+   192	                    if name in lower_to_real
+   193	                ]
+   194	
+   195	                if not symbol_cols or not price_cols:
+   196	                    continue
+   197	
+   198	                for symbol_col in symbol_cols:
+   199	                    for price_col in price_cols:
+   200	                        query = (
+   201	                            f"SELECT {_quote_ident(price_col)} "
+   202	                            f"FROM {_quote_ident(table_name)} "
+   203	                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+   204	                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+   205	                            f"LIMIT 20"
+   206	                        )
+   207	
+   208	                        try:
+   209	                            rows = conn.execute(query, (underlying_asset,)).fetchall()
+   210	                        except Exception:
+   211	                            continue
+   212	
+   213	                        for row in rows:
+   214	                            price = _to_float(row[0], 0.0)
+   215	                            if price > 0:
+   216	                                return price
+   217	    except Exception:
+   218	        return 0.0
+   219	
+   220	    return 0.0
+   221	
+   222	
+   223	def _snapshot_result_to_payload(
+   224	    selection_result: Any,
+   225	    structure_id: int,
+   226	    underlying_asset: str,
+   227	    reference_date: str | None,
+   228	    db_path: Path,
+   229	) -> dict[str, Any]:
+   230	    legs_data = []
+   231	
+   232	    for leg in selection_result.legs:
+   233	        d = leg if isinstance(leg, dict) else vars(leg)
+   234	
+   235	        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+   236	
+   237	        raw_price = _pick(d, "premium", "price", "valor_executado")
+   238	        raw_asset = _pick(d, "symbol", "asset", "ativo")
+   239	        raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
+   240	
+   241	        side = _pick(d, "side", "position_side")
+   242	        if not side:
+   243	            side = "SHORT" if quantity < 0 else "LONG"
+   244	
+   245	        canonical_leg = {
+   246	            # campos originais/compatíveis
+   247	            "quantity":    quantity,
+   248	            "price":       _to_float(raw_price, 0.0),
+   249	            "asset":       raw_asset,
+   250	            "option_type": _pick(d, "option_type", "call_put"),
+   251	            "strike":      _to_float(_pick(d, "strike"), 0.0),
+   252	            "expiry":      raw_expiry,
+   253	            "iv":          _pick(d, "iv"),
+   254	            "delta":       _pick(d, "delta"),
+   255	            "gamma":       _pick(d, "gamma"),
+   256	            "theta":       _pick(d, "theta"),
+   257	            "vega":        _pick(d, "vega"),
+   258	            "source":      str(_pick(d, "source")),
+   259	
+   260	            # campos canônicos esperados pelo fluxo pricing/payoff
+   261	            "symbol":          raw_asset,
+   262	            "premium":         _to_float(raw_price, 0.0),
+   263	            "expiration_date": _normalize_expiration_date(raw_expiry),
+   264	            "multiplier":      1.0,
+   265	            "side":            str(side).upper(),
+   266	            "position_side":   str(side).upper(),
+   267	        }
+   268	
+   269	        legs_data.append(canonical_leg)
+   270	
+   271	    spot = (
+   272	        getattr(selection_result, "spot_price", None)
+   273	        or getattr(selection_result, "spot", None)
+   274	        or getattr(selection_result, "underlying_price", None)
+   275	        or getattr(selection_result, "last_price", None)
+   276	    )
+   277	
+   278	    spot_price = _to_float(spot, 0.0)
+   279	
+   280	    if spot_price <= 0:
+   281	        spot_price = _lookup_spot_price(
+   282	            db_path=db_path,
+   283	            underlying_asset=underlying_asset,
+   284	        )
+   285	
+   286	    if spot_price <= 0:
+   287	        raise ValueError(
+   288	            f"spot_price inválido ou ausente para underlying_asset={underlying_asset}. "
+   289	            "Não persistir execução OK com spot_price <= 0."
+   290	        )
+   291	
+   292	    return {
+   293	        "structure_id":     structure_id,
+   294	        "underlying_asset": underlying_asset,
+   295	        "reference_date":   reference_date,
+   296	        "spot_price":       spot_price,
+   297	        "interest_rate":    0.0,
+   298	        "volatility":       0.0,
+   299	        "legs":             legs_data,
+   300	        "meta": {
+   301	            "snapshot_source":  str(selection_result.source),
+   302	            "snapshot_aba":     selection_result.aba,
+   303	            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+   304	            "legs_count":       len(legs_data),
+   305	        },
+   306	    }
+   307	
+   308	
+   309	class CanonicalPricingFacade:
+   310	    """
+   311	    Orquestra o pipeline canônico ponta a ponta:
+   312	
+   313	        structure_id
+   314	             alias_legacy_aba + underlying_asset  (query em structures)
+   315	                     MarketSnapshotSelector.select(aba=...)
+   316	                             pricing_payload  (underlying_asset = ativo real)
+   317	                                     PricingExecutionService.execute_payload()
+   318	                                             PricingExecutionPersistenceService.persist()
+   319	                                                     DerivedPayoffPersistence.persist()
+   320	                                                             derived.db
+
+===== services/canonical_pricing_facade.py :: class execute_pricing =====
+   310	    """
+   311	    Orquestra o pipeline canônico ponta a ponta:
+   312	
+   313	        structure_id
+   314	             alias_legacy_aba + underlying_asset  (query em structures)
+   315	                     MarketSnapshotSelector.select(aba=...)
+   316	                             pricing_payload  (underlying_asset = ativo real)
+   317	                                     PricingExecutionService.execute_payload()
+   318	                                             PricingExecutionPersistenceService.persist()
+   319	                                                     DerivedPayoffPersistence.persist()
+   320	                                                             derived.db
+   321	    """
+   322	
+   323	    def __init__(
+   324	        self,
+   325	        db_path: Path | str = _DEFAULT_DB,
+   326	        pricing_execution_service: PricingExecutionService | None = None,
+   327	        persistence_service: PricingExecutionPersistenceService | None = None,
+   328	    ) -> None:
+   329	        self._db_path  = Path(db_path)
+   330	        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+   331	        self._selector = MarketSnapshotSelector(repository=self._repo)
+   332	        self._engine   = pricing_execution_service or PricingExecutionService()
+   333	
+   334	        self._persister = persistence_service or PricingExecutionPersistenceService(
+   335	            payoff_persistence_port=DerivedPayoffPersistence(),
+   336	            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+   337	        )
+   338	
+   339	    def execute_pricing(
+   340	        self,
+   341	        structure_id: int,
+   342	        reference_date: str | None = None,
+   343	    ) -> dict[str, Any]:
+   344	        started_at = time.perf_counter()
+   345	
+   346	        try:
+   347	            #  1. Resolve aba + underlying_asset 
+   348	            aba, underlying_asset = _get_structure_info(   #  C6/C8
+   349	                structure_id, self._db_path
+   350	            )
+   351	
+   352	            #  2. Seleciona snapshot (manual > rtd) 
+   353	            selection = self._selector.select(aba=aba)
+   354	
+   355	            #  3. Monta pricing_payload 
+   356	            pricing_payload = _snapshot_result_to_payload(
+   357	                selection_result=selection,
+   358	                structure_id=structure_id,
+   359	                underlying_asset=underlying_asset,          #  C7/C8
+   360	                reference_date=reference_date,
+   361	                db_path=self._db_path,
+   362	            )
+   363	
+   364	            #  4. Executa engine 
+   365	            execution_result = self._engine.execute_payload(
+   366	                pricing_payload=pricing_payload,
+   367	            )
+   368	
+   369	            #  C4: extrai dict interno do wrapper 
+   370	            engine_result = execution_result.get("result", execution_result)
+   371	
+   372	            duration_ms = int((time.perf_counter() - started_at) * 1000)
+   373	
+   374	            #  5. Persiste (app.db + derived.db via port) 
+   375	            persisted = self._persister.persist_execution(
+   376	                pricing_payload=pricing_payload,
+   377	                result=engine_result,
+   378	                duration_ms=duration_ms,
+   379	                error_message=None,
+   380	            )
+   381	
+   382	            return {
+   383	                "status":          "ok",
+   384	                "canonical_input": pricing_payload,
+   385	                "pricing_payload": pricing_payload,
+   386	                "result":          execution_result,
+   387	                "persisted":       persisted,
+   388	                "meta":            pricing_payload["meta"],
+   389	                "duration_ms":     duration_ms,
+   390	            }
+   391	
+   392	        except Exception as exc:
+   393	            duration_ms   = int((time.perf_counter() - started_at) * 1000)
+   394	            error_message = str(exc)
+   395	
+   396	            try:
+   397	                self._persister.persist_execution(
+   398	                    pricing_payload=None,
+   399	                    result={"engine": "stub", "status": "error", "error_message": error_message},
+   400	                    duration_ms=duration_ms,
+   401	                    error_message=error_message,
+   402	                )
+   403	            except Exception:
+   404	                pass
+   405	
+   406	            return {
+   407	                "status":          "error",
+   408	                "canonical_input": None,
+   409	                "pricing_payload": None,
+   410	                "result":          None,
+   411	                "persisted":       None,
+   412	                "meta":            {},
+   413	                "duration_ms":     duration_ms,
+   414	                "error_message":   error_message,
+   415	            }
+
+===== repositories/rtd_option_quotes_repository.py =====
+     1	# repositories/rtd_option_quotes_repository.py
+     2	
+     3	from __future__ import annotations
+     4	
+     5	import sqlite3
+     6	from pathlib import Path
+     7	from typing import Any
+     8	
+     9	
+    10	class RtdOptionQuotesRepository:
+    11	    """
+    12	    Leitura da tabela rtd_option_quotes.
+    13	
+    14	    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+    15	    e funciona como cache centralizado das cotações RTD de opções.
+    16	    """
+    17	
+    18	    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+    19	        self.db_path = Path(db_path)
+    20	
+    21	    def _connect(self) -> sqlite3.Connection:
+    22	        conn = sqlite3.connect(str(self.db_path))
+    23	        conn.row_factory = sqlite3.Row
+    24	        return conn
+    25	
+    26	    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+    27	        sql = """
+    28	            SELECT
+    29	                codigo_opcao,
+    30	                ativo_base,
+    31	                call_put,
+    32	                strike,
+    33	                vencimento,
+    34	                ultimo_preco,
+    35	                ultima_quantidade,
+    36	                bid,
+    37	                ask,
+    38	                volume,
+    39	                iv,
+    40	                delta,
+    41	                gamma,
+    42	                theta,
+    43	                vega,
+    44	                source,
+    45	                raw_json,
+    46	                updated_at,
+    47	                created_at
+    48	            FROM rtd_option_quotes
+    49	            WHERE codigo_opcao = ?
+    50	            LIMIT 1
+    51	        """
+    52	
+    53	        with self._connect() as conn:
+    54	            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+    55	
+    56	        return dict(row) if row else None
+    57	
+    58	    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+    59	        sql = """
+    60	            SELECT
+    61	                codigo_opcao,
+    62	                ativo_base,
+    63	                call_put,
+    64	                strike,
+    65	                vencimento,
+    66	                ultimo_preco,
+    67	                ultima_quantidade,
+    68	                bid,
+    69	                ask,
+    70	                volume,
+    71	                iv,
+    72	                delta,
+    73	                gamma,
+    74	                theta,
+    75	                vega,
+    76	                source,
+    77	                raw_json,
+    78	                updated_at,
+    79	                created_at
+    80	            FROM rtd_option_quotes
+    81	            WHERE ativo_base = ?
+    82	            ORDER BY vencimento, call_put, strike, codigo_opcao
+    83	        """
+    84	
+    85	        with self._connect() as conn:
+    86	            rows = conn.execute(sql, (ativo_base,)).fetchall()
+    87	
+    88	        return [dict(row) for row in rows]
+    89	
+    90	    def list_all(self) -> list[dict[str, Any]]:
+    91	        sql = """
+    92	            SELECT
+    93	                codigo_opcao,
+    94	                ativo_base,
+    95	                call_put,
+    96	                strike,
+    97	                vencimento,
+    98	                ultimo_preco,
+    99	                ultima_quantidade,
+   100	                bid,
+   101	                ask,
+   102	                volume,
+   103	                iv,
+   104	                delta,
+   105	                gamma,
+   106	                theta,
+   107	                vega,
+   108	                source,
+   109	                raw_json,
+   110	                updated_at,
+   111	                created_at
+   112	            FROM rtd_option_quotes
+   113	            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+   114	        """
+   115	
+   116	        with self._connect() as conn:
+   117	            rows = conn.execute(sql).fetchall()
+   118	
+   119	        return [dict(row) for row in rows]
+
+===== services/market_snapshot_selector.py =====
+     1	# services/market_snapshot_selector.py
+     2	"""
+     3	Política de precedência de snapshots: manual > rtd.
+     4	
+     5	Para cada aba:
+     6	  - Se existir snapshot manual, usa manual
+     7	  - Caso contrário, usa rtd
+     8	"""
+     9	from __future__ import annotations
+    10	
+    11	from dataclasses import dataclass, field
+    12	
+    13	from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+    14	from repositories.market_snapshot_repository import MarketSnapshotRepository
+    15	from src.domain.refs.structure_ref import StructureRef
+    16	
+    17	
+    18	
+    19	def _ref_to_aba(ref: StructureRef | str) -> str:
+    20	    """Aceita StructureRef ou str e devolve a string da aba."""
+    21	    if isinstance(ref, StructureRef):
+    22	        if ref.aba:
+    23	            return str(ref.aba)
+    24	        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+    25	    return str(ref)
+    26	
+    27	
+    28	@dataclass
+    29	class SnapshotSelectionResult:
+    30	    """Resultado da seleção de snapshots para uma aba."""
+    31	
+    32	    aba: str
+    33	    source: SnapshotSource
+    34	    legs: list[LegMarketSnapshot] = field(default_factory=list)
+    35	    manual_overrides: list[str] = field(default_factory=list)
+    36	
+    37	    @property
+    38	    def is_manual_first(self) -> bool:
+    39	        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+    40	
+    41	
+    42	class MarketSnapshotSelector:
+    43	    """
+    44	    Aplica a política manual > rtd para selecionar o snapshot canônico.
+    45	    """
+    46	
+    47	    def __init__(self, repository: MarketSnapshotRepository) -> None:
+    48	        self._repo = repository
+    49	
+    50	    def select(
+    51	        self,
+    52	        ref: StructureRef | str | None = None,
+    53	        *,
+    54	        aba: str | None = None,
+    55	    ) -> SnapshotSelectionResult:
+    56	        """
+    57	        Seleciona as legs canônicas para a estrutura informada.
+    58	
+    59	        Compatibilidade:
+    60	          - select(ref=StructureRef(...))
+    61	          - select(StructureRef(...))
+    62	          - select(aba="SMAL11")
+    63	          - select("SMAL11")
+    64	        """
+    65	        if ref is None and aba is None:
+    66	            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+    67	
+    68	        effective_ref: StructureRef | str = ref if ref is not None else aba
+    69	        aba_str = _ref_to_aba(effective_ref)
+    70	
+    71	
+    72	        manual_legs = self._repo.get_manual_legs(effective_ref)
+    73	        rtd_legs = self._repo.get_rtd_legs(effective_ref)
+    74	
+    75	        # Como as consultas vêm em timestamp DESC, preserva a primeira ocorrência
+    76	        # por ativo, que tende a ser a mais recente.
+    77	
+    78	        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+    79	        for leg in manual_legs:
+    80	            if leg.ativo and leg.ativo not in manual_by_ativo:
+    81	                manual_by_ativo[leg.ativo] = leg
+    82	
+    83	        rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+    84	        for leg in rtd_legs:
+    85	            if leg.ativo and leg.ativo not in rtd_by_ativo:
+    86	                rtd_by_ativo[leg.ativo] = leg
+    87	
+    88	        todos_ativos = sorted(set(manual_by_ativo) | set(rtd_by_ativo))
+    89	        legs_selected: list[LegMarketSnapshot] = []
+    90	        overrides: list[str] = []
+    91	
+    92	        for ativo in todos_ativos:
+    93	            if ativo in manual_by_ativo:
+    94	                legs_selected.append(manual_by_ativo[ativo])
+    95	                if ativo in rtd_by_ativo:
+    96	                    overrides.append(ativo)
+    97	            else:
+    98	                legs_selected.append(rtd_by_ativo[ativo])
+    99	
+   100	        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+   101	
+   102	        return SnapshotSelectionResult(
+   103	            aba=aba_str,
+   104	            source=source,
+   105	            legs=legs_selected,
+   106	            manual_overrides=overrides,
+   107	        )

@@ -1,0 +1,1375 @@
+ATT/checks/check_cleanup_residuals.py:37:    r"smoke_market_snapshot",
+ATT/checks/check_cleanup_residuals.py:75:    "scripts/import_legacy_structure_legs.py",
+ATT/checks/check_cleanup_residuals.py:77:    "scripts/purge_derived_snapshots.py",
+ATT/tests/test_audit_rtd_option_quotes.py:12:    / "audit_rtd_option_quotes.py"
+ATT/tests/test_audit_rtd_option_quotes.py:18:        "audit_rtd_option_quotes_under_test",
+ATT/tests/test_audit_rtd_option_quotes.py:28:    unique_sql = ", UNIQUE(codigo_opcao)" if unique else ""
+ATT/tests/test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_audit_rtd_option_quotes.py:35:                codigo_opcao TEXT NOT NULL,
+ATT/tests/test_audit_rtd_option_quotes.py:60:def insert_quote(
+ATT/tests/test_audit_rtd_option_quotes.py:62:    codigo_opcao: str,
+ATT/tests/test_audit_rtd_option_quotes.py:67:        params = (codigo_opcao,)
+ATT/tests/test_audit_rtd_option_quotes.py:70:        params = (codigo_opcao, updated_at)
+ATT/tests/test_audit_rtd_option_quotes.py:75:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_audit_rtd_option_quotes.py:76:                codigo_opcao,
+ATT/tests/test_audit_rtd_option_quotes.py:111:    assert "table not found: rtd_option_quotes" in result["errors"]
+ATT/tests/test_audit_rtd_option_quotes.py:119:    insert_quote(db_path, "PETRA300")
+ATT/tests/test_audit_rtd_option_quotes.py:120:    insert_quote(db_path, "PETRA310")
+ATT/tests/test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_audit_rtd_option_quotes.py:152:                codigo_opcao TEXT NOT NULL
+ATT/tests/test_audit_rtd_option_quotes.py:164:def test_audit_reports_error_for_duplicated_codigo_opcao(tmp_path: Path):
+ATT/tests/test_audit_rtd_option_quotes.py:169:    insert_quote(db_path, "PETRA300")
+ATT/tests/test_audit_rtd_option_quotes.py:170:    insert_quote(db_path, "PETRA300")
+ATT/tests/test_audit_rtd_option_quotes.py:176:    assert "duplicated codigo_opcao groups: 1" in result["errors"]
+ATT/tests/test_audit_rtd_option_quotes.py:184:    insert_quote(db_path, "PETRA300", updated_at="2000-01-01 00:00:00")
+ATT/tests/test_canonical_input_service.py:17:    def get_snapshot(self, underlying_asset, reference_date=None):
+ATT/tests/test_canonical_input_service.py:78:                    "symbol": "BOVAE195",
+ATT/tests/test_canonical_input_service.py:90:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:107:        self.assertEqual(result["structure"]["legs"][0]["symbol"], "BOVAE195")
+ATT/tests/test_canonical_input_service.py:121:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:128:                        "symbol": "BOVAE195",
+ATT/tests/test_canonical_input_service.py:150:        self.assertEqual(result["structure"]["legs"][0]["symbol"], "BOVAE195")
+ATT/tests/test_canonical_input_service.py:164:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:194:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:223:                    "symbol": "BOVAM190",
+ATT/tests/test_canonical_input_service.py:239:                    "symbol": "BOVAM185",
+ATT/tests/test_canonical_input_service.py:257:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:294:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_validators.py:14:                    "symbol": "BOVAE195",
+ATT/tests/test_contracts.py:14:                    "symbol": "BOVAE195",
+ATT/tests/test_import_rtd_links_to_option_quotes.py:11:SCRIPT_PATH = ROOT / "scripts" / "import_rtd_links_to_option_quotes.py"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:15:    "import_rtd_links_to_option_quotes",
+ATT/tests/test_import_rtd_links_to_option_quotes.py:24:def create_rtd_option_quotes_schema(db_path: Path) -> None:
+ATT/tests/test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_import_rtd_links_to_option_quotes.py:33:                codigo_opcao TEXT NOT NULL,
+ATT/tests/test_import_rtd_links_to_option_quotes.py:59:                UNIQUE(codigo_opcao)
+ATT/tests/test_import_rtd_links_to_option_quotes.py:73:                "codigo_opcao",
+ATT/tests/test_import_rtd_links_to_option_quotes.py:83:def fetch_option(db_path: Path, codigo_opcao: str) -> sqlite3.Row | None:
+ATT/tests/test_import_rtd_links_to_option_quotes.py:91:                codigo_opcao,
+ATT/tests/test_import_rtd_links_to_option_quotes.py:103:            FROM rtd_option_quotes
+ATT/tests/test_import_rtd_links_to_option_quotes.py:104:            WHERE codigo_opcao = ?
+ATT/tests/test_import_rtd_links_to_option_quotes.py:106:            (codigo_opcao,),
+ATT/tests/test_import_rtd_links_to_option_quotes.py:116:        return conn.execute("SELECT COUNT(*) FROM rtd_option_quotes").fetchone()[0]
+ATT/tests/test_import_rtd_links_to_option_quotes.py:167:    assert record["codigo_opcao"] == "PETRA123"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:185:    create_rtd_option_quotes_schema(db_path)
+ATT/tests/test_import_rtd_links_to_option_quotes.py:213:    create_rtd_option_quotes_schema(db_path)
+ATT/tests/test_import_rtd_links_to_option_quotes.py:258:    assert option["codigo_opcao"] == "PETRA123"
+ATT/tests/test_legacy_robo_legs_fallback.py:112:    assert legs[0]["symbol"] == "PETR4"
+ATT/tests/test_legacy_structure_legs_importer.py:7:from services.legacy_structure_legs_importer import LegacyStructureLegsImporter
+ATT/tests/test_legacy_structure_legs_importer.py:27:        CREATE TABLE structure_legs (
+ATT/tests/test_legacy_structure_legs_importer.py:32:            symbol TEXT,
+ATT/tests/test_legacy_structure_legs_importer.py:73:        INSERT INTO structure_legs (
+ATT/tests/test_legacy_structure_legs_importer.py:74:            structure_id, position_side, option_type, symbol,
+ATT/tests/test_legacy_structure_legs_importer.py:117:            "symbol": "BOVAE195",
+ATT/tests/test_legacy_structure_legs_importer.py:128:            "symbol": "BOVAE200",
+ATT/tests/test_legacy_structure_legs_importer.py:166:    assert [leg["symbol"] for leg in legs] == ["BOVAE195", "BOVAE200"]
+ATT/tests/test_legacy_structure_legs_importer.py:202:    assert repo.get_structure(123)["legs"][0]["symbol"] == "OLDLEG"
+ATT/tests/test_legacy_structure_legs_importer.py:215:            "symbol": "BOVAE195",
+ATT/tests/test_legacy_structure_legs_importer_integration.py:9:from services.legacy_structure_legs_importer import LegacyStructureLegsImporter
+ATT/tests/test_legacy_structure_legs_importer_integration.py:10:from services.legacy_structure_legs_reader import LegacyStructureLegsReader
+ATT/tests/test_legacy_structure_legs_importer_integration.py:30:        CREATE TABLE structure_legs (
+ATT/tests/test_legacy_structure_legs_importer_integration.py:35:            symbol TEXT,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:110:        INSERT INTO structure_legs (
+ATT/tests/test_legacy_structure_legs_importer_integration.py:111:            structure_id, position_side, option_type, symbol,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:218:    assert imported_leg["symbol"] == "MANUALPUT185"
+ATT/tests/test_legacy_structure_legs_importer_integration.py:228:    assert imported_leg["symbol"] != "OLDLEG"
+ATT/tests/test_legacy_structure_legs_importer_integration.py:229:    assert imported_leg["symbol"] != "RTDLEG190"
+ATT/tests/test_legacy_structure_legs_reader.py:6:from services.legacy_structure_legs_reader import LegacyStructureLegsReader
+ATT/tests/test_legacy_structure_legs_reader.py:24:def test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload():
+ATT/tests/test_legacy_structure_legs_reader.py:65:            "symbol": "BOVAE195",
+ATT/tests/test_legacy_structure_legs_reader.py:76:            "symbol": "BOVAO185",
+ATT/tests/test_legacy_structure_legs_reader.py:213:            "symbol": "BOVAE195",
+ATT/tests/test_market_snapshot_provider.py:5:from services.market_snapshot_provider import MarketSnapshotProvider
+ATT/tests/test_market_snapshot_provider.py:8:def test_get_snapshot_normalizes_asset_and_uses_explicit_reference_date():
+ATT/tests/test_market_snapshot_provider.py:19:    snapshot = provider.get_snapshot("  bova11  ", reference_date="2026-05-16")
+ATT/tests/test_market_snapshot_provider.py:21:    assert snapshot == {
+ATT/tests/test_market_snapshot_provider.py:30:def test_get_snapshot_uses_today_provider_when_reference_date_is_none():
+ATT/tests/test_market_snapshot_provider.py:42:    snapshot = provider.get_snapshot("PETR4")
+ATT/tests/test_market_snapshot_provider.py:44:    assert snapshot["reference_date"] == "2026-05-16"
+ATT/tests/test_market_snapshot_provider.py:45:    assert snapshot["underlying_asset"] == "PETR4"
+ATT/tests/test_market_snapshot_provider.py:46:    assert snapshot["spot_price"] == 37.42
+ATT/tests/test_market_snapshot_provider.py:47:    assert snapshot["interest_rate"] == 0.1175
+ATT/tests/test_market_snapshot_provider.py:48:    assert snapshot["volatility"] == 0.31
+ATT/tests/test_market_snapshot_provider.py:51:def test_get_snapshot_raises_when_underlying_asset_is_missing():
+ATT/tests/test_market_snapshot_provider.py:63:        provider.get_snapshot("   ")
+ATT/tests/test_market_snapshot_provider.py:66:def test_get_snapshot_raises_when_asset_not_found():
+ATT/tests/test_market_snapshot_provider.py:77:    with pytest.raises(ValueError, match="market snapshot not found for asset: BOVA11"):
+ATT/tests/test_market_snapshot_provider.py:78:        provider.get_snapshot("BOVA11")
+ATT/tests/test_market_snapshot_provider.py:81:def test_get_snapshot_casts_numeric_fields_to_float():
+ATT/tests/test_market_snapshot_provider.py:92:    snapshot = provider.get_snapshot("BOVA11", reference_date="2026-05-16")
+ATT/tests/test_market_snapshot_provider.py:94:    assert snapshot["spot_price"] == 198.35
+ATT/tests/test_market_snapshot_provider.py:95:    assert snapshot["interest_rate"] == 0.1175
+ATT/tests/test_market_snapshot_provider.py:96:    assert snapshot["volatility"] == 0.22
+ATT/tests/test_market_snapshot_provider.py:97:    assert isinstance(snapshot["spot_price"], float)
+ATT/tests/test_market_snapshot_provider.py:98:    assert isinstance(snapshot["interest_rate"], float)
+ATT/tests/test_market_snapshot_provider.py:99:    assert isinstance(snapshot["volatility"], float)
+ATT/tests/test_orchestrator_run_methods.py:33:        symbol="PETR4C100",
+ATT/tests/test_orchestrator_run_methods.py:56:        snapshot_timestamp="2026-06-02T00:00:00Z",
+ATT/tests/test_orchestrator_run_methods.py:57:        option_quotes={},
+ATT/tests/test_orchestrator_run_methods.py:60:    return SimpleNamespace(structure=structure, market_snapshot=market)
+ATT/tests/test_payoff_canonical.py:14:                    "symbol": "BOVAE195",
+ATT/tests/test_payoff_chart.py:39:    "matplotlib.ticker":                 MagicMock(),
+ATT/tests/test_payoff_chart.py:48:sys.modules["matplotlib.ticker"].FuncFormatter = lambda f: f
+ATT/tests/test_pricing_execution_persistence_service.py:166:    def create_snapshot(self, **kwargs):
+ATT/tests/test_pricing_execution_persistence_service.py:172:    def create_snapshot(self, **kwargs):
+ATT/tests/test_pricing_execution_persistence_service.py:173:        raise RuntimeError("snapshot failure")
+ATT/tests/test_pricing_execution_persistence_service.py:176:def test_persist_execution_creates_system_snapshot_for_successful_execution():
+ATT/tests/test_pricing_execution_persistence_service.py:178:    snapshots_repository = FakeSystemSnapshotsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:182:        system_snapshots_repository=snapshots_repository,
+ATT/tests/test_pricing_execution_persistence_service.py:194:            "snapshot_source": "manual",
+ATT/tests/test_pricing_execution_persistence_service.py:202:                "symbol": "PETR4C360",
+ATT/tests/test_pricing_execution_persistence_service.py:242:    assert persisted["snapshot_id"] == 99
+ATT/tests/test_pricing_execution_persistence_service.py:244:    assert len(snapshots_repository.calls) == 1
+ATT/tests/test_pricing_execution_persistence_service.py:245:    call = snapshots_repository.calls[0]
+ATT/tests/test_pricing_execution_persistence_service.py:251:    assert call["snapshot_source"] == "system_pricing_execution"
+ATT/tests/test_pricing_execution_persistence_service.py:273:def test_persist_execution_does_not_create_system_snapshot_without_pricing_payload():
+ATT/tests/test_pricing_execution_persistence_service.py:275:    snapshots_repository = FakeSystemSnapshotsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:279:        system_snapshots_repository=snapshots_repository,
+ATT/tests/test_pricing_execution_persistence_service.py:302:    assert snapshots_repository.calls == []
+ATT/tests/test_pricing_execution_persistence_service.py:305:def test_persist_execution_does_not_create_system_snapshot_for_non_ok_status():
+ATT/tests/test_pricing_execution_persistence_service.py:307:    snapshots_repository = FakeSystemSnapshotsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:311:        system_snapshots_repository=snapshots_repository,
+ATT/tests/test_pricing_execution_persistence_service.py:339:    assert snapshots_repository.calls == []
+ATT/tests/test_pricing_execution_persistence_service.py:342:def test_persist_execution_ignores_system_snapshot_failure():
+ATT/tests/test_pricing_execution_persistence_service.py:347:        system_snapshots_repository=RaisingSystemSnapshotsRepository(),
+ATT/tests/test_pricing_payload_adapter.py:18:                        "symbol": "BOVAE195",
+ATT/tests/test_pricing_payload_adapter.py:51:                        "symbol": "bovaq195",
+ATT/tests/test_pricing_payload_adapter.py:73:        self.assertEqual(payload["legs"][0]["symbol"], "BOVAQ195")
+ATT/tests/test_robo_leg_mapper.py:23:    assert result["symbol"] == "BOVAE195"
+ATT/tests/test_robo_leg_mapper.py:46:    assert result["symbol"] == "BOVAO185"
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:11:    / "run_rtd_option_quotes_pipeline.py"
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:17:        "run_rtd_option_quotes_pipeline_under_test",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:35:    assert command[1].endswith("import_rtd_links_to_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:64:    assert command[1].endswith("audit_rtd_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:104:    assert calls[0][1].endswith("import_rtd_links_to_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:124:    assert calls[0][1].endswith("import_rtd_links_to_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:125:    assert calls[1][1].endswith("audit_rtd_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:146:    assert calls[0][1].endswith("import_rtd_links_to_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:156:        if command[1].endswith("import_rtd_links_to_option_quotes.py"):
+ATT/tests/test_structure_analysis_service.py:36:                        "symbol": "BOVAM190",
+ATT/tests/test_structure_analysis_service.py:46:                        "symbol": "BOVAM185",
+ATT/tests/test_structure_analysis_service.py:450:                        "symbol": "BOVAM190",
+ATT/tests/test_structure_analysis_service.py:466:                        "symbol": "BOVAM185",
+ATT/tests/test_structure_editor_dialog.py:252:            "premium": None, "multiplier": 1, "symbol": None,
+ATT/tests/test_structure_editor_integration.py:181:        "matplotlib.ticker",
+ATT/tests/test_structure_editor_integration.py:207:    for _sub in ("ticker", "figure", "pyplot", "lines", "patches",
+ATT/tests/test_structure_editor_integration.py:230:    ticker = sys.modules["matplotlib.ticker"]
+ATT/tests/test_structure_editor_integration.py:231:    if not hasattr(ticker, "FuncFormatter"):
+ATT/tests/test_structure_editor_integration.py:232:        ticker.FuncFormatter   = MagicMock
+ATT/tests/test_structure_editor_integration.py:233:        ticker.MaxNLocator     = MagicMock
+ATT/tests/test_structure_editor_integration.py:234:        ticker.AutoLocator     = MagicMock
+ATT/tests/test_structure_editor_integration.py:235:        ticker.MultipleLocator = MagicMock
+ATT/tests/test_structure_editor_integration.py:238:    for _sub in ("ticker", "figure", "pyplot", "lines", "patches",
+ATT/tests/test_structure_editor_integration.py:366:             "leg_order": 99, "symbol": None, "notes": None},
+ATT/tests/test_structure_editor_integration.py:531:             "leg_order": 1, "symbol": None, "notes": None},
+ATT/tests/test_structure_editor_integration.py:535:             "leg_order": 2, "symbol": None, "notes": None},
+ATT/tests/test_structure_events_api.py:31:    "symbol": "PETR4",
+ATT/tests/test_structure_events_api.py:64:    "symbol": "PETR4",
+ATT/tests/test_structure_events_effective_state.py:30:                "symbol": "BOVAM190",
+ATT/tests/test_structure_events_effective_state.py:41:                "symbol": "BOVAM185",
+ATT/tests/test_structure_events_repository.py:41:        "symbol": "BOVA11C120",
+ATT/tests/test_structure_events_repository.py:71:            "symbol": "BOVA11C120",
+ATT/tests/test_structure_events_repository.py:91:    assert event["symbol"] == "BOVA11C120"
+ATT/tests/test_structure_events_repository.py:233:                "exit_symbol": "BOVA11C120",
+ATT/tests/test_structure_events_repository.py:234:                "entry_symbol": "BOVA11C125",
+ATT/tests/test_structure_events_repository.py:275:        valid_leg_payload(symbol="PETR4C40", strike=40.0),
+ATT/tests/test_structure_events_service.py:96:        symbol="  PETRA100  ",
+ATT/tests/test_structure_events_service.py:110:    assert record["symbol"] == "PETRA100"
+ATT/tests/test_structure_events_service.py:141:        symbol="PETRA100",
+ATT/tests/test_structure_events_service.py:153:    assert record["symbol"] == "PETRA100"
+ATT/tests/test_structure_input_mapper.py:14:                "symbol": " bovae195 ",
+ATT/tests/test_structure_input_mapper.py:33:    assert result["legs"][0]["symbol"] == "BOVAE195"
+ATT/tests/test_structure_market_input_assembler.py:17:                    "symbol": "BOVAE195",
+ATT/tests/test_structure_market_input_assembler.py:27:        market_snapshot = {
+ATT/tests/test_structure_market_input_assembler.py:35:        result = assemble_structure_market_input(structure, market_snapshot)
+ATT/tests/test_structure_market_input_assembler.py:54:        market_snapshot = {
+ATT/tests/test_structure_market_input_assembler.py:63:            assemble_structure_market_input(structure, market_snapshot)
+ATT/tests/test_structure_market_input_assembler.py:68:        market_snapshot = {
+ATT/tests/test_structure_market_input_assembler.py:77:            assemble_structure_market_input({}, market_snapshot)
+ATT/tests/test_structure_market_input_assembler.py:81:    def test_should_raise_when_market_snapshot_is_missing(self):
+ATT/tests/test_structure_market_input_assembler.py:92:        self.assertIn("market_snapshot is required", str(ctx.exception))
+ATT/tests/test_structures_api.py:44:            "symbol": "PETRJ240",
+ATT/tests/test_structures_api.py:72:    "symbol":          "PETRJ240",
+ATT/tests/test_structures_archive_wiring.py:542:                "CREATE TABLE IF NOT EXISTS structure_legs "
+ATT/tests/test_structures_archive_wiring.py:544:                " position_side TEXT, option_type TEXT, symbol TEXT, "
+ATT/tests/test_structures_archive_wiring.py:579:                "CREATE TABLE IF NOT EXISTS structure_legs "
+ATT/tests/test_structures_legs_endpoints.py:32:    "symbol":          "PETRJ240",
+ATT/tests/test_structures_repository.py:28:        "symbol": "BOVA11C120",
+ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+ATT/tests/test_structures_repository.py:119:            symbol="BOVA11P110",
+ATT/tests/test_structures_repository.py:128:    assert [leg["symbol"] for leg in structure["legs"]] == ["BOVA11P110", "BOVA11C130"]
+ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+ATT/tests/test_structures_repository.py:214:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+ATT/tests/test_structures_repository.py:223:                symbol="BOVA11P100",
+ATT/tests/test_structures_repository.py:232:    assert structure["legs"][0]["symbol"] == "BOVA11P100"
+ATT/tests/test_system_snapshots_repository.py:9:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+ATT/tests/test_system_snapshots_repository.py:44:    symbol: str,
+ATT/tests/test_system_snapshots_repository.py:49:        INSERT INTO structure_legs (
+ATT/tests/test_system_snapshots_repository.py:53:            symbol,
+ATT/tests/test_system_snapshots_repository.py:70:            symbol,
+ATT/tests/test_system_snapshots_repository.py:85:def test_create_snapshot_persists_snapshot_and_legs(tmp_path: Path):
+ATT/tests/test_system_snapshots_repository.py:95:            symbol="PETRA10",
+ATT/tests/test_system_snapshots_repository.py:102:            symbol="PETRA12",
+ATT/tests/test_system_snapshots_repository.py:108:    snapshot_id = repo.create_snapshot(
+ATT/tests/test_system_snapshots_repository.py:130:                "symbol": "PETRA10",
+ATT/tests/test_system_snapshots_repository.py:144:                "symbol": "PETRA12",
+ATT/tests/test_system_snapshots_repository.py:156:    snapshot = repo.get_snapshot(snapshot_id)
+ATT/tests/test_system_snapshots_repository.py:158:    assert snapshot is not None
+ATT/tests/test_system_snapshots_repository.py:159:    assert snapshot["id"] == snapshot_id
+ATT/tests/test_system_snapshots_repository.py:160:    assert snapshot["structure_id"] == structure_id
+ATT/tests/test_system_snapshots_repository.py:161:    assert snapshot["underlying_asset"] == "PETR4"
+ATT/tests/test_system_snapshots_repository.py:162:    assert snapshot["reference_date"] == "2026-06-12"
+ATT/tests/test_system_snapshots_repository.py:163:    assert snapshot["snapshot_source"] == "system"
+ATT/tests/test_system_snapshots_repository.py:164:    assert snapshot["structure_json"]["name"] == "Teste Snapshot"
+ATT/tests/test_system_snapshots_repository.py:165:    assert snapshot["market_json"] == {"spot": 31.25}
+ATT/tests/test_system_snapshots_repository.py:166:    assert snapshot["metrics_json"] == {"theoretical_value": 2.5}
+ATT/tests/test_system_snapshots_repository.py:167:    assert snapshot["payoff_json"] == {"max_gain": 1000}
+ATT/tests/test_system_snapshots_repository.py:168:    assert snapshot["decision_json"] == {"action": "hold"}
+ATT/tests/test_system_snapshots_repository.py:169:    assert snapshot["alerts_json"] == [{"level": "info", "message": "ok"}]
+ATT/tests/test_system_snapshots_repository.py:170:    assert snapshot["operation_state_json"] == {"state": "active"}
+ATT/tests/test_system_snapshots_repository.py:172:    assert len(snapshot["legs"]) == 2
+ATT/tests/test_system_snapshots_repository.py:173:    assert snapshot["legs"][0]["leg_id"] == leg_1_id
+ATT/tests/test_system_snapshots_repository.py:174:    assert snapshot["legs"][0]["symbol"] == "PETRA10"
+ATT/tests/test_system_snapshots_repository.py:175:    assert snapshot["legs"][0]["metrics_json"] == {"delta": 0.55}
+ATT/tests/test_system_snapshots_repository.py:176:    assert snapshot["legs"][1]["leg_id"] == leg_2_id
+ATT/tests/test_system_snapshots_repository.py:177:    assert snapshot["legs"][1]["symbol"] == "PETRA12"
+ATT/tests/test_system_snapshots_repository.py:178:    assert snapshot["legs"][1]["market_json"] == {"bid": 0.9, "ask": 1.0}
+ATT/tests/test_system_snapshots_repository.py:181:def test_list_snapshots_for_structure_orders_by_created_at_desc(tmp_path: Path):
+ATT/tests/test_system_snapshots_repository.py:190:    first_id = repo.create_snapshot(
+ATT/tests/test_system_snapshots_repository.py:195:    second_id = repo.create_snapshot(
+ATT/tests/test_system_snapshots_repository.py:201:    snapshots = repo.list_snapshots_for_structure(structure_id)
+ATT/tests/test_system_snapshots_repository.py:203:    assert [snapshot["id"] for snapshot in snapshots] == [second_id, first_id]
+ATT/tests/test_system_snapshots_repository.py:204:    assert snapshots[0]["structure_json"] == {"version": 2}
+ATT/tests/test_system_snapshots_repository.py:205:    assert snapshots[1]["structure_json"] == {"version": 1}
+ATT/tests/test_system_snapshots_repository.py:208:def test_get_latest_snapshot_for_structure_returns_snapshot_with_legs(tmp_path: Path):
+ATT/tests/test_system_snapshots_repository.py:217:    repo.create_snapshot(
+ATT/tests/test_system_snapshots_repository.py:223:    latest_id = repo.create_snapshot(
+ATT/tests/test_system_snapshots_repository.py:232:                "symbol": "PETRM30",
+ATT/tests/test_system_snapshots_repository.py:242:    latest = repo.get_latest_snapshot_for_structure(structure_id)
+ATT/tests/test_system_snapshots_repository.py:248:    assert latest["legs"][0]["symbol"] == "PETRM30"
+ATT/tests/test_system_snapshots_repository.py:251:def test_get_snapshot_returns_none_when_not_found(tmp_path: Path):
+ATT/tests/test_system_snapshots_repository.py:256:    assert repo.get_snapshot(999999) is None
+ATT/tests/test_system_snapshots_repository.py:259:def test_create_snapshot_requires_structure_id_and_structure_json(tmp_path: Path):
+ATT/tests/test_system_snapshots_repository.py:265:        repo.create_snapshot(
+ATT/tests/test_system_snapshots_repository.py:271:        repo.create_snapshot(
+ATT/tests/test_system_snapshots_schema.py:30:def test_ensure_structures_schema_creates_system_snapshot_tables(tmp_path: Path):
+ATT/tests/test_system_snapshots_schema.py:43:    assert "structure_snapshots" in tables
+ATT/tests/test_system_snapshots_schema.py:44:    assert "structure_leg_snapshots" in tables
+ATT/tests/test_system_snapshots_schema.py:47:def test_structure_snapshots_schema_columns_indexes_and_foreign_keys(tmp_path: Path):
+ATT/tests/test_system_snapshots_schema.py:53:        cols = _columns(conn, "structure_snapshots")
+ATT/tests/test_system_snapshots_schema.py:54:        indexes = _indexes(conn, "structure_snapshots")
+ATT/tests/test_system_snapshots_schema.py:55:        foreign_keys = _foreign_keys(conn, "structure_snapshots")
+ATT/tests/test_system_snapshots_schema.py:64:        "snapshot_source",
+ATT/tests/test_system_snapshots_schema.py:75:        "idx_structure_snapshots_structure_id",
+ATT/tests/test_system_snapshots_schema.py:76:        "idx_structure_snapshots_created_at",
+ATT/tests/test_system_snapshots_schema.py:77:        "idx_structure_snapshots_structure_created",
+ATT/tests/test_system_snapshots_schema.py:78:        "idx_structure_snapshots_reference_date",
+ATT/tests/test_system_snapshots_schema.py:79:        "idx_structure_snapshots_pricing_execution_id",
+ATT/tests/test_system_snapshots_schema.py:86:def test_structure_leg_snapshots_schema_columns_indexes_and_foreign_keys(tmp_path: Path):
+ATT/tests/test_system_snapshots_schema.py:92:        cols = _columns(conn, "structure_leg_snapshots")
+ATT/tests/test_system_snapshots_schema.py:93:        indexes = _indexes(conn, "structure_leg_snapshots")
+ATT/tests/test_system_snapshots_schema.py:94:        foreign_keys = _foreign_keys(conn, "structure_leg_snapshots")
+ATT/tests/test_system_snapshots_schema.py:98:        "snapshot_id",
+ATT/tests/test_system_snapshots_schema.py:104:        "symbol",
+ATT/tests/test_system_snapshots_schema.py:116:        "idx_structure_leg_snapshots_snapshot_id",
+ATT/tests/test_system_snapshots_schema.py:117:        "idx_structure_leg_snapshots_structure_id",
+ATT/tests/test_system_snapshots_schema.py:118:        "idx_structure_leg_snapshots_leg_id",
+ATT/tests/test_system_snapshots_schema.py:121:    assert ("structure_snapshots", "snapshot_id", "id", "CASCADE") in foreign_keys
+ATT/tests/test_system_snapshots_schema.py:123:    assert ("structure_legs", "leg_id", "id", "NO ACTION") in foreign_keys
+ATT/tests/test_ui_data_migration.py:105:    migração structure_id: structure_id (int) e aba (ticker str) sao campos distintos.
+ATT/tests/test_ui_data_migration.py:148:    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+UI/components/details_panel.py:107:    def _get_latest_snapshot_timestamp_for_structure(self, structure_id):
+UI/components/details_panel.py:109:        Retorna o timestamp mais recente de snapshot para uma estrutura.
+UI/components/details_panel.py:313:                "snapshot_timestamp": 99,
+UI/components/details_panel.py:314:                "snapshot_ts": 98,
+UI/components/details_panel.py:328:            if "snapshot" in low and ("time" in low or "date" in low or "ts" in low):
+UI/components/details_panel.py:405:            "robo_legs_snapshot",
+UI/components/details_panel.py:406:            "robo_snapshot",
+UI/components/details_panel.py:407:            "snapshots",
+UI/components/details_panel.py:408:            "snapshot",
+UI/components/details_panel.py:409:            "structure_snapshots",
+UI/components/details_panel.py:446:            self._get_latest_snapshot_timestamp_for_structure(structure_id),
+UI/components/payoff_chart.py:3:from matplotlib.ticker import FuncFormatter
+UI/components/structure_editor_dialog.py:135:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+UI/components/structure_editor_dialog.py:178:        self._lf_symbol  = tk.StringVar()
+UI/components/structure_editor_dialog.py:207:            ("Simbolo", self._lf_symbol),
+UI/components/structure_editor_dialog.py:262:                leg.get("symbol") or "",
+UI/components/structure_editor_dialog.py:291:        self._lf_symbol.set(str(leg.get("symbol") or ""))
+UI/components/structure_editor_dialog.py:304:            "symbol":          None,
+UI/components/structure_editor_dialog.py:365:            "symbol":          self._lf_symbol.get() or None,
+UI/main_window.py:667:                    f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '--'}",
+api/structures_controller.py:58:    symbol: str | None   = None
+api/structures_controller.py:215:            "SELECT id FROM structure_legs WHERE id=? AND structure_id=?",
+api/structures_controller.py:229:            "DELETE FROM structure_legs WHERE id=?",
+api/structures_controller.py:298:    symbol: str | None = None
+db/derived_repo.py:163:CREATE UNIQUE INDEX IF NOT EXISTS ux_payoff_snapshot
+db/derived_repo.py:194:CREATE UNIQUE INDEX IF NOT EXISTS ux_decision_snapshot
+db/derived_repo.py:348:        ab = aba       or decision_dict.get("aba")       or decision_dict.get("ticker", "unknown")
+db/derived_repo.py:355:    def write_decision_snapshot_atomic(
+db/derived_repo.py:405:    def write_payoff_snapshot_atomic(
+db/derived_repo.py:499:    # Escrita -- snapshot completo
+db/derived_repo.py:502:    def write_complete_snapshot_atomic(
+db/derived_repo.py:605:        ticker: Optional[str] = None,
+db/derived_repo.py:625:            if ticker is not None and aba is None:
+db/derived_repo.py:627:                params.append(ticker)
+db/derived_repo.py:657:    def validate_snapshot_consistency(self) -> bool:
+db/derived_repo.py:760:def write_payoff_snapshot_atomic(
+db/derived_repo.py:800:def write_decision_snapshot_atomic(
+db/derived_repo.py:837:def write_complete_snapshot_atomic(
+db/derived_repo.py:848:        pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta, structure_id=decision_dict.get("structure_id"))
+db/derived_repo.py:849:        did = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
+db/derived_repo.py:956:def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
+db/import_excel.py:10:    "ANALISE_ROBO": "robo_snapshot",
+db/import_excel.py:11:    "ANALISE_ROBO_LEGS": "robo_legs_snapshot",
+db/schema.py:80:    symbol         TEXT,
+db/schema.py:87:    FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+db/schema_excel.py:17:CREATE TABLE IF NOT EXISTS robo_snapshot (
+db/schema_excel.py:35:CREATE INDEX IF NOT EXISTS ix_robo_snapshot_aba ON robo_snapshot(aba);
+db/schema_excel.py:38:CREATE TABLE IF NOT EXISTS robo_legs_snapshot (
+db/schema_excel.py:63:CREATE INDEX IF NOT EXISTS ix_robo_legs_snapshot_ts ON robo_legs_snapshot(timestamp);
+db/schema_excel.py:64:CREATE INDEX IF NOT EXISTS ix_robo_legs_snapshot_aba ON robo_legs_snapshot(aba);
+db/schema_excel.py:65:CREATE INDEX IF NOT EXISTS ix_robo_legs_snapshot_ativo ON robo_legs_snapshot(ativo);
+db/writer.py:243:        DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic().
+db/writer.py:248:            "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+db/writer.py:253:        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+db/writer.py:271:            return write_decision_snapshot_atomic(conn, timestamp, ref, decision_dict)
+docs/3B_CLOSURE_REPORT.md:62:- `ativo` -> `symbol` normalizado em uppercase/trim
+docs/AUDITORIA_FASE_11_SNAPSHOTS_HISTORICO.md:10:fase-11-snapshots-historico-sistema
+docs/AUDITORIA_FASE_11_SNAPSHOTS_HISTORICO.md:13:Criar snapshots periódicos de estruturas, pernas, cotações, métricas, alertas e estado operacional.
+docs/AUDITORIA_ROTA_MESTRE_2.md:175:- `repositories/rtd_option_quotes_repository.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:176:- `services/market_snapshot_provider.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:177:- `services/market_snapshot_selector.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:178:- `repositories/market_snapshot_repository.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:231:- `repositories/rtd_option_quotes_repository.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:232:- `services/market_snapshot_provider.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:233:- `services/market_snapshot_selector.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:234:- `repositories/market_snapshot_repository.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:365:- `repositories/rtd_option_quotes_repository.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:366:- `repositories/market_snapshot_repository.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:367:- `services/market_snapshot_provider.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:368:- `services/market_snapshot_selector.py`
+docs/AUDITORIA_ROTA_MESTRE_2.md:397:| Fase 5 | `233fe8b` | Ordena snapshots de mercado cronologicamente |
+docs/AUDITORIA_ROTA_MESTRE_2.md:399:| Fase 6B | `3f01728` | Explicita colunas de eventos e snapshots |
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:186:repositories/market_snapshot_repository.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:189:services/market_snapshot_selector.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:209:repositories/market_snapshot_repository.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:238:repositories/rtd_option_quotes_repository.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:244:rtd_option_quotes
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:257:ticker
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:273:services/market_snapshot_provider.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:306:rtd_option_quotes
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:317:repositories/rtd_option_quotes_repository.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:318:repositories/market_snapshot_repository.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:335:snapshots derivados
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:448:repositories/market_snapshot_repository.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:451:domain/market_snapshot.py
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:463:robo_snapshot
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:464:robo_legs_snapshot
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:495:- leitura: structures_repository, market_snapshot_repository, robo_legs_repository
+docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:501:- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:63:Devem alimentar repositórios, snapshots ou processos de normalização.
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:93:Configuração define comportamento do sistema, mas não representa operação, preço calculado ou snapshot de mercado.
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:103:structure_legs
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:154:repositories/market_snapshot_repository.py
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:157:services/market_snapshot_selector.py
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:276:| `structure_legs` | operacional | manter como pernas cadastradas da estrutura |
+docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:280:| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:57:db/import_excel.py:10:    "ANALISE_ROBO": "robo_snapshot",
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:58:db/import_excel.py:11:    "ANALISE_ROBO_LEGS": "robo_legs_snapshot",
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:88:domain/market_snapshot.py:58:    Agrega o cabeçalho da estrutura (rtd_analise_robo) e suas legs.
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:89:repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:90:repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:91:repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:92:repositories/market_snapshot_repository.py:98:    FROM rtd_analise_robo
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:261:repositories/market_snapshot_repository.py
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:264:domain/market_snapshot.py
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:381:repositories/market_snapshot_repository.py
+docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:384:domain/market_snapshot.py
+docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:181:robo_snapshot
+docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:182:robo_legs_snapshot
+docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:238:repositories/market_snapshot_repository.py
+docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:257:domain/market_snapshot.py
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:81:- `repositories/market_snapshot_repository.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:84:- `repositories/rtd_option_quotes_repository.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:91:- `rtd_option_quotes`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:97:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:141:- `domain/market_snapshot.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:157:- `services/market_snapshot_selector.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:167:- `services/market_snapshot_selector.py` usa nomes como `get_rtd_legs` e `rtd_by_ativo`, refletindo origem do dado.
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:202:- `repositories/market_snapshot_repository.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:205:- `repositories/rtd_option_quotes_repository.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:221:- `domain/market_snapshot.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:223:- `services/market_snapshot_selector.py`
+docs/FASE_6_CAMADA_CANONICA_LEITURA.md:255:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+docs/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md:34:- `domain/market_snapshot.py`
+docs/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md:46:git grep -n "rtd_analise\\|manual_analise" -- domain/market_snapshot.py services/canonical_pricing_facade.py || true
+docs/MAPA_MODULOS_FUNCOES.md:28:    - linha 17: `CREATE TABLE IF NOT EXISTS robo_snapshot (`
+docs/MAPA_MODULOS_FUNCOES.md:29:    - linha 17: `CREATE TABLE IF NOT EXISTS robo_snapshot (`
+docs/MAPA_MODULOS_FUNCOES.md:30:    - linha 38: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`
+docs/MAPA_MODULOS_FUNCOES.md:31:    - linha 38: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:37:- Fase 4 — Auditoria do fluxo de snapshot de mercado
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:41:- Fase 8 — Integração com snapshot/serviços
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:65:A fonte principal de dados deve ser o banco do próprio sistema, onde serão armazenadas as cotações, estruturas, pernas, eventos, configurações, cálculos, snapshots e históricos necessários para o funcionamento completo da aplicação.
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:77:•	Deve armazenar estruturas, pernas, cotações, configurações, eventos, snapshots e dados derivados.
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:87:•	importar snapshots de mercado para o banco;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:93:•	gerar snapshots periódicos de pernas e estruturas;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:97:•	permitir rastreabilidade entre dado bruto, cálculo, snapshot e exibição;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:127:O sistema passa a ser a fonte da verdade, responsável por banco, estruturas, cálculos, snapshots, histórico e UI.
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:135:7.	Gerar snapshots pelo sistema
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:254:•	ticker;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:268:•	ticker da opção;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:292:•	snapshot bruto RTD;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:335:•	snapshots RTD;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:341:•	snapshots por perna;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:342:•	snapshots por estrutura;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:354:4.	Sistema vincula pernas aos tickers RTD.
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:404:O sistema deve registrar snapshots periódicos de:
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:443:•	snapshots calculados;
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:709:domain/market_snapshot.pydomain/payoff.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:744:repositories/market_snapshot_repository.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:748:repositories/rtd_option_quotes_repository.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:769:services/market_snapshot_provider.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:770:services/market_snapshot_selector.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:791:•	Integração com snapshots de mercado.
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:813:scripts/patch_73_rtd_option_quotes.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:877:•	criar tabela nova antes de auditar rtd_option_quotes_repository.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:938:- RTD_LINKS.csv deve ser auditado inicialmente como catálogo/contrato de conexão RTD, não como fonte definitiva de snapshots de mercado, até que seu schema real confirme essa função.
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:968:•	duplicidade de tickers
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:991:•	confirmar se rtd_option_quotes existe no banco
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:995:•	auditar repositories/rtd_option_quotes_repository.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1005:Fase 4 — Auditoria do fluxo de snapshot de mercado
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1007:•	entender como market_snapshot_provider.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1008:•	market_snapshot_selector.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1009:•	market_snapshot_repository.py
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1024:•	ticker
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1067:•	dados persistidos podem ser consultados por ticker
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1068:•	histórico/último snapshot definidos claramente
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1070:Fase 8 — Integração com snapshot/serviços
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1078:•	estrutura consegue resolver dados de mercado por ticker/opção
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1085:•	teste de cálculo usando snapshot RTD
+docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:1107:RTD_LINKS.csv→ importação→ persistência→ snapshot→ cálculo→ UI
+docs/baseline_v1.md:127:Responsável por conectar no Excel via COM, identificar abas de ativos automaticamente, ler a tabela (header linha 1, dados linha 2, até 10 linhas), normalizar valores e produzir um "snapshot".
+docs/baseline_v1.md:149:Responsável por criar schema, inserir snapshots e permitir consultas eficientes.
+docs/baseline_v1.md:154:*	legs_snapshot (tabela base por perna/linha)
+docs/baseline_v1.md:161:*	insert_legs_snapshot(db_path, ts, aba, rows)
+docs/baseline_v1.md:163:*	(futuro) get_latest_snapshot(db_path, aba) / list_abas(db_path)
+docs/baseline_v1.md:168:*	legs_snapshot: 1 linha = 1 perna da estrutura no instante ts.
+docs/baseline_v1.md:199:*	compute_robo_legs(snapshot_rows, slippage, ...) -> rows_com_PL
+docs/baseline_v1.md:201:*	detect_rolls(prev_snapshot, curr_snapshot, regras_config) -> eventos_roll
+docs/baseline_v1.md:210:*	último snapshot por aba
+docs/baseline_v1.md:225:5.	db/repo.insert_legs_snapshot() grava no SQLite
+docs/baseline_v1.md:299:1.1 Abas de ativos (pernas / snapshot)
+docs/baseline_v1.md:360:*	PLatualPLatual = soma de lucro_prejuizo de todas as pernas da aba no snapshot.
+docs/baseline_v1.md:386:2.	Excel RTD  snapshot por aba
+docs/baseline_v1.md:389:5.	Persistência: db/repo.insert_legs_snapshot()
+docs/baseline_v1.md:450:*	PL_atual vem do somatório de lucro_prejuizo no snapshot.
+docs/baseline_v1.md:459:*	services/update_cycle.py (chamar payoff/decision após snapshot)
+docs/baseline_v1.md:539:5.1 Em services/update_cycle.py (após insert_legs_snapshot)
+docs/baseline_v1.md:542:*	spot (pegar do snapshot; se tiver divergência, usar o primeiro não-nulo)
+docs/baseline_v1a.md:33:*	Tabelas: rtd_* (snapshot + histórico conforme modo replace/append)
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:153:| `scripts/ci_snapshot_canonicality.sh` | Checagem de canonicalidade do banco bruto | Script de verificação transitória |
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:155:### Observação sobre `scripts/ci_snapshot_canonicality.sh`
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:164:- `robo_snapshot`
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:165:- `robo_legs_snapshot`
+docs/executed_v1.md:28:3.1) Problema de "snapshot" (mistura de timestamps)
+docs/executed_v1.md:29:*	read_structure_legs() quando timestamp=None fazia:
+docs/executed_v1.md:68:C) Sanidade do snapshot (principal risco residual)
+docs/executed_v1.md:89:Localização: read_structure_legs() linha ~65
+docs/executed_v1.md:93:Impacto: Estruturas calculadas com dados de snapshots diferentes = curvas incorretas.
+docs/executed_v1.md:111:def read_structure_legs(aba: str, timestamp: Optional[str] = None) -> List[Dict]:    conn = get_app_db_connection()    cursor = conn.cursor()
+docs/executed_v1.md:114:    # Carrega TODAS as legs do mesmo snapshot    cursor.execute(        """SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike""",        (aba, ts)    )    # ... rest
+docs/executed_v1.md:263:- o timestamp usado é sempre o do snapshot real (`timestamp_used`), garantindo total rastreabilidade e sincronismo nos dados derivados e raw.
+docs/fase_2_diagnostico_csvs_rtd_excel.json:7:      "codigo_opcao",
+docs/fase_2_diagnostico_csvs_rtd_excel.md:18:['codigo_opcao', 'ativo_base', 'campo', 'valor', 'atualizado_em']
+docs/fase_2_mapa_contrato_rtd_excel.md:31:`codigo_opcao`, `ativo_base`, `campo`, `valor`, `atualizado_em`
+docs/fase_2_mapa_contrato_rtd_excel.md:50:- Classe: `snapshot operacional por perna`
+docs/fase_2_mapa_contrato_rtd_excel.md:79:- Papel provável: Parâmetros de operação, limites e janelas de snapshot.
+docs/fase_2_mapa_contrato_rtd_excel.md:225:`codigo_opcao`, `ativo_base`, `campo`, `valor`, `atualizado_em`.
+docs/fase_2_mapa_contrato_rtd_excel.md:252:- `ATIVO` em arquivos de pernas contra `codigo_opcao` em `RTD_LINKS.csv`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:8:      "rtd_option_quotes": {
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:21:            "name": "codigo_opcao",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:176:            "codigo_opcao": "PETRA123",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:192:            "raw_json": "[{\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"call_put\", \"valor\": \"CALL\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"strike\", \"valor\": \"32.50\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"vencimento\", \"valor\": \"2026-07-19\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ultimo_preco\", \"valor\": \"1.23\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"bid\", \"valor\": \"1.20\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ask\", \"valor\": \"1.25\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"volume\", \"valor\": \"10000\", \"atualizado_em\": \"2026-06-06 17:50:00\"}]",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:197:        "create_sql": "CREATE TABLE rtd_option_quotes (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n    codigo_opcao TEXT NOT NULL,\n    ativo_base TEXT,\n\n    call_put TEXT,\n    strike REAL,\n    vencimento TEXT,\n\n    ultimo_preco REAL,\n    ultima_quantidade REAL,\n\n    bid REAL,\n    ask REAL,\n    volume REAL,\n\n    iv REAL,\n    delta REAL,\n    gamma REAL,\n    theta REAL,\n    vega REAL,\n\n    source TEXT NOT NULL DEFAULT 'rtd_links',\n    raw_json TEXT,\n\n    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    UNIQUE(codigo_opcao)\n)"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:790:    "repositories/rtd_option_quotes_repository.py": {
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:797:      "mentions_rtd_option_quotes": true,
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:802:    "repositories/market_snapshot_repository.py": {
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:809:      "mentions_rtd_option_quotes": false,
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:814:    "services/market_snapshot_provider.py": {
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:821:      "mentions_rtd_option_quotes": false,
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:826:    "services/market_snapshot_selector.py": {
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:833:      "mentions_rtd_option_quotes": false,
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:840:    "rtd_option_quotes": [
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:846:            "text": "\"rtd_option_quotes\","
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:850:            "text": "\"scripts/patch_73_rtd_option_quotes.py\","
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:854:            "text": "\"repositories/rtd_option_quotes_repository.py\","
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:858:            "text": "if \"repositories/rtd_option_quotes_repository.py\" in existing_paths:"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:862:            "text": "\"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções.\""
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:866:            "text": "if \"scripts/patch_73_rtd_option_quotes.py\" in existing_paths:"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:870:            "text": "\"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções.\""
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:880:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:884:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:888:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:898:            "text": "repositories/rtd_option_quotes_repository.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:902:            "text": "rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:906:            "text": "rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:910:            "text": "repositories/rtd_option_quotes_repository.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:914:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:924:            "text": "| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:934:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:938:            "text": "- `rtd_option_quotes`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:942:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:946:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:950:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:960:            "text": "- rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:964:            "text": "- rtd_option_quotes: 1"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:968:            "text": "- rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:972:            "text": "- rtd_option_quotes possui apenas um registro no estado analisado."
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:976:            "text": "- rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:980:            "text": "- rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:990:            "text": "### `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1000:            "text": "### `repositories/rtd_option_quotes_repository.py`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1010:            "text": "repositories/rtd_option_quotes_repository.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1014:            "text": "scripts/patch_73_rtd_option_quotes.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1018:            "text": "•\tcriar tabela nova antes de auditar rtd_option_quotes_repository.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1022:            "text": "•\tconfirmar se rtd_option_quotes existe no banco"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1026:            "text": "•\tauditar repositories/rtd_option_quotes_repository.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1032:        "path": "repositories/rtd_option_quotes_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1036:            "text": "# repositories/rtd_option_quotes_repository.py"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1040:            "text": "Leitura da tabela rtd_option_quotes."
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1044:            "text": "FROM rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1048:            "text": "FROM rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1052:            "text": "FROM rtd_option_quotes"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1062:            "text": "\"repositories/rtd_option_quotes_repository.py\": \"Prioritário para auditoria de persistência RTD.\","
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1070:        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1084:        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1218:            "text": "# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        \"\"\"SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike\"\"\",        (aba, ts)    )    # ... rest"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1256:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1284:            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1288:            "text": "repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1418:            "text": "- rtd_analise_robo_legs.cv -> structure_legs.position_side"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1422:            "text": "- rtd_analise_robo_legs.call_put -> structure_legs.option_type"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1426:            "text": "- rtd_analise_robo_legs.ativo -> structure_legs.symbol"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1430:            "text": "- rtd_analise_robo_legs.strike -> structure_legs.strike"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1434:            "text": "- rtd_analise_robo_legs.vencimento -> structure_legs.expiration_date"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1438:            "text": "- rtd_analise_robo_legs.quant -> structure_legs.quantity"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1490:        "path": "repositories/market_snapshot_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1538:        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1552:        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1714:            "text": "# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        \"\"\"SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike\"\"\",        (aba, ts)    )    # ... rest"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1772:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1812:            "text": "domain/market_snapshot.py:58:    Agrega o cabeçalho da estrutura (rtd_analise_robo) e suas legs."
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1816:            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1820:            "text": "repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1824:            "text": "repositories/market_snapshot_repository.py:98:    FROM rtd_analise_robo"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2020:            "text": "- rtd_analise_robo_legs.cv -> structure_legs.position_side"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2024:            "text": "- rtd_analise_robo_legs.call_put -> structure_legs.option_type"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2120:        "path": "repositories/market_snapshot_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2172:        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2186:        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2292:            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2296:            "text": "repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2388:        "path": "repositories/market_snapshot_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2546:            "text": "- `ATIVO` em arquivos de pernas contra `codigo_opcao` em `RTD_LINKS.csv`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2614:            "text": "- RTD_LINKS.csv deve ser auditado inicialmente como catálogo/contrato de conexão RTD, não como fonte definitiva de snapshots de mercado, até que seu schema real confirme essa função."
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2634:            "text": "RTD_LINKS.csv→ importação→ persistência→ snapshot→ cálculo→ UI"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2650:        "path": "repositories/rtd_option_quotes_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2712:        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2734:        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:2930:            "text": "# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        \"\"\"SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike\"\"\",        (aba, ts)    )    # ... rest"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3008:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3102:            "text": "repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3106:            "text": "repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3110:            "text": "repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3292:            "text": "- rtd_analise_robo_legs.cv -> structure_legs.position_side"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3388:        "path": "repositories/market_snapshot_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3458:        "path": "services/legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3696:        "path": "ATT/tests/test_legacy_structure_legs_importer.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3704:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3710:        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3718:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3732:        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3810:        "path": "ATT/tests/test_system_snapshots_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3818:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3954:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3958:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3962:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3968:        "path": "repositories/system_snapshots_repository.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3972:            "text": "INSERT INTO structure_snapshots ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3976:            "text": "INSERT INTO structure_leg_snapshots ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:3990:            "text": "INSERT INTO structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4104:            "text": "\"DELETE FROM structure_legs WHERE id=?\","
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4192:            "text": "\"DELETE FROM structure_legs WHERE structure_id=?\","
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4198:        "path": "scripts/purge_derived_snapshots.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4228:        "path": "ATT/tests/test_legacy_structure_legs_importer.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4236:            "text": "CREATE TABLE structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4242:        "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4250:            "text": "CREATE TABLE structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4264:        "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4336:            "text": "\"CREATE TABLE IF NOT EXISTS structure_legs \""
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4344:            "text": "\"CREATE TABLE IF NOT EXISTS structure_legs \""
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4418:            "text": "CREATE TABLE IF NOT EXISTS robo_snapshot ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4422:            "text": "CREATE TABLE IF NOT EXISTS robo_legs_snapshot ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4542:            "text": "- linha 17: `CREATE TABLE IF NOT EXISTS robo_snapshot (`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4546:            "text": "- linha 17: `CREATE TABLE IF NOT EXISTS robo_snapshot (`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4550:            "text": "- linha 38: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4554:            "text": "- linha 38: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`"
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4578:            "text": "CREATE TABLE IF NOT EXISTS structure_legs ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4590:            "text": "CREATE TABLE IF NOT EXISTS structure_snapshots ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:4594:            "text": "CREATE TABLE IF NOT EXISTS structure_leg_snapshots ("
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:11:- `repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:12:- `repositories/market_snapshot_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:13:- `services/market_snapshot_provider.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:14:- `services/market_snapshot_selector.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:18:- `rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:27:### `repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:35:- Menciona `rtd_option_quotes`: `True`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:40:### `repositories/market_snapshot_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:48:- Menciona `rtd_option_quotes`: `False`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:53:### `services/market_snapshot_provider.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:61:- Menciona `rtd_option_quotes`: `False`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:66:### `services/market_snapshot_selector.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:74:- Menciona `rtd_option_quotes`: `False`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:84:### Tabela `rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:92:- `codigo_opcao` — tipo `TEXT`, pk `0`, not null `1`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:115:CREATE TABLE rtd_option_quotes (
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:118:    codigo_opcao TEXT NOT NULL,
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:144:    UNIQUE(codigo_opcao)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:154:    "codigo_opcao": "PETRA123",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:170:    "raw_json": "[{\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"call_put\", \"valor\": \"CALL\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"strike\", \"valor\": \"32.50\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"vencimento\", \"valor\": \"2026-07-19\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ultimo_preco\", \"valor\": \"1.23\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"bid\", \"valor\": \"1.20\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ask\", \"valor\": \"1.25\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"volume\", \"valor\": \"10000\", \"atualizado_em\": \"2026-06-06 17:50:00\"}]",
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:428:### Termo `rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:431:  - linha `107`: `"rtd_option_quotes",`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:432:  - linha `145`: `"scripts/patch_73_rtd_option_quotes.py",`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:433:  - linha `147`: `"repositories/rtd_option_quotes_repository.py",`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:434:  - linha `346`: `if "repositories/rtd_option_quotes_repository.py" in existing_paths:`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:435:  - linha `348`: `"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções."`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:436:  - linha `351`: `if "scripts/patch_73_rtd_option_quotes.py" in existing_paths:`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:437:  - linha `353`: `"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções."`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:439:  - linha `175`: `- `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:440:  - linha `231`: `- `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:441:  - linha `365`: `- `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:443:  - linha `238`: `repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:444:  - linha `244`: `rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:445:  - linha `306`: `rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:446:  - linha `317`: `repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:447:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:449:  - linha `280`: `| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:451:  - linha `84`: `- `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:452:  - linha `91`: `- `rtd_option_quotes``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:453:  - linha `97`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:454:  - linha `205`: `- `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:455:  - linha `255`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:457:  - linha `105`: `- rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:458:  - linha `123`: `- rtd_option_quotes: 1`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:459:  - linha `138`: `- rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:460:  - linha `146`: `- rtd_option_quotes possui apenas um registro no estado analisado.`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:461:  - linha `261`: `- rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:462:  - linha `281`: `- rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:464:  - linha `36`: `### `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:466:  - linha `324`: `### `repositories/rtd_option_quotes_repository.py``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:468:  - linha `748`: `repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:469:  - linha `813`: `scripts/patch_73_rtd_option_quotes.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:470:  - linha `877`: `•	criar tabela nova antes de auditar rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:471:  - linha `991`: `•	confirmar se rtd_option_quotes existe no banco`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:472:  - linha `995`: `•	auditar repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:473:- `repositories/rtd_option_quotes_repository.py` — `5` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:474:  - linha `1`: `# repositories/rtd_option_quotes_repository.py`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:475:  - linha `12`: `Leitura da tabela rtd_option_quotes.`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:476:  - linha `48`: `FROM rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:477:  - linha `80`: `FROM rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:478:  - linha `112`: `FROM rtd_option_quotes`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:480:  - linha `69`: `"repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:484:- `ATT/tests/test_legacy_structure_legs_importer_integration.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:487:- `ATT/tests/test_legacy_structure_legs_reader.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:517:  - linha `114`: `# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        """SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike""",        (aba, ts)    )    # ... rest`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:526:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:532:  - linha `89`: `repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:533:  - linha `90`: `repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:565:- `repositories/market_snapshot_repository.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:578:- `ATT/tests/test_legacy_structure_legs_importer_integration.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:581:- `ATT/tests/test_legacy_structure_legs_reader.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:618:  - linha `114`: `# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        """SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike""",        (aba, ts)    )    # ... rest`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:637:  - linha `88`: `domain/market_snapshot.py:58:    Agrega o cabeçalho da estrutura (rtd_analise_robo) e suas legs.`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:638:  - linha `89`: `repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:639:  - linha `90`: `repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:640:  - linha `92`: `repositories/market_snapshot_repository.py:98:    FROM rtd_analise_robo`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:681:- `repositories/market_snapshot_repository.py` — `3` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:695:- `ATT/tests/test_legacy_structure_legs_importer_integration.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:698:- `ATT/tests/test_legacy_structure_legs_reader.py` — `1` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:722:  - linha `89`: `repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:723:  - linha `91`: `repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:742:- `repositories/market_snapshot_repository.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:780:  - linha `252`: `- `ATIVO` em arquivos de pernas contra `codigo_opcao` em `RTD_LINKS.csv``
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:795:  - linha `938`: `- RTD_LINKS.csv deve ser auditado inicialmente como catálogo/contrato de conexão RTD, não como fonte definitiva de snapshots de mercado, até que seu schema real confirme essa função.`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:801:- `repositories/rtd_option_quotes_repository.py` — `1` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:816:- `ATT/tests/test_legacy_structure_legs_importer_integration.py` — `4` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:821:- `ATT/tests/test_legacy_structure_legs_reader.py` — `3` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:863:  - linha `114`: `# Carrega TODAS as legs do mesmo snapshot    cursor.execute(        """SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike""",        (aba, ts)    )    # ... rest`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:899:  - linha `89`: `repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:900:  - linha `90`: `repositories/market_snapshot_repository.py:50:    FROM rtd_analise_robo_legs`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:901:  - linha `91`: `repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:941:- `repositories/market_snapshot_repository.py` — `3` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:957:- `services/legacy_structure_legs_reader.py` — `1` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1013:- `ATT/tests/test_legacy_structure_legs_importer.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1015:  - linha `73`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1016:- `ATT/tests/test_legacy_structure_legs_importer_integration.py` — `4` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1018:  - linha `110`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1021:- `ATT/tests/test_legacy_structure_legs_reader.py` — `3` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1038:- `ATT/tests/test_system_snapshots_repository.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1040:  - linha `49`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1070:  - linha `399`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1071:  - linha `594`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1072:  - linha `648`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1073:- `repositories/system_snapshots_repository.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1074:  - linha `113`: `INSERT INTO structure_snapshots (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1075:  - linha `171`: `INSERT INTO structure_leg_snapshots (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1078:  - linha `116`: `INSERT INTO structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1107:  - linha `229`: `"DELETE FROM structure_legs WHERE id=?",`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1125:  - linha `641`: `"DELETE FROM structure_legs WHERE structure_id=?",`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1126:- `scripts/purge_derived_snapshots.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1135:- `ATT/tests/test_legacy_structure_legs_importer.py` — `2` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1137:  - linha `27`: `CREATE TABLE structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1138:- `ATT/tests/test_legacy_structure_legs_importer_integration.py` — `4` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1140:  - linha `30`: `CREATE TABLE structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1143:- `ATT/tests/test_legacy_structure_legs_reader.py` — `3` ocorrência(s)
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1159:  - linha `542`: `"CREATE TABLE IF NOT EXISTS structure_legs "`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1161:  - linha `579`: `"CREATE TABLE IF NOT EXISTS structure_legs "`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1177:  - linha `17`: `CREATE TABLE IF NOT EXISTS robo_snapshot (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1178:  - linha `38`: `CREATE TABLE IF NOT EXISTS robo_legs_snapshot (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1202:  - linha `51`: `CREATE TABLE IF NOT EXISTS structure_legs (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1205:  - linha `127`: `CREATE TABLE IF NOT EXISTS structure_snapshots (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1206:  - linha `154`: `CREATE TABLE IF NOT EXISTS structure_leg_snapshots (`
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1230:1. `repositories/rtd_option_quotes_repository.py` é um repositório de leitura da tabela `rtd_option_quotes`.
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1231:2. `repositories/market_snapshot_repository.py` lê snapshots RTD e manuais a partir de tabelas normalizadas.
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1232:3. `services/market_snapshot_selector.py` aplica precedência `manual > rtd` por ativo.
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1233:4. `services/market_snapshot_provider.py` usa valores estáticos por ativo e não acessa RTD ou banco.
+docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1242:- `rtd_option_quotes`
+docs/fase_8_banco_fonte_verdade_auditoria.md:14:- snapshots RTD;
+docs/fase_8_banco_fonte_verdade_auditoria.md:20:- snapshots por perna;
+docs/fase_8_banco_fonte_verdade_auditoria.md:21:- snapshots por estrutura;
+docs/fase_8_banco_fonte_verdade_auditoria.md:105:- rtd_option_quotes
+docs/fase_8_banco_fonte_verdade_auditoria.md:109:- structure_legs
+docs/fase_8_banco_fonte_verdade_auditoria.md:123:- rtd_option_quotes: 1
+docs/fase_8_banco_fonte_verdade_auditoria.md:127:- structure_legs: 0
+docs/fase_8_banco_fonte_verdade_auditoria.md:135:- structure_legs
+docs/fase_8_banco_fonte_verdade_auditoria.md:138:- rtd_option_quotes
+docs/fase_8_banco_fonte_verdade_auditoria.md:143:- structure_legs existe, mas está vazia.
+docs/fase_8_banco_fonte_verdade_auditoria.md:146:- rtd_option_quotes possui apenas um registro no estado analisado.
+docs/fase_8_banco_fonte_verdade_auditoria.md:173:- snapshots/importações RTD legadas
+docs/fase_8_banco_fonte_verdade_auditoria.md:188:- snapshots por perna
+docs/fase_8_banco_fonte_verdade_auditoria.md:189:- snapshots por estrutura
+docs/fase_8_banco_fonte_verdade_auditoria.md:203:- structure_legs: 0
+docs/fase_8_banco_fonte_verdade_auditoria.md:209:Enquanto structure_legs permanecer vazio, o sistema provavelmente ainda precisa recorrer a dados legados, RTD ou mapeamentos auxiliares para montar pernas operacionais.
+docs/fase_8_banco_fonte_verdade_auditoria.md:236:- pytest ATT/tests/test_structures_repository.py ATT/tests/test_market_snapshot_provider.py ATT/tests/test_ui_data_migration.py
+docs/fase_8_banco_fonte_verdade_auditoria.md:250:- O principal bloqueio para banco como fonte da verdade completa é a ausência de pernas persistidas em structure_legs.
+docs/fase_8_banco_fonte_verdade_auditoria.md:258:- structure_legs
+docs/fase_8_banco_fonte_verdade_auditoria.md:261:- rtd_option_quotes
+docs/fase_8_banco_fonte_verdade_auditoria.md:268:- verificar se há dados suficientes para popular structure_legs;
+docs/fase_8_banco_fonte_verdade_auditoria.md:278:- structure_legs
+docs/fase_8_banco_fonte_verdade_auditoria.md:281:- rtd_option_quotes
+docs/fase_8_banco_fonte_verdade_auditoria.md:313:## Resultado da inspeção de structure_legs
+docs/fase_8_banco_fonte_verdade_auditoria.md:315:A tabela `structure_legs` existe, mas permanece vazia.
+docs/fase_8_banco_fonte_verdade_auditoria.md:319:- structure_legs: 0
+docs/fase_8_banco_fonte_verdade_auditoria.md:327:- symbol
+docs/fase_8_banco_fonte_verdade_auditoria.md:382:- Os campos de gregas e mercado podem alimentar snapshots, não necessariamente `structure_legs`.
+docs/fase_8_banco_fonte_verdade_auditoria.md:411:- Há dados suficientes para criar uma migração controlada para popular `structure_legs`.
+docs/fase_8_banco_fonte_verdade_auditoria.md:440:- Essa fonte pode ser útil para validação cruzada, mas não deve substituir uma migração explícita e auditável para `structure_legs`.
+docs/fase_8_banco_fonte_verdade_auditoria.md:454:- A ausência de `structure_legs` continua sendo a principal lacuna para completar o banco como fonte da verdade operacional.
+docs/fase_8_banco_fonte_verdade_auditoria.md:460:Antes de inserir dados em `structure_legs`, devem ser definidos e testados os mapeamentos:
+docs/fase_8_banco_fonte_verdade_auditoria.md:463:- structures.id -> structure_legs.structure_id
+docs/fase_8_banco_fonte_verdade_auditoria.md:464:- rtd_analise_robo_legs.cv -> structure_legs.position_side
+docs/fase_8_banco_fonte_verdade_auditoria.md:465:- rtd_analise_robo_legs.call_put -> structure_legs.option_type
+docs/fase_8_banco_fonte_verdade_auditoria.md:466:- rtd_analise_robo_legs.ativo -> structure_legs.symbol
+docs/fase_8_banco_fonte_verdade_auditoria.md:467:- rtd_analise_robo_legs.strike -> structure_legs.strike
+docs/fase_8_banco_fonte_verdade_auditoria.md:468:- rtd_analise_robo_legs.vencimento -> structure_legs.expiration_date
+docs/fase_8_banco_fonte_verdade_auditoria.md:469:- rtd_analise_robo_legs.quant -> structure_legs.quantity
+docs/fase_8_banco_fonte_verdade_auditoria.md:470:- rtd_analise_robo_legs.valor_executado -> structure_legs.premium
+docs/fase_8_banco_fonte_verdade_auditoria.md:471:- ordem estável das pernas -> structure_legs.leg_order
+docs/fase_8_banco_fonte_verdade_auditoria.md:477:- só depois decidir se haverá backfill persistente em `structure_legs`.
+docs/lista_priorizada_automacao_opcoes_rtd.md:19:- snapshot de mercado
+docs/lista_priorizada_automacao_opcoes_rtd.md:36:### `repositories/rtd_option_quotes_repository.py`
+docs/lista_priorizada_automacao_opcoes_rtd.md:44:### `services/market_snapshot_provider.py`
+docs/lista_priorizada_automacao_opcoes_rtd.md:48:- Motivo: Fornecimento de snapshot de mercado. Base para Fase 4.
+docs/lista_priorizada_automacao_opcoes_rtd.md:52:### `services/market_snapshot_selector.py`
+docs/lista_priorizada_automacao_opcoes_rtd.md:56:- Motivo: Seleção/fallback de snapshot. Base para Fase 4.
+docs/lista_priorizada_automacao_opcoes_rtd.md:60:### `repositories/market_snapshot_repository.py`
+docs/lista_priorizada_automacao_opcoes_rtd.md:64:- Motivo: Persistência de snapshots. Base para Fase 4.
+docs/lista_priorizada_automacao_opcoes_rtd.md:104:- `repositories/system_snapshots_repository.py` — `repositories` — score `47`
+docs/lista_priorizada_automacao_opcoes_rtd.md:109:- `domain/market_snapshot.py` — `outros` — score `42`
+docs/lista_priorizada_automacao_opcoes_rtd.md:128:- `services/legacy_structure_legs_importer.py` — `services` — score `20`
+docs/lista_priorizada_automacao_opcoes_rtd.md:129:- `services/legacy_structure_legs_reader.py` — `services` — score `20`
+docs/lista_priorizada_automacao_opcoes_rtd.md:181:3. Fase 4 deve auditar snapshot, seleção de fonte, entrada canônica e consumo pela UI.
+docs/mapeamento_automacao_opcoes_rtd.json:660:      "path": "repositories/rtd_option_quotes_repository.py",
+docs/mapeamento_automacao_opcoes_rtd.json:708:      "path": "repositories/market_snapshot_repository.py",
+docs/mapeamento_automacao_opcoes_rtd.json:721:      "note": "Prioritário para auditoria de persistência de snapshot."
+docs/mapeamento_automacao_opcoes_rtd.json:756:      "path": "ATT/tests/test_legacy_structure_legs_importer_integration.py",
+docs/mapeamento_automacao_opcoes_rtd.json:909:      "path": "ATT/tests/test_system_snapshots_repository.py",
+docs/mapeamento_automacao_opcoes_rtd.json:925:      "path": "services/market_snapshot_selector.py",
+docs/mapeamento_automacao_opcoes_rtd.json:937:      "note": "Prioritário para auditoria de seleção de snapshot."
+docs/mapeamento_automacao_opcoes_rtd.json:940:      "path": "ATT/tests/test_legacy_structure_legs_reader.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1063:      "path": "repositories/system_snapshots_repository.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1184:      "path": "domain/market_snapshot.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1197:      "path": "ATT/tests/test_legacy_structure_legs_importer.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1286:      "path": "services/market_snapshot_provider.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1297:      "note": "Prioritário para auditoria de snapshot."
+docs/mapeamento_automacao_opcoes_rtd.json:1432:      "path": "ATT/tests/test_system_snapshots_schema.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1608:      "path": "ATT/tests/test_market_snapshot_provider.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1636:      "path": "scripts/import_legacy_structure_legs.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1876:      "path": "services/legacy_structure_legs_importer.py",
+docs/mapeamento_automacao_opcoes_rtd.json:1890:      "path": "services/legacy_structure_legs_reader.py",
+docs/mapeamento_automacao_opcoes_rtd.json:2514:      "path": "scripts/purge_derived_snapshots.py",
+docs/mapeamento_automacao_opcoes_rtd.md:324:### `repositories/rtd_option_quotes_repository.py`
+docs/mapeamento_automacao_opcoes_rtd.md:348:### `repositories/market_snapshot_repository.py`
+docs/mapeamento_automacao_opcoes_rtd.md:352:- Nota: Prioritário para auditoria de persistência de snapshot.
+docs/mapeamento_automacao_opcoes_rtd.md:372:### `ATT/tests/test_legacy_structure_legs_importer_integration.py`
+docs/mapeamento_automacao_opcoes_rtd.md:452:### `ATT/tests/test_system_snapshots_repository.py`
+docs/mapeamento_automacao_opcoes_rtd.md:460:### `services/market_snapshot_selector.py`
+docs/mapeamento_automacao_opcoes_rtd.md:464:- Nota: Prioritário para auditoria de seleção de snapshot.
+docs/mapeamento_automacao_opcoes_rtd.md:468:### `ATT/tests/test_legacy_structure_legs_reader.py`
+docs/mapeamento_automacao_opcoes_rtd.md:532:### `repositories/system_snapshots_repository.py`
+docs/mapeamento_automacao_opcoes_rtd.md:596:### `domain/market_snapshot.py`
+docs/mapeamento_automacao_opcoes_rtd.md:604:### `ATT/tests/test_legacy_structure_legs_importer.py`
+docs/mapeamento_automacao_opcoes_rtd.md:652:### `services/market_snapshot_provider.py`
+docs/mapeamento_automacao_opcoes_rtd.md:656:- Nota: Prioritário para auditoria de snapshot.
+docs/mapeamento_automacao_opcoes_rtd.md:732:### `ATT/tests/test_system_snapshots_schema.py`
+docs/mapeamento_automacao_opcoes_rtd.md:828:### `ATT/tests/test_market_snapshot_provider.py`
+docs/mapeamento_automacao_opcoes_rtd.md:844:### `scripts/import_legacy_structure_legs.py`
+docs/mapeamento_automacao_opcoes_rtd.md:972:### `services/legacy_structure_legs_importer.py`
+docs/mapeamento_automacao_opcoes_rtd.md:980:### `services/legacy_structure_legs_reader.py`
+docs/mapeamento_automacao_opcoes_rtd.md:1252:- `scripts/purge_derived_snapshots.py` — `scripts` — score `7`
+docs/migracoes/fase-14-migracao-dados-legados.md:12:- Todos os eventos migrados possuem vínculo válido com `structures` e `structure_legs`.
+docs/migracoes/fase-14-migracao-dados-legados.md:44:- `structures` e `structure_legs` não foram remigradas.
+docs/validacoes/fase-15-validacao-integrada.md:40:scripts/import_legacy_structure_legs.py
+docs/validacoes/fase-15-validacao-integrada.md:42:scripts/purge_derived_snapshots.py
+docs/validacoes/fase-15-validacao-integrada.md:104:- pernas normalizadas para estruturas 44-48 presentes em `structure_legs`.
+docs/validacoes/fase-15-validacao-integrada.md:109:structure_id=44 | alias=BOVA11 | structure_legs=4
+docs/validacoes/fase-15-validacao-integrada.md:110:structure_id=45 | alias=EMBJ3 | structure_legs=4
+docs/validacoes/fase-15-validacao-integrada.md:111:structure_id=46 | alias=PRIO3 | structure_legs=4
+docs/validacoes/fase-15-validacao-integrada.md:112:structure_id=47 | alias=SBSP3 | structure_legs=4
+docs/validacoes/fase-15-validacao-integrada.md:113:structure_id=48 | alias=SMAL11 | structure_legs=4
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:237:domain/market_snapshot.py
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:246:A camada `services/` concentra serviços de cálculo, canonical input, pricing, payoff, eventos de estrutura, legs, status, market snapshot e integração legada.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:256:services/market_snapshot_*.py
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:262:A camada `repositories/` concentra acesso a dados de estruturas, eventos, pricing executions, snapshots, legs, status e RTD.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:302:A suíte cobre domínio, canonical input, pricing, payoff, estruturas, eventos, legs, repositórios, UI e snapshots.
+docs/validacoes/plano-testes-ciclo-2.md:58:ATT/tests/test_legacy_structure_legs_importer.py
+docs/validacoes/plano-testes-ciclo-2.md:59:ATT/tests/test_legacy_structure_legs_importer_integration.py
+docs/validacoes/plano-testes-ciclo-2.md:60:ATT/tests/test_legacy_structure_legs_reader.py
+docs/validacoes/plano-testes-ciclo-2.md:61:ATT/tests/test_market_snapshot_provider.py
+docs/validacoes/plano-testes-ciclo-2.md:94:ATT/tests/test_system_snapshots_repository.py
+docs/validacoes/plano-testes-ciclo-2.md:95:ATT/tests/test_system_snapshots_schema.py
+docs/validacoes/plano-testes-ciclo-2.md:117:scripts/import_legacy_structure_legs.py
+docs/validacoes/plano-testes-ciclo-2.md:119:scripts/purge_derived_snapshots.py
+domain/calculation_request.py:8:     market_snapshot: MarketSnapshotInput
+domain/calculation_request.py:76:    symbol        : código da opção (ex.: BOVAE195) -- opcional
+domain/calculation_request.py:87:    symbol:      Optional[str]   = None
+domain/calculation_request.py:163:    snapshot_timestamp : ISO-8601 string (ex.: '2026-06-02T20:49:43')
+domain/calculation_request.py:167:    snapshot_id        : referência interna opcional
+domain/calculation_request.py:169:    snapshot_timestamp: str
+domain/calculation_request.py:174:    snapshot_id:         Optional[int]   = None
+domain/calculation_request.py:175:    option_quotes:       Optional[dict]  = None   # bid/ask por símbolo
+domain/calculation_request.py:180:        _require_nonempty(self.snapshot_timestamp, "snapshot_timestamp")
+domain/calculation_request.py:192:            datetime.fromisoformat(self.snapshot_timestamp)
+domain/calculation_request.py:195:                f"snapshot_timestamp não é ISO-8601 válido: {self.snapshot_timestamp!r}"
+domain/calculation_request.py:212:    market_snapshot: MarketSnapshotInput
+domain/calculation_request.py:215:        if self.structure.underlying_asset != self.market_snapshot.underlying_asset:
+domain/calculation_request.py:219:                f"e market_snapshot ({self.market_snapshot.underlying_asset!r})"
+domain/contracts.py:9:    symbol: str | None
+domain/contracts.py:58:                symbol=leg.get("symbol"),
+domain/contracts.py:106:                        "symbol": leg.symbol,
+domain/market_snapshot.py:1:# domain/market_snapshot.py
+domain/market_snapshot.py:3:Objetos de domínio para snapshots de mercado.
+infra/bootstrap_structures_schema.py:47:        # structure_legs                                                       #
+infra/bootstrap_structures_schema.py:51:            CREATE TABLE IF NOT EXISTS structure_legs (
+infra/bootstrap_structures_schema.py:56:                symbol          TEXT,
+infra/bootstrap_structures_schema.py:100:        # before_json / after_json sao snapshots do estado da estrutura        #
+infra/bootstrap_structures_schema.py:121:        # structure_snapshots  [fase_11]                                      #
+infra/bootstrap_structures_schema.py:123:        # Uma linha representa um snapshot consolidado de uma estrutura.       #
+infra/bootstrap_structures_schema.py:127:            CREATE TABLE IF NOT EXISTS structure_snapshots (
+infra/bootstrap_structures_schema.py:134:                snapshot_source       TEXT    NOT NULL DEFAULT 'system',
+infra/bootstrap_structures_schema.py:149:        # structure_leg_snapshots  [fase_11]                                  #
+infra/bootstrap_structures_schema.py:150:        # Histórico detalhado das pernas pertencentes a cada snapshot.         #
+infra/bootstrap_structures_schema.py:154:            CREATE TABLE IF NOT EXISTS structure_leg_snapshots (
+infra/bootstrap_structures_schema.py:156:                snapshot_id      INTEGER NOT NULL,
+infra/bootstrap_structures_schema.py:162:                symbol           TEXT,
+infra/bootstrap_structures_schema.py:171:                FOREIGN KEY (snapshot_id) REFERENCES structure_snapshots(id) ON DELETE CASCADE,
+infra/bootstrap_structures_schema.py:173:                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+infra/bootstrap_structures_schema.py:195:        # Indices -- structure_legs                                            #
+infra/bootstrap_structures_schema.py:199:            CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id
+infra/bootstrap_structures_schema.py:200:            ON structure_legs(structure_id)
+infra/bootstrap_structures_schema.py:205:            CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id_leg_order
+infra/bootstrap_structures_schema.py:206:            ON structure_legs(structure_id, leg_order)
+infra/bootstrap_structures_schema.py:255:        # Indices -- structure_snapshots  [fase_11]                           #
+infra/bootstrap_structures_schema.py:259:            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_id
+infra/bootstrap_structures_schema.py:260:            ON structure_snapshots(structure_id)
+infra/bootstrap_structures_schema.py:265:            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_created_at
+infra/bootstrap_structures_schema.py:266:            ON structure_snapshots(created_at)
+infra/bootstrap_structures_schema.py:271:            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_created
+infra/bootstrap_structures_schema.py:272:            ON structure_snapshots(structure_id, created_at)
+infra/bootstrap_structures_schema.py:277:            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_reference_date
+infra/bootstrap_structures_schema.py:278:            ON structure_snapshots(reference_date)
+infra/bootstrap_structures_schema.py:283:            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_pricing_execution_id
+infra/bootstrap_structures_schema.py:284:            ON structure_snapshots(pricing_execution_id)
+infra/bootstrap_structures_schema.py:289:        # Indices -- structure_leg_snapshots  [fase_11]                       #
+infra/bootstrap_structures_schema.py:293:            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_snapshot_id
+infra/bootstrap_structures_schema.py:294:            ON structure_leg_snapshots(snapshot_id)
+infra/bootstrap_structures_schema.py:299:            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_structure_id
+infra/bootstrap_structures_schema.py:300:            ON structure_leg_snapshots(structure_id)
+infra/bootstrap_structures_schema.py:305:            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_leg_id
+infra/bootstrap_structures_schema.py:306:            ON structure_leg_snapshots(leg_id)
+mapear_repositorio.sh:231:    | grep -Ei "excel|rtd|bridge|ingest|ingestao|rota|route|snapshot|cotacao|cotacoes|option|opcoes|estrutura|perna|position|posicao|btg" \
+repositories/market_snapshot_repository.py:1:# repositories/market_snapshot_repository.py
+repositories/market_snapshot_repository.py:3:Repositorio canonico de snapshots de mercado.
+repositories/market_snapshot_repository.py:18:from domain.market_snapshot import (
+repositories/market_snapshot_repository.py:112:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+repositories/market_snapshot_repository.py:193:    Acesso de leitura aos snapshots de mercado.
+repositories/robo_legs_repository.py:40:    "ticker",
+repositories/robo_legs_repository.py:52:def _quote_sql_identifier(name: str) -> str:
+repositories/robo_legs_repository.py:57:    rows = conn.execute(f"PRAGMA table_info({_quote_sql_identifier(table_name)})").fetchall()
+repositories/robo_legs_repository.py:249:            select_sql = ", ".join(_quote_sql_identifier(col) for col in select_columns)
+repositories/robo_legs_repository.py:252:                FROM {_quote_sql_identifier(table)}
+repositories/robo_legs_repository.py:279:        ativo     = pick("ativo", "ticker", "cod_ativo")
+repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+repositories/rtd_option_quotes_repository.py:12:    Leitura da tabela rtd_option_quotes.
+repositories/rtd_option_quotes_repository.py:26:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+repositories/rtd_option_quotes_repository.py:29:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:48:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:49:            WHERE codigo_opcao = ?
+repositories/rtd_option_quotes_repository.py:54:            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+repositories/rtd_option_quotes_repository.py:61:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:80:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+repositories/rtd_option_quotes_repository.py:93:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:112:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+repositories/structure_events_repository.py:29:    "quantity, price, symbol, source, notes, metadata_json, "
+repositories/structure_events_repository.py:170:        "symbol": _normalize_optional_text(data.get("symbol")),
+repositories/structure_events_repository.py:215:                symbol         TEXT,
+repositories/structure_events_repository.py:222:                FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+repositories/structure_events_repository.py:297:            FROM structure_legs
+repositories/structure_events_repository.py:337:                    symbol,
+repositories/structure_events_repository.py:353:                    event["symbol"],
+repositories/structures_repository.py:96:    symbol          = leg.get("symbol")
+repositories/structures_repository.py:144:    if symbol is not None:
+repositories/structures_repository.py:145:        symbol = str(symbol).strip() or None
+repositories/structures_repository.py:153:        "symbol":          symbol,
+repositories/structures_repository.py:197:                id, structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:200:            FROM structure_legs
+repositories/structures_repository.py:399:                    INSERT INTO structure_legs (
+repositories/structures_repository.py:400:                        structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:409:                        leg["symbol"],
+repositories/structures_repository.py:499:        # snapshot antes da mudanca (sem legs para manter log enxuto)
+repositories/structures_repository.py:594:                INSERT INTO structure_legs (
+repositories/structures_repository.py:595:                    structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:602:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+repositories/structures_repository.py:641:                "DELETE FROM structure_legs WHERE structure_id=?",
+repositories/structures_repository.py:648:                    INSERT INTO structure_legs (
+repositories/structures_repository.py:649:                        structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:656:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+repositories/structures_repository.py:690:                "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id=?",
+repositories/system_snapshots_repository.py:30:    "reference_date, snapshot_source, structure_json, market_json, "
+repositories/system_snapshots_repository.py:36:    "id, snapshot_id, structure_id, leg_id, leg_order, position_side, "
+repositories/system_snapshots_repository.py:37:    "option_type, symbol, strike, expiration_date, quantity, premium, "
+repositories/system_snapshots_repository.py:91:    def create_snapshot(
+repositories/system_snapshots_repository.py:100:        snapshot_source: str = "system",
+repositories/system_snapshots_repository.py:109:        """Cria um snapshot e suas pernas associadas.
+repositories/system_snapshots_repository.py:111:        Retorna o id gerado em structure_snapshots.
+repositories/system_snapshots_repository.py:126:                INSERT INTO structure_snapshots (
+repositories/system_snapshots_repository.py:132:                    snapshot_source,
+repositories/system_snapshots_repository.py:149:                    snapshot_source,
+repositories/system_snapshots_repository.py:160:            snapshot_id = int(cur.lastrowid)
+repositories/system_snapshots_repository.py:163:                self._insert_leg_snapshot(
+repositories/system_snapshots_repository.py:165:                    snapshot_id=snapshot_id,
+repositories/system_snapshots_repository.py:171:            return snapshot_id
+repositories/system_snapshots_repository.py:173:    def _insert_leg_snapshot(
+repositories/system_snapshots_repository.py:177:        snapshot_id: int,
+repositories/system_snapshots_repository.py:184:            INSERT INTO structure_leg_snapshots (
+repositories/system_snapshots_repository.py:185:                snapshot_id,
+repositories/system_snapshots_repository.py:191:                symbol,
+repositories/system_snapshots_repository.py:204:                snapshot_id,
+repositories/system_snapshots_repository.py:210:                leg.get("symbol"),
+repositories/system_snapshots_repository.py:222:    def get_snapshot(self, snapshot_id: int) -> dict[str, Any] | None:
+repositories/system_snapshots_repository.py:223:        """Retorna um snapshot com suas pernas, ou None se não existir."""
+repositories/system_snapshots_repository.py:226:            snapshot_row = conn.execute(
+repositories/system_snapshots_repository.py:229:                FROM structure_snapshots
+repositories/system_snapshots_repository.py:232:                (snapshot_id,),
+repositories/system_snapshots_repository.py:235:            if snapshot_row is None:
+repositories/system_snapshots_repository.py:238:            snapshot = self._decode_snapshot_row(snapshot_row)
+repositories/system_snapshots_repository.py:243:                FROM structure_leg_snapshots
+repositories/system_snapshots_repository.py:244:                WHERE snapshot_id = ?
+repositories/system_snapshots_repository.py:247:                (snapshot_id,),
+repositories/system_snapshots_repository.py:250:            snapshot["legs"] = [self._decode_leg_row(row) for row in leg_rows]
+repositories/system_snapshots_repository.py:252:            return snapshot
+repositories/system_snapshots_repository.py:254:    def list_snapshots_for_structure(
+repositories/system_snapshots_repository.py:260:        """Lista snapshots de uma estrutura, do mais recente para o mais antigo."""
+repositories/system_snapshots_repository.py:269:                FROM structure_snapshots
+repositories/system_snapshots_repository.py:277:        return [self._decode_snapshot_row(row) for row in rows]
+repositories/system_snapshots_repository.py:279:    def get_latest_snapshot_for_structure(
+repositories/system_snapshots_repository.py:283:        """Retorna o snapshot mais recente de uma estrutura."""
+repositories/system_snapshots_repository.py:285:        snapshots = self.list_snapshots_for_structure(structure_id, limit=1)
+repositories/system_snapshots_repository.py:287:        if not snapshots:
+repositories/system_snapshots_repository.py:290:        return self.get_snapshot(int(snapshots[0]["id"]))
+repositories/system_snapshots_repository.py:292:    def _decode_snapshot_row(self, row: sqlite3.Row) -> dict[str, Any]:
+scripts/apply_fase9_atomic_create.py:116:                    INSERT INTO structure_legs (
+scripts/apply_fase9_atomic_create.py:117:                        structure_id, position_side, option_type, symbol,
+scripts/apply_fase9_atomic_create.py:126:                        leg["symbol"],
+scripts/apply_fase9_update_tests_atomic_create.py:80:            "premium": None, "multiplier": 1, "symbol": None,
+scripts/audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+scripts/audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+scripts/audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+scripts/audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+scripts/audit_rtd_option_quotes.py:26:    "codigo_opcao",
+scripts/audit_rtd_option_quotes.py:125:        if "codigo_opcao" in column_set:
+scripts/audit_rtd_option_quotes.py:132:                    WHERE codigo_opcao IS NULL
+scripts/audit_rtd_option_quotes.py:133:                       OR TRIM(codigo_opcao) = ''
+scripts/audit_rtd_option_quotes.py:143:                    SELECT COUNT(DISTINCT codigo_opcao)
+scripts/audit_rtd_option_quotes.py:145:                    WHERE codigo_opcao IS NOT NULL
+scripts/audit_rtd_option_quotes.py:146:                      AND TRIM(codigo_opcao) <> ''
+scripts/audit_rtd_option_quotes.py:158:                        SELECT codigo_opcao
+scripts/audit_rtd_option_quotes.py:160:                        WHERE codigo_opcao IS NOT NULL
+scripts/audit_rtd_option_quotes.py:161:                          AND TRIM(codigo_opcao) <> ''
+scripts/audit_rtd_option_quotes.py:162:                        GROUP BY codigo_opcao
+scripts/audit_rtd_option_quotes.py:176:                    f"rows with missing codigo_opcao: {missing_codigo_count}"
+scripts/audit_rtd_option_quotes.py:181:                    f"duplicated codigo_opcao groups: {duplicate_codigo_count}"
+scripts/audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+scripts/audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+scripts/check_rota_desenvolvimento.py:368:                    LEFT JOIN structure_legs l ON l.structure_id = s.id
+scripts/check_rota_desenvolvimento.py:377:                    print(f"  - structure_id={row[0]} | alias={row[1]} | structure_legs={row[2]}")
+scripts/check_rota_desenvolvimento.py:381:            print(f"  Erro ao consultar structure_legs: {exc}")
+scripts/check_rota_desenvolvimento.py:420:        "- Se structure_legs já estiver populada para 44-48, a pendência central da Fase 8 pode ter sido tratada.\n"
+scripts/import_legacy_structure_legs.py:19:from services.legacy_structure_legs_importer import (  # noqa: E402
+scripts/import_legacy_structure_legs.py:22:from services.legacy_structure_legs_reader import LegacyStructureLegsReader  # noqa: E402
+scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+scripts/import_legacy_structure_legs.py:55:        help="Apenas lê e exibe as pernas canônicas, sem gravar em structure_legs.",
+scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+scripts/import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:10:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db
+scripts/import_lista_rtd_excel_to_option_quotes.py:11:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --dry-run
+scripts/import_lista_rtd_excel_to_option_quotes.py:12:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --json
+scripts/import_lista_rtd_excel_to_option_quotes.py:31:    "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:54:    "codigo_opcao": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:55:    "codigo": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:56:    "ticker": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:57:    "symbol": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:58:    "ativo": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:62:    "underlying_symbol": "ativo_base",
+scripts/import_lista_rtd_excel_to_option_quotes.py:316:        codigo = clean_text(raw_row.get("codigo_opcao"))
+scripts/import_lista_rtd_excel_to_option_quotes.py:321:        if codigo.lower() in {"codigo_opcao", "codigo", "ticker", "symbol"}:
+scripts/import_lista_rtd_excel_to_option_quotes.py:328:            "codigo_opcao": codigo.upper(),
+scripts/import_lista_rtd_excel_to_option_quotes.py:364:    columns = get_table_columns(conn, "rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:367:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+scripts/import_lista_rtd_excel_to_option_quotes.py:373:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+scripts/import_lista_rtd_excel_to_option_quotes.py:395:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+scripts/import_lista_rtd_excel_to_option_quotes.py:396:                (record["codigo_opcao"],),
+scripts/import_lista_rtd_excel_to_option_quotes.py:407:        codigo = record["codigo_opcao"]
+scripts/import_lista_rtd_excel_to_option_quotes.py:417:            "codigo_opcao": codigo,
+scripts/import_lista_rtd_excel_to_option_quotes.py:439:            UPDATE rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:457:             WHERE codigo_opcao = :codigo_opcao
+scripts/import_lista_rtd_excel_to_option_quotes.py:471:            INSERT INTO rtd_option_quotes (
+scripts/import_lista_rtd_excel_to_option_quotes.py:472:                codigo_opcao,
+scripts/import_lista_rtd_excel_to_option_quotes.py:493:                :codigo_opcao,
+scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+scripts/import_rtd_links_to_option_quotes.py:7:codigo_opcao,ativo_base,campo,valor,atualizado_em
+scripts/import_rtd_links_to_option_quotes.py:14:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/import_rtd_links_to_option_quotes.py:15:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db --dry-run
+scripts/import_rtd_links_to_option_quotes.py:32:    "codigo_opcao",
+scripts/import_rtd_links_to_option_quotes.py:61:    "codigo_opcao",
+scripts/import_rtd_links_to_option_quotes.py:195:def empty_record(codigo_opcao: str) -> dict[str, Any]:
+scripts/import_rtd_links_to_option_quotes.py:197:        "codigo_opcao": codigo_opcao,
+scripts/import_rtd_links_to_option_quotes.py:243:            codigo = str(cleaned.get("codigo_opcao") or "").strip().upper()
+scripts/import_rtd_links_to_option_quotes.py:306:        SELECT codigo_opcao
+scripts/import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+scripts/import_rtd_links_to_option_quotes.py:308:        WHERE codigo_opcao IN ({placeholders})
+scripts/import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+scripts/import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+scripts/import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+scripts/import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+scripts/import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+scripts/import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+scripts/import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+scripts/import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+scripts/import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+scripts/import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+scripts/import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+scripts/import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+scripts/import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+scripts/import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+scripts/import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+scripts/import_rtd_links_to_option_quotes.py:345:        ON CONFLICT(codigo_opcao) DO UPDATE SET
+scripts/import_rtd_links_to_option_quotes.py:368:        codes = [record["codigo_opcao"] for record in records]
+scripts/import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+scripts/import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+scripts/mapear_automacao_opcoes_rtd.py:58:    "rtd": ["rtd", "rtd_links", "option_quotes"],
+scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+scripts/mapear_automacao_opcoes_rtd.py:70:    "services/market_snapshot_provider.py": "Prioritário para auditoria de snapshot.",
+scripts/mapear_automacao_opcoes_rtd.py:71:    "services/market_snapshot_selector.py": "Prioritário para auditoria de seleção de snapshot.",
+scripts/mapear_automacao_opcoes_rtd.py:72:    "repositories/market_snapshot_repository.py": "Prioritário para auditoria de persistência de snapshot.",
+scripts/patch_derived_payoff_timestamp_consistency.sh:40:if "snapshot_ts = datetime.now(timezone.utc).isoformat()" not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:47:        # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+scripts/patch_derived_payoff_timestamp_consistency.sh:48:        snapshot_ts = datetime.now(timezone.utc).isoformat()
+scripts/patch_derived_payoff_timestamp_consistency.sh:50:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+scripts/patch_derived_payoff_timestamp_consistency.sh:58:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+scripts/patch_derived_payoff_timestamp_consistency.sh:63:                snapshot_ts,
+scripts/patch_derived_payoff_timestamp_consistency.sh:70:# _persist_payoff signature: retorna bool e recebe snapshot_ts
+scripts/patch_derived_payoff_timestamp_consistency.sh:72:if "snapshot_ts: str,\n    ) -> bool:" not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:85:        snapshot_ts: str,
+scripts/patch_derived_payoff_timestamp_consistency.sh:113:    "            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)\n",
+scripts/patch_derived_payoff_timestamp_consistency.sh:164:# _persist_decision signature: retorna bool e recebe snapshot_ts
+scripts/patch_derived_payoff_timestamp_consistency.sh:166:if "snapshot_ts: str,\n    ) -> bool:" in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:188:        snapshot_ts: str,
+scripts/patch_derived_payoff_timestamp_consistency.sh:195:if "timestamp=snapshot_ts," not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:204:                timestamp=snapshot_ts,
+scripts/patch_derived_payoff_timestamp_consistency.sh:262:    "snapshot_ts = datetime.now(timezone.utc).isoformat()",
+scripts/patch_derived_payoff_timestamp_consistency.sh:263:    "save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)",
+scripts/patch_derived_payoff_timestamp_consistency.sh:264:    "timestamp=snapshot_ts,",
+scripts/patch_derived_payoff_timestamp_consistency.sh:265:    "payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)",
+scripts/patch_derived_payoff_timestamp_consistency.sh:266:    "decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)",
+scripts/purge_derived_snapshots.py:34:        description="Remove snapshots derivados antigos/inválidos do derived.db"
+scripts/purge_derived_snapshots.py:44:        help="Remove todos os snapshots derivados.",
+scripts/purge_derived_snapshots.py:50:        help="Remove snapshots com timestamp mais antigo que N horas.",
+scripts/repair_derived_db_consistency.py:49:        description="Repara inconsistências de snapshots em dados/derived.db"
+scripts/repair_derived_db_consistency.py:60:        help="Delta máximo para alinhar decisão ao snapshot de pontos. Default: 0.25s",
+scripts/run_derived_pipeline.py:22:    """Valida consistência dos snapshots após processamento."""
+scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+scripts/run_derived_pipeline.py:28:        return validate_snapshot_consistency(conn)
+scripts/run_derived_pipeline.py:64:    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+scripts/run_derived_pipeline.py:66:        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+scripts/run_lista_rtd_option_quotes_pipeline.py:6:    1. scripts/import_lista_rtd_excel_to_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:25:IMPORT_SCRIPT = Path("scripts/import_lista_rtd_excel_to_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+scripts/run_rtd_option_quotes_pipeline.py:28:IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_links_to_option_quotes.py"
+scripts/run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+scripts/run_rtd_option_quotes_pipeline.py:96:    print("Pipeline RTD option quotes")
+scripts/run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+scripts/seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+scripts/seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+scripts/seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+scripts/seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+scripts/seed_current_rtd_option_quotes.py:32:        "codigo_opcao": "SMALF129",
+scripts/seed_current_rtd_option_quotes.py:42:        "codigo_opcao": "SMALF103",
+scripts/seed_current_rtd_option_quotes.py:52:        "codigo_opcao": "SMALR127",
+scripts/seed_current_rtd_option_quotes.py:62:        "codigo_opcao": "SMALR108",
+scripts/seed_current_rtd_option_quotes.py:72:        "codigo_opcao": "PRIOG800",
+scripts/seed_current_rtd_option_quotes.py:82:        "codigo_opcao": "PRIOH515",
+scripts/seed_current_rtd_option_quotes.py:92:        "codigo_opcao": "PRIOT700",
+scripts/seed_current_rtd_option_quotes.py:102:        "codigo_opcao": "PRIOS525",
+scripts/seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+scripts/seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+scripts/seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+scripts/seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+scripts/seed_current_rtd_option_quotes.py:147:                codigo_opcao,
+scripts/seed_current_rtd_option_quotes.py:168:                :codigo_opcao,
+scripts/seed_current_rtd_option_quotes.py:190:        for quote in CURRENT_QUOTES:
+scripts/seed_current_rtd_option_quotes.py:193:                "estrutura": quote["estrutura"],
+scripts/seed_current_rtd_option_quotes.py:194:                "preco_referencia_ativo": quote["preco_referencia_ativo"],
+scripts/seed_current_rtd_option_quotes.py:195:                "valor_executado": quote["ultimo_preco"],
+scripts/seed_current_rtd_option_quotes.py:196:                "quantidade": quote["ultima_quantidade"],
+scripts/seed_current_rtd_option_quotes.py:200:                "codigo_opcao": quote["codigo_opcao"],
+scripts/seed_current_rtd_option_quotes.py:201:                "ativo_base": quote["ativo_base"],
+scripts/seed_current_rtd_option_quotes.py:202:                "call_put": quote["call_put"],
+scripts/seed_current_rtd_option_quotes.py:203:                "strike": quote["strike"],
+scripts/seed_current_rtd_option_quotes.py:205:                "ultimo_preco": quote["ultimo_preco"],
+scripts/seed_current_rtd_option_quotes.py:206:                "ultima_quantidade": quote["ultima_quantidade"],
+scripts/seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+scripts/seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+scripts/validate_derived_db.py:18:from db.derived_repo import validate_snapshot_consistency
+scripts/validate_derived_db.py:79:        ok = validate_snapshot_consistency(conn)
+services/calculation_orchestrator.py:53:    snapshot_row: dict,
+services/calculation_orchestrator.py:75:                symbol=row.get("symbol"),
+services/calculation_orchestrator.py:93:    snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:94:        snapshot_timestamp=str(snapshot_row["snapshot_timestamp"]),
+services/calculation_orchestrator.py:95:        underlying_asset=str(snapshot_row["underlying_asset"]),
+services/calculation_orchestrator.py:96:        spot_price=float(snapshot_row["spot_price"]),
+services/calculation_orchestrator.py:97:        source=str(snapshot_row.get("source", "rtd")),
+services/calculation_orchestrator.py:98:        snapshot_id=snapshot_row.get("snapshot_id") or snapshot_row.get("id"),
+services/calculation_orchestrator.py:99:        option_quotes=snapshot_row.get("option_quotes"),
+services/calculation_orchestrator.py:100:        greeks=snapshot_row.get("greeks"),
+services/calculation_orchestrator.py:101:        volatility_context=snapshot_row.get("volatility_context"),
+services/calculation_orchestrator.py:104:    return CalculationRequest(structure=structure, market_snapshot=snapshot)
+services/calculation_orchestrator.py:124:            "symbol":          getattr(leg, "symbol",      None),
+services/calculation_orchestrator.py:139:            "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:140:            "underlying_asset": request.market_snapshot.underlying_asset,
+services/calculation_orchestrator.py:141:            "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+services/calculation_orchestrator.py:142:            "option_quotes":    getattr(request.market_snapshot, "option_quotes",      {}),
+services/calculation_orchestrator.py:143:            "greeks":           getattr(request.market_snapshot, "greeks",             {}),
+services/calculation_orchestrator.py:188:        _dte_min = getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:242:        market_snapshot_repository=None,
+services/calculation_orchestrator.py:245:        self._snapshot_repo   = market_snapshot_repository
+services/calculation_orchestrator.py:254:        market_snapshot_dict: Dict[str, Any],
+services/calculation_orchestrator.py:270:                    symbol=leg.get("symbol"),
+services/calculation_orchestrator.py:286:        snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:287:            snapshot_id=market_snapshot_dict.get("snapshot_id"),
+services/calculation_orchestrator.py:288:            snapshot_timestamp=str(market_snapshot_dict.get("snapshot_timestamp", "")),
+services/calculation_orchestrator.py:289:            underlying_asset=str(market_snapshot_dict.get("underlying_asset", "")),
+services/calculation_orchestrator.py:290:            spot_price=float(market_snapshot_dict.get("spot_price", 0.0)),
+services/calculation_orchestrator.py:291:            source=str(market_snapshot_dict.get("source", "rtd")),
+services/calculation_orchestrator.py:292:            option_quotes=market_snapshot_dict.get("option_quotes"),
+services/calculation_orchestrator.py:293:            greeks=market_snapshot_dict.get("greeks"),
+services/calculation_orchestrator.py:294:            volatility_context=market_snapshot_dict.get("volatility_context"),
+services/calculation_orchestrator.py:297:        return CalculationRequest(structure=structure, market_snapshot=snapshot)
+services/calculation_orchestrator.py:313:                "symbol":          getattr(leg, "symbol",     None),
+services/calculation_orchestrator.py:328:                "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:329:                "underlying_asset": request.market_snapshot.underlying_asset,
+services/calculation_orchestrator.py:330:                "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+services/calculation_orchestrator.py:331:                "option_quotes":    getattr(request.market_snapshot, "option_quotes", {}),
+services/calculation_orchestrator.py:332:                "greeks":           getattr(request.market_snapshot, "greeks",        {}),
+services/calculation_orchestrator.py:375:            or getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:411:        snapshot_timestamp: Optional[str] = None,
+services/calculation_orchestrator.py:419:            ValueError  : se snapshot nao encontrado
+services/calculation_orchestrator.py:426:        if self._snapshot_repo is None:
+services/calculation_orchestrator.py:429:                "Passe market_snapshot_repository= no construtor."
+services/calculation_orchestrator.py:450:        # 2. Busca snapshot
+services/calculation_orchestrator.py:452:        snapshot = self._snapshot_repo.get_snapshot(
+services/calculation_orchestrator.py:454:            timestamp=snapshot_timestamp,
+services/calculation_orchestrator.py:456:        if snapshot is None:
+services/calculation_orchestrator.py:459:                f"timestamp={snapshot_timestamp!r}"
+services/calculation_orchestrator.py:475:                    "symbol":          leg.get("symbol"),
+services/calculation_orchestrator.py:485:        market_snapshot_dict = {
+services/calculation_orchestrator.py:486:            "snapshot_id":        snapshot.get("id"),
+services/calculation_orchestrator.py:487:            "snapshot_timestamp": snapshot.get("snapshot_timestamp", ""),
+services/calculation_orchestrator.py:488:            "underlying_asset":   snapshot.get("underlying_asset", underlying),
+services/calculation_orchestrator.py:489:            "spot_price":         snapshot.get("spot_price", 0.0),
+services/calculation_orchestrator.py:490:            "source":             snapshot.get("source", "rtd"),
+services/calculation_orchestrator.py:491:            "option_quotes":      snapshot.get("option_quotes"),
+services/calculation_orchestrator.py:492:            "greeks":             snapshot.get("greeks"),
+services/calculation_orchestrator.py:493:            "volatility_context": snapshot.get("volatility_context"),
+services/calculation_orchestrator.py:496:        return self.build_calculation_request(structure_dict, market_snapshot_dict)
+services/calculation_orchestrator.py:501:        snapshot_timestamp: Optional[str] = None,
+services/calculation_orchestrator.py:504:        Pipeline completo resolvendo estrutura e snapshot pelos repositorios.
+services/calculation_orchestrator.py:510:            snapshot_timestamp=snapshot_timestamp,
+services/canonical_input_service.py:6:alteracao_25 — Separa responsabilidades de resolução de snapshot:
+services/canonical_input_service.py:9:  - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
+services/canonical_input_service.py:30:from services.market_snapshot_provider import MarketSnapshotProvider
+services/canonical_input_service.py:31:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_input_service.py:40:        market_snapshot_provider: MarketSnapshotProvider | None = None,
+services/canonical_input_service.py:41:        market_snapshot_selector: MarketSnapshotSelector | None = None,
+services/canonical_input_service.py:50:        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+services/canonical_input_service.py:51:        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+services/canonical_input_service.py:105:        snapshot, snapshot_meta = self._resolve_snapshot(
+services/canonical_input_service.py:110:        effective_reference_date = reference_date or snapshot.get("reference_date")
+services/canonical_input_service.py:121:        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+services/canonical_input_service.py:132:                **snapshot_meta,
+services/canonical_input_service.py:138:    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+services/canonical_input_service.py:141:    def _resolve_snapshot(
+services/canonical_input_service.py:147:        Monta o snapshot dict completo exigido pelo assembler.
+services/canonical_input_service.py:157:        base_snapshot = self.market_snapshot_provider.get_snapshot(
+services/canonical_input_service.py:163:        if self.market_snapshot_selector is not None and aba:
+services/canonical_input_service.py:166:            snapshot_source = legs_meta["snapshot_source"]
+services/canonical_input_service.py:168:            legs_list  = base_snapshot.get("legs", [])
+services/canonical_input_service.py:170:            snapshot_source = "provider_legacy"
+services/canonical_input_service.py:173:        snapshot = {
+services/canonical_input_service.py:174:            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+services/canonical_input_service.py:181:            "snapshot_source":  snapshot_source,
+services/canonical_input_service.py:185:        return snapshot, meta
+services/canonical_input_service.py:202:        result = self.market_snapshot_selector.select(aba_str)
+services/canonical_input_service.py:242:            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+services/canonical_input_service.py:243:            "snapshot_aba":     aba_str,
+services/canonical_pricing_facade.py:11:  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+services/canonical_pricing_facade.py:32:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/canonical_pricing_facade.py:33:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/canonical_pricing_facade.py:35:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_pricing_facade.py:128:def _quote_ident(name: str) -> str:
+services/canonical_pricing_facade.py:143:    symbol_candidates = {
+services/canonical_pricing_facade.py:147:        "symbol",
+services/canonical_pricing_facade.py:148:        "ticker",
+services/canonical_pricing_facade.py:163:        "cotacao",
+services/canonical_pricing_facade.py:177:                    f"PRAGMA table_info({_quote_ident(table_name)})"
+services/canonical_pricing_facade.py:183:                symbol_cols = [
+services/canonical_pricing_facade.py:185:                    for name in symbol_candidates
+services/canonical_pricing_facade.py:195:                if not symbol_cols or not price_cols:
+services/canonical_pricing_facade.py:198:                for symbol_col in symbol_cols:
+services/canonical_pricing_facade.py:201:                            f"SELECT {_quote_ident(price_col)} "
+services/canonical_pricing_facade.py:202:                            f"FROM {_quote_ident(table_name)} "
+services/canonical_pricing_facade.py:203:                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+services/canonical_pricing_facade.py:204:                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+services/canonical_pricing_facade.py:223:def _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:238:        raw_asset = _pick(d, "symbol", "asset", "ativo")
+services/canonical_pricing_facade.py:261:            "symbol":          raw_asset,
+services/canonical_pricing_facade.py:301:            "snapshot_source":  str(selection_result.source),
+services/canonical_pricing_facade.py:302:            "snapshot_aba":     selection_result.aba,
+services/canonical_pricing_facade.py:336:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:352:            #  2. Seleciona snapshot (manual > rtd) 
+services/canonical_pricing_facade.py:356:            pricing_payload = _snapshot_result_to_payload(
+services/derived_payoff_persistence.py:46:        # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+services/derived_payoff_persistence.py:47:        snapshot_ts = datetime.now(timezone.utc).isoformat()
+services/derived_payoff_persistence.py:49:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:57:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:62:                snapshot_ts,
+services/derived_payoff_persistence.py:73:        snapshot_ts: str,
+services/derived_payoff_persistence.py:86:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+services/derived_payoff_persistence.py:109:        snapshot_ts: str,
+services/derived_payoff_persistence.py:163:                timestamp=snapshot_ts,
+services/derived_service.py:531:# alteracao_59 -- format_report + snapshot_aba (surface canônica)
+services/derived_service.py:545:def snapshot_aba(ref: "StructureRef") -> str:
+services/legacy_robo_legs_fallback.py:227:            "symbol": self._clean_upper_text(
+services/legacy_robo_legs_fallback.py:228:                data.get("ativo") or data.get("symbol") or data.get("ticker")
+services/legacy_structure_legs_importer.py:1:# services/legacy_structure_legs_importer.py
+services/legacy_structure_legs_importer.py:7:para a tabela canonica structure_legs.
+services/legacy_structure_legs_importer.py:41:    Orquestra a importacao das legs legadas para structure_legs.
+services/legacy_structure_legs_importer.py:48:            Repositório canônico de structures/structure_legs.
+services/legacy_structure_legs_reader.py:17:      - converter para payload compatível com structure_legs;
+services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+services/market_snapshot_provider.py:53:    def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
+services/market_snapshot_provider.py:60:            raise ValueError(f"market snapshot not found for asset: {asset}")
+services/market_snapshot_selector.py:1:# services/market_snapshot_selector.py
+services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd.
+services/market_snapshot_selector.py:6:  - Se existir snapshot manual, usa manual
+services/market_snapshot_selector.py:13:from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+services/market_snapshot_selector.py:14:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/market_snapshot_selector.py:24:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+services/market_snapshot_selector.py:30:    """Resultado da seleção de snapshots para uma aba."""
+services/market_snapshot_selector.py:44:    Aplica a política manual > rtd para selecionar o snapshot canônico.
+services/market_snapshot_selector.py:66:            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+services/pricing_execution_orchestration_service.py:4:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_orchestration_service.py:26:                system_snapshots_repository=SystemSnapshotsRepository(),
+services/pricing_execution_persistence_service.py:6:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_persistence_service.py:17:        system_snapshots_repository: SystemSnapshotsRepository | None = None,
+services/pricing_execution_persistence_service.py:23:        self._system_snapshots_repository = system_snapshots_repository
+services/pricing_execution_persistence_service.py:58:        snapshot_id = self._create_system_snapshot_if_applicable(
+services/pricing_execution_persistence_service.py:86:        if snapshot_id is not None:
+services/pricing_execution_persistence_service.py:87:            response["snapshot_id"] = snapshot_id
+services/pricing_execution_persistence_service.py:91:    def _create_system_snapshot_if_applicable(
+services/pricing_execution_persistence_service.py:100:        if self._system_snapshots_repository is None:
+services/pricing_execution_persistence_service.py:114:            return self._system_snapshots_repository.create_snapshot(
+services/pricing_execution_persistence_service.py:119:                snapshot_source="system_pricing_execution",
+services/pricing_execution_persistence_service.py:135:                "system_snapshots_repository.create_snapshot() falhou -- execução id=%s não afetada",
+services/pricing_payload_adapter.py:41:                "symbol": _clean_upper_text(leg.get("symbol")),
+services/robo_leg_mapper.py:70:        "symbol": _safe_upper_text(ativo),
+services/structure_events_service.py:117:        symbol: str | None = None,
+services/structure_events_service.py:139:            "symbol": self._normalize_optional_text(symbol),
+services/structure_events_service.py:170:        symbol: str | None = None,
+services/structure_events_service.py:181:            symbol=symbol,
+services/structure_events_service.py:436:        symbol = self._normalize_optional_text(event.get("symbol"))
+services/structure_events_service.py:438:        if leg_id is None and symbol is None:
+services/structure_events_service.py:453:            if symbol is not None:
+services/structure_events_service.py:454:                leg_symbol = self._normalize_optional_text(leg.get("symbol"))
+services/structure_events_service.py:455:                if leg_symbol == symbol:
+services/structure_input_mapper.py:53:        "symbol": _clean_upper_text(leg.get("symbol")),
+services/structure_market_input_assembler.py:8:    market_snapshot: dict[str, Any],
+services/structure_market_input_assembler.py:13:    if not market_snapshot:
+services/structure_market_input_assembler.py:14:        raise ValueError("market_snapshot is required")
+services/structure_market_input_assembler.py:18:    market_asset = market_snapshot.get("underlying_asset")
+services/structure_market_input_assembler.py:28:            "reference_date": market_snapshot["reference_date"],
+services/structure_market_input_assembler.py:29:            "underlying_asset": market_snapshot["underlying_asset"],
+services/structure_market_input_assembler.py:30:            "spot_price": market_snapshot["spot_price"],
+services/structure_market_input_assembler.py:31:            "interest_rate": market_snapshot["interest_rate"],
+services/structure_market_input_assembler.py:32:            "volatility": market_snapshot["volatility"],
+src/domain/refs/structure_ref.py:116:        aba = d.get("aba") or d.get("ticker")

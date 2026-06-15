@@ -1,0 +1,364 @@
+===== repositories/rtd_option_quotes_repository.py =====
+     1	# repositories/rtd_option_quotes_repository.py
+     2	
+     3	from __future__ import annotations
+     4	
+     5	import sqlite3
+     6	from pathlib import Path
+     7	from typing import Any
+     8	
+     9	
+    10	class RtdOptionQuotesRepository:
+    11	    """
+    12	    Leitura da tabela rtd_option_quotes.
+    13	
+    14	    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+    15	    e funciona como cache centralizado das cotações RTD de opções.
+    16	    """
+    17	
+    18	    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+    19	        self.db_path = Path(db_path)
+    20	
+    21	    def _connect(self) -> sqlite3.Connection:
+    22	        conn = sqlite3.connect(str(self.db_path))
+    23	        conn.row_factory = sqlite3.Row
+    24	        return conn
+    25	
+    26	    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+    27	        sql = """
+    28	            SELECT
+    29	                codigo_opcao,
+    30	                ativo_base,
+    31	                call_put,
+    32	                strike,
+    33	                vencimento,
+    34	                ultimo_preco,
+    35	                ultima_quantidade,
+    36	                bid,
+    37	                ask,
+    38	                volume,
+    39	                iv,
+    40	                delta,
+    41	                gamma,
+    42	                theta,
+    43	                vega,
+    44	                source,
+    45	                raw_json,
+    46	                updated_at,
+    47	                created_at
+    48	            FROM rtd_option_quotes
+    49	            WHERE codigo_opcao = ?
+    50	            LIMIT 1
+    51	        """
+    52	
+    53	        with self._connect() as conn:
+    54	            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+    55	
+    56	        return dict(row) if row else None
+    57	
+    58	    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+    59	        sql = """
+    60	            SELECT
+    61	                codigo_opcao,
+    62	                ativo_base,
+    63	                call_put,
+    64	                strike,
+    65	                vencimento,
+    66	                ultimo_preco,
+    67	                ultima_quantidade,
+    68	                bid,
+    69	                ask,
+    70	                volume,
+    71	                iv,
+    72	                delta,
+    73	                gamma,
+    74	                theta,
+    75	                vega,
+    76	                source,
+    77	                raw_json,
+    78	                updated_at,
+    79	                created_at
+    80	            FROM rtd_option_quotes
+    81	            WHERE ativo_base = ?
+    82	            ORDER BY vencimento, call_put, strike, codigo_opcao
+    83	        """
+    84	
+    85	        with self._connect() as conn:
+    86	            rows = conn.execute(sql, (ativo_base,)).fetchall()
+    87	
+    88	        return [dict(row) for row in rows]
+    89	
+    90	    def list_all(self) -> list[dict[str, Any]]:
+    91	        sql = """
+    92	            SELECT
+    93	                codigo_opcao,
+    94	                ativo_base,
+    95	                call_put,
+    96	                strike,
+    97	                vencimento,
+    98	                ultimo_preco,
+    99	                ultima_quantidade,
+   100	                bid,
+   101	                ask,
+   102	                volume,
+   103	                iv,
+   104	                delta,
+   105	                gamma,
+   106	                theta,
+   107	                vega,
+   108	                source,
+   109	                raw_json,
+   110	                updated_at,
+   111	                created_at
+   112	            FROM rtd_option_quotes
+   113	            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+   114	        """
+   115	
+   116	        with self._connect() as conn:
+   117	            rows = conn.execute(sql).fetchall()
+   118	
+   119	        return [dict(row) for row in rows]
+
+===== services/structure_market_input_assembler.py =====
+     1	from typing import Any
+     2	
+     3	from services.structure_input_mapper import to_structure_input
+     4	
+     5	
+     6	def assemble_structure_market_input(
+     7	    structure: dict[str, Any],
+     8	    market_snapshot: dict[str, Any],
+     9	) -> dict[str, Any]:
+    10	    if not structure:
+    11	        raise ValueError("structure is required")
+    12	
+    13	    if not market_snapshot:
+    14	        raise ValueError("market_snapshot is required")
+    15	
+    16	    structure_input = to_structure_input(structure)
+    17	    structure_asset = structure_input["underlying_asset"]
+    18	    market_asset = market_snapshot.get("underlying_asset")
+    19	
+    20	    if structure_asset != market_asset:
+    21	        raise ValueError(
+    22	            f"underlying_asset mismatch: structure={structure_asset} market={market_asset}"
+    23	        )
+    24	
+    25	    return {
+    26	        "structure": structure_input,
+    27	        "market": {
+    28	            "reference_date": market_snapshot["reference_date"],
+    29	            "underlying_asset": market_snapshot["underlying_asset"],
+    30	            "spot_price": market_snapshot["spot_price"],
+    31	            "interest_rate": market_snapshot["interest_rate"],
+    32	            "volatility": market_snapshot["volatility"],
+    33	        },
+    34	        "meta": {
+    35	            "input_source": "structure_market_input_assembler",
+    36	        },
+    37	    }
+
+===== services/pricing_payload_adapter.py =====
+     1	from typing import Any
+     2	
+     3	
+     4	def _clean_text(value: Any) -> str | None:
+     5	    if value is None:
+     6	        return None
+     7	    text = str(value).strip()
+     8	    return text or None
+     9	
+    10	
+    11	def _clean_upper_text(value: Any) -> str | None:
+    12	    text = _clean_text(value)
+    13	    return text.upper() if text is not None else None
+    14	
+    15	
+    16	def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
+    17	    if not canonical_input:
+    18	        raise ValueError("canonical_input is required")
+    19	
+    20	    structure = canonical_input.get("structure")
+    21	    market = canonical_input.get("market")
+    22	
+    23	    if not structure:
+    24	        raise ValueError("canonical_input.structure is required")
+    25	
+    26	    if not market:
+    27	        raise ValueError("canonical_input.market is required")
+    28	
+    29	    legs = structure.get("legs", [])
+    30	    pricing_legs = []
+    31	
+    32	    for index, leg in enumerate(legs):
+    33	        if not leg:
+    34	            raise ValueError(f"canonical_input.structure.legs[{index}] is required")
+    35	
+    36	        pricing_legs.append(
+    37	            {
+    38	                "side": _clean_upper_text(leg["position_side"]),
+    39	                "instrument_type": "OPTION",
+    40	                "option_type": _clean_upper_text(leg["option_type"]),
+    41	                "symbol": _clean_upper_text(leg.get("symbol")),
+    42	                "strike": float(leg["strike"]),
+    43	                "expiration_date": _clean_text(leg["expiration_date"]),
+    44	                "quantity": int(leg["quantity"]),
+    45	                "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
+    46	                "multiplier": float(leg["multiplier"]),
+    47	            }
+    48	        )
+    49	
+    50	    return {
+    51	        "structure_id": structure["structure_id"],
+    52	        "structure_name": _clean_text(structure["name"]),
+    53	        "underlying_asset": _clean_upper_text(structure["underlying_asset"]),
+    54	        "reference_date": _clean_text(market["reference_date"]),
+    55	        "spot_price": float(market["spot_price"]),
+    56	        "interest_rate": float(market["interest_rate"]),
+    57	        "volatility": float(market["volatility"]),
+    58	        "legs": pricing_legs,
+    59	    }
+
+===== services/canonical_input_service.py :: build/_resolve =====
+
+===== services/pricing_execution_app_service.py =====
+     1	# services/pricing_execution_app_service.py
+     2	"""
+     3	alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+     4	
+     5	Alterações:
+     6	  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+     7	  - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+     8	  - Todos os métodos de query (list, get, paginate, latest) inalterados
+     9	  - Validações _validate_structure_id / _validate_reference_date mantidas
+    10	"""
+    11	
+    12	from datetime import datetime
+    13	from pathlib import Path
+    14	from typing import Any
+    15	
+    16	from services.canonical_pricing_facade import CanonicalPricingFacade
+    17	from services.pricing_execution_query_service import PricingExecutionQueryService
+    18	
+    19	_DEFAULT_DB = Path("dados/app.db")
+    20	
+    21	
+    22	class PricingExecutionAppService:
+    23	    def __init__(
+    24	        self,
+    25	        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+    26	        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+    27	        db_path: Path | str = _DEFAULT_DB,
+    28	    ):
+    29	        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+    30	            db_path=db_path,
+    31	        )
+    32	        self.pricing_execution_query_service = (
+    33	            pricing_execution_query_service or PricingExecutionQueryService()
+    34	        )
+    35	
+    36	    # ------------------------------------------------------------------
+    37	    # Execução
+    38	    # ------------------------------------------------------------------
+    39	
+    40	    def execute_pricing(
+    41	        self,
+    42	        structure_id: int,
+    43	        reference_date: str | None = None,
+    44	    ) -> dict[str, Any]:
+    45	        self._validate_structure_id(structure_id)
+    46	        self._validate_reference_date(reference_date)
+    47	
+    48	        response = self._facade.execute_pricing(
+    49	            structure_id=structure_id,
+    50	            reference_date=reference_date,
+    51	        )
+    52	
+    53	        # propaga erros como ValueError para manter contrato com callers existentes
+    54	        if response.get("status") == "error":
+    55	            raise ValueError(response.get("error_message", "pricing execution failed"))
+    56	
+    57	        persisted = response.get("persisted")
+    58	        if isinstance(persisted, dict):
+    59	            record = persisted.get("record")
+    60	            if isinstance(record, dict):
+    61	                return record
+    62	
+    63	        return response
+    64	
+    65	    # ------------------------------------------------------------------
+    66	    # Queries -- inalteradas
+    67	    # ------------------------------------------------------------------
+    68	
+    69	    def list_execution_summaries(
+    70	        self,
+    71	        structure_id: int | None = None,
+    72	        underlying_asset: str | None = None,
+    73	        status: str | None = None,
+    74	        reference_date: str | None = None,
+    75	        descending: bool = True,
+    76	    ) -> list[dict[str, Any]]:
+    77	        return self.pricing_execution_query_service.list_execution_summaries(
+    78	            structure_id=structure_id,
+    79	            underlying_asset=underlying_asset,
+    80	            status=status,
+    81	            reference_date=reference_date,
+    82	            descending=descending,
+    83	        )
+    84	
+    85	    def get_latest_execution_summary(
+    86	        self,
+    87	        structure_id: int | None = None,
+    88	        underlying_asset: str | None = None,
+    89	        status: str | None = None,
+    90	        reference_date: str | None = None,
+    91	    ) -> dict[str, Any]:
+    92	        return self.pricing_execution_query_service.get_latest_execution_summary(
+    93	            structure_id=structure_id,
+    94	            underlying_asset=underlying_asset,
+    95	            status=status,
+    96	            reference_date=reference_date,
+    97	        )
+    98	
+    99	    def get_execution(self, execution_id: int) -> dict[str, Any]:
+   100	        return self.pricing_execution_query_service.get_execution(execution_id)
+   101	
+   102	    def paginate_execution_summaries(
+   103	        self,
+   104	        structure_id: int | None = None,
+   105	        underlying_asset: str | None = None,
+   106	        status: str | None = None,
+   107	        reference_date: str | None = None,
+   108	        descending: bool = True,
+   109	        page: int = 1,
+   110	        page_size: int = 10,
+   111	    ) -> dict[str, Any]:
+   112	        return self.pricing_execution_query_service.paginate_execution_summaries(
+   113	            structure_id=structure_id,
+   114	            underlying_asset=underlying_asset,
+   115	            status=status,
+   116	            reference_date=reference_date,
+   117	            descending=descending,
+   118	            page=page,
+   119	            page_size=page_size,
+   120	        )
+   121	
+   122	    # ------------------------------------------------------------------
+   123	    # Validações
+   124	    # ------------------------------------------------------------------
+   125	
+   126	    def _validate_structure_id(self, structure_id: int) -> None:
+   127	        if structure_id <= 0:
+   128	            raise ValueError("structure_id must be greater than zero")
+   129	
+   130	    def _validate_reference_date(self, reference_date: str | None) -> None:
+   131	        if reference_date is None:
+   132	            return
+   133	
+   134	        try:
+   135	            parsed = datetime.strptime(reference_date, "%Y-%m-%d")
+   136	        except ValueError as exc:
+   137	            raise ValueError("reference_date must be in YYYY-MM-DD format") from exc
+   138	
+   139	        if parsed.strftime("%Y-%m-%d") != reference_date:
+   140	            raise ValueError("reference_date must be in YYYY-MM-DD format")

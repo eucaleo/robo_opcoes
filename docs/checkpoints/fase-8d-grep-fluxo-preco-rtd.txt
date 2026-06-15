@@ -1,0 +1,271 @@
+api/pricing_execution_controller.py:18:        return service.execute_pricing(
+api/structures_controller.py:59:    premium: float | None = None
+repositories/market_snapshot_repository.py:40:        bid,
+repositories/market_snapshot_repository.py:41:        ask,
+repositories/market_snapshot_repository.py:66:        bid,
+repositories/market_snapshot_repository.py:67:        ask,
+repositories/market_snapshot_repository.py:127:def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
+repositories/market_snapshot_repository.py:129:    if bid is not None and ask is not None:
+repositories/market_snapshot_repository.py:130:        return round((bid + ask) / 2.0, 6)
+repositories/market_snapshot_repository.py:131:    if bid is not None:
+repositories/market_snapshot_repository.py:132:        return bid
+repositories/market_snapshot_repository.py:133:    if ask is not None:
+repositories/market_snapshot_repository.py:134:        return ask
+repositories/market_snapshot_repository.py:158:    bid = _parse_br_float(row["bid"])
+repositories/market_snapshot_repository.py:159:    ask = _parse_br_float(row["ask"])
+repositories/market_snapshot_repository.py:160:    mid = _mid_price(bid, ask)
+repositories/market_snapshot_repository.py:169:        bid=bid,
+repositories/market_snapshot_repository.py:170:        ask=ask,
+repositories/robo_legs_repository.py:48:    "premium",
+repositories/robo_legs_repository.py:281:        preco     = pick("preco", "price", "premium")
+repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+repositories/rtd_option_quotes_repository.py:12:    Leitura da tabela rtd_option_quotes.
+repositories/rtd_option_quotes_repository.py:26:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+repositories/rtd_option_quotes_repository.py:29:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:34:                ultimo_preco,
+repositories/rtd_option_quotes_repository.py:36:                bid,
+repositories/rtd_option_quotes_repository.py:37:                ask,
+repositories/rtd_option_quotes_repository.py:48:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:49:            WHERE codigo_opcao = ?
+repositories/rtd_option_quotes_repository.py:54:            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+repositories/rtd_option_quotes_repository.py:61:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:66:                ultimo_preco,
+repositories/rtd_option_quotes_repository.py:68:                bid,
+repositories/rtd_option_quotes_repository.py:69:                ask,
+repositories/rtd_option_quotes_repository.py:80:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+repositories/rtd_option_quotes_repository.py:93:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:98:                ultimo_preco,
+repositories/rtd_option_quotes_repository.py:100:                bid,
+repositories/rtd_option_quotes_repository.py:101:                ask,
+repositories/rtd_option_quotes_repository.py:112:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+repositories/structures_repository.py:137:    premium = leg.get("premium")
+repositories/structures_repository.py:138:    if premium is not None:
+repositories/structures_repository.py:140:            premium = float(premium)
+repositories/structures_repository.py:142:            raise ValueError("premium must be numeric when provided") from exc
+repositories/structures_repository.py:157:        "premium":         premium,
+repositories/structures_repository.py:198:                strike, expiration_date, quantity, premium, multiplier,
+repositories/structures_repository.py:401:                        strike, expiration_date, quantity, premium,
+repositories/structures_repository.py:413:                        leg["premium"],
+repositories/structures_repository.py:596:                    strike, expiration_date, quantity, premium,
+repositories/structures_repository.py:603:                    leg["quantity"], leg["premium"], leg["multiplier"],
+repositories/structures_repository.py:650:                        strike, expiration_date, quantity, premium,
+repositories/structures_repository.py:657:                        leg["quantity"], leg["premium"], leg["multiplier"],
+repositories/system_snapshots_repository.py:37:    "option_type, symbol, strike, expiration_date, quantity, premium, "
+repositories/system_snapshots_repository.py:195:                premium,
+repositories/system_snapshots_repository.py:214:                leg.get("premium"),
+scripts/apply_fase9_atomic_create.py:118:                        strike, expiration_date, quantity, premium,
+scripts/apply_fase9_atomic_create.py:130:                        leg["premium"],
+scripts/apply_fase9_update_tests_atomic_create.py:80:            "premium": None, "multiplier": 1, "symbol": None,
+scripts/audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+scripts/audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+scripts/audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+scripts/audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+scripts/audit_rtd_option_quotes.py:26:    "codigo_opcao",
+scripts/audit_rtd_option_quotes.py:31:    "ultimo_preco",
+scripts/audit_rtd_option_quotes.py:33:    "bid",
+scripts/audit_rtd_option_quotes.py:34:    "ask",
+scripts/audit_rtd_option_quotes.py:125:        if "codigo_opcao" in column_set:
+scripts/audit_rtd_option_quotes.py:132:                    WHERE codigo_opcao IS NULL
+scripts/audit_rtd_option_quotes.py:133:                       OR TRIM(codigo_opcao) = ''
+scripts/audit_rtd_option_quotes.py:143:                    SELECT COUNT(DISTINCT codigo_opcao)
+scripts/audit_rtd_option_quotes.py:145:                    WHERE codigo_opcao IS NOT NULL
+scripts/audit_rtd_option_quotes.py:146:                      AND TRIM(codigo_opcao) <> ''
+scripts/audit_rtd_option_quotes.py:158:                        SELECT codigo_opcao
+scripts/audit_rtd_option_quotes.py:160:                        WHERE codigo_opcao IS NOT NULL
+scripts/audit_rtd_option_quotes.py:161:                          AND TRIM(codigo_opcao) <> ''
+scripts/audit_rtd_option_quotes.py:162:                        GROUP BY codigo_opcao
+scripts/audit_rtd_option_quotes.py:176:                    f"rows with missing codigo_opcao: {missing_codigo_count}"
+scripts/audit_rtd_option_quotes.py:181:                    f"duplicated codigo_opcao groups: {duplicate_codigo_count}"
+scripts/audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+scripts/audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+scripts/import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:31:    "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:36:    "ultimo_preco",
+scripts/import_lista_rtd_excel_to_option_quotes.py:38:    "bid",
+scripts/import_lista_rtd_excel_to_option_quotes.py:39:    "ask",
+scripts/import_lista_rtd_excel_to_option_quotes.py:54:    "codigo_opcao": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:55:    "codigo": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:56:    "ticker": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:57:    "symbol": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:58:    "ativo": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:78:    "ultimo_preco": "ultimo_preco",
+scripts/import_lista_rtd_excel_to_option_quotes.py:79:    "last": "ultimo_preco",
+scripts/import_lista_rtd_excel_to_option_quotes.py:80:    "last_price": "ultimo_preco",
+scripts/import_lista_rtd_excel_to_option_quotes.py:81:    "last_trade_price": "ultimo_preco",
+scripts/import_lista_rtd_excel_to_option_quotes.py:88:    "bid": "bid",
+scripts/import_lista_rtd_excel_to_option_quotes.py:89:    "bid_price": "bid",
+scripts/import_lista_rtd_excel_to_option_quotes.py:91:    "ask": "ask",
+scripts/import_lista_rtd_excel_to_option_quotes.py:92:    "ask_price": "ask",
+scripts/import_lista_rtd_excel_to_option_quotes.py:316:        codigo = clean_text(raw_row.get("codigo_opcao"))
+scripts/import_lista_rtd_excel_to_option_quotes.py:321:        if codigo.lower() in {"codigo_opcao", "codigo", "ticker", "symbol"}:
+scripts/import_lista_rtd_excel_to_option_quotes.py:328:            "codigo_opcao": codigo.upper(),
+scripts/import_lista_rtd_excel_to_option_quotes.py:333:            "ultimo_preco": to_float(raw_row.get("ultimo_preco")),
+scripts/import_lista_rtd_excel_to_option_quotes.py:335:            "bid": to_float(raw_row.get("bid")),
+scripts/import_lista_rtd_excel_to_option_quotes.py:336:            "ask": to_float(raw_row.get("ask")),
+scripts/import_lista_rtd_excel_to_option_quotes.py:364:    columns = get_table_columns(conn, "rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:367:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+scripts/import_lista_rtd_excel_to_option_quotes.py:373:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+scripts/import_lista_rtd_excel_to_option_quotes.py:395:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+scripts/import_lista_rtd_excel_to_option_quotes.py:396:                (record["codigo_opcao"],),
+scripts/import_lista_rtd_excel_to_option_quotes.py:407:        codigo = record["codigo_opcao"]
+scripts/import_lista_rtd_excel_to_option_quotes.py:417:            "codigo_opcao": codigo,
+scripts/import_lista_rtd_excel_to_option_quotes.py:422:            "ultimo_preco": record.get("ultimo_preco"),
+scripts/import_lista_rtd_excel_to_option_quotes.py:424:            "bid": record.get("bid"),
+scripts/import_lista_rtd_excel_to_option_quotes.py:425:            "ask": record.get("ask"),
+scripts/import_lista_rtd_excel_to_option_quotes.py:439:            UPDATE rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:444:                   ultimo_preco = :ultimo_preco,
+scripts/import_lista_rtd_excel_to_option_quotes.py:446:                   bid = :bid,
+scripts/import_lista_rtd_excel_to_option_quotes.py:447:                   ask = :ask,
+scripts/import_lista_rtd_excel_to_option_quotes.py:457:             WHERE codigo_opcao = :codigo_opcao
+scripts/import_lista_rtd_excel_to_option_quotes.py:471:            INSERT INTO rtd_option_quotes (
+scripts/import_lista_rtd_excel_to_option_quotes.py:472:                codigo_opcao,
+scripts/import_lista_rtd_excel_to_option_quotes.py:477:                ultimo_preco,
+scripts/import_lista_rtd_excel_to_option_quotes.py:479:                bid,
+scripts/import_lista_rtd_excel_to_option_quotes.py:480:                ask,
+scripts/import_lista_rtd_excel_to_option_quotes.py:493:                :codigo_opcao,
+scripts/import_lista_rtd_excel_to_option_quotes.py:498:                :ultimo_preco,
+scripts/import_lista_rtd_excel_to_option_quotes.py:500:                :bid,
+scripts/import_lista_rtd_excel_to_option_quotes.py:501:                :ask,
+scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+scripts/import_rtd_links_to_option_quotes.py:7:codigo_opcao,ativo_base,campo,valor,atualizado_em
+scripts/import_rtd_links_to_option_quotes.py:10:PETRA123,PETR4,bid,1.20,2026-06-06 17:50:00
+scripts/import_rtd_links_to_option_quotes.py:32:    "codigo_opcao",
+scripts/import_rtd_links_to_option_quotes.py:41:    "ultimo_preco",
+scripts/import_rtd_links_to_option_quotes.py:43:    "bid",
+scripts/import_rtd_links_to_option_quotes.py:44:    "ask",
+scripts/import_rtd_links_to_option_quotes.py:61:    "codigo_opcao",
+scripts/import_rtd_links_to_option_quotes.py:66:    "ultimo_preco",
+scripts/import_rtd_links_to_option_quotes.py:68:    "bid",
+scripts/import_rtd_links_to_option_quotes.py:69:    "ask",
+scripts/import_rtd_links_to_option_quotes.py:195:def empty_record(codigo_opcao: str) -> dict[str, Any]:
+scripts/import_rtd_links_to_option_quotes.py:197:        "codigo_opcao": codigo_opcao,
+scripts/import_rtd_links_to_option_quotes.py:202:        "ultimo_preco": None,
+scripts/import_rtd_links_to_option_quotes.py:204:        "bid": None,
+scripts/import_rtd_links_to_option_quotes.py:205:        "ask": None,
+scripts/import_rtd_links_to_option_quotes.py:243:            codigo = str(cleaned.get("codigo_opcao") or "").strip().upper()
+scripts/import_rtd_links_to_option_quotes.py:306:        SELECT codigo_opcao
+scripts/import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+scripts/import_rtd_links_to_option_quotes.py:308:        WHERE codigo_opcao IN ({placeholders})
+scripts/import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+scripts/import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+scripts/import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+scripts/import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+scripts/import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+scripts/import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+scripts/import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+scripts/import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+scripts/import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+scripts/import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+scripts/import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+scripts/import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+scripts/import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+scripts/import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+scripts/import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+scripts/import_rtd_links_to_option_quotes.py:345:        ON CONFLICT(codigo_opcao) DO UPDATE SET
+scripts/import_rtd_links_to_option_quotes.py:368:        codes = [record["codigo_opcao"] for record in records]
+scripts/import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+scripts/import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+scripts/run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+scripts/run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+scripts/run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+scripts/seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+scripts/seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+scripts/seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+scripts/seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+scripts/seed_current_rtd_option_quotes.py:32:        "codigo_opcao": "SMALF129",
+scripts/seed_current_rtd_option_quotes.py:38:        "ultimo_preco": 1.25,
+scripts/seed_current_rtd_option_quotes.py:42:        "codigo_opcao": "SMALF103",
+scripts/seed_current_rtd_option_quotes.py:48:        "ultimo_preco": 4.00,
+scripts/seed_current_rtd_option_quotes.py:52:        "codigo_opcao": "SMALR127",
+scripts/seed_current_rtd_option_quotes.py:58:        "ultimo_preco": 10.32,
+scripts/seed_current_rtd_option_quotes.py:62:        "codigo_opcao": "SMALR108",
+scripts/seed_current_rtd_option_quotes.py:68:        "ultimo_preco": 1.41,
+scripts/seed_current_rtd_option_quotes.py:72:        "codigo_opcao": "PRIOG800",
+scripts/seed_current_rtd_option_quotes.py:78:        "ultimo_preco": 0.46,
+scripts/seed_current_rtd_option_quotes.py:82:        "codigo_opcao": "PRIOH515",
+scripts/seed_current_rtd_option_quotes.py:88:        "ultimo_preco": 13.94,
+scripts/seed_current_rtd_option_quotes.py:92:        "codigo_opcao": "PRIOT700",
+scripts/seed_current_rtd_option_quotes.py:98:        "ultimo_preco": 6.64,
+scripts/seed_current_rtd_option_quotes.py:102:        "codigo_opcao": "PRIOS525",
+scripts/seed_current_rtd_option_quotes.py:108:        "ultimo_preco": 0.20,
+scripts/seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+scripts/seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+scripts/seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+scripts/seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+scripts/seed_current_rtd_option_quotes.py:147:                codigo_opcao,
+scripts/seed_current_rtd_option_quotes.py:152:                ultimo_preco,
+scripts/seed_current_rtd_option_quotes.py:154:                bid,
+scripts/seed_current_rtd_option_quotes.py:155:                ask,
+scripts/seed_current_rtd_option_quotes.py:168:                :codigo_opcao,
+scripts/seed_current_rtd_option_quotes.py:173:                :ultimo_preco,
+scripts/seed_current_rtd_option_quotes.py:175:                :bid,
+scripts/seed_current_rtd_option_quotes.py:176:                :ask,
+scripts/seed_current_rtd_option_quotes.py:195:                "valor_executado": quote["ultimo_preco"],
+scripts/seed_current_rtd_option_quotes.py:200:                "codigo_opcao": quote["codigo_opcao"],
+scripts/seed_current_rtd_option_quotes.py:205:                "ultimo_preco": quote["ultimo_preco"],
+scripts/seed_current_rtd_option_quotes.py:207:                "bid": None,
+scripts/seed_current_rtd_option_quotes.py:208:                "ask": None,
+scripts/seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+scripts/seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+services/calculation_orchestrator.py:76:                premium=float(row["premium"]) if row.get("premium") is not None else None,
+services/calculation_orchestrator.py:125:            "premium":         getattr(leg, "premium",     None),
+services/calculation_orchestrator.py:271:                    premium=float(leg["premium"]) if leg.get("premium") is not None else None,
+services/calculation_orchestrator.py:314:                "premium":         getattr(leg, "premium",    None),
+services/calculation_orchestrator.py:476:                    "premium":         leg.get("premium"),
+services/canonical_input_service.py:11:Contrato exigido pelo assemble_structure_market_input:
+services/canonical_input_service.py:33:from services.structure_market_input_assembler import assemble_structure_market_input
+services/canonical_input_service.py:89:    def build_structure_market_input(
+services/canonical_input_service.py:121:        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+services/canonical_input_service.py:216:                "bid":              leg.bid,
+services/canonical_input_service.py:217:                "ask":              leg.ask,
+services/canonical_pricing_facade.py:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
+services/canonical_pricing_facade.py:237:        raw_price = _pick(d, "premium", "price", "valor_executado")
+services/canonical_pricing_facade.py:262:            "premium":         _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:339:    def execute_pricing(
+services/legacy_robo_legs_fallback.py:233:            "premium": float(data["preco"]) if data.get("preco") is not None else (
+services/legacy_robo_legs_fallback.py:234:                float(data["premium"]) if data.get("premium") is not None else None
+services/pricing_engine_stub.py:31:                "premium_paid": 0.0,
+services/pricing_execution_app_service.py:3:alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+services/pricing_execution_app_service.py:40:    def execute_pricing(
+services/pricing_execution_app_service.py:48:        response = self._facade.execute_pricing(
+services/pricing_input_service.py:4:from services.pricing_payload_adapter import to_pricing_payload
+services/pricing_input_service.py:19:        canonical_input = self.canonical_input_service.build_structure_market_input(
+services/pricing_input_service.py:30:        return to_pricing_payload(canonical_input)
+services/pricing_payload_adapter.py:16:def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
+services/pricing_payload_adapter.py:45:                "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
+services/robo_leg_mapper.py:74:        "premium": float(preco) if preco is not None else None,
+services/structure_analysis_service.py:29:        canonical_input = self._canonical_input_service.build_structure_market_input(
+services/structure_input_mapper.py:26:def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+services/structure_input_mapper.py:27:    bid = _to_float_or_none(mapped_leg.get("bid"))
+services/structure_input_mapper.py:28:    ask = _to_float_or_none(mapped_leg.get("ask"))
+services/structure_input_mapper.py:30:    if bid is None or ask is None:
+services/structure_input_mapper.py:33:    spread = ask - bid
+services/structure_input_mapper.py:34:    mid = (bid + ask) / 2
+services/structure_input_mapper.py:57:        "premium": leg.get("premium"),
+services/structure_input_mapper.py:62:        "bid",
+services/structure_input_mapper.py:63:        "ask",
+services/structure_input_mapper.py:78:    _enrich_bid_ask_derived_fields(mapped_leg)
+services/structure_market_input_assembler.py:6:def assemble_structure_market_input(

@@ -1,0 +1,6 @@
+repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+repositories/rtd_option_quotes_repository.py:10:class RtdOptionQuotesRepository:
+repositories/rtd_option_quotes_repository.py:26:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+repositories/rtd_option_quotes_repository.py:58:    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+repositories/rtd_option_quotes_repository.py:90:    def list_all(self) -> list[dict[str, Any]]:
+scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",

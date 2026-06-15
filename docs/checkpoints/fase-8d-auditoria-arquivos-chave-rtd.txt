@@ -1,0 +1,806 @@
+
+===== repositories/rtd_option_quotes_repository.py =====
+# repositories/rtd_option_quotes_repository.py
+
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+from typing import Any
+
+
+class RtdOptionQuotesRepository:
+    """
+    Leitura da tabela rtd_option_quotes.
+
+    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+    e funciona como cache centralizado das cotações RTD de opções.
+    """
+
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+        self.db_path = Path(db_path)
+
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(str(self.db_path))
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+        sql = """
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            WHERE codigo_opcao = ?
+            LIMIT 1
+        """
+
+        with self._connect() as conn:
+            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+
+        return dict(row) if row else None
+
+    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+        sql = """
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            WHERE ativo_base = ?
+            ORDER BY vencimento, call_put, strike, codigo_opcao
+        """
+
+        with self._connect() as conn:
+            rows = conn.execute(sql, (ativo_base,)).fetchall()
+
+        return [dict(row) for row in rows]
+
+    def list_all(self) -> list[dict[str, Any]]:
+        sql = """
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+        """
+
+        with self._connect() as conn:
+            rows = conn.execute(sql).fetchall()
+
+        return [dict(row) for row in rows]
+
+===== services/market_snapshot_provider.py =====
+from datetime import date
+from typing import Any, Callable
+
+
+DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
+    "BOVA11": {
+        "spot_price": 198.35,
+        "interest_rate": 0.1175,
+        "volatility": 0.22,
+    },
+    "SMAL11": {
+        "spot_price": 124.66,
+        "interest_rate": 0.1175,
+        "volatility": 0.30,
+    },
+    "SBSP3": {
+        "spot_price": 168.67,
+        "interest_rate": 0.1175,
+        "volatility": 0.28,
+    },
+    "PRIO3": {
+        "spot_price": 66.84,
+        "interest_rate": 0.1175,
+        "volatility": 0.35,
+    },
+    "EMBJ3": {
+        "spot_price": 87.37,
+        "interest_rate": 0.1175,
+        "volatility": 0.32,
+    },
+    "PETR4": {
+        "spot_price": 37.42,
+        "interest_rate": 0.1175,
+        "volatility": 0.31,
+    },
+    "VALE3": {
+        "spot_price": 61.80,
+        "interest_rate": 0.1175,
+        "volatility": 0.28,
+    },
+}
+
+
+class MarketSnapshotProvider:
+    def __init__(
+        self,
+        market_by_asset: dict[str, dict[str, Any]] | None = None,
+        today_provider: Callable[[], date] | None = None,
+    ):
+        self.market_by_asset = market_by_asset or DEFAULT_MARKET_BY_ASSET
+        self.today_provider = today_provider or date.today
+
+    def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
+        asset = str(underlying_asset or "").strip().upper()
+        if not asset:
+            raise ValueError("underlying_asset is required")
+
+        market = self.market_by_asset.get(asset)
+        if market is None:
+            raise ValueError(f"market snapshot not found for asset: {asset}")
+
+        effective_reference_date = reference_date or self.today_provider().isoformat()
+
+        return {
+            "reference_date": effective_reference_date,
+            "underlying_asset": asset,
+            "spot_price": float(market["spot_price"]),
+            "interest_rate": float(market["interest_rate"]),
+            "volatility": float(market["volatility"]),
+        }
+
+===== services/market_snapshot_selector.py =====
+# services/market_snapshot_selector.py
+"""
+Política de precedência de snapshots: manual > rtd.
+
+Para cada aba:
+  - Se existir snapshot manual, usa manual
+  - Caso contrário, usa rtd
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+from repositories.market_snapshot_repository import MarketSnapshotRepository
+from src.domain.refs.structure_ref import StructureRef
+
+
+
+def _ref_to_aba(ref: StructureRef | str) -> str:
+    """Aceita StructureRef ou str e devolve a string da aba."""
+    if isinstance(ref, StructureRef):
+        if ref.aba:
+            return str(ref.aba)
+        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+    return str(ref)
+
+
+@dataclass
+class SnapshotSelectionResult:
+    """Resultado da seleção de snapshots para uma aba."""
+
+    aba: str
+    source: SnapshotSource
+    legs: list[LegMarketSnapshot] = field(default_factory=list)
+    manual_overrides: list[str] = field(default_factory=list)
+
+    @property
+    def is_manual_first(self) -> bool:
+        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+
+
+class MarketSnapshotSelector:
+    """
+    Aplica a política manual > rtd para selecionar o snapshot canônico.
+    """
+
+    def __init__(self, repository: MarketSnapshotRepository) -> None:
+        self._repo = repository
+
+    def select(
+        self,
+        ref: StructureRef | str | None = None,
+        *,
+        aba: str | None = None,
+    ) -> SnapshotSelectionResult:
+        """
+        Seleciona as legs canônicas para a estrutura informada.
+
+        Compatibilidade:
+          - select(ref=StructureRef(...))
+          - select(StructureRef(...))
+          - select(aba="SMAL11")
+          - select("SMAL11")
+        """
+        if ref is None and aba is None:
+            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+
+        effective_ref: StructureRef | str = ref if ref is not None else aba
+        aba_str = _ref_to_aba(effective_ref)
+
+
+        manual_legs = self._repo.get_manual_legs(effective_ref)
+        rtd_legs = self._repo.get_rtd_legs(effective_ref)
+
+        # Como as consultas vêm em timestamp DESC, preserva a primeira ocorrência
+        # por ativo, que tende a ser a mais recente.
+
+        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+        for leg in manual_legs:
+            if leg.ativo and leg.ativo not in manual_by_ativo:
+                manual_by_ativo[leg.ativo] = leg
+
+        rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+        for leg in rtd_legs:
+            if leg.ativo and leg.ativo not in rtd_by_ativo:
+                rtd_by_ativo[leg.ativo] = leg
+
+        todos_ativos = sorted(set(manual_by_ativo) | set(rtd_by_ativo))
+        legs_selected: list[LegMarketSnapshot] = []
+        overrides: list[str] = []
+
+        for ativo in todos_ativos:
+            if ativo in manual_by_ativo:
+                legs_selected.append(manual_by_ativo[ativo])
+                if ativo in rtd_by_ativo:
+                    overrides.append(ativo)
+            else:
+                legs_selected.append(rtd_by_ativo[ativo])
+
+        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+
+        return SnapshotSelectionResult(
+            aba=aba_str,
+            source=source,
+            legs=legs_selected,
+            manual_overrides=overrides,
+        )
+
+===== services/structure_market_input_assembler.py =====
+from typing import Any
+
+from services.structure_input_mapper import to_structure_input
+
+
+def assemble_structure_market_input(
+    structure: dict[str, Any],
+    market_snapshot: dict[str, Any],
+) -> dict[str, Any]:
+    if not structure:
+        raise ValueError("structure is required")
+
+    if not market_snapshot:
+        raise ValueError("market_snapshot is required")
+
+    structure_input = to_structure_input(structure)
+    structure_asset = structure_input["underlying_asset"]
+    market_asset = market_snapshot.get("underlying_asset")
+
+    if structure_asset != market_asset:
+        raise ValueError(
+            f"underlying_asset mismatch: structure={structure_asset} market={market_asset}"
+        )
+
+    return {
+        "structure": structure_input,
+        "market": {
+            "reference_date": market_snapshot["reference_date"],
+            "underlying_asset": market_snapshot["underlying_asset"],
+            "spot_price": market_snapshot["spot_price"],
+            "interest_rate": market_snapshot["interest_rate"],
+            "volatility": market_snapshot["volatility"],
+        },
+        "meta": {
+            "input_source": "structure_market_input_assembler",
+        },
+    }
+
+===== services/pricing_payload_adapter.py =====
+from typing import Any
+
+
+def _clean_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _clean_upper_text(value: Any) -> str | None:
+    text = _clean_text(value)
+    return text.upper() if text is not None else None
+
+
+def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
+    if not canonical_input:
+        raise ValueError("canonical_input is required")
+
+    structure = canonical_input.get("structure")
+    market = canonical_input.get("market")
+
+    if not structure:
+        raise ValueError("canonical_input.structure is required")
+
+    if not market:
+        raise ValueError("canonical_input.market is required")
+
+    legs = structure.get("legs", [])
+    pricing_legs = []
+
+    for index, leg in enumerate(legs):
+        if not leg:
+            raise ValueError(f"canonical_input.structure.legs[{index}] is required")
+
+        pricing_legs.append(
+            {
+                "side": _clean_upper_text(leg["position_side"]),
+                "instrument_type": "OPTION",
+                "option_type": _clean_upper_text(leg["option_type"]),
+                "symbol": _clean_upper_text(leg.get("symbol")),
+                "strike": float(leg["strike"]),
+                "expiration_date": _clean_text(leg["expiration_date"]),
+                "quantity": int(leg["quantity"]),
+                "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
+                "multiplier": float(leg["multiplier"]),
+            }
+        )
+
+    return {
+        "structure_id": structure["structure_id"],
+        "structure_name": _clean_text(structure["name"]),
+        "underlying_asset": _clean_upper_text(structure["underlying_asset"]),
+        "reference_date": _clean_text(market["reference_date"]),
+        "spot_price": float(market["spot_price"]),
+        "interest_rate": float(market["interest_rate"]),
+        "volatility": float(market["volatility"]),
+        "legs": pricing_legs,
+    }
+
+===== services/pricing_execution_app_service.py =====
+# services/pricing_execution_app_service.py
+"""
+alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+
+Alterações:
+  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+  - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+  - Todos os métodos de query (list, get, paginate, latest) inalterados
+  - Validações _validate_structure_id / _validate_reference_date mantidas
+"""
+
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from services.canonical_pricing_facade import CanonicalPricingFacade
+from services.pricing_execution_query_service import PricingExecutionQueryService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+class PricingExecutionAppService:
+    def __init__(
+        self,
+        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+        db_path: Path | str = _DEFAULT_DB,
+    ):
+        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+            db_path=db_path,
+        )
+        self.pricing_execution_query_service = (
+            pricing_execution_query_service or PricingExecutionQueryService()
+        )
+
+    # ------------------------------------------------------------------
+    # Execução
+    # ------------------------------------------------------------------
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        self._validate_structure_id(structure_id)
+        self._validate_reference_date(reference_date)
+
+        response = self._facade.execute_pricing(
+            structure_id=structure_id,
+            reference_date=reference_date,
+        )
+
+        # propaga erros como ValueError para manter contrato com callers existentes
+        if response.get("status") == "error":
+            raise ValueError(response.get("error_message", "pricing execution failed"))
+
+        persisted = response.get("persisted")
+        if isinstance(persisted, dict):
+            record = persisted.get("record")
+            if isinstance(record, dict):
+                return record
+
+        return response
+
+    # ------------------------------------------------------------------
+    # Queries -- inalteradas
+    # ------------------------------------------------------------------
+
+    def list_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+    ) -> list[dict[str, Any]]:
+        return self.pricing_execution_query_service.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+        )
+
+    def get_latest_execution_summary(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_latest_execution_summary(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+        )
+
+    def get_execution(self, execution_id: int) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_execution(execution_id)
+
+    def paginate_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.paginate_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+            page=page,
+            page_size=page_size,
+        )
+
+    # ------------------------------------------------------------------
+    # Validações
+    # ------------------------------------------------------------------
+
+    def _validate_structure_id(self, structure_id: int) -> None:
+        if structure_id <= 0:
+            raise ValueError("structure_id must be greater than zero")
+
+    def _validate_reference_date(self, reference_date: str | None) -> None:
+        if reference_date is None:
+            return
+
+        try:
+            parsed = datetime.strptime(reference_date, "%Y-%m-%d")
+        except ValueError as exc:
+            raise ValueError("reference_date must be in YYYY-MM-DD format") from exc
+
+        if parsed.strftime("%Y-%m-%d") != reference_date:
+            raise ValueError("reference_date must be in YYYY-MM-DD format")
+
+===== services/canonical_input_service.py =====
+from __future__ import annotations
+from domain.structure_metrics import compute_structure_metrics_from_canonical_input
+
+# services/canonical_input_service.py
+"""
+alteracao_25 — Separa responsabilidades de resolução de snapshot:
+  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+  - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
+
+Contrato exigido pelo assemble_structure_market_input:
+  {
+    "reference_date":     str | None,
+    "underlying_asset":   str,
+    "spot_price":         float | None,
+    "interest_rate":      float | None,
+    "volatility":         float | None,
+    "legs":               list[dict],   # campo extra, assembler ignora mas outros consomem
+    "aba":                str | None,
+  }
+"""
+
+from src.domain.refs.structure_ref import StructureRef
+
+from typing import Any
+
+from repositories.structures_repository import StructuresRepository
+from repositories.structure_events_repository import StructureEventsRepository
+from services.legacy_robo_legs_fallback import LegacyRoboLegsFallback
+from services.market_snapshot_provider import MarketSnapshotProvider
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.structure_events_service import StructureEventsService
+from services.structure_market_input_assembler import assemble_structure_market_input
+
+
+class CanonicalInputService:
+    def __init__(
+        self,
+        repository: StructuresRepository | None = None,
+        market_snapshot_provider: MarketSnapshotProvider | None = None,
+        market_snapshot_selector: MarketSnapshotSelector | None = None,
+        robo_legs_service: Any | None = None,  # injeção explícita
+        structure_events_service: StructureEventsService | None = None,
+        prefer_canonical_legs: bool = True,
+        enable_legacy_legs_fallback: bool = True,
+        allow_legacy_name_fallback: bool = False,
+        enable_structure_events: bool = True,
+    ):
+        self.repository                  = repository or StructuresRepository()
+        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+        self.prefer_canonical_legs       = prefer_canonical_legs
+        self.enable_legacy_legs_fallback = enable_legacy_legs_fallback
+        self.allow_legacy_name_fallback  = allow_legacy_name_fallback
+
+        if robo_legs_service is not None:
+            # Injecao explicita — path canonico preferencial
+            self.robo_legs_service = robo_legs_service
+        else:
+            # BRIDGE LEGADO: import dinamico de robo_legs_service para compatibilidade
+            # com pipeline legado. Remover quando legado for desligado.
+            try:
+                from services.robo_legs_service import RoboLegsService  # noqa: PLC0415
+                self.robo_legs_service = RoboLegsService()
+            except ImportError:
+                self.robo_legs_service = None
+
+        # LegacyRoboLegsFallback sempre inicializado, independente da origem do robo_legs_service
+        self.legacy_robo_legs_fallback = LegacyRoboLegsFallback(
+            robo_legs_service=self.robo_legs_service,
+            allow_name_fallback=self.allow_legacy_name_fallback,
+        )
+
+        if structure_events_service is not None:
+            self.structure_events_service = structure_events_service
+        elif enable_structure_events and getattr(self.repository, "db_path", None):
+            self.structure_events_service = StructureEventsService(
+                structure_events_repository=StructureEventsRepository(
+                    db_path=self.repository.db_path,
+                )
+            )
+        else:
+            self.structure_events_service = None
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # API pública
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def build_structure_market_input(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        structure = self.repository.get_structure(structure_id)
+        if structure is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+        structure = {
+            **structure,
+            "name":              self._clean_text(structure.get("name")),
+            "underlying_asset":  self._clean_text(structure.get("underlying_asset")),
+            "alias_legacy_aba":  self._clean_text(structure.get("alias_legacy_aba")),
+        }
+
+        snapshot, snapshot_meta = self._resolve_snapshot(
+            structure=structure,
+            reference_date=reference_date,
+        )
+
+        effective_reference_date = reference_date or snapshot.get("reference_date")
+
+        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
+            structure=structure,
+            reference_date=effective_reference_date,
+        )
+
+        enriched_structure, events_meta = self._apply_structure_events(
+            structure=enriched_structure,
+        )
+
+        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
+        assembled_meta  = assembled.get("meta") or {}
+
+        return {
+            **assembled,
+            "meta": {
+                **assembled_meta,
+                "reference_date": effective_reference_date,
+                **enrichment_meta,
+                **events_meta,
+                **snapshot_meta,
+            },
+        }
+
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_snapshot(
+        self,
+        structure: dict[str, Any],
+        reference_date: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """
+        Monta o snapshot dict completo exigido pelo assembler.
+
+        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+        Se o selector estiver injetado E alias_legacy_aba existir, substitui as
+        legs pelo resultado do selector (manual > rtd).
+        """
+        underlying_asset = structure["underlying_asset"]
+        aba              = structure.get("alias_legacy_aba")
+
+        # 1. Spot, taxa, vol — sempre via provider
+        base_snapshot = self.market_snapshot_provider.get_snapshot(
+            underlying_asset,
+            reference_date=reference_date,
+        )
+
+        # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
+        if self.market_snapshot_selector is not None and aba:
+            ref = StructureRef.from_aba(aba)
+            legs_list, legs_meta = self._resolve_legs_via_selector(ref)
+            snapshot_source = legs_meta["snapshot_source"]
+        else:
+            legs_list  = base_snapshot.get("legs", [])
+            legs_meta  = {}
+            snapshot_source = "provider_legacy"
+
+        # 3. Monta contrato completo para o assembler
+        snapshot = {
+            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+                                        # interest_rate, volatility (e qualquer extra)
+            "aba":  aba,
+            "legs": legs_list,
+        }
+
+        meta = {
+            "snapshot_source":  snapshot_source,
+            **legs_meta,
+        }
+
+        return snapshot, meta
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Legs via selector (manual > rtd)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_legs_via_selector(
+        self,
+        ref: StructureRef,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """
+        Delega ao MarketSnapshotSelector e serializa legs completas.
+
+        Serialização cobre todos os campos de LegMarketSnapshot para que
+        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+        """
+        aba_str = ref.aba
+        result = self.market_snapshot_selector.select(aba_str)
+
+        legs_as_dict = [
+            {
+                # ── identificação ──────────────────────────────────────────
+                "aba":              leg.aba,
+                "ativo":            leg.ativo,
+                "source":           leg.source.value if hasattr(leg.source, "value") else str(leg.source),
+                # ── posição ────────────────────────────────────────────────
+                "cv":               leg.cv,
+                "call_put":         leg.call_put,
+                "quant":            leg.quant,
+                "valor_executado":  leg.valor_executado,
+                # ── preços ─────────────────────────────────────────────────
+                "bid":              leg.bid,
+                "ask":              leg.ask,
+                "mid":              leg.mid,
+                "spread":           leg.spread,
+                "spread_pct":       leg.spread_pct,
+                # ── greeks ─────────────────────────────────────────────────
+                "iv":               leg.iv,
+                "delta":            leg.delta,
+                "gamma":            leg.gamma,
+                "theta":            leg.theta,
+                "vega":             leg.vega,
+                # ── contrato ───────────────────────────────────────────────
+                "strike":           leg.strike,
+                "vencimento":       leg.vencimento,
+                "dte":              leg.dte,
+                "pl_realista":      leg.pl_realista,
+                # ── auditoria ──────────────────────────────────────────────
+                "timestamp":        leg.timestamp,
+            }
+            for leg in result.legs
+        ]
+
+        # reference_date derivada do timestamp da leg mais recente
+        reference_date = self._reference_date_from_legs(result.legs)
+
+        meta = {
+            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+            "snapshot_aba":     aba_str,
+            "manual_overrides": result.manual_overrides,
+            "is_manual_first":  result.is_manual_first,
+            "legs_reference_date": reference_date,
+        }
+
+        return legs_as_dict, meta
+
+    @staticmethod
+    def _reference_date_from_legs(legs) -> str | None:
+        """Extrai a data (YYYY-MM-DD) do timestamp mais recente entre as legs."""
+        timestamps = [leg.timestamp for leg in legs if leg.timestamp]
+        if not timestamps:
+            return None
+        latest = max(timestamps)          # ISO string → max() funciona diretamente
+        return latest[:10]               # "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DD"
+
+    # ──────────────────────────────────────────────────────────────────────────

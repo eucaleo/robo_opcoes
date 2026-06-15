@@ -1,0 +1,764 @@
+UI/components/details_panel.py:107:    def _get_latest_snapshot_timestamp_for_structure(self, structure_id):
+UI/components/details_panel.py:109:        Retorna o timestamp mais recente de snapshot para uma estrutura.
+UI/components/details_panel.py:313:                "snapshot_timestamp": 99,
+UI/components/details_panel.py:314:                "snapshot_ts": 98,
+UI/components/details_panel.py:328:            if "snapshot" in low and ("time" in low or "date" in low or "ts" in low):
+UI/components/details_panel.py:405:            "robo_legs_snapshot",
+UI/components/details_panel.py:406:            "robo_snapshot",
+UI/components/details_panel.py:407:            "snapshots",
+UI/components/details_panel.py:408:            "snapshot",
+UI/components/details_panel.py:409:            "structure_snapshots",
+UI/components/details_panel.py:446:            self._get_latest_snapshot_timestamp_for_structure(structure_id),
+UI/components/payoff_chart.py:3:from matplotlib.ticker import FuncFormatter
+UI/components/structure_editor_dialog.py:135:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+UI/components/structure_editor_dialog.py:178:        self._lf_symbol  = tk.StringVar()
+UI/components/structure_editor_dialog.py:207:            ("Simbolo", self._lf_symbol),
+UI/components/structure_editor_dialog.py:262:                leg.get("symbol") or "",
+UI/components/structure_editor_dialog.py:291:        self._lf_symbol.set(str(leg.get("symbol") or ""))
+UI/components/structure_editor_dialog.py:304:            "symbol":          None,
+UI/components/structure_editor_dialog.py:365:            "symbol":          self._lf_symbol.get() or None,
+UI/main_window.py:667:                    f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '--'}",
+api/pricing_execution_controller.py:4:from services.pricing_execution_app_service import PricingExecutionAppService
+api/pricing_execution_controller.py:6:router = APIRouter(tags=["pricing-executions"])
+api/pricing_execution_controller.py:15:@router.post("/pricing-executions")
+api/pricing_execution_controller.py:16:def create_pricing_execution(request: CreatePricingExecutionRequest):
+api/pricing_execution_controller.py:18:        return service.execute_pricing(
+api/pricing_execution_controller.py:28:@router.get("/pricing-executions")
+api/pricing_execution_controller.py:29:def list_pricing_executions(
+api/pricing_execution_controller.py:50:@router.get("/pricing-executions/latest")
+api/pricing_execution_controller.py:51:def get_latest_pricing_execution(
+api/pricing_execution_controller.py:69:            or "no pricing execution summaries found" in message
+api/pricing_execution_controller.py:75:@router.get("/pricing-executions/{execution_id}")
+api/pricing_execution_controller.py:76:def get_pricing_execution(execution_id: int):
+api/structures_controller.py:58:    symbol: str | None   = None
+api/structures_controller.py:215:            "SELECT id FROM structure_legs WHERE id=? AND structure_id=?",
+api/structures_controller.py:229:            "DELETE FROM structure_legs WHERE id=?",
+api/structures_controller.py:298:    symbol: str | None = None
+db/derived_repo.py:163:CREATE UNIQUE INDEX IF NOT EXISTS ux_payoff_snapshot
+db/derived_repo.py:194:CREATE UNIQUE INDEX IF NOT EXISTS ux_decision_snapshot
+db/derived_repo.py:348:        ab = aba       or decision_dict.get("aba")       or decision_dict.get("ticker", "unknown")
+db/derived_repo.py:355:    def write_decision_snapshot_atomic(
+db/derived_repo.py:405:    def write_payoff_snapshot_atomic(
+db/derived_repo.py:499:    # Escrita -- snapshot completo
+db/derived_repo.py:502:    def write_complete_snapshot_atomic(
+db/derived_repo.py:605:        ticker: Optional[str] = None,
+db/derived_repo.py:625:            if ticker is not None and aba is None:
+db/derived_repo.py:627:                params.append(ticker)
+db/derived_repo.py:657:    def validate_snapshot_consistency(self) -> bool:
+db/derived_repo.py:760:def write_payoff_snapshot_atomic(
+db/derived_repo.py:800:def write_decision_snapshot_atomic(
+db/derived_repo.py:837:def write_complete_snapshot_atomic(
+db/derived_repo.py:848:        pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta, structure_id=decision_dict.get("structure_id"))
+db/derived_repo.py:849:        did = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
+db/derived_repo.py:956:def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
+db/import_excel.py:10:    "ANALISE_ROBO": "robo_snapshot",
+db/import_excel.py:11:    "ANALISE_ROBO_LEGS": "robo_legs_snapshot",
+db/schema.py:80:    symbol         TEXT,
+db/schema.py:87:    FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+db/schema_excel.py:17:CREATE TABLE IF NOT EXISTS robo_snapshot (
+db/schema_excel.py:35:CREATE INDEX IF NOT EXISTS ix_robo_snapshot_aba ON robo_snapshot(aba);
+db/schema_excel.py:38:CREATE TABLE IF NOT EXISTS robo_legs_snapshot (
+db/schema_excel.py:63:CREATE INDEX IF NOT EXISTS ix_robo_legs_snapshot_ts ON robo_legs_snapshot(timestamp);
+db/schema_excel.py:64:CREATE INDEX IF NOT EXISTS ix_robo_legs_snapshot_aba ON robo_legs_snapshot(aba);
+db/schema_excel.py:65:CREATE INDEX IF NOT EXISTS ix_robo_legs_snapshot_ativo ON robo_legs_snapshot(ativo);
+db/writer.py:243:        DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic().
+db/writer.py:248:            "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+db/writer.py:253:        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+db/writer.py:271:            return write_decision_snapshot_atomic(conn, timestamp, ref, decision_dict)
+repositories/market_snapshot_repository.py:1:# repositories/market_snapshot_repository.py
+repositories/market_snapshot_repository.py:3:Repositorio canonico de snapshots de mercado.
+repositories/market_snapshot_repository.py:6:normaliza os campos e retorna objetos LegMarketSnapshot prontos para uso.
+repositories/market_snapshot_repository.py:18:from domain.market_snapshot import (
+repositories/market_snapshot_repository.py:19:    LegMarketSnapshot,
+repositories/market_snapshot_repository.py:21:    StructureMarketSnapshot,
+repositories/market_snapshot_repository.py:112:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+repositories/market_snapshot_repository.py:157:def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
+repositories/market_snapshot_repository.py:162:    return LegMarketSnapshot(
+repositories/market_snapshot_repository.py:191:class MarketSnapshotRepository:
+repositories/market_snapshot_repository.py:193:    Acesso de leitura aos snapshots de mercado.
+repositories/market_snapshot_repository.py:196:      get_rtd_legs(aba)     -> lista de LegMarketSnapshot source=RTD
+repositories/market_snapshot_repository.py:197:      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+repositories/market_snapshot_repository.py:199:      get_structure(aba)    -> StructureMarketSnapshot completo
+repositories/market_snapshot_repository.py:214:    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+repositories/market_snapshot_repository.py:231:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+repositories/market_snapshot_repository.py:244:    ) -> StructureMarketSnapshot:
+repositories/market_snapshot_repository.py:261:        return StructureMarketSnapshot(
+repositories/pricing_executions_repository.py:13:    "pricing_payload, result"
+repositories/pricing_executions_repository.py:39:        pricing_payload: dict[str, Any] | None,
+repositories/pricing_executions_repository.py:53:        structure_id = pricing_payload.get("structure_id") if pricing_payload else None
+repositories/pricing_executions_repository.py:54:        underlying_asset = pricing_payload.get("underlying_asset") if pricing_payload else None
+repositories/pricing_executions_repository.py:55:        reference_date = pricing_payload.get("reference_date") if pricing_payload else None
+repositories/pricing_executions_repository.py:57:        payload_json = json.dumps(pricing_payload, ensure_ascii=False) if pricing_payload else None
+repositories/pricing_executions_repository.py:65:                INSERT INTO pricing_executions (
+repositories/pricing_executions_repository.py:69:                    pricing_payload, result
+repositories/pricing_executions_repository.py:97:            "pricing_payload": pricing_payload,
+repositories/pricing_executions_repository.py:110:                f"SELECT {_EXECUTION_COLUMNS} FROM pricing_executions WHERE id = ?",
+repositories/pricing_executions_repository.py:153:                SELECT {_EXECUTION_COLUMNS} FROM pricing_executions
+repositories/pricing_executions_repository.py:192:                f"SELECT COUNT(*) FROM pricing_executions {where}",
+repositories/pricing_executions_repository.py:215:                SELECT {_EXECUTION_COLUMNS} FROM pricing_executions
+repositories/pricing_executions_repository.py:253:        for field in ("pricing_payload", "result"):
+repositories/robo_legs_repository.py:40:    "ticker",
+repositories/robo_legs_repository.py:52:def _quote_sql_identifier(name: str) -> str:
+repositories/robo_legs_repository.py:57:    rows = conn.execute(f"PRAGMA table_info({_quote_sql_identifier(table_name)})").fetchall()
+repositories/robo_legs_repository.py:249:            select_sql = ", ".join(_quote_sql_identifier(col) for col in select_columns)
+repositories/robo_legs_repository.py:252:                FROM {_quote_sql_identifier(table)}
+repositories/robo_legs_repository.py:279:        ativo     = pick("ativo", "ticker", "cod_ativo")
+repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+repositories/rtd_option_quotes_repository.py:12:    Leitura da tabela rtd_option_quotes.
+repositories/rtd_option_quotes_repository.py:26:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+repositories/rtd_option_quotes_repository.py:29:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:48:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:49:            WHERE codigo_opcao = ?
+repositories/rtd_option_quotes_repository.py:54:            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+repositories/rtd_option_quotes_repository.py:61:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:80:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+repositories/rtd_option_quotes_repository.py:93:                codigo_opcao,
+repositories/rtd_option_quotes_repository.py:112:            FROM rtd_option_quotes
+repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+repositories/structure_events_repository.py:29:    "quantity, price, symbol, source, notes, metadata_json, "
+repositories/structure_events_repository.py:170:        "symbol": _normalize_optional_text(data.get("symbol")),
+repositories/structure_events_repository.py:215:                symbol         TEXT,
+repositories/structure_events_repository.py:222:                FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+repositories/structure_events_repository.py:297:            FROM structure_legs
+repositories/structure_events_repository.py:337:                    symbol,
+repositories/structure_events_repository.py:353:                    event["symbol"],
+repositories/structures_repository.py:96:    symbol          = leg.get("symbol")
+repositories/structures_repository.py:144:    if symbol is not None:
+repositories/structures_repository.py:145:        symbol = str(symbol).strip() or None
+repositories/structures_repository.py:153:        "symbol":          symbol,
+repositories/structures_repository.py:197:                id, structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:200:            FROM structure_legs
+repositories/structures_repository.py:399:                    INSERT INTO structure_legs (
+repositories/structures_repository.py:400:                        structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:409:                        leg["symbol"],
+repositories/structures_repository.py:499:        # snapshot antes da mudanca (sem legs para manter log enxuto)
+repositories/structures_repository.py:594:                INSERT INTO structure_legs (
+repositories/structures_repository.py:595:                    structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:602:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+repositories/structures_repository.py:641:                "DELETE FROM structure_legs WHERE structure_id=?",
+repositories/structures_repository.py:648:                    INSERT INTO structure_legs (
+repositories/structures_repository.py:649:                        structure_id, position_side, option_type, symbol,
+repositories/structures_repository.py:656:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+repositories/structures_repository.py:690:                "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id=?",
+repositories/system_snapshots_repository.py:29:    "id, created_at, structure_id, pricing_execution_id, underlying_asset, "
+repositories/system_snapshots_repository.py:30:    "reference_date, snapshot_source, structure_json, market_json, "
+repositories/system_snapshots_repository.py:36:    "id, snapshot_id, structure_id, leg_id, leg_order, position_side, "
+repositories/system_snapshots_repository.py:37:    "option_type, symbol, strike, expiration_date, quantity, premium, "
+repositories/system_snapshots_repository.py:91:    def create_snapshot(
+repositories/system_snapshots_repository.py:97:        pricing_execution_id: int | None = None,
+repositories/system_snapshots_repository.py:100:        snapshot_source: str = "system",
+repositories/system_snapshots_repository.py:109:        """Cria um snapshot e suas pernas associadas.
+repositories/system_snapshots_repository.py:111:        Retorna o id gerado em structure_snapshots.
+repositories/system_snapshots_repository.py:126:                INSERT INTO structure_snapshots (
+repositories/system_snapshots_repository.py:129:                    pricing_execution_id,
+repositories/system_snapshots_repository.py:132:                    snapshot_source,
+repositories/system_snapshots_repository.py:146:                    pricing_execution_id,
+repositories/system_snapshots_repository.py:149:                    snapshot_source,
+repositories/system_snapshots_repository.py:160:            snapshot_id = int(cur.lastrowid)
+repositories/system_snapshots_repository.py:163:                self._insert_leg_snapshot(
+repositories/system_snapshots_repository.py:165:                    snapshot_id=snapshot_id,
+repositories/system_snapshots_repository.py:171:            return snapshot_id
+repositories/system_snapshots_repository.py:173:    def _insert_leg_snapshot(
+repositories/system_snapshots_repository.py:177:        snapshot_id: int,
+repositories/system_snapshots_repository.py:184:            INSERT INTO structure_leg_snapshots (
+repositories/system_snapshots_repository.py:185:                snapshot_id,
+repositories/system_snapshots_repository.py:191:                symbol,
+repositories/system_snapshots_repository.py:204:                snapshot_id,
+repositories/system_snapshots_repository.py:210:                leg.get("symbol"),
+repositories/system_snapshots_repository.py:222:    def get_snapshot(self, snapshot_id: int) -> dict[str, Any] | None:
+repositories/system_snapshots_repository.py:223:        """Retorna um snapshot com suas pernas, ou None se não existir."""
+repositories/system_snapshots_repository.py:226:            snapshot_row = conn.execute(
+repositories/system_snapshots_repository.py:229:                FROM structure_snapshots
+repositories/system_snapshots_repository.py:232:                (snapshot_id,),
+repositories/system_snapshots_repository.py:235:            if snapshot_row is None:
+repositories/system_snapshots_repository.py:238:            snapshot = self._decode_snapshot_row(snapshot_row)
+repositories/system_snapshots_repository.py:243:                FROM structure_leg_snapshots
+repositories/system_snapshots_repository.py:244:                WHERE snapshot_id = ?
+repositories/system_snapshots_repository.py:247:                (snapshot_id,),
+repositories/system_snapshots_repository.py:250:            snapshot["legs"] = [self._decode_leg_row(row) for row in leg_rows]
+repositories/system_snapshots_repository.py:252:            return snapshot
+repositories/system_snapshots_repository.py:254:    def list_snapshots_for_structure(
+repositories/system_snapshots_repository.py:260:        """Lista snapshots de uma estrutura, do mais recente para o mais antigo."""
+repositories/system_snapshots_repository.py:269:                FROM structure_snapshots
+repositories/system_snapshots_repository.py:277:        return [self._decode_snapshot_row(row) for row in rows]
+repositories/system_snapshots_repository.py:279:    def get_latest_snapshot_for_structure(
+repositories/system_snapshots_repository.py:283:        """Retorna o snapshot mais recente de uma estrutura."""
+repositories/system_snapshots_repository.py:285:        snapshots = self.list_snapshots_for_structure(structure_id, limit=1)
+repositories/system_snapshots_repository.py:287:        if not snapshots:
+repositories/system_snapshots_repository.py:290:        return self.get_snapshot(int(snapshots[0]["id"]))
+repositories/system_snapshots_repository.py:292:    def _decode_snapshot_row(self, row: sqlite3.Row) -> dict[str, Any]:
+scripts/apply_fase9_atomic_create.py:116:                    INSERT INTO structure_legs (
+scripts/apply_fase9_atomic_create.py:117:                        structure_id, position_side, option_type, symbol,
+scripts/apply_fase9_atomic_create.py:126:                        leg["symbol"],
+scripts/apply_fase9_update_tests_atomic_create.py:80:            "premium": None, "multiplier": 1, "symbol": None,
+scripts/audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+scripts/audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+scripts/audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+scripts/audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+scripts/audit_rtd_option_quotes.py:26:    "codigo_opcao",
+scripts/audit_rtd_option_quotes.py:125:        if "codigo_opcao" in column_set:
+scripts/audit_rtd_option_quotes.py:132:                    WHERE codigo_opcao IS NULL
+scripts/audit_rtd_option_quotes.py:133:                       OR TRIM(codigo_opcao) = ''
+scripts/audit_rtd_option_quotes.py:143:                    SELECT COUNT(DISTINCT codigo_opcao)
+scripts/audit_rtd_option_quotes.py:145:                    WHERE codigo_opcao IS NOT NULL
+scripts/audit_rtd_option_quotes.py:146:                      AND TRIM(codigo_opcao) <> ''
+scripts/audit_rtd_option_quotes.py:158:                        SELECT codigo_opcao
+scripts/audit_rtd_option_quotes.py:160:                        WHERE codigo_opcao IS NOT NULL
+scripts/audit_rtd_option_quotes.py:161:                          AND TRIM(codigo_opcao) <> ''
+scripts/audit_rtd_option_quotes.py:162:                        GROUP BY codigo_opcao
+scripts/audit_rtd_option_quotes.py:176:                    f"rows with missing codigo_opcao: {missing_codigo_count}"
+scripts/audit_rtd_option_quotes.py:181:                    f"duplicated codigo_opcao groups: {duplicate_codigo_count}"
+scripts/audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+scripts/audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+scripts/check_rota_desenvolvimento.py:368:                    LEFT JOIN structure_legs l ON l.structure_id = s.id
+scripts/check_rota_desenvolvimento.py:377:                    print(f"  - structure_id={row[0]} | alias={row[1]} | structure_legs={row[2]}")
+scripts/check_rota_desenvolvimento.py:381:            print(f"  Erro ao consultar structure_legs: {exc}")
+scripts/check_rota_desenvolvimento.py:420:        "- Se structure_legs já estiver populada para 44-48, a pendência central da Fase 8 pode ter sido tratada.\n"
+scripts/import_legacy_structure_legs.py:19:from services.legacy_structure_legs_importer import (  # noqa: E402
+scripts/import_legacy_structure_legs.py:22:from services.legacy_structure_legs_reader import LegacyStructureLegsReader  # noqa: E402
+scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+scripts/import_legacy_structure_legs.py:55:        help="Apenas lê e exibe as pernas canônicas, sem gravar em structure_legs.",
+scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+scripts/import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:10:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db
+scripts/import_lista_rtd_excel_to_option_quotes.py:11:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --dry-run
+scripts/import_lista_rtd_excel_to_option_quotes.py:12:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --json
+scripts/import_lista_rtd_excel_to_option_quotes.py:31:    "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:54:    "codigo_opcao": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:55:    "codigo": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:56:    "ticker": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:57:    "symbol": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:58:    "ativo": "codigo_opcao",
+scripts/import_lista_rtd_excel_to_option_quotes.py:62:    "underlying_symbol": "ativo_base",
+scripts/import_lista_rtd_excel_to_option_quotes.py:316:        codigo = clean_text(raw_row.get("codigo_opcao"))
+scripts/import_lista_rtd_excel_to_option_quotes.py:321:        if codigo.lower() in {"codigo_opcao", "codigo", "ticker", "symbol"}:
+scripts/import_lista_rtd_excel_to_option_quotes.py:328:            "codigo_opcao": codigo.upper(),
+scripts/import_lista_rtd_excel_to_option_quotes.py:364:    columns = get_table_columns(conn, "rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:367:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+scripts/import_lista_rtd_excel_to_option_quotes.py:373:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+scripts/import_lista_rtd_excel_to_option_quotes.py:395:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+scripts/import_lista_rtd_excel_to_option_quotes.py:396:                (record["codigo_opcao"],),
+scripts/import_lista_rtd_excel_to_option_quotes.py:407:        codigo = record["codigo_opcao"]
+scripts/import_lista_rtd_excel_to_option_quotes.py:417:            "codigo_opcao": codigo,
+scripts/import_lista_rtd_excel_to_option_quotes.py:439:            UPDATE rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:457:             WHERE codigo_opcao = :codigo_opcao
+scripts/import_lista_rtd_excel_to_option_quotes.py:471:            INSERT INTO rtd_option_quotes (
+scripts/import_lista_rtd_excel_to_option_quotes.py:472:                codigo_opcao,
+scripts/import_lista_rtd_excel_to_option_quotes.py:493:                :codigo_opcao,
+scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+scripts/import_rtd_links_to_option_quotes.py:7:codigo_opcao,ativo_base,campo,valor,atualizado_em
+scripts/import_rtd_links_to_option_quotes.py:14:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/import_rtd_links_to_option_quotes.py:15:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db --dry-run
+scripts/import_rtd_links_to_option_quotes.py:32:    "codigo_opcao",
+scripts/import_rtd_links_to_option_quotes.py:61:    "codigo_opcao",
+scripts/import_rtd_links_to_option_quotes.py:195:def empty_record(codigo_opcao: str) -> dict[str, Any]:
+scripts/import_rtd_links_to_option_quotes.py:197:        "codigo_opcao": codigo_opcao,
+scripts/import_rtd_links_to_option_quotes.py:243:            codigo = str(cleaned.get("codigo_opcao") or "").strip().upper()
+scripts/import_rtd_links_to_option_quotes.py:306:        SELECT codigo_opcao
+scripts/import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+scripts/import_rtd_links_to_option_quotes.py:308:        WHERE codigo_opcao IN ({placeholders})
+scripts/import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+scripts/import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+scripts/import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+scripts/import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+scripts/import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+scripts/import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+scripts/import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+scripts/import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+scripts/import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+scripts/import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+scripts/import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+scripts/import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+scripts/import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+scripts/import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+scripts/import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+scripts/import_rtd_links_to_option_quotes.py:345:        ON CONFLICT(codigo_opcao) DO UPDATE SET
+scripts/import_rtd_links_to_option_quotes.py:368:        codes = [record["codigo_opcao"] for record in records]
+scripts/import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+scripts/import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+scripts/mapear_automacao_opcoes_rtd.py:58:    "rtd": ["rtd", "rtd_links", "option_quotes"],
+scripts/mapear_automacao_opcoes_rtd.py:63:    "servicos": ["service", "services", "provider", "selector", "assembler"],
+scripts/mapear_automacao_opcoes_rtd.py:65:    "calculo": ["calculation", "pricing", "payoff", "metric", "metrics", "grega", "gregas"],
+scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+scripts/mapear_automacao_opcoes_rtd.py:70:    "services/market_snapshot_provider.py": "Prioritário para auditoria de snapshot.",
+scripts/mapear_automacao_opcoes_rtd.py:71:    "services/market_snapshot_selector.py": "Prioritário para auditoria de seleção de snapshot.",
+scripts/mapear_automacao_opcoes_rtd.py:72:    "repositories/market_snapshot_repository.py": "Prioritário para auditoria de persistência de snapshot.",
+scripts/mapear_automacao_opcoes_rtd.py:73:    "services/structure_market_input_assembler.py": "Prioritário para auditoria de input de mercado.",
+scripts/patch_derived_payoff_timestamp_consistency.sh:40:if "snapshot_ts = datetime.now(timezone.utc).isoformat()" not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:43:        """        self._persist_payoff(pricing_payload, result)
+scripts/patch_derived_payoff_timestamp_consistency.sh:44:        self._persist_decision(pricing_payload, result)
+scripts/patch_derived_payoff_timestamp_consistency.sh:47:        # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+scripts/patch_derived_payoff_timestamp_consistency.sh:48:        snapshot_ts = datetime.now(timezone.utc).isoformat()
+scripts/patch_derived_payoff_timestamp_consistency.sh:50:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+scripts/patch_derived_payoff_timestamp_consistency.sh:54:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:58:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+scripts/patch_derived_payoff_timestamp_consistency.sh:62:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:63:                snapshot_ts,
+scripts/patch_derived_payoff_timestamp_consistency.sh:70:# _persist_payoff signature: retorna bool e recebe snapshot_ts
+scripts/patch_derived_payoff_timestamp_consistency.sh:72:if "snapshot_ts: str,\n    ) -> bool:" not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:77:        pricing_payload: dict[str, Any],
+scripts/patch_derived_payoff_timestamp_consistency.sh:83:        pricing_payload: dict[str, Any],
+scripts/patch_derived_payoff_timestamp_consistency.sh:85:        snapshot_ts: str,
+scripts/patch_derived_payoff_timestamp_consistency.sh:96:                    pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:103:                    pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:113:    "            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)\n",
+scripts/patch_derived_payoff_timestamp_consistency.sh:124:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:132:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:147:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:154:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:164:# _persist_decision signature: retorna bool e recebe snapshot_ts
+scripts/patch_derived_payoff_timestamp_consistency.sh:166:if "snapshot_ts: str,\n    ) -> bool:" in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:172:        pricing_payload: dict[str, Any],
+scripts/patch_derived_payoff_timestamp_consistency.sh:180:        pricing_payload: dict[str, Any],
+scripts/patch_derived_payoff_timestamp_consistency.sh:186:        pricing_payload: dict[str, Any],
+scripts/patch_derived_payoff_timestamp_consistency.sh:188:        snapshot_ts: str,
+scripts/patch_derived_payoff_timestamp_consistency.sh:195:if "timestamp=snapshot_ts," not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:198:        """                structure_name=pricing_payload.get("structure_name"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:199:                underlying_asset=pricing_payload.get("underlying_asset"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:202:        """                structure_name=pricing_payload.get("structure_name"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:203:                underlying_asset=pricing_payload.get("underlying_asset"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:204:                timestamp=snapshot_ts,
+scripts/patch_derived_payoff_timestamp_consistency.sh:217:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:225:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:239:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:247:                pricing_payload.get("structure_id"),
+scripts/patch_derived_payoff_timestamp_consistency.sh:262:    "snapshot_ts = datetime.now(timezone.utc).isoformat()",
+scripts/patch_derived_payoff_timestamp_consistency.sh:263:    "save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)",
+scripts/patch_derived_payoff_timestamp_consistency.sh:264:    "timestamp=snapshot_ts,",
+scripts/patch_derived_payoff_timestamp_consistency.sh:265:    "payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)",
+scripts/patch_derived_payoff_timestamp_consistency.sh:266:    "decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)",
+scripts/purge_derived_snapshots.py:34:        description="Remove snapshots derivados antigos/inválidos do derived.db"
+scripts/purge_derived_snapshots.py:44:        help="Remove todos os snapshots derivados.",
+scripts/purge_derived_snapshots.py:50:        help="Remove snapshots com timestamp mais antigo que N horas.",
+scripts/repair_derived_db_consistency.py:49:        description="Repara inconsistências de snapshots em dados/derived.db"
+scripts/repair_derived_db_consistency.py:60:        help="Delta máximo para alinhar decisão ao snapshot de pontos. Default: 0.25s",
+scripts/run_derived_pipeline.py:22:    """Valida consistência dos snapshots após processamento."""
+scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+scripts/run_derived_pipeline.py:28:        return validate_snapshot_consistency(conn)
+scripts/run_derived_pipeline.py:64:    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+scripts/run_derived_pipeline.py:66:        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+scripts/run_lista_rtd_option_quotes_pipeline.py:6:    1. scripts/import_lista_rtd_excel_to_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:25:IMPORT_SCRIPT = Path("scripts/import_lista_rtd_excel_to_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+scripts/run_rtd_option_quotes_pipeline.py:28:IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_links_to_option_quotes.py"
+scripts/run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+scripts/run_rtd_option_quotes_pipeline.py:96:    print("Pipeline RTD option quotes")
+scripts/run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+scripts/seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+scripts/seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+scripts/seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+scripts/seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+scripts/seed_current_rtd_option_quotes.py:32:        "codigo_opcao": "SMALF129",
+scripts/seed_current_rtd_option_quotes.py:42:        "codigo_opcao": "SMALF103",
+scripts/seed_current_rtd_option_quotes.py:52:        "codigo_opcao": "SMALR127",
+scripts/seed_current_rtd_option_quotes.py:62:        "codigo_opcao": "SMALR108",
+scripts/seed_current_rtd_option_quotes.py:72:        "codigo_opcao": "PRIOG800",
+scripts/seed_current_rtd_option_quotes.py:82:        "codigo_opcao": "PRIOH515",
+scripts/seed_current_rtd_option_quotes.py:92:        "codigo_opcao": "PRIOT700",
+scripts/seed_current_rtd_option_quotes.py:102:        "codigo_opcao": "PRIOS525",
+scripts/seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+scripts/seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+scripts/seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+scripts/seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+scripts/seed_current_rtd_option_quotes.py:147:                codigo_opcao,
+scripts/seed_current_rtd_option_quotes.py:168:                :codigo_opcao,
+scripts/seed_current_rtd_option_quotes.py:190:        for quote in CURRENT_QUOTES:
+scripts/seed_current_rtd_option_quotes.py:193:                "estrutura": quote["estrutura"],
+scripts/seed_current_rtd_option_quotes.py:194:                "preco_referencia_ativo": quote["preco_referencia_ativo"],
+scripts/seed_current_rtd_option_quotes.py:195:                "valor_executado": quote["ultimo_preco"],
+scripts/seed_current_rtd_option_quotes.py:196:                "quantidade": quote["ultima_quantidade"],
+scripts/seed_current_rtd_option_quotes.py:200:                "codigo_opcao": quote["codigo_opcao"],
+scripts/seed_current_rtd_option_quotes.py:201:                "ativo_base": quote["ativo_base"],
+scripts/seed_current_rtd_option_quotes.py:202:                "call_put": quote["call_put"],
+scripts/seed_current_rtd_option_quotes.py:203:                "strike": quote["strike"],
+scripts/seed_current_rtd_option_quotes.py:205:                "ultimo_preco": quote["ultimo_preco"],
+scripts/seed_current_rtd_option_quotes.py:206:                "ultima_quantidade": quote["ultima_quantidade"],
+scripts/seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+scripts/seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+scripts/validate_derived_db.py:18:from db.derived_repo import validate_snapshot_consistency
+scripts/validate_derived_db.py:79:        ok = validate_snapshot_consistency(conn)
+services/calculation_orchestrator.py:16:    MarketSnapshotInput,
+services/calculation_orchestrator.py:53:    snapshot_row: dict,
+services/calculation_orchestrator.py:75:                symbol=row.get("symbol"),
+services/calculation_orchestrator.py:93:    snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:94:        snapshot_timestamp=str(snapshot_row["snapshot_timestamp"]),
+services/calculation_orchestrator.py:95:        underlying_asset=str(snapshot_row["underlying_asset"]),
+services/calculation_orchestrator.py:96:        spot_price=float(snapshot_row["spot_price"]),
+services/calculation_orchestrator.py:97:        source=str(snapshot_row.get("source", "rtd")),
+services/calculation_orchestrator.py:98:        snapshot_id=snapshot_row.get("snapshot_id") or snapshot_row.get("id"),
+services/calculation_orchestrator.py:99:        option_quotes=snapshot_row.get("option_quotes"),
+services/calculation_orchestrator.py:100:        greeks=snapshot_row.get("greeks"),
+services/calculation_orchestrator.py:101:        volatility_context=snapshot_row.get("volatility_context"),
+services/calculation_orchestrator.py:104:    return CalculationRequest(structure=structure, market_snapshot=snapshot)
+services/calculation_orchestrator.py:124:            "symbol":          getattr(leg, "symbol",      None),
+services/calculation_orchestrator.py:139:            "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:140:            "underlying_asset": request.market_snapshot.underlying_asset,
+services/calculation_orchestrator.py:141:            "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+services/calculation_orchestrator.py:142:            "option_quotes":    getattr(request.market_snapshot, "option_quotes",      {}),
+services/calculation_orchestrator.py:143:            "greeks":           getattr(request.market_snapshot, "greeks",             {}),
+services/calculation_orchestrator.py:188:        _dte_min = getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:242:        market_snapshot_repository=None,
+services/calculation_orchestrator.py:245:        self._snapshot_repo   = market_snapshot_repository
+services/calculation_orchestrator.py:254:        market_snapshot_dict: Dict[str, Any],
+services/calculation_orchestrator.py:270:                    symbol=leg.get("symbol"),
+services/calculation_orchestrator.py:286:        snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:287:            snapshot_id=market_snapshot_dict.get("snapshot_id"),
+services/calculation_orchestrator.py:288:            snapshot_timestamp=str(market_snapshot_dict.get("snapshot_timestamp", "")),
+services/calculation_orchestrator.py:289:            underlying_asset=str(market_snapshot_dict.get("underlying_asset", "")),
+services/calculation_orchestrator.py:290:            spot_price=float(market_snapshot_dict.get("spot_price", 0.0)),
+services/calculation_orchestrator.py:291:            source=str(market_snapshot_dict.get("source", "rtd")),
+services/calculation_orchestrator.py:292:            option_quotes=market_snapshot_dict.get("option_quotes"),
+services/calculation_orchestrator.py:293:            greeks=market_snapshot_dict.get("greeks"),
+services/calculation_orchestrator.py:294:            volatility_context=market_snapshot_dict.get("volatility_context"),
+services/calculation_orchestrator.py:297:        return CalculationRequest(structure=structure, market_snapshot=snapshot)
+services/calculation_orchestrator.py:313:                "symbol":          getattr(leg, "symbol",     None),
+services/calculation_orchestrator.py:328:                "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:329:                "underlying_asset": request.market_snapshot.underlying_asset,
+services/calculation_orchestrator.py:330:                "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+services/calculation_orchestrator.py:331:                "option_quotes":    getattr(request.market_snapshot, "option_quotes", {}),
+services/calculation_orchestrator.py:332:                "greeks":           getattr(request.market_snapshot, "greeks",        {}),
+services/calculation_orchestrator.py:375:            or getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:411:        snapshot_timestamp: Optional[str] = None,
+services/calculation_orchestrator.py:419:            ValueError  : se snapshot nao encontrado
+services/calculation_orchestrator.py:426:        if self._snapshot_repo is None:
+services/calculation_orchestrator.py:428:                "MarketSnapshotRepository nao foi injetado no orquestrador. "
+services/calculation_orchestrator.py:429:                "Passe market_snapshot_repository= no construtor."
+services/calculation_orchestrator.py:450:        # 2. Busca snapshot
+services/calculation_orchestrator.py:452:        snapshot = self._snapshot_repo.get_snapshot(
+services/calculation_orchestrator.py:454:            timestamp=snapshot_timestamp,
+services/calculation_orchestrator.py:456:        if snapshot is None:
+services/calculation_orchestrator.py:459:                f"timestamp={snapshot_timestamp!r}"
+services/calculation_orchestrator.py:475:                    "symbol":          leg.get("symbol"),
+services/calculation_orchestrator.py:485:        market_snapshot_dict = {
+services/calculation_orchestrator.py:486:            "snapshot_id":        snapshot.get("id"),
+services/calculation_orchestrator.py:487:            "snapshot_timestamp": snapshot.get("snapshot_timestamp", ""),
+services/calculation_orchestrator.py:488:            "underlying_asset":   snapshot.get("underlying_asset", underlying),
+services/calculation_orchestrator.py:489:            "spot_price":         snapshot.get("spot_price", 0.0),
+services/calculation_orchestrator.py:490:            "source":             snapshot.get("source", "rtd"),
+services/calculation_orchestrator.py:491:            "option_quotes":      snapshot.get("option_quotes"),
+services/calculation_orchestrator.py:492:            "greeks":             snapshot.get("greeks"),
+services/calculation_orchestrator.py:493:            "volatility_context": snapshot.get("volatility_context"),
+services/calculation_orchestrator.py:496:        return self.build_calculation_request(structure_dict, market_snapshot_dict)
+services/calculation_orchestrator.py:501:        snapshot_timestamp: Optional[str] = None,
+services/calculation_orchestrator.py:504:        Pipeline completo resolvendo estrutura e snapshot pelos repositorios.
+services/calculation_orchestrator.py:510:            snapshot_timestamp=snapshot_timestamp,
+services/canonical_input_service.py:6:alteracao_25 — Separa responsabilidades de resolução de snapshot:
+services/canonical_input_service.py:7:  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+services/canonical_input_service.py:9:  - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
+services/canonical_input_service.py:18:    "legs":               list[dict],   # campo extra, assembler ignora mas outros consomem
+services/canonical_input_service.py:30:from services.market_snapshot_provider import MarketSnapshotProvider
+services/canonical_input_service.py:31:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_input_service.py:33:from services.structure_market_input_assembler import assemble_structure_market_input
+services/canonical_input_service.py:40:        market_snapshot_provider: MarketSnapshotProvider | None = None,
+services/canonical_input_service.py:41:        market_snapshot_selector: MarketSnapshotSelector | None = None,
+services/canonical_input_service.py:50:        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+services/canonical_input_service.py:51:        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+services/canonical_input_service.py:105:        snapshot, snapshot_meta = self._resolve_snapshot(
+services/canonical_input_service.py:110:        effective_reference_date = reference_date or snapshot.get("reference_date")
+services/canonical_input_service.py:121:        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+services/canonical_input_service.py:132:                **snapshot_meta,
+services/canonical_input_service.py:138:    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+services/canonical_input_service.py:141:    def _resolve_snapshot(
+services/canonical_input_service.py:147:        Monta o snapshot dict completo exigido pelo assembler.
+services/canonical_input_service.py:149:        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+services/canonical_input_service.py:157:        base_snapshot = self.market_snapshot_provider.get_snapshot(
+services/canonical_input_service.py:163:        if self.market_snapshot_selector is not None and aba:
+services/canonical_input_service.py:166:            snapshot_source = legs_meta["snapshot_source"]
+services/canonical_input_service.py:168:            legs_list  = base_snapshot.get("legs", [])
+services/canonical_input_service.py:170:            snapshot_source = "provider_legacy"
+services/canonical_input_service.py:172:        # 3. Monta contrato completo para o assembler
+services/canonical_input_service.py:173:        snapshot = {
+services/canonical_input_service.py:174:            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+services/canonical_input_service.py:181:            "snapshot_source":  snapshot_source,
+services/canonical_input_service.py:185:        return snapshot, meta
+services/canonical_input_service.py:196:        Delega ao MarketSnapshotSelector e serializa legs completas.
+services/canonical_input_service.py:198:        Serialização cobre todos os campos de LegMarketSnapshot para que
+services/canonical_input_service.py:199:        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+services/canonical_input_service.py:202:        result = self.market_snapshot_selector.select(aba_str)
+services/canonical_input_service.py:242:            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+services/canonical_input_service.py:243:            "snapshot_aba":     aba_str,
+services/canonical_input_service.py:391:        previstos no domínio de MarketSnapshot.
+services/canonical_pricing_facade.py:1:# services/canonical_pricing_facade.py
+services/canonical_pricing_facade.py:6:alteracao_41 -- Corrige underlying_asset no pricing_payload.
+services/canonical_pricing_facade.py:11:  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+services/canonical_pricing_facade.py:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
+services/canonical_pricing_facade.py:32:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/canonical_pricing_facade.py:33:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/canonical_pricing_facade.py:35:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_pricing_facade.py:36:from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+services/canonical_pricing_facade.py:37:from services.pricing_execution_service import PricingExecutionService
+services/canonical_pricing_facade.py:128:def _quote_ident(name: str) -> str:
+services/canonical_pricing_facade.py:143:    symbol_candidates = {
+services/canonical_pricing_facade.py:147:        "symbol",
+services/canonical_pricing_facade.py:148:        "ticker",
+services/canonical_pricing_facade.py:163:        "cotacao",
+services/canonical_pricing_facade.py:177:                    f"PRAGMA table_info({_quote_ident(table_name)})"
+services/canonical_pricing_facade.py:183:                symbol_cols = [
+services/canonical_pricing_facade.py:185:                    for name in symbol_candidates
+services/canonical_pricing_facade.py:195:                if not symbol_cols or not price_cols:
+services/canonical_pricing_facade.py:198:                for symbol_col in symbol_cols:
+services/canonical_pricing_facade.py:201:                            f"SELECT {_quote_ident(price_col)} "
+services/canonical_pricing_facade.py:202:                            f"FROM {_quote_ident(table_name)} "
+services/canonical_pricing_facade.py:203:                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+services/canonical_pricing_facade.py:204:                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+services/canonical_pricing_facade.py:223:def _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:238:        raw_asset = _pick(d, "symbol", "asset", "ativo")
+services/canonical_pricing_facade.py:260:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py:261:            "symbol":          raw_asset,
+services/canonical_pricing_facade.py:301:            "snapshot_source":  str(selection_result.source),
+services/canonical_pricing_facade.py:302:            "snapshot_aba":     selection_result.aba,
+services/canonical_pricing_facade.py:315:                     MarketSnapshotSelector.select(aba=...)
+services/canonical_pricing_facade.py:316:                             pricing_payload  (underlying_asset = ativo real)
+services/canonical_pricing_facade.py:326:        pricing_execution_service: PricingExecutionService | None = None,
+services/canonical_pricing_facade.py:330:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+services/canonical_pricing_facade.py:331:        self._selector = MarketSnapshotSelector(repository=self._repo)
+services/canonical_pricing_facade.py:332:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py:336:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:339:    def execute_pricing(
+services/canonical_pricing_facade.py:352:            #  2. Seleciona snapshot (manual > rtd) 
+services/canonical_pricing_facade.py:355:            #  3. Monta pricing_payload 
+services/canonical_pricing_facade.py:356:            pricing_payload = _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:366:                pricing_payload=pricing_payload,
+services/canonical_pricing_facade.py:376:                pricing_payload=pricing_payload,
+services/canonical_pricing_facade.py:384:                "canonical_input": pricing_payload,
+services/canonical_pricing_facade.py:385:                "pricing_payload": pricing_payload,
+services/canonical_pricing_facade.py:388:                "meta":            pricing_payload["meta"],
+services/canonical_pricing_facade.py:398:                    pricing_payload=None,
+services/canonical_pricing_facade.py:409:                "pricing_payload": None,
+services/derived_payoff_persistence.py:17:      1. Montar o canonical_input a partir do pricing_payload
+services/derived_payoff_persistence.py:29:        pricing_payload: dict[str, Any] | None,
+services/derived_payoff_persistence.py:32:        if not pricing_payload:
+services/derived_payoff_persistence.py:33:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+services/derived_payoff_persistence.py:46:        # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+services/derived_payoff_persistence.py:47:        snapshot_ts = datetime.now(timezone.utc).isoformat()
+services/derived_payoff_persistence.py:49:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:53:                pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:57:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:61:                pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:62:                snapshot_ts,
+services/derived_payoff_persistence.py:71:        pricing_payload: dict[str, Any],
+services/derived_payoff_persistence.py:73:        snapshot_ts: str,
+services/derived_payoff_persistence.py:76:            canonical_input = self._build_canonical_input(pricing_payload, result)
+services/derived_payoff_persistence.py:82:                    pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:86:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+services/derived_payoff_persistence.py:90:                pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:97:                pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:107:        pricing_payload: dict[str, Any],
+services/derived_payoff_persistence.py:109:        snapshot_ts: str,
+services/derived_payoff_persistence.py:124:            spot_ref          = pricing_payload.get("spot_price")
+services/derived_payoff_persistence.py:127:                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
+services/derived_payoff_persistence.py:145:                    "source":           "pricing_engine",
+services/derived_payoff_persistence.py:151:                    "structure_id":    pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:152:                    "structure_name":  pricing_payload.get("structure_name"),
+services/derived_payoff_persistence.py:153:                    "underlying_asset": pricing_payload.get("underlying_asset"),
+services/derived_payoff_persistence.py:154:                    "reference_date":  pricing_payload.get("reference_date"),
+services/derived_payoff_persistence.py:160:                structure_id=pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:161:                structure_name=pricing_payload.get("structure_name"),
+services/derived_payoff_persistence.py:162:                underlying_asset=pricing_payload.get("underlying_asset"),
+services/derived_payoff_persistence.py:163:                timestamp=snapshot_ts,
+services/derived_payoff_persistence.py:167:                pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:174:                pricing_payload.get("structure_id"),
+services/derived_payoff_persistence.py:184:        pricing_payload: dict[str, Any],
+services/derived_payoff_persistence.py:190:        Suporta dois formatos de pricing_payload:
+services/derived_payoff_persistence.py:195:        if "structure" in pricing_payload and "market" in pricing_payload:
+services/derived_payoff_persistence.py:196:            return pricing_payload
+services/derived_payoff_persistence.py:199:        structure_id   = pricing_payload.get("structure_id")
+services/derived_payoff_persistence.py:200:        structure_name = pricing_payload.get("structure_name")
+services/derived_payoff_persistence.py:201:        underlying     = pricing_payload.get("underlying_asset")
+services/derived_payoff_persistence.py:202:        spot_price     = pricing_payload.get("spot_price") or 0.0
+services/derived_payoff_persistence.py:203:        reference_date = pricing_payload.get("reference_date")
+services/derived_payoff_persistence.py:204:        legs           = pricing_payload.get("legs") or []
+services/derived_payoff_persistence.py:219:                "source": "pricing_execution_persistence",
+services/derived_service.py:531:# alteracao_59 -- format_report + snapshot_aba (surface canônica)
+services/derived_service.py:545:def snapshot_aba(ref: "StructureRef") -> str:
+services/legacy_robo_legs_fallback.py:227:            "symbol": self._clean_upper_text(
+services/legacy_robo_legs_fallback.py:228:                data.get("ativo") or data.get("symbol") or data.get("ticker")
+services/legacy_structure_legs_importer.py:1:# services/legacy_structure_legs_importer.py
+services/legacy_structure_legs_importer.py:7:para a tabela canonica structure_legs.
+services/legacy_structure_legs_importer.py:41:    Orquestra a importacao das legs legadas para structure_legs.
+services/legacy_structure_legs_importer.py:48:            Repositório canônico de structures/structure_legs.
+services/legacy_structure_legs_reader.py:17:      - converter para payload compatível com structure_legs;
+services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+services/market_snapshot_provider.py:44:class MarketSnapshotProvider:
+services/market_snapshot_provider.py:53:    def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
+services/market_snapshot_provider.py:60:            raise ValueError(f"market snapshot not found for asset: {asset}")
+services/market_snapshot_selector.py:1:# services/market_snapshot_selector.py
+services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd.
+services/market_snapshot_selector.py:6:  - Se existir snapshot manual, usa manual
+services/market_snapshot_selector.py:13:from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+services/market_snapshot_selector.py:14:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/market_snapshot_selector.py:24:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+services/market_snapshot_selector.py:30:    """Resultado da seleção de snapshots para uma aba."""
+services/market_snapshot_selector.py:34:    legs: list[LegMarketSnapshot] = field(default_factory=list)
+services/market_snapshot_selector.py:42:class MarketSnapshotSelector:
+services/market_snapshot_selector.py:44:    Aplica a política manual > rtd para selecionar o snapshot canônico.
+services/market_snapshot_selector.py:47:    def __init__(self, repository: MarketSnapshotRepository) -> None:
+services/market_snapshot_selector.py:66:            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+services/market_snapshot_selector.py:78:        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+services/market_snapshot_selector.py:83:        rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+services/market_snapshot_selector.py:89:        legs_selected: list[LegMarketSnapshot] = []
+services/payoff_persistence_port.py:10:    uma execução de pricing bem-sucedida.
+services/payoff_persistence_port.py:15:        pricing_payload: dict[str, Any] | None,
+services/pricing_engine_stub.py:5:    def run(self, pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services/pricing_engine_stub.py:6:        if not pricing_payload:
+services/pricing_engine_stub.py:7:            raise ValueError("pricing_payload is required")
+services/pricing_engine_stub.py:9:        legs = pricing_payload.get("legs", [])
+services/pricing_engine_stub.py:11:            raise ValueError("pricing_payload.legs is required")
+services/pricing_engine_stub.py:19:            "structure_id": pricing_payload["structure_id"],
+services/pricing_engine_stub.py:20:            "underlying_asset": pricing_payload["underlying_asset"],
+services/pricing_engine_stub.py:21:            "reference_date": pricing_payload["reference_date"],
+services/pricing_engine_stub.py:25:                "spot_price": float(pricing_payload["spot_price"]),
+services/pricing_engine_stub.py:26:                "interest_rate": float(pricing_payload["interest_rate"]),
+services/pricing_engine_stub.py:27:                "volatility": float(pricing_payload["volatility"]),
+services/pricing_execution_app_service.py:1:# services/pricing_execution_app_service.py
+services/pricing_execution_app_service.py:3:alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+services/pricing_execution_app_service.py:16:from services.canonical_pricing_facade import CanonicalPricingFacade
+services/pricing_execution_app_service.py:17:from services.pricing_execution_query_service import PricingExecutionQueryService
+services/pricing_execution_app_service.py:25:        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+services/pricing_execution_app_service.py:26:        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+services/pricing_execution_app_service.py:29:        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+services/pricing_execution_app_service.py:32:        self.pricing_execution_query_service = (
+services/pricing_execution_app_service.py:33:            pricing_execution_query_service or PricingExecutionQueryService()
+services/pricing_execution_app_service.py:40:    def execute_pricing(
+services/pricing_execution_app_service.py:48:        response = self._facade.execute_pricing(
+services/pricing_execution_app_service.py:55:            raise ValueError(response.get("error_message", "pricing execution failed"))
+services/pricing_execution_app_service.py:77:        return self.pricing_execution_query_service.list_execution_summaries(
+services/pricing_execution_app_service.py:92:        return self.pricing_execution_query_service.get_latest_execution_summary(
+services/pricing_execution_app_service.py:100:        return self.pricing_execution_query_service.get_execution(execution_id)
+services/pricing_execution_app_service.py:112:        return self.pricing_execution_query_service.paginate_execution_summaries(
+services/pricing_execution_orchestration_service.py:4:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_orchestration_service.py:5:from services.pricing_execution_persistence_service import (
+services/pricing_execution_orchestration_service.py:8:from services.pricing_execution_service import PricingExecutionService
+services/pricing_execution_orchestration_service.py:9:from services.pricing_input_service import PricingInputService
+services/pricing_execution_orchestration_service.py:15:        pricing_input_service: PricingInputService | None = None,
+services/pricing_execution_orchestration_service.py:16:        pricing_execution_service: PricingExecutionService | None = None,
+services/pricing_execution_orchestration_service.py:17:        pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
+services/pricing_execution_orchestration_service.py:19:        self.pricing_input_service = pricing_input_service or PricingInputService()
+services/pricing_execution_orchestration_service.py:20:        self.pricing_execution_service = pricing_execution_service or PricingExecutionService(
+services/pricing_execution_orchestration_service.py:21:            pricing_input_service=self.pricing_input_service,
+services/pricing_execution_orchestration_service.py:23:        self.pricing_execution_persistence_service = (
+services/pricing_execution_orchestration_service.py:24:            pricing_execution_persistence_service
+services/pricing_execution_orchestration_service.py:26:                system_snapshots_repository=SystemSnapshotsRepository(),
+services/pricing_execution_orchestration_service.py:38:            result = self.pricing_execution_service.execute(
+services/pricing_execution_orchestration_service.py:44:            persisted = self.pricing_execution_persistence_service.persist_execution(
+services/pricing_execution_orchestration_service.py:45:                pricing_payload=result["pricing_payload"],
+services/pricing_execution_orchestration_service.py:52:                "pricing_payload": result["pricing_payload"],
+services/pricing_execution_orchestration_service.py:62:                "pricing_payload": None,
+services/pricing_execution_orchestration_service.py:70:            persisted = self.pricing_execution_persistence_service.persist_execution(
+services/pricing_execution_orchestration_service.py:71:                pricing_payload=None,
+services/pricing_execution_orchestration_service.py:78:                "pricing_payload": None,
+services/pricing_execution_persistence_service.py:1:# services/pricing_execution_persistence_service.py
+services/pricing_execution_persistence_service.py:5:from repositories.pricing_executions_repository import PricingExecutionsRepository
+services/pricing_execution_persistence_service.py:6:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_persistence_service.py:15:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+services/pricing_execution_persistence_service.py:17:        system_snapshots_repository: SystemSnapshotsRepository | None = None,
+services/pricing_execution_persistence_service.py:19:        self.pricing_executions_repository = (
+services/pricing_execution_persistence_service.py:20:            pricing_executions_repository or PricingExecutionsRepository()
+services/pricing_execution_persistence_service.py:23:        self._system_snapshots_repository = system_snapshots_repository
+services/pricing_execution_persistence_service.py:27:        pricing_payload: dict[str, Any] | None,
+services/pricing_execution_persistence_service.py:46:        record = self.pricing_executions_repository.save_execution(
+services/pricing_execution_persistence_service.py:47:            pricing_payload=pricing_payload,
+services/pricing_execution_persistence_service.py:58:        snapshot_id = self._create_system_snapshot_if_applicable(
+services/pricing_execution_persistence_service.py:60:            pricing_payload=pricing_payload,
+services/pricing_execution_persistence_service.py:73:                    pricing_payload=pricing_payload,
+services/pricing_execution_persistence_service.py:86:        if snapshot_id is not None:
+services/pricing_execution_persistence_service.py:87:            response["snapshot_id"] = snapshot_id
+services/pricing_execution_persistence_service.py:91:    def _create_system_snapshot_if_applicable(
+services/pricing_execution_persistence_service.py:95:        pricing_payload: dict[str, Any] | None,
+services/pricing_execution_persistence_service.py:100:        if self._system_snapshots_repository is None:
+services/pricing_execution_persistence_service.py:103:        if not pricing_payload:
+services/pricing_execution_persistence_service.py:109:        structure_id = pricing_payload.get("structure_id") or record.get("structure_id")
+services/pricing_execution_persistence_service.py:114:            return self._system_snapshots_repository.create_snapshot(
+services/pricing_execution_persistence_service.py:116:                pricing_execution_id=record.get("id"),
+services/pricing_execution_persistence_service.py:117:                underlying_asset=pricing_payload.get("underlying_asset"),
+services/pricing_execution_persistence_service.py:118:                reference_date=pricing_payload.get("reference_date"),
+services/pricing_execution_persistence_service.py:119:                snapshot_source="system_pricing_execution",
+services/pricing_execution_persistence_service.py:120:                structure_json=self._build_structure_json(pricing_payload),
+services/pricing_execution_persistence_service.py:121:                legs=pricing_payload.get("legs") or [],
+services/pricing_execution_persistence_service.py:122:                market_json=self._build_market_json(pricing_payload),
+services/pricing_execution_persistence_service.py:128:                    "pricing_execution": record,
+services/pricing_execution_persistence_service.py:129:                    "pricing_payload": pricing_payload,
+services/pricing_execution_persistence_service.py:135:                "system_snapshots_repository.create_snapshot() falhou -- execução id=%s não afetada",
+services/pricing_execution_persistence_service.py:141:    def _build_structure_json(pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services/pricing_execution_persistence_service.py:143:            "structure_id": pricing_payload.get("structure_id"),
+services/pricing_execution_persistence_service.py:144:            "structure_name": pricing_payload.get("structure_name"),
+services/pricing_execution_persistence_service.py:145:            "underlying_asset": pricing_payload.get("underlying_asset"),
+services/pricing_execution_persistence_service.py:146:            "reference_date": pricing_payload.get("reference_date"),
+services/pricing_execution_persistence_service.py:147:            "meta": pricing_payload.get("meta"),
+services/pricing_execution_persistence_service.py:151:    def _build_market_json(pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services/pricing_execution_persistence_service.py:153:            "spot_price": pricing_payload.get("spot_price"),
+services/pricing_execution_persistence_service.py:154:            "interest_rate": pricing_payload.get("interest_rate"),
+services/pricing_execution_persistence_service.py:155:            "volatility": pricing_payload.get("volatility"),
+services/pricing_execution_query_service.py:4:from repositories.pricing_executions_repository import PricingExecutionsRepository
+services/pricing_execution_query_service.py:10:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+services/pricing_execution_query_service.py:12:        self.pricing_executions_repository = (
+services/pricing_execution_query_service.py:13:            pricing_executions_repository or PricingExecutionsRepository()
+services/pricing_execution_query_service.py:44:        return self.pricing_executions_repository.list_executions()
+services/pricing_execution_query_service.py:58:            executions = self.pricing_executions_repository.list_executions(
+services/pricing_execution_query_service.py:68:            executions = self.pricing_executions_repository.list_executions()
+services/pricing_execution_query_service.py:223:            raise ValueError("no pricing execution summaries found")
+services/pricing_execution_query_service.py:231:        execution = self.pricing_executions_repository.get_execution(execution_id)
+services/pricing_execution_query_service.py:234:            raise ValueError(f"pricing execution {execution_id} not found")
+services/pricing_execution_service.py:3:from services.pricing_engine_stub import PricingEngineStub
+services/pricing_execution_service.py:4:from services.pricing_input_service import PricingInputService
+services/pricing_execution_service.py:10:        pricing_input_service: PricingInputService | None = None,
+services/pricing_execution_service.py:11:        pricing_engine: PricingEngineStub | None = None,
+services/pricing_execution_service.py:13:        self.pricing_input_service = pricing_input_service or PricingInputService()
+services/pricing_execution_service.py:14:        self.pricing_engine = pricing_engine or PricingEngineStub()
+services/pricing_execution_service.py:21:        pricing_payload = self.pricing_input_service.build_pricing_payload(
+services/pricing_execution_service.py:25:        return self.execute_payload(pricing_payload)
+services/pricing_execution_service.py:29:        pricing_payload: dict[str, Any],
+services/pricing_execution_service.py:31:        result = self.pricing_engine.run(pricing_payload)
+services/pricing_execution_service.py:34:            "pricing_payload": pricing_payload,
+services/pricing_input_service.py:4:from services.pricing_payload_adapter import to_pricing_payload
+services/pricing_input_service.py:14:    def build_pricing_payload(
+services/pricing_input_service.py:24:        return self.build_pricing_payload_from_canonical_input(canonical_input)
+services/pricing_input_service.py:26:    def build_pricing_payload_from_canonical_input(
+services/pricing_input_service.py:30:        return to_pricing_payload(canonical_input)
+services/pricing_payload_adapter.py:16:def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
+services/pricing_payload_adapter.py:30:    pricing_legs = []
+services/pricing_payload_adapter.py:36:        pricing_legs.append(
+services/pricing_payload_adapter.py:41:                "symbol": _clean_upper_text(leg.get("symbol")),
+services/pricing_payload_adapter.py:58:        "legs": pricing_legs,
+services/robo_leg_mapper.py:70:        "symbol": _safe_upper_text(ativo),
+services/structure_events_service.py:117:        symbol: str | None = None,
+services/structure_events_service.py:139:            "symbol": self._normalize_optional_text(symbol),
+services/structure_events_service.py:170:        symbol: str | None = None,
+services/structure_events_service.py:181:            symbol=symbol,
+services/structure_events_service.py:436:        symbol = self._normalize_optional_text(event.get("symbol"))
+services/structure_events_service.py:438:        if leg_id is None and symbol is None:
+services/structure_events_service.py:453:            if symbol is not None:
+services/structure_events_service.py:454:                leg_symbol = self._normalize_optional_text(leg.get("symbol"))
+services/structure_events_service.py:455:                if leg_symbol == symbol:
+services/structure_input_mapper.py:53:        "symbol": _clean_upper_text(leg.get("symbol")),
+services/structure_market_input_assembler.py:8:    market_snapshot: dict[str, Any],
+services/structure_market_input_assembler.py:13:    if not market_snapshot:
+services/structure_market_input_assembler.py:14:        raise ValueError("market_snapshot is required")
+services/structure_market_input_assembler.py:18:    market_asset = market_snapshot.get("underlying_asset")
+services/structure_market_input_assembler.py:28:            "reference_date": market_snapshot["reference_date"],
+services/structure_market_input_assembler.py:29:            "underlying_asset": market_snapshot["underlying_asset"],
+services/structure_market_input_assembler.py:30:            "spot_price": market_snapshot["spot_price"],
+services/structure_market_input_assembler.py:31:            "interest_rate": market_snapshot["interest_rate"],
+services/structure_market_input_assembler.py:32:            "volatility": market_snapshot["volatility"],
+services/structure_market_input_assembler.py:35:            "input_source": "structure_market_input_assembler",

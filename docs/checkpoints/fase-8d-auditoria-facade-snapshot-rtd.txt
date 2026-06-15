@@ -1,0 +1,1122 @@
+===== services/canonical_pricing_facade.py =====
+     1	# services/canonical_pricing_facade.py
+     2	"""
+     3	alteracao_17 -- Fachada canônica corrigida.
+     4	alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+     5	           no PricingExecutionPersistenceService.
+     6	alteracao_41 -- Corrige underlying_asset no pricing_payload.
+     7	
+     8	Correções alteracao_41:
+     9	  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+    10	      busca alias_legacy_aba E underlying_asset em uma única query.
+    11	  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+    12	      elimina uso de selection_result.aba como underlying_asset
+    13	      (aba legada  ativo subjacente real).
+    14	  C8: execute_pricing() passa underlying_asset para o payload builder.
+    15	
+    16	Correções anteriores mantidas:
+    17	  C1: sel.select(aba=...) -- parâmetro correto
+    18	  C2: alias_legacy_aba buscado via query antes de chamar o selector
+    19	  C3: orquestração direta repo  selector  execute_payload()
+    20	  C4: engine_result extraído do wrapper antes de passar ao persister
+    21	  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+    22	"""
+    23	from __future__ import annotations
+    24	
+    25	
+    26	import sqlite3
+    27	import time
+    28	from datetime import datetime
+    29	from pathlib import Path
+    30	from typing import Any
+    31	
+    32	from repositories.market_snapshot_repository import MarketSnapshotRepository
+    33	from repositories.system_snapshots_repository import SystemSnapshotsRepository
+    34	from services.derived_payoff_persistence import DerivedPayoffPersistence
+    35	from services.market_snapshot_selector import MarketSnapshotSelector
+    36	from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+    37	from services.pricing_execution_service import PricingExecutionService
+    38	
+    39	_DEFAULT_DB = Path("dados/app.db")
+    40	
+    41	
+    42	#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+    43	
+    44	def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+    45	    """
+    46	    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+    47	
+    48	    Raises ValueError se:
+    49	      - estrutura não existir
+    50	      - alias_legacy_aba for nulo (sem aba legada mapeada)
+    51	    """
+    52	    with sqlite3.connect(str(db_path)) as conn:
+    53	        conn.row_factory = sqlite3.Row
+    54	        row = conn.execute(
+    55	            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+    56	            (structure_id,),
+    57	        ).fetchone()
+    58	
+    59	    if row is None:
+    60	        raise ValueError(f"structure not found: {structure_id}")
+    61	
+    62	    aba = row["alias_legacy_aba"]
+    63	    if not aba:
+    64	        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+    65	
+    66	    underlying_asset = row["underlying_asset"]  # NOT NULL -- sempre presente
+    67	
+    68	    return aba, underlying_asset
+    69	
+    70	
+    71	#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+    72	
+    73	
+    74	
+    75	def _to_float(value: Any, default: float = 0.0) -> float:
+    76	    try:
+    77	        if value is None or value == "":
+    78	            return default
+    79	
+    80	        if isinstance(value, str):
+    81	            text = value.strip()
+    82	            text = text.replace("R$", "").replace("$", "").strip()
+    83	
+    84	            # Remove espaços internos comuns em valores monetários.
+    85	            text = text.replace(" ", "")
+    86	
+    87	            # Caso BR simples: "124,66"
+    88	            if "," in text and "." not in text:
+    89	                text = text.replace(",", ".")
+    90	
+    91	            return float(text)
+    92	
+    93	        return float(value)
+    94	    except Exception:
+    95	        return default
+    96	
+    97	
+    98	def _normalize_expiration_date(value: Any) -> str | None:
+    99	    if not value:
+   100	        return None
+   101	
+   102	    text = str(value).strip()
+   103	
+   104	    formats = [
+   105	        "%m/%d/%Y %H:%M",
+   106	        "%m/%d/%Y %H:%M:%S",
+   107	        "%Y-%m-%d",
+   108	        "%Y-%m-%dT%H:%M:%S",
+   109	    ]
+   110	
+   111	    for fmt in formats:
+   112	        try:
+   113	            return datetime.strptime(text, fmt).date().isoformat()
+   114	        except ValueError:
+   115	            pass
+   116	
+   117	    return text
+   118	
+   119	
+   120	def _pick(data: dict[str, Any], *names: str) -> Any:
+   121	    for name in names:
+   122	        value = data.get(name)
+   123	        if value is not None:
+   124	            return value
+   125	    return None
+   126	
+   127	
+   128	def _quote_ident(name: str) -> str:
+   129	    return '"' + name.replace('"', '""') + '"'
+   130	
+   131	
+   132	def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+   133	    """
+   134	    Procura spot positivo no app.db.
+   135	
+   136	    Caso confirmado:
+   137	      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+   138	      spot observado = 124.66
+   139	    """
+   140	    if not underlying_asset:
+   141	        return 0.0
+   142	
+   143	    symbol_candidates = {
+   144	        "aba",
+   145	        "ativo",
+   146	        "asset",
+   147	        "symbol",
+   148	        "ticker",
+   149	        "underlying_asset",
+   150	        "codigo",
+   151	        "papel",
+   152	    }
+   153	
+   154	    price_candidates = {
+   155	        "spot",
+   156	        "spot_price",
+   157	        "underlying_price",
+   158	        "last_price",
+   159	        "price",
+   160	        "preco",
+   161	        "preco_atual",
+   162	        "valor",
+   163	        "cotacao",
+   164	        "ultimo",
+   165	        "fechamento",
+   166	        "close",
+   167	    }
+   168	
+   169	    try:
+   170	        with sqlite3.connect(str(db_path)) as conn:
+   171	            tables = conn.execute(
+   172	                "SELECT name FROM sqlite_master WHERE type = 'table'"
+   173	            ).fetchall()
+   174	
+   175	            for (table_name,) in tables:
+   176	                columns_info = conn.execute(
+   177	                    f"PRAGMA table_info({_quote_ident(table_name)})"
+   178	                ).fetchall()
+   179	
+   180	                columns = [row[1] for row in columns_info]
+   181	                lower_to_real = {col.lower(): col for col in columns}
+   182	
+   183	                symbol_cols = [
+   184	                    lower_to_real[name]
+   185	                    for name in symbol_candidates
+   186	                    if name in lower_to_real
+   187	                ]
+   188	
+   189	                price_cols = [
+   190	                    lower_to_real[name]
+   191	                    for name in price_candidates
+   192	                    if name in lower_to_real
+   193	                ]
+   194	
+   195	                if not symbol_cols or not price_cols:
+   196	                    continue
+   197	
+   198	                for symbol_col in symbol_cols:
+   199	                    for price_col in price_cols:
+   200	                        query = (
+   201	                            f"SELECT {_quote_ident(price_col)} "
+   202	                            f"FROM {_quote_ident(table_name)} "
+   203	                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+   204	                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+   205	                            f"LIMIT 20"
+   206	                        )
+   207	
+   208	                        try:
+   209	                            rows = conn.execute(query, (underlying_asset,)).fetchall()
+   210	                        except Exception:
+   211	                            continue
+   212	
+   213	                        for row in rows:
+   214	                            price = _to_float(row[0], 0.0)
+   215	                            if price > 0:
+   216	                                return price
+   217	    except Exception:
+   218	        return 0.0
+   219	
+   220	    return 0.0
+   221	
+   222	
+   223	def _snapshot_result_to_payload(
+   224	    selection_result: Any,
+   225	    structure_id: int,
+   226	    underlying_asset: str,
+   227	    reference_date: str | None,
+   228	    db_path: Path,
+   229	) -> dict[str, Any]:
+   230	    legs_data = []
+   231	
+   232	    for leg in selection_result.legs:
+   233	        d = leg if isinstance(leg, dict) else vars(leg)
+   234	
+   235	        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+   236	
+   237	        raw_price = _pick(d, "premium", "price", "valor_executado")
+   238	        raw_asset = _pick(d, "symbol", "asset", "ativo")
+   239	        raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
+   240	
+   241	        side = _pick(d, "side", "position_side")
+   242	        if not side:
+   243	            side = "SHORT" if quantity < 0 else "LONG"
+   244	
+   245	        canonical_leg = {
+   246	            # campos originais/compatíveis
+   247	            "quantity":    quantity,
+   248	            "price":       _to_float(raw_price, 0.0),
+   249	            "asset":       raw_asset,
+   250	            "option_type": _pick(d, "option_type", "call_put"),
+   251	            "strike":      _to_float(_pick(d, "strike"), 0.0),
+   252	            "expiry":      raw_expiry,
+   253	            "iv":          _pick(d, "iv"),
+   254	            "delta":       _pick(d, "delta"),
+   255	            "gamma":       _pick(d, "gamma"),
+   256	            "theta":       _pick(d, "theta"),
+   257	            "vega":        _pick(d, "vega"),
+   258	            "source":      str(_pick(d, "source")),
+   259	
+   260	            # campos canônicos esperados pelo fluxo pricing/payoff
+   261	            "symbol":          raw_asset,
+   262	            "premium":         _to_float(raw_price, 0.0),
+   263	            "expiration_date": _normalize_expiration_date(raw_expiry),
+   264	            "multiplier":      1.0,
+   265	            "side":            str(side).upper(),
+   266	            "position_side":   str(side).upper(),
+   267	        }
+   268	
+   269	        legs_data.append(canonical_leg)
+   270	
+   271	    spot = (
+   272	        getattr(selection_result, "spot_price", None)
+   273	        or getattr(selection_result, "spot", None)
+   274	        or getattr(selection_result, "underlying_price", None)
+   275	        or getattr(selection_result, "last_price", None)
+   276	    )
+   277	
+   278	    spot_price = _to_float(spot, 0.0)
+   279	
+   280	    if spot_price <= 0:
+   281	        spot_price = _lookup_spot_price(
+   282	            db_path=db_path,
+   283	            underlying_asset=underlying_asset,
+   284	        )
+   285	
+   286	    if spot_price <= 0:
+   287	        raise ValueError(
+   288	            f"spot_price inválido ou ausente para underlying_asset={underlying_asset}. "
+   289	            "Não persistir execução OK com spot_price <= 0."
+   290	        )
+   291	
+   292	    return {
+   293	        "structure_id":     structure_id,
+   294	        "underlying_asset": underlying_asset,
+   295	        "reference_date":   reference_date,
+   296	        "spot_price":       spot_price,
+   297	        "interest_rate":    0.0,
+   298	        "volatility":       0.0,
+   299	        "legs":             legs_data,
+   300	        "meta": {
+   301	            "snapshot_source":  str(selection_result.source),
+   302	            "snapshot_aba":     selection_result.aba,
+   303	            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+   304	            "legs_count":       len(legs_data),
+   305	        },
+   306	    }
+   307	
+   308	
+   309	class CanonicalPricingFacade:
+   310	    """
+   311	    Orquestra o pipeline canônico ponta a ponta:
+   312	
+   313	        structure_id
+   314	             alias_legacy_aba + underlying_asset  (query em structures)
+   315	                     MarketSnapshotSelector.select(aba=...)
+   316	                             pricing_payload  (underlying_asset = ativo real)
+   317	                                     PricingExecutionService.execute_payload()
+   318	                                             PricingExecutionPersistenceService.persist()
+   319	                                                     DerivedPayoffPersistence.persist()
+   320	                                                             derived.db
+   321	    """
+   322	
+   323	    def __init__(
+   324	        self,
+   325	        db_path: Path | str = _DEFAULT_DB,
+   326	        pricing_execution_service: PricingExecutionService | None = None,
+   327	        persistence_service: PricingExecutionPersistenceService | None = None,
+   328	    ) -> None:
+   329	        self._db_path  = Path(db_path)
+   330	        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+   331	        self._selector = MarketSnapshotSelector(repository=self._repo)
+   332	        self._engine   = pricing_execution_service or PricingExecutionService()
+   333	
+   334	        self._persister = persistence_service or PricingExecutionPersistenceService(
+   335	            payoff_persistence_port=DerivedPayoffPersistence(),
+   336	            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+   337	        )
+   338	
+   339	    def execute_pricing(
+   340	        self,
+   341	        structure_id: int,
+   342	        reference_date: str | None = None,
+   343	    ) -> dict[str, Any]:
+   344	        started_at = time.perf_counter()
+   345	
+   346	        try:
+   347	            #  1. Resolve aba + underlying_asset 
+   348	            aba, underlying_asset = _get_structure_info(   #  C6/C8
+   349	                structure_id, self._db_path
+   350	            )
+   351	
+   352	            #  2. Seleciona snapshot (manual > rtd) 
+   353	            selection = self._selector.select(aba=aba)
+   354	
+   355	            #  3. Monta pricing_payload 
+   356	            pricing_payload = _snapshot_result_to_payload(
+   357	                selection_result=selection,
+   358	                structure_id=structure_id,
+   359	                underlying_asset=underlying_asset,          #  C7/C8
+   360	                reference_date=reference_date,
+   361	                db_path=self._db_path,
+   362	            )
+   363	
+   364	            #  4. Executa engine 
+   365	            execution_result = self._engine.execute_payload(
+   366	                pricing_payload=pricing_payload,
+   367	            )
+   368	
+   369	            #  C4: extrai dict interno do wrapper 
+   370	            engine_result = execution_result.get("result", execution_result)
+   371	
+   372	            duration_ms = int((time.perf_counter() - started_at) * 1000)
+   373	
+   374	            #  5. Persiste (app.db + derived.db via port) 
+   375	            persisted = self._persister.persist_execution(
+   376	                pricing_payload=pricing_payload,
+   377	                result=engine_result,
+   378	                duration_ms=duration_ms,
+   379	                error_message=None,
+   380	            )
+   381	
+   382	            return {
+   383	                "status":          "ok",
+   384	                "canonical_input": pricing_payload,
+   385	                "pricing_payload": pricing_payload,
+   386	                "result":          execution_result,
+   387	                "persisted":       persisted,
+   388	                "meta":            pricing_payload["meta"],
+   389	                "duration_ms":     duration_ms,
+   390	            }
+   391	
+   392	        except Exception as exc:
+   393	            duration_ms   = int((time.perf_counter() - started_at) * 1000)
+   394	            error_message = str(exc)
+   395	
+   396	            try:
+   397	                self._persister.persist_execution(
+   398	                    pricing_payload=None,
+   399	                    result={"engine": "stub", "status": "error", "error_message": error_message},
+   400	                    duration_ms=duration_ms,
+   401	                    error_message=error_message,
+   402	                )
+   403	            except Exception:
+   404	                pass
+   405	
+   406	            return {
+   407	                "status":          "error",
+   408	                "canonical_input": None,
+   409	                "pricing_payload": None,
+   410	                "result":          None,
+   411	                "persisted":       None,
+   412	                "meta":            {},
+   413	                "duration_ms":     duration_ms,
+   414	                "error_message":   error_message,
+   415	            }
+
+===== services/structure_market_input_assembler.py =====
+     1	from typing import Any
+     2	
+     3	from services.structure_input_mapper import to_structure_input
+     4	
+     5	
+     6	def assemble_structure_market_input(
+     7	    structure: dict[str, Any],
+     8	    market_snapshot: dict[str, Any],
+     9	) -> dict[str, Any]:
+    10	    if not structure:
+    11	        raise ValueError("structure is required")
+    12	
+    13	    if not market_snapshot:
+    14	        raise ValueError("market_snapshot is required")
+    15	
+    16	    structure_input = to_structure_input(structure)
+    17	    structure_asset = structure_input["underlying_asset"]
+    18	    market_asset = market_snapshot.get("underlying_asset")
+    19	
+    20	    if structure_asset != market_asset:
+    21	        raise ValueError(
+    22	            f"underlying_asset mismatch: structure={structure_asset} market={market_asset}"
+    23	        )
+    24	
+    25	    return {
+    26	        "structure": structure_input,
+    27	        "market": {
+    28	            "reference_date": market_snapshot["reference_date"],
+    29	            "underlying_asset": market_snapshot["underlying_asset"],
+    30	            "spot_price": market_snapshot["spot_price"],
+    31	            "interest_rate": market_snapshot["interest_rate"],
+    32	            "volatility": market_snapshot["volatility"],
+    33	        },
+    34	        "meta": {
+    35	            "input_source": "structure_market_input_assembler",
+    36	        },
+    37	    }
+
+===== services/canonical_input_service.py =====
+     1	from __future__ import annotations
+     2	from domain.structure_metrics import compute_structure_metrics_from_canonical_input
+     3	
+     4	# services/canonical_input_service.py
+     5	"""
+     6	alteracao_25 — Separa responsabilidades de resolução de snapshot:
+     7	  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+     8	  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+     9	  - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
+    10	
+    11	Contrato exigido pelo assemble_structure_market_input:
+    12	  {
+    13	    "reference_date":     str | None,
+    14	    "underlying_asset":   str,
+    15	    "spot_price":         float | None,
+    16	    "interest_rate":      float | None,
+    17	    "volatility":         float | None,
+    18	    "legs":               list[dict],   # campo extra, assembler ignora mas outros consomem
+    19	    "aba":                str | None,
+    20	  }
+    21	"""
+    22	
+    23	from src.domain.refs.structure_ref import StructureRef
+    24	
+    25	from typing import Any
+    26	
+    27	from repositories.structures_repository import StructuresRepository
+    28	from repositories.structure_events_repository import StructureEventsRepository
+    29	from services.legacy_robo_legs_fallback import LegacyRoboLegsFallback
+    30	from services.market_snapshot_provider import MarketSnapshotProvider
+    31	from services.market_snapshot_selector import MarketSnapshotSelector
+    32	from services.structure_events_service import StructureEventsService
+    33	from services.structure_market_input_assembler import assemble_structure_market_input
+    34	
+    35	
+    36	class CanonicalInputService:
+    37	    def __init__(
+    38	        self,
+    39	        repository: StructuresRepository | None = None,
+    40	        market_snapshot_provider: MarketSnapshotProvider | None = None,
+    41	        market_snapshot_selector: MarketSnapshotSelector | None = None,
+    42	        robo_legs_service: Any | None = None,  # injeção explícita
+    43	        structure_events_service: StructureEventsService | None = None,
+    44	        prefer_canonical_legs: bool = True,
+    45	        enable_legacy_legs_fallback: bool = True,
+    46	        allow_legacy_name_fallback: bool = False,
+    47	        enable_structure_events: bool = True,
+    48	    ):
+    49	        self.repository                  = repository or StructuresRepository()
+    50	        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+    51	        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+    52	        self.prefer_canonical_legs       = prefer_canonical_legs
+    53	        self.enable_legacy_legs_fallback = enable_legacy_legs_fallback
+    54	        self.allow_legacy_name_fallback  = allow_legacy_name_fallback
+    55	
+    56	        if robo_legs_service is not None:
+    57	            # Injecao explicita — path canonico preferencial
+    58	            self.robo_legs_service = robo_legs_service
+    59	        else:
+    60	            # BRIDGE LEGADO: import dinamico de robo_legs_service para compatibilidade
+    61	            # com pipeline legado. Remover quando legado for desligado.
+    62	            try:
+    63	                from services.robo_legs_service import RoboLegsService  # noqa: PLC0415
+    64	                self.robo_legs_service = RoboLegsService()
+    65	            except ImportError:
+    66	                self.robo_legs_service = None
+    67	
+    68	        # LegacyRoboLegsFallback sempre inicializado, independente da origem do robo_legs_service
+    69	        self.legacy_robo_legs_fallback = LegacyRoboLegsFallback(
+    70	            robo_legs_service=self.robo_legs_service,
+    71	            allow_name_fallback=self.allow_legacy_name_fallback,
+    72	        )
+    73	
+    74	        if structure_events_service is not None:
+    75	            self.structure_events_service = structure_events_service
+    76	        elif enable_structure_events and getattr(self.repository, "db_path", None):
+    77	            self.structure_events_service = StructureEventsService(
+    78	                structure_events_repository=StructureEventsRepository(
+    79	                    db_path=self.repository.db_path,
+    80	                )
+    81	            )
+    82	        else:
+    83	            self.structure_events_service = None
+    84	
+    85	    # ──────────────────────────────────────────────────────────────────────────
+    86	    # API pública
+    87	    # ──────────────────────────────────────────────────────────────────────────
+    88	
+    89	    def build_structure_market_input(
+    90	        self,
+    91	        structure_id: int,
+    92	        reference_date: str | None = None,
+    93	    ) -> dict[str, Any]:
+    94	        structure = self.repository.get_structure(structure_id)
+    95	        if structure is None:
+    96	            raise ValueError(f"structure not found: {structure_id}")
+    97	
+    98	        structure = {
+    99	            **structure,
+   100	            "name":              self._clean_text(structure.get("name")),
+   101	            "underlying_asset":  self._clean_text(structure.get("underlying_asset")),
+   102	            "alias_legacy_aba":  self._clean_text(structure.get("alias_legacy_aba")),
+   103	        }
+   104	
+   105	        snapshot, snapshot_meta = self._resolve_snapshot(
+   106	            structure=structure,
+   107	            reference_date=reference_date,
+   108	        )
+   109	
+   110	        effective_reference_date = reference_date or snapshot.get("reference_date")
+   111	
+   112	        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
+   113	            structure=structure,
+   114	            reference_date=effective_reference_date,
+   115	        )
+   116	
+   117	        enriched_structure, events_meta = self._apply_structure_events(
+   118	            structure=enriched_structure,
+   119	        )
+   120	
+   121	        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+   122	        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
+   123	        assembled_meta  = assembled.get("meta") or {}
+   124	
+   125	        return {
+   126	            **assembled,
+   127	            "meta": {
+   128	                **assembled_meta,
+   129	                "reference_date": effective_reference_date,
+   130	                **enrichment_meta,
+   131	                **events_meta,
+   132	                **snapshot_meta,
+   133	            },
+   134	        }
+   135	
+   136	
+   137	    # ──────────────────────────────────────────────────────────────────────────
+   138	    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+   139	    # ──────────────────────────────────────────────────────────────────────────
+   140	
+   141	    def _resolve_snapshot(
+   142	        self,
+   143	        structure: dict[str, Any],
+   144	        reference_date: str | None,
+   145	    ) -> tuple[dict[str, Any], dict[str, Any]]:
+   146	        """
+   147	        Monta o snapshot dict completo exigido pelo assembler.
+   148	
+   149	        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+   150	        Se o selector estiver injetado E alias_legacy_aba existir, substitui as
+   151	        legs pelo resultado do selector (manual > rtd).
+   152	        """
+   153	        underlying_asset = structure["underlying_asset"]
+   154	        aba              = structure.get("alias_legacy_aba")
+   155	
+   156	        # 1. Spot, taxa, vol — sempre via provider
+   157	        base_snapshot = self.market_snapshot_provider.get_snapshot(
+   158	            underlying_asset,
+   159	            reference_date=reference_date,
+   160	        )
+   161	
+   162	        # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
+   163	        if self.market_snapshot_selector is not None and aba:
+   164	            ref = StructureRef.from_aba(aba)
+   165	            legs_list, legs_meta = self._resolve_legs_via_selector(ref)
+   166	            snapshot_source = legs_meta["snapshot_source"]
+   167	        else:
+   168	            legs_list  = base_snapshot.get("legs", [])
+   169	            legs_meta  = {}
+   170	            snapshot_source = "provider_legacy"
+   171	
+   172	        # 3. Monta contrato completo para o assembler
+   173	        snapshot = {
+   174	            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+   175	                                        # interest_rate, volatility (e qualquer extra)
+   176	            "aba":  aba,
+   177	            "legs": legs_list,
+   178	        }
+   179	
+   180	        meta = {
+   181	            "snapshot_source":  snapshot_source,
+   182	            **legs_meta,
+   183	        }
+   184	
+   185	        return snapshot, meta
+   186	
+   187	    # ──────────────────────────────────────────────────────────────────────────
+   188	    # Legs via selector (manual > rtd)
+   189	    # ──────────────────────────────────────────────────────────────────────────
+   190	
+   191	    def _resolve_legs_via_selector(
+   192	        self,
+   193	        ref: StructureRef,
+   194	    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+   195	        """
+   196	        Delega ao MarketSnapshotSelector e serializa legs completas.
+   197	
+   198	        Serialização cobre todos os campos de LegMarketSnapshot para que
+   199	        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+   200	        """
+   201	        aba_str = ref.aba
+   202	        result = self.market_snapshot_selector.select(aba_str)
+   203	
+   204	        legs_as_dict = [
+   205	            {
+   206	                # ── identificação ──────────────────────────────────────────
+   207	                "aba":              leg.aba,
+   208	                "ativo":            leg.ativo,
+   209	                "source":           leg.source.value if hasattr(leg.source, "value") else str(leg.source),
+   210	                # ── posição ────────────────────────────────────────────────
+   211	                "cv":               leg.cv,
+   212	                "call_put":         leg.call_put,
+   213	                "quant":            leg.quant,
+   214	                "valor_executado":  leg.valor_executado,
+   215	                # ── preços ─────────────────────────────────────────────────
+   216	                "bid":              leg.bid,
+   217	                "ask":              leg.ask,
+   218	                "mid":              leg.mid,
+   219	                "spread":           leg.spread,
+   220	                "spread_pct":       leg.spread_pct,
+   221	                # ── greeks ─────────────────────────────────────────────────
+   222	                "iv":               leg.iv,
+   223	                "delta":            leg.delta,
+   224	                "gamma":            leg.gamma,
+   225	                "theta":            leg.theta,
+   226	                "vega":             leg.vega,
+   227	                # ── contrato ───────────────────────────────────────────────
+   228	                "strike":           leg.strike,
+   229	                "vencimento":       leg.vencimento,
+   230	                "dte":              leg.dte,
+   231	                "pl_realista":      leg.pl_realista,
+   232	                # ── auditoria ──────────────────────────────────────────────
+   233	                "timestamp":        leg.timestamp,
+   234	            }
+   235	            for leg in result.legs
+   236	        ]
+   237	
+   238	        # reference_date derivada do timestamp da leg mais recente
+   239	        reference_date = self._reference_date_from_legs(result.legs)
+   240	
+   241	        meta = {
+   242	            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+   243	            "snapshot_aba":     aba_str,
+   244	            "manual_overrides": result.manual_overrides,
+   245	            "is_manual_first":  result.is_manual_first,
+   246	            "legs_reference_date": reference_date,
+   247	        }
+   248	
+   249	        return legs_as_dict, meta
+   250	
+   251	    @staticmethod
+   252	    def _reference_date_from_legs(legs) -> str | None:
+   253	        """Extrai a data (YYYY-MM-DD) do timestamp mais recente entre as legs."""
+   254	        timestamps = [leg.timestamp for leg in legs if leg.timestamp]
+   255	        if not timestamps:
+   256	            return None
+   257	        latest = max(timestamps)          # ISO string → max() funciona diretamente
+   258	        return latest[:10]               # "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DD"
+   259	
+   260	    # ──────────────────────────────────────────────────────────────────────────
+   261	    # Enriquecimento de legs canônicas / fallback (inalterado do alteracao_13)
+   262	    # ──────────────────────────────────────────────────────────────────────────
+   263	
+   264	    def _build_meta(
+   265	        self,
+   266	        legs_source: str,
+   267	        legacy_timestamp: str | None = None,
+   268	        legacy_aba: str | None = None,
+   269	        legacy_key_source: str | None = None,
+   270	        fallback_reason: str | None = None,
+   271	    ) -> dict[str, Any]:
+   272	        meta: dict[str, Any] = {"legs_source": legs_source}
+   273	        if legacy_timestamp  is not None: meta["legacy_timestamp"]  = legacy_timestamp
+   274	        if legacy_aba        is not None: meta["legacy_aba"]        = legacy_aba
+   275	        if legacy_key_source is not None: meta["legacy_key_source"] = legacy_key_source
+   276	        if fallback_reason   is not None: meta["fallback_reason"]   = fallback_reason
+   277	        return meta
+   278	
+   279	    def _base_legs_response(
+   280	        self,
+
+===== repositories/market_snapshot_repository.py =====
+     1	# repositories/market_snapshot_repository.py
+     2	"""
+     3	Repositorio canonico de snapshots de mercado.
+     4	
+     5	Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+     6	normaliza os campos e retorna objetos LegMarketSnapshot prontos para uso.
+     7	"""
+     8	from __future__ import annotations
+     9	from src.domain.refs.structure_ref import StructureRef
+    10	
+    11	import sqlite3
+    12	from datetime import datetime
+    13	from pathlib import Path
+    14	from typing import Optional
+    15	
+    16	from utils.leg_normalizers import parse_timestamp
+    17	
+    18	from domain.market_snapshot import (
+    19	    LegMarketSnapshot,
+    20	    SnapshotSource,
+    21	    StructureMarketSnapshot,
+    22	)
+    23	
+    24	# --- Caminhos ----------------------------------------------------------------
+    25	
+    26	_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+    27	_DEFAULT_DB = _PROJECT_ROOT / "dados" / "app.db"
+    28	
+    29	# --- SQL ---------------------------------------------------------------------
+    30	
+    31	_SQL_RTD_LEGS = """
+    32	    SELECT
+    33	        timestamp,
+    34	        aba,
+    35	        ativo,
+    36	        cv,
+    37	        call_put,
+    38	        quant,
+    39	        valor_executado,
+    40	        bid,
+    41	        ask,
+    42	        spread,
+    43	        spread_pct,
+    44	        iv,
+    45	        delta,
+    46	        gamma,
+    47	        theta,
+    48	        vega,
+    49	        strike,
+    50	        vencimento,
+    51	        dte,
+    52	        pl_realista
+    53	    FROM rtd_analise_robo_legs
+    54	    WHERE aba = ?
+    55	"""
+    56	
+    57	_SQL_MANUAL_LEGS = """
+    58	    SELECT
+    59	        timestamp,
+    60	        aba,
+    61	        ativo,
+    62	        cv,
+    63	        call_put,
+    64	        quant,
+    65	        valor_executado,
+    66	        bid,
+    67	        ask,
+    68	        spread,
+    69	        spread_pct,
+    70	        iv,
+    71	        delta,
+    72	        gamma,
+    73	        theta,
+    74	        vega,
+    75	        strike,
+    76	        vencimento,
+    77	        dte,
+    78	        pl_realista,
+    79	        source,
+    80	        created_at
+    81	    FROM manual_analise_robo_legs
+    82	    WHERE aba = ?
+    83	"""
+    84	
+    85	_SQL_RTD_SUMMARY = """
+    86	    SELECT
+    87	        aba,
+    88	        spot,
+    89	        num_pernas,
+    90	        dte_min,
+    91	        pl_realista_total,
+    92	        delta_liq,
+    93	        gamma_liq,
+    94	        theta_liq,
+    95	        vega_liq,
+    96	        spread_medio,
+    97	        spread_pct_medio,
+    98	        alertas_v2
+    99	    FROM rtd_analise_robo
+   100	    WHERE aba = ?
+   101	    ORDER BY rowid DESC
+   102	    LIMIT 1
+   103	"""
+   104	
+   105	# --- Helpers -----------------------------------------------------------------
+   106	
+   107	def _ref_to_aba(ref: StructureRef | str) -> str:
+   108	    """Aceita StructureRef ou str e devolve a string da aba."""
+   109	    if isinstance(ref, StructureRef):
+   110	        if ref.aba:
+   111	            return str(ref.aba)
+   112	        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+   113	    return str(ref)
+   114	
+   115	
+   116	def _parse_br_float(value) -> Optional[float]:
+   117	    # Converte string pt-BR ('1,38' ou '1,38E-02') para float.
+   118	    if value is None:
+   119	        return None
+   120	    try:
+   121	        normalized = str(value).strip().replace(",", ".")
+   122	        return float(normalized)
+   123	    except (ValueError, TypeError):
+   124	        return None
+   125	
+   126	
+   127	def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
+   128	    # Calcula mid price. Nao usa coluna 'last' - nao existe no schema.
+   129	    if bid is not None and ask is not None:
+   130	        return round((bid + ask) / 2.0, 6)
+   131	    if bid is not None:
+   132	        return bid
+   133	    if ask is not None:
+   134	        return ask
+   135	    return None
+   136	
+   137	
+   138	
+   139	def _sort_rows_by_timestamp_desc(rows: list[sqlite3.Row]) -> list[sqlite3.Row]:
+   140	    """
+   141	    Ordena rows por timestamp cronológico decrescente.
+   142	
+   143	    Evita ordenar pelo campo textual de data no SQLite, pois o banco legado pode misturar
+   144	    formatos ISO e BR, fazendo a ordenação textual ficar incorreta.
+   145	    """
+   146	    def _key(row: sqlite3.Row):
+   147	        raw = "" if row["timestamp"] is None else str(row["timestamp"]).strip()
+   148	
+   149	        try:
+   150	            return (1, parse_timestamp(raw), raw)
+   151	        except Exception:
+   152	            return (0, datetime.min, raw)
+   153	
+   154	    return sorted(rows, key=_key, reverse=True)
+   155	
+   156	
+   157	def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
+   158	    bid = _parse_br_float(row["bid"])
+   159	    ask = _parse_br_float(row["ask"])
+   160	    mid = _mid_price(bid, ask)
+   161	
+   162	    return LegMarketSnapshot(
+   163	        aba=row["aba"],
+   164	        ativo=row["ativo"],
+   165	        cv=row["cv"],
+   166	        call_put=row["call_put"],
+   167	        quant=_parse_br_float(row["quant"]),
+   168	        valor_executado=_parse_br_float(row["valor_executado"]),
+   169	        bid=bid,
+   170	        ask=ask,
+   171	        mid=mid,
+   172	        spread=_parse_br_float(row["spread"]),
+   173	        spread_pct=_parse_br_float(row["spread_pct"]),
+   174	        iv=_parse_br_float(row["iv"]),
+   175	        delta=_parse_br_float(row["delta"]),
+   176	        gamma=_parse_br_float(row["gamma"]),
+   177	        theta=_parse_br_float(row["theta"]),
+   178	        vega=_parse_br_float(row["vega"]),
+   179	        strike=_parse_br_float(row["strike"]),
+   180	        vencimento=row["vencimento"],
+   181	        dte=_parse_br_float(row["dte"]),
+   182	        pl_realista=_parse_br_float(row["pl_realista"]),
+   183	        timestamp=row["timestamp"],
+   184	        source=source,
+   185	    )
+   186	
+   187	
+   188	# --- Repositorio -------------------------------------------------------------
+   189	
+   190	
+   191	class MarketSnapshotRepository:
+   192	    """
+   193	    Acesso de leitura aos snapshots de mercado.
+   194	
+   195	    Metodos:
+   196	      get_rtd_legs(aba)     -> lista de LegMarketSnapshot source=RTD
+   197	      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+   198	      get_rtd_summary(aba)  -> dict com cabecalho RTD ou None
+   199	      get_structure(aba)    -> StructureMarketSnapshot completo
+   200	    """
+   201	
+   202	    def __init__(self, db_path: Path | str = _DEFAULT_DB) -> None:
+   203	        self._db_path = Path(db_path)
+   204	        if not self._db_path.exists():
+   205	            raise FileNotFoundError(f"Banco nao encontrado: {self._db_path}")
+   206	
+   207	    def _connect(self) -> sqlite3.Connection:
+   208	        conn = sqlite3.connect(str(self._db_path))
+   209	        conn.row_factory = sqlite3.Row
+   210	        return conn
+   211	
+   212	    # -- RTD ------------------------------------------------------------------
+   213	
+   214	    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+   215	        aba = _ref_to_aba(ref)
+   216	        with self._connect() as conn:
+   217	            rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
+   218	        rows = _sort_rows_by_timestamp_desc(rows)
+   219	        return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
+   220	
+   221	    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+   222	        aba = _ref_to_aba(ref)
+   223	        with self._connect() as conn:
+   224	            row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
+   225	        if row is None:
+   226	            return None
+   227	        return dict(row)
+   228	
+   229	    # -- Manual ---------------------------------------------------------------
+   230	
+   231	    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+   232	        aba = _ref_to_aba(ref)
+   233	        with self._connect() as conn:
+   234	            rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
+   235	        rows = _sort_rows_by_timestamp_desc(rows)
+   236	        return [_row_to_leg(r, SnapshotSource.MANUAL) for r in rows]
+   237	
+   238	    # -- Estrutura completa ---------------------------------------------------
+   239	
+   240	    def get_structure(
+   241	        self,
+   242	        ref: StructureRef | str,
+   243	        source: SnapshotSource = SnapshotSource.RTD,
+   244	    ) -> StructureMarketSnapshot:
+   245	        aba = _ref_to_aba(ref)
+   246	
+   247	        if source == SnapshotSource.RTD:
+   248	            legs = self.get_rtd_legs(ref)
+   249	            summary = self.get_rtd_summary(ref)
+   250	        else:
+   251	            legs = self.get_manual_legs(ref)
+   252	            summary = None
+   253	
+   254	        def _f(key: str) -> Optional[float]:
+   255	            return (
+   256	                _parse_br_float(summary[key])
+   257	                if summary and summary.get(key) is not None
+   258	                else None
+   259	            )
+   260	
+   261	        return StructureMarketSnapshot(
+   262	            aba=aba,
+   263	            legs=legs,
+   264	            source=source,
+   265	            spot=_f("spot"),
+   266	            num_pernas=int(_f("num_pernas")) if _f("num_pernas") is not None else None,
+   267	            dte_min=int(_f("dte_min")) if _f("dte_min") is not None else None,
+   268	            pl_realista_total=_f("pl_realista_total"),
+   269	            delta_liq=_f("delta_liq"),
+   270	            gamma_liq=_f("gamma_liq"),
+   271	            theta_liq=_f("theta_liq"),
+   272	            vega_liq=_f("vega_liq"),
+   273	            spread_medio=_f("spread_medio"),
+   274	            spread_pct_medio=_f("spread_pct_medio"),
+   275	            alertas_v2=summary.get("alertas_v2") if summary else None,
+   276	        )
+
+===== domain/market_snapshot.py =====
+     1	# domain/market_snapshot.py
+     2	"""
+     3	Objetos de domínio para snapshots de mercado.
+     4	
+     5	alteracao_12: LegMarketSnapshot, SnapshotSource
+     6	alteracao_13: StructureMarketSnapshot (agrega legs + cabeçalho de mercado)
+     7	"""
+     8	from __future__ import annotations
+     9	
+    10	
+    11	from dataclasses import dataclass, field
+    12	from enum import Enum
+    13	from typing import Optional
+    14	
+    15	
+    16	#  Enum de origem 
+    17	
+    18	class SnapshotSource(str, Enum):
+    19	    RTD    = "rtd"
+    20	    MANUAL = "manual"
+    21	
+    22	
+    23	#  Leg individual 
+    24	
+    25	@dataclass
+    26	class LegMarketSnapshot:
+    27	    """Representa uma perna (leg) de uma estrutura de opções."""
+    28	
+    29	    aba             : str
+    30	    ativo           : str
+    31	    cv              : Optional[str]   = None
+    32	    call_put        : Optional[str]   = None
+    33	    quant           : Optional[float] = None
+    34	    valor_executado : Optional[float] = None
+    35	    bid             : Optional[float] = None
+    36	    ask             : Optional[float] = None
+    37	    mid             : Optional[float] = None   # calculado: (bid + ask) / 2
+    38	    spread          : Optional[float] = None
+    39	    spread_pct      : Optional[float] = None
+    40	    iv              : Optional[float] = None
+    41	    delta           : Optional[float] = None
+    42	    gamma           : Optional[float] = None
+    43	    theta           : Optional[float] = None
+    44	    vega            : Optional[float] = None
+    45	    strike          : Optional[float] = None
+    46	    vencimento      : Optional[str]   = None
+    47	    dte             : Optional[float] = None
+    48	    pl_realista     : Optional[float] = None
+    49	    timestamp       : Optional[str]   = None
+    50	    source          : SnapshotSource  = SnapshotSource.RTD
+    51	
+    52	
+    53	#  Estrutura completa (cabeçalho + legs) 
+    54	
+    55	@dataclass
+    56	class StructureMarketSnapshot:
+    57	    """
+    58	    Agrega o cabeçalho de mercado da estrutura e suas legs.
+    59	
+    60	    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
+    61	      aba, spot, num_pernas, dte_min, pl_realista_total,
+    62	      delta_liq, gamma_liq, theta_liq, vega_liq,
+    63	      spread_medio, spread_pct_medio, alertas_v2
+    64	
+    65	    Atributo agregado:
+    66	      legs  -- lista de LegMarketSnapshot
+    67	      source -- origem predominante dos dados
+    68	    """
+    69	
+    70	    aba                : str
+    71	    legs               : list[LegMarketSnapshot]        = field(default_factory=list)
+    72	    source             : SnapshotSource                 = SnapshotSource.RTD
+    73	
+    74	    #  cabeçalho de mercado / summary 
+    75	    spot               : Optional[float] = None
+    76	    num_pernas         : Optional[int]   = None
+    77	    dte_min            : Optional[int]   = None
+    78	    pl_realista_total  : Optional[float] = None
+    79	    delta_liq          : Optional[float] = None
+    80	    gamma_liq          : Optional[float] = None
+    81	    theta_liq          : Optional[float] = None
+    82	    vega_liq           : Optional[float] = None
+    83	    spread_medio       : Optional[float] = None
+    84	    spread_pct_medio   : Optional[float] = None
+    85	    alertas_v2         : Optional[str]   = None
+    86	
+    87	    #  helpers de conveniência 
+    88	
+    89	    @property
+    90	    def num_legs(self) -> int:
+    91	        return len(self.legs)
+    92	
+    93	    @property
+    94	    def has_summary(self) -> bool:
+    95	        """True se os dados de cabeçalho foram populados."""
+    96	        return self.spot is not None
+    97	
+    98	    def __repr__(self) -> str:
+    99	        return (
+   100	            f"StructureMarketSnapshot("
+   101	            f"aba={self.aba!r}, "
+   102	            f"num_legs={self.num_legs}, "
+   103	            f"spot={self.spot}, "
+   104	            f"source={self.source.value!r})"
+   105	        )
