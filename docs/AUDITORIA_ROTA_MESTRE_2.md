@@ -807,3 +807,110 @@ ee927c5 feat: harden rtd option quote price traceability
   - `rtd_quote_ativo_base`;
   - `rtd_price_updated_at`.
 
+
+## Fase 10E — Validação operacional da rastreabilidade RTD persistida
+
+Data/hora: 15/06/2026 20:47 BRT
+
+### Objetivo
+
+Validar que a rastreabilidade completa do preço RTD, já consolidada na Fase 10D no payload canônico de pricing, também é preservada nas camadas de persistência, consulta e snapshot do sistema.
+
+Esta fase garante que os metadados RTD não se perdem após a execução de pricing ser salva e posteriormente recuperada.
+
+### Contexto operacional
+
+A Fase 10D consolidou a exposição dos campos de rastreabilidade RTD no payload de pricing.
+
+A Fase 10E adiciona cobertura regressiva sobre a persistência dessa rastreabilidade, validando que os campos permanecem disponíveis em:
+
+- `PricingExecutionsRepository.get_execution`;
+- `PricingExecutionsRepository.list_executions`;
+- `PricingExecutionPersistenceService`;
+- `SystemSnapshotsRepository`;
+- `operation_state_json`.
+
+### Arquivos alterados
+
+~~~text
+M       ATT/tests/test_pricing_execution_price_source_persistence.py
+~~~
+
+### Arquivos auditados
+
+~~~text
+repositories/pricing_executions_repository.py
+services/pricing_execution_persistence_service.py
+services/canonical_pricing_facade.py
+repositories/market_snapshot_repository.py
+~~~
+
+### Alterações realizadas
+
+Foram adicionados testes regressivos para validar que uma leg com preço vindo de `rtd_option_quotes` preserva os seguintes campos após persistência e recuperação:
+
+~~~text
+price_source
+rtd_price_field
+rtd_quote_codigo_opcao
+rtd_quote_ativo_base
+rtd_price_source
+rtd_price_updated_at
+rtd_price_created_at
+~~~
+
+A validação cobre:
+
+- gravação da execução de pricing;
+- leitura individual por `get_execution`;
+- listagem por `list_executions`;
+- envio das legs ao snapshot do sistema;
+- preservação dentro de `operation_state_json["pricing_payload"]["legs"]`.
+
+### Testes executados
+
+~~~bash
+python -m pytest ATT/tests/test_pricing_execution_price_source_persistence.py -v
+~~~
+
+Resultado:
+
+~~~text
+PREENCHER_COM_RESULTADO_DO_TESTE_DIRECIONADO
+~~~
+
+~~~bash
+python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v
+~~~
+
+Resultado:
+
+~~~text
+PREENCHER_COM_RESULTADO_DA_SUITE_COMBINADA
+~~~
+
+### Evidências principais
+
+- Uma leg com `price_source = rtd_option_quotes` foi persistida com metadados RTD completos.
+- A leitura por `get_execution` preservou todos os campos de rastreabilidade RTD.
+- A leitura por `list_executions` preservou todos os campos de rastreabilidade RTD.
+- O snapshot operacional recebeu a leg com os mesmos campos RTD.
+- O `operation_state_json` preservou o `pricing_payload` com a rastreabilidade RTD completa.
+- Não houve alteração funcional em serviços, repositórios, schema, UI, bridge ou arquivos operacionais em `dados/`.
+
+### Decisão tomada
+
+A Fase 10E foi validada como camada regressiva operacional sobre a Fase 10D.
+
+A rastreabilidade do preço RTD agora é considerada preservada desde a resolução do preço no payload canônico até a persistência da execução, recuperação posterior e geração de snapshot do sistema.
+
+### Pendências
+
+- Abrir PR empilhado da branch `fase-10e-validacao-operacional-rastreabilidade-preco-rtd`.
+- Prosseguir apenas após decisão da próxima fase técnica com novo mapa de impacto.
+
+### Commit relacionado
+
+~~~text
+2133966 test: valida rastreabilidade RTD persistida na fase 10E
+~~~
