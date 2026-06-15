@@ -189,7 +189,7 @@ def audit_database(db_path: str | Path, max_age_minutes: int = 30) -> dict[str, 
                     SELECT COUNT(*)
                     FROM {TABLE_NAME}
                     WHERE updated_at IS NOT NULL
-                      AND datetime(updated_at) < datetime('now', ?)
+                      AND datetime(updated_at) < datetime('now', 'localtime', ?)
                     """,
                     (f"-{int(max_age_minutes)} minutes",),
                 )
