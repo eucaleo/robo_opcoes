@@ -593,3 +593,28 @@ pytest -q
 
 A Fase 8E adiciona cobertura regressiva para a resolução do banco correto de `rtd_option_quotes` no `CanonicalPricingFacade`, sem alterar código funcional, schema, UI, importadores, arquivos em `dados/`, arquivos em `bridge/` ou motor de cálculo.
 
+## Fase 10B — Persistência da rastreabilidade da origem do preço RTD
+
+Data/hora: 15/06/2026 15:09 BRT
+
+### Objetivo
+
+Garantir que a origem efetiva do preço de opção usado no cálculo seja preservada também na persistência da execução de pricing.
+
+### Arquivos alterados
+
+- ATT/tests/test_pricing_execution_price_source_persistence.py
+
+### Arquivos auditados
+
+- repositories/pricing_executions_repository.py
+- services/pricing_execution_persistence_service.py
+- services/canonical_pricing_facade.py
+
+### Comandos executados
+
+```bash
+git diff --name-status fase-10a-rastreabilidade-preco-rtd...HEAD
+git show --name-status --stat --oneline d3a9dcc
+python -m pytest ATT/tests/test_pricing_execution_price_source_persistence.py -v
+python -m pytest ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v
