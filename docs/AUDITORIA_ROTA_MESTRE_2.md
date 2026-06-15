@@ -790,15 +790,15 @@ A Fase 10D foi validada como endurecimento incremental sobre a Fase 10C.
 
 A resolução de preço RTD agora é auditável em nível de campo utilizado e registro de cotação, reduzindo ambiguidade entre preço manual, preço de snapshot e preço vindo de `rtd_option_quotes`.
 
-### Commit relacionado
+### Commits relacionados
 
 ~~~text
 ee927c5 feat: harden rtd option quote price traceability
+57daefa docs: registra fechamento fase 10d rastreabilidade preco rtd
 ~~~
 
 ### Pendências
 
-- Commitar esta atualização documental.
 - Abrir PR empilhado da branch `fase-10d-endurecimento-rastreabilidade-preco-rtd`.
 - Validar em ambiente operacional real com RTD/Excel ativo que legs reais carregam os campos:
   - `price_source`;
