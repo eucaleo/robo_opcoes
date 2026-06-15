@@ -1,0 +1,238 @@
+===== git diff services/canonical_pricing_facade.py =====
+diff --git a/services/canonical_pricing_facade.py b/services/canonical_pricing_facade.py
+index ffc8200..a021f7f 100644
+--- a/services/canonical_pricing_facade.py
++++ b/services/canonical_pricing_facade.py
+@@ -30,6 +30,7 @@ from pathlib import Path
+ from typing import Any
+ 
+ from repositories.market_snapshot_repository import MarketSnapshotRepository
++from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+ from repositories.system_snapshots_repository import SystemSnapshotsRepository
+ from services.derived_payoff_persistence import DerivedPayoffPersistence
+ from services.market_snapshot_selector import MarketSnapshotSelector
+@@ -129,6 +130,148 @@ def _quote_ident(name: str) -> str:
+     return '"' + name.replace('"', '""') + '"'
+ 
+ 
++def _is_manual_source(value: Any) -> bool:
++    """Retorna True quando a fonte da leg é manual."""
++    if value is None:
++        return False
++
++    raw = getattr(value, "value", value)
++    return "manual" in str(raw).strip().lower()
++
++
++def _quote_value(quote: Any, field: str) -> Any:
++    """Lê campo de dict/sqlite.Row/objeto de forma tolerante."""
++    if quote is None:
++        return None
++
++    if hasattr(quote, "get"):
++        try:
++            return quote.get(field)
++        except Exception:
++            pass
++
++    try:
++        return quote[field]
++    except Exception:
++        pass
++
++    try:
++        return getattr(quote, field)
++    except Exception:
++        return None
++
++
++def _pick_rtd_option_price(quote: Any | None) -> float | None:
++    """
++    Escolhe o melhor preço disponível em rtd_option_quotes.
++
++    Precedência:
++      1. ultimo_preco
++      2. price / last_price, se existirem por compatibilidade
++      3. mid bid/ask
++      4. bid
++      5. ask
++    """
++    if not quote:
++        return None
++
++    for field in ("ultimo_preco", "price", "last_price"):
++        price = _to_float(_quote_value(quote, field), 0.0)
++        if price > 0:
++            return price
++
++    bid = _to_float(_quote_value(quote, "bid"), 0.0)
++    ask = _to_float(_quote_value(quote, "ask"), 0.0)
++
++    if bid > 0 and ask > 0:
++        return round((bid + ask) / 2.0, 6)
++
++    if bid > 0:
++        return bid
++
++    if ask > 0:
++        return ask
++
++    return None
++
++
++def _lookup_rtd_option_quote(
++    repository: RtdOptionQuotesRepository,
++    raw_asset: Any,
++) -> Any | None:
++    """
++    Busca cotação RTD da opção por código.
++
++    Tenta métodos comuns do repository sem quebrar o fluxo caso a API varie.
++    """
++    if not raw_asset:
++        return None
++
++    codigo_original = str(raw_asset).strip()
++    if not codigo_original:
++        return None
++
++    codigos = []
++    for codigo in (codigo_original, codigo_original.upper()):
++        if codigo and codigo not in codigos:
++            codigos.append(codigo)
++
++    method_names = (
++        "get_by_codigo",
++        "get_by_codigo_opcao",
++        "get_latest_by_codigo",
++        "find_by_codigo",
++        "find_by_codigo_opcao",
++    )
++
++    for codigo in codigos:
++        for method_name in method_names:
++            method = getattr(repository, method_name, None)
++            if method is None:
++                continue
++
++            try:
++                quote = method(codigo)
++            except Exception:
++                quote = None
++
++            if quote:
++                return quote
++
++    return None
++
++
++def _resolve_effective_leg_price(
++    *,
++    raw_price: Any,
++    raw_asset: Any,
++    leg_source: Any,
++    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
++) -> float:
++    """
++    Resolve preço efetivo da leg para o pricing_payload.
++
++    Regra conservadora:
++      manual explícito > rtd_option_quotes > preço original do snapshot.
++    """
++    original_price = _to_float(raw_price, 0.0)
++
++    if _is_manual_source(leg_source) and original_price > 0:
++        return original_price
++
++    if rtd_option_quotes_repository is not None:
++        quote = _lookup_rtd_option_quote(
++            repository=rtd_option_quotes_repository,
++            raw_asset=raw_asset,
++        )
++        rtd_price = _pick_rtd_option_price(quote)
++
++        if rtd_price is not None and rtd_price > 0:
++            return rtd_price
++
++    return original_price
++
++
+ def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+     """
+     Procura spot positivo no app.db.
+@@ -226,6 +369,7 @@ def _snapshot_result_to_payload(
+     underlying_asset: str,
+     reference_date: str | None,
+     db_path: Path,
++    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+ ) -> dict[str, Any]:
+     legs_data = []
+ 
+@@ -237,6 +381,14 @@ def _snapshot_result_to_payload(
+         raw_price = _pick(d, "premium", "price", "valor_executado")
+         raw_asset = _pick(d, "symbol", "asset", "ativo")
+         raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
++        leg_source = _pick(d, "source")
++
++        effective_price = _resolve_effective_leg_price(
++            raw_price=raw_price,
++            raw_asset=raw_asset,
++            leg_source=leg_source,
++            rtd_option_quotes_repository=rtd_option_quotes_repository,
++        )
+ 
+         side = _pick(d, "side", "position_side")
+         if not side:
+@@ -245,7 +397,7 @@ def _snapshot_result_to_payload(
+         canonical_leg = {
+             # campos originais/compatíveis
+             "quantity":    quantity,
+-            "price":       _to_float(raw_price, 0.0),
++            "price":       effective_price,
+             "asset":       raw_asset,
+             "option_type": _pick(d, "option_type", "call_put"),
+             "strike":      _to_float(_pick(d, "strike"), 0.0),
+@@ -259,7 +411,7 @@ def _snapshot_result_to_payload(
+ 
+             # campos canônicos esperados pelo fluxo pricing/payoff
+             "symbol":          raw_asset,
+-            "premium":         _to_float(raw_price, 0.0),
++            "premium":         effective_price,
+             "expiration_date": _normalize_expiration_date(raw_expiry),
+             "multiplier":      1.0,
+             "side":            str(side).upper(),
+@@ -329,6 +481,7 @@ class CanonicalPricingFacade:
+         self._db_path  = Path(db_path)
+         self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+         self._selector = MarketSnapshotSelector(repository=self._repo)
++        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(db_path=self._db_path)
+         self._engine   = pricing_execution_service or PricingExecutionService()
+ 
+         self._persister = persistence_service or PricingExecutionPersistenceService(
+@@ -359,6 +512,7 @@ class CanonicalPricingFacade:
+                 underlying_asset=underlying_asset,          #  C7/C8
+                 reference_date=reference_date,
+                 db_path=self._db_path,
++                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
+             )
+ 
+             #  4. Executa engine 
+
+===== grep integração RTD option quotes =====
+33:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+164:def _pick_rtd_option_price(quote: Any | None) -> float | None:
+198:def _lookup_rtd_option_quote(
+199:    repository: RtdOptionQuotesRepository,
+244:def _resolve_effective_leg_price(
+249:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+262:    if rtd_option_quotes_repository is not None:
+263:        quote = _lookup_rtd_option_quote(
+264:            repository=rtd_option_quotes_repository,
+267:        rtd_price = _pick_rtd_option_price(quote)
+372:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+386:        effective_price = _resolve_effective_leg_price(
+390:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+400:            "price":       effective_price,
+414:            "premium":         effective_price,
+484:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(db_path=self._db_path)
+515:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
