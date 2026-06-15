@@ -206,3 +206,122 @@ def test_snapshot_result_to_payload_uses_rtd_price_for_canonical_leg_fields(tmp_
     assert leg["asset"] == "ABCD11"
     assert leg["symbol"] == "ABCD11"
     assert payload["spot_price"] == 100.0
+
+def test_resolve_effective_leg_price_exposes_rtd_quote_traceability_metadata():
+    repository = FakeRtdOptionQuotesRepository(
+        quotes={
+            "ABCD11": {
+                "codigo_opcao": "ABCD11",
+                "ativo_base": "ABCD",
+                "ultimo_preco": 9.99,
+                "source": "rtd_option_quotes",
+                "updated_at": "2026-06-15T10:01:00",
+                "created_at": "2026-06-15T10:00:00",
+            }
+        }
+    )
+
+    price, price_source, traceability = _resolve_effective_leg_price(
+        raw_price=5.55,
+        raw_asset="ABCD11",
+        leg_source="rtd",
+        rtd_option_quotes_repository=repository,
+    )
+
+    assert price == 9.99
+    assert price_source == "rtd_option_quotes"
+    assert traceability == {
+        "rtd_price_field": "ultimo_preco",
+        "rtd_quote_codigo_opcao": "ABCD11",
+        "rtd_quote_ativo_base": "ABCD",
+        "rtd_price_source": "rtd_option_quotes",
+        "rtd_price_updated_at": "2026-06-15T10:01:00",
+        "rtd_price_created_at": "2026-06-15T10:00:00",
+    }
+
+
+def test_resolve_effective_leg_price_falls_back_to_snapshot_when_rtd_quote_has_no_usable_price():
+    repository = FakeRtdOptionQuotesRepository(
+        quotes={
+            "ABCD11": {
+                "codigo_opcao": "ABCD11",
+                "ativo_base": "ABCD",
+                "ultimo_preco": 0,
+                "price": 0,
+                "last_price": 0,
+                "bid": 0,
+                "ask": 0,
+                "source": "rtd_option_quotes",
+                "updated_at": "2026-06-15T10:01:00",
+                "created_at": "2026-06-15T10:00:00",
+            }
+        }
+    )
+
+    price, price_source, traceability = _resolve_effective_leg_price(
+        raw_price=5.55,
+        raw_asset="ABCD11",
+        leg_source="rtd",
+        rtd_option_quotes_repository=repository,
+    )
+
+    assert price == 5.55
+    assert price_source == "snapshot"
+    assert traceability == {}
+
+
+def test_snapshot_result_to_payload_does_not_leak_rtd_traceability_for_manual_price(tmp_path):
+    repository = FakeRtdOptionQuotesRepository(
+        quotes={
+            "ABCD11": {
+                "codigo_opcao": "ABCD11",
+                "ativo_base": "ABCD",
+                "ultimo_preco": 9.99,
+                "source": "rtd_option_quotes",
+                "updated_at": "2026-06-15T10:01:00",
+                "created_at": "2026-06-15T10:00:00",
+            }
+        }
+    )
+
+    selection_result = SimpleNamespace(
+        legs=[
+            {
+                "quantity": 100,
+                "premium": 5.55,
+                "symbol": "ABCD11",
+                "option_type": "CALL",
+                "strike": 10.0,
+                "expiration_date": "2026-06-15",
+                "source": "manual",
+                "side": "LONG",
+            }
+        ],
+        spot_price=100.0,
+        source="manual",
+        aba="ABCD",
+        manual_overrides=[],
+    )
+
+    payload = _snapshot_result_to_payload(
+        selection_result=selection_result,
+        structure_id=123,
+        underlying_asset="ABCD",
+        reference_date="2026-06-15",
+        db_path=tmp_path / "app.db",
+        rtd_option_quotes_repository=repository,
+    )
+
+    leg = payload["legs"][0]
+
+    assert leg["price"] == 5.55
+    assert leg["premium"] == 5.55
+    assert leg["price_source"] == "manual"
+    assert "rtd_price_field" not in leg
+    assert "rtd_quote_codigo_opcao" not in leg
+    assert "rtd_quote_ativo_base" not in leg
+    assert "rtd_price_source" not in leg
+    assert "rtd_price_updated_at" not in leg
+    assert "rtd_price_created_at" not in leg
+    assert repository.calls == []
+

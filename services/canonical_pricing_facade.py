@@ -210,9 +210,12 @@ def _quote_value(quote: Any, field: str) -> Any:
         return None
 
 
-def _pick_rtd_option_price(quote: Any | None) -> float | None:
+def _pick_rtd_option_price_with_trace(
+    quote: Any | None,
+) -> tuple[float | None, str | None]:
     """
-    Escolhe o melhor preço disponível em rtd_option_quotes.
+    Escolhe o melhor preço disponível em rtd_option_quotes e informa
+    qual campo/critério foi usado.
 
     Precedência:
       1. ultimo_preco
@@ -222,26 +225,37 @@ def _pick_rtd_option_price(quote: Any | None) -> float | None:
       5. ask
     """
     if not quote:
-        return None
+        return None, None
 
     for field in ("ultimo_preco", "price", "last_price"):
         price = _to_float(_quote_value(quote, field), 0.0)
         if price > 0:
-            return price
+            return price, field
 
     bid = _to_float(_quote_value(quote, "bid"), 0.0)
     ask = _to_float(_quote_value(quote, "ask"), 0.0)
 
     if bid > 0 and ask > 0:
-        return round((bid + ask) / 2.0, 6)
+        return round((bid + ask) / 2.0, 6), "bid_ask_mid"
 
     if bid > 0:
-        return bid
+        return bid, "bid"
 
     if ask > 0:
-        return ask
+        return ask, "ask"
 
-    return None
+    return None, None
+
+
+def _pick_rtd_option_price(quote: Any | None) -> float | None:
+    """
+    Escolhe o melhor preço disponível em rtd_option_quotes.
+
+    Mantém a API anterior retornando apenas o preço. Para rastreabilidade
+    completa, usar _pick_rtd_option_price_with_trace.
+    """
+    price, _field = _pick_rtd_option_price_with_trace(quote)
+    return price
 
 
 def _lookup_rtd_option_quote(
@@ -316,13 +330,16 @@ def _resolve_effective_leg_price(
             repository=rtd_option_quotes_repository,
             raw_asset=raw_asset,
         )
-        rtd_price = _pick_rtd_option_price(quote)
+        rtd_price, rtd_price_field = _pick_rtd_option_price_with_trace(quote)
 
         if rtd_price is not None and rtd_price > 0:
             return (
                 rtd_price,
                 "rtd_option_quotes",
                 {
+                    "rtd_price_field": rtd_price_field,
+                    "rtd_quote_codigo_opcao": _quote_value(quote, "codigo_opcao"),
+                    "rtd_quote_ativo_base": _quote_value(quote, "ativo_base"),
                     "rtd_price_source": _quote_value(quote, "source"),
                     "rtd_price_updated_at": _quote_value(quote, "updated_at"),
                     "rtd_price_created_at": _quote_value(quote, "created_at"),
