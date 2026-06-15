@@ -1,0 +1,55 @@
+## Auditoria Fase 8E - canonical_pricing_facade.py
+
+33:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+45:def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+53:    with sqlite3.connect(str(db_path)) as conn:
+133:def _sqlite_table_exists(db_path: Path, table_name: str) -> bool:
+135:    if not db_path.exists():
+139:        with sqlite3.connect(str(db_path)) as conn:
+156:def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
+158:    Resolve o banco correto para rtd_option_quotes.
+161:    rtd_option_quotes vive em dados/app.db.
+166:        primary_db_path,
+167:        primary_db_path.parent / "app.db",
+175:        if _sqlite_table_exists(candidate, "rtd_option_quotes"):
+179:    return primary_db_path
+215:    Escolhe o melhor preço disponível em rtd_option_quotes.
+293:def _resolve_effective_leg_price(
+298:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+304:      manual explícito > rtd_option_quotes > preço original do snapshot.
+311:    if rtd_option_quotes_repository is not None:
+313:            repository=rtd_option_quotes_repository,
+324:def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+362:        with sqlite3.connect(str(db_path)) as conn:
+420:    db_path: Path,
+421:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+435:        effective_price = _resolve_effective_leg_price(
+439:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+483:            db_path=db_path,
+510:class CanonicalPricingFacade:
+526:        db_path: Path | str = _DEFAULT_DB,
+530:        self._db_path  = Path(db_path)
+531:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+533:        self._rtd_option_quotes_db_path = _resolve_rtd_option_quotes_db_path(self._db_path)
+534:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(
+535:            db_path=self._rtd_option_quotes_db_path,
+541:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+554:                structure_id, self._db_path
+566:                db_path=self._db_path,
+567:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
+
+## Auditoria Fase 8E - rtd_option_quotes_repository.py
+
+1:# repositories/rtd_option_quotes_repository.py
+10:class RtdOptionQuotesRepository:
+12:    Leitura da tabela rtd_option_quotes.
+18:    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+19:        self.db_path = Path(db_path)
+21:    def _connect(self) -> sqlite3.Connection:
+22:        conn = sqlite3.connect(str(self.db_path))
+26:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+48:            FROM rtd_option_quotes
+58:    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+80:            FROM rtd_option_quotes
+90:    def list_all(self) -> list[dict[str, Any]]:
+112:            FROM rtd_option_quotes

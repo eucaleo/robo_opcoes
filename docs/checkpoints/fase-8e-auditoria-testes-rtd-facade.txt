@@ -1,0 +1,21 @@
+# Fase 8E - Auditoria de testes RTD Facade
+
+Arquivo criado:
+- ATT/tests/test_canonical_pricing_facade_rtd_db_path.py
+
+Validação de sintaxe:
+- python -m py_compile services/canonical_pricing_facade.py ATT/tests/test_canonical_pricing_facade_rtd_db_path.py
+- Resultado: sem erro
+
+Teste direcionado:
+- pytest -q ATT/tests/test_canonical_pricing_facade_rtd_db_path.py
+- Resultado: 6 passed in 1.67s
+
+Suíte completa:
+- pytest -q
+- Resultado: 591 passed, 10 skipped in 36.54s
+
+Conclusão:
+- Cobertura regressiva adicionada para resolução correta do banco de rtd_option_quotes.
+- Quando CanonicalPricingFacade é iniciado com derived.db, o repositório RTD resolve corretamente para app.db quando a tabela rtd_option_quotes existe lá.
+- Nenhum código funcional foi alterado nesta etapa.
