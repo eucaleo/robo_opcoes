@@ -296,7 +296,7 @@ def _resolve_effective_leg_price(
     raw_asset: Any,
     leg_source: Any,
     rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
-) -> tuple[float, str]:
+) -> tuple[float, str, dict[str, Any]]:
     """
     Resolve preço efetivo da leg para o pricing_payload.
 
@@ -304,12 +304,12 @@ def _resolve_effective_leg_price(
       manual explícito > rtd_option_quotes > preço original do snapshot.
 
     Retorna:
-      (preço efetivo, origem do preço)
+      (preço efetivo, origem do preço, metadados de rastreabilidade)
     """
     original_price = _to_float(raw_price, 0.0)
 
     if _is_manual_source(leg_source) and original_price > 0:
-        return original_price, "manual"
+        return original_price, "manual", {}
 
     if rtd_option_quotes_repository is not None:
         quote = _lookup_rtd_option_quote(
@@ -319,10 +319,18 @@ def _resolve_effective_leg_price(
         rtd_price = _pick_rtd_option_price(quote)
 
         if rtd_price is not None and rtd_price > 0:
-            return rtd_price, "rtd_option_quotes"
+            return (
+                rtd_price,
+                "rtd_option_quotes",
+                {
+                    "rtd_price_source": _quote_value(quote, "source"),
+                    "rtd_price_updated_at": _quote_value(quote, "updated_at"),
+                    "rtd_price_created_at": _quote_value(quote, "created_at"),
+                },
+            )
 
     fallback_source = "snapshot" if original_price > 0 else "missing"
-    return original_price, fallback_source
+    return original_price, fallback_source, {}
 
 
 def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
@@ -436,7 +444,7 @@ def _snapshot_result_to_payload(
         raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
         leg_source = _pick(d, "source")
 
-        effective_price, price_source = _resolve_effective_leg_price(
+        effective_price, price_source, price_traceability = _resolve_effective_leg_price(
             raw_price=raw_price,
             raw_asset=raw_asset,
             leg_source=leg_source,
@@ -471,6 +479,14 @@ def _snapshot_result_to_payload(
             "side":            str(side).upper(),
             "position_side":   str(side).upper(),
         }
+
+        canonical_leg.update(
+            {
+                key: value
+                for key, value in price_traceability.items()
+                if value not in (None, "")
+            }
+        )
 
         legs_data.append(canonical_leg)
 

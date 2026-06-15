@@ -351,6 +351,9 @@ def test_execute_pricing_uses_persisted_rtd_option_quote_price(tmp_path):
     assert leg["price"] == 9.99
     assert leg["premium"] == 9.99
     assert leg["price_source"] == "rtd_option_quotes"
+    assert leg["rtd_price_source"] == "rtd_option_quotes"
+    assert leg["rtd_price_updated_at"] == "2026-06-15T10:01:00"
+    assert leg["rtd_price_created_at"] == "2026-06-15T10:01:00"
 
     assert len(fake_persistence_service.calls) == 1
     persisted_payload = fake_persistence_service.calls[0]["pricing_payload"]
@@ -358,3 +361,6 @@ def test_execute_pricing_uses_persisted_rtd_option_quote_price(tmp_path):
     assert persisted_payload["legs"][0]["price"] == 9.99
     assert persisted_payload["legs"][0]["premium"] == 9.99
     assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"
+    assert persisted_payload["legs"][0]["rtd_price_source"] == "rtd_option_quotes"
+    assert persisted_payload["legs"][0]["rtd_price_updated_at"] == "2026-06-15T10:01:00"
+    assert persisted_payload["legs"][0]["rtd_price_created_at"] == "2026-06-15T10:01:00"
