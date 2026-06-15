@@ -296,17 +296,20 @@ def _resolve_effective_leg_price(
     raw_asset: Any,
     leg_source: Any,
     rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
-) -> float:
+) -> tuple[float, str]:
     """
     Resolve preço efetivo da leg para o pricing_payload.
 
     Regra conservadora:
       manual explícito > rtd_option_quotes > preço original do snapshot.
+
+    Retorna:
+      (preço efetivo, origem do preço)
     """
     original_price = _to_float(raw_price, 0.0)
 
     if _is_manual_source(leg_source) and original_price > 0:
-        return original_price
+        return original_price, "manual"
 
     if rtd_option_quotes_repository is not None:
         quote = _lookup_rtd_option_quote(
@@ -316,9 +319,10 @@ def _resolve_effective_leg_price(
         rtd_price = _pick_rtd_option_price(quote)
 
         if rtd_price is not None and rtd_price > 0:
-            return rtd_price
+            return rtd_price, "rtd_option_quotes"
 
-    return original_price
+    fallback_source = "snapshot" if original_price > 0 else "missing"
+    return original_price, fallback_source
 
 
 def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
@@ -432,7 +436,7 @@ def _snapshot_result_to_payload(
         raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
         leg_source = _pick(d, "source")
 
-        effective_price = _resolve_effective_leg_price(
+        effective_price, price_source = _resolve_effective_leg_price(
             raw_price=raw_price,
             raw_asset=raw_asset,
             leg_source=leg_source,
@@ -457,6 +461,7 @@ def _snapshot_result_to_payload(
             "theta":       _pick(d, "theta"),
             "vega":        _pick(d, "vega"),
             "source":      str(_pick(d, "source")),
+            "price_source": price_source,
 
             # campos canônicos esperados pelo fluxo pricing/payoff
             "symbol":          raw_asset,

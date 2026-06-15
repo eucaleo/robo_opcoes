@@ -350,9 +350,11 @@ def test_execute_pricing_uses_persisted_rtd_option_quote_price(tmp_path):
     assert leg["asset"] == "ABCD11"
     assert leg["price"] == 9.99
     assert leg["premium"] == 9.99
+    assert leg["price_source"] == "rtd_option_quotes"
 
     assert len(fake_persistence_service.calls) == 1
     persisted_payload = fake_persistence_service.calls[0]["pricing_payload"]
 
     assert persisted_payload["legs"][0]["price"] == 9.99
     assert persisted_payload["legs"][0]["premium"] == 9.99
+    assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"

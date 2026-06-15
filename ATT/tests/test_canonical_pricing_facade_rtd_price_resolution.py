@@ -96,7 +96,7 @@ def test_resolve_effective_leg_price_preserves_explicit_manual_price():
         }
     )
 
-    price = _resolve_effective_leg_price(
+    price, price_source = _resolve_effective_leg_price(
         raw_price=5.55,
         raw_asset="ABCD11",
         leg_source="manual",
@@ -104,6 +104,7 @@ def test_resolve_effective_leg_price_preserves_explicit_manual_price():
     )
 
     assert price == 5.55
+    assert price_source == "manual"
     assert repository.calls == []
 
 
@@ -117,7 +118,7 @@ def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
         }
     )
 
-    price = _resolve_effective_leg_price(
+    price, price_source = _resolve_effective_leg_price(
         raw_price=5.55,
         raw_asset="ABCD11",
         leg_source="rtd",
@@ -125,13 +126,14 @@ def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
     )
 
     assert price == 9.99
+    assert price_source == "rtd_option_quotes"
     assert repository.calls == ["ABCD11"]
 
 
 def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_when_no_rtd_quote():
     repository = FakeRtdOptionQuotesRepository()
 
-    price = _resolve_effective_leg_price(
+    price, price_source = _resolve_effective_leg_price(
         raw_price=5.55,
         raw_asset="ABCD11",
         leg_source="rtd",
@@ -139,12 +141,13 @@ def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_when_
     )
 
     assert price == 5.55
+    assert price_source == "snapshot"
 
 
 def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_on_repository_error():
     repository = FakeRtdOptionQuotesRepository(fail=True)
 
-    price = _resolve_effective_leg_price(
+    price, price_source = _resolve_effective_leg_price(
         raw_price=5.55,
         raw_asset="ABCD11",
         leg_source="rtd",
@@ -152,6 +155,7 @@ def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_on_re
     )
 
     assert price == 5.55
+    assert price_source == "snapshot"
 
 
 def test_snapshot_result_to_payload_uses_rtd_price_for_canonical_leg_fields(tmp_path):
@@ -196,6 +200,7 @@ def test_snapshot_result_to_payload_uses_rtd_price_for_canonical_leg_fields(tmp_
 
     assert leg["price"] == 9.99
     assert leg["premium"] == 9.99
+    assert leg["price_source"] == "rtd_option_quotes"
     assert leg["asset"] == "ABCD11"
     assert leg["symbol"] == "ABCD11"
     assert payload["spot_price"] == 100.0
