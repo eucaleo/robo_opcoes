@@ -711,3 +711,99 @@ b16c6c2 docs: registra fechamento fase 10c rastreabilidade preco rtd
 
 - Abrir PR empilhado contra `fase-10b-rastreabilidade-preco-rtd-persistencia`.
 - Prosseguir para a Fase 10D a partir de `fase-10d-endurecimento-rastreabilidade-preco-rtd`.
+
+## Fase 10D — Endurecimento da rastreabilidade do preço RTD
+
+Data/hora: 15/06/2026 16:16 BRT
+
+### Objetivo
+
+Endurecer a rastreabilidade do preço efetivo de opção resolvido a partir de `rtd_option_quotes`, garantindo que o payload canônico de pricing informe não apenas que o preço veio do RTD, mas também qual campo da cotação foi usado e qual registro RTD originou o preço.
+
+### Contexto operacional
+
+Nesta fase, o RTD foi ativado com Excel como ponte operacional, alimentando os arquivos de banco de dados em tempo real. A validação técnica desta fase focou em transformar essa disponibilidade operacional em contrato auditável no backend.
+
+### Alterações realizadas
+
+- Criada a função `_pick_rtd_option_price_with_trace`, que retorna o preço RTD efetivo e o campo/critério usado.
+- Mantida compatibilidade da função `_pick_rtd_option_price`, preservando a API anterior que retorna apenas o preço.
+- `_resolve_effective_leg_price` passou a expor metadados adicionais de rastreabilidade quando a origem efetiva do preço é `rtd_option_quotes`.
+- O payload canônico passou a carregar os campos adicionais de rastreabilidade RTD nas legs.
+- Foram adicionados testes regressivos para:
+  - preservar preço manual explícito sem consultar RTD;
+  - usar RTD quando a leg não é manual;
+  - registrar campo usado da cotação RTD;
+  - registrar código da opção e ativo-base da cotação RTD;
+  - cair para snapshot quando a cotação RTD existe, mas não possui preço utilizável;
+  - impedir vazamento de metadados RTD em legs manuais.
+
+### Campos de rastreabilidade RTD consolidados
+
+Quando `price_source` é `rtd_option_quotes`, a leg pode carregar:
+
+~~~text
+price_source = rtd_option_quotes
+rtd_price_field = ultimo_preco | price | last_price | bid_ask_mid | bid | ask
+rtd_quote_codigo_opcao = código da opção cotada
+rtd_quote_ativo_base = ativo base da opção
+rtd_price_source = source da cotação RTD
+rtd_price_updated_at = timestamp de atualização da cotação
+rtd_price_created_at = timestamp de criação da cotação
+~~~
+
+### Arquivos alterados
+
+~~~text
+M       ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
+M       ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
+M       services/canonical_pricing_facade.py
+~~~
+
+### Testes executados
+
+~~~bash
+python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v
+~~~
+
+Resultado:
+
+~~~text
+19 passed in 1.56s
+~~~
+
+### Evidências principais
+
+- O preço original do snapshot controlado era `5.55`.
+- A cotação persistida em `rtd_option_quotes.ultimo_preco` era `9.99`.
+- O payload canônico executado pelo pricing passou a usar `9.99`.
+- A leg manteve `price_source = rtd_option_quotes`.
+- A leg passou a informar `rtd_price_field = ultimo_preco`.
+- A leg passou a informar `rtd_quote_codigo_opcao = ABCD11`.
+- A leg passou a informar `rtd_quote_ativo_base = ABCD`.
+- A persistência recebeu o payload com os mesmos metadados de rastreabilidade.
+- Legs manuais preservaram `price_source = manual` e não receberam metadados RTD.
+
+### Decisão tomada
+
+A Fase 10D foi validada como endurecimento incremental sobre a Fase 10C.
+
+A resolução de preço RTD agora é auditável em nível de campo utilizado e registro de cotação, reduzindo ambiguidade entre preço manual, preço de snapshot e preço vindo de `rtd_option_quotes`.
+
+### Commit relacionado
+
+~~~text
+ee927c5 feat: harden rtd option quote price traceability
+~~~
+
+### Pendências
+
+- Commitar esta atualização documental.
+- Abrir PR empilhado da branch `fase-10d-endurecimento-rastreabilidade-preco-rtd`.
+- Validar em ambiente operacional real com RTD/Excel ativo que legs reais carregam os campos:
+  - `price_source`;
+  - `rtd_price_field`;
+  - `rtd_quote_codigo_opcao`;
+  - `rtd_quote_ativo_base`;
+  - `rtd_price_updated_at`.
+
