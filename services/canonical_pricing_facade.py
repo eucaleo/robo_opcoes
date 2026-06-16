@@ -258,6 +258,48 @@ def _pick_rtd_option_price(quote: Any | None) -> float | None:
     return price
 
 
+def _normalize_asset_code(value: Any) -> str:
+    """Normaliza código de ativo para comparação operacional."""
+    if value is None:
+        return ""
+
+    return str(value).strip().upper()
+
+
+def _rtd_quote_traceability(
+    quote: Any | None,
+    *,
+    rtd_quote_found: bool,
+    price_resolution_status: str,
+    rtd_validation_status: str,
+    rtd_validation_message: str | None,
+    rtd_price_field: str | None = None,
+) -> dict[str, Any]:
+    """Monta metadados de guardrail/diagnóstico RTD."""
+    traceability: dict[str, Any] = {
+        "price_resolution_status": price_resolution_status,
+        "rtd_quote_found": rtd_quote_found,
+        "rtd_validation_status": rtd_validation_status,
+        "rtd_validation_message": rtd_validation_message,
+    }
+
+    if rtd_price_field:
+        traceability["rtd_price_field"] = rtd_price_field
+
+    if quote is not None:
+        traceability.update(
+            {
+                "rtd_quote_codigo_opcao": _quote_value(quote, "codigo_opcao"),
+                "rtd_quote_ativo_base": _quote_value(quote, "ativo_base"),
+                "rtd_price_source": _quote_value(quote, "source"),
+                "rtd_price_updated_at": _quote_value(quote, "updated_at"),
+                "rtd_price_created_at": _quote_value(quote, "created_at"),
+            }
+        )
+
+    return traceability
+
+
 def _lookup_rtd_option_quote(
     repository: RtdOptionQuotesRepository,
     raw_asset: Any,
@@ -310,6 +352,7 @@ def _resolve_effective_leg_price(
     raw_asset: Any,
     leg_source: Any,
     rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+    underlying_asset: Any | None = None,
 ) -> tuple[float, str, dict[str, Any]]:
     """
     Resolve preço efetivo da leg para o pricing_payload.
@@ -323,31 +366,103 @@ def _resolve_effective_leg_price(
     original_price = _to_float(raw_price, 0.0)
 
     if _is_manual_source(leg_source) and original_price > 0:
-        return original_price, "manual", {}
+        return (
+            original_price,
+            "manual",
+            {
+                "price_resolution_status": "ok",
+                "rtd_quote_found": None,
+                "rtd_validation_status": "not_applicable",
+                "rtd_validation_message": "Preço manual explícito preservado; RTD não consultado.",
+            },
+        )
 
     if rtd_option_quotes_repository is not None:
         quote = _lookup_rtd_option_quote(
             repository=rtd_option_quotes_repository,
             raw_asset=raw_asset,
         )
+
+        if not quote:
+            fallback_source = "snapshot" if original_price > 0 else "missing"
+            return (
+                original_price,
+                fallback_source,
+                _rtd_quote_traceability(
+                    None,
+                    rtd_quote_found=False,
+                    price_resolution_status="missing_rtd_quote",
+                    rtd_validation_status="error",
+                    rtd_validation_message=(
+                        f"Quote RTD não encontrada para a opção {raw_asset}."
+                    ),
+                ),
+            )
+
+        quote_ativo_base = _normalize_asset_code(_quote_value(quote, "ativo_base"))
+        expected_ativo_base = _normalize_asset_code(underlying_asset)
+
+        if quote_ativo_base and expected_ativo_base and quote_ativo_base != expected_ativo_base:
+            fallback_source = "snapshot" if original_price > 0 else "missing"
+            return (
+                original_price,
+                fallback_source,
+                _rtd_quote_traceability(
+                    quote,
+                    rtd_quote_found=True,
+                    price_resolution_status="rtd_asset_mismatch",
+                    rtd_validation_status="error",
+                    rtd_validation_message=(
+                        "Ativo base da quote RTD diverge do ativo base da estrutura: "
+                        f"quote={quote_ativo_base}, estrutura={expected_ativo_base}."
+                    ),
+                ),
+            )
+
         rtd_price, rtd_price_field = _pick_rtd_option_price_with_trace(quote)
 
         if rtd_price is not None and rtd_price > 0:
             return (
                 rtd_price,
                 "rtd_option_quotes",
-                {
-                    "rtd_price_field": rtd_price_field,
-                    "rtd_quote_codigo_opcao": _quote_value(quote, "codigo_opcao"),
-                    "rtd_quote_ativo_base": _quote_value(quote, "ativo_base"),
-                    "rtd_price_source": _quote_value(quote, "source"),
-                    "rtd_price_updated_at": _quote_value(quote, "updated_at"),
-                    "rtd_price_created_at": _quote_value(quote, "created_at"),
-                },
+                _rtd_quote_traceability(
+                    quote,
+                    rtd_quote_found=True,
+                    price_resolution_status="ok",
+                    rtd_validation_status="ok",
+                    rtd_validation_message=None,
+                    rtd_price_field=rtd_price_field,
+                ),
             )
 
+        fallback_source = "snapshot" if original_price > 0 else "missing"
+        return (
+            original_price,
+            fallback_source,
+            _rtd_quote_traceability(
+                quote,
+                rtd_quote_found=True,
+                price_resolution_status="invalid_rtd_price",
+                rtd_validation_status="error",
+                rtd_validation_message=(
+                    f"Quote RTD encontrada para {raw_asset}, mas sem preço utilizável."
+                ),
+            ),
+        )
+
     fallback_source = "snapshot" if original_price > 0 else "missing"
-    return original_price, fallback_source, {}
+    fallback_status = "ok" if original_price > 0 else "missing_price"
+
+    return (
+        original_price,
+        fallback_source,
+        {
+            "price_resolution_status": fallback_status,
+            "rtd_quote_found": None,
+            "rtd_validation_status": "not_applicable",
+            "rtd_validation_message": "Repository RTD não disponível para consulta.",
+        },
+    )
 
 
 def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
@@ -466,6 +581,7 @@ def _snapshot_result_to_payload(
             raw_asset=raw_asset,
             leg_source=leg_source,
             rtd_option_quotes_repository=rtd_option_quotes_repository,
+            underlying_asset=underlying_asset,
         )
 
         side = _pick(d, "side", "position_side")
@@ -501,7 +617,7 @@ def _snapshot_result_to_payload(
             {
                 key: value
                 for key, value in price_traceability.items()
-                if value not in (None, "")
+                if value != ""
             }
         )
 
