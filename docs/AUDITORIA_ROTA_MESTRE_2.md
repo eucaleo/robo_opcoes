@@ -914,3 +914,70 @@ A rastreabilidade do preço RTD agora é considerada preservada desde a resoluç
 ~~~text
 2133966 test: valida rastreabilidade RTD persistida na fase 10E
 ~~~
+
+## Fase 10F — Validação operacional fim-a-fim da rastreabilidade RTD/Excel
+
+Data/hora: 15/06/2026 21:03 BRT
+
+### Objetivo
+
+Validar, em cenário operacional mais próximo do real, que uma cotação RTD alimentada via Excel chega ao backend, é usada na resolução do preço da opção, entra no payload canônico de pricing e permanece rastreável após persistência.
+
+### Contexto
+
+As Fases 10C, 10D e 10E consolidaram a rastreabilidade do preço RTD em três camadas:
+
+- resolução do preço efetivo no payload canônico;
+- exposição dos metadados RTD usados na resolução;
+- preservação desses metadados na persistência, consulta e snapshot operacional.
+
+A Fase 10F busca validar o fluxo fim-a-fim com foco operacional, sem introduzir alteração funcional pesada.
+
+### Escopo de validação
+
+Validar o caminho:
+
+~~~text
+Excel / RTD
+rtd_option_quotes
+CanonicalPricingFacade
+pricing payload
+pricing_executions
+operation_state_json
+system snapshot
+~~~
+
+### Campos mínimos esperados
+
+~~~text
+price_source = rtd_option_quotes
+rtd_price_field
+rtd_quote_codigo_opcao
+rtd_quote_ativo_base
+rtd_price_source
+rtd_price_updated_at
+rtd_price_created_at
+~~~
+
+### Restrições
+
+- Não alterar schema.
+- Não alterar UI.
+- Não alterar bridge.
+- Não versionar bancos locais ou arquivos operacionais em `dados/`.
+- Não alterar importadores.
+- Não introduzir mudança funcional sem teste regressivo.
+- Priorizar evidência operacional, teste controlado ou smoke test auditável.
+
+### Pendências
+
+- Identificar o ponto mais seguro para executar a validação fim-a-fim.
+- Confirmar qual banco local contém `rtd_option_quotes` alimentado pelo Excel/RTD.
+- Executar consulta de inspeção sobre cotações RTD disponíveis.
+- Executar pricing usando opção com cotação RTD disponível.
+- Validar payload e persistência com os campos de rastreabilidade.
+- Registrar evidências e resultado final.
+
+### Commit relacionado
+
+Pendente.
