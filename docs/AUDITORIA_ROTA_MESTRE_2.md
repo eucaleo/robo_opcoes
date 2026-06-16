@@ -1150,5 +1150,4 @@ O fluxo RTD ponta a ponta está coberto por teste integrado isolado, auditável 
 
 ### Commit relacionado
 
-Pendente.
-
+`9009a40`
