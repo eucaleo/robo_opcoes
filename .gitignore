@@ -99,3 +99,6 @@ ATT/checks/**/*.pyo
 /dados/backups/
 
 _backup_local/
+
+# Planilha local operacional RTD
+/LISTA_RTD.xlsm
