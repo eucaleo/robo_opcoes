@@ -876,7 +876,7 @@ python -m pytest ATT/tests/test_pricing_execution_price_source_persistence.py -v
 Resultado:
 
 ~~~text
-PREENCHER_COM_RESULTADO_DO_TESTE_DIRECIONADO
+5 passed in 0.26s
 ~~~
 
 ~~~bash
@@ -886,7 +886,7 @@ python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
 Resultado:
 
 ~~~text
-PREENCHER_COM_RESULTADO_DA_SUITE_COMBINADA
+21 passed in 1.37s
 ~~~
 
 ### Evidências principais
