@@ -981,3 +981,174 @@ rtd_price_created_at
 ### Commit relacionado
 
 Pendente.
+
+---
+
+## Fase 11 — Testes integrados RTD ponta a ponta
+
+### Status
+
+Concluída.
+
+### Branch
+
+`fase-11-testes-integrados-rtd`
+
+### Objetivo
+
+Adicionar cobertura integrada para validar o fluxo controlado:
+
+RTD_LINKS.csv -> importação -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_payload -> pricing_executions -> system snapshot/query
+
+A fase deve comprovar que o preço efetivo oriundo de `rtd_option_quotes.ultimo_preco` é usado pelo pricing e que a rastreabilidade operacional é preservada durante persistência e consulta posterior.
+
+### Mapa de impacto antes de alteração funcional
+
+#### Arquivos que poderão ser alterados
+
+- `docs/AUDITORIA_ROTA_MESTRE_2.md`
+- `ATT/tests/test_fase_11_rtd_integrated_flow.py`
+
+#### Arquivos apenas auditados
+
+- `scripts/import_rtd_links_to_option_quotes.py`
+- `scripts/run_rtd_option_quotes_pipeline.py`
+- `repositories/rtd_option_quotes_repository.py`
+- `repositories/pricing_executions_repository.py`
+- `services/canonical_pricing_facade.py`
+- `services/pricing_execution_app_service.py`
+- `services/pricing_execution_orchestration_service.py`
+- `services/pricing_execution_persistence_service.py`
+- `services/pricing_execution_query_service.py`
+- `services/market_snapshot_provider.py`
+- `services/market_snapshot_selector.py`
+- `services/structure_market_input_assembler.py`
+- `ATT/tests/test_import_rtd_links_to_option_quotes.py`
+- `ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py`
+- `ATT/tests/test_pricing_execution_price_source_persistence.py`
+
+#### Escopo permitido
+
+- Criar teste integrado novo usando banco temporário.
+- Criar fixtures locais ao teste.
+- Criar CSV temporário simulando `RTD_LINKS.csv`.
+- Validar importação, leitura via repository, execução de pricing, persistência e rastreabilidade.
+
+#### Escopo proibido nesta fase inicial
+
+- Não alterar UI.
+- Não alterar schema produtivo.
+- Não alterar arquivos em `dados/`.
+- Não alterar motor de cálculo.
+- Não alterar importador produtivo.
+- Não alterar comportamento funcional existente.
+- Não executar pipeline contra banco real.
+
+#### Risco esperado
+
+Baixo a médio.
+
+O risco principal está em montar um teste integrado que dependa de muitos detalhes internos do banco temporário. A mitigação será reutilizar padrões já existentes nos testes atuais e manter o teste isolado em `tmp_path`.
+
+#### Testes que validarão a mudança
+
+Regressão-base:
+
+`python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v`
+
+Novo teste da fase:
+
+`python -m pytest ATT/tests/test_fase_11_rtd_integrated_flow.py -v`
+
+Suíte combinada da fase:
+
+`python -m pytest ATT/tests/test_fase_11_rtd_integrated_flow.py ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v`
+
+#### Plano de reversão
+
+Antes de commit:
+
+`git restore docs/AUDITORIA_ROTA_MESTRE_2.md`
+
+`rm -f ATT/tests/test_fase_11_rtd_integrated_flow.py`
+
+Depois de commit:
+
+`git revert <hash_do_commit>`
+
+### Auditoria inicial executada
+
+Comandos executados:
+
+- `git checkout -b fase-11-testes-integrados-rtd`
+- `git status -sb`
+- `git branch --show-current`
+- `test -f docs/AUDITORIA_ROTA_MESTRE_2.md && sed -n '1,260p' docs/AUDITORIA_ROTA_MESTRE_2.md || echo "NAO_EXISTE"`
+- `find ATT/tests -maxdepth 1 -type f | grep -Ei "rtd|pricing|snapshot|execution|canonical|ui"`
+- `git grep -n "price_resolution_status\|rtd_quote_found\|rtd_validation_status\|rtd_validation_message\|price_source\|rtd_option_quotes" -- services repositories ATT/tests docs`
+- `git grep -n "class \|def " -- repositories/rtd_option_quotes_repository.py repositories/pricing_executions_repository.py services/canonical_pricing_facade.py services/pricing_execution_persistence_service.py services/pricing_execution_query_service.py services/pricing_execution_app_service.py services/pricing_execution_orchestration_service.py services/market_snapshot_provider.py services/market_snapshot_selector.py services/structure_market_input_assembler.py`
+- `python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v`
+
+Resultado inicial:
+
+`26 passed`
+
+### Decisão inicial
+
+Avançar criando apenas teste integrado novo e documentação, sem alteração funcional produtiva.
+
+
+### Implementação executada
+
+Criado o teste integrado controlado `ATT/tests/test_fase_11_rtd_integrated_flow.py`.
+
+O teste usa banco temporário em `tmp_path`, CSV temporário simulando `RTD_LINKS.csv` e não acessa banco real nem arquivos operacionais em `dados/`.
+
+Fluxo validado:
+
+`RTD_LINKS.csv -> import_csv_to_db -> rtd_option_quotes -> CanonicalPricingFacade.execute_pricing -> pricing_payload -> pricing_executions -> structure_snapshots/system snapshot query`
+
+### Evidências validadas
+
+- Importação do CSV temporário para `rtd_option_quotes`.
+- Normalização de uma opção RTD.
+- UPSERT controlado com `source = rtd_links`.
+- Leitura posterior da cotação importada.
+- Uso efetivo de `rtd_option_quotes.ultimo_preco` como preço da perna.
+- Substituição do preço original do snapshot operacional pelo preço RTD importado.
+- Preservação de `price_source = rtd_option_quotes`.
+- Preservação de metadados de rastreabilidade RTD no `pricing_payload`.
+- Persistência da execução em `pricing_executions`.
+- Consulta posterior da execução persistida.
+- Criação de snapshot operacional via `SystemSnapshotsRepository`.
+- Consulta posterior do snapshot.
+- Preservação da rastreabilidade no `operation_state_json` e no `raw_json` da perna do snapshot.
+
+### Testes executados após implementação
+
+Teste novo da fase:
+
+`python -m pytest ATT/tests/test_fase_11_rtd_integrated_flow.py -v`
+
+Resultado:
+
+`1 passed`
+
+Suíte combinada da fase:
+
+`python -m pytest ATT/tests/test_fase_11_rtd_integrated_flow.py ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_pricing_execution_price_source_persistence.py -v`
+
+Resultado:
+
+`27 passed`
+
+### Resultado final
+
+Fase 11 concluída com sucesso.
+
+O fluxo RTD ponta a ponta está coberto por teste integrado isolado, auditável e sem dependência de banco real.
+
+### Commit relacionado
+
+Pendente.
+
