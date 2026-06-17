@@ -247,3 +247,15 @@ Nenhuma alteração funcional foi executada.
 Nenhuma tabela foi criada.
 
 Nenhuma limpeza destrutiva adicional foi executada.
+
+---
+
+## Nota de supersessão — LISTA_RTD.xlsx
+
+Esta auditoria pode conter referências históricas a `LISTA_RTD.xlsx` feitas durante a reconciliação da ponte RTD.
+
+A interpretação atual consolidada está definida em `docs/decisions/2026-06-17-supersessao-lista-rtd-xlsx.md`:
+
+- `LISTA_RTD.xlsm` é a ponte RTD operacional oficial.
+- `LISTA_RTD.xlsx` é referência legada/histórica.
+- Referências anteriores a `LISTA_RTD.xlsx` nesta auditoria devem ser lidas como evidência do processo de reconciliação, não como contrato operacional vigente.
