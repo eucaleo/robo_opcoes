@@ -132,7 +132,7 @@ Nenhuma limpeza destrutiva está autorizada.
 
 ## Status
 
-Em andamento.
+Concluída.
 
 ## Objetivo
 
@@ -204,9 +204,11 @@ _usage_audit/uso_scripts_2026-06-16_13-40-00/RESUMO.md
 
 ## Decisão sobre _usage_audit/
 
-Pendente de classificação final.
+O diretório `_usage_audit/` foi classificado como evidência documental da auditoria de uso de scripts.
 
-Nenhuma limpeza destrutiva está autorizada até a decisão sobre versionar, ignorar ou arquivar esse diretório.
+Decisão tomada: versionar o diretório integralmente, sem limpeza destrutiva.
+
+A classificação foi concluída após conferência de tamanho, conteúdo e staging seletivo.
 
 ## Restrições mantidas
 
@@ -218,4 +220,30 @@ Nenhuma limpeza destrutiva está autorizada.
 
 ## Commit relacionado
 
-Pendente.
+~~~text
+440c6d5 docs: substitui referencia da planilha RTD legada
+cb92957 docs: adiciona evidencias de auditoria de uso
+~~~
+
+## Encerramento da Fase 1
+
+A Fase 1 foi encerrada com working tree limpo.
+
+Resultado final observado:
+
+~~~text
+git status -sb
+## fase-12-fechamento-ciclo...origin/fase-12-fechamento-ciclo [ahead 7]
+~~~
+
+A planilha `LISTA_RTD.xlsx` foi restaurada e preservada.
+
+A planilha RTD legada abolida foi removida do versionamento.
+
+O diretório `_usage_audit/` foi versionado como evidência de auditoria.
+
+Nenhuma alteração funcional foi executada.
+
+Nenhuma tabela foi criada.
+
+Nenhuma limpeza destrutiva adicional foi executada.
