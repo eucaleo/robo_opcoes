@@ -1,0 +1,42 @@
+# Fase 5 - Inventario somente leitura da ponte RTD Excel
+
+Modo: somente leitura
+Executado em: 2026-06-17T20:10:38
+
+## Arquivos LISTA_RTD.xlsm encontrados
+
+### LISTA_RTD.xlsm
+
+- Tamanho bytes: 9126
+- Modificado em: 2026-06-17T19:23:11
+- SHA256: 95e949390df399766497d1a64289dc1bcc917e6e9df820eeac4833e26c0bfda1
+- XLSM valido como ZIP Office Open XML: sim
+- Contem macros xl/vbaProject.bin: nao
+
+## Abas declaradas no workbook
+
+- name=RTD_OPTION_QUOTES sheetId=1
+- name=RTD-BTG LISTA sheetId=2
+
+## Nomes definidos
+
+- Nenhum nome definido encontrado.
+
+## Ocorrencias textuais de RTD
+
+- xl/workbook.xml: 2 ocorrencia(s)
+- xl/worksheets/sheet1.xml: 112 ocorrencia(s)
+- xl/worksheets/sheet2.xml: 186 ocorrencia(s)
+
+## Arquivos internos relevantes
+
+- xl/worksheets/sheet1.xml
+- xl/worksheets/sheet2.xml
+
+## Observacoes
+
+- Inventario executado em modo somente leitura.
+- Nenhuma macro VBA foi encontrada no workbook.
+- Foram encontradas referencias textuais a RTD nas duas worksheets.
+- Nenhuma alteracao foi feita no arquivo Excel.
+- Nenhuma alteracao foi feita em banco, UI, API, repository ou servico.
