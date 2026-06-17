@@ -40,7 +40,7 @@ structure_legs: vazia
 
 ## Status
 
-Em andamento.
+Encerrada.
 
 ## Objetivo
 
@@ -112,7 +112,7 @@ Foram executados diagnósticos e testes antecipados para evidência da futura Fa
 
 ## Decisão tomada
 
-A Fase 0 permanece aberta até os dois documentos estarem completos e conferidos.
+A Fase 0 foi encerrada após criação, conferência e commit dos documentos de controle.
 
 Nenhuma alteração funcional está autorizada.
 
@@ -122,4 +122,6 @@ Nenhuma limpeza destrutiva está autorizada.
 
 ## Commit relacionado
 
-Pendente.
+```text
+8556050 docs: inicia ROTA_MESTRE_3 de reconciliacao pos-backup
+```
