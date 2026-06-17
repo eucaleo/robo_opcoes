@@ -2,9 +2,11 @@ import json
 import sqlite3
 from datetime import UTC, datetime
 from pathlib import Path
+
+from db.config import get_app_db_path
 from typing import Any, Optional
 
-DB_PATH = Path("dados/app.db")
+DB_PATH = get_app_db_path()
 
 _EXECUTION_COLUMNS = (
     "id, created_at, structure_id, underlying_asset, reference_date, "

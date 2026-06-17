@@ -10,7 +10,9 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path("dados/app.db")
+from db.config import get_app_db_path
+
+DB_PATH = get_app_db_path()
 
 
 # ---------------------------------------------------------------------------

@@ -2,6 +2,8 @@ from src.domain.refs.structure_ref import StructureRef
 import json
 import sqlite3
 from pathlib import Path
+
+from db.config import get_derived_db_path
 from typing import Any, Dict, List, Optional, Tuple
 
 """
@@ -12,7 +14,7 @@ Patch 24: chave de upsert migrada de (timestamp, aba)
 
 
 def get_derived_db_connection() -> sqlite3.Connection:
-    db_path = Path("dados/derived.db").resolve()
+    db_path = get_derived_db_path()
     return sqlite3.connect(str(db_path))
 
 
