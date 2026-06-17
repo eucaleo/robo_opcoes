@@ -25,7 +25,7 @@ from typing import Any
 
 
 DEFAULT_WORKBOOK = "LISTA_RTD.xlsm"
-DEFAULT_SHEETS = ["RTD_OPTION_QUOTES", "RTD_PROBE_OPTIONS"]
+DEFAULT_SHEETS = ["RTD_OPTION_QUOTES", "RTD_PROBE_OPTIONS", "RTD-BTG LISTA"]
 
 REQUIRED_DB_COLUMNS = [
     "codigo_opcao",
@@ -211,52 +211,115 @@ def clean_text(value: Any) -> str | None:
 
 
 def connect_excel(workbook_path: Path, visible: bool, wait_seconds: int):
+    """
+    Abre uma instância isolada do Excel apenas para esta importação.
+
+    Regra operacional:
+    - não reaproveita Excel já aberto;
+    - abre o workbook;
+    - aguarda RTD atualizar;
+    - registra cleanup para fechar workbook e encerrar Excel ao sair do processo.
+
+    Observação:
+    - excel_found retorna False por desenho, pois não buscamos instância ativa.
+    """
+    import atexit
+
     try:
+        import pythoncom
         import win32com.client
     except ImportError as exc:
         raise RuntimeError(
             "Dependência ausente: pywin32. Instale com: pip install pywin32"
         ) from exc
 
-    try:
-        excel = win32com.client.GetActiveObject("Excel.Application")
-        excel_found = True
-    except Exception:
-        excel = win32com.client.DispatchEx("Excel.Application")
-        excel_found = False
-
-    excel.Visible = visible
-    excel.DisplayAlerts = False
-
     workbook = None
+    excel = None
+    cleaned = False
 
-    for item in excel.Workbooks:
+    try:
         try:
-            if item.Name.lower() == workbook_path.name.lower():
-                workbook = item
-                break
+            pythoncom.CoInitialize()
         except Exception:
             pass
 
-    if workbook is None:
+        excel = win32com.client.DispatchEx("Excel.Application")
+        excel.Visible = visible
+        excel.DisplayAlerts = False
+        excel.AskToUpdateLinks = False
+
+        def cleanup_excel():
+            nonlocal cleaned, workbook, excel
+
+            if cleaned:
+                return
+
+            cleaned = True
+
+            try:
+                if workbook is not None:
+                    workbook.Close(SaveChanges=False)
+            except Exception:
+                pass
+
+            try:
+                if excel is not None:
+                    excel.Quit()
+            except Exception:
+                pass
+
+            try:
+                pythoncom.CoUninitialize()
+            except Exception:
+                pass
+
+        atexit.register(cleanup_excel)
+
         if not workbook_path.exists():
             raise FileNotFoundError(f"Workbook não encontrado: {workbook_path}")
 
         workbook = excel.Workbooks.Open(
             str(workbook_path),
             UpdateLinks=3,
-            ReadOnly=False,
+            ReadOnly=True,
+            IgnoreReadOnlyRecommended=True,
         )
 
         if wait_seconds > 0:
             time.sleep(wait_seconds)
 
-    try:
-        excel.Calculate()
-    except Exception:
-        pass
+        try:
+            excel.Calculate()
+        except Exception:
+            pass
 
-    return excel, workbook, excel_found
+        try:
+            excel.CalculateUntilAsyncQueriesDone()
+        except Exception:
+            pass
+
+        excel_found = False
+        return excel, workbook, excel_found
+
+    except Exception:
+        try:
+            if workbook is not None:
+                workbook.Close(SaveChanges=False)
+        except Exception:
+            pass
+
+        try:
+            if excel is not None:
+                excel.Quit()
+        except Exception:
+            pass
+
+        try:
+            pythoncom.CoUninitialize()
+        except Exception:
+            pass
+
+        raise
 
 
 def find_sheet(workbook: Any, preferred_sheet: str | None) -> Any:
