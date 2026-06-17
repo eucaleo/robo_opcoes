@@ -158,25 +158,38 @@ def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
     """
     Resolve o banco correto para rtd_option_quotes.
 
-    Em alguns fluxos a facade é instanciada com dados/derived.db, mas
-    rtd_option_quotes vive em dados/app.db.
-    """
-    candidates: list[Path] = []
+    Prioridade:
+    1. o próprio banco primário, se já tiver a tabela;
+    2. um app.db no mesmo diretório do banco primário;
+    3. dados/app.db relativo ao diretório corrente;
+    4. fallback seguro para o banco primário.
 
-    for candidate in (
+    A função evita depender de um app.db absoluto do repositório para não
+    vazar estado entre ambientes, testes e execuções locais.
+    """
+    primary_db_path = Path(primary_db_path)
+
+    candidates = [
         primary_db_path,
         primary_db_path.parent / "app.db",
-        get_app_db_path(),
-    ):
-        candidate = Path(candidate)
-        if candidate not in candidates:
-            candidates.append(candidate)
+        Path.cwd() / "dados" / "app.db",
+    ]
+
+    unique_candidates: list[Path] = []
+    seen: set[Path] = set()
 
     for candidate in candidates:
+        resolved_candidate = candidate.resolve()
+        if resolved_candidate in seen:
+            continue
+
+        seen.add(resolved_candidate)
+        unique_candidates.append(candidate)
+
+    for candidate in unique_candidates:
         if _sqlite_table_exists(candidate, "rtd_option_quotes"):
             return candidate
 
-    # Fallback conservador: mantém comportamento anterior.
     return primary_db_path
 
 

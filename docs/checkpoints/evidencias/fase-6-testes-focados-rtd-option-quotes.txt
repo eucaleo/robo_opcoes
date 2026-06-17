@@ -1,0 +1,18 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collected 54 items
+
+ATT\tests\test_audit_rtd_option_quotes.py .......                        [ 12%]
+ATT\tests\test_canonical_pricing_facade_rtd_db_path.py ......            [ 24%]
+ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py ........ [ 38%]
+............                                                             [ 61%]
+ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py . [ 62%]
+                                                                         [ 62%]
+ATT\tests\test_import_rtd_links_to_option_quotes.py .....                [ 72%]
+ATT\tests\test_pricing_execution_price_source_persistence.py .....       [ 81%]
+ATT\tests\test_run_rtd_option_quotes_pipeline.py .........               [ 98%]
+ATT\tests\test_fase_11_rtd_integrated_flow.py .                          [100%]
+
+============================= 54 passed in 2.90s ==============================
