@@ -101,3 +101,6 @@ ATT/checks/**/*.pyo
 _backup_local/
 
 # Planilha local operacional RTD
+
+# Local operational backups
+backups/
