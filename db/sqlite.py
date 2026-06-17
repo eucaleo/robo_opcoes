@@ -15,4 +15,5 @@ def connect(db_path: str | Path | None = None):
     )
     ensure_parent_dir(resolved_path)
     conn = sqlite3.connect(str(resolved_path))
+    conn.row_factory = sqlite3.Row
     return conn

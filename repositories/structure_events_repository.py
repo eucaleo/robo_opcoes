@@ -177,8 +177,9 @@ def _normalize_event_payload(data: dict[str, Any]) -> dict[str, Any]:
 
 
 class StructureEventsRepository:
-    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
-        self.db_path = str(db_path)
+    def __init__(self, db_path: str | Path | None = None) -> None:
+        resolved_path = Path(db_path).expanduser().resolve() if db_path is not None else get_app_db_path()
+        self.db_path = str(resolved_path)
 
     # ------------------------------------------------------------------
     # Conexão/schema

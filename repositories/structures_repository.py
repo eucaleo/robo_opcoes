@@ -168,8 +168,9 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 class StructuresRepository:
-    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
-        self.db_path = str(db_path)
+    def __init__(self, db_path: str | Path | None = None) -> None:
+        resolved_path = Path(db_path).expanduser().resolve() if db_path is not None else get_app_db_path()
+        self.db_path = str(resolved_path)
 
     # ------------------------------------------------------------------
     # Infraestrutura de conexão
