@@ -1,0 +1,81 @@
+
+- `id` — tipo `INTEGER`, pk `1`, not null `0`
+- `codigo_opcao` — tipo `TEXT`, pk `0`, not null `1`
+- `ativo_base` — tipo `TEXT`, pk `0`, not null `0`
+- `call_put` — tipo `TEXT`, pk `0`, not null `0`
+- `strike` — tipo `REAL`, pk `0`, not null `0`
+- `vencimento` — tipo `TEXT`, pk `0`, not null `0`
+- `ultimo_preco` — tipo `REAL`, pk `0`, not null `0`
+- `ultima_quantidade` — tipo `REAL`, pk `0`, not null `0`
+- `bid` — tipo `REAL`, pk `0`, not null `0`
+- `ask` — tipo `REAL`, pk `0`, not null `0`
+- `volume` — tipo `REAL`, pk `0`, not null `0`
+- `iv` — tipo `REAL`, pk `0`, not null `0`
+- `delta` — tipo `REAL`, pk `0`, not null `0`
+- `gamma` — tipo `REAL`, pk `0`, not null `0`
+- `theta` — tipo `REAL`, pk `0`, not null `0`
+- `vega` — tipo `REAL`, pk `0`, not null `0`
+- `source` — tipo `TEXT`, pk `0`, not null `1`
+- `raw_json` — tipo `TEXT`, pk `0`, not null `0`
+- `updated_at` — tipo `TEXT`, pk `0`, not null `1`
+- `created_at` — tipo `TEXT`, pk `0`, not null `1`
+
+DDL registrado no SQLite:
+
+```sql
+CREATE TABLE rtd_option_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    codigo_opcao TEXT NOT NULL,
+    ativo_base TEXT,
+
+    call_put TEXT,
+    strike REAL,
+    vencimento TEXT,
+
+    ultimo_preco REAL,
+    ultima_quantidade REAL,
+
+    bid REAL,
+    ask REAL,
+    volume REAL,
+
+    iv REAL,
+    delta REAL,
+    gamma REAL,
+    theta REAL,
+    vega REAL,
+
+    source TEXT NOT NULL DEFAULT 'rtd_links',
+    raw_json TEXT,
+
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(codigo_opcao)
+)
+```
+
+Amostra de até 3 linhas:
+
+```json
+[
+  {
+    "id": 4,
+    "codigo_opcao": "PETRA123",
+    "ativo_base": "PETR4",
+    "call_put": "CALL",
+    "strike": 32.5,
+    "vencimento": "2026-07-19",
+    "ultimo_preco": 1.23,
+    "ultima_quantidade": null,
+    "bid": 1.2,
+    "ask": 1.25,
+    "volume": 10000.0,
+    "iv": null,
+    "delta": null,
+    "gamma": null,
+    "theta": null,
+    "vega": null,
+    "source": "rtd_links_csv",
+    "raw_json": "[{\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"call_put\", \"valor\": \"CALL\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"strike\", \"valor\": \"32.50\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"vencimento\", \"valor\": \"2026-07-19\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ultimo_preco\", \"valor\": \"1.23\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"bid\", \"valor\": \"1.20\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"ask\", \"valor\": \"1.25\", \"atualizado_em\": \"2026-06-06 17:50:00\"}, {\"codigo_opcao\": \"PETRA123\", \"ativo_base\": \"PETR4\", \"campo\": \"volume\", \"valor\": \"10000\", \"atualizado_em\": \"2026-06-06 17:50:00\"}]",

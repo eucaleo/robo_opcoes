@@ -1,0 +1,12 @@
+Importação LISTA_RTD.xlsm -> rtd_option_quotes
+Workbook: C:\Users\eucal\projeto\LISTA_RTD.xlsm
+Aba: RTD-BTG LISTA
+DB: dados\app.db
+Dry-run: sim
+Status: ok
+
+Métricas:
+- read: 0
+- inserted: 0
+- updated: 0
+- skipped: 0

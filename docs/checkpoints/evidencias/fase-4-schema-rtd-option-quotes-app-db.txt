@@ -1,0 +1,2 @@
+DB: C:\Users\eucal\projeto\dados\app.db
+OBJETOS: 0

@@ -1,0 +1,7 @@
+./ATT/tests/test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:243:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:22:            CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:84:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:115:CREATE TABLE rtd_option_quotes (

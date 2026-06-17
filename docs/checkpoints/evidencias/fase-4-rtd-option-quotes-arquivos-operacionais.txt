@@ -1,0 +1,136 @@
+===== repositories/rtd_option_quotes_repository.py =====
+1:# repositories/rtd_option_quotes_repository.py
+8:from db.config import get_app_db_path
+14:    Leitura da tabela rtd_option_quotes.
+20:    def __init__(self, db_path: str | Path | None = None) -> None:
+21:        self.db_path = Path(db_path).expanduser().resolve() if db_path is not None else get_app_db_path()
+24:        conn = sqlite3.connect(str(self.db_path))
+30:            SELECT
+50:            FROM rtd_option_quotes
+62:            SELECT
+82:            FROM rtd_option_quotes
+94:            SELECT
+114:            FROM rtd_option_quotes
+
+===== scripts/import_rtd_links_to_option_quotes.py =====
+3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+14:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db
+15:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db --dry-run
+306:        SELECT codigo_opcao
+307:        FROM rtd_option_quotes
+323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+343:        INSERT INTO rtd_option_quotes ({columns_sql})
+359:    db_path: str | Path,
+365:    conn = sqlite3.connect(str(db_path))
+386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+397:        default="dados/app.db",
+415:        db_path=args.db,
+419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+
+===== scripts/audit_rtd_option_quotes.py =====
+3:Audita a tabela rtd_option_quotes em um banco SQLite.
+7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+23:TABLE_NAME = "rtd_option_quotes"
+48:def connect(db_path: Path) -> sqlite3.Connection:
+49:    conn = sqlite3.connect(str(db_path))
+57:        SELECT 1
+79:def audit_database(db_path: str | Path, max_age_minutes: int = 30) -> dict[str, Any]:
+80:    db_path = Path(db_path)
+83:        "database": str(db_path),
+93:    if not db_path.exists():
+98:    with connect(db_path) as conn:
+118:            scalar(conn, f"SELECT COUNT(*) FROM {TABLE_NAME}") or 0
+130:                    SELECT COUNT(*)
+143:                    SELECT COUNT(DISTINCT codigo_opcao)
+156:                    SELECT COUNT(*)
+158:                        SELECT codigo_opcao
+189:                    SELECT COUNT(*)
+218:    print("Auditoria rtd_option_quotes")
+254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+258:        default="dados/app.db",
+259:        help="Caminho do banco SQLite. Padrão: dados/app.db",
+285:        db_path=args.db,
+
+===== scripts/run_rtd_option_quotes_pipeline.py =====
+7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+11:    python scripts/run_rtd_option_quotes_pipeline.py
+12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+34:    db_path: str,
+43:        db_path,
+53:    db_path: str,
+62:        db_path,
+90:    db_path: str = "dados/app.db",
+98:    print(f"DB: {db_path}")
+103:        db_path=db_path,
+121:        db_path=db_path,
+142:        description="Executa importação e auditoria de rtd_option_quotes."
+151:        default="dados/app.db",
+152:        help="Caminho do banco SQLite. Padrão: dados/app.db",
+184:        db_path=args.db,
+
+===== services/canonical_pricing_facade.py =====
+31:from db.config import get_app_db_path
+34:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+41:_DEFAULT_DB = get_app_db_path()
+46:def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+54:    with sqlite3.connect(str(db_path)) as conn:
+57:            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+134:def _sqlite_table_exists(db_path: Path, table_name: str) -> bool:
+136:    if not db_path.exists():
+140:        with sqlite3.connect(str(db_path)) as conn:
+143:                SELECT 1
+157:def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
+159:    Resolve o banco correto para rtd_option_quotes.
+161:    Em alguns fluxos a facade é instanciada com dados/derived.db, mas
+162:    rtd_option_quotes vive em dados/app.db.
+167:        primary_db_path,
+168:        primary_db_path.parent / "app.db",
+169:        get_app_db_path(),
+176:        if _sqlite_table_exists(candidate, "rtd_option_quotes"):
+180:    return primary_db_path
+218:    Escolhe o melhor preço disponível em rtd_option_quotes e informa
+253:    Escolhe o melhor preço disponível em rtd_option_quotes.
+355:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+362:      manual explícito > rtd_option_quotes > preço original do snapshot.
+381:    if rtd_option_quotes_repository is not None:
+383:            repository=rtd_option_quotes_repository,
+428:                "rtd_option_quotes",
+469:def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+471:    Procura spot positivo no app.db.
+507:        with sqlite3.connect(str(db_path)) as conn:
+509:                "SELECT name FROM sqlite_master WHERE type = 'table'"
+538:                            f"SELECT {_quote_ident(price_col)} "
+565:    db_path: Path,
+566:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+584:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+638:            db_path=db_path,
+676:                                                             derived.db
+681:        db_path: Path | str | None = None,
+685:        self._db_path  = Path(db_path)
+686:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+688:        self._rtd_option_quotes_db_path = _resolve_rtd_option_quotes_db_path(self._db_path)
+689:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(
+690:            db_path=self._rtd_option_quotes_db_path,
+696:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+709:                structure_id, self._db_path
+721:                db_path=self._db_path,
+722:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
+735:            #  5. Persiste (app.db + derived.db via port) 
+

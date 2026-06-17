@@ -1,0 +1,608 @@
+./ATT/tests/test_audit_rtd_option_quotes.py:12:    / "audit_rtd_option_quotes.py"
+./ATT/tests/test_audit_rtd_option_quotes.py:18:        "audit_rtd_option_quotes_under_test",
+./ATT/tests/test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_audit_rtd_option_quotes.py:75:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_audit_rtd_option_quotes.py:111:    assert "table not found: rtd_option_quotes" in result["errors"]
+./ATT/tests/test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:243:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:269:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:307:                "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:348:    # O preço efetivo deve vir de rtd_option_quotes.ultimo_preco = 9.99.
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:353:    assert leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:357:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:366:    assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:370:    assert persisted_payload["legs"][0]["rtd_price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:6:    _resolve_rtd_option_quotes_db_path,
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:17:def _create_rtd_option_quotes_table(path: Path) -> None:
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:22:            CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:35:    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is False
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:40:    _create_rtd_option_quotes_table(db_path)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:42:    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is True
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:46:def test_resolve_rtd_option_quotes_db_path_prefers_app_db_when_primary_has_no_table(
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:57:    _create_rtd_option_quotes_table(app_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:59:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:64:def test_resolve_rtd_option_quotes_db_path_prefers_primary_when_primary_has_table(
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:74:    _create_rtd_option_quotes_table(primary_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:75:    _create_rtd_option_quotes_table(app_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:77:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:82:def test_resolve_rtd_option_quotes_db_path_falls_back_to_primary_when_no_candidate_has_table(
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:95:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:111:    _create_rtd_option_quotes_table(app_db)
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:116:    assert facade._rtd_option_quotes_db_path == app_db
+./ATT/tests/test_canonical_pricing_facade_rtd_db_path.py:117:    assert facade._rtd_option_quotes_repository.db_path == app_db
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:103:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:129:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:133:    assert price_source == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:144:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:162:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:204:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:211:    assert leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:223:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:234:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:238:    assert price_source == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:247:        "rtd_price_source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:264:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:275:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:286:    assert traceability["rtd_price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:298:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:330:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:354:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:377:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:386:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:406:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:415:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:435:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:465:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:470:    assert leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:508:        rtd_option_quotes_repository=repository,
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:80:def _create_rtd_option_quotes_schema(db_path: Path) -> None:
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:84:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:341:            FROM rtd_option_quotes
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:355:    _create_rtd_option_quotes_schema(app_db)
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:413:    # rtd_option_quotes.ultimo_preco = 9.99.
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:423:    assert leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:443:    assert persisted_leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:464:    assert snapshot_state_leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_fase_11_rtd_integrated_flow.py:475:    assert snapshot_leg["raw_json"]["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:24:def create_rtd_option_quotes_schema(db_path: Path) -> None:
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:103:            FROM rtd_option_quotes
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:116:        return conn.execute("SELECT COUNT(*) FROM rtd_option_quotes").fetchone()[0]
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:185:    create_rtd_option_quotes_schema(db_path)
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:213:    create_rtd_option_quotes_schema(db_path)
+./ATT/tests/test_pricing_execution_price_source_persistence.py:59:                "price_source": "rtd_option_quotes",
+./ATT/tests/test_pricing_execution_price_source_persistence.py:100:    assert loaded["pricing_payload"]["legs"][0]["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_pricing_execution_price_source_persistence.py:222:                "price_source": "rtd_option_quotes",
+./ATT/tests/test_pricing_execution_price_source_persistence.py:251:    assert snapshot_call["legs"][0]["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_pricing_execution_price_source_persistence.py:254:        == "rtd_option_quotes"
+./ATT/tests/test_pricing_execution_price_source_persistence.py:259:    assert leg["price_source"] == "rtd_option_quotes"
+./ATT/tests/test_pricing_execution_price_source_persistence.py:263:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+./ATT/tests/test_pricing_execution_price_source_persistence.py:292:                "price_source": "rtd_option_quotes",
+./ATT/tests/test_pricing_execution_price_source_persistence.py:296:                "rtd_price_source": "rtd_option_quotes",
+./ATT/tests/test_pricing_execution_price_source_persistence.py:368:                "price_source": "rtd_option_quotes",
+./ATT/tests/test_pricing_execution_price_source_persistence.py:372:                "rtd_price_source": "rtd_option_quotes",
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:11:    / "run_rtd_option_quotes_pipeline.py"
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:17:        "run_rtd_option_quotes_pipeline_under_test",
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:64:    assert command[1].endswith("audit_rtd_option_quotes.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:125:    assert calls[1][1].endswith("audit_rtd_option_quotes.py")
+./docs/AUDITORIA_ROTA_MESTRE_2.md:175:- `repositories/rtd_option_quotes_repository.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:231:- `repositories/rtd_option_quotes_repository.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:365:- `repositories/rtd_option_quotes_repository.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:436:Adicionar cobertura automatizada para garantir que o `CanonicalPricingFacade` resolva corretamente o banco efetivo da tabela `rtd_option_quotes`, preservando a separação entre banco principal de execução/cálculo e banco operacional onde residem as cotações RTD de opções.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:438:Esta etapa dá continuidade direta à Fase 8D, que integrou `rtd_option_quotes` ao `CanonicalPricingFacade` e corrigiu a resolução de caminho entre `dados/derived.db` e `dados/app.db`.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:443:- `repositories/rtd_option_quotes_repository.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:455:- `repositories/rtd_option_quotes_repository.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:473:- escolha de `dados/app.db` quando o banco primário não possui `rtd_option_quotes` e o `app.db` possui;
+./docs/AUDITORIA_ROTA_MESTRE_2.md:474:- preferência pelo banco primário quando ele já possui `rtd_option_quotes`;
+./docs/AUDITORIA_ROTA_MESTRE_2.md:476:- inicialização do `CanonicalPricingFacade` com `_rtd_option_quotes_db_path` resolvido corretamente.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:594:A Fase 8E adiciona cobertura regressiva para a resolução do banco correto de `rtd_option_quotes` no `CanonicalPricingFacade`, sem alterar código funcional, schema, UI, importadores, arquivos em `dados/`, arquivos em `bridge/` ou motor de cálculo.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:663:Validar que o preço efetivo oriundo de `rtd_option_quotes` é aplicado ao payload canônico de pricing e que os metadados de rastreabilidade da cotação RTD permanecem disponíveis na execução.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:668:- Legs com preço resolvido por `rtd_option_quotes` passaram a carregar rastreabilidade da origem do preço.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:721:Endurecer a rastreabilidade do preço efetivo de opção resolvido a partir de `rtd_option_quotes`, garantindo que o payload canônico de pricing informe não apenas que o preço veio do RTD, mas também qual campo da cotação foi usado e qual registro RTD originou o preço.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:731:- `_resolve_effective_leg_price` passou a expor metadados adicionais de rastreabilidade quando a origem efetiva do preço é `rtd_option_quotes`.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:743:Quando `price_source` é `rtd_option_quotes`, a leg pode carregar:
+./docs/AUDITORIA_ROTA_MESTRE_2.md:746:price_source = rtd_option_quotes
+./docs/AUDITORIA_ROTA_MESTRE_2.md:778:- A cotação persistida em `rtd_option_quotes.ultimo_preco` era `9.99`.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:780:- A leg manteve `price_source = rtd_option_quotes`.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:791:A resolução de preço RTD agora é auditável em nível de campo utilizado e registro de cotação, reduzindo ambiguidade entre preço manual, preço de snapshot e preço vindo de `rtd_option_quotes`.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:850:Foram adicionados testes regressivos para validar que uma leg com preço vindo de `rtd_option_quotes` preserva os seguintes campos após persistência e recuperação:
+./docs/AUDITORIA_ROTA_MESTRE_2.md:894:- Uma leg com `price_source = rtd_option_quotes` foi persistida com metadados RTD completos.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:942:rtd_option_quotes
+./docs/AUDITORIA_ROTA_MESTRE_2.md:953:price_source = rtd_option_quotes
+./docs/AUDITORIA_ROTA_MESTRE_2.md:975:- Confirmar qual banco local contém `rtd_option_quotes` alimentado pelo Excel/RTD.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1001:RTD_LINKS.csv -> importação -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_payload -> pricing_executions -> system snapshot/query
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1003:A fase deve comprovar que o preço efetivo oriundo de `rtd_option_quotes.ultimo_preco` é usado pelo pricing e que a rastreabilidade operacional é preservada durante persistência e consulta posterior.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1015:- `scripts/run_rtd_option_quotes_pipeline.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1016:- `repositories/rtd_option_quotes_repository.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1088:- `git grep -n "price_resolution_status\|rtd_quote_found\|rtd_validation_status\|rtd_validation_message\|price_source\|rtd_option_quotes" -- services repositories ATT/tests docs`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1089:- `git grep -n "class \|def " -- repositories/rtd_option_quotes_repository.py repositories/pricing_executions_repository.py services/canonical_pricing_facade.py services/pricing_execution_persistence_service.py services/pricing_execution_query_service.py services/pricing_execution_app_service.py services/pricing_execution_orchestration_service.py services/market_snapshot_provider.py services/market_snapshot_selector.py services/structure_market_input_assembler.py`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1109:`RTD_LINKS.csv -> import_csv_to_db -> rtd_option_quotes -> CanonicalPricingFacade.execute_pricing -> pricing_payload -> pricing_executions -> structure_snapshots/system snapshot query`
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1113:- Importação do CSV temporário para `rtd_option_quotes`.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1117:- Uso efetivo de `rtd_option_quotes.ultimo_preco` como preço da perna.
+./docs/AUDITORIA_ROTA_MESTRE_2.md:1119:- Preservação de `price_source = rtd_option_quotes`.
+./docs/AUDITORIA_ROTA_MESTRE_3.md:32:rtd_option_quotes: ausente
+./docs/AUDITORIA_ROTA_MESTRE_3.md:77:## Evidências antecipadas sobre rtd_option_quotes
+./docs/AUDITORIA_ROTA_MESTRE_3.md:83:Erro: table not found: rtd_option_quotes
+./docs/AUDITORIA_ROTA_MESTRE_3.md:89:ATT/tests/test_audit_rtd_option_quotes.py: 7 passed
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:7:- `rtd_option_quotes`
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:41:./repositories/rtd_option_quotes_repository.py
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:65:- fonte candidata para alimentar `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:67:### 2. `rtd_option_quotes`
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:101:### 3. `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:103:O arquivo existe e aparece como ponto de leitura da tabela `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:117:- fazer `INSERT`, `UPDATE` ou `UPSERT` em `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:119:Há menções históricas a `scripts/patch_73_rtd_option_quotes.py`, porém o arquivo não apareceu como arquivo ativo no resultado de busca por nomes.
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:150:- tabela staging/persistência `rtd_option_quotes`;
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:151:- repositório de leitura `repositories/rtd_option_quotes_repository.py`;
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:154:Porém, no estado auditado, não foi localizada rotina ativa versionada que faça a importação/sincronização de `RTD_LINKS.csv` para `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md:163:  - `rtd_option_quotes`
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:9:Auditar se existe rotina ativa versionada responsável por importar ou sincronizar dados de opções RTD para a tabela `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:14:- escrita em `rtd_option_quotes`;
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:20:### Tabela `rtd_option_quotes`
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:26:- `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:28:Esse arquivo contém consultas de leitura usando `FROM rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:36:Não foi localizada rotina ativa que leia explicitamente `dados/RTD_LINKS.csv` e grave o resultado em `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:58:Porém, não foi localizada rotina ativa que escreva especificamente em `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:63:2. Não foi localizada rotina ativa que escreva em `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:64:3. Não foi localizado `INSERT`, `UPDATE`, `UPSERT`, `to_sql` ou `executemany` direcionado a `rtd_option_quotes`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:65:4. O uso ativo identificado de `rtd_option_quotes` é de leitura via `repositories/rtd_option_quotes_repository.py`.
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:71:`dados/RTD_LINKS.csv -> rtd_option_quotes`
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:79:- fazer UPSERT em `rtd_option_quotes`;
+./docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md:89:Fase 7C — criar importador idempotente `RTD_LINKS.csv` para `rtd_option_quotes`.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:109:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:62:docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md:9:Oficializar o fluxo de atualização de cotações de opções via Excel RTD, usando `LISTA_RTD.xlsm` como gateway para a tabela `rtd_option_quotes`.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:113:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:66:docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:65:A tabela `rtd_option_quotes` contém 8 cotações atuais importadas de `LISTA_RTD.xlsm`.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:114:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:67:docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:163:enquanto rtd_option_quotes representa códigos atuais vindos do LISTA_RTD.xlsm.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:116:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:69:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:222:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:117:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:70:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:249:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:118:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:71:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:250:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:119:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:72:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:251:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:120:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:73:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:344:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:121:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:74:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:352:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:122:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:75:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:353:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:123:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:76:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:354:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:124:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:77:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1044:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:125:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:78:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1071:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:126:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:79:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1072:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:127:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:80:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1073:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:128:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:81:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1140:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:129:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:82:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1148:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:130:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:83:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1149:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:131:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:84:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1150:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:132:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:85:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:83:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:133:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:86:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:132:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:134:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:87:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:133:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:135:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:88:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:134:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:136:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:89:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:175:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:137:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:90:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:181:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:138:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:91:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:182:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:139:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:92:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:183:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:148:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:112:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:151:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:115:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:153:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:117:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:154:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:118:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:155:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:119:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:156:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:120:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:157:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:121:scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:158:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:122:scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:159:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:123:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:160:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:124:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:161:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:131:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:164:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:134:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:166:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:136:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:167:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:137:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:168:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:138:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:169:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:139:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:170:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:140:scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:171:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:141:scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:172:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:142:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:173:docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:143:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:175:docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md:9:Oficializar o fluxo de atualização de cotações de opções via Excel RTD, usando `LISTA_RTD.xlsm` como gateway para a tabela `rtd_option_quotes`.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:179:docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:65:A tabela `rtd_option_quotes` contém 8 cotações atuais importadas de `LISTA_RTD.xlsm`.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:180:docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:163:enquanto rtd_option_quotes representa códigos atuais vindos do LISTA_RTD.xlsm.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:182:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:222:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:183:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:249:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:184:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:250:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:185:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:251:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:186:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:344:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:187:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:352:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:188:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:353:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:189:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:354:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:190:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1044:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:191:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1071:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:192:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1072:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:193:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1073:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:194:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1140:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:195:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1148:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:196:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1149:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:197:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1150:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:198:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:83:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:199:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:132:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:200:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:133:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:201:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:134:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:202:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:175:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:203:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:181:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:204:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:182:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:205:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:183:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:214:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:217:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:219:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:220:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:221:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:222:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:223:scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:224:scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:225:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:226:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md:278:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:802:docs/mapeamento_automacao_opcoes_rtd.json:660:      "path": "repositories/rtd_option_quotes_repository.py",
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:39:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:102:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:105:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:107:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:108:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:109:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:110:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:111:scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:112:scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:113:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md:114:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:62:docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md:9:Oficializar o fluxo de atualização de cotações de opções via Excel RTD, usando `LISTA_RTD.xlsm` como gateway para a tabela `rtd_option_quotes`.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:66:docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:65:A tabela `rtd_option_quotes` contém 8 cotações atuais importadas de `LISTA_RTD.xlsm`.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:67:docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:163:enquanto rtd_option_quotes representa códigos atuais vindos do LISTA_RTD.xlsm.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:69:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:222:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:70:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:249:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:71:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:250:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:72:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:251:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:73:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:344:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:74:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:352:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:75:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:353:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:76:docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt:354:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:77:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1044:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:78:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1071:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:79:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1072:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:80:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1073:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:81:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1140:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:82:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1148:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:83:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1149:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:84:docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt:1150:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:85:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:83:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:86:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:132:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:87:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:133:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:88:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:134:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:89:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:175:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:90:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:181:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:91:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:182:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:92:docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt:183:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:112:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:115:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:117:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:118:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:119:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:120:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:121:scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:122:scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:123:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:124:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:131:scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:134:scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:136:scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:137:scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:138:scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:139:scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:140:scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:141:scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:142:scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md:143:scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:160:docs/AUDITORIA_ROTA_MESTRE_2.md:436:Adicionar cobertura automatizada para garantir que o `CanonicalPricingFacade` resolva corretamente o banco efetivo da tabela `rtd_option_quotes`, preservando a separação entre banco principal de execução/cálculo e banco operacional onde residem as cotações RTD de opções.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:166:docs/AUDITORIA_ROTA_MESTRE_2.md:663:Validar que o preço efetivo oriundo de `rtd_option_quotes` é aplicado ao payload canônico de pricing e que os metadados de rastreabilidade da cotação RTD permanecem disponíveis na execução.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:171:docs/AUDITORIA_ROTA_MESTRE_2.md:721:Endurecer a rastreabilidade do preço efetivo de opção resolvido a partir de `rtd_option_quotes`, garantindo que o payload canônico de pricing informe não apenas que o preço veio do RTD, mas também qual campo da cotação foi usado e qual registro RTD originou o preço.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:184:docs/AUDITORIA_ROTA_MESTRE_2.md:791:A resolução de preço RTD agora é auditável em nível de campo utilizado e registro de cotação, reduzindo ambiguidade entre preço manual, preço de snapshot e preço vindo de `rtd_option_quotes`.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:190:docs/AUDITORIA_ROTA_MESTRE_2.md:894:- Uma leg com `price_source = rtd_option_quotes` foi persistida com metadados RTD completos.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:202:docs/AUDITORIA_ROTA_MESTRE_2.md:975:- Confirmar qual banco local contém `rtd_option_quotes` alimentado pelo Excel/RTD.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:206:docs/AUDITORIA_ROTA_MESTRE_2.md:1001:RTD_LINKS.csv -> importação -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_payload -> pricing_executions -> system snapshot/query
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:209:docs/AUDITORIA_ROTA_MESTRE_2.md:1109:`RTD_LINKS.csv -> import_csv_to_db -> rtd_option_quotes -> CanonicalPricingFacade.execute_pricing -> pricing_payload -> pricing_executions -> structure_snapshots/system snapshot query`
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:260:docs/FASE_6_CAMADA_CANONICA_LEITURA.md:97:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:262:docs/FASE_6_CAMADA_CANONICA_LEITURA.md:255:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:377:docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:870:            "text": "\"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções.\""
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:378:docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:942:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:379:docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:950:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:381:docs/fase_3_diagnostico_persistencia_rtd_opcoes.json:1062:            "text": "\"repositories/rtd_option_quotes_repository.py\": \"Prioritário para auditoria de persistência RTD.\","
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:438:docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:437:  - linha `353`: `"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções."`
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:439:docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:453:  - linha `97`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:440:docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:455:  - linha `255`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:442:docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:480:  - linha `69`: `"repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",`
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:510:docs/fases/fase-10g-guardrails-operacionais-preco-rtd.md:13:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+./docs/checkpoints/fase-3-inventario-documentos-vivos-historicos.md:552:docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:10:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+./docs/checkpoints/fase-4-1-inventario-caminhos-banco-contratos.md:79:- `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/fase-4-1-inventario-caminhos-banco-contratos.md:106:## Caso especial: `rtd_option_quotes`
+./docs/checkpoints/fase-4-1-inventario-caminhos-banco-contratos.md:108:O arquivo `services/canonical_pricing_facade.py` possui lógica específica para resolver o banco da tabela `rtd_option_quotes`.
+./docs/checkpoints/fase-4-1-inventario-caminhos-banco-contratos.md:110:A função `_resolve_rtd_option_quotes_db_path` considera:
+./docs/checkpoints/fase-4-1-inventario-caminhos-banco-contratos.md:116:Leitura: existe compatibilização para fluxos em que a facade é instanciada com `derived.db`, mas a tabela `rtd_option_quotes` reside em `app.db`.
+./docs/checkpoints/fase-4-3-inventario-consumidores-caminhos-db.md:78:- `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/fase-4-3-inventario-consumidores-caminhos-db.md:91:- `scripts/audit_rtd_option_quotes.py`
+./docs/checkpoints/fase-4-3-inventario-consumidores-caminhos-db.md:97:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-4-3-inventario-consumidores-caminhos-db.md:98:- `scripts/run_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-4-3-inventario-consumidores-caminhos-db.md:99:- `scripts/seed_current_rtd_option_quotes.py`
+./docs/checkpoints/fase-4-4-plano-normalizacao-consumidores-db.md:38:- `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/fase-4-4-plano-normalizacao-consumidores-db.md:148:- `scripts/audit_rtd_option_quotes.py`
+./docs/checkpoints/fase-4-4-plano-normalizacao-consumidores-db.md:154:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-4-4-plano-normalizacao-consumidores-db.md:155:- `scripts/run_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-4-4-plano-normalizacao-consumidores-db.md:156:- `scripts/seed_current_rtd_option_quotes.py`
+./docs/checkpoints/fase-4-normalizacao-consumidores-caminhos-db.md:54:A alteração não teve como objetivo alterar regra de negócio, contrato RTD/Excel ou schema da tabela rtd_option_quotes.
+./docs/checkpoints/fase-4-normalizacao-consumidores-caminhos-db.md:123:A decisão pendente continua sendo a forma correta de reconciliação da tabela rtd_option_quotes, ausente em dados/app.db, podendo envolver:
+./docs/checkpoints/fase-4-normalizacao-consumidores-caminhos-db.md:133:Executar auditoria final da presença histórica e das dependências de rtd_option_quotes antes de qualquer criação de tabela ou alteração funcional relacionada ao fluxo RTD.
+./docs/checkpoints/fase-7d-testes-importador-rtd-option-quotes.md:11:- rtd_option_quotes
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:1:# Checkpoint — Fase 7E — Auditoria da tabela rtd_option_quotes
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:7:- rtd_option_quotes
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:13:- scripts/audit_rtd_option_quotes.py
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:14:- ATT/tests/test_audit_rtd_option_quotes.py
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:21:- existência da tabela rtd_option_quotes;
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:36:- python -m pytest ATT/tests/test_audit_rtd_option_quotes.py -q
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:44:- python -m pytest ATT/tests/test_import_rtd_links_to_option_quotes.py ATT/tests/test_audit_rtd_option_quotes.py -q
+./docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md:54:- python scripts/audit_rtd_option_quotes.py --db dados/app.db
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:10:- importação para rtd_option_quotes
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:11:- auditoria da tabela rtd_option_quotes
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:15:- scripts/run_rtd_option_quotes_pipeline.py
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:16:- ATT/tests/test_run_rtd_option_quotes_pipeline.py
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:26:   - scripts/audit_rtd_option_quotes.py
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:65:- python -m pytest ATT/tests/test_run_rtd_option_quotes_pipeline.py -q
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:73:- python -m pytest ATT/tests/test_import_rtd_links_to_option_quotes.py ATT/tests/test_audit_rtd_option_quotes.py ATT/tests/test_run_rtd_option_quotes_pipeline.py -q
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:83:- python scripts/run_rtd_option_quotes_pipeline.py --help
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:87:- python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+./docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md:97:- python scripts/run_rtd_option_quotes_pipeline.py
+./docs/checkpoints/fase-7g-seed-rtd-option-quotes-dados-atuais.md:1:# Checkpoint — Fase 7G — Seed atual rtd_option_quotes
+./docs/checkpoints/fase-7g-seed-rtd-option-quotes-dados-atuais.md:5:Remover dados desatualizados da tabela `rtd_option_quotes` e popular o banco local com dados atuais das estruturas SPSB-SMAL e PRIO, permitindo testes com uma base consistente e sem alertas de obsolescência.
+./docs/checkpoints/fase-7g-seed-rtd-option-quotes-dados-atuais.md:36:scripts/seed_current_rtd_option_quotes.py
+./docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md:9:Oficializar o fluxo de atualização de cotações de opções via Excel RTD, usando `LISTA_RTD.xlsm` como gateway para a tabela `rtd_option_quotes`.
+./docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md:18:-> rtd_option_quotes
+./docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md:19:-> scripts/audit_rtd_option_quotes.py
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:1:# Checkpoint — Fase 8A — Auditoria de integração rtd_option_quotes com snapshot
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:5:Auditar o ponto seguro de integração entre a tabela `rtd_option_quotes` e os serviços de snapshot/cálculo, sem alteração funcional em UI, schema, cálculo ou fluxo legado.
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:26:- scripts de auditoria/importação/pipeline de `rtd_option_quotes`;
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:30:Os serviços centrais de snapshot/cálculo ainda não foram alterados para consumir `rtd_option_quotes`.
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:37:repositories/rtd_option_quotes_repository.py
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:49:- `scripts/audit_rtd_option_quotes.py`
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:50:- `scripts/run_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:51:- `scripts/seed_current_rtd_option_quotes.py`
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:53:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:60:structure_legs.symbol = rtd_option_quotes.codigo_opcao
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:61:rtd_analise_robo_legs.ativo = rtd_option_quotes.codigo_opcao
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:79:rtd_option_quotes: OK
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:89:rtd_option_quotes: 8
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:114:rtd_option_quotes.codigo_opcao
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:117:## Cotações atuais encontradas em rtd_option_quotes
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:161:A integração por `codigo_opcao` é tecnicamente plausível, mas a base local atual não possui correspondência operacional entre as legs carregadas nas estruturas/snapshot legado e as cotações atuais em `rtd_option_quotes`.
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:173:Não implementar ainda o enriquecimento do snapshot com `rtd_option_quotes`.
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:180:códigos atuais carregados em rtd_option_quotes
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:194:Fase 8B — Reconciliação de estruturas/legs com rtd_option_quotes
+./docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md:200:2. Confirmar quais estruturas deveriam usar os códigos atuais de `rtd_option_quotes`.
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:1:# Checkpoint — Fase 8B — Reconciliação de estruturas/legs com rtd_option_quotes
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:5:Reconciliar as estruturas e legs persistidas com as cotações atuais disponíveis em `rtd_option_quotes`, antes de qualquer alteração funcional no fluxo de snapshot, cálculo ou UI.
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:65:A tabela `rtd_option_quotes` contém 8 cotações atuais importadas de `LISTA_RTD.xlsm`.
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:80:Os vencimentos observados em `rtd_option_quotes` são:
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:93:structure_legs.symbol = rtd_option_quotes.codigo_opcao
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:113:rtd_option_quotes.codigo_opcao: PRIOH515
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:114:rtd_option_quotes.vencimento: 2026-08-21
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:115:rtd_option_quotes.strike: 51.5
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:127:As estruturas/legs persistidas em `structure_legs` estão desatualizadas em relação às cotações atuais importadas para `rtd_option_quotes`.
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:134:códigos atuais importados em rtd_option_quotes
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:139:Não integrar `rtd_option_quotes` ao snapshot neste momento.
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:163:enquanto rtd_option_quotes representa códigos atuais vindos do LISTA_RTD.xlsm.
+./docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md:178:3. Comparar ambas com `rtd_option_quotes`.
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:5:Formalizar a conclusão da auditoria sobre a origem da verdade das legs atuais antes de qualquer integração funcional entre rtd_option_quotes, snapshots de mercado, serviços e cálculo.
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:28:- rtd_option_quotes
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:48:- rtd_option_quotes: 8 códigos
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:54:- rtd_option_quotes: codigo_opcao
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:58:Comparação entre structure_legs e rtd_option_quotes:
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:62:Comparação entre rtd_analise_robo_legs e rtd_option_quotes:
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:70:rtd_option_quotes representa outro conjunto de opções, importado da fonte lista_rtd_excel.
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:72:Não há correspondência direta por código de opção entre as legs canônicas atuais e as cotações persistidas em rtd_option_quotes.
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:76:rtd_option_quotes não deve ser integrada diretamente ao fluxo de snapshot, cálculo ou UI como fonte de mercado das estruturas atuais enquanto não existir reconciliação canônica com structure_legs.
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:85:- desatualizada frente aos códigos atuais em rtd_option_quotes
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:91:- não alinhada aos códigos atuais de rtd_option_quotes
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:93:rtd_option_quotes:
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:103:- integração direta de rtd_option_quotes no snapshot de estruturas
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:104:- integração direta de rtd_option_quotes no cálculo de estruturas
+./docs/checkpoints/fase-8c-conclusao-origem-verdade-legs.md:117:2. Definir adapter somente-leitura para rtd_option_quotes.
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:33:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:166:    Escolhe o melhor preço disponível em rtd_option_quotes.
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:249:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:255:      manual explícito > rtd_option_quotes > preço original do snapshot.
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:262:    if rtd_option_quotes_repository is not None:
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:264:            repository=rtd_option_quotes_repository,
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:372:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:390:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:484:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(db_path=self._db_path)
+./docs/checkpoints/fase-8d-before-rtd-db-path-fix.py:515:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
+./docs/checkpoints/fase-8e-before-auditoria-rota-mestre-2.md:175:- `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/fase-8e-before-auditoria-rota-mestre-2.md:231:- `repositories/rtd_option_quotes_repository.py`
+./docs/checkpoints/fase-8e-before-auditoria-rota-mestre-2.md:365:- `repositories/rtd_option_quotes_repository.py`
+./docs/decisions/2026-06-17-supersessao-lista-rtd-xlsx.md:12:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+./docs/fases/fase-10g-guardrails-operacionais-preco-rtd.md:13:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+./docs/fases/fase-10g-guardrails-operacionais-preco-rtd.md:33:- repositories/rtd_option_quotes_repository.py
+./docs/fases/fase-10g-guardrails-operacionais-preco-rtd.md:60:- price_source = rtd_option_quotes
+./docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:238:repositories/rtd_option_quotes_repository.py
+./docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:244:rtd_option_quotes
+./docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:306:rtd_option_quotes
+./docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:317:repositories/rtd_option_quotes_repository.py
+./docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:501:- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário
+./docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:280:| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:11:- `repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:18:- `rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:27:### `repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:35:- Menciona `rtd_option_quotes`: `True`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:48:- Menciona `rtd_option_quotes`: `False`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:61:- Menciona `rtd_option_quotes`: `False`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:74:- Menciona `rtd_option_quotes`: `False`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:84:### Tabela `rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:115:CREATE TABLE rtd_option_quotes (
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:428:### Termo `rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:431:  - linha `107`: `"rtd_option_quotes",`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:432:  - linha `145`: `"scripts/patch_73_rtd_option_quotes.py",`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:433:  - linha `147`: `"repositories/rtd_option_quotes_repository.py",`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:434:  - linha `346`: `if "repositories/rtd_option_quotes_repository.py" in existing_paths:`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:435:  - linha `348`: `"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções."`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:436:  - linha `351`: `if "scripts/patch_73_rtd_option_quotes.py" in existing_paths:`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:437:  - linha `353`: `"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções."`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:439:  - linha `175`: `- `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:440:  - linha `231`: `- `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:441:  - linha `365`: `- `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:443:  - linha `238`: `repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:444:  - linha `244`: `rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:445:  - linha `306`: `rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:446:  - linha `317`: `repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:447:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:449:  - linha `280`: `| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:451:  - linha `84`: `- `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:452:  - linha `91`: `- `rtd_option_quotes``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:453:  - linha `97`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:454:  - linha `205`: `- `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:455:  - linha `255`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:457:  - linha `105`: `- rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:458:  - linha `123`: `- rtd_option_quotes: 1`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:459:  - linha `138`: `- rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:460:  - linha `146`: `- rtd_option_quotes possui apenas um registro no estado analisado.`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:461:  - linha `261`: `- rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:462:  - linha `281`: `- rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:464:  - linha `36`: `### `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:466:  - linha `324`: `### `repositories/rtd_option_quotes_repository.py``
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:468:  - linha `748`: `repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:469:  - linha `813`: `scripts/patch_73_rtd_option_quotes.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:470:  - linha `877`: `•	criar tabela nova antes de auditar rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:471:  - linha `991`: `•	confirmar se rtd_option_quotes existe no banco`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:472:  - linha `995`: `•	auditar repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:473:- `repositories/rtd_option_quotes_repository.py` — `5` ocorrência(s)
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:474:  - linha `1`: `# repositories/rtd_option_quotes_repository.py`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:475:  - linha `12`: `Leitura da tabela rtd_option_quotes.`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:476:  - linha `48`: `FROM rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:477:  - linha `80`: `FROM rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:478:  - linha `112`: `FROM rtd_option_quotes`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:480:  - linha `69`: `"repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:526:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:801:- `repositories/rtd_option_quotes_repository.py` — `1` ocorrência(s)
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1230:1. `repositories/rtd_option_quotes_repository.py` é um repositório de leitura da tabela `rtd_option_quotes`.
+./docs/fase_3_diagnostico_persistencia_rtd_opcoes.md:1242:- `rtd_option_quotes`
+./docs/FASE_6_CAMADA_CANONICA_LEITURA.md:84:- `repositories/rtd_option_quotes_repository.py`
+./docs/FASE_6_CAMADA_CANONICA_LEITURA.md:91:- `rtd_option_quotes`
+./docs/FASE_6_CAMADA_CANONICA_LEITURA.md:97:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+./docs/FASE_6_CAMADA_CANONICA_LEITURA.md:205:- `repositories/rtd_option_quotes_repository.py`
+./docs/FASE_6_CAMADA_CANONICA_LEITURA.md:255:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+./docs/fase_8_banco_fonte_verdade_auditoria.md:105:- rtd_option_quotes
+./docs/fase_8_banco_fonte_verdade_auditoria.md:123:- rtd_option_quotes: 1
+./docs/fase_8_banco_fonte_verdade_auditoria.md:138:- rtd_option_quotes
+./docs/fase_8_banco_fonte_verdade_auditoria.md:146:- rtd_option_quotes possui apenas um registro no estado analisado.
+./docs/fase_8_banco_fonte_verdade_auditoria.md:261:- rtd_option_quotes
+./docs/fase_8_banco_fonte_verdade_auditoria.md:281:- rtd_option_quotes
+./docs/lista_priorizada_automacao_opcoes_rtd.md:36:### `repositories/rtd_option_quotes_repository.py`
+./docs/mapeamento_automacao_opcoes_rtd.md:324:### `repositories/rtd_option_quotes_repository.py`
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:748:repositories/rtd_option_quotes_repository.py
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:813:scripts/patch_73_rtd_option_quotes.py
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:877:•	criar tabela nova antes de auditar rtd_option_quotes_repository.py
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:991:•	confirmar se rtd_option_quotes existe no banco
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:995:•	auditar repositories/rtd_option_quotes_repository.py
+./docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:17:rtd_option_quotes: ausente em dados/app.db
+./docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:53:### Fase 3 — Auditoria da ausência de rtd_option_quotes
+./docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:59:Definir se rtd_option_quotes será recriada por migração, bootstrap, script controlado ou restauração validada.
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:10:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:15:A fase 10f valida operacionalmente que o preço efetivo usado pelo motor canônico de pricing é carregado da tabela `rtd_option_quotes`, usando o campo `ultimo_preco`, e que a rastreabilidade desse preço é preservada no `pricing_payload` persistido.
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:61:Os preços e prêmios das legs vieram de `rtd_option_quotes.ultimo_preco`:
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:75:price_source = rtd_option_quotes
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:79:rtd_price_source = valor da coluna rtd_option_quotes.source
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:82:No banco real, a coluna `rtd_option_quotes.source` estava com o valor:
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:101:price_source = rtd_option_quotes
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:107:rtd_price_source = rtd_option_quotes.source
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:127:price_source = rtd_option_quotes.
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:128:preço/premium vieram de rtd_option_quotes.ultimo_preco.
+./docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md:129:rtd_price_source reflete a coluna rtd_option_quotes.source.
+./docs/validacoes/fechamento-rota-mestre-2.md:48:- `scripts/audit_rtd_option_quotes.py`
+./docs/validacoes/fechamento-rota-mestre-2.md:49:- `scripts/run_rtd_option_quotes_pipeline.py`
+./docs/validacoes/fechamento-rota-mestre-2.md:50:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+./docs/validacoes/fechamento-rota-mestre-2.md:51:- `scripts/seed_current_rtd_option_quotes.py`
+./docs/validacoes/fechamento-rota-mestre-2.md:79:- auditoria da tabela `rtd_option_quotes`;
+./repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+./repositories/rtd_option_quotes_repository.py:14:    Leitura da tabela rtd_option_quotes.
+./repositories/rtd_option_quotes_repository.py:50:            FROM rtd_option_quotes
+./repositories/rtd_option_quotes_repository.py:82:            FROM rtd_option_quotes
+./repositories/rtd_option_quotes_repository.py:114:            FROM rtd_option_quotes
+./scripts/audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+./scripts/audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+./scripts/audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+./scripts/audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+./scripts/audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+./scripts/audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+./scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./scripts/import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+./scripts/import_lista_rtd_excel_to_option_quotes.py:364:    columns = get_table_columns(conn, "rtd_option_quotes")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:367:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:373:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+./scripts/import_lista_rtd_excel_to_option_quotes.py:395:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+./scripts/import_lista_rtd_excel_to_option_quotes.py:439:            UPDATE rtd_option_quotes
+./scripts/import_lista_rtd_excel_to_option_quotes.py:471:            INSERT INTO rtd_option_quotes (
+./scripts/import_lista_rtd_excel_to_option_quotes.py:525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./scripts/import_lista_rtd_excel_to_option_quotes.py:631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+./scripts/import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+./scripts/import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+./scripts/import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+./scripts/import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+./scripts/import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+./scripts/import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+./scripts/import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+./scripts/import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+./scripts/import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+./scripts/import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+./scripts/import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+./scripts/import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+./scripts/import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+./scripts/import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+./scripts/import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+./scripts/import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+./scripts/import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+./scripts/import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+./scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+./scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./scripts/run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+./scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+./scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+./scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+./scripts/run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+./scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+./scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+./scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+./scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+./scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+./scripts/run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+./scripts/run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+./scripts/seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+./scripts/seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+./scripts/seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+./scripts/seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+./scripts/seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+./scripts/seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+./scripts/seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+./scripts/seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+./scripts/seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+./scripts/seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+./scripts/seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+./scripts/seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+./services/canonical_pricing_facade.py:34:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+./services/canonical_pricing_facade.py:157:def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
+./services/canonical_pricing_facade.py:159:    Resolve o banco correto para rtd_option_quotes.
+./services/canonical_pricing_facade.py:162:    rtd_option_quotes vive em dados/app.db.
+./services/canonical_pricing_facade.py:176:        if _sqlite_table_exists(candidate, "rtd_option_quotes"):
+./services/canonical_pricing_facade.py:218:    Escolhe o melhor preço disponível em rtd_option_quotes e informa
+./services/canonical_pricing_facade.py:253:    Escolhe o melhor preço disponível em rtd_option_quotes.
+./services/canonical_pricing_facade.py:355:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+./services/canonical_pricing_facade.py:362:      manual explícito > rtd_option_quotes > preço original do snapshot.
+./services/canonical_pricing_facade.py:381:    if rtd_option_quotes_repository is not None:
+./services/canonical_pricing_facade.py:383:            repository=rtd_option_quotes_repository,
+./services/canonical_pricing_facade.py:428:                "rtd_option_quotes",
+./services/canonical_pricing_facade.py:566:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+./services/canonical_pricing_facade.py:584:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+./services/canonical_pricing_facade.py:688:        self._rtd_option_quotes_db_path = _resolve_rtd_option_quotes_db_path(self._db_path)
+./services/canonical_pricing_facade.py:689:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(
+./services/canonical_pricing_facade.py:690:            db_path=self._rtd_option_quotes_db_path,
+./services/canonical_pricing_facade.py:722:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,

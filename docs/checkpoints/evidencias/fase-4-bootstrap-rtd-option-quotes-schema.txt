@@ -1,0 +1,6 @@
+Bootstrap rtd_option_quotes
+DB: C:\Users\eucal\projeto\dados\app.db
+[INFO] Tabela já existia. Validando schema...
+[OK] Schema rtd_option_quotes disponível.
+[INFO] Linhas atuais: 0
+[INFO] Nenhum dado fictício foi inserido.

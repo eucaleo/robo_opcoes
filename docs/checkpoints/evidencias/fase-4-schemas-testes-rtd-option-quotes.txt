@@ -1,0 +1,311 @@
+===== ATT/tests/test_import_rtd_links_to_option_quotes.py =====
+25-    conn = sqlite3.connect(str(db_path))
+26-
+27-    try:
+28-        conn.execute(
+29-            """
+30:            CREATE TABLE rtd_option_quotes (
+31-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+32-
+33-                codigo_opcao TEXT NOT NULL,
+34-                ativo_base TEXT,
+35-
+36-                call_put TEXT,
+37-                strike REAL,
+38-                vencimento TEXT,
+39-
+40-                ultimo_preco REAL,
+41-                ultima_quantidade REAL,
+42-
+43-                bid REAL,
+44-                ask REAL,
+45-                volume REAL,
+46-
+47-                iv REAL,
+48-                delta REAL,
+49-                gamma REAL,
+50-                theta REAL,
+51-                vega REAL,
+52-
+53-                source TEXT NOT NULL DEFAULT 'rtd_links',
+54-                raw_json TEXT,
+55-
+56-                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+57-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+58-
+59-                UNIQUE(codigo_opcao)
+60-            )
+61-            """
+62-        )
+63-        conn.commit()
+64-    finally:
+65-        conn.close()
+66-
+67-
+68-def write_rtd_links_csv(path: Path, rows: list[list[str]]) -> None:
+69-    with path.open("w", newline="", encoding="utf-8-sig") as f:
+70-        writer = csv.writer(f)
+71-        writer.writerow(
+72-            [
+73-                "codigo_opcao",
+74-                "ativo_base",
+75-                "campo",
+
+===== ATT/tests/test_fase_11_rtd_integrated_flow.py =====
+79-
+80-def _create_rtd_option_quotes_schema(db_path: Path) -> None:
+81-    with sqlite3.connect(str(db_path)) as conn:
+82-        conn.execute(
+83-            """
+84:            CREATE TABLE rtd_option_quotes (
+85-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+86-
+87-                codigo_opcao TEXT NOT NULL,
+88-                ativo_base TEXT,
+89-
+90-                call_put TEXT,
+91-                strike REAL,
+92-                vencimento TEXT,
+93-
+94-                ultimo_preco REAL,
+95-                ultima_quantidade REAL,
+96-
+97-                bid REAL,
+98-                ask REAL,
+99-                volume REAL,
+100-
+101-                iv REAL,
+102-                delta REAL,
+103-                gamma REAL,
+104-                theta REAL,
+105-                vega REAL,
+106-
+107-                source TEXT NOT NULL DEFAULT 'rtd_links',
+108-                raw_json TEXT,
+109-
+110-                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+111-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+112-
+113-                UNIQUE(codigo_opcao)
+114-            )
+115-            """
+116-        )
+117-
+118-
+119-def _create_controlled_app_db_without_imported_quote(db_path: Path) -> None:
+120-    with sqlite3.connect(str(db_path)) as conn:
+121-        conn.execute(
+122-            """
+123-            CREATE TABLE structures (
+124-                id INTEGER PRIMARY KEY,
+125-                alias_legacy_aba TEXT,
+126-                underlying_asset TEXT
+127-            )
+128-            """
+129-        )
+
+===== ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py =====
+238-            ),
+239-        )
+240-
+241-        conn.execute(
+242-            """
+243:            CREATE TABLE rtd_option_quotes (
+244-                codigo_opcao TEXT PRIMARY KEY,
+245-                ativo_base TEXT,
+246-                call_put TEXT,
+247-                strike TEXT,
+248-                vencimento TEXT,
+249-                ultimo_preco REAL,
+250-                ultima_quantidade REAL,
+251-                bid REAL,
+252-                ask REAL,
+253-                volume REAL,
+254-                iv REAL,
+255-                delta REAL,
+256-                gamma REAL,
+257-                theta REAL,
+258-                vega REAL,
+259-                source TEXT,
+260-                raw_json TEXT,
+261-                updated_at TEXT,
+262-                created_at TEXT
+263-            )
+264-            """
+265-        )
+266-
+267-        conn.execute(
+268-            """
+269-            INSERT INTO rtd_option_quotes (
+270-                codigo_opcao,
+271-                ativo_base,
+272-                call_put,
+273-                strike,
+274-                vencimento,
+275-                ultimo_preco,
+276-                ultima_quantidade,
+277-                bid,
+278-                ask,
+279-                volume,
+280-                iv,
+281-                delta,
+282-                gamma,
+283-                theta,
+284-                vega,
+285-                source,
+286-                raw_json,
+287-                updated_at,
+288-                created_at
+
+===== ATT/tests/test_audit_rtd_option_quotes.py =====
+28-    unique_sql = ", UNIQUE(codigo_opcao)" if unique else ""
+29-
+30-    with sqlite3.connect(db_path) as conn:
+31-        conn.execute(
+32-            f"""
+33:            CREATE TABLE rtd_option_quotes (
+34-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+35-                codigo_opcao TEXT NOT NULL,
+36-                ativo_base TEXT,
+37-                call_put TEXT,
+38-                strike REAL,
+39-                vencimento TEXT,
+40-                ultimo_preco REAL,
+41-                ultima_quantidade REAL,
+42-                bid REAL,
+43-                ask REAL,
+44-                volume REAL,
+45-                iv REAL,
+46-                delta REAL,
+47-                gamma REAL,
+48-                theta REAL,
+49-                vega REAL,
+50-                source TEXT NOT NULL DEFAULT 'rtd_links',
+51-                raw_json TEXT,
+52-                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+53-                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+54-                {unique_sql}
+55-            )
+56-            """
+57-        )
+58-
+59-
+60-def insert_quote(
+61-    db_path: Path,
+62-    codigo_opcao: str,
+63-    updated_at: str = "CURRENT_TIMESTAMP",
+64-) -> None:
+65-    if updated_at == "CURRENT_TIMESTAMP":
+66-        updated_at_sql = "CURRENT_TIMESTAMP"
+67-        params = (codigo_opcao,)
+68-    else:
+69-        updated_at_sql = "?"
+70-        params = (codigo_opcao, updated_at)
+71-
+72-    with sqlite3.connect(db_path) as conn:
+73-        conn.execute(
+74-            f"""
+75-            INSERT INTO rtd_option_quotes (
+76-                codigo_opcao,
+77-                ativo_base,
+78-                call_put,
+--
+146-    db_path = tmp_path / "app.db"
+147-
+148-    with sqlite3.connect(db_path) as conn:
+149-        conn.execute(
+150-            """
+151:            CREATE TABLE rtd_option_quotes (
+152-                codigo_opcao TEXT NOT NULL
+153-            )
+154-            """
+155-        )
+156-
+157-    result = module.audit_database(db_path, max_age_minutes=0)
+158-
+159-    assert result["status"] == "error"
+160-    assert "ativo_base" in result["missing_columns"]
+161-    assert result["errors"]
+162-
+163-
+164-def test_audit_reports_error_for_duplicated_codigo_opcao(tmp_path: Path):
+165-    module = load_module()
+166-    db_path = tmp_path / "app.db"
+167-
+168-    create_schema(db_path, unique=False)
+169-    insert_quote(db_path, "PETRA300")
+170-    insert_quote(db_path, "PETRA300")
+171-
+172-    result = module.audit_database(db_path, max_age_minutes=0)
+173-
+174-    assert result["status"] == "error"
+175-    assert result["metrics"]["duplicate_codigo_count"] == 1
+176-    assert "duplicated codigo_opcao groups: 1" in result["errors"]
+177-
+178-
+179-def test_audit_reports_warning_for_stale_rows(tmp_path: Path):
+180-    module = load_module()
+181-    db_path = tmp_path / "app.db"
+182-
+183-    create_schema(db_path)
+184-    insert_quote(db_path, "PETRA300", updated_at="2000-01-01 00:00:00")
+185-
+186-    result = module.audit_database(db_path, max_age_minutes=30)
+187-
+188-    assert result["status"] == "warn"
+189-    assert result["metrics"]["stale_rows"] == 1
+190-    assert "rows older than 30 minutes: 1" in result["warnings"]
+
+===== ATT/tests/test_canonical_pricing_facade_rtd_db_path.py =====
+17-def _create_rtd_option_quotes_table(path: Path) -> None:
+18-    path.parent.mkdir(parents=True, exist_ok=True)
+19-    with sqlite3.connect(str(path)) as conn:
+20-        conn.execute(
+21-            """
+22:            CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+23-                codigo_opcao TEXT PRIMARY KEY,
+24-                ativo_base TEXT,
+25-                ultimo_preco REAL
+26-            )
+27-            """
+28-        )
+29-        conn.commit()
+30-
+31-
+32-def test_sqlite_table_exists_returns_false_for_missing_database(tmp_path):
+33-    db_path = tmp_path / "missing.db"
+34-
+35-    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is False
+36-
+37-
+38-def test_sqlite_table_exists_detects_existing_table(tmp_path):
+39-    db_path = tmp_path / "app.db"
+40-    _create_rtd_option_quotes_table(db_path)
+41-
+42-    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is True
+43-    assert _sqlite_table_exists(db_path, "tabela_inexistente") is False
+44-
+45-
+46-def test_resolve_rtd_option_quotes_db_path_prefers_app_db_when_primary_has_no_table(
+47-    tmp_path,
+48-    monkeypatch,
+49-):
+50-    monkeypatch.chdir(tmp_path)
+51-
+52-    dados_dir = tmp_path / "dados"
+53-    primary_db = dados_dir / "derived.db"
+54-    app_db = dados_dir / "app.db"
+55-
+56-    _create_sqlite_db(primary_db)
+57-    _create_rtd_option_quotes_table(app_db)
+58-
+59-    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+60-
+61-    assert resolved == app_db
+62-
+63-
+64-def test_resolve_rtd_option_quotes_db_path_prefers_primary_when_primary_has_table(
+65-    tmp_path,
+66-    monkeypatch,
+67-):
+

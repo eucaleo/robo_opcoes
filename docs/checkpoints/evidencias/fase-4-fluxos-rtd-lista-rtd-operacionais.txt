@@ -1,0 +1,208 @@
+===== scripts/import_lista_rtd_excel_to_option_quotes.py =====
+2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+5:    LISTA_RTD.xlsm aberto no Excel
+7:        -> tabela rtd_option_quotes
+27:DEFAULT_WORKBOOK = "LISTA_RTD.xlsm"
+31:    "codigo_opcao",
+32:    "ativo_base",
+36:    "ultimo_preco",
+38:    "bid",
+39:    "ask",
+40:    "volume",
+41:    "iv",
+42:    "delta",
+43:    "gamma",
+44:    "theta",
+45:    "vega",
+54:    "codigo_opcao": "codigo_opcao",
+55:    "codigo": "codigo_opcao",
+56:    "ticker": "codigo_opcao",
+57:    "symbol": "codigo_opcao",
+58:    "ativo": "codigo_opcao",
+60:    "ativo_base": "ativo_base",
+61:    "underlying": "ativo_base",
+62:    "underlying_symbol": "ativo_base",
+63:    "base": "ativo_base",
+78:    "ultimo_preco": "ultimo_preco",
+79:    "last": "ultimo_preco",
+80:    "last_price": "ultimo_preco",
+81:    "last_trade_price": "ultimo_preco",
+88:    "bid": "bid",
+89:    "bid_price": "bid",
+91:    "ask": "ask",
+92:    "ask_price": "ask",
+94:    "volume": "volume",
+96:    "iv": "iv",
+97:    "implied_volatility": "iv",
+98:    "volatilidade_implicita": "iv",
+100:    "delta": "delta",
+101:    "gamma": "gamma",
+102:    "theta": "theta",
+103:    "vega": "vega",
+153:    converted = base + dt.timedelta(days=number)
+222:        excel = win32com.client.GetActiveObject("Excel.Application")
+316:        codigo = clean_text(raw_row.get("codigo_opcao"))
+321:        if codigo.lower() in {"codigo_opcao", "codigo", "ticker", "symbol"}:
+328:            "codigo_opcao": codigo.upper(),
+329:            "ativo_base": clean_text(raw_row.get("ativo_base")),
+333:            "ultimo_preco": to_float(raw_row.get("ultimo_preco")),
+335:            "bid": to_float(raw_row.get("bid")),
+336:            "ask": to_float(raw_row.get("ask")),
+337:            "volume": to_float(raw_row.get("volume")),
+338:            "iv": to_float(raw_row.get("iv")),
+339:            "delta": to_float(raw_row.get("delta")),
+340:            "gamma": to_float(raw_row.get("gamma")),
+341:            "theta": to_float(raw_row.get("theta")),
+342:            "vega": to_float(raw_row.get("vega")),
+364:    columns = get_table_columns(conn, "rtd_option_quotes")
+367:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+373:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+395:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+396:                (record["codigo_opcao"],),
+407:        codigo = record["codigo_opcao"]
+417:            "codigo_opcao": codigo,
+418:            "ativo_base": record.get("ativo_base"),
+422:            "ultimo_preco": record.get("ultimo_preco"),
+424:            "bid": record.get("bid"),
+425:            "ask": record.get("ask"),
+426:            "volume": record.get("volume"),
+427:            "iv": record.get("iv"),
+428:            "delta": record.get("delta"),
+429:            "gamma": record.get("gamma"),
+430:            "theta": record.get("theta"),
+431:            "vega": record.get("vega"),
+439:            UPDATE rtd_option_quotes
+440:               SET ativo_base = :ativo_base,
+444:                   ultimo_preco = :ultimo_preco,
+446:                   bid = :bid,
+447:                   ask = :ask,
+448:                   volume = :volume,
+449:                   iv = :iv,
+450:                   delta = :delta,
+451:                   gamma = :gamma,
+452:                   theta = :theta,
+453:                   vega = :vega,
+457:             WHERE codigo_opcao = :codigo_opcao
+471:            INSERT INTO rtd_option_quotes (
+472:                codigo_opcao,
+473:                ativo_base,
+477:                ultimo_preco,
+479:                bid,
+480:                ask,
+481:                volume,
+482:                iv,
+483:                delta,
+484:                gamma,
+485:                theta,
+486:                vega,
+493:                :codigo_opcao,
+494:                :ativo_base,
+498:                :ultimo_preco,
+500:                :bid,
+501:                :ask,
+502:                :volume,
+503:                :iv,
+504:                :delta,
+505:                :gamma,
+506:                :theta,
+507:                :vega,
+525:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+537:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+631:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+641:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+
+===== scripts/run_lista_rtd_option_quotes_pipeline.py =====
+3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+7:    2. scripts/audit_rtd_option_quotes.py
+10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+71:        default="LISTA_RTD.xlsm",
+72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+
+===== scripts/import_rtd_links_to_option_quotes.py =====
+3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+7:codigo_opcao,ativo_base,campo,valor,atualizado_em
+10:PETRA123,PETR4,bid,1.20,2026-06-06 17:50:00
+14:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db
+15:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db --dry-run
+32:    "codigo_opcao",
+33:    "ativo_base",
+41:    "ultimo_preco",
+43:    "bid",
+44:    "ask",
+45:    "volume",
+46:    "iv",
+47:    "delta",
+48:    "gamma",
+49:    "theta",
+50:    "vega",
+61:    "codigo_opcao",
+62:    "ativo_base",
+66:    "ultimo_preco",
+68:    "bid",
+69:    "ask",
+70:    "volume",
+71:    "iv",
+72:    "delta",
+73:    "gamma",
+74:    "theta",
+75:    "vega",
+142:        # Se tiver múltiplos pontos, trata como separador de milhar exceto o último.
+195:def empty_record(codigo_opcao: str) -> dict[str, Any]:
+197:        "codigo_opcao": codigo_opcao,
+198:        "ativo_base": None,
+202:        "ultimo_preco": None,
+204:        "bid": None,
+205:        "ask": None,
+206:        "volume": None,
+207:        "iv": None,
+208:        "delta": None,
+209:        "gamma": None,
+210:        "theta": None,
+211:        "vega": None,
+243:            codigo = str(cleaned.get("codigo_opcao") or "").strip().upper()
+244:            ativo_base = str(cleaned.get("ativo_base") or "").strip().upper()
+261:            if ativo_base:
+262:                record["ativo_base"] = ativo_base
+306:        SELECT codigo_opcao
+307:        FROM rtd_option_quotes
+308:        WHERE codigo_opcao IN ({placeholders})
+323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+343:        INSERT INTO rtd_option_quotes ({columns_sql})
+345:        ON CONFLICT(codigo_opcao) DO UPDATE SET
+368:        codes = [record["codigo_opcao"] for record in records]
+386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+391:        default="dados/RTD_LINKS.csv",
+392:        help="Caminho do CSV RTD_LINKS.csv",
+419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+
+===== scripts/run_rtd_option_quotes_pipeline.py =====
+7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+11:    python scripts/run_rtd_option_quotes_pipeline.py
+12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+89:    csv_path: str = "dados/RTD_LINKS.csv",
+142:        description="Executa importação e auditoria de rtd_option_quotes."
+146:        default="dados/RTD_LINKS.csv",
+147:        help="Caminho do CSV RTD_LINKS.csv. Padrão: dados/RTD_LINKS.csv",
+

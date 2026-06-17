@@ -1,0 +1,2 @@
+DB: C:\Users\eucal\projeto\dados\derived.db
+OBJETOS: 0

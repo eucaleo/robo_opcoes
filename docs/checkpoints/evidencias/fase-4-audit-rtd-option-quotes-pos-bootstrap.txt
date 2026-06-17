@@ -1,0 +1,15 @@
+Auditoria rtd_option_quotes
+Banco: dados\app.db
+Tabela: rtd_option_quotes
+Status: warn
+
+Métricas:
+- distinct_codigo_count: 0
+- duplicate_codigo_count: 0
+- max_age_minutes: 30
+- missing_codigo_count: 0
+- row_count: 0
+- stale_rows: 0
+
+Avisos:
+- table is empty

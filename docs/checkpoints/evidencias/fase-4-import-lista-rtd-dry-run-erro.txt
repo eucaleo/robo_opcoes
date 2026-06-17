@@ -1,0 +1,3 @@
+Importação LISTA_RTD.xlsm -> rtd_option_quotes
+Status: error
+- RuntimeError: Nenhuma aba RTD encontrada. Tentadas: ['RTD_OPTION_QUOTES', 'RTD_PROBE_OPTIONS']. Disponíveis: ['RTD-BTG LISTA']
