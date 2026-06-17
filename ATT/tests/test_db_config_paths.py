@@ -42,3 +42,14 @@ def test_connect_derived_creates_parent_dir(tmp_path):
         conn.execute("SELECT 1")
 
     assert db_path.exists()
+
+def test_db_sqlite_connect_uses_runtime_app_db_env(monkeypatch, tmp_path):
+    from db import sqlite as db_sqlite
+
+    custom = tmp_path / "runtime" / "app_runtime.db"
+    monkeypatch.setenv("APP_DB_PATH", str(custom))
+
+    with db_sqlite.connect() as conn:
+        conn.execute("SELECT 1")
+
+    assert custom.exists()

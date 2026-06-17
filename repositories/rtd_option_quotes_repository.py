@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+
+from db.config import get_app_db_path
 from typing import Any
 
 
@@ -15,8 +17,8 @@ class RtdOptionQuotesRepository:
     e funciona como cache centralizado das cotações RTD de opções.
     """
 
-    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
-        self.db_path = Path(db_path)
+    def __init__(self, db_path: str | Path | None = None) -> None:
+        self.db_path = Path(db_path).expanduser().resolve() if db_path is not None else get_app_db_path()
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path))

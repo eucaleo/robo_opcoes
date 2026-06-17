@@ -18,6 +18,8 @@ import json
 import sqlite3
 from datetime import datetime, timezone
 from pathlib import Path
+
+from db.config import get_app_db_path
 from typing import Any
 
 

@@ -18,8 +18,8 @@ _EXECUTION_COLUMNS = (
 
 class PricingExecutionsRepository:
 
-    def __init__(self, db_path: str | Path = DB_PATH):
-        self._db_path = Path(db_path)
+    def __init__(self, db_path: str | Path | None = None):
+        self._db_path = Path(db_path).expanduser().resolve() if db_path is not None else get_app_db_path()
         self._db_path.parent.mkdir(parents=True, exist_ok=True)
 
     # ------------------------------------------------------------------ #
