@@ -73,3 +73,13 @@ Somente após banco, arquivos e contratos estarem reconciliados.
 Fase 0 em andamento.
 
 A rota ainda não autoriza alteração funcional, criação de tabela ou limpeza destrutiva.
+
+## Nota de supersessão — LISTA_RTD.xlsx
+
+A partir da reconciliação registrada em `docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md` e `docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md`, a ponte RTD operacional oficial é `LISTA_RTD.xlsm`.
+
+Referências anteriores a `LISTA_RTD.xlsx` devem ser interpretadas como histórico/legado, salvo evidência funcional ativa em sentido contrário.
+
+A decisão formal está registrada em:
+
+- `docs/decisions/2026-06-17-supersessao-lista-rtd-xlsx.md`
