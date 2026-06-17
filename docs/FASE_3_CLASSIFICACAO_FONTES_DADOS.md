@@ -49,7 +49,7 @@ Cada fonte classificada com destino claro.
 Fontes classificadas como entrada bruta:
 
 ```text
-OPERACOES_E_OPCOES.xlsm
+LISTA_RTD.xlsm
 CSV exportado da aba RTD_LINKS
 cotações RTD de opções
 dados de mercado externos
@@ -283,7 +283,7 @@ Mantê-las aumenta ambiguidade e risco de regressão.
 | `bridge/analise_raiox.csv` | legado | manter apenas enquanto houver consumidor |
 | `bridge/hist_robo.csv` | legado | manter apenas como referência histórica ou migração pontual |
 | `HIST_ROBO` | legado | não usar como fonte viva do sistema |
-| `OPERACOES_E_OPCOES.xlsm` | entrada bruta/configuração | separar dados de mercado, operação e parâmetros |
+| `LISTA_RTD.xlsm` | entrada bruta/configuração | separar dados de mercado, operação e parâmetros |
 | `CONFIGURACOES` | configuração | manter separado de dados operacionais |
 | `run_derived_pipeline.py` | operacional de processamento | manter como script autorizado |
 | `validate_derived_db.py` | operacional de validação | manter como script autorizado |

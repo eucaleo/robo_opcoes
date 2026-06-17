@@ -1252,7 +1252,7 @@ Nenhuma alteração funcional foi realizada.
 - `scripts/purge_derived_snapshots.py` — `scripts` — score `7`
 - `scripts/validate_derived_db.py` — `scripts` — score `7`
 - `LISTA_RTD.xlsx` — `outros` — score `6`
-- `OPERACOES_E_OPCOES.xlsm` — `outros` — score `6`
+- `LISTA_RTD.xlsm` — `outros` — score `6`
 - `UI/components/__init__.py` — `ui` — score `6`
 - `bridge/analise_raiox.csv` — `bridge` — score `6`
 - `bridge/configuracoes.csv` — `bridge` — score `6`

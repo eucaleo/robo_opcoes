@@ -17,7 +17,7 @@ Arquivos P0 vindos da Fase 1:
 - `bridge/analise_robo_legs.csv`
 - `bridge/hist_robo.csv`
 - `bridge/configuracoes.csv`
-- `OPERACOES_E_OPCOES.xlsm`
+- `LISTA_RTD.xlsm`
 
 ## Restrições
 

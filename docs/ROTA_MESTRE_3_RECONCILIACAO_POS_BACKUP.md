@@ -44,7 +44,7 @@ Criar e versionar os documentos de controle da ROTA_MESTRE_3.
 
 ### Fase 1 — Higiene controlada do estado Git
 
-Classificar OPERACOES_E_OPCOES.xlsm e _usage_audit/ antes de qualquer limpeza.
+Classificar LISTA_RTD.xlsm e _usage_audit/ antes de qualquer limpeza.
 
 ### Fase 2 — Inventário de arquivos operacionais e evidências
 

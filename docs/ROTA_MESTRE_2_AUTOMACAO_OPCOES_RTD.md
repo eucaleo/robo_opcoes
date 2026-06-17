@@ -167,7 +167,7 @@ Verificar:
 •	risco de sobrescrever dados operacionais.
 Atenção especial
 Arquivos sensíveis:
-•	OPERACOES_E_OPCOES.xlsm
+•	LISTA_RTD.xlsm
 •	arquivos da pasta bridge/
 •	CSVs operacionais
 •	arquivos gerados pelo Excel

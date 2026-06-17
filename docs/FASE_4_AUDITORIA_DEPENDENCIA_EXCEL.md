@@ -130,9 +130,9 @@ services/canonical_input_service.py:54:            # BRIDGE LEGADO: import dinam
 ```text
 ATT/checks/check_api_routes.py:6:    import win32com.client
 ATT/checks/check_api_routes.py:8:    win32com = None
-ATT/checks/check_api_routes.py:13:    ROOT_DIR / "OPERACOES_E_OPCOES.xlsm",
+ATT/checks/check_api_routes.py:13:    ROOT_DIR / "LISTA_RTD.xlsm",
 ATT/checks/check_api_routes.py:14:    ROOT_DIR / "OPERACOES_E_OPCOES.xlsx",
-ATT/checks/check_api_routes.py:27:        "Nenhum workbook principal encontrado: OPERACOES_E_OPCOES.xlsm/xlsx"
+ATT/checks/check_api_routes.py:27:        "Nenhum workbook principal encontrado: LISTA_RTD.xlsm/xlsx"
 ATT/checks/check_api_routes.py:33:        log("INFO", "Iniciando check local do runtime Excel")
 ATT/checks/check_api_routes.py:35:        if win32com is None:
 ATT/checks/check_api_routes.py:41:        excel = win32com.client.Dispatch("Excel.Application")
@@ -142,9 +142,9 @@ ATT/checks/check_api_routes.py:48:        sheet_count = wb.Worksheets.Count
 ATT/checks/check_api_routes.py:54:        first_sheet = wb.Worksheets(1)
 ATT/checks/check_api_routes.py:61:        log("OK", "Check de Excel local concluído com sucesso")
 ATT/checks/check_api_routes.py:65:        log("FAIL", f"Erro no check de Excel local: {e}")
-ATT/checks/check_end_to_end.py:10:    ROOT_DIR / "OPERACOES_E_OPCOES.xlsm",
+ATT/checks/check_end_to_end.py:10:    ROOT_DIR / "LISTA_RTD.xlsm",
 ATT/checks/check_end_to_end.py:11:    ROOT_DIR / "OPERACOES_E_OPCOES.xlsx",
-ATT/checks/check_structures.py:10:    ROOT_DIR / "OPERACOES_E_OPCOES.xlsm",
+ATT/checks/check_structures.py:10:    ROOT_DIR / "LISTA_RTD.xlsm",
 ATT/checks/check_structures.py:11:    ROOT_DIR / "OPERACOES_E_OPCOES.xlsx",
 UI/main_window.py:508:* Excel RTD  CSV Bridge
 db/import_excel.py:6:XLSX_PATH = "OPERACOES_E_OPCOES.xlsx"  # ajuste se estiver em outra pasta
@@ -200,7 +200,7 @@ Detalhe:
   - `HIST_ROBO`
   - `ENCERRAMENTOS_MANUAIS`
 - `db/schema_excel.py` não lê Excel diretamente, mas define estrutura associada ao modelo importado do Excel.
-- Os arquivos em `ATT/checks/` fazem validações locais envolvendo workbook Excel, `win32com` ou presença de `OPERACOES_E_OPCOES.xlsm/xlsx`.
+- Os arquivos em `ATT/checks/` fazem validações locais envolvendo workbook Excel, `win32com` ou presença de `LISTA_RTD.xlsm/xlsx`.
 
 Conclusão parcial:
 

@@ -124,7 +124,7 @@ Arquivos físicos identificados na raiz:
 ~~~text
 .gitignore
 LISTA_RTD.xlsx
-OPERACOES_E_OPCOES.xlsm
+LISTA_RTD.xlsm
 bridge_ingest_csv.py
 create_payoff_summary_table.py
 debug_bridge_check_after_vba.py
@@ -141,7 +141,7 @@ validate_db.py
 
 Observações:
 
-- `OPERACOES_E_OPCOES.xlsm` está versionado.
+- `LISTA_RTD.xlsm` está versionado.
 - `LISTA_RTD.xlsx` está versionado.
 - Scripts principais como `main.py`, `run_ui.py`, `validate_db.py`, `bridge_ingest_csv.py` e scripts auxiliares estão versionados.
 - Arquivos locais de debug `debug_bridge_*.py` estão ignorados.
@@ -153,7 +153,7 @@ Observações:
 
 | Arquivo | Existe | Versionamento |
 |---|---|---|
-| `OPERACOES_E_OPCOES.xlsm` | Sim | Versionado |
+| `LISTA_RTD.xlsm` | Sim | Versionado |
 | `LISTA_RTD.xlsx` | Sim | Versionado |
 | `bridge/analise_robo.csv` | Sim | Versionado |
 | `bridge/analise_robo_legs.csv` | Sim | Versionado |

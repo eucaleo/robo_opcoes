@@ -69,7 +69,7 @@ O arquivo de auditoria anterior estava incompleto/corrompido e continha trecho i
 Também foi observado:
 
 ```text
-D OPERACOES_E_OPCOES.xlsm
+D planilha RTD legada abolida
 ?? _usage_audit/
 ?? docs/AUDITORIA_ROTA_MESTRE_3.md
 ```
@@ -106,7 +106,7 @@ Foram executados diagnósticos e testes antecipados para evidência da futura Fa
 
 - Conferir se os dois documentos foram gerados completos.
 - Conferir git diff.
-- Classificar OPERACOES_E_OPCOES.xlsm.
+- Classificar ponte RTD atual e planilha RTD legada abolida.
 - Classificar _usage_audit/.
 - Commitar documentação da Fase 0.
 
@@ -125,3 +125,97 @@ Nenhuma limpeza destrutiva está autorizada.
 ```text
 8556050 docs: inicia ROTA_MESTRE_3 de reconciliacao pos-backup
 ```
+
+---
+
+# Fase 1 — Higiene controlada do estado Git
+
+## Status
+
+Em andamento.
+
+## Objetivo
+
+Classificar alterações pendentes no estado Git antes de qualquer limpeza destrutiva ou retomada funcional.
+
+## Diagnóstico executado
+
+~~~text
+git status -sb
+git diff --name-status
+git ls-files --stage -- arquivo RTD legado
+git cat-file -s HEAD:arquivo RTD legado
+git log --oneline -10 -- arquivo RTD legado
+find _usage_audit -maxdepth 3 -type f
+~~~
+
+## Resultado observado
+
+~~~text
+branch: fase-12-fechamento-ciclo
+ahead: 5
+planilha RTD legada: removida do working tree
+_usage_audit/: diretório local não versionado
+~~~
+
+O arquivo anteriormente usado como ponte RTD foi abolido do sistema.
+
+A ponte RTD atual passa a ser:
+
+~~~text
+LISTA_RTD.xlsm
+~~~
+
+A remoção da planilha RTD legada não deve ser revertida.
+
+Nenhuma referência documental nova deve ressuscitar o arquivo abolido.
+
+## Substituição documental executada
+
+Foi executada substituição em documentos Markdown para consolidar o nome atual da ponte RTD:
+
+~~~text
+LISTA_RTD.xlsm
+~~~
+
+Após a substituição, a busca documental não retornou referências ao nome legado.
+
+## Classificação de _usage_audit/
+
+O diretório `_usage_audit/` existe localmente, possui aproximadamente 20K e contém 13 arquivos de auditoria de uso de scripts.
+
+Arquivos observados:
+
+~~~text
+_usage_audit/uso_scripts_2026-06-16_13-40-00/find_structure.sh_arquivos_encontrados.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/find_structure.sh_git_log.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/find_structure.sh_referencias.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/find_structure.sh_referencias_testes.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/limpar_repositorio_seguro.sh_arquivos_encontrados.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/limpar_repositorio_seguro.sh_git_log.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/limpar_repositorio_seguro.sh_referencias.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/limpar_repositorio_seguro.sh_referencias_testes.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/mapear_repositorio.sh_arquivos_encontrados.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/mapear_repositorio.sh_git_log.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/mapear_repositorio.sh_referencias.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/mapear_repositorio.sh_referencias_testes.txt
+_usage_audit/uso_scripts_2026-06-16_13-40-00/RESUMO.md
+~~~
+
+## Decisão sobre _usage_audit/
+
+Pendente de classificação final.
+
+Nenhuma limpeza destrutiva está autorizada até a decisão sobre versionar, ignorar ou arquivar esse diretório.
+
+## Restrições mantidas
+
+Nenhuma alteração funcional está autorizada.
+
+Nenhuma tabela deve ser criada.
+
+Nenhuma limpeza destrutiva está autorizada.
+
+## Commit relacionado
+
+Pendente.

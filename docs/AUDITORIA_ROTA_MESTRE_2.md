@@ -275,7 +275,7 @@ Auditar o contrato entre RTD, Excel e arquivos locais de entrada, sem alteraçã
 - `bridge/analise_robo_legs.csv`
 - `bridge/hist_robo.csv`
 - `bridge/configuracoes.csv`
-- `OPERACOES_E_OPCOES.xlsm`
+- `LISTA_RTD.xlsm`
 
 ### Arquivos gerados nesta etapa
 

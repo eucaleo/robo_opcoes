@@ -473,7 +473,7 @@ Arquivos validados pelos checks:
 bridge/analise_robo.csv
 bridge/analise_robo_legs.csv
 bridge/analise_raiox.csv
-OPERACOES_E_OPCOES.xlsm
+LISTA_RTD.xlsm
 ```
 
 Conclusão:

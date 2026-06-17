@@ -26,7 +26,7 @@ Busca por nomes de arquivos relacionados retornou os principais pontos abaixo:
 
 ```text
 ./LISTA_RTD.xlsx
-./OPERACOES_E_OPCOES.xlsm
+./LISTA_RTD.xlsm
 ./dados/RTD_LINKS.csv
 ./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md
 ./docs/fase_2_auditoria_contrato_rtd_excel.md
