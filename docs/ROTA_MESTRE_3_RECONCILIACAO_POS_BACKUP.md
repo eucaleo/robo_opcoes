@@ -70,9 +70,9 @@ Somente após banco, arquivos e contratos estarem reconciliados.
 
 ## Status atual
 
-Fase 4 em andamento.
+Fase 5 — Reconciliação RTD/Excel concluída documentalmente.
 
-As Fases 0, 1, 2 e 3 possuem registros documentais relacionados no histórico do projeto.
+As Fases 0, 1, 2, 3, 4 e 5 possuem registros documentais relacionados no histórico do projeto.
 
 A reconciliação avançou de forma controlada por meio de checkpoints documentais, incluindo:
 
@@ -82,15 +82,30 @@ A reconciliação avançou de forma controlada por meio de checkpoints documenta
 - inventário de caminhos de banco;
 - reconciliação conceitual entre `dados/app.db` e `dados/derived.db`;
 - inventário funcional de consumidores de caminhos de banco;
-- plano de normalização dos consumidores de caminhos de banco.
+- plano de normalização dos consumidores de caminhos de banco;
+- inventário da `LISTA_RTD.xlsm`;
+- mapa somente leitura das fórmulas RTD;
+- consolidação da ponte RTD Excel;
+- reconciliação documental entre a aba `RTD_OPTION_QUOTES` e a tabela `rtd_option_quotes`.
 
-A rota ainda não autoriza alteração funcional ampla, criação de tabela, limpeza destrutiva ou alteração em UI, API, repository ou serviço sem fase específica, mapa de impacto e validação registrada.
+Último checkpoint publicado:
 
-A próxima decisão controlada deve definir se o projeto seguirá para:
+- `2bd5fad docs: registra reconciliacao documental RTD option quotes`
 
-- fechamento documental da Fase 4;
-- Fase 5 — Reconciliação RTD/Excel;
-- ou preparação explícita de uma refatoração incremental e validada dos consumidores de caminhos de banco.
+A rota ainda não autoriza alteração funcional ampla, limpeza destrutiva, alteração em UI, API, repository ou serviço sem fase específica, mapa de impacto e validação registrada.
+
+A próxima decisão controlada deve preparar explicitamente a:
+
+- Fase 6 — Retomada funcional controlada.
+
+Antes da Fase 6, deve haver um plano objetivo indicando:
+
+1. quais comandos serão executados;
+2. quais arquivos poderão ser alterados;
+3. se haverá ou não criação/validação de tabela;
+4. quais testes serão rodados;
+5. qual critério encerra a fase;
+6. qual commit registrará o fechamento.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
