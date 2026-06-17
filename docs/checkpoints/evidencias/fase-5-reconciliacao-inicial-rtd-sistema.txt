@@ -1,0 +1,859 @@
+# Fase 5 - Reconciliacao documental inicial RTD vs sistema
+
+Modo: somente leitura / documental
+Executado em: 2026-06-17T20:19:45-03:00
+
+## Git
+
+- Branch: fase-12-fechamento-ciclo
+- HEAD: 5488d5f
+
+Status:
+
+?? docs/checkpoints/evidencias/fase-5-reconciliacao-inicial-rtd-sistema.txt
+
+## Arquivos funcionais contendo referencias RTD / rtd_option_quotes
+
+.\repositories\rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+.\repositories\rtd_option_quotes_repository.py:12:class RtdOptionQuotesRepository:
+.\repositories\rtd_option_quotes_repository.py:14:    Leitura da tabela rtd_option_quotes.
+.\repositories\rtd_option_quotes_repository.py:50:            FROM rtd_option_quotes
+.\repositories\rtd_option_quotes_repository.py:82:            FROM rtd_option_quotes
+.\repositories\rtd_option_quotes_repository.py:114:            FROM rtd_option_quotes
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:11:class FakeRtdOptionQuotesRepository:
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:66:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:82:    repository = FakeRtdOptionQuotesRepository(fail=True)
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:90:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:103:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:116:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:129:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:133:    assert price_source == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:138:    repository = FakeRtdOptionQuotesRepository()
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:144:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:156:    repository = FakeRtdOptionQuotesRepository(fail=True)
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:162:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:170:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:204:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:211:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:217:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:223:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:234:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:238:    assert price_source == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:247:        "rtd_price_source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:254:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:264:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:275:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:286:    assert traceability["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:292:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:298:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:330:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:348:    repository = FakeRtdOptionQuotesRepository()
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:354:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:367:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:377:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:386:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:400:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:406:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:415:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:429:    repository = FakeRtdOptionQuotesRepository(
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:435:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:465:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:470:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:481:    repository = FakeRtdOptionQuotesRepository()
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:508:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:6:    _resolve_rtd_option_quotes_db_path,
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:17:def _create_rtd_option_quotes_table(path: Path) -> None:
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:22:            CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:35:    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is False
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:40:    _create_rtd_option_quotes_table(db_path)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:42:    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is True
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:46:def test_resolve_rtd_option_quotes_db_path_prefers_app_db_when_primary_has_no_table(
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:57:    _create_rtd_option_quotes_table(app_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:59:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:64:def test_resolve_rtd_option_quotes_db_path_prefers_primary_when_primary_has_table(
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:74:    _create_rtd_option_quotes_table(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:75:    _create_rtd_option_quotes_table(app_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:77:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:82:def test_resolve_rtd_option_quotes_db_path_falls_back_to_primary_when_no_candidate_has_table(
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:95:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:111:    _create_rtd_option_quotes_table(app_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:116:    assert facade._rtd_option_quotes_db_path == app_db
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:117:    assert facade._rtd_option_quotes_repository.db_path == app_db
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:243:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:269:            INSERT INTO rtd_option_quotes (
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:307:                "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:348:    # O preço efetivo deve vir de rtd_option_quotes.ultimo_preco = 9.99.
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:353:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:357:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:366:    assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:370:    assert persisted_payload["legs"][0]["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_audit_rtd_option_quotes.py:12:    / "audit_rtd_option_quotes.py"
+.\ATT\tests\test_audit_rtd_option_quotes.py:18:        "audit_rtd_option_quotes_under_test",
+.\ATT\tests\test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_audit_rtd_option_quotes.py:75:            INSERT INTO rtd_option_quotes (
+.\ATT\tests\test_audit_rtd_option_quotes.py:111:    assert "table not found: rtd_option_quotes" in result["errors"]
+.\ATT\tests\test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:24:def create_rtd_option_quotes_schema(db_path: Path) -> None:
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:103:            FROM rtd_option_quotes
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:116:        return conn.execute("SELECT COUNT(*) FROM rtd_option_quotes").fetchone()[0]
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:185:    create_rtd_option_quotes_schema(db_path)
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:213:    create_rtd_option_quotes_schema(db_path)
+.\infra\bootstrap_rtd_option_quotes_schema.py:8:TABLE_NAME = "rtd_option_quotes"
+.\infra\bootstrap_rtd_option_quotes_schema.py:35:CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+.\infra\bootstrap_rtd_option_quotes_schema.py:90:        description="Cria/valida o schema vazio de rtd_option_quotes em banco SQLite."
+.\infra\bootstrap_rtd_option_quotes_schema.py:102:    print("Bootstrap rtd_option_quotes")
+.\infra\bootstrap_rtd_option_quotes_schema.py:127:    print("[OK] Schema rtd_option_quotes disponível.")
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:80:def _create_rtd_option_quotes_schema(db_path: Path) -> None:
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:84:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:341:            FROM rtd_option_quotes
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:355:    _create_rtd_option_quotes_schema(app_db)
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:413:    # rtd_option_quotes.ultimo_preco = 9.99.
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:423:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:443:    assert persisted_leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:464:    assert snapshot_state_leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:475:    assert snapshot_leg["raw_json"]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:59:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:100:    assert loaded["pricing_payload"]["legs"][0]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:222:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:251:    assert snapshot_call["legs"][0]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:254:        == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:259:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:263:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:292:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:296:                "rtd_price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:368:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:372:                "rtd_price_source": "rtd_option_quotes",
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:11:    / "run_rtd_option_quotes_pipeline.py"
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:17:        "run_rtd_option_quotes_pipeline_under_test",
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:64:    assert command[1].endswith("audit_rtd_option_quotes.py")
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:125:    assert calls[1][1].endswith("audit_rtd_option_quotes.py")
+.\services\canonical_pricing_facade.py:34:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+.\services\canonical_pricing_facade.py:157:def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
+.\services\canonical_pricing_facade.py:159:    Resolve o banco correto para rtd_option_quotes.
+.\services\canonical_pricing_facade.py:190:        if _sqlite_table_exists(candidate, "rtd_option_quotes"):
+.\services\canonical_pricing_facade.py:231:    Escolhe o melhor preço disponível em rtd_option_quotes e informa
+.\services\canonical_pricing_facade.py:266:    Escolhe o melhor preço disponível em rtd_option_quotes.
+.\services\canonical_pricing_facade.py:318:    repository: RtdOptionQuotesRepository,
+.\services\canonical_pricing_facade.py:368:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+.\services\canonical_pricing_facade.py:375:      manual explícito > rtd_option_quotes > preço original do snapshot.
+.\services\canonical_pricing_facade.py:394:    if rtd_option_quotes_repository is not None:
+.\services\canonical_pricing_facade.py:396:            repository=rtd_option_quotes_repository,
+.\services\canonical_pricing_facade.py:441:                "rtd_option_quotes",
+.\services\canonical_pricing_facade.py:579:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+.\services\canonical_pricing_facade.py:597:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+.\services\canonical_pricing_facade.py:701:        self._rtd_option_quotes_db_path = _resolve_rtd_option_quotes_db_path(self._db_path)
+.\services\canonical_pricing_facade.py:702:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(
+.\services\canonical_pricing_facade.py:703:            db_path=self._rtd_option_quotes_db_path,
+.\services\canonical_pricing_facade.py:735:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:32:rtd_option_quotes: ausente
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:77:## Evidências antecipadas sobre rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:83:Erro: table not found: rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:89:ATT/tests/test_audit_rtd_option_quotes.py: 7 passed
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:95:Tentadas: RTD_OPTION_QUOTES, RTD_PROBE_OPTIONS
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:175:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:231:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:365:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:436:Adicionar cobertura automatizada para garantir que o `CanonicalPricingFacade` resolva corretamente o banco efetivo da tabela `rtd_option_quotes`, preservando a separação entre banco principal de execução/cálculo e banco operacional onde residem as cotações RTD de opções.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:438:Esta etapa dá continuidade direta à Fase 8D, que integrou `rtd_option_quotes` ao `CanonicalPricingFacade` e corrigiu a resolução de caminho entre `dados/derived.db` e `dados/app.db`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:443:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:455:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:473:- escolha de `dados/app.db` quando o banco primário não possui `rtd_option_quotes` e o `app.db` possui;
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:474:- preferência pelo banco primário quando ele já possui `rtd_option_quotes`;
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:476:- inicialização do `CanonicalPricingFacade` com `_rtd_option_quotes_db_path` resolvido corretamente.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:594:A Fase 8E adiciona cobertura regressiva para a resolução do banco correto de `rtd_option_quotes` no `CanonicalPricingFacade`, sem alterar código funcional, schema, UI, importadores, arquivos em `dados/`, arquivos em `bridge/` ou motor de cálculo.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:663:Validar que o preço efetivo oriundo de `rtd_option_quotes` é aplicado ao payload canônico de pricing e que os metadados de rastreabilidade da cotação RTD permanecem disponíveis na execução.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:668:- Legs com preço resolvido por `rtd_option_quotes` passaram a carregar rastreabilidade da origem do preço.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:721:Endurecer a rastreabilidade do preço efetivo de opção resolvido a partir de `rtd_option_quotes`, garantindo que o payload canônico de pricing informe não apenas que o preço veio do RTD, mas também qual campo da cotação foi usado e qual registro RTD originou o preço.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:731:- `_resolve_effective_leg_price` passou a expor metadados adicionais de rastreabilidade quando a origem efetiva do preço é `rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:743:Quando `price_source` é `rtd_option_quotes`, a leg pode carregar:
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:746:price_source = rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:778:- A cotação persistida em `rtd_option_quotes.ultimo_preco` era `9.99`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:780:- A leg manteve `price_source = rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:791:A resolução de preço RTD agora é auditável em nível de campo utilizado e registro de cotação, reduzindo ambiguidade entre preço manual, preço de snapshot e preço vindo de `rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:850:Foram adicionados testes regressivos para validar que uma leg com preço vindo de `rtd_option_quotes` preserva os seguintes campos após persistência e recuperação:
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:894:- Uma leg com `price_source = rtd_option_quotes` foi persistida com metadados RTD completos.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:942:rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:953:price_source = rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:975:- Confirmar qual banco local contém `rtd_option_quotes` alimentado pelo Excel/RTD.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1001:RTD_LINKS.csv -> importação -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_payload -> pricing_executions -> system snapshot/query
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1003:A fase deve comprovar que o preço efetivo oriundo de `rtd_option_quotes.ultimo_preco` é usado pelo pricing e que a rastreabilidade operacional é preservada durante persistência e consulta posterior.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1015:- `scripts/run_rtd_option_quotes_pipeline.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1016:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1088:- `git grep -n "price_resolution_status\|rtd_quote_found\|rtd_validation_status\|rtd_validation_message\|price_source\|rtd_option_quotes" -- services repositories ATT/tests docs`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1089:- `git grep -n "class \|def " -- repositories/rtd_option_quotes_repository.py repositories/pricing_executions_repository.py services/canonical_pricing_facade.py services/pricing_execution_persistence_service.py services/pricing_execution_query_service.py services/pricing_execution_app_service.py services/pricing_execution_orchestration_service.py services/market_snapshot_provider.py services/market_snapshot_selector.py services/structure_market_input_assembler.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1109:`RTD_LINKS.csv -> import_csv_to_db -> rtd_option_quotes -> CanonicalPricingFacade.execute_pricing -> pricing_payload -> pricing_executions -> structure_snapshots/system snapshot query`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1113:- Importação do CSV temporário para `rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1117:- Uso efetivo de `rtd_option_quotes.ultimo_preco` como preço da perna.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1119:- Preservação de `price_source = rtd_option_quotes`.
+.\docs\fases\fase-10g-guardrails-operacionais-preco-rtd.md:13:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+.\docs\fases\fase-10g-guardrails-operacionais-preco-rtd.md:33:- repositories/rtd_option_quotes_repository.py
+.\docs\fases\fase-10g-guardrails-operacionais-preco-rtd.md:60:- price_source = rtd_option_quotes
+.\docs\validacoes\fechamento-rota-mestre-2.md:48:- `scripts/audit_rtd_option_quotes.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:49:- `scripts/run_rtd_option_quotes_pipeline.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:50:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:51:- `scripts/seed_current_rtd_option_quotes.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:79:- auditoria da tabela `rtd_option_quotes`;
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:10:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:15:A fase 10f valida operacionalmente que o preço efetivo usado pelo motor canônico de pricing é carregado da tabela `rtd_option_quotes`, usando o campo `ultimo_preco`, e que a rastreabilidade desse preço é preservada no `pricing_payload` persistido.
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:61:Os preços e prêmios das legs vieram de `rtd_option_quotes.ultimo_preco`:
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:75:price_source = rtd_option_quotes
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:79:rtd_price_source = valor da coluna rtd_option_quotes.source
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:82:No banco real, a coluna `rtd_option_quotes.source` estava com o valor:
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:101:price_source = rtd_option_quotes
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:107:rtd_price_source = rtd_option_quotes.source
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:127:price_source = rtd_option_quotes.
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:128:preço/premium vieram de rtd_option_quotes.ultimo_preco.
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:129:rtd_price_source reflete a coluna rtd_option_quotes.source.
+.\scripts\seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+.\scripts\seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+.\scripts\seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+.\scripts\seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+.\scripts\seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+.\scripts\seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+.\scripts\seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+.\scripts\seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+.\scripts\seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+.\scripts\seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+.\scripts\seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+.\scripts\seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+.\scripts\run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+.\scripts\run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+.\scripts\run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+.\scripts\run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+.\scripts\run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+.\scripts\run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+.\scripts\run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+.\docs\ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:17:rtd_option_quotes: ausente em dados/app.db
+.\docs\ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:53:### Fase 3 — Auditoria da ausência de rtd_option_quotes
+.\docs\ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:59:Definir se rtd_option_quotes será recriada por migração, bootstrap, script controlado ou restauração validada.
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:79:            "Aba RTD. Se omitida, o importador tenta RTD_OPTION_QUOTES "
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+.\docs\decisions\2026-06-17-supersessao-lista-rtd-xlsx.md:12:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:748:repositories/rtd_option_quotes_repository.py
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:813:scripts/patch_73_rtd_option_quotes.py
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:877:•	criar tabela nova antes de auditar rtd_option_quotes_repository.py
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:991:•	confirmar se rtd_option_quotes existe no banco
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:995:•	auditar repositories/rtd_option_quotes_repository.py
+.\docs\lista_priorizada_automacao_opcoes_rtd.md:36:### `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:105:- rtd_option_quotes
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:123:- rtd_option_quotes: 1
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:138:- rtd_option_quotes
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:146:- rtd_option_quotes possui apenas um registro no estado analisado.
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:261:- rtd_option_quotes
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:281:- rtd_option_quotes
+.\scripts\mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:11:- `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:18:- `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:27:### `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:35:- Menciona `rtd_option_quotes`: `True`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:48:- Menciona `rtd_option_quotes`: `False`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:61:- Menciona `rtd_option_quotes`: `False`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:74:- Menciona `rtd_option_quotes`: `False`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:84:### Tabela `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:115:CREATE TABLE rtd_option_quotes (
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:428:### Termo `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:431:  - linha `107`: `"rtd_option_quotes",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:432:  - linha `145`: `"scripts/patch_73_rtd_option_quotes.py",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:433:  - linha `147`: `"repositories/rtd_option_quotes_repository.py",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:434:  - linha `346`: `if "repositories/rtd_option_quotes_repository.py" in existing_paths:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:435:  - linha `348`: `"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções."`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:436:  - linha `351`: `if "scripts/patch_73_rtd_option_quotes.py" in existing_paths:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:437:  - linha `353`: `"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções."`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:439:  - linha `175`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:440:  - linha `231`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:441:  - linha `365`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:443:  - linha `238`: `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:444:  - linha `244`: `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:445:  - linha `306`: `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:446:  - linha `317`: `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:447:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:449:  - linha `280`: `| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:451:  - linha `84`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:452:  - linha `91`: `- `rtd_option_quotes``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:453:  - linha `97`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:454:  - linha `205`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:455:  - linha `255`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:457:  - linha `105`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:458:  - linha `123`: `- rtd_option_quotes: 1`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:459:  - linha `138`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:460:  - linha `146`: `- rtd_option_quotes possui apenas um registro no estado analisado.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:461:  - linha `261`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:462:  - linha `281`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:464:  - linha `36`: `### `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:466:  - linha `324`: `### `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:468:  - linha `748`: `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:469:  - linha `813`: `scripts/patch_73_rtd_option_quotes.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:470:  - linha `877`: `•	criar tabela nova antes de auditar rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:471:  - linha `991`: `•	confirmar se rtd_option_quotes existe no banco`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:472:  - linha `995`: `•	auditar repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:473:- `repositories/rtd_option_quotes_repository.py` — `5` ocorrência(s)
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:474:  - linha `1`: `# repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:475:  - linha `12`: `Leitura da tabela rtd_option_quotes.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:476:  - linha `48`: `FROM rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:477:  - linha `80`: `FROM rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:478:  - linha `112`: `FROM rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:480:  - linha `69`: `"repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:526:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:801:- `repositories/rtd_option_quotes_repository.py` — `1` ocorrência(s)
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:1230:1. `repositories/rtd_option_quotes_repository.py` é um repositório de leitura da tabela `rtd_option_quotes`.
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:1242:- `rtd_option_quotes`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:84:- `repositories/rtd_option_quotes_repository.py`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:91:- `rtd_option_quotes`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:97:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:205:- `repositories/rtd_option_quotes_repository.py`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:255:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+.\scripts\import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+.\scripts\import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+.\scripts\import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+.\scripts\import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+.\scripts\import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+.\scripts\import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+.\scripts\import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+.\scripts\import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+.\scripts\import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+.\scripts\import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+.\scripts\import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+.\scripts\import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+.\scripts\import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+.\scripts\import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+.\scripts\import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+.\scripts\import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+.\scripts\import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+.\scripts\import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+.\scripts\import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+.\docs\mapeamento_automacao_opcoes_rtd.json:660:      "path": "repositories/rtd_option_quotes_repository.py",
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:6:        -> aba RTD_OPTION_QUOTES ou RTD_PROBE_OPTIONS
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:28:DEFAULT_SHEETS = ["RTD_OPTION_QUOTES", "RTD_PROBE_OPTIONS", "RTD-BTG LISTA"]
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:427:    columns = get_table_columns(conn, "rtd_option_quotes")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:430:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:436:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:458:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:502:            UPDATE rtd_option_quotes
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:534:            INSERT INTO rtd_option_quotes (
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:588:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:607:            "Nome da aba. Se omitido, tenta RTD_OPTION_QUOTES "
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:694:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:704:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:8:      "rtd_option_quotes": {
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:197:        "create_sql": "CREATE TABLE rtd_option_quotes (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n    codigo_opcao TEXT NOT NULL,\n    ativo_base TEXT,\n\n    call_put TEXT,\n    strike REAL,\n    vencimento TEXT,\n\n    ultimo_preco REAL,\n    ultima_quantidade REAL,\n\n    bid REAL,\n    ask REAL,\n    volume REAL,\n\n    iv REAL,\n    delta REAL,\n    gamma REAL,\n    theta REAL,\n    vega REAL,\n\n    source TEXT NOT NULL DEFAULT 'rtd_links',\n    raw_json TEXT,\n\n    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    UNIQUE(codigo_opcao)\n)"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:790:    "repositories/rtd_option_quotes_repository.py": {
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:797:      "mentions_rtd_option_quotes": true,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:809:      "mentions_rtd_option_quotes": false,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:821:      "mentions_rtd_option_quotes": false,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:833:      "mentions_rtd_option_quotes": false,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:840:    "rtd_option_quotes": [
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:846:            "text": "\"rtd_option_quotes\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:850:            "text": "\"scripts/patch_73_rtd_option_quotes.py\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:854:            "text": "\"repositories/rtd_option_quotes_repository.py\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:858:            "text": "if \"repositories/rtd_option_quotes_repository.py\" in existing_paths:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:862:            "text": "\"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções.\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:866:            "text": "if \"scripts/patch_73_rtd_option_quotes.py\" in existing_paths:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:870:            "text": "\"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções.\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:880:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:884:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:888:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:898:            "text": "repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:902:            "text": "rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:906:            "text": "rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:910:            "text": "repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:914:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:924:            "text": "| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:934:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:938:            "text": "- `rtd_option_quotes`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:942:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:946:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:950:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:960:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:964:            "text": "- rtd_option_quotes: 1"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:968:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:972:            "text": "- rtd_option_quotes possui apenas um registro no estado analisado."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:976:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:980:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:990:            "text": "### `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1000:            "text": "### `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1010:            "text": "repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1014:            "text": "scripts/patch_73_rtd_option_quotes.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1018:            "text": "•\tcriar tabela nova antes de auditar rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1022:            "text": "•\tconfirmar se rtd_option_quotes existe no banco"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1026:            "text": "•\tauditar repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1032:        "path": "repositories/rtd_option_quotes_repository.py",
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1036:            "text": "# repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1040:            "text": "Leitura da tabela rtd_option_quotes."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1044:            "text": "FROM rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1048:            "text": "FROM rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1052:            "text": "FROM rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1062:            "text": "\"repositories/rtd_option_quotes_repository.py\": \"Prioritário para auditoria de persistência RTD.\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1256:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1772:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:2650:        "path": "repositories/rtd_option_quotes_repository.py",
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:3008:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\mapeamento_automacao_opcoes_rtd.md:324:### `repositories/rtd_option_quotes_repository.py`
+.\docs\FASE_3_CLASSIFICACAO_FONTES_DADOS.md:280:| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |
+.\scripts\create_rtd_option_quotes_sheet.py:27:RTD = 'RTD("btg_pro_rtd","","{topic}",$A{row})'
+.\scripts\create_rtd_option_quotes_sheet.py:40:        description="Cria/atualiza aba RTD_OPTION_QUOTES tabular em LISTA_RTD.xlsm."
+.\scripts\create_rtd_option_quotes_sheet.py:48:    parser.add_argument("--sheet", default="RTD_OPTION_QUOTES")
+.\scripts\create_rtd_option_quotes_sheet.py:73:        ws.cell(row=idx, column=2).value = formula("QUOTE.UNDERLYING_SYMBOL", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:74:        ws.cell(row=idx, column=3).value = formula("QUOTE.OPTION_TYPE", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:75:        ws.cell(row=idx, column=4).value = formula("QUOTE.STRIKE_PRICE", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:76:        ws.cell(row=idx, column=5).value = formula("QUOTE.MATURITYDATE", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:77:        ws.cell(row=idx, column=6).value = formula("QUOTE.LAST_TRADE_PRICE", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:78:        ws.cell(row=idx, column=7).value = formula("QUOTE.LAST_TRADE_QUANTITY", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:79:        ws.cell(row=idx, column=8).value = formula("QUOTE.BID_PRICE", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:80:        ws.cell(row=idx, column=9).value = formula("QUOTE.ASK_PRICE", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:81:        ws.cell(row=idx, column=10).value = formula("QUOTE.VOLUME", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:82:        ws.cell(row=idx, column=11).value = formula("QUOTE.IMPLIED_VOLATILITY", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:83:        ws.cell(row=idx, column=12).value = formula("QUOTE.DELTA", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:84:        ws.cell(row=idx, column=13).value = formula("QUOTE.GAMMA", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:85:        ws.cell(row=idx, column=14).value = formula("QUOTE.THETA", idx)
+.\scripts\create_rtd_option_quotes_sheet.py:86:        ws.cell(row=idx, column=15).value = formula("QUOTE.VEGA", idx)
+.\scripts\audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+.\scripts\audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+.\scripts\audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+.\scripts\audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+.\scripts\audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+.\scripts\audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:238:repositories/rtd_option_quotes_repository.py
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:244:rtd_option_quotes
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:306:rtd_option_quotes
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:317:repositories/rtd_option_quotes_repository.py
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:501:- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário
+
+## Possiveis definicoes de tabela/modelo/schema
+
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:11:class FakeRtdOptionQuotesRepository:
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:103:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:129:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:133:    assert price_source == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:144:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:162:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:204:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:211:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:223:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:234:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:238:    assert price_source == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:247:        "rtd_price_source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:264:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:275:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:286:    assert traceability["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:298:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:330:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:354:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:377:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:386:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:406:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:415:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:435:                "source": "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:465:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:470:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_rtd_price_resolution.py:508:        rtd_option_quotes_repository=repository,
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:6:    _resolve_rtd_option_quotes_db_path,
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:17:def _create_rtd_option_quotes_table(path: Path) -> None:
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:22:            CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:35:    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is False
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:40:    _create_rtd_option_quotes_table(db_path)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:42:    assert _sqlite_table_exists(db_path, "rtd_option_quotes") is True
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:46:def test_resolve_rtd_option_quotes_db_path_prefers_app_db_when_primary_has_no_table(
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:57:    _create_rtd_option_quotes_table(app_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:59:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:64:def test_resolve_rtd_option_quotes_db_path_prefers_primary_when_primary_has_table(
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:74:    _create_rtd_option_quotes_table(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:75:    _create_rtd_option_quotes_table(app_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:77:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:82:def test_resolve_rtd_option_quotes_db_path_falls_back_to_primary_when_no_candidate_has_table(
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:95:    resolved = _resolve_rtd_option_quotes_db_path(primary_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:111:    _create_rtd_option_quotes_table(app_db)
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:116:    assert facade._rtd_option_quotes_db_path == app_db
+.\ATT\tests\test_canonical_pricing_facade_rtd_db_path.py:117:    assert facade._rtd_option_quotes_repository.db_path == app_db
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:243:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:269:            INSERT INTO rtd_option_quotes (
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:307:                "rtd_option_quotes",
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:348:    # O preço efetivo deve vir de rtd_option_quotes.ultimo_preco = 9.99.
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:353:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:357:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:366:    assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py:370:    assert persisted_payload["legs"][0]["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_audit_rtd_option_quotes.py:12:    / "audit_rtd_option_quotes.py"
+.\ATT\tests\test_audit_rtd_option_quotes.py:18:        "audit_rtd_option_quotes_under_test",
+.\ATT\tests\test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_audit_rtd_option_quotes.py:75:            INSERT INTO rtd_option_quotes (
+.\ATT\tests\test_audit_rtd_option_quotes.py:111:    assert "table not found: rtd_option_quotes" in result["errors"]
+.\ATT\tests\test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:24:def create_rtd_option_quotes_schema(db_path: Path) -> None:
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:103:            FROM rtd_option_quotes
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:116:        return conn.execute("SELECT COUNT(*) FROM rtd_option_quotes").fetchone()[0]
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:185:    create_rtd_option_quotes_schema(db_path)
+.\ATT\tests\test_import_rtd_links_to_option_quotes.py:213:    create_rtd_option_quotes_schema(db_path)
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:80:def _create_rtd_option_quotes_schema(db_path: Path) -> None:
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:84:            CREATE TABLE rtd_option_quotes (
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:341:            FROM rtd_option_quotes
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:355:    _create_rtd_option_quotes_schema(app_db)
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:413:    # rtd_option_quotes.ultimo_preco = 9.99.
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:423:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:443:    assert persisted_leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:464:    assert snapshot_state_leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_fase_11_rtd_integrated_flow.py:475:    assert snapshot_leg["raw_json"]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:59:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:100:    assert loaded["pricing_payload"]["legs"][0]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:222:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:251:    assert snapshot_call["legs"][0]["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:254:        == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:259:    assert leg["price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:263:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:292:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:296:                "rtd_price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:368:                "price_source": "rtd_option_quotes",
+.\ATT\tests\test_pricing_execution_price_source_persistence.py:372:                "rtd_price_source": "rtd_option_quotes",
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:11:    / "run_rtd_option_quotes_pipeline.py"
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:17:        "run_rtd_option_quotes_pipeline_under_test",
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:64:    assert command[1].endswith("audit_rtd_option_quotes.py")
+.\ATT\tests\test_run_rtd_option_quotes_pipeline.py:125:    assert calls[1][1].endswith("audit_rtd_option_quotes.py")
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:32:rtd_option_quotes: ausente
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:77:## Evidências antecipadas sobre rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:83:Erro: table not found: rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_3.md:89:ATT/tests/test_audit_rtd_option_quotes.py: 7 passed
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:175:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:231:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:365:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:436:Adicionar cobertura automatizada para garantir que o `CanonicalPricingFacade` resolva corretamente o banco efetivo da tabela `rtd_option_quotes`, preservando a separação entre banco principal de execução/cálculo e banco operacional onde residem as cotações RTD de opções.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:438:Esta etapa dá continuidade direta à Fase 8D, que integrou `rtd_option_quotes` ao `CanonicalPricingFacade` e corrigiu a resolução de caminho entre `dados/derived.db` e `dados/app.db`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:443:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:455:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:473:- escolha de `dados/app.db` quando o banco primário não possui `rtd_option_quotes` e o `app.db` possui;
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:474:- preferência pelo banco primário quando ele já possui `rtd_option_quotes`;
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:476:- inicialização do `CanonicalPricingFacade` com `_rtd_option_quotes_db_path` resolvido corretamente.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:594:A Fase 8E adiciona cobertura regressiva para a resolução do banco correto de `rtd_option_quotes` no `CanonicalPricingFacade`, sem alterar código funcional, schema, UI, importadores, arquivos em `dados/`, arquivos em `bridge/` ou motor de cálculo.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:663:Validar que o preço efetivo oriundo de `rtd_option_quotes` é aplicado ao payload canônico de pricing e que os metadados de rastreabilidade da cotação RTD permanecem disponíveis na execução.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:668:- Legs com preço resolvido por `rtd_option_quotes` passaram a carregar rastreabilidade da origem do preço.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:721:Endurecer a rastreabilidade do preço efetivo de opção resolvido a partir de `rtd_option_quotes`, garantindo que o payload canônico de pricing informe não apenas que o preço veio do RTD, mas também qual campo da cotação foi usado e qual registro RTD originou o preço.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:731:- `_resolve_effective_leg_price` passou a expor metadados adicionais de rastreabilidade quando a origem efetiva do preço é `rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:743:Quando `price_source` é `rtd_option_quotes`, a leg pode carregar:
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:746:price_source = rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:778:- A cotação persistida em `rtd_option_quotes.ultimo_preco` era `9.99`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:780:- A leg manteve `price_source = rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:791:A resolução de preço RTD agora é auditável em nível de campo utilizado e registro de cotação, reduzindo ambiguidade entre preço manual, preço de snapshot e preço vindo de `rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:850:Foram adicionados testes regressivos para validar que uma leg com preço vindo de `rtd_option_quotes` preserva os seguintes campos após persistência e recuperação:
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:894:- Uma leg com `price_source = rtd_option_quotes` foi persistida com metadados RTD completos.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:942:rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:953:price_source = rtd_option_quotes
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:975:- Confirmar qual banco local contém `rtd_option_quotes` alimentado pelo Excel/RTD.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1001:RTD_LINKS.csv -> importação -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_payload -> pricing_executions -> system snapshot/query
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1003:A fase deve comprovar que o preço efetivo oriundo de `rtd_option_quotes.ultimo_preco` é usado pelo pricing e que a rastreabilidade operacional é preservada durante persistência e consulta posterior.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1015:- `scripts/run_rtd_option_quotes_pipeline.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1016:- `repositories/rtd_option_quotes_repository.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1088:- `git grep -n "price_resolution_status\|rtd_quote_found\|rtd_validation_status\|rtd_validation_message\|price_source\|rtd_option_quotes" -- services repositories ATT/tests docs`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1089:- `git grep -n "class \|def " -- repositories/rtd_option_quotes_repository.py repositories/pricing_executions_repository.py services/canonical_pricing_facade.py services/pricing_execution_persistence_service.py services/pricing_execution_query_service.py services/pricing_execution_app_service.py services/pricing_execution_orchestration_service.py services/market_snapshot_provider.py services/market_snapshot_selector.py services/structure_market_input_assembler.py`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1109:`RTD_LINKS.csv -> import_csv_to_db -> rtd_option_quotes -> CanonicalPricingFacade.execute_pricing -> pricing_payload -> pricing_executions -> structure_snapshots/system snapshot query`
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1113:- Importação do CSV temporário para `rtd_option_quotes`.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1117:- Uso efetivo de `rtd_option_quotes.ultimo_preco` como preço da perna.
+.\docs\AUDITORIA_ROTA_MESTRE_2.md:1119:- Preservação de `price_source = rtd_option_quotes`.
+.\services\canonical_pricing_facade.py:34:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+.\services\canonical_pricing_facade.py:157:def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
+.\services\canonical_pricing_facade.py:159:    Resolve o banco correto para rtd_option_quotes.
+.\services\canonical_pricing_facade.py:190:        if _sqlite_table_exists(candidate, "rtd_option_quotes"):
+.\services\canonical_pricing_facade.py:231:    Escolhe o melhor preço disponível em rtd_option_quotes e informa
+.\services\canonical_pricing_facade.py:266:    Escolhe o melhor preço disponível em rtd_option_quotes.
+.\services\canonical_pricing_facade.py:368:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
+.\services\canonical_pricing_facade.py:375:      manual explícito > rtd_option_quotes > preço original do snapshot.
+.\services\canonical_pricing_facade.py:394:    if rtd_option_quotes_repository is not None:
+.\services\canonical_pricing_facade.py:396:            repository=rtd_option_quotes_repository,
+.\services\canonical_pricing_facade.py:441:                "rtd_option_quotes",
+.\services\canonical_pricing_facade.py:579:    rtd_option_quotes_repository: RtdOptionQuotesRepository | None = None,
+.\services\canonical_pricing_facade.py:597:            rtd_option_quotes_repository=rtd_option_quotes_repository,
+.\services\canonical_pricing_facade.py:701:        self._rtd_option_quotes_db_path = _resolve_rtd_option_quotes_db_path(self._db_path)
+.\services\canonical_pricing_facade.py:702:        self._rtd_option_quotes_repository = RtdOptionQuotesRepository(
+.\services\canonical_pricing_facade.py:703:            db_path=self._rtd_option_quotes_db_path,
+.\services\canonical_pricing_facade.py:735:                rtd_option_quotes_repository=self._rtd_option_quotes_repository,
+.\docs\validacoes\fechamento-rota-mestre-2.md:48:- `scripts/audit_rtd_option_quotes.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:49:- `scripts/run_rtd_option_quotes_pipeline.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:50:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:51:- `scripts/seed_current_rtd_option_quotes.py`
+.\docs\validacoes\fechamento-rota-mestre-2.md:79:- auditoria da tabela `rtd_option_quotes`;
+.\scripts\seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+.\scripts\seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+.\scripts\seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+.\scripts\seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+.\scripts\seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+.\scripts\seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+.\scripts\seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+.\scripts\seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+.\scripts\seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+.\scripts\seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+.\scripts\seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+.\scripts\seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+.\scripts\run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+.\scripts\run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+.\scripts\run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+.\scripts\run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+.\scripts\run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+.\scripts\run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+.\scripts\run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:10:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:15:A fase 10f valida operacionalmente que o preço efetivo usado pelo motor canônico de pricing é carregado da tabela `rtd_option_quotes`, usando o campo `ultimo_preco`, e que a rastreabilidade desse preço é preservada no `pricing_payload` persistido.
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:61:Os preços e prêmios das legs vieram de `rtd_option_quotes.ultimo_preco`:
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:75:price_source = rtd_option_quotes
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:79:rtd_price_source = valor da coluna rtd_option_quotes.source
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:82:No banco real, a coluna `rtd_option_quotes.source` estava com o valor:
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:101:price_source = rtd_option_quotes
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:107:rtd_price_source = rtd_option_quotes.source
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:127:price_source = rtd_option_quotes.
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:128:preço/premium vieram de rtd_option_quotes.ultimo_preco.
+.\docs\validacoes\fase-10f-validacao-e2e-rtd-excel.md:129:rtd_price_source reflete a coluna rtd_option_quotes.source.
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+.\scripts\run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+.\docs\ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:17:rtd_option_quotes: ausente em dados/app.db
+.\docs\ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:53:### Fase 3 — Auditoria da ausência de rtd_option_quotes
+.\docs\ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:59:Definir se rtd_option_quotes será recriada por migração, bootstrap, script controlado ou restauração validada.
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:748:repositories/rtd_option_quotes_repository.py
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:813:scripts/patch_73_rtd_option_quotes.py
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:877:•	criar tabela nova antes de auditar rtd_option_quotes_repository.py
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:991:•	confirmar se rtd_option_quotes existe no banco
+.\docs\ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:995:•	auditar repositories/rtd_option_quotes_repository.py
+.\scripts\mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+.\scripts\import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+.\scripts\import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+.\scripts\import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+.\scripts\import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+.\scripts\import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+.\scripts\import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+.\scripts\import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+.\scripts\import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+.\scripts\import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+.\scripts\import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+.\scripts\import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+.\scripts\import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+.\scripts\import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+.\scripts\import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+.\scripts\import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+.\scripts\import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+.\scripts\import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+.\scripts\import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+.\scripts\import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:427:    columns = get_table_columns(conn, "rtd_option_quotes")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:430:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:436:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:458:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:502:            UPDATE rtd_option_quotes
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:534:            INSERT INTO rtd_option_quotes (
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:588:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:694:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+.\scripts\import_lista_rtd_excel_to_option_quotes.py:704:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:238:repositories/rtd_option_quotes_repository.py
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:244:rtd_option_quotes
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:306:rtd_option_quotes
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:317:repositories/rtd_option_quotes_repository.py
+.\docs\FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:501:- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário
+.\docs\mapeamento_automacao_opcoes_rtd.md:324:### `repositories/rtd_option_quotes_repository.py`
+.\docs\mapeamento_automacao_opcoes_rtd.json:660:      "path": "repositories/rtd_option_quotes_repository.py",
+.\scripts\audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+.\scripts\audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+.\scripts\audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+.\scripts\audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+.\scripts\audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+.\scripts\audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+.\docs\FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:95:repositories/robo_legs_repository.py:72:            table="rtd_analise_robo_legs",
+.\docs\lista_priorizada_automacao_opcoes_rtd.md:36:### `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:11:- `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:18:- `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:27:### `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:35:- Menciona `rtd_option_quotes`: `True`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:48:- Menciona `rtd_option_quotes`: `False`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:61:- Menciona `rtd_option_quotes`: `False`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:74:- Menciona `rtd_option_quotes`: `False`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:84:### Tabela `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:115:CREATE TABLE rtd_option_quotes (
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:428:### Termo `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:431:  - linha `107`: `"rtd_option_quotes",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:432:  - linha `145`: `"scripts/patch_73_rtd_option_quotes.py",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:433:  - linha `147`: `"repositories/rtd_option_quotes_repository.py",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:434:  - linha `346`: `if "repositories/rtd_option_quotes_repository.py" in existing_paths:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:435:  - linha `348`: `"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções."`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:436:  - linha `351`: `if "scripts/patch_73_rtd_option_quotes.py" in existing_paths:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:437:  - linha `353`: `"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções."`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:439:  - linha `175`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:440:  - linha `231`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:441:  - linha `365`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:443:  - linha `238`: `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:444:  - linha `244`: `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:445:  - linha `306`: `rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:446:  - linha `317`: `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:447:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:449:  - linha `280`: `| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:451:  - linha `84`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:452:  - linha `91`: `- `rtd_option_quotes``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:453:  - linha `97`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:454:  - linha `205`: `- `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:455:  - linha `255`: `- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:457:  - linha `105`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:458:  - linha `123`: `- rtd_option_quotes: 1`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:459:  - linha `138`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:460:  - linha `146`: `- rtd_option_quotes possui apenas um registro no estado analisado.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:461:  - linha `261`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:462:  - linha `281`: `- rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:464:  - linha `36`: `### `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:466:  - linha `324`: `### `repositories/rtd_option_quotes_repository.py``
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:468:  - linha `748`: `repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:469:  - linha `813`: `scripts/patch_73_rtd_option_quotes.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:470:  - linha `877`: `•	criar tabela nova antes de auditar rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:471:  - linha `991`: `•	confirmar se rtd_option_quotes existe no banco`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:472:  - linha `995`: `•	auditar repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:473:- `repositories/rtd_option_quotes_repository.py` — `5` ocorrência(s)
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:474:  - linha `1`: `# repositories/rtd_option_quotes_repository.py`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:475:  - linha `12`: `Leitura da tabela rtd_option_quotes.`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:476:  - linha `48`: `FROM rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:477:  - linha `80`: `FROM rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:478:  - linha `112`: `FROM rtd_option_quotes`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:480:  - linha `69`: `"repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:513:  - linha `48`: `Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:518:  - linha `130`: `$ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:526:  - linha `501`: `- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:535:  - linha `95`: `repositories/robo_legs_repository.py:72:            table="rtd_analise_robo_legs",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:570:  - linha `72`: `table="rtd_analise_robo_legs",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:613:  - linha `48`: `Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:619:  - linha `130`: `$ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:642:  - linha `95`: `repositories/robo_legs_repository.py:72:            table="rtd_analise_robo_legs",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:687:  - linha `72`: `table="rtd_analise_robo_legs",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:801:- `repositories/rtd_option_quotes_repository.py` — `1` ocorrência(s)
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:859:  - linha `48`: `Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:864:  - linha `130`: `$ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:948:  - linha `72`: `table="rtd_analise_robo_legs",`
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:1230:1. `repositories/rtd_option_quotes_repository.py` é um repositório de leitura da tabela `rtd_option_quotes`.
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.md:1242:- `rtd_option_quotes`
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:105:- rtd_option_quotes
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:123:- rtd_option_quotes: 1
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:138:- rtd_option_quotes
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:146:- rtd_option_quotes possui apenas um registro no estado analisado.
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:261:- rtd_option_quotes
+.\docs\fase_8_banco_fonte_verdade_auditoria.md:281:- rtd_option_quotes
+.\docs\fases\fase-10g-guardrails-operacionais-preco-rtd.md:13:RTD Excel -> rtd_option_quotes -> CanonicalPricingFacade -> pricing_executions
+.\docs\fases\fase-10g-guardrails-operacionais-preco-rtd.md:33:- repositories/rtd_option_quotes_repository.py
+.\docs\fases\fase-10g-guardrails-operacionais-preco-rtd.md:60:- price_source = rtd_option_quotes
+.\docs\executed_v1.md:48:Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:
+.\docs\executed_v1.md:130:$ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:8:      "rtd_option_quotes": {
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:197:        "create_sql": "CREATE TABLE rtd_option_quotes (\n    id INTEGER PRIMARY KEY AUTOINCREMENT,\n\n    codigo_opcao TEXT NOT NULL,\n    ativo_base TEXT,\n\n    call_put TEXT,\n    strike REAL,\n    vencimento TEXT,\n\n    ultimo_preco REAL,\n    ultima_quantidade REAL,\n\n    bid REAL,\n    ask REAL,\n    volume REAL,\n\n    iv REAL,\n    delta REAL,\n    gamma REAL,\n    theta REAL,\n    vega REAL,\n\n    source TEXT NOT NULL DEFAULT 'rtd_links',\n    raw_json TEXT,\n\n    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,\n\n    UNIQUE(codigo_opcao)\n)"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:790:    "repositories/rtd_option_quotes_repository.py": {
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:797:      "mentions_rtd_option_quotes": true,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:809:      "mentions_rtd_option_quotes": false,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:821:      "mentions_rtd_option_quotes": false,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:833:      "mentions_rtd_option_quotes": false,
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:840:    "rtd_option_quotes": [
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:846:            "text": "\"rtd_option_quotes\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:850:            "text": "\"scripts/patch_73_rtd_option_quotes.py\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:854:            "text": "\"repositories/rtd_option_quotes_repository.py\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:858:            "text": "if \"repositories/rtd_option_quotes_repository.py\" in existing_paths:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:862:            "text": "\"Auditar repositories/rtd_option_quotes_repository.py como provável ponto de persistência das cotações de opções.\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:866:            "text": "if \"scripts/patch_73_rtd_option_quotes.py\" in existing_paths:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:870:            "text": "\"Auditar scripts/patch_73_rtd_option_quotes.py para entender schema/tabela de cotações RTD de opções.\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:880:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:884:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:888:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:898:            "text": "repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:902:            "text": "rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:906:            "text": "rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:910:            "text": "repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:914:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:924:            "text": "| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:934:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:938:            "text": "- `rtd_option_quotes`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:942:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:946:            "text": "- `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:950:            "text": "- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:960:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:964:            "text": "- rtd_option_quotes: 1"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:968:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:972:            "text": "- rtd_option_quotes possui apenas um registro no estado analisado."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:976:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:980:            "text": "- rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:990:            "text": "### `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1000:            "text": "### `repositories/rtd_option_quotes_repository.py`"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1010:            "text": "repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1014:            "text": "scripts/patch_73_rtd_option_quotes.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1018:            "text": "•\tcriar tabela nova antes de auditar rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1022:            "text": "•\tconfirmar se rtd_option_quotes existe no banco"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1026:            "text": "•\tauditar repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1032:        "path": "repositories/rtd_option_quotes_repository.py",
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1036:            "text": "# repositories/rtd_option_quotes_repository.py"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1040:            "text": "Leitura da tabela rtd_option_quotes."
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1044:            "text": "FROM rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1048:            "text": "FROM rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1052:            "text": "FROM rtd_option_quotes"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1062:            "text": "\"repositories/rtd_option_quotes_repository.py\": \"Prioritário para auditoria de persistência RTD.\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1202:            "text": "Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1222:            "text": "$ python -c \"import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1256:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1296:            "text": "repositories/robo_legs_repository.py:72:            table=\"rtd_analise_robo_legs\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1512:            "text": "table=\"rtd_analise_robo_legs\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1694:            "text": "Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1718:            "text": "$ python -c \"import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1772:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:1832:            "text": "repositories/robo_legs_repository.py:72:            table=\"rtd_analise_robo_legs\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:2146:            "text": "table=\"rtd_analise_robo_legs\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:2650:        "path": "repositories/rtd_option_quotes_repository.py",
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:2914:            "text": "Depois você rodou o PRAGMA table_info(rtd_analise_robo_legs) e retornou o schema completo, confirmando:"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:2934:            "text": "$ python -c \"import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()\""
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:3008:            "text": "- fonte atual: app.db, rtd_option_quotes, rtd_analise_robo_legs e provider temporário"
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:3122:            "text": "repositories/robo_legs_repository.py:72:            table=\"rtd_analise_robo_legs\","
+.\docs\fase_3_diagnostico_persistencia_rtd_opcoes.json:3418:            "text": "table=\"rtd_analise_robo_legs\","
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:84:- `repositories/rtd_option_quotes_repository.py`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:91:- `rtd_option_quotes`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:97:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:205:- `repositories/rtd_option_quotes_repository.py`
+.\docs\FASE_6_CAMADA_CANONICA_LEITURA.md:255:- A tabela `rtd_option_quotes` também deve ser tratada como tabela operacional/staging de cotações RTD, acessada via repository.
+.\docs\FASE_3_CLASSIFICACAO_FONTES_DADOS.md:280:| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |
+.\repositories\robo_legs_repository.py:140:            table="rtd_analise_robo_legs",
+.\repositories\rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+.\repositories\rtd_option_quotes_repository.py:12:class RtdOptionQuotesRepository:
+.\repositories\rtd_option_quotes_repository.py:14:    Leitura da tabela rtd_option_quotes.
+.\repositories\rtd_option_quotes_repository.py:50:            FROM rtd_option_quotes
+.\repositories\rtd_option_quotes_repository.py:82:            FROM rtd_option_quotes
+.\repositories\rtd_option_quotes_repository.py:114:            FROM rtd_option_quotes
+.\docs\decisions\2026-06-17-supersessao-lista-rtd-xlsx.md:12:- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+.\infra\bootstrap_rtd_option_quotes_schema.py:8:TABLE_NAME = "rtd_option_quotes"
+.\infra\bootstrap_rtd_option_quotes_schema.py:35:CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+.\infra\bootstrap_rtd_option_quotes_schema.py:90:        description="Cria/valida o schema vazio de rtd_option_quotes em banco SQLite."
+.\infra\bootstrap_rtd_option_quotes_schema.py:102:    print("Bootstrap rtd_option_quotes")
+.\infra\bootstrap_rtd_option_quotes_schema.py:127:    print("[OK] Schema rtd_option_quotes disponível.")
+
+## Campos RTD observados no Excel - aba RTD_OPTION_QUOTES
+
+- QUOTE.UNDERLYING_SYMBOL
+- QUOTE.OPTION_TYPE
+- QUOTE.STRIKE_PRICE
+- QUOTE.MATURITYDATE
+- QUOTE.LAST_TRADE_PRICE
+- QUOTE.LAST_TRADE_QUANTITY
+- QUOTE.BID_PRICE
+- QUOTE.ASK_PRICE
+- QUOTE.VOLUME
+- QUOTE.IMPLIED_VOLATILITY
+- QUOTE.DELTA
+- QUOTE.GAMMA
+- QUOTE.THETA
+- QUOTE.VEGA
+
+## Observacoes
+
+- Este arquivo e uma evidencia documental.
+- Nenhuma alteracao foi feita em Excel, banco, UI, API, repository ou service.
+- Nenhuma implementacao funcional foi realizada.
