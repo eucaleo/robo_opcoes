@@ -21,9 +21,11 @@ alteracao_56:
   - fix: 5 placeholders -> 6 nos INSERTs com structure_id
 """
 from __future__ import annotations
+from pathlib import Path
 
 import json
 import sqlite3
+from db.config import ensure_parent_dir, get_derived_db_path
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -291,8 +293,14 @@ class DerivedRepo:
     alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
     """
 
-    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
-        self._db_path = derived_db or db_path
+    def __init__(self, db_path: str | Path | None = None, derived_db: Optional[str] = None) -> None:
+        selected_path = derived_db or db_path
+        resolved_path = (
+            Path(selected_path).expanduser().resolve()
+            if selected_path is not None
+            else get_derived_db_path()
+        )
+        self._db_path = str(ensure_parent_dir(resolved_path))
         self._bootstrap()
 
     # ------------------------------------------------------------------

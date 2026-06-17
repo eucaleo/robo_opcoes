@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
+from db.config import get_derived_db_path
 
 from src.domain.refs.structure_ref import StructureRef
 
@@ -34,8 +35,12 @@ _STRUCTURE_DECISION_COLUMNS = [
 class PayoffReader:
     """Leitor para análise de pontos do payoff curve e decisões estruturais."""
 
-    def __init__(self, db_path: str = "dados/derived.db"):
-        self.db_path = Path(db_path)
+    def __init__(self, db_path: str | Path | None = None):
+        self.db_path = (
+            Path(db_path).expanduser().resolve()
+            if db_path is not None
+            else get_derived_db_path()
+        )
 
     def _get_connection(self):
         """Retorna conexão com row factory configurada."""

@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from src.domain.refs.structure_ref import StructureRef
+from db.config import ensure_parent_dir, get_derived_db_path
 
 
 _STRUCTURE_DECISION_COLUMNS = [
@@ -48,9 +49,13 @@ _PAYOFF_HISTORY_COLUMNS = [
 class PayoffWriter:
     """Escritor para pontos do payoff curve e decisões estruturais."""
 
-    def __init__(self, db_path: str = "dados/derived.db"):
-        self.db_path = Path(db_path)
-        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+    def __init__(self, db_path: str | Path | None = None):
+        resolved_path = (
+            Path(db_path).expanduser().resolve()
+            if db_path is not None
+            else get_derived_db_path()
+        )
+        self.db_path = ensure_parent_dir(resolved_path)
         self._init_db()
 
     def _init_db(self):

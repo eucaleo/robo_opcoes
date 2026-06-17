@@ -12,11 +12,12 @@ Alterações:
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from db.config import get_app_db_path
 
 from services.canonical_pricing_facade import CanonicalPricingFacade
 from services.pricing_execution_query_service import PricingExecutionQueryService
 
-_DEFAULT_DB = Path("dados/app.db")
+_DEFAULT_DB = get_app_db_path()
 
 
 class PricingExecutionAppService:
@@ -24,10 +25,11 @@ class PricingExecutionAppService:
         self,
         canonical_pricing_facade: CanonicalPricingFacade | None = None,
         pricing_execution_query_service: PricingExecutionQueryService | None = None,
-        db_path: Path | str = _DEFAULT_DB,
+        db_path: Path | str | None = None,
     ):
+        resolved_db_path = Path(db_path).expanduser().resolve() if db_path is not None else get_app_db_path()
         self._facade = canonical_pricing_facade or CanonicalPricingFacade(
-            db_path=db_path,
+            db_path=resolved_db_path,
         )
         self.pricing_execution_query_service = (
             pricing_execution_query_service or PricingExecutionQueryService()

@@ -33,6 +33,7 @@ from __future__ import annotations
 import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Optional
+from db.config import get_app_db_path
 
 from repositories.structures_repository import StructuresRepository
 
@@ -44,14 +45,14 @@ class StructureEditorDialog(tk.Toplevel):
         self,
         parent: tk.Widget,
         structure_id: Optional[int] = None,
-        db_path: str = "dados/app.db",
+        db_path: str | None = None,
         *,
         _repo=None,                          # <-- injecao de dependencia (testes)
     ):
         super().__init__(parent)
 
         self._structure_id = structure_id
-        self._db_path      = db_path
+        self._db_path      = str(db_path) if db_path is not None else str(get_app_db_path())
         self.saved         = False
         self._legs_rows: list[dict] = []
 

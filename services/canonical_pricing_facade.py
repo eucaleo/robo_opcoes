@@ -28,6 +28,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from db.config import get_app_db_path
 
 from repositories.market_snapshot_repository import MarketSnapshotRepository
 from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
@@ -37,7 +38,7 @@ from services.market_snapshot_selector import MarketSnapshotSelector
 from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
 from services.pricing_execution_service import PricingExecutionService
 
-_DEFAULT_DB = Path("dados/app.db")
+_DEFAULT_DB = get_app_db_path()
 
 
 #  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
@@ -165,7 +166,7 @@ def _resolve_rtd_option_quotes_db_path(primary_db_path: Path) -> Path:
     for candidate in (
         primary_db_path,
         primary_db_path.parent / "app.db",
-        Path("dados/app.db"),
+        get_app_db_path(),
     ):
         candidate = Path(candidate)
         if candidate not in candidates:
@@ -677,7 +678,7 @@ class CanonicalPricingFacade:
 
     def __init__(
         self,
-        db_path: Path | str = _DEFAULT_DB,
+        db_path: Path | str | None = None,
         pricing_execution_service: PricingExecutionService | None = None,
         persistence_service: PricingExecutionPersistenceService | None = None,
     ) -> None:

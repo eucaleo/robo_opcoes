@@ -6,9 +6,10 @@ alteracao_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional, Tuple
+from db.config import get_app_db_path
 
 from infra.sqlite_conn import sqlite_conn
 from repositories._aba_resolver_mixin import AbaResolverMixin
@@ -25,7 +26,7 @@ def _to_aba(ref) -> str:
 
 @dataclass(frozen=True)
 class RoboLegsStatusRepoConfig:
-    app_db_path: str = "./dados/app.db"
+    app_db_path: str = field(default_factory=lambda: str(get_app_db_path()))
 
 
 class RoboLegsStatusRepository(AbaResolverMixin):

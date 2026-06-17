@@ -87,3 +87,59 @@ def test_structure_events_repository_uses_runtime_app_db_env(monkeypatch, tmp_pa
     repo = StructureEventsRepository()
 
     assert Path(repo.db_path) == custom.resolve()
+
+def test_derived_repo_uses_runtime_derived_db_env(monkeypatch, tmp_path):
+    from db.derived_repo import DerivedRepo
+
+    custom = tmp_path / "runtime" / "derived_repo.db"
+    monkeypatch.setenv("DERIVED_DB_PATH", str(custom))
+
+    repo = DerivedRepo()
+
+    assert Path(repo._db_path) == custom.resolve()
+    assert custom.exists()
+
+
+def test_payoff_reader_uses_runtime_derived_db_env(monkeypatch, tmp_path):
+    from db.reader import PayoffReader
+
+    custom = tmp_path / "runtime" / "reader_derived.db"
+    monkeypatch.setenv("DERIVED_DB_PATH", str(custom))
+
+    reader = PayoffReader()
+
+    assert reader.db_path == custom.resolve()
+
+
+def test_payoff_writer_uses_runtime_derived_db_env(monkeypatch, tmp_path):
+    from db.writer import PayoffWriter
+
+    custom = tmp_path / "runtime" / "writer_derived.db"
+    monkeypatch.setenv("DERIVED_DB_PATH", str(custom))
+
+    writer = PayoffWriter()
+
+    assert writer.db_path == custom.resolve()
+    assert custom.exists()
+
+
+def test_robo_legs_repo_config_uses_runtime_app_db_env(monkeypatch, tmp_path):
+    from repositories.robo_legs_repository import RoboLegsRepoConfig
+
+    custom = tmp_path / "runtime" / "robo_legs_app.db"
+    monkeypatch.setenv("APP_DB_PATH", str(custom))
+
+    config = RoboLegsRepoConfig()
+
+    assert Path(config.app_db_path) == custom.resolve()
+
+
+def test_robo_legs_status_repo_config_uses_runtime_app_db_env(monkeypatch, tmp_path):
+    from repositories.robo_legs_status_repository import RoboLegsStatusRepoConfig
+
+    custom = tmp_path / "runtime" / "robo_legs_status_app.db"
+    monkeypatch.setenv("APP_DB_PATH", str(custom))
+
+    config = RoboLegsStatusRepoConfig()
+
+    assert Path(config.app_db_path) == custom.resolve()
