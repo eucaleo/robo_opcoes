@@ -1,0 +1,195 @@
+# Fase 5 - Mapa somente leitura de formulas RTD
+
+Modo: somente leitura
+Executado em: 2026-06-17T20:13:22
+Arquivo analisado: LISTA_RTD.xlsm
+
+Tamanho bytes: 9126
+SHA256: 95e949390df399766497d1a64289dc1bcc917e6e9df820eeac4833e26c0bfda1
+
+## Abas mapeadas
+
+- sheetId=1 name=RTD_OPTION_QUOTES relId=rId1 target=xl/worksheets/sheet1.xml
+- sheetId=2 name=RTD-BTG LISTA relId=rId2 target=xl/worksheets/sheet2.xml
+
+## Formulas RTD por aba
+
+### Aba: RTD_OPTION_QUOTES
+- sheetId: 1
+- relId: rId1
+- arquivo interno: xl/worksheets/sheet1.xml
+
+- dimensao declarada: A1:O5
+
+- quantidade de formulas RTD: 56
+
+Celulas:
+
+- B2: RTD("btg_pro_rtd","","QUOTE.UNDERLYING_SYMBOL",$A2)
+- C2: RTD("btg_pro_rtd","","QUOTE.OPTION_TYPE",$A2)
+- D2: RTD("btg_pro_rtd","","QUOTE.STRIKE_PRICE",$A2)
+- E2: RTD("btg_pro_rtd","","QUOTE.MATURITYDATE",$A2)
+- F2: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_PRICE",$A2)
+- G2: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_QUANTITY",$A2)
+- H2: RTD("btg_pro_rtd","","QUOTE.BID_PRICE",$A2)
+- I2: RTD("btg_pro_rtd","","QUOTE.ASK_PRICE",$A2)
+- J2: RTD("btg_pro_rtd","","QUOTE.VOLUME",$A2)
+- K2: RTD("btg_pro_rtd","","QUOTE.IMPLIED_VOLATILITY",$A2)
+- L2: RTD("btg_pro_rtd","","QUOTE.DELTA",$A2)
+- M2: RTD("btg_pro_rtd","","QUOTE.GAMMA",$A2)
+- N2: RTD("btg_pro_rtd","","QUOTE.THETA",$A2)
+- O2: RTD("btg_pro_rtd","","QUOTE.VEGA",$A2)
+- B3: RTD("btg_pro_rtd","","QUOTE.UNDERLYING_SYMBOL",$A3)
+- C3: RTD("btg_pro_rtd","","QUOTE.OPTION_TYPE",$A3)
+- D3: RTD("btg_pro_rtd","","QUOTE.STRIKE_PRICE",$A3)
+- E3: RTD("btg_pro_rtd","","QUOTE.MATURITYDATE",$A3)
+- F3: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_PRICE",$A3)
+- G3: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_QUANTITY",$A3)
+- H3: RTD("btg_pro_rtd","","QUOTE.BID_PRICE",$A3)
+- I3: RTD("btg_pro_rtd","","QUOTE.ASK_PRICE",$A3)
+- J3: RTD("btg_pro_rtd","","QUOTE.VOLUME",$A3)
+- K3: RTD("btg_pro_rtd","","QUOTE.IMPLIED_VOLATILITY",$A3)
+- L3: RTD("btg_pro_rtd","","QUOTE.DELTA",$A3)
+- M3: RTD("btg_pro_rtd","","QUOTE.GAMMA",$A3)
+- N3: RTD("btg_pro_rtd","","QUOTE.THETA",$A3)
+- O3: RTD("btg_pro_rtd","","QUOTE.VEGA",$A3)
+- B4: RTD("btg_pro_rtd","","QUOTE.UNDERLYING_SYMBOL",$A4)
+- C4: RTD("btg_pro_rtd","","QUOTE.OPTION_TYPE",$A4)
+- D4: RTD("btg_pro_rtd","","QUOTE.STRIKE_PRICE",$A4)
+- E4: RTD("btg_pro_rtd","","QUOTE.MATURITYDATE",$A4)
+- F4: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_PRICE",$A4)
+- G4: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_QUANTITY",$A4)
+- H4: RTD("btg_pro_rtd","","QUOTE.BID_PRICE",$A4)
+- I4: RTD("btg_pro_rtd","","QUOTE.ASK_PRICE",$A4)
+- J4: RTD("btg_pro_rtd","","QUOTE.VOLUME",$A4)
+- K4: RTD("btg_pro_rtd","","QUOTE.IMPLIED_VOLATILITY",$A4)
+- L4: RTD("btg_pro_rtd","","QUOTE.DELTA",$A4)
+- M4: RTD("btg_pro_rtd","","QUOTE.GAMMA",$A4)
+- N4: RTD("btg_pro_rtd","","QUOTE.THETA",$A4)
+- O4: RTD("btg_pro_rtd","","QUOTE.VEGA",$A4)
+- B5: RTD("btg_pro_rtd","","QUOTE.UNDERLYING_SYMBOL",$A5)
+- C5: RTD("btg_pro_rtd","","QUOTE.OPTION_TYPE",$A5)
+- D5: RTD("btg_pro_rtd","","QUOTE.STRIKE_PRICE",$A5)
+- E5: RTD("btg_pro_rtd","","QUOTE.MATURITYDATE",$A5)
+- F5: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_PRICE",$A5)
+- G5: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_QUANTITY",$A5)
+- H5: RTD("btg_pro_rtd","","QUOTE.BID_PRICE",$A5)
+- I5: RTD("btg_pro_rtd","","QUOTE.ASK_PRICE",$A5)
+- J5: RTD("btg_pro_rtd","","QUOTE.VOLUME",$A5)
+- K5: RTD("btg_pro_rtd","","QUOTE.IMPLIED_VOLATILITY",$A5)
+- L5: RTD("btg_pro_rtd","","QUOTE.DELTA",$A5)
+- M5: RTD("btg_pro_rtd","","QUOTE.GAMMA",$A5)
+- N5: RTD("btg_pro_rtd","","QUOTE.THETA",$A5)
+- O5: RTD("btg_pro_rtd","","QUOTE.VEGA",$A5)
+
+### Aba: RTD-BTG LISTA
+- sheetId: 2
+- relId: rId2
+- arquivo interno: xl/worksheets/sheet2.xml
+
+- dimensao declarada: A2:B95
+
+- quantidade de formulas RTD: 93
+
+Celulas:
+
+- B3: RTD("btg_pro_rtd","","QUOTE.BID_PRICE","BPAC11")
+- B4: RTD("btg_pro_rtd","","QUOTE.ASK_PRICE","BPAC11")
+- B5: RTD("btg_pro_rtd","","QUOTE.CHGPERCENT","BPAC11")
+- B6: RTD("btg_pro_rtd","","QUOTE.TARGET_PRICE","BPAC11")
+- B7: RTD("btg_pro_rtd","","QUOTE.UPSIDE","BPAC11")
+- B8: RTD("btg_pro_rtd","","QUOTE.MARKET_CAPITAL","BPAC11")
+- B9: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_ID","BPAC11")
+- B10: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_PRICE","BPAC11")
+- B11: RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_QUANTITY","BPAC11")
+- B12: RTD("btg_pro_rtd","","QUOTE.BID_QUANTITY","BPAC11")
+- B13: RTD("btg_pro_rtd","","QUOTE.ASK_QUANTITY","BPAC11")
+- B14: RTD("btg_pro_rtd","","QUOTE.CLOSE","BPAC11")
+- B15: RTD("btg_pro_rtd","","QUOTE.PREV_CLOSE","BPAC11")
+- B16: RTD("btg_pro_rtd","","QUOTE.OPEN","BPAC11")
+- B17: RTD("btg_pro_rtd","","QUOTE.ADJUST","BPAC11")
+- B18: RTD("btg_pro_rtd","","QUOTE.HIGH","BPAC11")
+- B19: RTD("btg_pro_rtd","","QUOTE.LOW","BPAC11")
+- B20: RTD("btg_pro_rtd","","QUOTE.CHANGE","BPAC11")
+- B21: RTD("btg_pro_rtd","","QUOTE.CHANGE_PERCENT","BPAC11")
+- B22: RTD("btg_pro_rtd","","QUOTE.NUM_TRADES","BPAC11")
+- B23: RTD("btg_pro_rtd","","QUOTE.QUANTITY","BPAC11")
+- B24: RTD("btg_pro_rtd","","QUOTE.VOLUME","BPAC11")
+- B25: RTD("btg_pro_rtd","","QUOTE.VWAP","BPAC11")
+- B26: RTD("btg_pro_rtd","","QUOTE.SETTLEMENT_PRICE","BPAC11")
+- B27: RTD("btg_pro_rtd","","QUOTE.PREV_SETTLEMENT_PRICE","BPAC11")
+- B28: RTD("btg_pro_rtd","","QUOTE.AUCTION_THEORETICAL_PRICE","BPAC11")
+- B29: RTD("btg_pro_rtd","","QUOTE.AUCTION_THEORETICAL_CHANGE_PERCENT","BPAC11")
+- B30: RTD("btg_pro_rtd","","QUOTE.AUCTION_THEORETICAL_QUANTITY","BPAC11")
+- B31: RTD("btg_pro_rtd","","QUOTE.AUCTION_IMBALANCE_QUANTITY","BPAC11")
+- B32: RTD("btg_pro_rtd","","QUOTE.TUNNEL_UPPER","BPAC11")
+- B33: RTD("btg_pro_rtd","","QUOTE.TUNNEL_LOWER","BPAC11")
+- B34: RTD("btg_pro_rtd","","QUOTE.HISTORICAL_VOLATILITY","BPAC11")
+- B35: RTD("btg_pro_rtd","","QUOTE.IMPLIED_VOLATILITY","BPAC11")
+- B36: RTD("btg_pro_rtd","","QUOTE.BETA","BPAC11")
+- B37: RTD("btg_pro_rtd","","QUOTE.CORRELATION","BPAC11")
+- B38: RTD("btg_pro_rtd","","QUOTE.WEEK_PREV_CLOSE","BPAC11")
+- B39: RTD("btg_pro_rtd","","QUOTE.WEEK_HIGH","BPAC11")
+- B40: RTD("btg_pro_rtd","","QUOTE.WEEK_LOW","BPAC11")
+- B41: RTD("btg_pro_rtd","","QUOTE.WEEK_AVG_VOLUME","BPAC11")
+- B42: RTD("btg_pro_rtd","","QUOTE.WEEK_CHANGE_PERCENT","BPAC11")
+- B43: RTD("btg_pro_rtd","","QUOTE.MONTH_PREV_CLOSE","BPAC11")
+- B44: RTD("btg_pro_rtd","","QUOTE.MONTH_HIGH","BPAC11")
+- B45: RTD("btg_pro_rtd","","QUOTE.MONTH_LOW","BPAC11")
+- B46: RTD("btg_pro_rtd","","QUOTE.MONTH_AVG_VOLUME","BPAC11")
+- B47: RTD("btg_pro_rtd","","QUOTE.MONTH_CHANGE_PERCENT","BPAC11")
+- B48: RTD("btg_pro_rtd","","QUOTE.PRICE_TO_EARNINGS","BPAC11")
+- B49: RTD("btg_pro_rtd","","QUOTE.PRICE_TO_BOOK","BPAC11")
+- B50: RTD("btg_pro_rtd","","QUOTE.EARNINGS_PER_SHARE","BPAC11")
+- B51: RTD("btg_pro_rtd","","QUOTE.BOOKVALUE_PER_SHARE","BPAC11")
+- B52: RTD("btg_pro_rtd","","QUOTE.CURRENT_RATIO","BPAC11")
+- B53: RTD("btg_pro_rtd","","QUOTE.NET_MARGIN","BPAC11")
+- B54: RTD("btg_pro_rtd","","QUOTE.PRICE_TO_SALES","BPAC11")
+- B55: RTD("btg_pro_rtd","","QUOTE.SALES_PER_SHARE","BPAC11")
+- B56: RTD("btg_pro_rtd","","QUOTE.MARKET_CAPITAL_D0","BPAC11")
+- B57: RTD("btg_pro_rtd","","QUOTE.INTEREST","BPAC11")
+- B58: RTD("btg_pro_rtd","","QUOTE.UNDERLYING_PRICE","BPAC11")
+- B59: RTD("btg_pro_rtd","","QUOTE.VOLATILITY","BPAC11")
+- B60: RTD("btg_pro_rtd","","QUOTE.DELTA","BPAC11")
+- B61: RTD("btg_pro_rtd","","QUOTE.GAMMA","BPAC11")
+- B62: RTD("btg_pro_rtd","","QUOTE.THETA","BPAC11")
+- B63: RTD("btg_pro_rtd","","QUOTE.VEGA","BPAC11")
+- B64: RTD("btg_pro_rtd","","QUOTE.RHO","BPAC11")
+- B65: RTD("btg_pro_rtd","","QUOTE.OPTION_PRICE","BPAC11")
+- B66: RTD("btg_pro_rtd","","QUOTE.BOOK_PRICE","BPAC11")
+- B67: RTD("btg_pro_rtd","","QUOTE.INTRINSIC_VALUE","BPAC11")
+- B68: RTD("btg_pro_rtd","","QUOTE.EXTRINSIC_VALUE","BPAC11")
+- B69: RTD("btg_pro_rtd","","QUOTE.PREMIUM_PCT","BPAC11")
+- B70: RTD("btg_pro_rtd","","QUOTE.MONEYNESS_PCT","BPAC11")
+- B71: RTD("btg_pro_rtd","","QUOTE.EMA5","BPAC11")
+- B72: RTD("btg_pro_rtd","","QUOTE.EMA20","BPAC11")
+- B73: RTD("btg_pro_rtd","","QUOTE.EMA200","BPAC11")
+- B74: RTD("btg_pro_rtd","","QUOTE.EMA12","BPAC11")
+- B75: RTD("btg_pro_rtd","","QUOTE.EMA26","BPAC11")
+- B76: RTD("btg_pro_rtd","","QUOTE.MACD","BPAC11")
+- B77: RTD("btg_pro_rtd","","QUOTE.MACD_SIGNAL","BPAC11")
+- B78: RTD("btg_pro_rtd","","QUOTE.MACD_HISTOGRAM","BPAC11")
+- B79: RTD("btg_pro_rtd","","QUOTE.RSI","BPAC11")
+- B80: RTD("btg_pro_rtd","","QUOTE.STOCH","BPAC11")
+- B81: RTD("btg_pro_rtd","","QUOTE.STOCH_SIGNAL","BPAC11")
+- B82: RTD("btg_pro_rtd","","QUOTE.ATR","BPAC11")
+- B83: RTD("btg_pro_rtd","","QUOTE.OBV","BPAC11")
+- B84: RTD("btg_pro_rtd","","QUOTE.MATURITYDATE","BPAC11")
+- B85: RTD("btg_pro_rtd","","QUOTE.SYMBOL","BPAC11")
+- B86: RTD("btg_pro_rtd","","QUOTE.UNDERLYING_SYMBOL","BPAC11")
+- B87: RTD("btg_pro_rtd","","QUOTE.DESCRIPTION","BPAC11")
+- B88: RTD("btg_pro_rtd","","QUOTE.ASSET","BPAC11")
+- B89: RTD("btg_pro_rtd","","QUOTE.SECURITY_TYPE","BPAC11")
+- B90: RTD("btg_pro_rtd","","QUOTE.EXCHANGE","BPAC11")
+- B91: RTD("btg_pro_rtd","","QUOTE.SOURCE","BPAC11")
+- B92: RTD("btg_pro_rtd","","QUOTE.OPTION_TYPE","BPAC11")
+- B93: RTD("btg_pro_rtd","","QUOTE.OPTION_STYLE","BPAC11")
+- B94: RTD("btg_pro_rtd","","QUOTE.STRIKE_PRICE","BPAC11")
+- B95: RTD("btg_pro_rtd","","QUOTE.STATUS","BPAC11")
+
+## Resumo
+
+- Total de formulas RTD encontradas: 149
+- Leitura realizada diretamente do pacote XLSM como ZIP Office Open XML.
+- Nenhuma alteracao foi feita no arquivo Excel.
+- Nenhuma alteracao foi feita em banco, UI, API, repository ou servico.
