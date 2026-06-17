@@ -1,0 +1,5 @@
+Git log para mapear_repositorio.sh
+
+Arquivo: ./mapear_repositorio.sh
+98984b3 2026-06-09 Carlos Pereira chore: adiciona scripts de mapeamento e backfill
+

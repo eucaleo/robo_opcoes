@@ -1,0 +1,5 @@
+Git log para limpar_repositorio_seguro.sh
+
+Arquivo: ./limpar_repositorio_seguro.sh
+d51c252 2026-06-09 Carlos Pereira chore: remove temporarios e adiciona limpeza segura
+

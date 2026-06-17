@@ -1,0 +1,4 @@
+./docs/mapeamento_automacao_opcoes_rtd.json:740:      "path": "mapear_repositorio.sh",
+./docs/mapeamento_automacao_opcoes_rtd.md:364:### `mapear_repositorio.sh`
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:554:mapear_repositorio.sh
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:137:mapear_repositorio.sh

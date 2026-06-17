@@ -1,0 +1,4 @@
+./docs/mapeamento_automacao_opcoes_rtd.json:2071:      "path": "limpar_repositorio_seguro.sh",
+./docs/mapeamento_automacao_opcoes_rtd.md:1084:### `limpar_repositorio_seguro.sh`
+./docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md:553:limpar_repositorio_seguro.sh
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:134:limpar_repositorio_seguro.sh

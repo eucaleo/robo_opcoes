@@ -1,0 +1,1 @@
+./limpar_repositorio_seguro.sh

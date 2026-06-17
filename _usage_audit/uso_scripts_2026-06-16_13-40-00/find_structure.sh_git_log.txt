@@ -1,0 +1,5 @@
+Git log para find_structure.sh
+
+Arquivo: ./find_structure.sh
+71d2521 2026-06-03 Carlos Pereira chore: remove scripts de patch temporários pós-aplicação
+

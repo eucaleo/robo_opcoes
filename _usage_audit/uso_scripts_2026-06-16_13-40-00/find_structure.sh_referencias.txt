@@ -1,0 +1,3 @@
+./docs/mapeamento_automacao_opcoes_rtd.json:2364:      "path": "find_structure.sh",
+./docs/mapeamento_automacao_opcoes_rtd.md:1240:- `find_structure.sh` — `outros` — score `11`
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:133:find_structure.sh
