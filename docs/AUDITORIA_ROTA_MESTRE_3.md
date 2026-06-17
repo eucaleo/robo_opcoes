@@ -236,9 +236,9 @@ git status -sb
 ## fase-12-fechamento-ciclo...origin/fase-12-fechamento-ciclo [ahead 7]
 ~~~
 
-A planilha `LISTA_RTD.xlsx` foi restaurada e preservada.
+A planilha `LISTA_RTD.xlsm` foi preservada como ponte RTD oficial e testada.
 
-A planilha RTD legada abolida foi removida do versionamento.
+A planilha RTD legada abolida foi removida do versionamento. A entrada `LISTA_RTD.xlsx` deixou de ser tratada como ponte RTD oficial.
 
 O diretório `_usage_audit/` foi versionado como evidência de auditoria.
 
