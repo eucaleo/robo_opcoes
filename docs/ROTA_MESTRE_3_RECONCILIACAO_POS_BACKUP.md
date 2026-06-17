@@ -70,9 +70,27 @@ Somente após banco, arquivos e contratos estarem reconciliados.
 
 ## Status atual
 
-Fase 0 em andamento.
+Fase 4 em andamento.
 
-A rota ainda não autoriza alteração funcional, criação de tabela ou limpeza destrutiva.
+As Fases 0, 1, 2 e 3 possuem registros documentais relacionados no histórico do projeto.
+
+A reconciliação avançou de forma controlada por meio de checkpoints documentais, incluindo:
+
+- inventário e classificação de documentos vivos e históricos;
+- classificação da ponte RTD operacional;
+- supersessão de referências legadas a `LISTA_RTD.xlsx`;
+- inventário de caminhos de banco;
+- reconciliação conceitual entre `dados/app.db` e `dados/derived.db`;
+- inventário funcional de consumidores de caminhos de banco;
+- plano de normalização dos consumidores de caminhos de banco.
+
+A rota ainda não autoriza alteração funcional ampla, criação de tabela, limpeza destrutiva ou alteração em UI, API, repository ou serviço sem fase específica, mapa de impacto e validação registrada.
+
+A próxima decisão controlada deve definir se o projeto seguirá para:
+
+- fechamento documental da Fase 4;
+- Fase 5 — Reconciliação RTD/Excel;
+- ou preparação explícita de uma refatoração incremental e validada dos consumidores de caminhos de banco.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
