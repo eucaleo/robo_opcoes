@@ -346,6 +346,10 @@ def test_snapshot_result_to_payload_does_not_leak_rtd_traceability_for_manual_pr
     assert leg["price"] == 5.55
     assert leg["premium"] == 5.55
     assert leg["price_source"] == "manual"
+    assert leg["price_resolution_status"] == "ok"
+    assert leg["rtd_quote_found"] is None
+    assert leg["rtd_validation_status"] == "not_applicable"
+    assert "RTD não consultado" in leg["rtd_validation_message"]
     assert "rtd_price_field" not in leg
     assert "rtd_quote_codigo_opcao" not in leg
     assert "rtd_quote_ativo_base" not in leg
