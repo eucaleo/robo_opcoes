@@ -94,3 +94,37 @@ Commit:
 ### Resultado
 
 A lacuna de rastreabilidade do cenário RTD válido em integração foi fechada sem alteração funcional.
+
+## Auditoria incremental — erro no repositório RTD
+
+### Lacuna identificada
+
+O cenário unitário de falha no repositório RTD já validava que `_resolve_effective_leg_price` preservava o preço original do snapshot e retornava `price_source = snapshot`.
+
+Porém, o teste não validava explicitamente os metadados de rastreabilidade retornados no `traceability`, deixando sem contrato documentado o comportamento atual quando a consulta ao repositório falha.
+
+### Ação executada
+
+Foi adicionada cobertura unitária para garantir que, no comportamento atual, uma falha de consulta no repositório RTD é normalizada como quote RTD não encontrada, preservando:
+
+- `price_resolution_status = missing_rtd_quote`;
+- `rtd_quote_found = False`;
+- `rtd_validation_status = error`;
+- mensagem contendo a ausência da quote RTD e o código da opção.
+
+Commit:
+
+    a82a370 test: cobre metadados rtd em erro de repositorio
+
+### Validação executada
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py -q
+    21 passed in 1.24s
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_rtd_option_quotes_repository_contract.py -q
+    32 passed in 1.70s
+
+### Resultado
+
+A lacuna de rastreabilidade do cenário de erro no repositório RTD foi fechada sem alteração funcional.
+
