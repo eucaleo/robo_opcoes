@@ -58,4 +58,25 @@ Portanto, esta fase registra a necessidade de validação pós-correção antes 
 
 ## Status
 
-Pendente de execução/registro final dos comandos de validação pós-correção.
+Concluída em 2026-06-18.
+
+Validação pós-correção executada com sucesso.
+
+Comandos executados:
+
+```bash
+python -m pytest ATT/tests/test_run_rtd_option_quotes_pipeline.py ATT/tests/test_audit_rtd_option_quotes.py
+python -m pytest ATT/tests -k "rtd_option_quotes"
+```
+
+Resultados registrados:
+
+- `16 passed in 0.43s`
+- `19 passed, 630 deselected in 3.10s`
+
+Conclusão:
+
+- o pipeline RTD wide foi validado após a correção `700a716`;
+- os testes específicos de `rtd_option_quotes` ficaram verdes;
+- o pipeline permanece usando o fluxo wide/autobootstrap controlado;
+- não houve ampliação funcional nesta fase.
