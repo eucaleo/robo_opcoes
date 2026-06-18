@@ -56,3 +56,41 @@ A fase só deve avançar para alteração de testes ou código caso a auditoria 
 - Não alterar API.
 - Não alterar Excel como fonte funcional.
 - Não trocar a semântica de fallback já protegida na Fase 6.5.
+
+
+## Auditoria incremental — RTD válido em integração
+
+### Lacuna identificada
+
+A auditoria inicial mostrou que o cenário de RTD válido já possuía cobertura unitária completa em `_resolve_effective_leg_price`, incluindo:
+
+- `price_resolution_status = ok`;
+- `rtd_quote_found = True`;
+- `rtd_validation_status = ok`;
+- metadados de quote RTD.
+
+Porém, o teste de integração `test_execute_pricing_uses_persisted_rtd_option_quote_price` validava no payload enviado ao engine e no payload persistido apenas os campos de preço e alguns metadados da quote RTD, sem validar explicitamente:
+
+- `price_resolution_status`;
+- `rtd_quote_found`;
+- `rtd_validation_status`.
+
+### Ação executada
+
+Foi adicionada cobertura no teste de integração para garantir que o payload enviado ao engine e o payload persistido preservam os metadados RTD principais no cenário válido.
+
+Commit:
+
+    e8dda71 test: cobre metadados rtd validos na integracao
+
+### Validação executada
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py -q
+    5 passed in 1.48s
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_rtd_option_quotes_repository_contract.py -q
+    32 passed in 1.65s
+
+### Resultado
+
+A lacuna de rastreabilidade do cenário RTD válido em integração foi fechada sem alteração funcional.
