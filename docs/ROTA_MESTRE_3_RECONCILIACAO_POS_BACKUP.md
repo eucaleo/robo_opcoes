@@ -163,9 +163,41 @@ Resultado consolidado da Fase 6.4:
 7. nenhuma alteração em UI/API foi realizada;
 8. Excel permanece apenas como gateway RTD.
 
+Fase 6.5 — Retomada funcional incremental pós-proteção do contrato RTD concluída documentalmente.
+
+Checkpoint da fase:
+
+- `docs/checkpoints/fase-6-5-retomada-funcional-incremental-rtd.md`
+
+Evidência complementar:
+
+- `EVIDENCIAS_FASE_6_5_RTD.md`
+
+Commits principais da fase:
+
+- `3886870 docs: registra checkpoint fase 6.5 fallback rtd invalido`
+- `1105e61 docs: registra baseline matriz rtd canonical fase 6.5`
+- `afbce51 test: cobre fallback integrado quando quote rtd esta stale`
+- `82c75c7 test: cover RTD asset mismatch fallback in pricing execution`
+- `58889f1 docs: add RTD asset mismatch fallback evidence`
+- `fe570fc docs: organize RTD evidence heading`
+- `c5a65f8 docs: registra checkpoint fase 6.5 RTD`
+- `ff9e6e2 docs: consolida checkpoint fase 6.5 RTD`
+
+Resultado consolidado da Fase 6.5:
+
+1. cobertura integrada ampliada em `CanonicalPricingFacade.execute_pricing`;
+2. fallback para snapshot protegido quando a quote RTD possui preço inválido;
+3. fallback para snapshot protegido quando a quote RTD está stale;
+4. fallback para snapshot protegido quando a quote RTD possui ativo-base divergente do underlying esperado;
+5. metadados RTD preservados no payload do engine e no payload persistido;
+6. testes RTD/canonical pricing relacionados permaneceram verdes;
+7. nenhuma alteração em UI/API foi realizada;
+8. Excel permanece apenas como gateway RTD.
+
 Etapa corrente:
 
-- Fase 6.5 — Retomada funcional incremental pós-proteção do contrato RTD.
+- Próxima microfatia da Fase 6 — retomada funcional controlada após consolidação dos fallbacks RTD no canonical pricing.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
