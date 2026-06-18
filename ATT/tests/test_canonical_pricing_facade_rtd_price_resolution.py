@@ -435,6 +435,7 @@ def test_resolve_effective_leg_price_diagnoses_rtd_asset_mismatch():
     assert traceability["rtd_quote_found"] is True
     assert traceability["price_resolution_status"] == "rtd_asset_mismatch"
     assert traceability["rtd_validation_status"] == "error"
+    assert traceability["rtd_quote_codigo_opcao"] == "ABCD11"
     assert traceability["rtd_quote_ativo_base"] == "WXYZ"
     assert "diverge" in traceability["rtd_validation_message"]
 
