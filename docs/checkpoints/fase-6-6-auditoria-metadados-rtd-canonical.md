@@ -128,3 +128,40 @@ Commit:
 
 A lacuna de rastreabilidade do cenário de erro no repositório RTD foi fechada sem alteração funcional.
 
+## Auditoria incremental — divergência de ativo-base RTD
+
+### Lacuna identificada
+
+O cenário unitário de divergência entre o ativo-base esperado e o ativo-base retornado pela quote RTD já validava o fallback para o preço original do snapshot e os metadados principais de erro.
+
+Porém, o teste ainda não validava explicitamente o código da opção retornado na quote RTD, deixando incompleta a rastreabilidade do registro RTD efetivamente encontrado no cenário de divergência.
+
+### Ação executada
+
+Foi adicionada cobertura unitária para garantir que, no comportamento atual, uma quote RTD encontrada com ativo-base divergente preserva:
+
+- `price_resolution_status = rtd_asset_mismatch`;
+- `rtd_quote_found = True`;
+- `rtd_validation_status = error`;
+- `rtd_quote_codigo_opcao`;
+- `rtd_quote_ativo_base`;
+- mensagem indicando divergência.
+
+Commit:
+
+    17a21e1 test: cobre codigo opcao em divergencia ativo rtd
+
+### Validação executada
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py -q
+    21 passed in 1.26s
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_rtd_option_quotes_repository_contract.py -q
+    32 passed in 1.69s
+
+    git diff --check
+
+### Resultado
+
+A lacuna de rastreabilidade do cenário de divergência de ativo-base RTD foi fechada sem alteração funcional.
+
