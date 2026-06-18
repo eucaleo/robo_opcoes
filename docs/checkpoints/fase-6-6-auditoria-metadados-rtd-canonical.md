@@ -205,3 +205,27 @@ Commit:
 
 A lacuna de rastreabilidade do cenário de quote RTD vencida foi fechada sem alteração funcional.
 
+## Microfatia — Diagnóstico neutro para preço manual
+
+Commit:
+
+- `852d9be test: valida diagnostico neutro em preco manual`
+
+Objetivo:
+
+- Garantir que preço manual explícito seja preservado no canonical pricing sem consulta ao RTD.
+
+Contrato validado:
+
+1. `price` e `premium` preservam o valor manual.
+2. `price_source` permanece como `manual`.
+3. `price_resolution_status` permanece `ok`.
+4. `rtd_quote_found` permanece `None`.
+5. `rtd_validation_status` permanece `not_applicable`.
+6. `rtd_validation_message` informa que o RTD não foi consultado.
+7. Metadados concretos da quote RTD não vazam para a perna manual.
+8. O repositório RTD não é chamado.
+
+Evidência:
+
+- `docs/checkpoints/evidencias/fase-6-6-pytest-metadados-rtd-canonical-manual-price.txt`
