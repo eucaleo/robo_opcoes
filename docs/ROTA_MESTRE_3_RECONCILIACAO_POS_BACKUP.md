@@ -70,9 +70,18 @@ Somente após banco, arquivos e contratos estarem reconciliados.
 
 ## Status atual
 
-Fase 6 — Retomada funcional controlada iniciada documentalmente.
+Fase 6.2 — Validação pós-correção do pipeline RTD wide/autobootstrap concluída.
 
-A Fase 5 — Reconciliação RTD/Excel foi concluída documentalmente e a rota avançou para a Fase 6 com plano, mapa de impacto e validação controlada.
+A validação pós-correção foi executada e registrada em checkpoint próprio:
+
+- `docs/checkpoints/fase-6-2-validacao-pos-correcao-pipeline-rtd-wide.md`
+
+Resultados registrados:
+
+- `python -m pytest ATT/tests/test_run_rtd_option_quotes_pipeline.py ATT/tests/test_audit_rtd_option_quotes.py`
+  - `16 passed in 0.43s`
+- `python -m pytest ATT/tests -k "rtd_option_quotes"`
+  - `19 passed, 630 deselected in 3.10s`
 
 Commits principais da transição:
 
@@ -83,28 +92,29 @@ Commits principais da transição:
 - `229103c feat: adiciona pipeline operacional de refresh RTD`
 - `9d78fed docs: registra validacao operacional inicial do pipeline RTD`
 - `700a716 Corrige pipeline RTD wide com autobootstrap de schema`
+- `bc5ab65 docs: registra fase 6.2 validacao pos-correcao RTD wide`
+- `f1986af docs: fecha fase 6.2 validacao RTD wide`
 
-A Fase 6.1 — Validação operacional inicial do pipeline RTD foi registrada em:
-
-- `docs/checkpoints/fase-6-1-validacao-pipeline-rtd-operacional.md`
-
-Após a validação inicial, houve correção técnica no pipeline RTD wide com autobootstrap de schema em:
-
-- `700a716 Corrige pipeline RTD wide com autobootstrap de schema`
-
-Portanto, a etapa corrente passa a ser:
-
-- Fase 6.2 — Validação pós-correção do pipeline RTD wide/autobootstrap.
-
-A Fase 6.2 deve validar que:
+Estado consolidado após a Fase 6.2:
 
 1. o pipeline RTD usa o importador wide oficial;
 2. o schema `rtd_option_quotes` é validado/criado de forma controlada;
 3. o Excel permanece apenas como gateway RTD;
-4. não houve alteração não autorizada em UI, API, repository ou serviço;
-5. os testes RTD permanecem verdes;
-6. o estado Git fica limpo;
-7. o fechamento da fase é registrado em checkpoint próprio.
+4. os testes RTD específicos permanecem verdes;
+5. a branch `fase-12-fechamento-ciclo` está alinhada com `origin/fase-12-fechamento-ciclo`;
+6. o fechamento foi registrado documentalmente.
+
+Etapa corrente:
+
+- Fase 6.3 — Mapa de impacto e retomada funcional incremental pós-pipeline RTD.
+
+A Fase 6.3 deve definir antes de qualquer alteração funcional ampla:
+
+1. quais módulos consomem ou devem consumir `rtd_option_quotes`;
+2. qual será o primeiro ponto de integração funcional após o pipeline RTD;
+3. quais testes devem proteger essa retomada;
+4. quais arquivos podem ser alterados com segurança;
+5. quais áreas continuam congeladas até decisão explícita.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
