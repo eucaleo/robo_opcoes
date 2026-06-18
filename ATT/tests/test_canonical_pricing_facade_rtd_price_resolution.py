@@ -101,6 +101,7 @@ def test_resolve_effective_leg_price_preserves_explicit_manual_price():
         raw_asset="ABCD11",
         leg_source="manual",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
     )
 
     assert price == 5.55
@@ -127,6 +128,7 @@ def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
     )
 
     assert price == 9.99
@@ -142,6 +144,7 @@ def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_when_
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
     )
 
     assert price == 5.55
@@ -160,6 +163,7 @@ def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_on_re
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
     )
 
     assert price == 5.55
@@ -232,6 +236,7 @@ def test_resolve_effective_leg_price_exposes_rtd_quote_traceability_metadata():
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
     )
 
     assert price == 9.99
@@ -273,6 +278,7 @@ def test_resolve_effective_leg_price_falls_back_to_snapshot_when_rtd_quote_has_n
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
     )
 
     assert price == 5.55
@@ -352,6 +358,7 @@ def test_resolve_effective_leg_price_diagnoses_missing_rtd_quote():
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
         underlying_asset="ABCD",
     )
 
@@ -384,6 +391,7 @@ def test_resolve_effective_leg_price_diagnoses_invalid_rtd_price():
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
         underlying_asset="ABCD",
     )
 
@@ -413,6 +421,7 @@ def test_resolve_effective_leg_price_diagnoses_rtd_asset_mismatch():
         raw_asset="ABCD11",
         leg_source="rtd",
         rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
         underlying_asset="ABCD",
     )
 
@@ -516,3 +525,31 @@ def test_snapshot_result_to_payload_preserves_rtd_guardrails_when_falling_back_t
     assert leg["price_resolution_status"] == "missing_rtd_quote"
     assert leg["rtd_quote_found"] is False
     assert leg["rtd_validation_status"] == "error"
+
+def test_resolve_effective_leg_price_falls_back_to_snapshot_when_rtd_quote_is_stale():
+    repository = FakeRtdOptionQuotesRepository(
+        quotes={
+            "ABCD11": {
+                "codigo_opcao": "ABCD11",
+                "ultimo_preco": 9.99,
+                "bid": 9.50,
+                "ask": 10.50,
+                "updated_at": "2000-01-01 00:00:00",
+            }
+        }
+    )
+
+    price, price_source, traceability = _resolve_effective_leg_price(
+        raw_price=5.55,
+        raw_asset="ABCD11",
+        leg_source="rtd",
+        rtd_option_quotes_repository=repository,
+        reference_date="2026-06-15",
+    )
+
+    assert price == 5.55
+    assert price_source == "snapshot"
+    assert traceability["price_resolution_status"] == "stale_rtd_quote"
+    assert traceability["rtd_quote_found"] is True
+    assert traceability["rtd_validation_status"] == "warn"
+    assert "vencida" in traceability["rtd_validation_message"]

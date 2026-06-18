@@ -224,6 +224,95 @@ def _quote_value(quote: Any, field: str) -> Any:
         return None
 
 
+RTD_OPTION_QUOTE_MAX_AGE_MINUTES = 30
+
+
+def _parse_rtd_quote_updated_at(value: Any) -> datetime | None:
+    """Converte updated_at da quote RTD para datetime local ingênuo."""
+    if value is None:
+        return None
+
+    if isinstance(value, datetime):
+        parsed = value
+    else:
+        raw = str(value).strip()
+        if not raw:
+            return None
+
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+
+        try:
+            parsed = datetime.fromisoformat(raw)
+        except ValueError:
+            parsed = None
+            for fmt in (
+                "%Y-%m-%d %H:%M:%S",
+                "%Y-%m-%d %H:%M:%S.%f",
+                "%Y-%m-%dT%H:%M:%S",
+                "%Y-%m-%dT%H:%M:%S.%f",
+            ):
+                try:
+                    parsed = datetime.strptime(raw, fmt)
+                    break
+                except ValueError:
+                    continue
+
+            if parsed is None:
+                return None
+
+    if parsed.tzinfo is not None:
+        return parsed.astimezone().replace(tzinfo=None)
+
+    return parsed
+
+
+def _is_rtd_option_quote_stale(
+    quote: Any | None,
+    *,
+    max_age_minutes: int = RTD_OPTION_QUOTE_MAX_AGE_MINUTES,
+    now: datetime | None = None,
+    reference_date: Any | None = None,
+) -> bool:
+    """
+    Retorna True quando a quote RTD está vencida.
+
+    Se updated_at estiver ausente ou inválido, preserva comportamento legado
+    e não classifica como stale.
+    """
+    updated_at = _parse_rtd_quote_updated_at(_quote_value(quote, "updated_at"))
+
+    if updated_at is None:
+        return False
+
+    if reference_date is not None:
+        reference_dt = _parse_rtd_quote_updated_at(reference_date)
+
+        if reference_dt is not None and updated_at.date() == reference_dt.date():
+            current_for_today = now or datetime.now()
+
+            if current_for_today.tzinfo is not None:
+                current_for_today = current_for_today.astimezone().replace(tzinfo=None)
+
+            # Cenários históricos controlados usam quotes RTD do próprio
+            # reference_date. Neles, a validade intradiária de 30 minutos
+            # não deve invalidar o teste/backtest dias depois.
+            if reference_dt.date() != current_for_today.date():
+                return False
+
+    current = now or datetime.now()
+
+    if current.tzinfo is not None:
+        current = current.astimezone().replace(tzinfo=None)
+
+    age_seconds = (current - updated_at).total_seconds()
+
+    if age_seconds < 0:
+        return False
+
+    return age_seconds > max_age_minutes * 60
+
+
 def _pick_rtd_option_price_with_trace(
     quote: Any | None,
 ) -> tuple[float | None, str | None]:
@@ -367,6 +456,7 @@ def _resolve_effective_leg_price(
     leg_source: Any,
     rtd_option_quotes_repository: RtdOptionQuotesRepository | None,
     underlying_asset: Any | None = None,
+    reference_date: Any | None = None,
 ) -> tuple[float, str, dict[str, Any]]:
     """
     Resolve preço efetivo da leg para o pricing_payload.
@@ -429,6 +519,24 @@ def _resolve_effective_leg_price(
                     rtd_validation_message=(
                         "Ativo base da quote RTD diverge do ativo base da estrutura: "
                         f"quote={quote_ativo_base}, estrutura={expected_ativo_base}."
+                    ),
+                ),
+            )
+
+        if _is_rtd_option_quote_stale(quote, reference_date=reference_date):
+            fallback_source = "snapshot" if original_price > 0 else "missing"
+            return (
+                original_price,
+                fallback_source,
+                _rtd_quote_traceability(
+                    quote,
+                    rtd_quote_found=True,
+                    price_resolution_status="stale_rtd_quote",
+                    rtd_validation_status="warn",
+                    rtd_validation_message=(
+                        "Quote RTD vencida pelo critério de validade de "
+                        f"{RTD_OPTION_QUOTE_MAX_AGE_MINUTES} minutos; "
+                        "preço do snapshot preservado."
                     ),
                 ),
             )
@@ -596,6 +704,7 @@ def _snapshot_result_to_payload(
             leg_source=leg_source,
             rtd_option_quotes_repository=rtd_option_quotes_repository,
             underlying_asset=underlying_asset,
+            reference_date=reference_date,
         )
 
         side = _pick(d, "side", "position_side")
