@@ -104,17 +104,38 @@ Estado consolidado após a Fase 6.2:
 5. a branch `fase-12-fechamento-ciclo` está alinhada com `origin/fase-12-fechamento-ciclo`;
 6. o fechamento foi registrado documentalmente.
 
+Fase 6.3 — Mapa de impacto e retomada funcional incremental pós-pipeline RTD concluída documentalmente.
+
+Checkpoint da fase:
+
+- `docs/checkpoints/fase-6-3-mapa-impacto-retomada-funcional-rtd.md`
+
+Commit de inventário:
+
+- `74d1858 docs: registra inventario fase 6.3 RTD`
+
+Resultado consolidado da Fase 6.3:
+
+1. consumidor funcional principal identificado em `services/canonical_pricing_facade.py`;
+2. camada de leitura identificada em `repositories/rtd_option_quotes_repository.py`;
+3. pipeline/importação/auditoria RTD mantidos como área operacional controlada;
+4. scripts legados ou auxiliares congelados até decisão explícita;
+5. evidências de testes registradas em `docs/checkpoints/evidencias/`;
+6. próxima fase definida.
+
 Etapa corrente:
 
-- Fase 6.3 — Mapa de impacto e retomada funcional incremental pós-pipeline RTD.
+- Fase 6.4 — Proteção do contrato de leitura RTD para canonical pricing.
 
-A Fase 6.3 deve definir antes de qualquer alteração funcional ampla:
+A Fase 6.4 deve fortalecer testes e contrato em torno de:
 
-1. quais módulos consomem ou devem consumir `rtd_option_quotes`;
-2. qual será o primeiro ponto de integração funcional após o pipeline RTD;
-3. quais testes devem proteger essa retomada;
-4. quais arquivos podem ser alterados com segurança;
-5. quais áreas continuam congeladas até decisão explícita.
+1. `repositories/rtd_option_quotes_repository.py`;
+2. precedência de preço em `services/canonical_pricing_facade.py`;
+3. comportamento quando existe preço RTD válido;
+4. comportamento quando não existe preço RTD;
+5. comportamento quando o banco RTD não possui a tabela;
+6. preservação do Excel apenas como gateway RTD;
+7. ausência de alteração em UI/API sem decisão explícita.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 

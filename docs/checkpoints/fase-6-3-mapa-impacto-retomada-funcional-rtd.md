@@ -269,4 +269,16 @@ Escopo sugerido da Fase 6.4:
 
 A Fase 6.3 produziu mapa de impacto, evidências de teste e decisão de próximo incremento.
 
-Pendente apenas commit documental das evidências e deste fechamento.
+Fechada documentalmente após registro das evidências e do mapa de impacto.
+
+Commit de inventário:
+
+- `74d1858 docs: registra inventario fase 6.3 RTD`
+
+Resultado da fase:
+
+- mapa de impacto RTD consolidado;
+- evidências de testes registradas;
+- consumidor funcional principal identificado em `services/canonical_pricing_facade.py`;
+- camada de leitura identificada em `repositories/rtd_option_quotes_repository.py`;
+- próxima fase definida como Fase 6.4 — Proteção do contrato de leitura RTD para canonical pricing.
