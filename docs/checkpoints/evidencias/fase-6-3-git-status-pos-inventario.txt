@@ -1,0 +1,6 @@
+?? docs/checkpoints/evidencias/fase-6-3-git-status-inicial.txt
+?? docs/checkpoints/evidencias/fase-6-3-git-status-pos-inventario.txt
+?? docs/checkpoints/evidencias/fase-6-3-inventario-focado-rtd.md
+?? docs/checkpoints/evidencias/fase-6-3-inventario-testes-rtd.md
+?? docs/checkpoints/evidencias/fase-6-3-pytest-canonical-pricing-rtd-db-path.txt
+?? docs/checkpoints/evidencias/fase-6-3-pytest-rtd-option-quotes.txt

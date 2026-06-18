@@ -1,0 +1,4 @@
+?? docs/checkpoints/evidencias/fase-6-3-git-grep-impacto-rtd.txt
+?? docs/checkpoints/evidencias/fase-6-3-git-status-inicial.txt
+?? docs/checkpoints/evidencias/fase-6-3-pytest-canonical-pricing-rtd-db-path.txt
+?? docs/checkpoints/evidencias/fase-6-3-pytest-rtd-option-quotes.txt

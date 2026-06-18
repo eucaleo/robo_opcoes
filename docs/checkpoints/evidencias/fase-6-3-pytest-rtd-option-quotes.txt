@@ -1,0 +1,11 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collected 649 items / 630 deselected / 19 selected
+
+ATT\tests\test_audit_rtd_option_quotes.py .......                        [ 36%]
+ATT\tests\test_canonical_pricing_facade_rtd_db_path.py ...               [ 52%]
+ATT\tests\test_run_rtd_option_quotes_pipeline.py .........               [100%]
+
+===================== 19 passed, 630 deselected in 2.92s ======================
