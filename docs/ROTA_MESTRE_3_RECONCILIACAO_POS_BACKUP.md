@@ -123,19 +123,49 @@ Resultado consolidado da Fase 6.3:
 5. evidências de testes registradas em `docs/checkpoints/evidencias/`;
 6. próxima fase definida.
 
+Fase 6.4 — Proteção do contrato de leitura RTD para canonical pricing concluída.
+
+A Fase 6.4 foi integrada à branch `fase-12-fechamento-ciclo` após validação pós-merge.
+
+Checkpoint da fase:
+
+- `docs/checkpoints/fase-6-4-contrato-leitura-rtd-canonical-pricing.md`
+
+Commits principais da fase:
+
+- `95d9a56 docs: inicia fase 6.4 contrato RTD canonical pricing`
+- `7c5d54d test: protege contrato publico RtdOptionQuotesRepository`
+- `c98d6d2 merge: integra fase 6.4 contrato RTD canonical pricing`
+
+Evidências pós-merge registradas:
+
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-merge.txt`
+
+Validações pós-merge executadas:
+
+- `python -m pytest ATT/tests/test_rtd_option_quotes_repository_contract.py`
+  - `6 passed in 0.36s`
+- `python -m pytest ATT/tests -k "rtd_option_quotes"`
+  - `25 passed, 630 deselected in 3.19s`
+- `python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py`
+  - `22 passed in 1.24s`
+- `python -m pytest ATT/tests -k "rtd_option_quotes" | tee docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-merge.txt`
+  - `25 passed, 630 deselected in 3.06s`
+
+Resultado consolidado da Fase 6.4:
+
+1. contrato público de `repositories/rtd_option_quotes_repository.py` protegido por testes diretos;
+2. leitura por código, listagem e consulta por ativo-base validada;
+3. comportamento em ausência da tabela `rtd_option_quotes` coberto por teste;
+4. suíte RTD específica permaneceu verde após o merge;
+5. testes de canonical pricing relacionados à resolução de preço RTD permaneceram verdes;
+6. evidência pós-merge foi registrada em `docs/checkpoints/evidencias/`;
+7. nenhuma alteração em UI/API foi realizada;
+8. Excel permanece apenas como gateway RTD.
+
 Etapa corrente:
 
-- Fase 6.4 — Proteção do contrato de leitura RTD para canonical pricing.
-
-A Fase 6.4 deve fortalecer testes e contrato em torno de:
-
-1. `repositories/rtd_option_quotes_repository.py`;
-2. precedência de preço em `services/canonical_pricing_facade.py`;
-3. comportamento quando existe preço RTD válido;
-4. comportamento quando não existe preço RTD;
-5. comportamento quando o banco RTD não possui a tabela;
-6. preservação do Excel apenas como gateway RTD;
-7. ausência de alteração em UI/API sem decisão explícita.
+- Fase 6.5 — Retomada funcional incremental pós-proteção do contrato RTD.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
