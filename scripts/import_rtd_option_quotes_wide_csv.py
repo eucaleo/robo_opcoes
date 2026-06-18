@@ -2,8 +2,16 @@ import argparse
 import csv
 import json
 import sqlite3
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from infra.bootstrap_rtd_option_quotes_schema import ensure_rtd_option_quotes_schema
 
 
 NUMERIC_COLUMNS = {
@@ -214,6 +222,8 @@ def import_rows(db_path, rows, dry_run=False):
 
     if dry_run:
         return stats
+
+    ensure_rtd_option_quotes_schema(db_path)
 
     con = sqlite3.connect(db_path)
 

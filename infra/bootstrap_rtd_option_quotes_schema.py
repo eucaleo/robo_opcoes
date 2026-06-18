@@ -85,6 +85,24 @@ def get_columns(conn: sqlite3.Connection, table_name: str) -> set[str]:
     return {row[1] for row in rows}
 
 
+
+def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
+    db_path = Path(db_path)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(DDL)
+        conn.commit()
+
+        columns = get_columns(conn, TABLE_NAME)
+        missing = sorted(REQUIRED_COLUMNS - columns)
+
+        if missing:
+            raise RuntimeError(
+                "Tabela rtd_option_quotes existe, mas está sem colunas obrigatórias: "
+                + ", ".join(missing)
+            )
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Cria/valida o schema vazio de rtd_option_quotes em banco SQLite."

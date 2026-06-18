@@ -32,7 +32,7 @@ def test_build_import_command_uses_csv_db_and_script_path():
     )
 
     assert command[0] == sys.executable
-    assert command[1].endswith("import_rtd_links_to_option_quotes.py")
+    assert command[1].endswith("import_rtd_option_quotes_wide_csv.py")
     assert "--csv" in command
     assert "dados/RTD_LINKS.csv" in command
     assert "--db" in command
@@ -101,7 +101,7 @@ def test_run_pipeline_stops_when_import_fails(monkeypatch):
 
     assert code == 9
     assert len(calls) == 1
-    assert calls[0][1].endswith("import_rtd_links_to_option_quotes.py")
+    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
 
 
 def test_run_pipeline_runs_import_and_audit_when_import_succeeds(monkeypatch):
@@ -121,7 +121,7 @@ def test_run_pipeline_runs_import_and_audit_when_import_succeeds(monkeypatch):
 
     assert code == 0
     assert len(calls) == 2
-    assert calls[0][1].endswith("import_rtd_links_to_option_quotes.py")
+    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
     assert calls[1][1].endswith("audit_rtd_option_quotes.py")
 
 
@@ -143,7 +143,7 @@ def test_run_pipeline_dry_run_skips_audit(monkeypatch):
 
     assert code == 0
     assert len(calls) == 1
-    assert calls[0][1].endswith("import_rtd_links_to_option_quotes.py")
+    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
     assert "--dry-run" in calls[0]
 
 
@@ -153,7 +153,7 @@ def test_run_pipeline_returns_audit_code_when_audit_fails(monkeypatch):
 
     def fake_run_command(command):
         calls.append(command)
-        if command[1].endswith("import_rtd_links_to_option_quotes.py"):
+        if command[1].endswith("import_rtd_option_quotes_wide_csv.py"):
             return 0
         return 2
 

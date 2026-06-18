@@ -25,7 +25,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS_DIR = Path(__file__).resolve().parent
 
-IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_links_to_option_quotes.py"
+IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_option_quotes_wide_csv.py"
 AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
 
 
