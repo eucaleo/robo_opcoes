@@ -1,0 +1,2 @@
+?? docs/checkpoints/evidencias/fase-6-4-git-status-inicial.txt
+?? docs/checkpoints/fase-6-4-contrato-leitura-rtd-canonical-pricing.md
