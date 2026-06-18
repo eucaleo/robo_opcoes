@@ -351,6 +351,9 @@ def test_execute_pricing_uses_persisted_rtd_option_quote_price(tmp_path):
     assert leg["price"] == 9.99
     assert leg["premium"] == 9.99
     assert leg["price_source"] == "rtd_option_quotes"
+    assert leg["price_resolution_status"] == "ok"
+    assert leg["rtd_quote_found"] is True
+    assert leg["rtd_validation_status"] == "ok"
     assert leg["rtd_price_field"] == "ultimo_preco"
     assert leg["rtd_quote_codigo_opcao"] == "ABCD11"
     assert leg["rtd_quote_ativo_base"] == "ABCD"
@@ -364,6 +367,9 @@ def test_execute_pricing_uses_persisted_rtd_option_quote_price(tmp_path):
     assert persisted_payload["legs"][0]["price"] == 9.99
     assert persisted_payload["legs"][0]["premium"] == 9.99
     assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"
+    assert persisted_payload["legs"][0]["price_resolution_status"] == "ok"
+    assert persisted_payload["legs"][0]["rtd_quote_found"] is True
+    assert persisted_payload["legs"][0]["rtd_validation_status"] == "ok"
     assert persisted_payload["legs"][0]["rtd_price_field"] == "ultimo_preco"
     assert persisted_payload["legs"][0]["rtd_quote_codigo_opcao"] == "ABCD11"
     assert persisted_payload["legs"][0]["rtd_quote_ativo_base"] == "ABCD"
