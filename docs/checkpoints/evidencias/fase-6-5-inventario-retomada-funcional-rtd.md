@@ -1,0 +1,306 @@
+# Fase 6.5 — Inventário funcional RTD/canonical pricing
+
+## Objetivo
+
+Registrar o inventário inicial de pontos funcionais relacionados a RTD/canonical pricing após a proteção contratual concluída na Fase 6.4.
+
+Este inventário não altera código funcional.
+
+## Evidências geradas
+
+- `docs/checkpoints/evidencias/fase-6-5-arquivos-candidatos-rtd-canonical.txt`
+- `docs/checkpoints/evidencias/fase-6-5-testes-candidatos-rtd-canonical.txt`
+- `docs/checkpoints/evidencias/fase-6-5-referencias-rtd-canonical.txt`
+
+## Arquivos candidatos identificados
+
+Total:
+
+- 140 arquivo(s)
+
+Lista:
+
+- `ATT/tests/test_audit_rtd_option_quotes.py`
+- `ATT/tests/test_canonical_input_service.py`
+- `ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py`
+- `ATT/tests/test_canonical_pricing_facade_rtd_db_path.py`
+- `ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py`
+- `ATT/tests/test_canonical_validators.py`
+- `ATT/tests/test_fase_11_rtd_integrated_flow.py`
+- `ATT/tests/test_import_rtd_links_to_option_quotes.py`
+- `ATT/tests/test_payoff_canonical.py`
+- `ATT/tests/test_pricing_engine_stub.py`
+- `ATT/tests/test_pricing_execution_app_service.py`
+- `ATT/tests/test_pricing_execution_controller.py`
+- `ATT/tests/test_pricing_execution_orchestration_service.py`
+- `ATT/tests/test_pricing_execution_persistence_service.py`
+- `ATT/tests/test_pricing_execution_price_source_persistence.py`
+- `ATT/tests/test_pricing_execution_query_service.py`
+- `ATT/tests/test_pricing_execution_service.py`
+- `ATT/tests/test_pricing_executions_repository.py`
+- `ATT/tests/test_pricing_input_service.py`
+- `ATT/tests/test_pricing_payload_adapter.py`
+- `ATT/tests/test_rtd_option_quotes_repository_contract.py`
+- `ATT/tests/test_run_rtd_option_quotes_pipeline.py`
+- `LISTA_RTD.xlsm`
+- `api/pricing_execution_controller.py`
+- `docs/EVOLUCAO_PRICING_PAYOFF.md`
+- `docs/ROTA_MESTRE_2_AUTOMACAO_OPCOES_RTD.md`
+- `docs/checkpoints/ciclo-2-fase-7a-auditoria-rtd-opcoes.md`
+- `docs/checkpoints/ciclo-2-fase-7b-auditoria-escrita-importacao-rtd-opcoes.md`
+- `docs/checkpoints/evidencias/fase-4-audit-rtd-option-quotes-pos-bootstrap.txt`
+- `docs/checkpoints/evidencias/fase-4-bootstrap-rtd-option-quotes-schema.txt`
+- `docs/checkpoints/evidencias/fase-4-fluxos-rtd-lista-rtd-operacionais.txt`
+- `docs/checkpoints/evidencias/fase-4-import-lista-rtd-dry-run-aba-real.txt`
+- `docs/checkpoints/evidencias/fase-4-import-lista-rtd-dry-run-erro.txt`
+- `docs/checkpoints/evidencias/fase-4-rtd-option-quotes-arquivos-operacionais.txt`
+- `docs/checkpoints/evidencias/fase-4-rtd-option-quotes-create-table.txt`
+- `docs/checkpoints/evidencias/fase-4-rtd-option-quotes-referencias-diretas.txt`
+- `docs/checkpoints/evidencias/fase-4-rtd-option-quotes-referencias.txt`
+- `docs/checkpoints/evidencias/fase-4-schema-documentado-fase-3-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-4-schema-rtd-option-quotes-app-db.txt`
+- `docs/checkpoints/evidencias/fase-4-schema-rtd-option-quotes-derived-db.txt`
+- `docs/checkpoints/evidencias/fase-4-schemas-testes-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-5-inventario-lista-rtd-xlsm.txt`
+- `docs/checkpoints/evidencias/fase-5-mapa-formulas-rtd-lista-rtd.txt`
+- `docs/checkpoints/evidencias/fase-5-reconciliacao-focada-rtd-option-quotes-sistema.txt`
+- `docs/checkpoints/evidencias/fase-5-reconciliacao-inicial-rtd-sistema.txt`
+- `docs/checkpoints/evidencias/fase-6-3-inventario-focado-rtd.md`
+- `docs/checkpoints/evidencias/fase-6-3-inventario-testes-rtd.md`
+- `docs/checkpoints/evidencias/fase-6-3-pytest-canonical-pricing-rtd-db-path.txt`
+- `docs/checkpoints/evidencias/fase-6-3-pytest-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-6-4-inventario-testes-contrato-rtd.md`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-canonical-pricing-rtd-pos-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-db-path.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-execute-pricing-integration.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-merge.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-price-resolution.txt`
+- `docs/checkpoints/evidencias/fase-6-testes-focados-rtd-option-quotes.txt`
+- `docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md`
+- `docs/checkpoints/fase-2-2-validacao-supersessao-lista-rtd.md`
+- `docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md`
+- `docs/checkpoints/fase-4-5-reconciliacao-rtd-option-quotes.md`
+- `docs/checkpoints/fase-4-transicao-controlada-para-fase-5-rtd-excel.md`
+- `docs/checkpoints/fase-5-reconciliacao-documental-rtd-option-quotes.md`
+- `docs/checkpoints/fase-5-rtd-excel-ponte-oficial.md`
+- `docs/checkpoints/fase-6-1-validacao-pipeline-rtd-operacional.md`
+- `docs/checkpoints/fase-6-2-validacao-pos-correcao-pipeline-rtd-wide.md`
+- `docs/checkpoints/fase-6-3-mapa-impacto-retomada-funcional-rtd.md`
+- `docs/checkpoints/fase-6-4-contrato-leitura-rtd-canonical-pricing.md`
+- `docs/checkpoints/fase-6-5-retomada-funcional-incremental-rtd.md`
+- `docs/checkpoints/fase-6-mapa-impacto-rtd-option-quotes.md`
+- `docs/checkpoints/fase-6-varredura-funcional-rtd-option-quotes.txt`
+- `docs/checkpoints/fase-6-varredura-rtd-option-quotes.txt`
+- `docs/checkpoints/fase-7d-testes-importador-rtd-option-quotes.md`
+- `docs/checkpoints/fase-7e-auditoria-rtd-option-quotes.md`
+- `docs/checkpoints/fase-7f-pipeline-rtd-option-quotes.md`
+- `docs/checkpoints/fase-7g-seed-rtd-option-quotes-dados-atuais.md`
+- `docs/checkpoints/fase-7h-pipeline-lista-rtd-option-quotes.md`
+- `docs/checkpoints/fase-8a-auditoria-integracao-rtd-option-quotes-snapshot.md`
+- `docs/checkpoints/fase-8b-diagnostico-reconciliacao-rtd-option-quotes.txt`
+- `docs/checkpoints/fase-8b-reconciliacao-estruturas-legs-rtd-option-quotes.md`
+- `docs/checkpoints/fase-8d-auditoria-arquivos-chave-rtd.txt`
+- `docs/checkpoints/fase-8d-auditoria-codigo-funcional-rtd.txt`
+- `docs/checkpoints/fase-8d-auditoria-facade-snapshot-rtd.txt`
+- `docs/checkpoints/fase-8d-auditoria-fluxo-preco-rtd.txt`
+- `docs/checkpoints/fase-8d-auditoria-pontos-integracao-rtd.txt`
+- `docs/checkpoints/fase-8d-base-patch-rtd-option-quotes.txt`
+- `docs/checkpoints/fase-8d-before-canonical_pricing_facade-v2.py`
+- `docs/checkpoints/fase-8d-before-canonical_pricing_facade-v3.py`
+- `docs/checkpoints/fase-8d-before-canonical_pricing_facade-v4.py`
+- `docs/checkpoints/fase-8d-before-canonical_pricing_facade-v5.py`
+- `docs/checkpoints/fase-8d-before-canonical_pricing_facade.py`
+- `docs/checkpoints/fase-8d-before-rtd-db-path-fix.py`
+- `docs/checkpoints/fase-8d-grep-fluxo-preco-rtd.txt`
+- `docs/checkpoints/fase-8d-patch-integracao-rtd-option-quotes.diff.txt`
+- `docs/checkpoints/fase-8d-uso-repository-rtd.txt`
+- `docs/checkpoints/fase-8e-auditoria-assinaturas-rtd-facade.txt`
+- `docs/checkpoints/fase-8e-auditoria-testes-rtd-facade.txt`
+- `docs/checkpoints/fase-8f-conclusao-cobertura-rtd-price-resolution.txt`
+- `docs/checkpoints/fase-8f-inicio-auditoria-rtd-facade-flow.txt`
+- `docs/checkpoints/pre-fase-6-validacao-controlada-pipeline-rtd.md`
+- `docs/decisions/2026-06-17-supersessao-lista-rtd-xlsx.md`
+- `docs/fase_2_auditoria_contrato_rtd_excel.md`
+- `docs/fase_2_diagnostico_csvs_rtd_excel.json`
+- `docs/fase_2_diagnostico_csvs_rtd_excel.md`
+- `docs/fase_2_mapa_contrato_rtd_excel.md`
+- `docs/fase_3_diagnostico_persistencia_rtd_opcoes.json`
+- `docs/fase_3_diagnostico_persistencia_rtd_opcoes.md`
+- `docs/fases/fase-10g-guardrails-operacionais-preco-rtd.md`
+- `docs/lista_priorizada_automacao_opcoes_rtd.md`
+- `docs/mapeamento_automacao_opcoes_rtd.json`
+- `docs/mapeamento_automacao_opcoes_rtd.md`
+- `docs/validacoes/fase-10f-validacao-e2e-rtd-excel.md`
+- `domain/canonical_validators.py`
+- `infra/bootstrap_rtd_option_quotes_schema.py`
+- `repositories/pricing_executions_repository.py`
+- `repositories/rtd_option_quotes_repository.py`
+- `scripts/audit_rtd_option_quotes.py`
+- `scripts/build_rtd_symbols.py`
+- `scripts/create_rtd_option_quotes_sheet.py`
+- `scripts/import_lista_rtd_excel_to_option_quotes.py`
+- `scripts/import_rtd_links_to_option_quotes.py`
+- `scripts/import_rtd_option_quotes_wide_csv.py`
+- `scripts/mapear_automacao_opcoes_rtd.py`
+- `scripts/refresh_rtd_option_quotes_excel.ps1`
+- `scripts/run_lista_rtd_option_quotes_pipeline.py`
+- `scripts/run_rtd_option_quotes_pipeline.py`
+- `scripts/run_rtd_refresh_full.py`
+- `scripts/seed_current_rtd_option_quotes.py`
+- `services/canonical_input_service.py`
+- `services/canonical_pricing_facade.py`
+- `services/pricing_engine_stub.py`
+- `services/pricing_execution_app_service.py`
+- `services/pricing_execution_orchestration_service.py`
+- `services/pricing_execution_persistence_service.py`
+- `services/pricing_execution_query_service.py`
+- `services/pricing_execution_service.py`
+- `services/pricing_input_service.py`
+- `services/pricing_payload_adapter.py`
+
+## Testes candidatos identificados
+
+Total:
+
+- 38 arquivo(s)
+
+Lista:
+
+- `ATT/tests/test_audit_rtd_option_quotes.py`
+- `ATT/tests/test_canonical_input_service.py`
+- `ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py`
+- `ATT/tests/test_canonical_pricing_facade_rtd_db_path.py`
+- `ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py`
+- `ATT/tests/test_canonical_validators.py`
+- `ATT/tests/test_fase_11_rtd_integrated_flow.py`
+- `ATT/tests/test_import_rtd_links_to_option_quotes.py`
+- `ATT/tests/test_payoff_canonical.py`
+- `ATT/tests/test_pricing_engine_stub.py`
+- `ATT/tests/test_pricing_execution_app_service.py`
+- `ATT/tests/test_pricing_execution_controller.py`
+- `ATT/tests/test_pricing_execution_orchestration_service.py`
+- `ATT/tests/test_pricing_execution_persistence_service.py`
+- `ATT/tests/test_pricing_execution_price_source_persistence.py`
+- `ATT/tests/test_pricing_execution_query_service.py`
+- `ATT/tests/test_pricing_execution_service.py`
+- `ATT/tests/test_pricing_executions_repository.py`
+- `ATT/tests/test_pricing_input_service.py`
+- `ATT/tests/test_pricing_payload_adapter.py`
+- `ATT/tests/test_rtd_option_quotes_repository_contract.py`
+- `ATT/tests/test_run_rtd_option_quotes_pipeline.py`
+- `docs/checkpoints/evidencias/fase-4-schemas-testes-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-6-3-inventario-testes-rtd.md`
+- `docs/checkpoints/evidencias/fase-6-3-pytest-canonical-pricing-rtd-db-path.txt`
+- `docs/checkpoints/evidencias/fase-6-3-pytest-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-6-4-inventario-testes-contrato-rtd.md`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-canonical-pricing-rtd-pos-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-db-path.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-execute-pricing-integration.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-merge.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-price-resolution.txt`
+- `docs/checkpoints/evidencias/fase-6-testes-focados-rtd-option-quotes.txt`
+- `docs/checkpoints/fase-7d-testes-importador-rtd-option-quotes.md`
+- `docs/checkpoints/fase-8e-auditoria-testes-rtd-facade.txt`
+
+## Contagem de referências por termo
+
+- `rtd_option_quotes`: 7032 ocorrência(s)
+- `RtdOptionQuotesRepository`: 80 ocorrência(s)
+- `canonical_pricing`: 472 ocorrência(s)
+- `CanonicalPricing`: 50 ocorrência(s)
+- `rtd_price`: 106 ocorrência(s)
+- `RTD`: 5709 ocorrência(s)
+- `fallback`: 182 ocorrência(s)
+- `quote`: 359 ocorrência(s)
+
+## Leitura funcional preliminar
+
+A Fase 6.4 deixou protegido o contrato público de leitura RTD e os fluxos de canonical pricing relacionados a resolução de preço RTD.
+
+A retomada funcional da Fase 6.5 deve evitar alterações amplas e escolher uma única fatia incremental, validada por teste antes da implementação.
+
+## Pontos de atenção
+
+1. Confirmar quais arquivos concentram a resolução de preço RTD no canonical pricing.
+2. Confirmar quais testes já cobrem fallback quando preço RTD está ausente ou inválido.
+3. Confirmar se há comportamento pendente relacionado a múltiplas cotações, atualização temporal ou seleção de preço mais recente.
+4. Evitar alteração de UI/API nesta fase.
+5. Evitar alteração de schema nesta fase.
+6. Preservar comportamento validado na Fase 6.4.
+
+## Fatias funcionais candidatas
+
+### Candidata A — Reforço de caracterização do fallback RTD
+
+Descrição:
+
+- Criar ou reforçar teste que explicite o comportamento quando não há preço RTD válido.
+
+Risco:
+
+- Baixo.
+
+Impacto esperado:
+
+- Teste/documentação de comportamento, possivelmente sem alteração funcional.
+
+### Candidata B — Caracterização da precedência de preço RTD válido
+
+Descrição:
+
+- Criar ou reforçar teste que garanta que preço RTD válido tem precedência sobre fallback.
+
+Risco:
+
+- Baixo.
+
+Impacto esperado:
+
+- Proteção adicional do contrato atual.
+
+### Candidata C — Normalização defensiva de entrada RTD
+
+Descrição:
+
+- Avaliar se há necessidade de normalizar código de opção ou ativo-base antes de consulta.
+
+Risco:
+
+- Médio.
+
+Impacto esperado:
+
+- Pode alterar comportamento; só deve avançar com teste objetivo.
+
+### Candidata D — Seleção de cotação RTD mais recente
+
+Descrição:
+
+- Avaliar se existe comportamento explícito para múltiplas cotações do mesmo código.
+
+Risco:
+
+- Médio.
+
+Impacto esperado:
+
+- Pode envolver regra de negócio; exige confirmação antes de implementar.
+
+## Recomendação inicial
+
+Priorizar uma fatia de baixo risco:
+
+1. caracterização do fallback RTD; ou
+2. caracterização da precedência do preço RTD válido.
+
+A decisão final deve ser tomada após leitura dos arquivos e testes candidatos.
+
+## Status
+
+Inventário inicial gerado.
