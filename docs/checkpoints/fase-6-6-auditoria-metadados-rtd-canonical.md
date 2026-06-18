@@ -229,3 +229,37 @@ Contrato validado:
 Evidência:
 
 - `docs/checkpoints/evidencias/fase-6-6-pytest-metadados-rtd-canonical-manual-price.txt`
+
+Fase 6.6 — Auditoria de metadados RTD no canonical pricing concluída documentalmente.
+
+Checkpoint da fase:
+
+- `docs/checkpoints/fase-6-6-auditoria-metadados-rtd-canonical.md`
+
+Evidências principais:
+
+- `docs/checkpoints/evidencias/fase-6-6-pytest-final-metadados-rtd-canonical.txt`
+- `docs/checkpoints/evidencias/fase-6-6-pytest-metadados-rtd-canonical-manual-price.txt`
+
+Commits principais da fase:
+
+- `787e204 docs: registra cobertura erro repositorio rtd fase 6.6`
+- `17a21e1 test: cobre codigo opcao em divergencia ativo rtd`
+- `a59cc1a docs: registra cobertura divergencia ativo rtd fase 6.6`
+- `c2f6850 test: cobre metadados rtd em quote vencida`
+- `c3a4276 docs: registra cobertura quote rtd vencida fase 6.6`
+- `852d9be test: valida diagnostico neutro em preco manual`
+- `f8ff092 docs: registra cobertura preco manual fase 6.6`
+- `f383f9b docs: registra evidencia final fase 6.6`
+
+Resultado consolidado da Fase 6.6:
+
+1. metadados RTD auditados no canonical pricing;
+2. cenário de preço manual protegido com diagnóstico neutro;
+3. cenário de quote RTD vencida coberto;
+4. cenário de divergência de ativo-base RTD coberto;
+5. cenário de erro no repositório RTD documentado;
+6. evidência final da suíte relacionada registrada;
+7. nenhuma alteração em UI/API foi realizada;
+8. Excel permanece apenas como gateway RTD.
+
