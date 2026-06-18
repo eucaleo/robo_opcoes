@@ -70,42 +70,41 @@ Somente após banco, arquivos e contratos estarem reconciliados.
 
 ## Status atual
 
-Fase 5 — Reconciliação RTD/Excel concluída documentalmente.
+Fase 6 — Retomada funcional controlada iniciada documentalmente.
 
-As Fases 0, 1, 2, 3, 4 e 5 possuem registros documentais relacionados no histórico do projeto.
+A Fase 5 — Reconciliação RTD/Excel foi concluída documentalmente e a rota avançou para a Fase 6 com plano, mapa de impacto e validação controlada.
 
-A reconciliação avançou de forma controlada por meio de checkpoints documentais, incluindo:
+Commits principais da transição:
 
-- inventário e classificação de documentos vivos e históricos;
-- classificação da ponte RTD operacional;
-- supersessão de referências legadas a `LISTA_RTD.xlsx`;
-- inventário de caminhos de banco;
-- reconciliação conceitual entre `dados/app.db` e `dados/derived.db`;
-- inventário funcional de consumidores de caminhos de banco;
-- plano de normalização dos consumidores de caminhos de banco;
-- inventário da `LISTA_RTD.xlsm`;
-- mapa somente leitura das fórmulas RTD;
-- consolidação da ponte RTD Excel;
-- reconciliação documental entre a aba `RTD_OPTION_QUOTES` e a tabela `rtd_option_quotes`.
+- `b50137a docs: atualiza status da rota mestre apos fase 5 rtd`
+- `7bf3b71 docs: registra plano da fase 6 retomada funcional controlada`
+- `a39a670 docs: registra checkpoint pre-fase 6 validacao RTD`
+- `0788ede feat: preserva snapshot quando quote RTD estiver vencida`
+- `229103c feat: adiciona pipeline operacional de refresh RTD`
+- `9d78fed docs: registra validacao operacional inicial do pipeline RTD`
+- `700a716 Corrige pipeline RTD wide com autobootstrap de schema`
 
-Último checkpoint publicado:
+A Fase 6.1 — Validação operacional inicial do pipeline RTD foi registrada em:
 
-- `2bd5fad docs: registra reconciliacao documental RTD option quotes`
+- `docs/checkpoints/fase-6-1-validacao-pipeline-rtd-operacional.md`
 
-A rota ainda não autoriza alteração funcional ampla, limpeza destrutiva, alteração em UI, API, repository ou serviço sem fase específica, mapa de impacto e validação registrada.
+Após a validação inicial, houve correção técnica no pipeline RTD wide com autobootstrap de schema em:
 
-A próxima decisão controlada deve preparar explicitamente a:
+- `700a716 Corrige pipeline RTD wide com autobootstrap de schema`
 
-- Fase 6 — Retomada funcional controlada.
+Portanto, a etapa corrente passa a ser:
 
-Antes da Fase 6, deve haver um plano objetivo indicando:
+- Fase 6.2 — Validação pós-correção do pipeline RTD wide/autobootstrap.
 
-1. quais comandos serão executados;
-2. quais arquivos poderão ser alterados;
-3. se haverá ou não criação/validação de tabela;
-4. quais testes serão rodados;
-5. qual critério encerra a fase;
-6. qual commit registrará o fechamento.
+A Fase 6.2 deve validar que:
+
+1. o pipeline RTD usa o importador wide oficial;
+2. o schema `rtd_option_quotes` é validado/criado de forma controlada;
+3. o Excel permanece apenas como gateway RTD;
+4. não houve alteração não autorizada em UI, API, repository ou serviço;
+5. os testes RTD permanecem verdes;
+6. o estado Git fica limpo;
+7. o fechamento da fase é registrado em checkpoint próprio.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
