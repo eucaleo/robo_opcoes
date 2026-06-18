@@ -1,4 +1,6 @@
-Microfatia: cobertura integrada para fallback RTD por asset mismatch.
+# Evidências - Fase 6.5 RTD
+
+## Microfatia: cobertura integrada para fallback RTD por asset mismatch
 
 Arquivo alterado:
 - ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
@@ -22,5 +24,3 @@ Validações executadas:
 
 - python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_rtd_option_quotes_repository_contract.py -q
   Resultado: 32 passed
-# Evidências - Fase 6.5 RTD
-
