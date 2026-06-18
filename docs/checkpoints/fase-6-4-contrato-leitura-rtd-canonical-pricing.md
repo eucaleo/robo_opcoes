@@ -160,3 +160,47 @@ Decisão provisória:
 
 - a Fase 6.4 parece já possuir cobertura relevante;
 - antes de alterar código produtivo, deve-se verificar se existe lacuna específica no contrato público do `RtdOptionQuotesRepository`.
+
+---
+
+## Proteção direta do contrato público do repository
+
+Após o inventário do uso do `RtdOptionQuotesRepository`, foi identificada uma lacuna documental/testável no contrato público direto do repository.
+
+Observações:
+
+- o `canonical_pricing_facade` já trata exceções do repository de forma tolerante;
+- o facade tenta o código original e a versão uppercase;
+- o facade preserva a precedência manual > RTD > snapshot;
+- o repository, por sua vez, expõe uma API direta e simples:
+  - `get_by_codigo`;
+  - `list_by_ativo_base`;
+  - `list_all`;
+- o repository faz consulta exata por `codigo_opcao`;
+- o repository propaga erros SQLite quando a tabela/schema não existe;
+- o tratamento operacional desses erros permanece no consumidor, especialmente no `canonical_pricing_facade`.
+
+Foi adicionado teste direto de contrato:
+
+- `ATT/tests/test_rtd_option_quotes_repository_contract.py`
+
+Contrato protegido pelos testes:
+
+1. `get_by_codigo` retorna `dict` quando o código existe;
+2. `get_by_codigo` retorna `None` quando o código não existe;
+3. `get_by_codigo` usa correspondência exata de `codigo_opcao`;
+4. erro SQLite por tabela ausente é propagado pelo repository;
+5. `list_by_ativo_base` retorna somente quotes do ativo-base solicitado;
+6. `list_all` retorna lista de dicionários.
+
+Evidências:
+
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes-pos-repository-contract.txt`
+- `docs/checkpoints/evidencias/fase-6-4-pytest-canonical-pricing-rtd-pos-repository-contract.txt`
+
+Decisão:
+
+- nenhuma alteração produtiva foi necessária;
+- a Fase 6.4 fortalece o contrato por documentação e testes automatizados;
+- a tolerância a falhas do repository continua localizada no `canonical_pricing_facade`.
