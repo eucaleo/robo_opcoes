@@ -1,0 +1,3 @@
+?? docs/checkpoints/evidencias/fase-6-5-git-log-inicial.txt
+?? docs/checkpoints/evidencias/fase-6-5-git-status-inicial.txt
+?? docs/checkpoints/fase-6-5-retomada-funcional-incremental-rtd.md
