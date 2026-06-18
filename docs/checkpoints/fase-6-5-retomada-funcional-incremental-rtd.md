@@ -1,31 +1,66 @@
-# Fase 6.5 — Retomada funcional incremental RTD
+# Fase 6.5 — Retomada funcional incremental pós-proteção do contrato RTD
 
-## Status
+## Objetivo
 
-Microfatia 6.5.1 concluída.
+Executar uma retomada funcional incremental e controlada sobre o fluxo de canonical pricing após a proteção do contrato de leitura RTD.
 
-## Resumo
+A microfatia desta fase concentrou-se em proteger o comportamento de fallback quando uma quote RTD é encontrada, possui preço válido, mas pertence a ativo-base divergente do ativo esperado.
 
-Foi adicionada cobertura integrada para CanonicalPricingFacade.execute_pricing quando a quote RTD existe em rtd_option_quotes, mas não possui preço utilizável.
+## Escopo executado
 
-Cenário: ABCD11 com ultimo_preco=0, bid=0 e ask=0.
+- Proteção integrada do fallback RTD por asset mismatch.
+- Validação do comportamento em services/canonical_pricing_facade.py por meio de teste de integração.
+- Preservação do snapshot como preço efetivo quando a quote RTD não pertence ao ativo-base esperado.
+- Preservação dos metadados RTD no payload enviado ao engine e no payload persistido.
+- Nenhuma alteração em UI ou API.
+- Excel mantido apenas como gateway RTD.
 
-Resultado esperado: fallback para snapshot, mantendo price=5.55, premium=5.55, price_source=snapshot e price_resolution_status=invalid_rtd_price.
+## Arquivo funcional/teste envolvido
 
-A rastreabilidade RTD foi preservada no payload do motor e no payload de persistência.
+- ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
 
-## Evidências
+## Teste adicionado
 
-Arquivo de evidência: docs/checkpoints/evidencias/fase-6-5-pytest-rtd-canonical-invalid-price-integrado.txt
+- test_execute_pricing_falls_back_to_snapshot_when_rtd_option_quote_asset_mismatches
 
-Resultado registrado: 36 passed in 2.02s.
+## Comportamento protegido
 
-Validação focada posterior: 1 passed in 1.25s.
+- Quote RTD encontrada para ABCD11.
+- Quote possui preço válido.
+- Quote pertence ao ativo_base WXYZ.
+- underlying_asset esperado é ABCD.
+- O preço efetivo volta para snapshot.
+- price_resolution_status = rtd_asset_mismatch.
+- rtd_validation_status = error.
+- rtd_quote_found = True.
+- Metadados RTD permanecem presentes no payload do engine e no payload persistido.
 
-## Commit relacionado
+## Validações executadas
 
-c030684 test: cobre fallback quando preco rtd integrado e invalido
+- python -m pytest ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py -q
+  - Resultado: 5 passed
 
-## Observação
+- python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_rtd_option_quotes_repository_contract.py -q
+  - Resultado: 32 passed
 
-Nenhuma alteração em UI/API foi realizada. O Excel permanece apenas como gateway RTD.
+- git diff --check
+  - Resultado: sem saída, sem problemas de whitespace
+
+## Evidência complementar
+
+- EVIDENCIAS_FASE_6_5_RTD.md
+
+## Commits relacionados
+
+- 82c75c7 test: cover RTD asset mismatch fallback in pricing execution
+- 58889f1 docs: add RTD asset mismatch fallback evidence
+- fe570fc docs: organize RTD evidence heading
+
+## Resultado consolidado
+
+A Fase 6.5 avançou a retomada funcional incremental do RTD com uma proteção adicional no canonical pricing.
+
+O fluxo agora possui cobertura integrada para o caso em que a quote RTD existe e tem preço válido, mas é rejeitada por divergência de ativo-base.
+
+O comportamento esperado é manter o preço de snapshot e registrar status de resolução/validação compatíveis com o fallback por asset mismatch.
+
