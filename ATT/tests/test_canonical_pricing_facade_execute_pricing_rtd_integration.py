@@ -520,6 +520,83 @@ def test_execute_pricing_falls_back_to_snapshot_when_rtd_option_quote_is_stale(t
     assert persisted_leg["rtd_price_created_at"] == "2026-06-15T10:01:00"
 
 
+def test_execute_pricing_falls_back_to_snapshot_when_rtd_option_quote_asset_mismatches(tmp_path):
+    app_db = tmp_path / "app.db"
+    _create_controlled_app_db(app_db)
+
+    with sqlite3.connect(str(app_db)) as conn:
+        conn.execute(
+            """
+            UPDATE rtd_option_quotes
+            SET ativo_base = ?
+            WHERE codigo_opcao = ?
+            """,
+            ("WXYZ", "ABCD11"),
+        )
+        conn.commit()
+
+    fake_engine_service = FakePricingExecutionService()
+    fake_persistence_service = FakePricingExecutionPersistenceService()
+
+    facade = CanonicalPricingFacade(
+        db_path=app_db,
+        pricing_execution_service=fake_engine_service,
+        persistence_service=fake_persistence_service,
+    )
+
+    response = facade.execute_pricing(
+        structure_id=123,
+        reference_date="2026-06-15",
+    )
+
+    assert response["status"] == "ok"
+
+    assert len(fake_engine_service.calls) == 1
+    pricing_payload = fake_engine_service.calls[0]
+    leg = pricing_payload["legs"][0]
+
+    assert pricing_payload["structure_id"] == 123
+    assert pricing_payload["underlying_asset"] == "ABCD"
+    assert pricing_payload["reference_date"] == "2026-06-15"
+    assert pricing_payload["spot_price"] == 100.0
+
+    # Com quote RTD presente e preço utilizável, mas pertencente
+    # a outro ativo-base, o preço efetivo deve voltar ao snapshot.
+    assert leg["symbol"] == "ABCD11"
+    assert leg["asset"] == "ABCD11"
+    assert leg["price"] == 5.55
+    assert leg["premium"] == 5.55
+    assert leg["price_source"] == "snapshot"
+    assert leg["price_resolution_status"] == "rtd_asset_mismatch"
+    assert leg["rtd_quote_found"] is True
+    assert leg["rtd_validation_status"] == "error"
+    assert "diverge" in leg["rtd_validation_message"]
+
+    assert leg["rtd_quote_codigo_opcao"] == "ABCD11"
+    assert leg["rtd_quote_ativo_base"] == "WXYZ"
+    assert leg["rtd_price_source"] == "rtd_option_quotes"
+    assert leg["rtd_price_updated_at"] == "2026-06-15T10:01:00"
+    assert leg["rtd_price_created_at"] == "2026-06-15T10:01:00"
+
+    assert len(fake_persistence_service.calls) == 1
+    persisted_payload = fake_persistence_service.calls[0]["pricing_payload"]
+    persisted_leg = persisted_payload["legs"][0]
+
+    assert persisted_leg["price"] == 5.55
+    assert persisted_leg["premium"] == 5.55
+    assert persisted_leg["price_source"] == "snapshot"
+    assert persisted_leg["price_resolution_status"] == "rtd_asset_mismatch"
+    assert persisted_leg["rtd_quote_found"] is True
+    assert persisted_leg["rtd_validation_status"] == "error"
+    assert "diverge" in persisted_leg["rtd_validation_message"]
+
+    assert persisted_leg["rtd_quote_codigo_opcao"] == "ABCD11"
+    assert persisted_leg["rtd_quote_ativo_base"] == "WXYZ"
+    assert persisted_leg["rtd_price_source"] == "rtd_option_quotes"
+    assert persisted_leg["rtd_price_updated_at"] == "2026-06-15T10:01:00"
+    assert persisted_leg["rtd_price_created_at"] == "2026-06-15T10:01:00"
+
+
 def test_execute_pricing_falls_back_to_snapshot_when_rtd_option_quote_price_is_invalid(tmp_path):
     app_db = tmp_path / "app.db"
     _create_controlled_app_db(app_db)
