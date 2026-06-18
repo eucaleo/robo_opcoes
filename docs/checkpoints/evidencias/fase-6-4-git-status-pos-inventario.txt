@@ -1,0 +1,9 @@
+?? docs/checkpoints/evidencias/fase-6-4-git-status-inicial.txt
+?? docs/checkpoints/evidencias/fase-6-4-git-status-pos-inventario.txt
+?? docs/checkpoints/evidencias/fase-6-4-inventario-testes-contrato-rtd.md
+?? docs/checkpoints/evidencias/fase-6-4-pytest-price-source-persistence.txt
+?? docs/checkpoints/evidencias/fase-6-4-pytest-rtd-db-path.txt
+?? docs/checkpoints/evidencias/fase-6-4-pytest-rtd-execute-pricing-integration.txt
+?? docs/checkpoints/evidencias/fase-6-4-pytest-rtd-option-quotes.txt
+?? docs/checkpoints/evidencias/fase-6-4-pytest-rtd-price-resolution.txt
+?? docs/checkpoints/fase-6-4-contrato-leitura-rtd-canonical-pricing.md

@@ -1,0 +1,9 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collected 1 item
+
+ATT\tests\test_canonical_pricing_facade_execute_pricing_rtd_integration.py . [100%]
+
+============================== 1 passed in 1.08s ==============================
