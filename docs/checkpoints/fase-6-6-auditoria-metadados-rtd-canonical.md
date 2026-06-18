@@ -165,3 +165,43 @@ Commit:
 
 A lacuna de rastreabilidade do cenário de divergência de ativo-base RTD foi fechada sem alteração funcional.
 
+## Auditoria incremental — quote RTD vencida
+
+### Lacuna identificada
+
+O cenário unitário de quote RTD vencida já validava o fallback para o preço original do snapshot, o status `stale_rtd_quote`, a presença de quote RTD e a classificação de validação como alerta.
+
+Porém, o teste ainda não validava explicitamente os metadados preservados da quote RTD encontrada, deixando incompleta a rastreabilidade do registro RTD efetivamente consultado no cenário de vencimento.
+
+### Ação executada
+
+Foi adicionada cobertura unitária para garantir que, no comportamento atual, uma quote RTD encontrada, porém vencida, preserva:
+
+- `price_resolution_status = stale_rtd_quote`;
+- `rtd_quote_found = True`;
+- `rtd_validation_status = warn`;
+- `rtd_quote_codigo_opcao`;
+- `rtd_quote_ativo_base`;
+- `rtd_price_source`;
+- `rtd_price_updated_at`;
+- `rtd_price_created_at`;
+- mensagem indicando quote vencida.
+
+Commit:
+
+    c2f6850 test: cobre metadados rtd em quote vencida
+
+### Validação executada
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py -q
+    21 passed in 1.16s
+
+    python -m pytest ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py ATT/tests/test_rtd_option_quotes_repository_contract.py -q
+    32 passed in 1.66s
+
+    git diff --check
+
+### Resultado
+
+A lacuna de rastreabilidade do cenário de quote RTD vencida foi fechada sem alteração funcional.
+
