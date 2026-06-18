@@ -168,6 +168,11 @@ def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_on_re
 
     assert price == 5.55
     assert price_source == "snapshot"
+    assert traceability["price_resolution_status"] == "missing_rtd_quote"
+    assert traceability["rtd_quote_found"] is False
+    assert traceability["rtd_validation_status"] == "error"
+    assert "Quote RTD não encontrada" in traceability["rtd_validation_message"]
+    assert "ABCD11" in traceability["rtd_validation_message"]
 
 
 def test_snapshot_result_to_payload_uses_rtd_price_for_canonical_leg_fields(tmp_path):
