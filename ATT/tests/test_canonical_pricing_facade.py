@@ -18,6 +18,46 @@ def _selection(**overrides):
     return SimpleNamespace(**defaults)
 
 
+@pytest.mark.parametrize(
+    "raw_numeric, expected",
+    [
+        ("R$ 1.234,56", 1234.56),
+        ("1.234,56", 1234.56),
+        ("1,234.56", 1234.56),
+        ("R$ 124,66", 124.66),
+    ],
+)
+def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+    tmp_path,
+    raw_numeric,
+    expected,
+):
+    payload = _snapshot_result_to_payload(
+        selection_result=_selection(
+            spot_price=raw_numeric,
+            legs=[
+                {
+                    "quantity": "100",
+                    "price": raw_numeric,
+                    "asset": "ABCD100",
+                    "strike": raw_numeric,
+                }
+            ],
+        ),
+        structure_id=15,
+        underlying_asset="ABCD11",
+        reference_date="2026-06-19",
+        db_path=tmp_path / "app.db",
+    )
+
+    assert payload["spot_price"] == pytest.approx(expected)
+
+    leg = payload["legs"][0]
+    assert leg["price"] == pytest.approx(expected)
+    assert leg["premium"] == pytest.approx(expected)
+    assert leg["strike"] == pytest.approx(expected)
+
+
 def test_snapshot_result_to_payload_uses_explicit_underlying_asset_not_legacy_aba(tmp_path):
     selection = _selection(
         aba="SMAL11_ABA_LEGADA",
