@@ -450,3 +450,61 @@ Nenhuma alteração de banco está autorizada nesta fase.
 Nenhuma alteração de UI/API está autorizada nesta fase.
 
 A próxima etapa somente poderá avançar após commit e integração da documentação restaurada e sincronizada.
+
+## Fase 7 - Validacao regressiva RTD vigente
+
+### Objetivo
+
+Validar o comportamento RTD/canonical/pricing vigente apos a retomada, sem
+restaurar testes historicos obsoletos.
+
+### Arquivos auditados
+
+- docs/checkpoints/evidencias/fase-7-validacao-regressiva-rtd-vigente.txt
+- docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt
+- docs/checkpoints/evidencias/fase-7-fechamento-validacao-regressiva-rtd-vigente.txt
+- ATT/tests/test_canonical_pricing_facade.py
+- ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+- ATT/tests/test_pricing_execution_app_service.py
+- ATT/tests/test_robo_legs_repository.py
+- ATT/tests/test_robo_legs_status_repository.py
+- ATT/tests/test_robo_legs_status_service.py
+- ATT/tests/test_legacy_structure_legs_reader.py
+- ATT/tests/test_legacy_structure_legs_importer_integration.py
+
+### Comandos executados
+
+- python validate_db.py
+- python -m pytest ATT/tests/test_canonical_pricing_facade.py -v
+- python -m pytest ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py -v
+- python -m pytest ATT/tests/test_pricing_execution_app_service.py -v
+- python -m pytest ATT/tests/test_robo_legs_repository.py -v
+- python -m pytest ATT/tests/test_robo_legs_status_repository.py -v
+- python -m pytest ATT/tests/test_robo_legs_status_service.py -v
+- python -m pytest ATT/tests/test_legacy_structure_legs_reader.py -v
+- python -m pytest ATT/tests/test_legacy_structure_legs_importer_integration.py -v
+
+### Resultado
+
+- 40 testes vigentes passaram.
+- 0 falhas.
+- Testes historicos citados na rota estao ausentes/nao vigentes em ATT/tests.
+- Testes historicos recuperados permanecem apenas como evidencia documental.
+
+### Pendencias
+
+- Nenhuma pendencia bloqueante para a Fase 7.
+- scripts/validate_app_db.py e scripts/audit_rtd_option_quotes.py nao existem no estado atual e nao foram recriados.
+
+### Decisao tomada
+
+Fase 7 aprovada no criterio vigente da ROTA_MESTRE_3.
+
+Nao restaurar testes historicos obsoletos.
+
+Proxima fase autorizada:
+Fase 8 - Diagnostico do cadastro de estruturas com leg minima.
+
+### Commit relacionado
+
+Pendente de commit.

@@ -1,0 +1,51 @@
+Fase 7 - Validacao regressiva RTD vigente apos reconstrucao/reconciliacao
+
+Base documental:
+- ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP
+
+Decisao herdada da Fase 6.11:
+- Testes RTD historicos recuperados permanecem como evidencia documental.
+- Nao restaurar testes obsoletos por evolucao rota_1 -> rota_2 -> rota_3.
+- Validar apenas contratos e testes vigentes do estado atual.
+
+Branch:
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+HEAD:
+c011ebf docs: record available rtd regression validation
+
+Status:
+?? docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-auditoria-testes-rtd-historicos-git.txt
+?? docs/checkpoints/evidencias/fase-6-11-datas-exclusao-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-decisao-final-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-importabilidade-testes-rtd-historicos-sanitizados.txt
+?? docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos-sanitizados.txt
+?? docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-simbolos-atuais-rtd-pricing.txt
+?? docs/checkpoints/evidencias/fase-6-11-sintaxe-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-7-validacao-regressiva-rtd-vigente.txt
+?? docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/
+?? docs/checkpoints/evidencias/rtd_historico_preview/
+
+============================================================
+Testes RTD historicos citados na rota e situacao atual
+============================================================
+AUSENTE/NAO VIGENTE: ATT/tests/test_canonical_pricing_facade_rtd_db_path.py
+AUSENTE/NAO VIGENTE: ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
+AUSENTE/NAO VIGENTE: ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
+AUSENTE/NAO VIGENTE: ATT/tests/test_pricing_execution_price_source_persistence.py
+AUSENTE/NAO VIGENTE: ATT/tests/test_fase_11_rtd_integrated_flow.py
+
+============================================================
+Testes vigentes relacionados a RTD/canonical/pricing
+============================================================
+ATT/tests/test_canonical_pricing_facade.py
+ATT/tests/test_legacy_structure_legs_importer_integration.py
+ATT/tests/test_legacy_structure_legs_reader.py
+ATT/tests/test_pricing_execution_app_service.py
+ATT/tests/test_robo_legs_repository.py
+ATT/tests/test_robo_legs_status_repository.py
+ATT/tests/test_robo_legs_status_service.py
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py

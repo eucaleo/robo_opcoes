@@ -1,0 +1,55 @@
+Fase 7 - Fechamento da validacao regressiva RTD vigente
+
+Base:
+ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP
+
+Objetivo:
+Validar o comportamento RTD/canonical/pricing vigente apos a retomada, sem
+restaurar testes historicos obsoletos das rotas anteriores.
+
+Decisao herdada da Fase 6.11:
+Os testes RTD historicos recuperados permanecem como evidencia documental.
+Eles nao serao restaurados integralmente, pois parte deles depende de helpers
+privados removidos, scripts inexistentes ou contratos antigos das transicoes
+rota_1 -> rota_2 -> rota_3.
+
+Testes historicos citados na rota:
+- ATT/tests/test_canonical_pricing_facade_rtd_db_path.py: ausente/nao vigente
+- ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py: ausente/nao vigente
+- ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py: ausente/nao vigente
+- ATT/tests/test_pricing_execution_price_source_persistence.py: ausente/nao vigente
+- ATT/tests/test_fase_11_rtd_integrated_flow.py: ausente/nao vigente
+
+Testes vigentes executados:
+- ATT/tests/test_canonical_pricing_facade.py: 11 passed
+- ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py: 1 passed
+- ATT/tests/test_pricing_execution_app_service.py: 9 passed
+- ATT/tests/test_robo_legs_repository.py: 6 passed
+- ATT/tests/test_robo_legs_status_repository.py: 2 passed
+- ATT/tests/test_robo_legs_status_service.py: 6 passed
+- ATT/tests/test_legacy_structure_legs_reader.py: 4 passed
+- ATT/tests/test_legacy_structure_legs_importer_integration.py: 1 passed
+
+Resultado consolidado:
+40 testes vigentes passaram.
+0 falhas nos testes executados.
+
+Validacoes auxiliares:
+- validate_db.py executado.
+- scripts/validate_app_db.py ausente no estado atual.
+- scripts/audit_rtd_option_quotes.py ausente no estado atual.
+
+Interpretacao:
+A ausencia dos testes historicos em ATT/tests nao bloqueia a Fase 7, pois a
+propria ROTA_MESTRE_3 determina que, para esta rota, prevalece o mapeamento
+atual e que scripts historicos podem nao existir mais.
+
+Decisao:
+Fase 7 aprovada no escopo vigente da rota_3.
+
+Encaminhamento:
+Seguir para Fase 8 - Diagnostico do cadastro de estruturas com leg minima.
+
+Regra para a proxima fase:
+Nao alterar UI, API, repository ou service antes do mapa de impacto e da
+auditoria dos arquivos previstos.

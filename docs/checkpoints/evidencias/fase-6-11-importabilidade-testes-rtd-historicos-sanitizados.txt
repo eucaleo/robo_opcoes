@@ -1,0 +1,51 @@
+Traceback (most recent call last):
+  File "<stdin>", line 21, in <module>
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\users\eucal\projeto\docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_canonical_pricing_facade_rtd_db_path_from_bcb6ddb.py", line 4, in <module>
+    from services.canonical_pricing_facade import (
+    ...<3 lines>...
+    )
+ImportError: cannot import name '_resolve_rtd_option_quotes_db_path' from 'services.canonical_pricing_facade' (C:\users\eucal\projeto\services\canonical_pricing_facade.py)
+Traceback (most recent call last):
+  File "<stdin>", line 21, in <module>
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\users\eucal\projeto\docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py", line 3, in <module>
+    from services.canonical_pricing_facade import (
+    ...<4 lines>...
+    )
+ImportError: cannot import name '_lookup_rtd_option_quote' from 'services.canonical_pricing_facade' (C:\users\eucal\projeto\services\canonical_pricing_facade.py)
+Traceback (most recent call last):
+  File "<stdin>", line 21, in <module>
+  File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+  File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+  File "C:\users\eucal\projeto\docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_fase_11_rtd_integrated_flow_from_9009a40.py", line 27, in <module>
+    spec.loader.exec_module(importer)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "<frozen importlib._bootstrap_external>", line 1022, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1159, in get_code
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\eucal\\projeto\\docs\\checkpoints\\scripts\\import_rtd_links_to_option_quotes.py'
+Fase 6.11 - Importabilidade dos testes RTD historicos sanitizados
+
+================================================================================
+Arquivo: docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py
+IMPORT OK
+================================================================================
+Arquivo: docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_canonical_pricing_facade_rtd_db_path_from_bcb6ddb.py
+IMPORT FAIL
+ImportError: cannot import name '_resolve_rtd_option_quotes_db_path' from 'services.canonical_pricing_facade' (C:\users\eucal\projeto\services\canonical_pricing_facade.py)
+================================================================================
+Arquivo: docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py
+IMPORT FAIL
+ImportError: cannot import name '_lookup_rtd_option_quote' from 'services.canonical_pricing_facade' (C:\users\eucal\projeto\services\canonical_pricing_facade.py)
+================================================================================
+Arquivo: docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_fase_11_rtd_integrated_flow_from_9009a40.py
+IMPORT FAIL
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\eucal\\projeto\\docs\\checkpoints\\scripts\\import_rtd_links_to_option_quotes.py'
+================================================================================
+Arquivo: docs\checkpoints\evidencias\rtd_historico_collect_sanitizado\test_pricing_execution_price_source_persistence_from_d3a9dcc.py
+IMPORT OK
+
+================================================================================
+Resultado geral: FAIL
