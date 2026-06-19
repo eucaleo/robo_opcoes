@@ -35,6 +35,7 @@ from tkinter import ttk, messagebox
 from typing import Optional
 
 from repositories.structures_repository import StructuresRepository
+from domain.position_side import normalize_position_side
 
 
 class StructureEditorDialog(tk.Toplevel):
@@ -168,7 +169,7 @@ class StructureEditorDialog(tk.Toplevel):
         form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
         form.pack(fill="x", pady=(6, 0))
 
-        self._lf_side    = tk.StringVar(value="LONG")
+        self._lf_side    = tk.StringVar(value="COMPRADO")
         self._lf_type    = tk.StringVar(value="CALL")
         self._lf_strike  = tk.StringVar()
         self._lf_expiry  = tk.StringVar()
@@ -181,7 +182,7 @@ class StructureEditorDialog(tk.Toplevel):
         r1 = ttk.Frame(form)
         r1.pack(fill="x", pady=1)
         for label, var, opts in [
-            ("Lado",  self._lf_side, ["LONG", "SHORT"]),
+            ("Lado",  self._lf_side, ["COMPRADO", "VENDIDO"]),
             ("Tipo",  self._lf_type, ["CALL", "PUT"]),
         ]:
             ttk.Label(r1, text=label + ":").pack(side="left")
@@ -281,7 +282,7 @@ class StructureEditorDialog(tk.Toplevel):
         if idx is None:
             return
         leg = self._legs_rows[idx]
-        self._lf_side.set(leg.get("position_side", "LONG"))
+        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
         self._lf_type.set(leg.get("option_type", "CALL"))
         self._lf_strike.set(str(leg.get("strike", "")))
         self._lf_expiry.set(str(leg.get("expiration_date", "")))
@@ -293,7 +294,7 @@ class StructureEditorDialog(tk.Toplevel):
     def _cmd_add_leg(self):
         """Adiciona uma leg nova em branco e seleciona para edicao."""
         new_leg = {
-            "position_side":   "LONG",
+            "position_side":   "COMPRADO",
             "option_type":     "CALL",
             "strike":          "",
             "expiration_date": "",
@@ -354,7 +355,7 @@ class StructureEditorDialog(tk.Toplevel):
             return
 
         self._legs_rows[idx] = {
-            "position_side":   self._lf_side.get(),
+            "position_side":   normalize_position_side(self._lf_side.get()),
             "option_type":     self._lf_type.get(),
             "strike":          self._lf_strike.get(),
             "expiration_date": self._lf_expiry.get(),
@@ -379,7 +380,13 @@ class StructureEditorDialog(tk.Toplevel):
         Testavel sem display (TestBuildLegsPayload no alteracao_69).
         """
         return [
-            {**leg, "leg_order": i}
+            {
+                **leg,
+                "position_side": normalize_position_side(
+                    leg.get("position_side", "COMPRADO")
+                ),
+                "leg_order": i,
+            }
             for i, leg in enumerate(self._legs_rows, 1)
         ]
 

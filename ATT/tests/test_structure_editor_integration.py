@@ -360,7 +360,7 @@ class TestStructureEditorIntegrationStaticChecks(unittest.TestCase):
     def test_leg_order_comeca_em_1(self):
         dlg = _make_dialog()
         dlg._legs_rows = [
-            {"position_side": "LONG", "option_type": "CALL",
+            {"position_side": "COMPRADO", "option_type": "CALL",
              "strike": "10.00", "expiration_date": "2025-01-17",
              "quantity": 1, "premium": None, "multiplier": 1.0,
              "leg_order": 99, "symbol": None, "notes": None},
@@ -525,11 +525,11 @@ class TestIntegracaoLegs(unittest.TestCase):
         dlg._f_status.set("active")
         dlg._f_notes.set("")
         dlg._legs_rows = [
-            {"position_side": "LONG",  "option_type": "CALL",
+            {"position_side": "COMPRADO",  "option_type": "CALL",
              "strike": "25.00", "expiration_date": "2025-03-21",
              "quantity": 1, "premium": None, "multiplier": 1.0,
              "leg_order": 1, "symbol": None, "notes": None},
-            {"position_side": "SHORT", "option_type": "CALL",
+            {"position_side": "VENDIDO", "option_type": "CALL",
              "strike": "27.00", "expiration_date": "2025-03-21",
              "quantity": 1, "premium": None, "multiplier": 1.0,
              "leg_order": 2, "symbol": None, "notes": None},
@@ -559,8 +559,8 @@ class TestIntegracaoLegs(unittest.TestCase):
     def test_legs_payload_preserva_position_side(self):
         dlg = self._dlg_com_legs()
         payload = dlg._build_legs_payload()
-        self.assertEqual(payload[0]["position_side"], "LONG")
-        self.assertEqual(payload[1]["position_side"], "SHORT")
+        self.assertEqual(payload[0]["position_side"], "COMPRADO")
+        self.assertEqual(payload[1]["position_side"], "VENDIDO")
 
 
 if __name__ == "__main__":

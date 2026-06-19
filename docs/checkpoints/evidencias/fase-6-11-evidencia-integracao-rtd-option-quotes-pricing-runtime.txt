@@ -1,0 +1,23 @@
+## fase-6-11 evidencia integracao rtd_option_quotes pricing runtime
+Fri Jun 19 19:36:17     2026
+
+## pytest recorte funcional
+.........................                                                [100%]
+25 passed in 1.32s
+
+## git diff --check
+
+## compileall
+
+## git diff --stat
+ repositories/market_snapshot_repository.py | 163 +++++++++++++++++++++++++++--
+ services/market_snapshot_selector.py       |  47 +++++++--
+ 2 files changed, 194 insertions(+), 16 deletions(-)
+
+## git status --short
+ M repositories/market_snapshot_repository.py
+ M services/market_snapshot_selector.py
+?? ATT/tests/test_market_snapshot_selector.py
+?? docs/checkpoints/evidencias/fase-6-11-evidencia-integracao-rtd-option-quotes-pricing-runtime.txt
+?? docs/checkpoints/evidencias/fase-6-11-fontes-para-patch-rtd-option-quotes-runtime.txt
+

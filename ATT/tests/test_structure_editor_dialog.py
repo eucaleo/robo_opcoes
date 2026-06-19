@@ -95,12 +95,12 @@ class TestBuildLegsPayload(unittest.TestCase):
 
     def test_campos_originais_preservados(self):
         legs = [{
-            "position_side": "SHORT", "option_type": "CALL", "strike": 195.0,
+            "position_side": "VENDIDO", "option_type": "CALL", "strike": 195.0,
             "expiration_date": "2026-05-15", "quantity": 5000,
             "premium": None, "multiplier": 1,
         }]
         r = self._dialog(legs)._build_legs_payload()[0]
-        self.assertEqual(r["position_side"], "SHORT")
+        self.assertEqual(r["position_side"], "VENDIDO")
         self.assertEqual(r["strike"], 195.0)
         self.assertEqual(r["leg_order"], 1)
 
@@ -163,7 +163,7 @@ class TestLoadExisting(unittest.TestCase):
 
     def test_carrega_legs_em_legs_rows(self):
         leg = {
-            "position_side": "LONG", "option_type": "CALL", "strike": 195.0,
+            "position_side": "COMPRADO", "option_type": "CALL", "strike": 195.0,
             "expiration_date": "2026-05-15", "quantity": 5000,
             "premium": None, "multiplier": 1,
         }
@@ -247,7 +247,7 @@ class TestCmdSaveCreate(unittest.TestCase):
         dlg._f_underlying.set("Y")
         dlg._f_status.set("active")
         dlg._legs_rows = [{
-            "position_side": "LONG", "option_type": "CALL", "strike": 100.0,
+            "position_side": "COMPRADO", "option_type": "CALL", "strike": 100.0,
             "expiration_date": "2026-05-15", "quantity": 1000,
             "premium": None, "multiplier": 1, "symbol": None,
         }]
@@ -263,7 +263,7 @@ class TestCmdSaveCreate(unittest.TestCase):
         self.assertEqual(structure_arg["name"], "X")
         self.assertEqual(structure_arg["underlying_asset"], "Y")
         self.assertEqual(len(legs_arg), 1)
-        self.assertEqual(legs_arg[0]["position_side"], "LONG")
+        self.assertEqual(legs_arg[0]["position_side"], "COMPRADO")
         self.assertEqual(legs_arg[0]["option_type"], "CALL")
         self.assertEqual(legs_arg[0]["strike"], 100.0)
 
@@ -432,3 +432,37 @@ class TestStructureEditorDialogStaticChecks(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+def test_build_legs_payload_normaliza_position_side_legado_long_short():
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "LONG",
+            "option_type": "CALL",
+            "strike": 100.0,
+            "expiration_date": "2026-12-18",
+            "quantity": 1,
+            "premium": None,
+            "multiplier": 1,
+            "symbol": "TESTC100",
+            "notes": None,
+        },
+        {
+            "position_side": "SHORT",
+            "option_type": "PUT",
+            "strike": 90.0,
+            "expiration_date": "2026-12-18",
+            "quantity": 2,
+            "premium": None,
+            "multiplier": 1,
+            "symbol": "TESTP90",
+            "notes": None,
+        },
+    ]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["position_side"] == "COMPRADO"
+    assert payload[0]["leg_order"] == 1
+    assert payload[1]["position_side"] == "VENDIDO"
+    assert payload[1]["leg_order"] == 2

@@ -1,0 +1,11 @@
+Fase 6.11 - Validacao sintatica dos testes RTD historicos recuperados
+
+Resultado:
+OK syntax: docs\checkpoints\evidencias\rtd_historico_preview\test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py
+OK syntax: docs\checkpoints\evidencias\rtd_historico_preview\test_canonical_pricing_facade_rtd_db_path.from-bcb6ddb.py
+OK syntax: docs\checkpoints\evidencias\rtd_historico_preview\test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py
+OK syntax: docs\checkpoints\evidencias\rtd_historico_preview\test_fase_11_rtd_integrated_flow.from-9009a40.py
+OK syntax: docs\checkpoints\evidencias\rtd_historico_preview\test_pricing_execution_price_source_persistence.from-d3a9dcc.py
+
+Decisao:
+Arquivos historicos sao sintaticamente validos. Ainda nao foram restaurados em ATT/tests.

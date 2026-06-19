@@ -20,8 +20,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from domain.position_side import CANONICAL_POSITION_SIDES, normalize_position_side
 
-VALID_POSITION_SIDES: frozenset[str] = frozenset({"LONG", "SHORT"})
+
+VALID_POSITION_SIDES: frozenset[str] = CANONICAL_POSITION_SIDES
 VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
 VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
 
@@ -87,8 +89,8 @@ def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
 
 
 def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
-    position_side   = leg.get("position_side")
-    option_type     = leg.get("option_type")
+    position_side   = normalize_position_side(leg.get("position_side"))
+    option_type     = str(leg.get("option_type", "")).strip().upper()
     strike          = leg.get("strike")
     expiration_date = _validate_expiration_date(leg.get("expiration_date"))
     quantity        = leg.get("quantity")
@@ -131,8 +133,8 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
     except Exception as exc:
         raise ValueError("leg_order must be integer") from exc
 
-    if leg_order < 1:
-        raise ValueError("leg_order must be >= 1")
+    if leg_order < 0:
+        raise ValueError("leg_order must be >= 0")
 
     premium = leg.get("premium")
     if premium is not None:

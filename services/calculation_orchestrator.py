@@ -19,21 +19,21 @@ from domain.calculation_request import (
 )
 from domain.payoff import compute_payoff_from_canonical_input
 from domain.decision import compute_decision_from_contract
+from domain.position_side import to_pricing_engine_side
 
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Mapeamento legado -> canonico (mantido do alteracao_45)
+# Mapeamento legado -> contrato tecnico de calculo
 # ---------------------------------------------------------------------------
-_CV_TO_SIDE = {"C": "LONG", "V": "SHORT", "LONG": "LONG", "SHORT": "SHORT"}
-_CP_NORM    = {"CALL": "CALL", "PUT": "PUT", "C": "CALL", "P": "PUT"}
+_CP_NORM = {"CALL": "CALL", "PUT": "PUT", "C": "CALL", "P": "PUT"}
 
 
 def _normalize_position_side(raw: str) -> str:
-    v = str(raw).strip().upper()
-    if v not in _CV_TO_SIDE:
-        raise ValueError(f"position_side desconhecido: {raw!r}")
-    return _CV_TO_SIDE[v]
+    try:
+        return to_pricing_engine_side(raw)
+    except ValueError as exc:
+        raise ValueError(f"position_side desconhecido: {raw!r}") from exc
 
 
 def _normalize_option_type(raw: str) -> str:
@@ -259,7 +259,7 @@ class CalculationOrchestrator:
             legs.append(
                 StructureLegInput(
                     position_side=_normalize_position_side(
-                        leg.get("position_side") or leg.get("cv", "LONG")
+                        leg.get("position_side") or leg.get("cv", "")
                     ),
                     option_type=_normalize_option_type(
                         leg.get("option_type") or leg.get("call_put", "CALL")

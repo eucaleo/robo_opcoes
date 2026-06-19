@@ -39,7 +39,7 @@ FAKE_STRUCTURE = {
         {
             "id": 10,
             "structure_id": 1,
-            "position_side": "LONG",
+            "position_side": "COMPRADO",
             "option_type": "CALL",
             "symbol": "PETRJ240",
             "strike": 38.0,
@@ -62,7 +62,7 @@ FAKE_SUMMARY = {k: v for k, v in FAKE_STRUCTURE.items() if k != "legs"}
 # ---------------------------------------------------------------------------
 
 FAKE_LEG_PAYLOAD = {
-    "position_side":   "LONG",
+    "position_side":   "COMPRADO",
     "option_type":     "CALL",
     "strike":          38.0,
     "expiration_date": "2026-07-18",
@@ -593,7 +593,7 @@ class TestResponseSchema:
         tc, _ = client
         resp = tc.get("/structures/1")
         leg = resp.json()["legs"][0]
-        assert leg["position_side"] in ("LONG", "SHORT")
+        assert leg["position_side"] in ("COMPRADO", "VENDIDO")
 
     def test_detail_leg_option_type_valido(self, client):
         tc, _ = client

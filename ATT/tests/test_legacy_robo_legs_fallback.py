@@ -107,7 +107,7 @@ def test_load_returns_legacy_fallback_with_meta():
     )
 
     assert len(legs) == 1
-    assert legs[0]["position_side"] == "LONG"
+    assert legs[0]["position_side"] == "COMPRADO"
     assert legs[0]["option_type"] == "CALL"
     assert legs[0]["symbol"] == "PETR4"
     assert legs[0]["strike"] == 100.0

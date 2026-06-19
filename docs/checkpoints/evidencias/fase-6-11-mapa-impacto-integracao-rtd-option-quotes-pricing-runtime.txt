@@ -1,0 +1,2351 @@
+# Fase 6.11 - mapa de impacto para integrar rtd_option_quotes ao pricing runtime
+
+## Git
+?? docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt
+18412bd docs: atualiza checkpoint fase 6.11 com mapa runtime RTD
+6bc3fd7 docs: documenta mapa runtime de leitura RTD no pricing
+e4a2505 docs: registrar estado atual de rtd option quotes
+bba3f40 docs: record integrated validation for position side milestone
+5c88db8 docs: record full regression for position side normalization
+4ed742e test: align legacy legs expectations with canonical position side
+2168e34 docs: close position side normalization stage
+ba59be9 refactor: centralize calculation position side normalization
+
+## Grep de pontos principais
+ATT/tests/test_canonical_input_service.py:16:class FakeMarketSnapshotProvider:
+ATT/tests/test_canonical_input_service.py:90:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:104:        self.assertEqual(result["meta"]["legs_source"], "canonical")
+ATT/tests/test_canonical_input_service.py:121:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:145:        self.assertEqual(result["meta"]["legs_source"], "legacy_fallback")
+ATT/tests/test_canonical_input_service.py:148:        self.assertEqual(result["meta"]["legacy_key_source"], "alias_legacy_aba")
+ATT/tests/test_canonical_input_service.py:164:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:177:        self.assertEqual(result["meta"]["legs_source"], "empty")
+ATT/tests/test_canonical_input_service.py:194:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:210:        self.assertEqual(meta["legs_source"], "empty")
+ATT/tests/test_canonical_input_service.py:257:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:281:        self.assertEqual(result["meta"]["structure_metrics_source"], "internal_engine")
+ATT/tests/test_canonical_input_service.py:294:            market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_canonical_input_service.py:313:        self.assertEqual(result["meta"]["structure_metrics_source"], "internal_engine")
+ATT/tests/test_canonical_pricing_facade.py:13:        "source": "rtd",
+ATT/tests/test_canonical_pricing_facade.py:72:                "source": "rtd_option_quotes",
+ATT/tests/test_canonical_pricing_facade.py:93:        "snapshot_source": "rtd",
+ATT/tests/test_canonical_pricing_facade.py:109:    assert leg["source"] == "rtd_option_quotes"
+ATT/tests/test_contracts.py:32:            "legs_source": "canonical",
+ATT/tests/test_contracts.py:34:            "input_source": "test",
+ATT/tests/test_contracts.py:45:    assert result["meta"]["legs_source"] == "canonical"
+ATT/tests/test_derived_service.py:75:        input_meta={"legs_source": "canonical"},
+ATT/tests/test_derived_service.py:83:    assert result["input_meta"]["legs_source"] == "canonical"
+ATT/tests/test_derived_service.py:105:        "meta": {"source": "test"},
+ATT/tests/test_derived_service.py:116:    assert captured["meta"]["source"] == "test"
+ATT/tests/test_legacy_robo_legs_fallback.py:24:    aba, key_source, reason = svc._resolve_legacy_aba({
+ATT/tests/test_legacy_robo_legs_fallback.py:30:    assert key_source == "alias_legacy_aba"
+ATT/tests/test_legacy_robo_legs_fallback.py:37:    aba, key_source, reason = svc._resolve_legacy_aba({
+ATT/tests/test_legacy_robo_legs_fallback.py:43:    assert key_source == "name_fallback_disabled"
+ATT/tests/test_legacy_robo_legs_fallback.py:50:    aba, key_source, reason = svc._resolve_legacy_aba({
+ATT/tests/test_legacy_robo_legs_fallback.py:56:    assert key_source == "structure_name_fallback"
+ATT/tests/test_legacy_robo_legs_fallback.py:69:    assert meta["legs_source"] == "empty"
+ATT/tests/test_legacy_robo_legs_fallback.py:115:    assert meta["legs_source"] == "legacy_fallback"
+ATT/tests/test_legacy_robo_legs_fallback.py:117:    assert meta["legacy_key_source"] == "alias_legacy_aba"
+ATT/tests/test_market_snapshot_provider.py:5:from services.market_snapshot_provider import MarketSnapshotProvider
+ATT/tests/test_market_snapshot_provider.py:9:    provider = MarketSnapshotProvider(
+ATT/tests/test_market_snapshot_provider.py:31:    provider = MarketSnapshotProvider(
+ATT/tests/test_market_snapshot_provider.py:52:    provider = MarketSnapshotProvider(
+ATT/tests/test_market_snapshot_provider.py:67:    provider = MarketSnapshotProvider(
+ATT/tests/test_market_snapshot_provider.py:82:    provider = MarketSnapshotProvider(
+ATT/tests/test_orchestrator_run_methods.py:99:        meta = {"source": "unit-test", "version": 2}
+ATT/tests/test_payoff_canonical.py:32:            "legs_source": "canonical",
+ATT/tests/test_payoff_canonical.py:33:            "input_source": "test",
+ATT/tests/test_payoff_canonical.py:43:    assert result["input_meta"]["legs_source"] == "canonical"
+ATT/tests/test_pricing_execution_app_service.py:4:class FakeCanonicalPricingFacade:
+ATT/tests/test_pricing_execution_app_service.py:52:        canonical_pricing_facade=FakeCanonicalPricingFacade(response),
+ATT/tests/test_pricing_execution_app_service.py:58:    facade = FakeCanonicalPricingFacade(response={
+ATT/tests/test_pricing_execution_app_service.py:72:    facade = FakeCanonicalPricingFacade(response=raw_response)
+ATT/tests/test_pricing_execution_app_service.py:82:    facade = FakeCanonicalPricingFacade(response={})
+ATT/tests/test_pricing_execution_app_service.py:96:    facade = FakeCanonicalPricingFacade(response={})
+ATT/tests/test_pricing_execution_app_service.py:110:    facade = FakeCanonicalPricingFacade(
+ATT/tests/test_pricing_execution_orchestration_service.py:6:class FakePricingInputService:
+ATT/tests/test_pricing_execution_orchestration_service.py:11:            "payload_source": "fake_input_service",
+ATT/tests/test_pricing_execution_orchestration_service.py:35:                "payload_source": "fake_execution_service",
+ATT/tests/test_pricing_execution_orchestration_service.py:76:        pricing_input_service=FakePricingInputService(),
+ATT/tests/test_pricing_execution_orchestration_service.py:109:        pricing_input_service=FakePricingInputService(),
+ATT/tests/test_pricing_execution_persistence_service.py:194:            "snapshot_source": "manual",
+ATT/tests/test_pricing_execution_persistence_service.py:251:    assert call["snapshot_source"] == "system_pricing_execution"
+ATT/tests/test_pricing_execution_service.py:4:class FakePricingInputService:
+ATT/tests/test_pricing_execution_service.py:42:    fake_input_service = FakePricingInputService(pricing_payload)
+ATT/tests/test_pricing_input_service.py:3:from services.pricing_input_service import PricingInputService
+ATT/tests/test_pricing_input_service.py:49:            "payload_source": "fake_adapter",
+ATT/tests/test_pricing_input_service.py:57:    service = PricingInputService(canonical_input_service=fake_canonical_service)
+ATT/tests/test_pricing_input_service.py:73:        "payload_source": "fake_adapter",
+ATT/tests/test_pricing_input_service.py:94:    service = PricingInputService(canonical_input_service=None)
+ATT/tests/test_pricing_input_service.py:121:    service = PricingInputService(canonical_input_service=fake_canonical_service)
+ATT/tests/test_pricing_input_service.py:153:    service = PricingInputService(canonical_input_service=fake_canonical_service)
+ATT/tests/test_pricing_input_service.py:174:        raise ValueError("invalid canonical input")
+ATT/tests/test_pricing_input_service.py:181:    service = PricingInputService(canonical_input_service=None)
+ATT/tests/test_pricing_input_service.py:183:    with pytest.raises(ValueError, match="invalid canonical input"):
+ATT/tests/test_pricing_payload_adapter.py:6:class PricingPayloadAdapterTests(unittest.TestCase):
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:2:from services.pricing_input_service import PricingInputService
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:15:class FakeMarketSnapshotProvider:
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:46:                "source": "rtd_option_quotes",
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:62:        market_snapshot_provider=FakeMarketSnapshotProvider(),
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:73:    assert canonical_input["meta"]["legs_source"] == "legacy_fallback"
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:76:    assert canonical_input["meta"]["legacy_key_source"] == "alias_legacy_aba"
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:84:    pricing_service = PricingInputService(
+ATT/tests/test_structure_analysis_service.py:64:                "legs_source": "canonical",
+ATT/tests/test_structure_analysis_service.py:104:                "legs_source": "canonical",
+ATT/tests/test_structure_analysis_service.py:490:                "legs_source": "canonical",
+ATT/tests/test_structure_editor_integration.py:256:def _read_source(rel_path: str) -> str:
+ATT/tests/test_structure_editor_integration.py:337:        source = _read_source("UI/main_window.py")
+ATT/tests/test_structure_editor_integration.py:338:        tree   = ast.parse(source)
+ATT/tests/test_structure_editor_integration.py:353:        source = _read_source("UI/main_window.py")
+ATT/tests/test_structure_editor_integration.py:354:        self.assertIn("StructureEditorDialog", source)
+ATT/tests/test_structure_editor_integration.py:357:        source = _read_source("UI/main_window.py")
+ATT/tests/test_structure_editor_integration.py:358:        self.assertIn("_on_structure_edit_request", source)
+ATT/tests/test_structure_events_api.py:32:    "source": "manual",
+ATT/tests/test_structure_events_api.py:65:    "source": "manual",
+ATT/tests/test_structure_events_repository.py:72:            "source": "manual",
+ATT/tests/test_structure_events_repository.py:92:    assert event["source"] == "manual"
+ATT/tests/test_structure_events_repository.py:107:            "source": "system",
+ATT/tests/test_structure_events_repository.py:131:            "source": "manual",
+ATT/tests/test_structure_events_repository.py:140:            "source": "legacy_import",
+ATT/tests/test_structure_events_repository.py:158:            "source": "legacy_import",
+ATT/tests/test_structure_events_repository.py:167:            "source": "manual",
+ATT/tests/test_structure_events_repository.py:200:            "source": "manual",
+ATT/tests/test_structure_events_repository.py:222:            "source": "manual",
+ATT/tests/test_structure_events_repository.py:231:            "source": "manual",
+ATT/tests/test_structure_events_repository.py:299:        ("source", "invalid", "invalid source: invalid"),
+ATT/tests/test_structure_events_repository.py:317:        "source": "manual",
+ATT/tests/test_structure_events_service.py:97:        source="manual",
+ATT/tests/test_structure_events_service.py:111:    assert record["source"] == "manual"
+ATT/tests/test_structure_events_service.py:142:        source="system",
+ATT/tests/test_structure_events_service.py:154:    assert record["source"] == "system"
+ATT/tests/test_structure_events_service.py:158:def test_register_manual_close_forces_manual_source(service):
+ATT/tests/test_structure_events_service.py:168:    assert record["source"] == "manual"
+ATT/tests/test_structure_events_service.py:249:            "source",
+ATT/tests/test_structure_events_service.py:250:            {"source": "invalid"},
+ATT/tests/test_structure_events_service.py:251:            "source must be one of",
+ATT/tests/test_structure_events_service.py:261:        "source": "manual",
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:8:class FakeRtdOptionQuotesRepository:
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:19:    repo = FakeRtdOptionQuotesRepository(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:60:    repo = FakeRtdOptionQuotesRepository(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:96:        FakeRtdOptionQuotesRepository({})
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:110:        FakeRtdOptionQuotesRepository({})
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:125:        FakeRtdOptionQuotesRepository(
+ATT/tests/test_structure_market_input_assembler.py:6:class StructureMarketInputAssemblerTests(unittest.TestCase):
+ATT/tests/test_structure_market_input_assembler.py:44:        self.assertEqual(result["meta"]["input_source"], "structure_market_input_assembler")
+ATT/tests/test_system_snapshots_repository.py:163:    assert snapshot["snapshot_source"] == "system"
+ATT/tests/test_system_snapshots_schema.py:64:        "snapshot_source",
+repositories/market_snapshot_repository.py:77:        source,
+repositories/market_snapshot_repository.py:137:def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
+repositories/market_snapshot_repository.py:164:        source=source,
+repositories/market_snapshot_repository.py:171:class MarketSnapshotRepository:
+repositories/market_snapshot_repository.py:176:      get_rtd_legs(aba)     -> lista de LegMarketSnapshot source=RTD
+repositories/market_snapshot_repository.py:177:      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+repositories/market_snapshot_repository.py:221:        source: SnapshotSource = SnapshotSource.RTD,
+repositories/market_snapshot_repository.py:225:        if source == SnapshotSource.RTD:
+repositories/market_snapshot_repository.py:242:            source=source,
+repositories/rtd_option_quotes_repository.py:10:class RtdOptionQuotesRepository:
+repositories/rtd_option_quotes_repository.py:44:                source,
+repositories/rtd_option_quotes_repository.py:76:                source,
+repositories/rtd_option_quotes_repository.py:108:                source,
+repositories/structure_events_repository.py:144:    source = str(data.get("source", "manual")).strip().lower()
+repositories/structure_events_repository.py:145:    if source not in VALID_EVENT_SOURCES:
+repositories/structure_events_repository.py:146:        raise ValueError(f"invalid source: {source}")
+repositories/structure_events_repository.py:164:        "source": source,
+repositories/structure_events_repository.py:209:                source         TEXT    NOT NULL DEFAULT 'manual',
+repositories/structure_events_repository.py:331:                    source,
+repositories/structure_events_repository.py:347:                    event["source"],
+repositories/system_snapshots_repository.py:87:        snapshot_source: str = "system",
+repositories/system_snapshots_repository.py:119:                    snapshot_source,
+repositories/system_snapshots_repository.py:136:                    snapshot_source,
+services/calculation_orchestrator.py:97:        source=str(snapshot_row.get("source", "rtd")),
+services/calculation_orchestrator.py:291:            source=str(market_snapshot_dict.get("source", "rtd")),
+services/calculation_orchestrator.py:428:                "MarketSnapshotRepository nao foi injetado no orquestrador. "
+services/calculation_orchestrator.py:490:            "source":             snapshot.get("source", "rtd"),
+services/canonical_input_service.py:7:  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+services/canonical_input_service.py:30:from services.market_snapshot_provider import MarketSnapshotProvider
+services/canonical_input_service.py:31:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_input_service.py:40:        market_snapshot_provider: MarketSnapshotProvider | None = None,
+services/canonical_input_service.py:41:        market_snapshot_selector: MarketSnapshotSelector | None = None,
+services/canonical_input_service.py:50:        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+services/canonical_input_service.py:149:        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+services/canonical_input_service.py:166:            snapshot_source = legs_meta["snapshot_source"]
+services/canonical_input_service.py:170:            snapshot_source = "provider_legacy"
+services/canonical_input_service.py:181:            "snapshot_source":  snapshot_source,
+services/canonical_input_service.py:196:        Delega ao MarketSnapshotSelector e serializa legs completas.
+services/canonical_input_service.py:209:                "source":           leg.source.value if hasattr(leg.source, "value") else str(leg.source),
+services/canonical_input_service.py:242:            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+services/canonical_input_service.py:266:        legs_source: str,
+services/canonical_input_service.py:269:        legacy_key_source: str | None = None,
+services/canonical_input_service.py:272:        meta: dict[str, Any] = {"legs_source": legs_source}
+services/canonical_input_service.py:275:        if legacy_key_source is not None: meta["legacy_key_source"] = legacy_key_source
+services/canonical_input_service.py:283:        legs_source: str,
+services/canonical_input_service.py:288:            self._build_meta(legs_source=legs_source, fallback_reason=fallback_reason),
+services/canonical_input_service.py:302:                legs_source="canonical",
+services/canonical_input_service.py:309:                legs_source="empty",
+services/canonical_input_service.py:322:                    "legs_source":       fallback_meta.get("legs_source", "legacy_fallback"),
+services/canonical_input_service.py:325:                    "legacy_key_source": fallback_meta.get("legacy_key_source"),
+services/canonical_input_service.py:334:                legs_source="canonical",
+services/canonical_input_service.py:341:            legs_source="empty",
+services/canonical_input_service.py:413:                "structure_metrics_source": "internal_engine",
+services/canonical_pricing_facade.py:32:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/canonical_pricing_facade.py:35:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_pricing_facade.py:269:            "source":      str(_pick(d, "source")),
+services/canonical_pricing_facade.py:312:            "snapshot_source":  str(selection_result.source),
+services/canonical_pricing_facade.py:320:class CanonicalPricingFacade:
+services/canonical_pricing_facade.py:326:                     MarketSnapshotSelector.select(aba=...)
+services/canonical_pricing_facade.py:341:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+services/canonical_pricing_facade.py:342:        self._selector = MarketSnapshotSelector(repository=self._repo)
+services/derived_payoff_persistence.py:145:                    "source":           "pricing_engine",
+services/derived_payoff_persistence.py:219:                "source": "pricing_execution_persistence",
+services/legacy_robo_legs_fallback.py:21:        legacy_aba, key_source, fallback_reason = self._resolve_legacy_aba(structure)
+services/legacy_robo_legs_fallback.py:25:                "legs_source": "empty",
+services/legacy_robo_legs_fallback.py:28:                "legacy_key_source": key_source,
+services/legacy_robo_legs_fallback.py:34:                "legs_source": "empty",
+services/legacy_robo_legs_fallback.py:37:                "legacy_key_source": key_source,
+services/legacy_robo_legs_fallback.py:48:                "legs_source": "empty",
+services/legacy_robo_legs_fallback.py:51:                "legacy_key_source": key_source,
+services/legacy_robo_legs_fallback.py:62:                "legs_source": "empty",
+services/legacy_robo_legs_fallback.py:65:                "legacy_key_source": key_source,
+services/legacy_robo_legs_fallback.py:77:                "legs_source": "empty",
+services/legacy_robo_legs_fallback.py:80:                "legacy_key_source": key_source,
+services/legacy_robo_legs_fallback.py:85:            "legs_source": "legacy_fallback",
+services/legacy_robo_legs_fallback.py:88:            "legacy_key_source": key_source,
+services/market_snapshot_provider.py:44:class MarketSnapshotProvider:
+services/market_snapshot_selector.py:14:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/market_snapshot_selector.py:33:    source: SnapshotSource
+services/market_snapshot_selector.py:39:        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+services/market_snapshot_selector.py:42:class MarketSnapshotSelector:
+services/market_snapshot_selector.py:47:    def __init__(self, repository: MarketSnapshotRepository) -> None:
+services/market_snapshot_selector.py:100:        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+services/market_snapshot_selector.py:104:            source=source,
+services/pricing_execution_app_service.py:3:alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+services/pricing_execution_app_service.py:16:from services.canonical_pricing_facade import CanonicalPricingFacade
+services/pricing_execution_app_service.py:22:class PricingExecutionAppService:
+services/pricing_execution_app_service.py:25:        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+services/pricing_execution_app_service.py:29:        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+services/pricing_execution_orchestration_service.py:9:from services.pricing_input_service import PricingInputService
+services/pricing_execution_orchestration_service.py:15:        pricing_input_service: PricingInputService | None = None,
+services/pricing_execution_orchestration_service.py:19:        self.pricing_input_service = pricing_input_service or PricingInputService()
+services/pricing_execution_persistence_service.py:119:                snapshot_source="system_pricing_execution",
+services/pricing_execution_service.py:4:from services.pricing_input_service import PricingInputService
+services/pricing_execution_service.py:10:        pricing_input_service: PricingInputService | None = None,
+services/pricing_execution_service.py:13:        self.pricing_input_service = pricing_input_service or PricingInputService()
+services/pricing_input_service.py:7:class PricingInputService:
+services/structure_events_service.py:66:    def _validate_source(self, source: str) -> None:
+services/structure_events_service.py:67:        if source not in self.ALLOWED_SOURCES:
+services/structure_events_service.py:69:            raise ValueError(f"source must be one of: {allowed}")
+services/structure_events_service.py:118:        source: str = "manual",
+services/structure_events_service.py:129:        self._validate_source(source)
+services/structure_events_service.py:140:            "source": source,
+services/structure_events_service.py:182:            source="manual",
+services/structure_events_service.py:193:        source: str = "manual",
+services/structure_events_service.py:203:            source=source,
+services/structure_market_input_assembler.py:35:            "input_source": "structure_market_input_assembler",
+
+## services/pricing_execution_app_service.py
+# services/pricing_execution_app_service.py
+"""
+alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+
+Alterações:
+  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+  - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+  - Todos os métodos de query (list, get, paginate, latest) inalterados
+  - Validações _validate_structure_id / _validate_reference_date mantidas
+"""
+
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from services.canonical_pricing_facade import CanonicalPricingFacade
+from services.pricing_execution_query_service import PricingExecutionQueryService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+class PricingExecutionAppService:
+    def __init__(
+        self,
+        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+        db_path: Path | str = _DEFAULT_DB,
+    ):
+        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+            db_path=db_path,
+        )
+        self.pricing_execution_query_service = (
+            pricing_execution_query_service or PricingExecutionQueryService()
+        )
+
+    # ------------------------------------------------------------------
+    # Execução
+    # ------------------------------------------------------------------
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        self._validate_structure_id(structure_id)
+        self._validate_reference_date(reference_date)
+
+        response = self._facade.execute_pricing(
+            structure_id=structure_id,
+            reference_date=reference_date,
+        )
+
+        # propaga erros como ValueError para manter contrato com callers existentes
+        if response.get("status") == "error":
+            raise ValueError(response.get("error_message", "pricing execution failed"))
+
+        persisted = response.get("persisted")
+        if isinstance(persisted, dict):
+            record = persisted.get("record")
+            if isinstance(record, dict):
+                return record
+
+        return response
+
+    # ------------------------------------------------------------------
+    # Queries -- inalteradas
+    # ------------------------------------------------------------------
+
+    def list_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+    ) -> list[dict[str, Any]]:
+        return self.pricing_execution_query_service.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+        )
+
+    def get_latest_execution_summary(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_latest_execution_summary(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+        )
+
+    def get_execution(self, execution_id: int) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_execution(execution_id)
+
+    def paginate_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.paginate_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+            page=page,
+            page_size=page_size,
+        )
+
+    # ------------------------------------------------------------------
+    # Validações
+    # ------------------------------------------------------------------
+
+    def _validate_structure_id(self, structure_id: int) -> None:
+        if structure_id <= 0:
+            raise ValueError("structure_id must be greater than zero")
+
+    def _validate_reference_date(self, reference_date: str | None) -> None:
+        if reference_date is None:
+            return
+
+        try:
+            parsed = datetime.strptime(reference_date, "%Y-%m-%d")
+        except ValueError as exc:
+            raise ValueError("reference_date must be in YYYY-MM-DD format") from exc
+
+        if parsed.strftime("%Y-%m-%d") != reference_date:
+            raise ValueError("reference_date must be in YYYY-MM-DD format")
+
+## services/canonical_pricing_facade.py
+# services/canonical_pricing_facade.py
+"""
+alteracao_17 -- Fachada canônica corrigida.
+alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+           no PricingExecutionPersistenceService.
+alteracao_41 -- Corrige underlying_asset no pricing_payload.
+
+Correções alteracao_41:
+  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+      busca alias_legacy_aba E underlying_asset em uma única query.
+  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+      elimina uso de selection_result.aba como underlying_asset
+      (aba legada  ativo subjacente real).
+  C8: execute_pricing() passa underlying_asset para o payload builder.
+
+Correções anteriores mantidas:
+  C1: sel.select(aba=...) -- parâmetro correto
+  C2: alias_legacy_aba buscado via query antes de chamar o selector
+  C3: orquestração direta repo  selector  execute_payload()
+  C4: engine_result extraído do wrapper antes de passar ao persister
+  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+"""
+from __future__ import annotations
+
+
+import sqlite3
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from repositories.market_snapshot_repository import MarketSnapshotRepository
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
+from services.derived_payoff_persistence import DerivedPayoffPersistence
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+from services.pricing_execution_service import PricingExecutionService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+
+def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+    """
+    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+
+    Raises ValueError se:
+      - estrutura não existir
+      - alias_legacy_aba for nulo (sem aba legada mapeada)
+    """
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+            (structure_id,),
+        ).fetchone()
+
+    if row is None:
+        raise ValueError(f"structure not found: {structure_id}")
+
+    aba = row["alias_legacy_aba"]
+    if not aba:
+        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+
+    underlying_asset = row["underlying_asset"]  # NOT NULL -- sempre presente
+
+    return aba, underlying_asset
+
+
+#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+
+
+
+def _to_float(value: Any, default: float = 0.0) -> float:
+    try:
+        if value is None or value == "":
+            return default
+
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return default
+
+            text = text.replace("R$", "").replace("$", "").strip()
+
+            # Remove espaços internos comuns em valores monetários.
+            text = text.replace(" ", "")
+
+            # Formatos comuns vindos de RTD/planilha:
+            #   BR: "1.234,56" -> "1234.56"
+            #   US: "1,234.56" -> "1234.56"
+            #   BR simples: "124,66" -> "124.66"
+            if "," in text and "." in text:
+                if text.rfind(",") > text.rfind("."):
+                    text = text.replace(".", "").replace(",", ".")
+                else:
+                    text = text.replace(",", "")
+            elif "," in text:
+                text = text.replace(",", ".")
+
+            return float(text)
+
+        return float(value)
+    except Exception:
+        return default
+
+
+def _normalize_expiration_date(value: Any) -> str | None:
+    if not value:
+        return None
+
+    text = str(value).strip()
+
+    formats = [
+        "%m/%d/%Y %H:%M",
+        "%m/%d/%Y %H:%M:%S",
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+    ]
+
+    for fmt in formats:
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            pass
+
+    return text
+
+
+def _pick(data: dict[str, Any], *names: str) -> Any:
+    for name in names:
+        value = data.get(name)
+        if value is not None:
+            return value
+    return None
+
+
+def _quote_ident(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+    """
+    Procura spot positivo no app.db.
+
+    Caso confirmado:
+      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+      spot observado = 124.66
+    """
+    if not underlying_asset:
+        return 0.0
+
+    symbol_candidates = {
+        "aba",
+        "ativo",
+        "asset",
+        "symbol",
+        "ticker",
+        "underlying_asset",
+        "codigo",
+        "papel",
+    }
+
+    price_candidates = {
+        "spot",
+        "spot_price",
+        "underlying_price",
+        "last_price",
+        "price",
+        "preco",
+        "preco_atual",
+        "valor",
+        "cotacao",
+        "ultimo",
+        "fechamento",
+        "close",
+    }
+
+    try:
+        with sqlite3.connect(str(db_path)) as conn:
+            tables = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+
+            for (table_name,) in tables:
+                columns_info = conn.execute(
+                    f"PRAGMA table_info({_quote_ident(table_name)})"
+                ).fetchall()
+
+                columns = [row[1] for row in columns_info]
+                lower_to_real = {col.lower(): col for col in columns}
+
+                symbol_cols = [
+                    lower_to_real[name]
+                    for name in symbol_candidates
+                    if name in lower_to_real
+                ]
+
+                price_cols = [
+                    lower_to_real[name]
+                    for name in price_candidates
+                    if name in lower_to_real
+                ]
+
+                if not symbol_cols or not price_cols:
+                    continue
+
+                for symbol_col in symbol_cols:
+                    for price_col in price_cols:
+                        query = (
+                            f"SELECT {_quote_ident(price_col)} "
+                            f"FROM {_quote_ident(table_name)} "
+                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+                            f"LIMIT 20"
+                        )
+
+                        try:
+                            rows = conn.execute(query, (underlying_asset,)).fetchall()
+                        except Exception:
+                            continue
+
+                        for row in rows:
+                            price = _to_float(row[0], 0.0)
+                            if price > 0:
+                                return price
+    except Exception:
+        return 0.0
+
+    return 0.0
+
+
+def _snapshot_result_to_payload(
+    selection_result: Any,
+    structure_id: int,
+    underlying_asset: str,
+    reference_date: str | None,
+    db_path: Path,
+) -> dict[str, Any]:
+    legs_data = []
+
+    for leg in selection_result.legs:
+        d = leg if isinstance(leg, dict) else vars(leg)
+
+        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+
+        raw_price = _pick(d, "premium", "price", "valor_executado")
+        raw_asset = _pick(d, "symbol", "asset", "ativo")
+        raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
+
+        side = _pick(d, "side", "position_side")
+        if not side:
+            side = "SHORT" if quantity < 0 else "LONG"
+
+        canonical_leg = {
+            # campos originais/compatíveis
+            "quantity":    quantity,
+            "price":       _to_float(raw_price, 0.0),
+            "asset":       raw_asset,
+            "option_type": _pick(d, "option_type", "call_put"),
+            "strike":      _to_float(_pick(d, "strike"), 0.0),
+            "expiry":      raw_expiry,
+            "iv":          _pick(d, "iv"),
+            "delta":       _pick(d, "delta"),
+            "gamma":       _pick(d, "gamma"),
+            "theta":       _pick(d, "theta"),
+            "vega":        _pick(d, "vega"),
+            "source":      str(_pick(d, "source")),
+
+            # campos canônicos esperados pelo fluxo pricing/payoff
+            "symbol":          raw_asset,
+            "premium":         _to_float(raw_price, 0.0),
+            "expiration_date": _normalize_expiration_date(raw_expiry),
+            "multiplier":      1.0,
+            "side":            str(side).upper(),
+            "position_side":   str(side).upper(),
+        }
+
+        legs_data.append(canonical_leg)
+
+    spot = (
+        getattr(selection_result, "spot_price", None)
+        or getattr(selection_result, "spot", None)
+        or getattr(selection_result, "underlying_price", None)
+        or getattr(selection_result, "last_price", None)
+    )
+
+    spot_price = _to_float(spot, 0.0)
+
+    if spot_price <= 0:
+        spot_price = _lookup_spot_price(
+            db_path=db_path,
+            underlying_asset=underlying_asset,
+        )
+
+    if spot_price <= 0:
+        raise ValueError(
+            f"spot_price inválido ou ausente para underlying_asset={underlying_asset}. "
+            "Não persistir execução OK com spot_price <= 0."
+        )
+
+    return {
+        "structure_id":     structure_id,
+        "underlying_asset": underlying_asset,
+        "reference_date":   reference_date,
+        "spot_price":       spot_price,
+        "interest_rate":    0.0,
+        "volatility":       0.0,
+        "legs":             legs_data,
+        "meta": {
+            "snapshot_source":  str(selection_result.source),
+            "snapshot_aba":     selection_result.aba,
+            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+            "legs_count":       len(legs_data),
+        },
+    }
+
+
+class CanonicalPricingFacade:
+    """
+    Orquestra o pipeline canônico ponta a ponta:
+
+        structure_id
+             alias_legacy_aba + underlying_asset  (query em structures)
+                     MarketSnapshotSelector.select(aba=...)
+                             pricing_payload  (underlying_asset = ativo real)
+                                     PricingExecutionService.execute_payload()
+                                             PricingExecutionPersistenceService.persist()
+                                                     DerivedPayoffPersistence.persist()
+                                                             derived.db
+    """
+
+    def __init__(
+        self,
+        db_path: Path | str = _DEFAULT_DB,
+        pricing_execution_service: PricingExecutionService | None = None,
+        persistence_service: PricingExecutionPersistenceService | None = None,
+    ) -> None:
+        self._db_path  = Path(db_path)
+        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+        self._selector = MarketSnapshotSelector(repository=self._repo)
+        self._engine   = pricing_execution_service or PricingExecutionService()
+
+        self._persister = persistence_service or PricingExecutionPersistenceService(
+            payoff_persistence_port=DerivedPayoffPersistence(),
+            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+        )
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        started_at = time.perf_counter()
+
+        try:
+            #  1. Resolve aba + underlying_asset 
+            aba, underlying_asset = _get_structure_info(   #  C6/C8
+                structure_id, self._db_path
+
+## services/market_snapshot_selector.py
+# services/market_snapshot_selector.py
+"""
+Política de precedência de snapshots: manual > rtd.
+
+Para cada aba:
+  - Se existir snapshot manual, usa manual
+  - Caso contrário, usa rtd
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+
+from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+from repositories.market_snapshot_repository import MarketSnapshotRepository
+from src.domain.refs.structure_ref import StructureRef
+
+
+
+def _ref_to_aba(ref: StructureRef | str) -> str:
+    """Aceita StructureRef ou str e devolve a string da aba."""
+    if isinstance(ref, StructureRef):
+        if ref.aba:
+            return str(ref.aba)
+        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+    return str(ref)
+
+
+@dataclass
+class SnapshotSelectionResult:
+    """Resultado da seleção de snapshots para uma aba."""
+
+    aba: str
+    source: SnapshotSource
+    legs: list[LegMarketSnapshot] = field(default_factory=list)
+    manual_overrides: list[str] = field(default_factory=list)
+
+    @property
+    def is_manual_first(self) -> bool:
+        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+
+
+class MarketSnapshotSelector:
+    """
+    Aplica a política manual > rtd para selecionar o snapshot canônico.
+    """
+
+    def __init__(self, repository: MarketSnapshotRepository) -> None:
+        self._repo = repository
+
+    def select(
+        self,
+        ref: StructureRef | str | None = None,
+        *,
+        aba: str | None = None,
+    ) -> SnapshotSelectionResult:
+        """
+        Seleciona as legs canônicas para a estrutura informada.
+
+        Compatibilidade:
+          - select(ref=StructureRef(...))
+          - select(StructureRef(...))
+          - select(aba="SMAL11")
+          - select("SMAL11")
+        """
+        if ref is None and aba is None:
+            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+
+        effective_ref: StructureRef | str = ref if ref is not None else aba
+        aba_str = _ref_to_aba(effective_ref)
+
+
+        manual_legs = self._repo.get_manual_legs(effective_ref)
+        rtd_legs = self._repo.get_rtd_legs(effective_ref)
+
+        # Como as consultas vêm em timestamp DESC, preserva a primeira ocorrência
+        # por ativo, que tende a ser a mais recente.
+
+        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+        for leg in manual_legs:
+            if leg.ativo and leg.ativo not in manual_by_ativo:
+                manual_by_ativo[leg.ativo] = leg
+
+        rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+        for leg in rtd_legs:
+            if leg.ativo and leg.ativo not in rtd_by_ativo:
+                rtd_by_ativo[leg.ativo] = leg
+
+        todos_ativos = sorted(set(manual_by_ativo) | set(rtd_by_ativo))
+        legs_selected: list[LegMarketSnapshot] = []
+        overrides: list[str] = []
+
+        for ativo in todos_ativos:
+            if ativo in manual_by_ativo:
+                legs_selected.append(manual_by_ativo[ativo])
+                if ativo in rtd_by_ativo:
+                    overrides.append(ativo)
+            else:
+                legs_selected.append(rtd_by_ativo[ativo])
+
+        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+
+        return SnapshotSelectionResult(
+            aba=aba_str,
+            source=source,
+            legs=legs_selected,
+            manual_overrides=overrides,
+        )
+
+## services/market_snapshot_provider.py
+from datetime import date
+from typing import Any, Callable
+
+
+DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
+    "BOVA11": {
+        "spot_price": 198.35,
+        "interest_rate": 0.1175,
+        "volatility": 0.22,
+    },
+    "SMAL11": {
+        "spot_price": 124.66,
+        "interest_rate": 0.1175,
+        "volatility": 0.30,
+    },
+    "SBSP3": {
+        "spot_price": 168.67,
+        "interest_rate": 0.1175,
+        "volatility": 0.28,
+    },
+    "PRIO3": {
+        "spot_price": 66.84,
+        "interest_rate": 0.1175,
+        "volatility": 0.35,
+    },
+    "EMBJ3": {
+        "spot_price": 87.37,
+        "interest_rate": 0.1175,
+        "volatility": 0.32,
+    },
+    "PETR4": {
+        "spot_price": 37.42,
+        "interest_rate": 0.1175,
+        "volatility": 0.31,
+    },
+    "VALE3": {
+        "spot_price": 61.80,
+        "interest_rate": 0.1175,
+        "volatility": 0.28,
+    },
+}
+
+
+class MarketSnapshotProvider:
+    def __init__(
+        self,
+        market_by_asset: dict[str, dict[str, Any]] | None = None,
+        today_provider: Callable[[], date] | None = None,
+    ):
+        self.market_by_asset = market_by_asset or DEFAULT_MARKET_BY_ASSET
+        self.today_provider = today_provider or date.today
+
+    def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
+        asset = str(underlying_asset or "").strip().upper()
+        if not asset:
+            raise ValueError("underlying_asset is required")
+
+        market = self.market_by_asset.get(asset)
+        if market is None:
+            raise ValueError(f"market snapshot not found for asset: {asset}")
+
+        effective_reference_date = reference_date or self.today_provider().isoformat()
+
+        return {
+            "reference_date": effective_reference_date,
+            "underlying_asset": asset,
+            "spot_price": float(market["spot_price"]),
+            "interest_rate": float(market["interest_rate"]),
+            "volatility": float(market["volatility"]),
+        }
+
+## repositories/market_snapshot_repository.py
+# repositories/market_snapshot_repository.py
+"""
+Repositorio canonico de snapshots de mercado.
+
+Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+normaliza os campos e retorna objetos LegMarketSnapshot prontos para uso.
+"""
+from __future__ import annotations
+from src.domain.refs.structure_ref import StructureRef
+
+import sqlite3
+from pathlib import Path
+from typing import Optional
+
+from domain.market_snapshot import (
+    LegMarketSnapshot,
+    SnapshotSource,
+    StructureMarketSnapshot,
+)
+
+# --- Caminhos ----------------------------------------------------------------
+
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_DEFAULT_DB = _PROJECT_ROOT / "dados" / "app.db"
+
+# --- SQL ---------------------------------------------------------------------
+
+_SQL_RTD_LEGS = """
+    SELECT
+        timestamp,
+        aba,
+        ativo,
+        cv,
+        call_put,
+        quant,
+        valor_executado,
+        bid,
+        ask,
+        spread,
+        spread_pct,
+        iv,
+        delta,
+        gamma,
+        theta,
+        vega,
+        strike,
+        vencimento,
+        dte,
+        pl_realista
+    FROM rtd_analise_robo_legs
+    WHERE aba = ?
+    ORDER BY timestamp DESC
+"""
+
+_SQL_MANUAL_LEGS = """
+    SELECT
+        timestamp,
+        aba,
+        ativo,
+        cv,
+        call_put,
+        quant,
+        valor_executado,
+        bid,
+        ask,
+        spread,
+        spread_pct,
+        iv,
+        delta,
+        gamma,
+        theta,
+        vega,
+        strike,
+        vencimento,
+        dte,
+        pl_realista,
+        source,
+        created_at
+    FROM manual_analise_robo_legs
+    WHERE aba = ?
+    ORDER BY timestamp DESC
+"""
+
+_SQL_RTD_SUMMARY = """
+    SELECT
+        aba,
+        spot,
+        num_pernas,
+        dte_min,
+        pl_realista_total,
+        delta_liq,
+        gamma_liq,
+        theta_liq,
+        vega_liq,
+        spread_medio,
+        spread_pct_medio,
+        alertas_v2
+    FROM rtd_analise_robo
+    WHERE aba = ?
+    ORDER BY rowid DESC
+    LIMIT 1
+"""
+
+# --- Helpers -----------------------------------------------------------------
+
+def _ref_to_aba(ref: StructureRef | str) -> str:
+    """Aceita StructureRef ou str e devolve a string da aba."""
+    if isinstance(ref, StructureRef):
+        if ref.aba:
+            return str(ref.aba)
+        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+    return str(ref)
+
+
+def _parse_br_float(value) -> Optional[float]:
+    # Converte string pt-BR ('1,38' ou '1,38E-02') para float.
+    if value is None:
+        return None
+    try:
+        normalized = str(value).strip().replace(",", ".")
+        return float(normalized)
+    except (ValueError, TypeError):
+        return None
+
+
+def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
+    # Calcula mid price. Nao usa coluna 'last' - nao existe no schema.
+    if bid is not None and ask is not None:
+        return round((bid + ask) / 2.0, 6)
+    if bid is not None:
+        return bid
+    if ask is not None:
+        return ask
+    return None
+
+
+def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
+    bid = _parse_br_float(row["bid"])
+    ask = _parse_br_float(row["ask"])
+    mid = _mid_price(bid, ask)
+
+    return LegMarketSnapshot(
+        aba=row["aba"],
+        ativo=row["ativo"],
+        cv=row["cv"],
+        call_put=row["call_put"],
+        quant=_parse_br_float(row["quant"]),
+        valor_executado=_parse_br_float(row["valor_executado"]),
+        bid=bid,
+        ask=ask,
+        mid=mid,
+        spread=_parse_br_float(row["spread"]),
+        spread_pct=_parse_br_float(row["spread_pct"]),
+        iv=_parse_br_float(row["iv"]),
+        delta=_parse_br_float(row["delta"]),
+        gamma=_parse_br_float(row["gamma"]),
+        theta=_parse_br_float(row["theta"]),
+        vega=_parse_br_float(row["vega"]),
+        strike=_parse_br_float(row["strike"]),
+        vencimento=row["vencimento"],
+        dte=_parse_br_float(row["dte"]),
+        pl_realista=_parse_br_float(row["pl_realista"]),
+        timestamp=row["timestamp"],
+        source=source,
+    )
+
+
+# --- Repositorio -------------------------------------------------------------
+
+
+class MarketSnapshotRepository:
+    """
+    Acesso de leitura aos snapshots de mercado.
+
+    Metodos:
+      get_rtd_legs(aba)     -> lista de LegMarketSnapshot source=RTD
+      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+      get_rtd_summary(aba)  -> dict com cabecalho RTD ou None
+      get_structure(aba)    -> StructureMarketSnapshot completo
+    """
+
+    def __init__(self, db_path: Path | str = _DEFAULT_DB) -> None:
+        self._db_path = Path(db_path)
+        if not self._db_path.exists():
+            raise FileNotFoundError(f"Banco nao encontrado: {self._db_path}")
+
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(str(self._db_path))
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    # -- RTD ------------------------------------------------------------------
+
+    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+        aba = _ref_to_aba(ref)
+        with self._connect() as conn:
+            rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
+        return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
+
+    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+        aba = _ref_to_aba(ref)
+        with self._connect() as conn:
+            row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
+        if row is None:
+            return None
+        return dict(row)
+
+    # -- Manual ---------------------------------------------------------------
+
+    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+        aba = _ref_to_aba(ref)
+        with self._connect() as conn:
+            rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
+        return [_row_to_leg(r, SnapshotSource.MANUAL) for r in rows]
+
+    # -- Estrutura completa ---------------------------------------------------
+
+    def get_structure(
+        self,
+        ref: StructureRef | str,
+        source: SnapshotSource = SnapshotSource.RTD,
+    ) -> StructureMarketSnapshot:
+        aba = _ref_to_aba(ref)
+
+        if source == SnapshotSource.RTD:
+            legs = self.get_rtd_legs(ref)
+            summary = self.get_rtd_summary(ref)
+        else:
+            legs = self.get_manual_legs(ref)
+            summary = None
+
+        def _f(key: str) -> Optional[float]:
+            return (
+                _parse_br_float(summary[key])
+                if summary and summary.get(key) is not None
+                else None
+            )
+
+        return StructureMarketSnapshot(
+            aba=aba,
+            legs=legs,
+            source=source,
+            spot=_f("spot"),
+            num_pernas=int(_f("num_pernas")) if _f("num_pernas") is not None else None,
+            dte_min=int(_f("dte_min")) if _f("dte_min") is not None else None,
+            pl_realista_total=_f("pl_realista_total"),
+            delta_liq=_f("delta_liq"),
+            gamma_liq=_f("gamma_liq"),
+            theta_liq=_f("theta_liq"),
+            vega_liq=_f("vega_liq"),
+            spread_medio=_f("spread_medio"),
+            spread_pct_medio=_f("spread_pct_medio"),
+            alertas_v2=summary.get("alertas_v2") if summary else None,
+        )
+
+## repositories/rtd_option_quotes_repository.py
+# repositories/rtd_option_quotes_repository.py
+
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+from typing import Any
+
+
+class RtdOptionQuotesRepository:
+    """
+    Leitura da tabela rtd_option_quotes.
+
+    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+    e funciona como cache centralizado das cotações RTD de opções.
+    """
+
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+        self.db_path = Path(db_path)
+
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(str(self.db_path))
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+        sql = """
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            WHERE codigo_opcao = ?
+            LIMIT 1
+        """
+
+        with self._connect() as conn:
+            row = conn.execute(sql, (codigo_opcao,)).fetchone()
+
+        return dict(row) if row else None
+
+    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+        sql = """
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            WHERE ativo_base = ?
+            ORDER BY vencimento, call_put, strike, codigo_opcao
+        """
+
+        with self._connect() as conn:
+            rows = conn.execute(sql, (ativo_base,)).fetchall()
+
+        return [dict(row) for row in rows]
+
+    def list_all(self) -> list[dict[str, Any]]:
+        sql = """
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+        """
+
+        with self._connect() as conn:
+            rows = conn.execute(sql).fetchall()
+
+        return [dict(row) for row in rows]
+
+## services/pricing_input_service.py
+from typing import Any
+
+from services.canonical_input_service import CanonicalInputService
+from services.pricing_payload_adapter import to_pricing_payload
+
+
+class PricingInputService:
+    def __init__(
+        self,
+        canonical_input_service: CanonicalInputService | None = None,
+    ):
+        self.canonical_input_service = canonical_input_service or CanonicalInputService()
+
+    def build_pricing_payload(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        canonical_input = self.canonical_input_service.build_structure_market_input(
+            structure_id=structure_id,
+            reference_date=reference_date,
+        )
+
+        return self.build_pricing_payload_from_canonical_input(canonical_input)
+
+    def build_pricing_payload_from_canonical_input(
+        self,
+        canonical_input: dict[str, Any],
+    ) -> dict[str, Any]:
+        return to_pricing_payload(canonical_input)
+
+## services/pricing_payload_adapter.py
+from typing import Any
+
+from domain.position_side import to_pricing_engine_side
+
+
+def _clean_text(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _clean_upper_text(value: Any) -> str | None:
+    text = _clean_text(value)
+    return text.upper() if text is not None else None
+
+
+def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
+    if not canonical_input:
+        raise ValueError("canonical_input is required")
+
+    structure = canonical_input.get("structure")
+    market = canonical_input.get("market")
+
+    if not structure:
+        raise ValueError("canonical_input.structure is required")
+
+    if not market:
+        raise ValueError("canonical_input.market is required")
+
+    legs = structure.get("legs", [])
+    pricing_legs = []
+
+    for index, leg in enumerate(legs):
+        if not leg:
+            raise ValueError(f"canonical_input.structure.legs[{index}] is required")
+
+        pricing_legs.append(
+            {
+                "side": to_pricing_engine_side(leg["position_side"]),
+                "instrument_type": "OPTION",
+                "option_type": _clean_upper_text(leg["option_type"]),
+                "symbol": _clean_upper_text(leg.get("symbol")),
+                "strike": float(leg["strike"]),
+                "expiration_date": _clean_text(leg["expiration_date"]),
+                "quantity": int(leg["quantity"]),
+                "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
+                "multiplier": float(leg["multiplier"]),
+            }
+        )
+
+    return {
+        "structure_id": structure["structure_id"],
+        "structure_name": _clean_text(structure["name"]),
+        "underlying_asset": _clean_upper_text(structure["underlying_asset"]),
+        "reference_date": _clean_text(market["reference_date"]),
+        "spot_price": float(market["spot_price"]),
+        "interest_rate": float(market["interest_rate"]),
+        "volatility": float(market["volatility"]),
+        "legs": pricing_legs,
+    }
+
+## services/structure_market_input_assembler.py
+from typing import Any
+
+from services.structure_input_mapper import to_structure_input
+
+
+def assemble_structure_market_input(
+    structure: dict[str, Any],
+    market_snapshot: dict[str, Any],
+) -> dict[str, Any]:
+    if not structure:
+        raise ValueError("structure is required")
+
+    if not market_snapshot:
+        raise ValueError("market_snapshot is required")
+
+    structure_input = to_structure_input(structure)
+    structure_asset = structure_input["underlying_asset"]
+    market_asset = market_snapshot.get("underlying_asset")
+
+    if structure_asset != market_asset:
+        raise ValueError(
+            f"underlying_asset mismatch: structure={structure_asset} market={market_asset}"
+        )
+
+    return {
+        "structure": structure_input,
+        "market": {
+            "reference_date": market_snapshot["reference_date"],
+            "underlying_asset": market_snapshot["underlying_asset"],
+            "spot_price": market_snapshot["spot_price"],
+            "interest_rate": market_snapshot["interest_rate"],
+            "volatility": market_snapshot["volatility"],
+        },
+        "meta": {
+            "input_source": "structure_market_input_assembler",
+        },
+    }
+
+## services/canonical_input_service.py
+from __future__ import annotations
+from domain.structure_metrics import compute_structure_metrics_from_canonical_input
+
+# services/canonical_input_service.py
+"""
+alteracao_25 — Separa responsabilidades de resolução de snapshot:
+  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+  - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
+
+Contrato exigido pelo assemble_structure_market_input:
+  {
+    "reference_date":     str | None,
+    "underlying_asset":   str,
+    "spot_price":         float | None,
+    "interest_rate":      float | None,
+    "volatility":         float | None,
+    "legs":               list[dict],   # campo extra, assembler ignora mas outros consomem
+    "aba":                str | None,
+  }
+"""
+
+from src.domain.refs.structure_ref import StructureRef
+
+from typing import Any
+
+from repositories.structures_repository import StructuresRepository
+from repositories.structure_events_repository import StructureEventsRepository
+from services.legacy_robo_legs_fallback import LegacyRoboLegsFallback
+from services.market_snapshot_provider import MarketSnapshotProvider
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.structure_events_service import StructureEventsService
+from services.structure_market_input_assembler import assemble_structure_market_input
+
+
+class CanonicalInputService:
+    def __init__(
+        self,
+        repository: StructuresRepository | None = None,
+        market_snapshot_provider: MarketSnapshotProvider | None = None,
+        market_snapshot_selector: MarketSnapshotSelector | None = None,
+        robo_legs_service: Any | None = None,  # injeção explícita
+        structure_events_service: StructureEventsService | None = None,
+        prefer_canonical_legs: bool = True,
+        enable_legacy_legs_fallback: bool = True,
+        allow_legacy_name_fallback: bool = False,
+        enable_structure_events: bool = True,
+    ):
+        self.repository                  = repository or StructuresRepository()
+        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+        self.prefer_canonical_legs       = prefer_canonical_legs
+        self.enable_legacy_legs_fallback = enable_legacy_legs_fallback
+        self.allow_legacy_name_fallback  = allow_legacy_name_fallback
+
+        if robo_legs_service is not None:
+            # Injecao explicita — path canonico preferencial
+            self.robo_legs_service = robo_legs_service
+        else:
+            # BRIDGE LEGADO: import dinamico de robo_legs_service para compatibilidade
+            # com pipeline legado. Remover quando legado for desligado.
+            try:
+                from services.robo_legs_service import RoboLegsService  # noqa: PLC0415
+                self.robo_legs_service = RoboLegsService()
+            except ImportError:
+                self.robo_legs_service = None
+
+        # LegacyRoboLegsFallback sempre inicializado, independente da origem do robo_legs_service
+        self.legacy_robo_legs_fallback = LegacyRoboLegsFallback(
+            robo_legs_service=self.robo_legs_service,
+            allow_name_fallback=self.allow_legacy_name_fallback,
+        )
+
+        if structure_events_service is not None:
+            self.structure_events_service = structure_events_service
+        elif enable_structure_events and getattr(self.repository, "db_path", None):
+            self.structure_events_service = StructureEventsService(
+                structure_events_repository=StructureEventsRepository(
+                    db_path=self.repository.db_path,
+                )
+            )
+        else:
+            self.structure_events_service = None
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # API pública
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def build_structure_market_input(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        structure = self.repository.get_structure(structure_id)
+        if structure is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+        structure = {
+            **structure,
+            "name":              self._clean_text(structure.get("name")),
+            "underlying_asset":  self._clean_text(structure.get("underlying_asset")),
+            "alias_legacy_aba":  self._clean_text(structure.get("alias_legacy_aba")),
+        }
+
+        snapshot, snapshot_meta = self._resolve_snapshot(
+            structure=structure,
+            reference_date=reference_date,
+        )
+
+        effective_reference_date = reference_date or snapshot.get("reference_date")
+
+        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
+            structure=structure,
+            reference_date=effective_reference_date,
+        )
+
+        enriched_structure, events_meta = self._apply_structure_events(
+            structure=enriched_structure,
+        )
+
+        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
+        assembled_meta  = assembled.get("meta") or {}
+
+        return {
+            **assembled,
+            "meta": {
+                **assembled_meta,
+                "reference_date": effective_reference_date,
+                **enrichment_meta,
+                **events_meta,
+                **snapshot_meta,
+            },
+        }
+
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_snapshot(
+        self,
+        structure: dict[str, Any],
+        reference_date: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """
+        Monta o snapshot dict completo exigido pelo assembler.
+
+        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+        Se o selector estiver injetado E alias_legacy_aba existir, substitui as
+        legs pelo resultado do selector (manual > rtd).
+        """
+        underlying_asset = structure["underlying_asset"]
+        aba              = structure.get("alias_legacy_aba")
+
+        # 1. Spot, taxa, vol — sempre via provider
+        base_snapshot = self.market_snapshot_provider.get_snapshot(
+            underlying_asset,
+            reference_date=reference_date,
+        )
+
+        # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
+        if self.market_snapshot_selector is not None and aba:
+            ref = StructureRef.from_aba(aba)
+            legs_list, legs_meta = self._resolve_legs_via_selector(ref)
+            snapshot_source = legs_meta["snapshot_source"]
+        else:
+            legs_list  = base_snapshot.get("legs", [])
+            legs_meta  = {}
+            snapshot_source = "provider_legacy"
+
+        # 3. Monta contrato completo para o assembler
+        snapshot = {
+            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+                                        # interest_rate, volatility (e qualquer extra)
+            "aba":  aba,
+            "legs": legs_list,
+        }
+
+        meta = {
+            "snapshot_source":  snapshot_source,
+            **legs_meta,
+        }
+
+        return snapshot, meta
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Legs via selector (manual > rtd)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_legs_via_selector(
+        self,
+        ref: StructureRef,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """
+        Delega ao MarketSnapshotSelector e serializa legs completas.
+
+        Serialização cobre todos os campos de LegMarketSnapshot para que
+        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+        """
+        aba_str = ref.aba
+        result = self.market_snapshot_selector.select(aba_str)
+
+        legs_as_dict = [
+            {
+                # ── identificação ──────────────────────────────────────────
+                "aba":              leg.aba,
+                "ativo":            leg.ativo,
+                "source":           leg.source.value if hasattr(leg.source, "value") else str(leg.source),
+                # ── posição ────────────────────────────────────────────────
+                "cv":               leg.cv,
+                "call_put":         leg.call_put,
+                "quant":            leg.quant,
+                "valor_executado":  leg.valor_executado,
+                # ── preços ─────────────────────────────────────────────────
+                "bid":              leg.bid,
+                "ask":              leg.ask,
+                "mid":              leg.mid,
+                "spread":           leg.spread,
+                "spread_pct":       leg.spread_pct,
+                # ── greeks ─────────────────────────────────────────────────
+                "iv":               leg.iv,
+                "delta":            leg.delta,
+                "gamma":            leg.gamma,
+                "theta":            leg.theta,
+                "vega":             leg.vega,
+                # ── contrato ───────────────────────────────────────────────
+                "strike":           leg.strike,
+                "vencimento":       leg.vencimento,
+                "dte":              leg.dte,
+                "pl_realista":      leg.pl_realista,
+                # ── auditoria ──────────────────────────────────────────────
+                "timestamp":        leg.timestamp,
+            }
+            for leg in result.legs
+        ]
+
+        # reference_date derivada do timestamp da leg mais recente
+        reference_date = self._reference_date_from_legs(result.legs)
+
+        meta = {
+            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+            "snapshot_aba":     aba_str,
+            "manual_overrides": result.manual_overrides,
+            "is_manual_first":  result.is_manual_first,
+            "legs_reference_date": reference_date,
+        }
+
+        return legs_as_dict, meta
+
+    @staticmethod
+    def _reference_date_from_legs(legs) -> str | None:
+        """Extrai a data (YYYY-MM-DD) do timestamp mais recente entre as legs."""
+        timestamps = [leg.timestamp for leg in legs if leg.timestamp]
+        if not timestamps:
+            return None
+        latest = max(timestamps)          # ISO string → max() funciona diretamente
+        return latest[:10]               # "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DD"
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Enriquecimento de legs canônicas / fallback (inalterado do alteracao_13)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _build_meta(
+        self,
+        legs_source: str,
+        legacy_timestamp: str | None = None,
+        legacy_aba: str | None = None,
+        legacy_key_source: str | None = None,
+        fallback_reason: str | None = None,
+    ) -> dict[str, Any]:
+        meta: dict[str, Any] = {"legs_source": legs_source}
+        if legacy_timestamp  is not None: meta["legacy_timestamp"]  = legacy_timestamp
+        if legacy_aba        is not None: meta["legacy_aba"]        = legacy_aba
+        if legacy_key_source is not None: meta["legacy_key_source"] = legacy_key_source
+        if fallback_reason   is not None: meta["fallback_reason"]   = fallback_reason
+        return meta
+
+    def _base_legs_response(
+        self,
+        structure: dict[str, Any],
+        existing_legs: list[dict[str, Any]],
+        legs_source: str,
+        fallback_reason: str | None = None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        return (
+            {**structure, "legs": existing_legs},
+            self._build_meta(legs_source=legs_source, fallback_reason=fallback_reason),
+        )
+
+    def _enrich_structure_with_legs(
+        self,
+        structure: dict[str, Any],
+        reference_date: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        existing_legs = structure.get("legs", []) or []
+
+        if self.prefer_canonical_legs and existing_legs:
+            return self._base_legs_response(
+                structure=structure,
+                existing_legs=existing_legs,
+                legs_source="canonical",
+            )
+
+        if not self.enable_legacy_legs_fallback:
+            return self._base_legs_response(
+                structure=structure,
+                existing_legs=existing_legs,
+                legs_source="empty",
+                fallback_reason="legacy_fallback_disabled",
+            )
+
+        fallback_legs, fallback_meta = self.legacy_robo_legs_fallback.load(
+            structure=structure,
+            reference_date=reference_date,
+        )
+
+        if fallback_legs:
+            return (
+                {**structure, "legs": fallback_legs},
+
+## Testes atuais relevantes
+test_canonical_input_service.py
+test_canonical_pricing_facade.py
+test_canonical_validators.py
+test_legacy_robo_legs_fallback.py
+test_legacy_structure_legs_importer.py
+test_legacy_structure_legs_importer_integration.py
+test_legacy_structure_legs_reader.py
+test_market_snapshot_provider.py
+test_payoff_canonical.py
+test_pricing_engine_stub.py
+test_pricing_execution_app_service.py
+test_pricing_execution_controller.py
+test_pricing_execution_orchestration_service.py
+test_pricing_execution_persistence_service.py
+test_pricing_execution_query_service.py
+test_pricing_execution_service.py
+test_pricing_executions_repository.py
+test_pricing_input_service.py
+test_pricing_payload_adapter.py
+test_rtd_legacy_canonical_pricing_input_guardrail.py
+test_structure_analysis_service.py
+test_structure_editor_dialog.py
+test_structure_editor_integration.py
+test_structure_events_api.py
+test_structure_events_effective_state.py
+test_structure_events_repository.py
+test_structure_events_service.py
+test_structure_input_mapper.py
+test_structure_leg_rtd_enrichment_service.py
+test_structure_market_input_assembler.py
+test_structure_metrics.py
+test_structures_api.py
+test_structures_archive_wiring.py
+test_structures_legs_endpoints.py
+test_structures_repository.py
+test_system_snapshots_repository.py
+test_system_snapshots_schema.py
+
+## Conteúdo dos testes atuais mais próximos
+import sqlite3
+from types import SimpleNamespace
+
+import pytest
+
+from services.canonical_pricing_facade import _snapshot_result_to_payload
+
+
+def _selection(**overrides):
+    defaults = {
+        "legs": [],
+        "spot_price": 124.66,
+        "source": "rtd",
+        "aba": "ABA_LEGADA_NAO_E_UNDERLYING",
+        "manual_overrides": [],
+    }
+    defaults.update(overrides)
+    return SimpleNamespace(**defaults)
+
+
+@pytest.mark.parametrize(
+    "raw_numeric, expected",
+    [
+        ("R$ 1.234,56", 1234.56),
+        ("1.234,56", 1234.56),
+        ("1,234.56", 1234.56),
+        ("R$ 124,66", 124.66),
+    ],
+)
+def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+    tmp_path,
+    raw_numeric,
+    expected,
+):
+    payload = _snapshot_result_to_payload(
+        selection_result=_selection(
+            spot_price=raw_numeric,
+            legs=[
+                {
+                    "quantity": "100",
+                    "price": raw_numeric,
+                    "asset": "ABCD100",
+                    "strike": raw_numeric,
+                }
+            ],
+        ),
+        structure_id=15,
+        underlying_asset="ABCD11",
+        reference_date="2026-06-19",
+        db_path=tmp_path / "app.db",
+    )
+
+    assert payload["spot_price"] == pytest.approx(expected)
+
+    leg = payload["legs"][0]
+    assert leg["price"] == pytest.approx(expected)
+    assert leg["premium"] == pytest.approx(expected)
+    assert leg["strike"] == pytest.approx(expected)
+
+
+def test_snapshot_result_to_payload_uses_explicit_underlying_asset_not_legacy_aba(tmp_path):
+    selection = _selection(
+        aba="SMAL11_ABA_LEGADA",
+        legs=[
+            {
+                "quantity": "-100",
+                "price": "R$ 1,25",
+                "asset": "SMALF100",
+                "option_type": "CALL",
+                "strike": "100,00",
+                "expiry": "2026-07-17T12:00:00",
+                "source": "rtd_option_quotes",
+            }
+        ],
+        spot_price="124,66",
+        manual_overrides=["price"],
+    )
+
+    payload = _snapshot_result_to_payload(
+        selection_result=selection,
+        structure_id=10,
+        underlying_asset="SMAL11",
+        reference_date="2026-06-19",
+        db_path=tmp_path / "app.db",
+    )
+
+    assert payload["structure_id"] == 10
+    assert payload["underlying_asset"] == "SMAL11"
+    assert payload["reference_date"] == "2026-06-19"
+    assert payload["spot_price"] == 124.66
+
+    assert payload["meta"] == {
+        "snapshot_source": "rtd",
+        "snapshot_aba": "SMAL11_ABA_LEGADA",
+        "manual_overrides": ["price"],
+        "legs_count": 1,
+    }
+
+    leg = payload["legs"][0]
+    assert leg["asset"] == "SMALF100"
+    assert leg["symbol"] == "SMALF100"
+    assert leg["price"] == 1.25
+    assert leg["premium"] == 1.25
+    assert leg["strike"] == 100.0
+    assert leg["expiry"] == "2026-07-17T12:00:00"
+    assert leg["expiration_date"] == "2026-07-17"
+    assert leg["side"] == "SHORT"
+    assert leg["position_side"] == "SHORT"
+    assert leg["source"] == "rtd_option_quotes"
+
+
+@pytest.mark.parametrize(
+    "leg_input, expected_side",
+    [
+        ({"quantity": "100", "price": 2.5, "asset": "ABCD100"}, "LONG"),
+        ({"quantity": "-100", "price": 2.5, "asset": "ABCD100"}, "SHORT"),
+        ({"quantity": "100", "price": 2.5, "asset": "ABCD100", "side": "short"}, "SHORT"),
+        ({"quantity": "-100", "price": 2.5, "asset": "ABCD100", "position_side": "long"}, "LONG"),
+    ],
+)
+def test_snapshot_result_to_payload_side_matrix(tmp_path, leg_input, expected_side):
+    payload = _snapshot_result_to_payload(
+        selection_result=_selection(legs=[leg_input]),
+        structure_id=20,
+        underlying_asset="ABCD11",
+        reference_date=None,
+        db_path=tmp_path / "app.db",
+    )
+
+    leg = payload["legs"][0]
+    assert leg["side"] == expected_side
+    assert leg["position_side"] == expected_side
+
+
+def test_snapshot_result_to_payload_uses_spot_fallback_from_database(tmp_path):
+    db_path = tmp_path / "app.db"
+
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute("CREATE TABLE market_prices (underlying_asset TEXT, spot REAL)")
+        conn.execute(
+            "INSERT INTO market_prices (underlying_asset, spot) VALUES (?, ?)",
+            ("SMAL11", 124.66),
+        )
+        conn.commit()
+
+    payload = _snapshot_result_to_payload(
+        selection_result=_selection(spot_price=0, legs=[]),
+        structure_id=30,
+        underlying_asset="SMAL11",
+        reference_date="2026-06-19",
+        db_path=db_path,
+    )
+
+    assert payload["spot_price"] == 124.66
+    assert payload["legs"] == []
+    assert payload["meta"]["legs_count"] == 0
+
+
+def test_snapshot_result_to_payload_rejects_missing_or_invalid_spot(tmp_path):
+    with pytest.raises(ValueError) as exc:
+        _snapshot_result_to_payload(
+            selection_result=_selection(spot_price=0, legs=[]),
+            structure_id=40,
+            underlying_asset="SMAL11",
+            reference_date="2026-06-19",
+            db_path=tmp_path / "app.db",
+        )
+
+    assert "spot_price inválido ou ausente para underlying_asset=SMAL11" in str(exc.value)
+    assert "Não persistir execução OK com spot_price <= 0" in str(exc.value)
+
+from services.canonical_input_service import CanonicalInputService
+from services.pricing_input_service import PricingInputService
+
+
+class FakeRepository:
+    def __init__(self, structure):
+        self.structure = structure
+
+    def get_structure(self, structure_id):
+        if self.structure and self.structure.get("id") == structure_id:
+            return self.structure
+        return None
+
+
+class FakeMarketSnapshotProvider:
+    def get_snapshot(self, underlying_asset, reference_date=None):
+        return {
+            "reference_date": reference_date or "2026-05-18",
+            "underlying_asset": underlying_asset,
+            "spot_price": 198.35,
+            "interest_rate": 0.1175,
+            "volatility": 0.22,
+        }
+
+
+class FakeStatus:
+    def __init__(self, chosen_ts):
+        self.chosen_ts = chosen_ts
+
+
+class FakeRtdRoboLegsService:
+    def status(self, aba, requested_timestamp):
+        return FakeStatus("2026-05-18 10:00:00")
+
+    def get_legs(self, aba, timestamp):
+        return [
+            {
+                "cv": "C",
+                "call_put": "C",
+                "ativo": "bovae195",
+                "strike": 195.0,
+                "vencimento": "2026-05-15",
+                "quant": 5000,
+                "preco": 1.23,
+                "multiplier": 1.0,
+                "source": "rtd_option_quotes",
+            }
+        ]
+
+
+def test_rtd_legacy_fallback_can_feed_pricing_payload_when_no_canonical_legs_exist():
+    structure = {
+        "id": 7,
+        "name": "BOVA11 Condor Maio/2026",
+        "underlying_asset": "BOVA11",
+        "alias_legacy_aba": "BOVA11",
+        "legs": [],
+    }
+
+    canonical_service = CanonicalInputService(
+        repository=FakeRepository(structure),
+        market_snapshot_provider=FakeMarketSnapshotProvider(),
+        robo_legs_service=FakeRtdRoboLegsService(),
+        prefer_canonical_legs=True,
+        enable_legacy_legs_fallback=True,
+    )
+
+    canonical_input = canonical_service.build_structure_market_input(
+        structure_id=7,
+        reference_date="2026-05-18",
+    )
+
+    assert canonical_input["meta"]["legs_source"] == "legacy_fallback"
+    assert canonical_input["meta"]["legacy_timestamp"] == "2026-05-18 10:00:00"
+    assert canonical_input["meta"]["legacy_aba"] == "BOVA11"
+    assert canonical_input["meta"]["legacy_key_source"] == "alias_legacy_aba"
+    assert "alias_legacy_aba" not in canonical_input["structure"]
+
+    canonical_leg = canonical_input["structure"]["legs"][0]
+    assert canonical_leg["position_side"] == "COMPRADO"
+    assert canonical_leg["option_type"] == "CALL"
+    assert canonical_leg["symbol"] == "BOVAE195"
+
+    pricing_service = PricingInputService(
+        canonical_input_service=canonical_service,
+    )
+
+    pricing_payload = pricing_service.build_pricing_payload(
+        structure_id=7,
+        reference_date="2026-05-18",
+    )
+
+    assert pricing_payload["structure_id"] == 7
+    assert pricing_payload["structure_name"] == "BOVA11 Condor Maio/2026"
+    assert pricing_payload["underlying_asset"] == "BOVA11"
+    assert pricing_payload["reference_date"] == "2026-05-18"
+    assert pricing_payload["spot_price"] == 198.35
+    assert "alias_legacy_aba" not in pricing_payload
+
+    assert pricing_payload["legs"] == [
+        {
+            "side": "LONG",
+            "instrument_type": "OPTION",
+            "option_type": "CALL",
+            "symbol": "BOVAE195",
+            "strike": 195.0,
+            "expiration_date": "2026-05-15",
+            "quantity": 5000,
+            "premium": 1.23,
+            "multiplier": 1.0,
+        }
+    ]
+
+from services.pricing_execution_app_service import PricingExecutionAppService
+
+
+class FakeCanonicalPricingFacade:
+    def __init__(self, response):
+        self.response = response
+        self.calls = []
+
+    def execute_pricing(self, structure_id: int, reference_date: str | None = None):
+        self.calls.append({"structure_id": structure_id, "reference_date": reference_date})
+        return self.response
+
+
+class FakePricingExecutionQueryService:
+    def __init__(self):
+        self.calls = []
+
+    def list_execution_summaries(self, structure_id=None, underlying_asset=None,
+                                  status=None, reference_date=None, descending=True):
+        self.calls.append(("list_execution_summaries", {
+            "structure_id": structure_id, "underlying_asset": underlying_asset,
+            "status": status, "reference_date": reference_date, "descending": descending,
+        }))
+        return [{"id": 1}, {"id": 2}]
+
+    def get_latest_execution_summary(self, structure_id=None, underlying_asset=None,
+                                      status=None, reference_date=None):
+        self.calls.append(("get_latest_execution_summary", {
+            "structure_id": structure_id, "underlying_asset": underlying_asset,
+            "status": status, "reference_date": reference_date,
+        }))
+        return {"id": 99}
+
+    def get_execution(self, execution_id: int):
+        self.calls.append(("get_execution", {"execution_id": execution_id}))
+        return {"id": execution_id}
+
+    def paginate_execution_summaries(self, structure_id=None, underlying_asset=None,
+                                      status=None, reference_date=None, descending=True,
+                                      page=1, page_size=10):
+        self.calls.append(("paginate_execution_summaries", {
+            "structure_id": structure_id, "underlying_asset": underlying_asset,
+            "status": status, "reference_date": reference_date,
+            "descending": descending, "page": page, "page_size": page_size,
+        }))
+        return {"items": [{"id": 10}], "page": page, "page_size": page_size,
+                "total_items": 1, "total_pages": 1}
+
+
+def _make_service(response, query_service=None):
+    return PricingExecutionAppService(
+        canonical_pricing_facade=FakeCanonicalPricingFacade(response),
+        pricing_execution_query_service=query_service or FakePricingExecutionQueryService(),
+    )
+
+
+def test_execute_pricing_returns_persisted_record_when_present():
+    facade = FakeCanonicalPricingFacade(response={
+        "persisted": {"record": {"id": 123, "structure_id": 10, "reference_date": "2026-05-16"}}
+    })
+    service = PricingExecutionAppService(
+        canonical_pricing_facade=facade,
+        pricing_execution_query_service=FakePricingExecutionQueryService(),
+    )
+    result = service.execute_pricing(structure_id=10, reference_date="2026-05-16")
+    assert result == {"id": 123, "structure_id": 10, "reference_date": "2026-05-16"}
+    assert facade.calls == [{"structure_id": 10, "reference_date": "2026-05-16"}]
+
+
+def test_execute_pricing_returns_raw_response_when_persisted_record_is_missing():
+    raw_response = {"execution": {"status": "ok"}, "persisted": {"something_else": True}}
+    facade = FakeCanonicalPricingFacade(response=raw_response)
+    service = PricingExecutionAppService(
+        canonical_pricing_facade=facade,
+        pricing_execution_query_service=FakePricingExecutionQueryService(),
+    )
+    result = service.execute_pricing(structure_id=11, reference_date="2026-05-16")
+    assert result == raw_response
+
+
+def test_execute_pricing_rejects_invalid_structure_id():
+    facade = FakeCanonicalPricingFacade(response={})
+    service = PricingExecutionAppService(
+        canonical_pricing_facade=facade,
+        pricing_execution_query_service=FakePricingExecutionQueryService(),
+    )
+    try:
+        service.execute_pricing(structure_id=0, reference_date="2026-05-16")
+        assert False, "expected ValueError"
+    except ValueError as exc:
+        assert str(exc) == "structure_id must be greater than zero"
+    assert facade.calls == []
+
+
+def test_execute_pricing_rejects_invalid_reference_date():
+    facade = FakeCanonicalPricingFacade(response={})
+    service = PricingExecutionAppService(
+        canonical_pricing_facade=facade,
+        pricing_execution_query_service=FakePricingExecutionQueryService(),
+    )
+    try:
+        service.execute_pricing(structure_id=10, reference_date="16-05-2026")
+        assert False, "expected ValueError"
+    except ValueError as exc:
+        assert str(exc) == "reference_date must be in YYYY-MM-DD format"
+    assert facade.calls == []
+
+
+def test_execute_pricing_accepts_none_reference_date():
+    facade = FakeCanonicalPricingFacade(
+        response={"persisted": {"record": {"id": 55}}}
+    )
+    service = PricingExecutionAppService(
+        canonical_pricing_facade=facade,
+        pricing_execution_query_service=FakePricingExecutionQueryService(),
+    )
+    result = service.execute_pricing(structure_id=10, reference_date=None)
+    assert result == {"id": 55}
+    assert facade.calls == [{"structure_id": 10, "reference_date": None}]
+
+
+def test_list_execution_summaries_delegates_to_query_service():
+    query_service = FakePricingExecutionQueryService()
+    service = _make_service(response={}, query_service=query_service)
+    result = service.list_execution_summaries(
+        structure_id=1, underlying_asset="PETR4",
+        status="ok", reference_date="2026-05-16", descending=False,
+    )
+    assert result == [{"id": 1}, {"id": 2}]
+    assert query_service.calls[0] == ("list_execution_summaries", {
+        "structure_id": 1, "underlying_asset": "PETR4",
+        "status": "ok", "reference_date": "2026-05-16", "descending": False,
+    })
+
+
+def test_get_latest_execution_summary_delegates_to_query_service():
+    query_service = FakePricingExecutionQueryService()
+    service = _make_service(response={}, query_service=query_service)
+    result = service.get_latest_execution_summary(
+        structure_id=2, underlying_asset="VALE3",
+        status="error", reference_date="2026-05-15",
+    )
+    assert result == {"id": 99}
+    assert query_service.calls[0] == ("get_latest_execution_summary", {
+        "structure_id": 2, "underlying_asset": "VALE3",
+        "status": "error", "reference_date": "2026-05-15",
+    })
+
+
+def test_get_execution_delegates_to_query_service():
+    query_service = FakePricingExecutionQueryService()
+    service = _make_service(response={}, query_service=query_service)
+    result = service.get_execution(88)
+    assert result == {"id": 88}
+    assert query_service.calls[0] == ("get_execution", {"execution_id": 88})
+
+
+def test_paginate_execution_summaries_delegates_to_query_service():
+    query_service = FakePricingExecutionQueryService()
+    service = _make_service(response={}, query_service=query_service)
+    result = service.paginate_execution_summaries(
+        structure_id=1, underlying_asset="PETR4",
+        status="ok", reference_date="2026-05-16",
+        descending=False, page=2, page_size=5,
+    )
+    assert result == {"items": [{"id": 10}], "page": 2, "page_size": 5,
+                      "total_items": 1, "total_pages": 1}
+    assert query_service.calls[0] == ("paginate_execution_summaries", {
+        "structure_id": 1, "underlying_asset": "PETR4",
+        "status": "ok", "reference_date": "2026-05-16",
+        "descending": False, "page": 2, "page_size": 5,
+    })
+
+from services.pricing_execution_service import PricingExecutionService
+
+
+class FakePricingInputService:
+    def __init__(self, pricing_payload):
+        self.pricing_payload = pricing_payload
+        self.calls = []
+
+    def build_pricing_payload(self, structure_id: int, reference_date: str | None = None):
+        self.calls.append(
+            {
+                "structure_id": structure_id,
+                "reference_date": reference_date,
+            }
+        )
+        return self.pricing_payload
+
+
+class FakePricingEngine:
+    def __init__(self, result):
+        self.result = result
+        self.calls = []
+
+    def run(self, pricing_payload):
+        self.calls.append(pricing_payload)
+        return self.result
+
+
+def test_execute_builds_payload_and_runs_engine():
+    pricing_payload = {
+        "structure_id": 123,
+        "reference_date": "2026-05-16",
+        "legs": [],
+    }
+    engine_result = {
+        "engine": "stub",
+        "status": "ok",
+        "valuation": {"theoretical_value": 10.5},
+        "metrics": {"number_of_legs": 0, "total_quantity": 0},
+    }
+
+    fake_input_service = FakePricingInputService(pricing_payload)
+    fake_engine = FakePricingEngine(engine_result)
+
+    service = PricingExecutionService(
+        pricing_input_service=fake_input_service,
+        pricing_engine=fake_engine,
+    )
+
+    result = service.execute(structure_id=123, reference_date="2026-05-16")
+
+    assert fake_input_service.calls == [
+        {
+            "structure_id": 123,
+            "reference_date": "2026-05-16",
+        }
+    ]
+    assert fake_engine.calls == [pricing_payload]
+    assert result == {
+        "pricing_payload": pricing_payload,
+        "result": engine_result,
+    }
+
+
+def test_execute_payload_runs_engine_and_returns_wrapped_result():
+    pricing_payload = {
+        "structure_id": 999,
+        "reference_date": "2026-05-17",
+        "legs": [{"side": "LONG"}],
+    }
+    engine_result = {
+        "engine": "stub",
+        "status": "ok",
+    }
+
+    fake_engine = FakePricingEngine(engine_result)
+
+    service = PricingExecutionService(
+        pricing_input_service=None,
+        pricing_engine=fake_engine,
+    )
+
+    result = service.execute_payload(pricing_payload)
+
+    assert fake_engine.calls == [pricing_payload]
+    assert result == {
+        "pricing_payload": pricing_payload,
+        "result": engine_result,
+    }
+
