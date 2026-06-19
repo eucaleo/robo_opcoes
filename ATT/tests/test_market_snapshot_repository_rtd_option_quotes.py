@@ -215,3 +215,156 @@ def test_get_rtd_option_quote_legs_returns_empty_list_when_cache_table_is_missin
     repo = MarketSnapshotRepository(db_path=db_path)
 
     assert repo.get_rtd_option_quote_legs("BOVA11") == []
+
+
+def _insert_rtd_option_quote(
+    conn,
+    *,
+    codigo_opcao="BOVAE195",
+    ativo_base="BOVA11",
+    call_put="CALL",
+    strike="195,00",
+    vencimento="2026-05-15",
+    ultimo_preco="1,23",
+    bid="1,22",
+    ask="1,24",
+    iv="0,33",
+    delta="0,44",
+    gamma="0,055",
+    theta="-0,066",
+    vega="0,077",
+    updated_at="2026-05-18 10:05:00",
+):
+    conn.execute(
+        """
+        INSERT INTO rtd_option_quotes (
+            codigo_opcao,
+            ativo_base,
+            call_put,
+            strike,
+            vencimento,
+            ultimo_preco,
+            ultima_quantidade,
+            bid,
+            ask,
+            volume,
+            iv,
+            delta,
+            gamma,
+            theta,
+            vega,
+            source,
+            raw_json,
+            updated_at,
+            created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            codigo_opcao,
+            ativo_base,
+            call_put,
+            strike,
+            vencimento,
+            ultimo_preco,
+            "100",
+            bid,
+            ask,
+            "1000",
+            iv,
+            delta,
+            gamma,
+            theta,
+            vega,
+            "rtd_option_quotes",
+            "{}",
+            updated_at,
+            updated_at,
+        ),
+    )
+
+
+def test_get_rtd_option_quote_legs_ignores_orphan_quote_without_structural_leg(tmp_path):
+    db_path = tmp_path / "app.db"
+
+    with sqlite3.connect(str(db_path)) as conn:
+        _create_rtd_legs_table(conn)
+        _create_rtd_option_quotes_table(conn)
+
+        _insert_rtd_option_quote(
+            conn,
+            codigo_opcao="BOVAE195",
+            ativo_base="BOVA11",
+            ultimo_preco="1,23",
+            bid="1,22",
+            ask="1,24",
+            updated_at="2026-05-18 10:05:00",
+        )
+
+        conn.commit()
+
+    repo = MarketSnapshotRepository(db_path=db_path)
+
+    assert repo.get_rtd_option_quote_legs("BOVA11") == []
+
+
+def test_get_rtd_option_quote_legs_uses_latest_quote_when_cache_has_duplicates(tmp_path):
+    db_path = tmp_path / "app.db"
+
+    with sqlite3.connect(str(db_path)) as conn:
+        _create_rtd_legs_table(conn)
+        _create_rtd_option_quotes_table(conn)
+        _insert_base_rtd_leg(conn)
+
+        _insert_rtd_option_quote(
+            conn,
+            codigo_opcao="BOVAE195",
+            ativo_base="BOVA11",
+            ultimo_preco="1,11",
+            bid="1,10",
+            ask="1,12",
+            iv="0,21",
+            delta="0,31",
+            gamma="0,041",
+            theta="-0,051",
+            vega="0,061",
+            updated_at="2026-05-18 10:01:00",
+        )
+
+        _insert_rtd_option_quote(
+            conn,
+            codigo_opcao="BOVAE195",
+            ativo_base="BOVA11",
+            ultimo_preco="1,45",
+            bid="1,44",
+            ask="1,46",
+            iv="0,39",
+            delta="0,49",
+            gamma="0,059",
+            theta="-0,069",
+            vega="0,079",
+            updated_at="2026-05-18 10:09:00",
+        )
+
+        conn.commit()
+
+    repo = MarketSnapshotRepository(db_path=db_path)
+
+    legs = repo.get_rtd_option_quote_legs("BOVA11")
+
+    assert len(legs) == 1
+
+    leg = legs[0]
+
+    assert leg.source == "rtd_option_quotes"
+    assert leg.ativo == "BOVAE195"
+    assert leg.bid == pytest.approx(1.44)
+    assert leg.ask == pytest.approx(1.46)
+    assert leg.mid == pytest.approx(1.45)
+    assert leg.valor_executado == pytest.approx(1.45)
+    assert leg.iv == pytest.approx(0.39)
+    assert leg.delta == pytest.approx(0.49)
+    assert leg.gamma == pytest.approx(0.059)
+    assert leg.theta == pytest.approx(-0.069)
+    assert leg.vega == pytest.approx(0.079)
+    assert leg.timestamp == "2026-05-18 10:09:00"
