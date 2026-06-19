@@ -1,6 +1,8 @@
 from datetime import date, datetime
 from typing import Any, Iterable
 
+from domain.position_side import to_pricing_engine_side
+
 
 def _parse_date(value: str | None) -> date | None:
     if not value:
@@ -149,33 +151,10 @@ def normalize_position_side(leg: dict[str, Any]) -> str | None:
             return None
         return "SHORT" if quantity < 0 else "LONG"
 
-    side_text = str(side).strip().upper()
-
-    long_values = {
-        "C",
-        "COMPRA",
-        "COMPRADO",
-        "BUY",
-        "BOUGHT",
-        "LONG",
-    }
-
-    short_values = {
-        "V",
-        "VENDA",
-        "VENDIDO",
-        "SELL",
-        "SOLD",
-        "SHORT",
-    }
-
-    if side_text in long_values:
-        return "LONG"
-
-    if side_text in short_values:
-        return "SHORT"
-
-    return None
+    try:
+        return to_pricing_engine_side(side)
+    except ValueError:
+        return None
 
 
 def position_multiplier(leg: dict[str, Any]) -> int:

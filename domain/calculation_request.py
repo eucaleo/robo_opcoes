@@ -17,6 +17,8 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import List, Optional
 
+from domain.position_side import to_pricing_engine_side
+
 
 # ---------------------------------------------------------------------------
 # Constantes de domínio
@@ -68,7 +70,7 @@ class StructureLegInput:
     """
     Representa uma perna (leg) da estrutura, já normalizada.
 
-    position_side : LONG | SHORT
+    position_side : LONG | SHORT tecnico; aceita aliases COMPRADO/VENDIDO e C/V
     option_type   : CALL | PUT
     strike        : decimal positivo
     expiration_date: YYYY-MM-DD
@@ -91,9 +93,19 @@ class StructureLegInput:
     notes:       Optional[str]   = None
 
     def __post_init__(self):
-        if self.position_side not in VALID_POSITION_SIDES:
+        try:
+            position_side = to_pricing_engine_side(self.position_side)
+        except ValueError as exc:
             raise ValueError(
                 f"position_side inválido: {self.position_side!r}. "
+                f"Use: {VALID_POSITION_SIDES} ou COMPRADO/VENDIDO"
+            ) from exc
+
+        object.__setattr__(self, "position_side", position_side)
+
+        if position_side not in VALID_POSITION_SIDES:
+            raise ValueError(
+                f"position_side inválido: {position_side!r}. "
                 f"Use: {VALID_POSITION_SIDES}"
             )
         if self.option_type not in VALID_OPTION_TYPES:
