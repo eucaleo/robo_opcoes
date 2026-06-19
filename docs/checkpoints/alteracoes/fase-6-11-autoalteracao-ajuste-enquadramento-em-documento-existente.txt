@@ -1,0 +1,163 @@
+alteracao:
+  id: fase-6-11-ajuste-enquadramento-em-documento-existente
+  tipo: alteracao_documental_incremental
+  fase: "6.11"
+  titulo: Ajuste de enquadramento no documento existente da Fase 6.11
+  objetivo: Atualizar o documento existente da Fase 6.11 para registrar que a retomada atual permanece classificada como Fase 6.11 e nao como Fase 11
+  status: pronta_para_aplicacao
+
+  contexto:
+    documento_principal_existente: docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md
+    observacao: >
+      Ja existe documento principal da Fase 6.11. Portanto, a alteracao deve
+      ser incremental sobre esse documento, evitando criar novo documento
+      principal paralelo de correcao de enquadramento.
+    classificacao_correta: Fase 6.11 — retomada funcional pos-restauracao documental
+    classificacao_incorreta_a_evitar: Fase 11 — validacao integrada pos-retomada
+    motivo: >
+      A frente atual ainda esta restrita ao baseline tecnico e a preparacao
+      de guardrail da cadeia RTD, fallback legado, canonical input, pricing input
+      e pricing payload. A Fase 11 representa fluxo integrado mais amplo e
+      ainda nao deve ser usada como classificacao desta retomada.
+
+  impacto:
+    banco: nenhum
+    schema: nenhum
+    ui: nenhum
+    api: nenhum
+    funcional_produtivo: nenhum
+    testes: nenhum nesta alteracao documental
+    tipo: documentacao_incremental
+
+  arquivos:
+    - caminho: docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md
+      operacao: atualizar_ou_anexar_secao
+      ancora_preferencial:
+        procurar_por:
+          - "## Decisao"
+          - "## Estado atual"
+          - "## Continuidade"
+          - "## Proximos passos"
+        se_nao_encontrar: anexar_ao_final
+      secao:
+        titulo: Ajuste de enquadramento da retomada
+        conteudo:
+          resumo: >
+            Fica registrado que a frente atual permanece classificada como
+            Fase 6.11 — retomada funcional pos-restauracao documental.
+            Qualquer mencao anterior ou lateral a Fase 11 deve ser tratada
+            apenas como referencia futura da rota mestre, e nao como
+            classificacao do trabalho em andamento.
+
+          classificacao_corrigida:
+            fase: "6.11"
+            nome: Retomada funcional pos-restauracao documental
+            natureza: baseline tecnico e preparacao de guardrail funcional leve
+            escopo: RTD, fallback legado, canonical input, pricing input e pricing payload
+
+          classificacao_a_evitar:
+            fase: "11"
+            nome: Validacao integrada pos-retomada
+            motivo: >
+              A Fase 11 envolve fluxo integrado mais amplo, incluindo importacao,
+              persistencia, cadastro de estrutura, enriquecimento completo,
+              pricing, snapshot e UI. Esse escopo ainda nao foi iniciado nesta
+              retomada funcional.
+
+          decisao: >
+            A continuidade deve seguir dentro da Fase 6.11, com uma microfatia
+            de guardrail automatizado leve para proteger a cadeia RTD e fallback
+            legado ate pricing payload.
+
+          restricoes_para_continuidade:
+            - nao alterar banco
+            - nao alterar schema
+            - nao alterar UI
+            - nao alterar API
+            - nao depender de Excel real
+            - nao depender de RTD real
+            - nao depender de integracao externa
+            - nao reclassificar esta frente como Fase 11
+
+          proxima_microfatia_autorizada:
+            nome: guardrail-rtd-legacy-canonical-pricing-input
+            descricao: >
+              Criar teste automatizado leve validando que uma estrutura sem
+              legs canonicas internas consegue montar entrada de pricing usando
+              fallback RTD ou legado quando houver legs RTD disponiveis.
+            fluxo_protegido:
+              - RTD ou fallback legado
+              - canonical input
+              - pricing input
+              - pricing payload
+            criterio_de_sucesso:
+              - novo teste automatizado passa
+              - regressao do recorte atual continua passando
+              - payload final nao expoe alias legado indevido
+              - nenhuma alteracao em banco, schema, UI ou API
+
+    - caminho: docs/checkpoints/evidencias/fase-6-11-decisao-ajuste-enquadramento-documento-existente.txt
+      operacao: criar_ou_substituir
+      conteudo:
+        titulo: Decisao de ajuste de enquadramento no documento existente da Fase 6.11
+        data: "2026-06-19"
+        documento_referenciado: docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md
+        resumo: >
+          Foi confirmado que ja existe documento principal para a Fase 6.11.
+          A correcao de enquadramento deve ser feita como incremento nesse
+          documento existente, evitando criar documento principal paralelo.
+        decisao:
+          fase_correta: "6.11"
+          descricao: Retomada funcional pos-restauracao documental
+          fase_a_evitar: "11"
+          motivo: >
+            A Fase 11 corresponde a validacao integrada pos-retomada e ainda
+            nao representa o escopo atual.
+        escopo_atual:
+          - baseline tecnico
+          - RTD
+          - fallback legado
+          - canonical input
+          - pricing input service
+          - pricing payload adapter
+        continuidade_aprovada:
+          tipo: guardrail automatizado leve
+          fase: "6.11"
+          fluxo: RTD ou fallback legado para canonical input, pricing input e pricing payload
+        impacto:
+          banco: sem alteracao
+          schema: sem alteracao
+          ui: sem alteracao
+          api: sem alteracao
+          funcional_produtivo: sem alteracao
+          documentacao: atualizacao incremental
+
+  nao_criar:
+    - docs/checkpoints/alteracoes/fase-6-11-correcao-enquadramento.md
+    - docs/checkpoints/planos/fase-6-11-plano-guardrail-rtd-canonical-pricing.md
+    - docs/checkpoints/decisoes/fase-6-11-decisao-prosseguir-guardrail.md
+
+  observacao_sobre_nao_criar:
+    motivo: >
+      Como ja existe documento principal da Fase 6.11, a automacao deve evitar
+      duplicar documentos principais. O ajuste deve ser incremental no arquivo
+      existente, acompanhado apenas de evidencia objetiva da decisao.
+
+  commit_sugerido:
+    mensagem: docs: ajustar enquadramento no documento existente da fase 6.11
+    descricao:
+      - atualiza documento principal existente da Fase 6.11
+      - registra que a retomada atual nao pertence a Fase 11
+      - preserva classificacao como Fase 6.11
+      - documenta continuidade com guardrail leve
+      - evita criacao de documento principal paralelo
+      - reforca ausencia de impacto em banco, schema, UI e API
+
+  criterio_final:
+    validacao:
+      - documento existente da Fase 6.11 atualizado incrementalmente
+      - evidencia objetiva criada
+      - nenhum documento principal paralelo criado
+      - nenhuma alteracao funcional aplicada
+      - nenhuma alteracao em banco, schema, UI ou API
+      - continuidade liberada somente como microfatia da Fase 6.11
