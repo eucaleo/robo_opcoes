@@ -1,0 +1,11 @@
+## fase-6-11 pull request
+Fri Jun 19 19:48:58     2026
+
+## branch
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+## pr
+
+
+## status
+?? docs/checkpoints/evidencias/fase-6-11-evidencia-pr-rtd-option-quotes-pricing-runtime.txt
