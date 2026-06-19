@@ -1,0 +1,198 @@
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:353:    assert leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:354:    assert leg["price_resolution_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:355:    assert leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:356:    assert leg["rtd_validation_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:360:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:369:    assert persisted_payload["legs"][0]["price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:370:    assert persisted_payload["legs"][0]["price_resolution_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:371:    assert persisted_payload["legs"][0]["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:372:    assert persisted_payload["legs"][0]["rtd_validation_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:376:    assert persisted_payload["legs"][0]["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:420:    assert leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:421:    assert leg["price_resolution_status"] == "missing_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:422:    assert leg["rtd_quote_found"] is False
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:423:    assert leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:424:    assert "não encontrada" in leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:429:    assert "rtd_price_source" not in leg
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:439:    assert persisted_leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:440:    assert persisted_leg["price_resolution_status"] == "missing_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:441:    assert persisted_leg["rtd_quote_found"] is False
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:442:    assert persisted_leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:443:    assert "não encontrada" in persisted_leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:448:    assert "rtd_price_source" not in persisted_leg
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:498:    assert leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:499:    assert leg["price_resolution_status"] == "stale_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:500:    assert leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:501:    assert leg["rtd_validation_status"] == "warn"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:502:    assert "vencida" in leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:506:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:516:    assert persisted_leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:517:    assert persisted_leg["price_resolution_status"] == "stale_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:518:    assert persisted_leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:519:    assert persisted_leg["rtd_validation_status"] == "warn"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:520:    assert "vencida" in persisted_leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:524:    assert persisted_leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:575:    assert leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:576:    assert leg["price_resolution_status"] == "rtd_asset_mismatch"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:577:    assert leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:578:    assert leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:579:    assert "diverge" in leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:583:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:593:    assert persisted_leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:594:    assert persisted_leg["price_resolution_status"] == "rtd_asset_mismatch"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:595:    assert persisted_leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:596:    assert persisted_leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:597:    assert "diverge" in persisted_leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:601:    assert persisted_leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:652:    assert leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:653:    assert leg["price_resolution_status"] == "invalid_rtd_price"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:654:    assert leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:655:    assert leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:656:    assert "sem preço utilizável" in leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:661:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:671:    assert persisted_leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:672:    assert persisted_leg["price_resolution_status"] == "invalid_rtd_price"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:673:    assert persisted_leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:674:    assert persisted_leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:675:    assert "sem preço utilizável" in persisted_leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:680:    assert persisted_leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:99:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:108:    assert price_source == "manual"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:109:    assert traceability["price_resolution_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:110:    assert traceability["rtd_quote_found"] is None
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:111:    assert traceability["rtd_validation_status"] == "not_applicable"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:112:    assert "manual explícito" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:126:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:135:    assert price_source == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:142:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:151:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:152:    assert traceability["price_resolution_status"] == "missing_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:153:    assert traceability["rtd_quote_found"] is False
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:154:    assert traceability["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:155:    assert "não encontrada" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:161:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:170:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:171:    assert traceability["price_resolution_status"] == "missing_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:172:    assert traceability["rtd_quote_found"] is False
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:173:    assert traceability["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:174:    assert "Quote RTD não encontrada" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:175:    assert "ABCD11" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:220:    assert leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:239:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:248:    assert price_source == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:250:        "price_resolution_status": "ok",
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:251:        "rtd_quote_found": True,
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:252:        "rtd_validation_status": "ok",
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:253:        "rtd_validation_message": None,
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:257:        "rtd_price_source": "rtd_option_quotes",
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:281:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:290:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:291:    assert traceability["price_resolution_status"] == "invalid_rtd_price"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:292:    assert traceability["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:293:    assert traceability["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:294:    assert "sem preço utilizável" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:297:    assert traceability["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:348:    assert leg["price_source"] == "manual"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:349:    assert leg["price_resolution_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:350:    assert leg["rtd_quote_found"] is None
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:351:    assert leg["rtd_validation_status"] == "not_applicable"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:352:    assert "RTD não consultado" in leg["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:356:    assert "rtd_price_source" not in leg
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:365:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:375:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:376:    assert traceability["rtd_quote_found"] is False
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:377:    assert traceability["price_resolution_status"] == "missing_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:378:    assert traceability["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:379:    assert "não encontrada" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:398:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:408:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:409:    assert traceability["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:410:    assert traceability["price_resolution_status"] == "invalid_rtd_price"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:411:    assert traceability["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:428:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:438:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:439:    assert traceability["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:440:    assert traceability["price_resolution_status"] == "rtd_asset_mismatch"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:441:    assert traceability["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:444:    assert "diverge" in traceability["rtd_validation_message"]
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:489:    assert leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:490:    assert leg["price_resolution_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:491:    assert leg["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:492:    assert leg["rtd_validation_status"] == "ok"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:493:    assert leg["rtd_validation_message"] is None
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:534:    assert leg["price_source"] == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:535:    assert leg["price_resolution_status"] == "missing_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:536:    assert leg["rtd_quote_found"] is False
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:537:    assert leg["rtd_validation_status"] == "error"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:555:    price, price_source, traceability = _resolve_effective_leg_price(
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:564:    assert price_source == "snapshot"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:565:    assert traceability["price_resolution_status"] == "stale_rtd_quote"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:566:    assert traceability["rtd_quote_found"] is True
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:567:    assert traceability["rtd_validation_status"] == "warn"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:570:    assert traceability["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:573:    assert "vencida" in traceability["rtd_validation_message"]
+ATT/tests/test_fase_11_rtd_integrated_flow.py:423:    assert leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:427:    assert leg["rtd_price_source"] == "rtd_links"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:443:    assert persisted_leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:447:    assert persisted_leg["rtd_price_source"] == "rtd_links"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:464:    assert snapshot_state_leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:468:    assert snapshot_state_leg["rtd_price_source"] == "rtd_links"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:475:    assert snapshot_leg["raw_json"]["price_source"] == "rtd_option_quotes"
+ATT/tests/test_fase_11_rtd_integrated_flow.py:479:    assert snapshot_leg["raw_json"]["rtd_price_source"] == "rtd_links"
+ATT/tests/test_pricing_execution_price_source_persistence.py:37:def test_pricing_executions_repository_preserves_leg_price_source_on_get(tmp_path):
+ATT/tests/test_pricing_execution_price_source_persistence.py:59:                "price_source": "rtd_option_quotes",
+ATT/tests/test_pricing_execution_price_source_persistence.py:68:                "price_source": "manual",
+ATT/tests/test_pricing_execution_price_source_persistence.py:100:    assert loaded["pricing_payload"]["legs"][0]["price_source"] == "rtd_option_quotes"
+ATT/tests/test_pricing_execution_price_source_persistence.py:101:    assert loaded["pricing_payload"]["legs"][1]["price_source"] == "manual"
+ATT/tests/test_pricing_execution_price_source_persistence.py:104:def test_pricing_executions_repository_preserves_leg_price_source_on_list(tmp_path):
+ATT/tests/test_pricing_execution_price_source_persistence.py:125:                "price_source": "missing",
+ATT/tests/test_pricing_execution_price_source_persistence.py:157:    assert executions[0]["pricing_payload"]["legs"][0]["price_source"] == "missing"
+ATT/tests/test_pricing_execution_price_source_persistence.py:196:def test_persistence_service_passes_price_source_to_system_snapshot_legs():
+ATT/tests/test_pricing_execution_price_source_persistence.py:222:                "price_source": "rtd_option_quotes",
+ATT/tests/test_pricing_execution_price_source_persistence.py:251:    assert snapshot_call["legs"][0]["price_source"] == "rtd_option_quotes"
+ATT/tests/test_pricing_execution_price_source_persistence.py:253:        snapshot_call["operation_state_json"]["pricing_payload"]["legs"][0]["price_source"]
+ATT/tests/test_pricing_execution_price_source_persistence.py:259:    assert leg["price_source"] == "rtd_option_quotes"
+ATT/tests/test_pricing_execution_price_source_persistence.py:263:    assert leg["rtd_price_source"] == "rtd_option_quotes"
+ATT/tests/test_pricing_execution_price_source_persistence.py:292:                "price_source": "rtd_option_quotes",
+ATT/tests/test_pricing_execution_price_source_persistence.py:296:                "rtd_price_source": "rtd_option_quotes",
+ATT/tests/test_pricing_execution_price_source_persistence.py:368:                "price_source": "rtd_option_quotes",
+ATT/tests/test_pricing_execution_price_source_persistence.py:372:                "rtd_price_source": "rtd_option_quotes",
+services/canonical_pricing_facade.py:375:    rtd_quote_found: bool,
+services/canonical_pricing_facade.py:376:    price_resolution_status: str,
+services/canonical_pricing_facade.py:377:    rtd_validation_status: str,
+services/canonical_pricing_facade.py:378:    rtd_validation_message: str | None,
+services/canonical_pricing_facade.py:383:        "price_resolution_status": price_resolution_status,
+services/canonical_pricing_facade.py:384:        "rtd_quote_found": rtd_quote_found,
+services/canonical_pricing_facade.py:385:        "rtd_validation_status": rtd_validation_status,
+services/canonical_pricing_facade.py:386:        "rtd_validation_message": rtd_validation_message,
+services/canonical_pricing_facade.py:397:                "rtd_price_source": _quote_value(quote, "source"),
+services/canonical_pricing_facade.py:477:                "price_resolution_status": "ok",
+services/canonical_pricing_facade.py:478:                "rtd_quote_found": None,
+services/canonical_pricing_facade.py:479:                "rtd_validation_status": "not_applicable",
+services/canonical_pricing_facade.py:480:                "rtd_validation_message": "Preço manual explícito preservado; RTD não consultado.",
+services/canonical_pricing_facade.py:497:                    rtd_quote_found=False,
+services/canonical_pricing_facade.py:498:                    price_resolution_status="missing_rtd_quote",
+services/canonical_pricing_facade.py:499:                    rtd_validation_status="error",
+services/canonical_pricing_facade.py:500:                    rtd_validation_message=(
+services/canonical_pricing_facade.py:516:                    rtd_quote_found=True,
+services/canonical_pricing_facade.py:517:                    price_resolution_status="rtd_asset_mismatch",
+services/canonical_pricing_facade.py:518:                    rtd_validation_status="error",
+services/canonical_pricing_facade.py:519:                    rtd_validation_message=(
+services/canonical_pricing_facade.py:533:                    rtd_quote_found=True,
+services/canonical_pricing_facade.py:534:                    price_resolution_status="stale_rtd_quote",
+services/canonical_pricing_facade.py:535:                    rtd_validation_status="warn",
+services/canonical_pricing_facade.py:536:                    rtd_validation_message=(
+services/canonical_pricing_facade.py:552:                    rtd_quote_found=True,
+services/canonical_pricing_facade.py:553:                    price_resolution_status="ok",
+services/canonical_pricing_facade.py:554:                    rtd_validation_status="ok",
+services/canonical_pricing_facade.py:555:                    rtd_validation_message=None,
+services/canonical_pricing_facade.py:566:                rtd_quote_found=True,
+services/canonical_pricing_facade.py:567:                price_resolution_status="invalid_rtd_price",
+services/canonical_pricing_facade.py:568:                rtd_validation_status="error",
+services/canonical_pricing_facade.py:569:                rtd_validation_message=(
+services/canonical_pricing_facade.py:582:            "price_resolution_status": fallback_status,
+services/canonical_pricing_facade.py:583:            "rtd_quote_found": None,
+services/canonical_pricing_facade.py:584:            "rtd_validation_status": "not_applicable",
+services/canonical_pricing_facade.py:585:            "rtd_validation_message": "Repository RTD não disponível para consulta.",
+services/canonical_pricing_facade.py:701:        effective_price, price_source, price_traceability = _resolve_effective_leg_price(
+services/canonical_pricing_facade.py:728:            "price_source": price_source,
