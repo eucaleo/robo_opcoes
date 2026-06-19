@@ -508,3 +508,70 @@ Fase 8 - Diagnostico do cadastro de estruturas com leg minima.
 ### Commit relacionado
 
 Pendente de commit.
+
+## Validação integrada do marco 10.1 — normalização COMPRADO/VENDIDO
+
+Data/hora:
+2026-06-19
+
+Branch:
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+Objetivo:
+Registrar a validação regressiva após fechamento e tag do marco de normalização de lado da posição.
+
+Commit/tag de referência:
+5c88db8 docs: record full regression for position side normalization
+fase-10.1-position-side-normalization-closed
+
+Arquivos auditados:
+- docs/10.1_normalizacao_comprado_vendido.md
+- ATT/tests/test_structures_repository.py
+- ATT/tests/test_structure_editor_dialog.py
+- ATT/tests/test_structure_editor_integration.py
+- suíte completa pytest
+
+Comandos executados:
+
+    git status --short
+    git tag --list "fase-10.1-position-side-normalization-closed"
+    git log --oneline -5
+    python validate_db.py
+    python scripts/validate_app_db.py
+    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+    python -m pytest ATT/tests/test_structures_repository.py -v
+    python -m pytest ATT/tests/test_structure_editor_dialog.py -v
+    python -m pytest ATT/tests/test_structure_editor_integration.py -v
+    python -m pytest ATT/tests/test_database_files_consistency.py -v
+    python -m pytest ATT/tests/test_fase_11_rtd_integrated_flow.py -v
+    python -m pytest
+
+Resultados:
+- Tag confirmada:
+  - fase-10.1-position-side-normalization-closed
+- validate_db.py executado sem erro fatal.
+- scripts/validate_app_db.py indisponível no estado atual do repositório.
+- scripts/audit_rtd_option_quotes.py indisponível no estado atual do repositório.
+- ATT/tests/test_database_files_consistency.py indisponível no estado atual do repositório.
+- ATT/tests/test_fase_11_rtd_integrated_flow.py indisponível no estado atual do repositório.
+- ATT/tests/test_structures_repository.py:
+  - 25 passed
+- ATT/tests/test_structure_editor_dialog.py:
+  - 24 passed
+- ATT/tests/test_structure_editor_integration.py:
+  - 26 passed
+- Regressão completa:
+  - 610 passed, 10 skipped in 35.45s
+
+Pendências:
+- Atualizar a leitura da rota para refletir que scripts/testes históricos de RTD citados na documentação não existem no estado atual do repositório.
+- Antes de qualquer nova alteração RTD/banco, mapear os scripts e testes atualmente existentes.
+
+Decisão tomada:
+- Considerar o marco 10.1 fechado, validado, tagueado e documentado.
+- Não houve alteração funcional nesta validação.
+- Próximo avanço deve iniciar por mapeamento/auditoria dos artefatos RTD realmente existentes no repositório atual.
+
+Commit relacionado:
+- 5c88db8 docs: record full regression for position side normalization
+
