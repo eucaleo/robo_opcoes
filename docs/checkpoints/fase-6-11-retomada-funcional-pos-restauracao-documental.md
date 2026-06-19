@@ -64,3 +64,62 @@ Portanto, a fase deve primeiro inventariar os nomes reais de testes e caminhos r
 
 Identificar o menor ponto funcional ainda descoberto no caminho RTD/canonical pricing e protegê-lo com teste automatizado antes de qualquer expansão de escopo.
 
+
+## Ajuste de enquadramento da retomada
+
+Fica registrado que a frente atual permanece classificada como Fase 6.11 — retomada funcional pos-restauracao documental.
+
+Qualquer mencao anterior ou lateral a Fase 11 deve ser tratada apenas como referencia futura da rota mestre, e nao como classificacao do trabalho em andamento.
+
+### Classificacao corrigida
+
+Fase: 6.11
+
+Nome: Retomada funcional pos-restauracao documental
+
+Natureza: baseline tecnico e preparacao de guardrail funcional leve
+
+Escopo: RTD, fallback legado, canonical input, pricing input e pricing payload
+
+### Classificacao a evitar
+
+Fase: 11
+
+Nome: Validacao integrada pos-retomada
+
+Motivo: a Fase 11 envolve fluxo integrado mais amplo, incluindo importacao, persistencia, cadastro de estrutura, enriquecimento completo, pricing, snapshot e UI. Esse escopo ainda nao foi iniciado nesta retomada funcional.
+
+### Decisao
+
+A continuidade deve seguir dentro da Fase 6.11, com uma microfatia de guardrail automatizado leve para proteger a cadeia RTD e fallback legado ate pricing payload.
+
+### Restricoes para continuidade
+
+- nao alterar banco
+- nao alterar schema
+- nao alterar UI
+- nao alterar API
+- nao depender de Excel real
+- nao depender de RTD real
+- nao depender de integracao externa
+- nao reclassificar esta frente como Fase 11
+
+### Proxima microfatia autorizada
+
+Nome: guardrail-rtd-legacy-canonical-pricing-input
+
+Descricao: criar teste automatizado leve validando que uma estrutura sem legs canonicas internas consegue montar entrada de pricing usando fallback RTD ou legado quando houver legs RTD disponiveis.
+
+Fluxo protegido:
+
+- RTD ou fallback legado
+- canonical input
+- pricing input
+- pricing payload
+
+Criterio de sucesso:
+
+- novo teste automatizado passa
+- regressao do recorte atual continua passando
+- payload final nao expoe alias legado indevido
+- nenhuma alteracao em banco, schema, UI ou API
