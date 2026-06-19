@@ -1,0 +1,184 @@
+Fase 7 - Execucao dos testes RTD/canonical/pricing vigentes
+
+Branch:
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+HEAD:
+c011ebf docs: record available rtd regression validation
+
+Status inicial:
+?? docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-auditoria-testes-rtd-historicos-git.txt
+?? docs/checkpoints/evidencias/fase-6-11-datas-exclusao-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-decisao-final-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-importabilidade-testes-rtd-historicos-sanitizados.txt
+?? docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos-sanitizados.txt
+?? docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-simbolos-atuais-rtd-pricing.txt
+?? docs/checkpoints/evidencias/fase-6-11-sintaxe-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt
+?? docs/checkpoints/evidencias/fase-7-validacao-regressiva-rtd-vigente.txt
+?? docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/
+?? docs/checkpoints/evidencias/rtd_historico_preview/
+
+============================================================
+Validacoes de banco/scripts, se existirem
+============================================================
+
+>>> python validate_db.py
+Tabelas criadas:
+AUSENTE: scripts/validate_app_db.py
+AUSENTE: scripts/audit_rtd_option_quotes.py
+
+============================================================
+Pytest - testes vigentes selecionados
+============================================================
+
+>>> python -m pytest ATT/tests/test_canonical_pricing_facade.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 11 items
+
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[R$ 1.234,56-1234.56] PASSED [  9%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[1.234,56-1234.56] PASSED [ 18%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[1,234.56-1234.56] PASSED [ 27%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[R$ 124,66-124.66] PASSED [ 36%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_uses_explicit_underlying_asset_not_legacy_aba PASSED [ 45%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_side_matrix[leg_input0-LONG] PASSED [ 54%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_side_matrix[leg_input1-SHORT] PASSED [ 63%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_side_matrix[leg_input2-SHORT] PASSED [ 72%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_side_matrix[leg_input3-LONG] PASSED [ 81%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_uses_spot_fallback_from_database PASSED [ 90%]
+ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_rejects_missing_or_invalid_spot PASSED [100%]
+
+============================= 11 passed in 0.25s ==============================
+
+>>> python -m pytest ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 1 item
+
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py::test_rtd_legacy_fallback_can_feed_pricing_payload_when_no_canonical_legs_exist PASSED [100%]
+
+============================== 1 passed in 0.15s ==============================
+
+>>> python -m pytest ATT/tests/test_pricing_execution_app_service.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 9 items
+
+ATT/tests/test_pricing_execution_app_service.py::test_execute_pricing_returns_persisted_record_when_present PASSED [ 11%]
+ATT/tests/test_pricing_execution_app_service.py::test_execute_pricing_returns_raw_response_when_persisted_record_is_missing PASSED [ 22%]
+ATT/tests/test_pricing_execution_app_service.py::test_execute_pricing_rejects_invalid_structure_id PASSED [ 33%]
+ATT/tests/test_pricing_execution_app_service.py::test_execute_pricing_rejects_invalid_reference_date PASSED [ 44%]
+ATT/tests/test_pricing_execution_app_service.py::test_execute_pricing_accepts_none_reference_date PASSED [ 55%]
+ATT/tests/test_pricing_execution_app_service.py::test_list_execution_summaries_delegates_to_query_service PASSED [ 66%]
+ATT/tests/test_pricing_execution_app_service.py::test_get_latest_execution_summary_delegates_to_query_service PASSED [ 77%]
+ATT/tests/test_pricing_execution_app_service.py::test_get_execution_delegates_to_query_service PASSED [ 88%]
+ATT/tests/test_pricing_execution_app_service.py::test_paginate_execution_summaries_delegates_to_query_service PASSED [100%]
+
+============================== 9 passed in 0.17s ==============================
+
+AUSENTE/NAO VIGENTE: ATT/tests/test_pricing_execution_price_source_persistence.py
+
+>>> python -m pytest ATT/tests/test_robo_legs_repository.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 6 items
+
+ATT/tests/test_robo_legs_repository.py::test_get_legs_prefers_manual_over_rtd PASSED [ 16%]
+ATT/tests/test_robo_legs_repository.py::test_get_legs_falls_back_to_rtd_when_manual_empty PASSED [ 33%]
+ATT/tests/test_robo_legs_repository.py::test_has_manual_detects_existing_row PASSED [ 50%]
+ATT/tests/test_robo_legs_repository.py::test_list_timestamps_prefers_manual_then_rtd PASSED [ 66%]
+ATT/tests/test_robo_legs_repository.py::test_list_timestamps_all_returns_union PASSED [ 83%]
+ATT/tests/test_robo_legs_repository.py::test_timestamp_candidates_include_multiple_formats PASSED [100%]
+
+============================== 6 passed in 1.39s ==============================
+
+>>> python -m pytest ATT/tests/test_robo_legs_status_repository.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 2 items
+
+ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd PASSED [ 50%]
+ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_none_when_missing PASSED [100%]
+
+============================== 2 passed in 1.11s ==============================
+
+>>> python -m pytest ATT/tests/test_robo_legs_status_service.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 6 items
+
+ATT/tests/test_robo_legs_status_service.py::test_status_returns_missing_when_no_data PASSED [ 16%]
+ATT/tests/test_robo_legs_status_service.py::test_status_prefers_manual_when_manual_exists PASSED [ 33%]
+ATT/tests/test_robo_legs_status_service.py::test_status_uses_rtd_when_manual_missing PASSED [ 50%]
+ATT/tests/test_robo_legs_status_service.py::test_status_returns_stale_when_delta_exceeds_ttl PASSED [ 66%]
+ATT/tests/test_robo_legs_status_service.py::test_status_future_timestamp_is_considered_fresh PASSED [ 83%]
+ATT/tests/test_robo_legs_status_service.py::test_status_uses_default_ttl_when_not_provided PASSED [100%]
+
+============================== 6 passed in 1.01s ==============================
+
+>>> python -m pytest ATT/tests/test_legacy_structure_legs_reader.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 4 items
+
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload PASSED [ 25%]
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_propagates_mapper_errors PASSED [ 50%]
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_integrates_structure_alias_with_rtd_legs PASSED [ 75%]
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_raises_when_structure_has_no_alias PASSED [100%]
+
+============================== 4 passed in 1.16s ==============================
+
+>>> python -m pytest ATT/tests/test_legacy_structure_legs_importer_integration.py -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.7, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\users\eucal\projeto
+plugins: anyio-4.13.0
+collecting ... collected 1 item
+
+ATT/tests/test_legacy_structure_legs_importer_integration.py::test_importer_integrates_real_reader_robo_repository_and_structures_repository PASSED [100%]
+
+============================== 1 passed in 1.19s ==============================
+
+============================================================
+Status final
+============================================================
+?? docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-auditoria-testes-rtd-historicos-git.txt
+?? docs/checkpoints/evidencias/fase-6-11-datas-exclusao-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-decisao-final-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-importabilidade-testes-rtd-historicos-sanitizados.txt
+?? docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos-sanitizados.txt
+?? docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-6-11-simbolos-atuais-rtd-pricing.txt
+?? docs/checkpoints/evidencias/fase-6-11-sintaxe-testes-rtd-historicos.txt
+?? docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt
+?? docs/checkpoints/evidencias/fase-7-validacao-regressiva-rtd-vigente.txt
+?? docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/
+?? docs/checkpoints/evidencias/rtd_historico_preview/
