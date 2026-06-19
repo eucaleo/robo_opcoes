@@ -1,5 +1,7 @@
 from typing import Any
 
+from domain.position_side import normalize_position_side
+
 
 def _clean_text(value: Any) -> str | None:
     if value is None:
@@ -48,7 +50,7 @@ def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
 
 def _map_leg_to_structure_input(leg: dict[str, Any]) -> dict[str, Any]:
     mapped_leg = {
-        "position_side": _clean_upper_text(leg["position_side"]),
+        "position_side": normalize_position_side(leg["position_side"]),
         "option_type": _clean_upper_text(leg["option_type"]),
         "symbol": _clean_upper_text(leg.get("symbol")),
         "strike": leg["strike"],
