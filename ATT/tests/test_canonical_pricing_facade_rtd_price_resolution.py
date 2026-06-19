@@ -168,6 +168,11 @@ def test_resolve_effective_leg_price_falls_back_to_original_snapshot_price_on_re
 
     assert price == 5.55
     assert price_source == "snapshot"
+    assert traceability["price_resolution_status"] == "missing_rtd_quote"
+    assert traceability["rtd_quote_found"] is False
+    assert traceability["rtd_validation_status"] == "error"
+    assert "Quote RTD não encontrada" in traceability["rtd_validation_message"]
+    assert "ABCD11" in traceability["rtd_validation_message"]
 
 
 def test_snapshot_result_to_payload_uses_rtd_price_for_canonical_leg_fields(tmp_path):
@@ -341,6 +346,10 @@ def test_snapshot_result_to_payload_does_not_leak_rtd_traceability_for_manual_pr
     assert leg["price"] == 5.55
     assert leg["premium"] == 5.55
     assert leg["price_source"] == "manual"
+    assert leg["price_resolution_status"] == "ok"
+    assert leg["rtd_quote_found"] is None
+    assert leg["rtd_validation_status"] == "not_applicable"
+    assert "RTD não consultado" in leg["rtd_validation_message"]
     assert "rtd_price_field" not in leg
     assert "rtd_quote_codigo_opcao" not in leg
     assert "rtd_quote_ativo_base" not in leg
@@ -430,6 +439,7 @@ def test_resolve_effective_leg_price_diagnoses_rtd_asset_mismatch():
     assert traceability["rtd_quote_found"] is True
     assert traceability["price_resolution_status"] == "rtd_asset_mismatch"
     assert traceability["rtd_validation_status"] == "error"
+    assert traceability["rtd_quote_codigo_opcao"] == "ABCD11"
     assert traceability["rtd_quote_ativo_base"] == "WXYZ"
     assert "diverge" in traceability["rtd_validation_message"]
 
@@ -531,6 +541,9 @@ def test_resolve_effective_leg_price_falls_back_to_snapshot_when_rtd_quote_is_st
         quotes={
             "ABCD11": {
                 "codigo_opcao": "ABCD11",
+                "ativo_base": "ABCD",
+                "source": "rtd_option_quotes",
+                "created_at": "2000-01-01 00:00:00",
                 "ultimo_preco": 9.99,
                 "bid": 9.50,
                 "ask": 10.50,
@@ -552,4 +565,9 @@ def test_resolve_effective_leg_price_falls_back_to_snapshot_when_rtd_quote_is_st
     assert traceability["price_resolution_status"] == "stale_rtd_quote"
     assert traceability["rtd_quote_found"] is True
     assert traceability["rtd_validation_status"] == "warn"
+    assert traceability["rtd_quote_codigo_opcao"] == "ABCD11"
+    assert traceability["rtd_quote_ativo_base"] == "ABCD"
+    assert traceability["rtd_price_source"] == "rtd_option_quotes"
+    assert traceability["rtd_price_updated_at"] == "2000-01-01 00:00:00"
+    assert traceability["rtd_price_created_at"] == "2000-01-01 00:00:00"
     assert "vencida" in traceability["rtd_validation_message"]

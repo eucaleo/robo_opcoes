@@ -163,9 +163,41 @@ Resultado consolidado da Fase 6.4:
 7. nenhuma alteração em UI/API foi realizada;
 8. Excel permanece apenas como gateway RTD.
 
+Fase 6.5 — Retomada funcional incremental pós-proteção do contrato RTD concluída documentalmente.
+
+Checkpoint da fase:
+
+- `docs/checkpoints/fase-6-5-retomada-funcional-incremental-rtd.md`
+
+Evidência complementar:
+
+- `EVIDENCIAS_FASE_6_5_RTD.md`
+
+Commits principais da fase:
+
+- `3886870 docs: registra checkpoint fase 6.5 fallback rtd invalido`
+- `1105e61 docs: registra baseline matriz rtd canonical fase 6.5`
+- `afbce51 test: cobre fallback integrado quando quote rtd esta stale`
+- `82c75c7 test: cover RTD asset mismatch fallback in pricing execution`
+- `58889f1 docs: add RTD asset mismatch fallback evidence`
+- `fe570fc docs: organize RTD evidence heading`
+- `c5a65f8 docs: registra checkpoint fase 6.5 RTD`
+- `ff9e6e2 docs: consolida checkpoint fase 6.5 RTD`
+
+Resultado consolidado da Fase 6.5:
+
+1. cobertura integrada ampliada em `CanonicalPricingFacade.execute_pricing`;
+2. fallback para snapshot protegido quando a quote RTD possui preço inválido;
+3. fallback para snapshot protegido quando a quote RTD está stale;
+4. fallback para snapshot protegido quando a quote RTD possui ativo-base divergente do underlying esperado;
+5. metadados RTD preservados no payload do engine e no payload persistido;
+6. testes RTD/canonical pricing relacionados permaneceram verdes;
+7. nenhuma alteração em UI/API foi realizada;
+8. Excel permanece apenas como gateway RTD.
+
 Etapa corrente:
 
-- Fase 6.5 — Retomada funcional incremental pós-proteção do contrato RTD.
+- Próxima microfatia da Fase 6 — retomada funcional controlada após consolidação dos fallbacks RTD no canonical pricing.
 
 ## Nota de supersessão — LISTA_RTD.xlsx
 
@@ -176,3 +208,28 @@ Referências anteriores a `LISTA_RTD.xlsx` devem ser interpretadas como históri
 A decisão formal está registrada em:
 
 - `docs/decisions/2026-06-17-supersessao-lista-rtd-xlsx.md`
+
+## Microfatia — Diagnóstico neutro para preço manual
+
+Commit:
+
+- `852d9be test: valida diagnostico neutro em preco manual`
+
+Objetivo:
+
+- Garantir que preço manual explícito seja preservado no canonical pricing sem consulta ao RTD.
+
+Contrato validado:
+
+1. `price` e `premium` preservam o valor manual.
+2. `price_source` permanece como `manual`.
+3. `price_resolution_status` permanece `ok`.
+4. `rtd_quote_found` permanece `None`.
+5. `rtd_validation_status` permanece `not_applicable`.
+6. `rtd_validation_message` informa que o RTD não foi consultado.
+7. Metadados concretos da quote RTD não vazam para a perna manual.
+8. O repositório RTD não é chamado.
+
+Evidência:
+
+- `docs/checkpoints/evidencias/fase-6-6-pytest-metadados-rtd-canonical-manual-price.txt`

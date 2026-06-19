@@ -1,0 +1,5 @@
+73506cd docs: fecha fase 6.4 contrato RTD canonical pricing
+c98d6d2 merge: integra fase 6.4 contrato RTD canonical pricing
+7c5d54d test: protege contrato publico RtdOptionQuotesRepository
+95d9a56 docs: inicia fase 6.4 contrato RTD canonical pricing
+efbb778 docs: fecha fase 6.3 mapa impacto RTD
