@@ -74,5 +74,48 @@ class PricingPayloadAdapterTests(unittest.TestCase):
         self.assertEqual(payload["legs"][0]["instrument_type"], "OPTION")
 
 
+    def test_should_convert_position_side_to_pricing_technical_side(self):
+        cases = [
+            ("COMPRADO", "LONG"),
+            ("VENDIDO", "SHORT"),
+            ("C", "LONG"),
+            ("V", "SHORT"),
+            ("long", "LONG"),
+            ("short", "SHORT"),
+        ]
+
+        for raw_side, expected_side in cases:
+            with self.subTest(raw_side=raw_side):
+                canonical_input = {
+                    "structure": {
+                        "structure_id": 7,
+                        "name": "BOVA11 Condor Maio/2026",
+                        "underlying_asset": "BOVA11",
+                        "legs": [
+                            {
+                                "position_side": raw_side,
+                                "option_type": "CALL",
+                                "symbol": "BOVAE195",
+                                "strike": 195.0,
+                                "expiration_date": "2026-05-15",
+                                "quantity": 5000,
+                                "premium": None,
+                                "multiplier": 1.0,
+                            }
+                        ],
+                    },
+                    "market": {
+                        "reference_date": "2026-05-18",
+                        "spot_price": 198.35,
+                        "interest_rate": 0.1175,
+                        "volatility": 0.22,
+                    },
+                }
+
+                payload = to_pricing_payload(canonical_input)
+
+                self.assertEqual(payload["legs"][0]["side"], expected_side)
+
+
 if __name__ == "__main__":
     unittest.main()
