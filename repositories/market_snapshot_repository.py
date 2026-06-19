@@ -2,15 +2,17 @@
 """
 Repositorio canonico de snapshots de mercado.
 
-Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
-normaliza os campos e retorna objetos LegMarketSnapshot prontos para uso.
+Le legs RTD (rtd_analise_robo_legs), cotações RTD de opções
+(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+e retorna objetos LegMarketSnapshot prontos para uso.
 """
 from __future__ import annotations
-from src.domain.refs.structure_ref import StructureRef
 
 import sqlite3
 from pathlib import Path
 from typing import Optional
+
+from src.domain.refs.structure_ref import StructureRef
 
 from domain.market_snapshot import (
     LegMarketSnapshot,
@@ -22,6 +24,8 @@ from domain.market_snapshot import (
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 _DEFAULT_DB = _PROJECT_ROOT / "dados" / "app.db"
+
+RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
 
 # --- SQL ---------------------------------------------------------------------
 
@@ -103,6 +107,7 @@ _SQL_RTD_SUMMARY = """
 
 # --- Helpers -----------------------------------------------------------------
 
+
 def _ref_to_aba(ref: StructureRef | str) -> str:
     """Aceita StructureRef ou str e devolve a string da aba."""
     if isinstance(ref, StructureRef):
@@ -121,6 +126,24 @@ def _parse_br_float(value) -> Optional[float]:
         return float(normalized)
     except (ValueError, TypeError):
         return None
+
+
+def _first_float(*values) -> Optional[float]:
+    for value in values:
+        parsed = _parse_br_float(value)
+        if parsed is not None:
+            return parsed
+    return None
+
+
+def _first_text(*values) -> str | None:
+    for value in values:
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return None
 
 
 def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
@@ -165,6 +188,61 @@ def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
     )
 
 
+def _row_to_rtd_option_quote_leg(
+    base_leg: LegMarketSnapshot,
+    quote_row: sqlite3.Row,
+) -> LegMarketSnapshot:
+    """
+    Converte uma cotação de rtd_option_quotes em LegMarketSnapshot mantendo
+    os campos posicionais da leg RTD original.
+
+    A tabela rtd_option_quotes é cache de cotação. Ela não define composição
+    da estrutura. Por isso, quant/cv/dte/pl continuam vindo da leg estrutural
+    em rtd_analise_robo_legs.
+    """
+    bid = _first_float(quote_row["bid"], base_leg.bid)
+    ask = _first_float(quote_row["ask"], base_leg.ask)
+    mid = _mid_price(bid, ask)
+    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+
+    valor_executado = _first_float(
+        mid,
+        ultimo_preco,
+        base_leg.valor_executado,
+    )
+
+    ativo = _first_text(quote_row["codigo_opcao"], base_leg.ativo)
+
+    return LegMarketSnapshot(
+        aba=base_leg.aba,
+        ativo=ativo,
+        cv=base_leg.cv,
+        call_put=_first_text(quote_row["call_put"], base_leg.call_put),
+        quant=base_leg.quant,
+        valor_executado=valor_executado,
+        bid=bid,
+        ask=ask,
+        mid=mid,
+        spread=base_leg.spread,
+        spread_pct=base_leg.spread_pct,
+        iv=_first_float(quote_row["iv"], base_leg.iv),
+        delta=_first_float(quote_row["delta"], base_leg.delta),
+        gamma=_first_float(quote_row["gamma"], base_leg.gamma),
+        theta=_first_float(quote_row["theta"], base_leg.theta),
+        vega=_first_float(quote_row["vega"], base_leg.vega),
+        strike=_first_float(quote_row["strike"], base_leg.strike),
+        vencimento=_first_text(quote_row["vencimento"], base_leg.vencimento),
+        dte=base_leg.dte,
+        pl_realista=base_leg.pl_realista,
+        timestamp=_first_text(
+            quote_row["updated_at"],
+            quote_row["created_at"],
+            base_leg.timestamp,
+        ),
+        source=RTD_OPTION_QUOTES_SOURCE,
+    )
+
+
 # --- Repositorio -------------------------------------------------------------
 
 
@@ -173,10 +251,11 @@ class MarketSnapshotRepository:
     Acesso de leitura aos snapshots de mercado.
 
     Metodos:
-      get_rtd_legs(aba)     -> lista de LegMarketSnapshot source=RTD
-      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
-      get_rtd_summary(aba)  -> dict com cabecalho RTD ou None
-      get_structure(aba)    -> StructureMarketSnapshot completo
+      get_rtd_legs(aba)                -> lista de LegMarketSnapshot source=RTD
+      get_rtd_option_quote_legs(aba)   -> lista enriquecida source=rtd_option_quotes
+      get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+      get_rtd_summary(aba)             -> dict com cabecalho RTD ou None
+      get_structure(aba)               -> StructureMarketSnapshot completo
     """
 
     def __init__(self, db_path: Path | str = _DEFAULT_DB) -> None:
@@ -196,6 +275,76 @@ class MarketSnapshotRepository:
         with self._connect() as conn:
             rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
         return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
+
+    def get_rtd_option_quote_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+        """
+        Retorna legs RTD enriquecidas com rtd_option_quotes.
+
+        A composição da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+        dessa composição, se houver cotação em rtd_option_quotes.codigo_opcao,
+        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+        """
+        base_legs = self.get_rtd_legs(ref)
+        if not base_legs:
+            return []
+
+        ativos = sorted({
+            str(leg.ativo).strip().upper()
+            for leg in base_legs
+            if leg.ativo and str(leg.ativo).strip()
+        })
+        if not ativos:
+            return []
+
+        placeholders = ", ".join("?" for _ in ativos)
+        sql = f"""
+            SELECT
+                codigo_opcao,
+                ativo_base,
+                call_put,
+                strike,
+                vencimento,
+                ultimo_preco,
+                ultima_quantidade,
+                bid,
+                ask,
+                volume,
+                iv,
+                delta,
+                gamma,
+                theta,
+                vega,
+                source,
+                raw_json,
+                updated_at,
+                created_at
+            FROM rtd_option_quotes
+            WHERE UPPER(codigo_opcao) IN ({placeholders})
+            ORDER BY updated_at DESC, created_at DESC
+        """
+
+        try:
+            with self._connect() as conn:
+                rows = conn.execute(sql, ativos).fetchall()
+        except sqlite3.OperationalError:
+            # Banco sem tabela rtd_option_quotes: mantém compatibilidade com
+            # instalações/testes que ainda não possuem o cache centralizado.
+            return []
+
+        quote_by_codigo: dict[str, sqlite3.Row] = {}
+        for row in rows:
+            codigo = str(row["codigo_opcao"]).strip().upper()
+            if codigo and codigo not in quote_by_codigo:
+                quote_by_codigo[codigo] = row
+
+        enriched: list[LegMarketSnapshot] = []
+        for base_leg in base_legs:
+            codigo = str(base_leg.ativo).strip().upper() if base_leg.ativo else ""
+            quote_row = quote_by_codigo.get(codigo)
+            if quote_row is not None:
+                enriched.append(_row_to_rtd_option_quote_leg(base_leg, quote_row))
+
+        return enriched
 
     def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
         aba = _ref_to_aba(ref)
