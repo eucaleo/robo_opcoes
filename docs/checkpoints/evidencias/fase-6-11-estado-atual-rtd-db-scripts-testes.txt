@@ -1,0 +1,152 @@
+# Fase 6.11 — Estado atual RTD, bancos, scripts e testes
+
+Branch:
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+Objetivo:
+Registrar o estado funcional atual de RTD/rtd_option_quotes após a restauração documental,
+sem alterar código, banco, UI ou APIs.
+
+## Git
+
+Comando executado:
+
+git status --short
+
+Resultado:
+Sem saída. Working tree limpo antes desta evidência documental.
+
+## Bancos SQLite auditados
+
+Bancos:
+- dados/app.db
+- dados/derived.db
+
+Resultado de integridade:
+- dados/app.db: integrity_check ok
+- dados/derived.db: integrity_check ok
+
+## Tabela rtd_option_quotes
+
+A tabela rtd_option_quotes existe nos dois bancos:
+
+- dados/app.db
+- dados/derived.db
+
+Schema observado em ambos:
+
+- id INTEGER primary key
+- codigo_opcao TEXT NOT NULL
+- ativo_base TEXT
+- call_put TEXT
+- strike REAL
+- vencimento TEXT
+- ultimo_preco REAL
+- ultima_quantidade REAL
+- bid REAL
+- ask REAL
+- volume REAL
+- iv REAL
+- delta REAL
+- gamma REAL
+- theta REAL
+- vega REAL
+- source TEXT NOT NULL DEFAULT 'rtd_links'
+- raw_json TEXT
+- updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+- created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+## Conteúdo funcional
+
+dados/app.db:
+- total: 4 registros
+- source: BTG_RTD_EXCEL = 4
+- duplicados por codigo_opcao: 0
+
+dados/derived.db:
+- total: 4 registros
+- source: BTG_RTD_EXCEL = 4
+- duplicados por codigo_opcao: 0
+
+Registros funcionais observados:
+
+- PRIOG800 / PRIO3 / CALL / strike 80.0 / vencimento 2026-07-17 / ultimo_preco 0.04
+- PRIOH515 / PRIO3 / CALL / strike 51.5 / vencimento 2026-08-21 / ultimo_preco 7.43
+- PRIOS525 / PRIO3 / PUT  / strike 52.5 / vencimento 2026-07-17 / ultimo_preco 0.6
+- PRIOT700 / PRIO3 / PUT  / strike 70.0 / vencimento 2026-08-21 / ultimo_preco 12.07
+
+## Comparação app.db x derived.db
+
+Comparação funcional ignorando id e timestamps:
+
+- app.total: 4
+- derived.total: 4
+- somente_app: 0
+- somente_derived: 0
+- comuns_diferentes: 0
+
+Conclusão:
+Os registros funcionais de rtd_option_quotes estão equivalentes entre dados/app.db e dados/derived.db.
+As diferenças observáveis estão limitadas a metadados como id, created_at e updated_at.
+
+## Arquivos versionados relevantes
+
+Arquivos ativos versionados relacionados a RTD/snapshots/market snapshot:
+
+- ATT/tests/test_market_snapshot_provider.py
+- ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+- ATT/tests/test_structure_leg_rtd_enrichment_service.py
+- ATT/tests/test_system_snapshots_repository.py
+- ATT/tests/test_system_snapshots_schema.py
+- LISTA_RTD.xlsx
+- domain/market_snapshot.py
+- repositories/market_snapshot_repository.py
+- repositories/rtd_option_quotes_repository.py
+- repositories/system_snapshots_repository.py
+- services/market_snapshot_provider.py
+- services/market_snapshot_selector.py
+- services/structure_leg_rtd_enrichment_service.py
+- scripts/purge_derived_snapshots.py
+- scripts/repair_derived_db_consistency.py
+- scripts/validate_derived_db.py
+- validate_db.py
+
+## Scripts RTD históricos ausentes como fonte ativa
+
+Não há arquivos versionados ativos para:
+
+- scripts/audit_rtd_option_quotes.py
+- scripts/import_rtd_links_to_option_quotes.py
+- scripts/run_rtd_option_quotes_pipeline.py
+- scripts/build_rtd_symbols.py
+- scripts/run_rtd_refresh_full.py
+
+Observação:
+Podem existir arquivos .pyc em __pycache__, mas eles não são considerados fonte operacional/versionada.
+
+## Testes executados
+
+Comando:
+
+python -m pytest \
+  ATT/tests/test_market_snapshot_provider.py \
+  ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py \
+  ATT/tests/test_structure_leg_rtd_enrichment_service.py \
+  ATT/tests/test_system_snapshots_repository.py \
+  ATT/tests/test_system_snapshots_schema.py \
+  ATT/tests/test_structure_market_input_assembler.py \
+  -v
+
+Resultado:
+
+23 passed in 4.99s
+
+## Decisão de auditoria
+
+A documentação histórica que registrava rtd_option_quotes como ausente deve ser interpretada como evidência de um estado anterior/intermediário.
+
+No estado atual, rtd_option_quotes existe em dados/app.db e dados/derived.db, com 4 registros funcionais equivalentes oriundos de BTG_RTD_EXCEL.
+
+A camada vigente identificada é de leitura/enriquecimento/uso em pricing e snapshots. Não há pipeline versionado ativo de refresh/import/audit RTD.
+
+Nenhuma alteração funcional foi realizada nesta etapa.
