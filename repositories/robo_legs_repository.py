@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from domain.position_side import normalize_position_side
 from dto.robo_leg_dto import FonteType, RoboLegDTO
 from infra.sqlite_conn import sqlite_conn
 from repositories._aba_resolver_mixin import AbaResolverMixin
@@ -177,7 +178,8 @@ class RoboLegsRepository(AbaResolverMixin):
         cv_raw  = str(cv).upper().strip()       if cv        is not None else ""
         cp_raw  = str(call_put).upper().strip() if call_put  is not None else ""
 
-        cv_norm       = "C" if cv_raw in ["C", "COMPRA", "COMPRADO", "BUY", "LONG"] else "V"
+        canonical_side = normalize_position_side(cv_raw)
+        cv_norm       = "C" if canonical_side == "COMPRADO" else "V"
         call_put_norm = "CALL" if cp_raw in ["CALL", "C"] else "PUT"
 
         return RoboLegDTO(

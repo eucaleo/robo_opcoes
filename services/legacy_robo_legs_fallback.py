@@ -1,6 +1,8 @@
 from src.domain.refs.structure_ref import StructureRef
 from typing import Any
 
+from domain.position_side import normalize_position_side
+
 
 class LegacyRoboLegsFallback:
     def __init__(
@@ -253,10 +255,7 @@ class LegacyRoboLegsFallback:
         return {}
 
     def _normalize_position_side(self, value: Any) -> str:
-        text = self._clean_upper_text(value) or ""
-        if text in {"C", "BUY", "LONG", "COMPRA", "COMPRADO"}:
-            return "LONG"
-        return "SHORT"
+        return normalize_position_side(value)
 
     def _normalize_option_type(self, value: Any) -> str:
         text = self._clean_upper_text(value) or ""
