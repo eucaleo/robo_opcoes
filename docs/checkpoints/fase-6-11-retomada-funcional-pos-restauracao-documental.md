@@ -123,3 +123,30 @@ Criterio de sucesso:
 - regressao do recorte atual continua passando
 - payload final nao expoe alias legado indevido
 - nenhuma alteracao em banco, schema, UI ou API
+
+## Auditoria de estado atual RTD, bancos, scripts e testes
+
+Foi realizada auditoria sem alteração funcional para identificar o estado atual de RTD/rtd_option_quotes após a restauração documental.
+
+Evidência registrada em:
+
+- `docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt`
+
+Conclusões:
+
+- `rtd_option_quotes` existe em `dados/app.db` e `dados/derived.db`.
+- Ambos os bancos passaram em `pragma integrity_check`.
+- Ambos possuem 4 registros funcionais equivalentes em `rtd_option_quotes`.
+- A comparação funcional entre `app.db` e `derived.db` retornou:
+  - `somente_app: 0`
+  - `somente_derived: 0`
+  - `comuns_diferentes: 0`
+- A fonte dos registros atuais é `BTG_RTD_EXCEL`.
+- Não há duplicados por `codigo_opcao`.
+- Não há scripts RTD versionados ativos de import/audit/pipeline/refresh.
+- A camada RTD vigente é de leitura/enriquecimento/uso em pricing e snapshots.
+- Testes ativos relacionados passaram com sucesso: `23 passed`.
+
+Decisão:
+
+Referências documentais antigas indicando `rtd_option_quotes` como ausente devem ser tratadas como histórico de um estado anterior, não como descrição do estado atual da branch.
