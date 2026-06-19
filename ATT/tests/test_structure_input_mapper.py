@@ -28,6 +28,6 @@ def test_to_structure_input_should_not_expose_alias_legacy_aba():
     assert result["underlying_asset"] == "BOVA11"
     assert "alias_legacy_aba" not in result
     assert len(result["legs"]) == 1
-    assert result["legs"][0]["position_side"] == "LONG"
+    assert result["legs"][0]["position_side"] == "COMPRADO"
     assert result["legs"][0]["option_type"] == "CALL"
     assert result["legs"][0]["symbol"] == "BOVAE195"
