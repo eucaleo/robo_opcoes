@@ -233,3 +233,177 @@ Contrato validado:
 Evidência:
 
 - `docs/checkpoints/evidencias/fase-6-6-pytest-metadados-rtd-canonical-manual-price.txt`
+
+---
+
+## Atualização pós-restauração documental — Fases 6.7 a 6.10
+
+Esta seção foi adicionada na Fase 6.10 para sincronizar a ROTA_MESTRE_3 restaurada com o estado real da linha principal após as Fases 6.7, 6.8 e 6.9.
+
+A restauração documental foi necessária porque os arquivos principais da rota não estavam presentes no working tree atual da main, embora existissem no histórico Git.
+
+Arquivos restaurados:
+
+- docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md
+- docs/AUDITORIA_ROTA_MESTRE_3.md
+
+Commit de restauração:
+
+- 1a20cea docs: restaura rota mestre 3 e auditoria
+
+Base atual da main antes da restauração:
+
+- dddbec8 merge: integra fase 6.9 ajuste rtd canonical pricing
+
+---
+
+### Fase 6.7 — Consolidação de diagnóstico RTD/canonical pricing
+
+Status: concluída documentalmente.
+
+Checkpoint:
+
+- docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md
+
+Evidências:
+
+- docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt
+- docs/checkpoints/evidencias/fase-6-7-pytest-baseline-canonical-rtd.txt
+- docs/checkpoints/evidencias/fase-6-7-pytest-baseline-rtd-option-quotes.txt
+- docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt
+
+Commit principal:
+
+- 4960ca0 docs: consolidate fase 6.7 rtd canonical diagnostics
+
+Resultado consolidado:
+
+1. foi registrado inventário de diagnóstico do caminho RTD/canonical pricing;
+2. foi preservado recorte funcional controlado para retomada incremental;
+3. foram registradas evidências de baseline dos testes RTD e canonical;
+4. nenhuma alteração funcional destrutiva foi executada;
+5. a fase serviu como consolidação documental para orientar os guardrails posteriores.
+
+---
+
+### Fase 6.8 — Guardrail da matriz de diagnóstico RTD/canonical pricing
+
+Status: concluída e integrada.
+
+Checkpoint:
+
+- docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md
+
+Evidência:
+
+- docs/checkpoints/evidencias/fase-6-8-pytest-guardrail-matriz-diagnostico-rtd.txt
+
+Commits relacionados:
+
+- b2ad0b3 test: add guardrail matriz diagnostico rtd canonical
+- 4cb1b7b merge: integra fase 6.8 guardrail matriz diagnostico rtd canonical
+
+Resultado consolidado:
+
+1. foi adicionado guardrail automatizado para a matriz de diagnóstico RTD/canonical;
+2. a cobertura de ATT/tests/test_canonical_pricing_facade.py foi ampliada;
+3. o comportamento esperado do diagnóstico RTD foi protegido por teste;
+4. a fase foi integrada à linha principal por merge controlado;
+5. não houve alteração de UI/API;
+6. o Excel permaneceu apenas como gateway RTD.
+
+---
+
+### Fase 6.9 — Ajuste de parsing numérico RTD no canonical pricing
+
+Status: concluída, integrada e etiquetada.
+
+Checkpoint:
+
+- docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+
+Evidências:
+
+- docs/checkpoints/evidencias/fase-6-9-pytest-canonical-pricing-rtd-number-formats.txt
+- docs/checkpoints/evidencias/fase-6-9-pytest-pricing-execution-services.txt
+
+Commits relacionados:
+
+- beba13f fix: robust rtd canonical pricing number parsing
+- dddbec8 merge: integra fase 6.9 ajuste rtd canonical pricing
+
+Tag relacionada:
+
+- fase-6-9-rtd-canonical-pricing
+
+Arquivos principais alterados na fase:
+
+- services/canonical_pricing_facade.py
+- ATT/tests/test_canonical_pricing_facade.py
+- docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+- docs/checkpoints/evidencias/fase-6-9-pytest-canonical-pricing-rtd-number-formats.txt
+- docs/checkpoints/evidencias/fase-6-9-pytest-pricing-execution-services.txt
+
+Resultado consolidado:
+
+1. o parsing numérico de preços RTD no canonical pricing foi tornado mais robusto;
+2. formatos numéricos adicionais foram cobertos por testes;
+3. os serviços de execução de pricing permaneceram validados;
+4. a fase foi integrada à main;
+5. a tag fase-6-9-rtd-canonical-pricing foi registrada no ponto de integração;
+6. não houve alteração de UI/API;
+7. o Excel permaneceu apenas como gateway RTD.
+
+---
+
+### Fase 6.10 — Restauração e sincronização documental da ROTA_MESTRE_3
+
+Status: em encerramento documental.
+
+Objetivo:
+
+- restaurar os documentos principais da ROTA_MESTRE_3 a partir do histórico Git;
+- confirmar que os arquivos restaurados existem e possuem conteúdo válido;
+- sincronizar o estado documental com as Fases 6.7, 6.8 e 6.9 já integradas à main;
+- registrar a própria restauração como fase rastreável.
+
+Branch de trabalho:
+
+- fase-6-10-restaura-documentacao-rota-mestre-3
+
+Commit de restauração:
+
+- 1a20cea docs: restaura rota mestre 3 e auditoria
+
+Comandos principais executados:
+
+    git checkout main
+    git pull --ff-only origin main
+    git checkout -b fase-6-10-restaura-documentacao-rota-mestre-3
+    git ls-tree -r --name-only 8a56969 docs | grep -E "ROTA_MESTRE_3|AUDITORIA_ROTA_MESTRE_3"
+    git show 8a56969:docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md | sed -n '1,120p'
+    git show 8a56969:docs/AUDITORIA_ROTA_MESTRE_3.md | sed -n '1,160p'
+    git checkout 8a56969 -- docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md docs/AUDITORIA_ROTA_MESTRE_3.md
+    git status --short
+    git diff --check
+    git add docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md docs/AUDITORIA_ROTA_MESTRE_3.md
+    git commit -m "docs: restaura rota mestre 3 e auditoria"
+
+Resultado observado:
+
+1. os documentos foram encontrados no commit histórico 8a56969;
+2. ambos foram restaurados no working tree atual;
+3. git diff --check não reportou problemas;
+4. a restauração foi registrada no commit 1a20cea;
+5. após o commit, o working tree ficou limpo;
+6. erros posteriores no terminal foram causados por colagem acidental de prompt e saída como comando e não alteraram o estado Git.
+
+Estado consolidado após a Fase 6.10:
+
+1. a documentação mestre voltou a existir na linha atual de trabalho;
+2. a rota foi sincronizada com as Fases 6.7, 6.8 e 6.9;
+3. a continuidade documental foi restabelecida;
+4. nenhuma alteração funcional foi realizada nesta fase;
+5. nenhuma alteração de banco foi realizada;
+6. nenhuma alteração de UI/API foi realizada;
+7. a próxima etapa somente deve avançar após validação e integração desta sincronização documental.

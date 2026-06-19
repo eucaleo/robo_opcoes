@@ -259,3 +259,194 @@ A interpretação atual consolidada está definida em `docs/decisions/2026-06-17
 - `LISTA_RTD.xlsm` é a ponte RTD operacional oficial.
 - `LISTA_RTD.xlsx` é referência legada/histórica.
 - Referências anteriores a `LISTA_RTD.xlsx` nesta auditoria devem ser lidas como evidência do processo de reconciliação, não como contrato operacional vigente.
+
+---
+
+# Fase 6.7 — Consolidação de diagnóstico RTD/canonical pricing
+
+## Status
+
+Concluída documentalmente.
+
+## Objetivo
+
+Consolidar o diagnóstico do fluxo RTD/canonical pricing e registrar baseline documental antes da criação de novos guardrails.
+
+## Arquivos de checkpoint e evidência
+
+    docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md
+    docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt
+    docs/checkpoints/evidencias/fase-6-7-pytest-baseline-canonical-rtd.txt
+    docs/checkpoints/evidencias/fase-6-7-pytest-baseline-rtd-option-quotes.txt
+    docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt
+
+## Commit relacionado
+
+    4960ca0 docs: consolidate fase 6.7 rtd canonical diagnostics
+
+## Resultado observado
+
+A fase registrou inventário, baseline e recorte funcional do caminho RTD/canonical pricing.
+
+Nenhuma alteração funcional destrutiva foi registrada nesta fase.
+
+---
+
+# Fase 6.8 — Guardrail da matriz de diagnóstico RTD/canonical pricing
+
+## Status
+
+Concluída e integrada.
+
+## Objetivo
+
+Adicionar proteção automatizada para a matriz de diagnóstico RTD/canonical pricing.
+
+## Arquivos alterados ou adicionados
+
+    ATT/tests/test_canonical_pricing_facade.py
+    docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md
+    docs/checkpoints/evidencias/fase-6-8-pytest-guardrail-matriz-diagnostico-rtd.txt
+
+## Commits relacionados
+
+    b2ad0b3 test: add guardrail matriz diagnostico rtd canonical
+    4cb1b7b merge: integra fase 6.8 guardrail matriz diagnostico rtd canonical
+
+## Resultado observado
+
+A fase adicionou guardrail de teste para proteger a matriz de diagnóstico RTD/canonical.
+
+A integração foi realizada por merge controlado na linha principal.
+
+Nenhuma alteração de UI/API foi executada.
+
+O Excel permaneceu apenas como gateway RTD.
+
+---
+
+# Fase 6.9 — Ajuste de parsing numérico RTD no canonical pricing
+
+## Status
+
+Concluída, integrada e etiquetada.
+
+## Objetivo
+
+Tornar o parsing numérico de preços RTD no canonical pricing mais robusto e proteger o comportamento com testes.
+
+## Arquivos alterados ou adicionados
+
+    services/canonical_pricing_facade.py
+    ATT/tests/test_canonical_pricing_facade.py
+    docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+    docs/checkpoints/evidencias/fase-6-9-pytest-canonical-pricing-rtd-number-formats.txt
+    docs/checkpoints/evidencias/fase-6-9-pytest-pricing-execution-services.txt
+
+## Commits relacionados
+
+    beba13f fix: robust rtd canonical pricing number parsing
+    dddbec8 merge: integra fase 6.9 ajuste rtd canonical pricing
+
+## Tag relacionada
+
+    fase-6-9-rtd-canonical-pricing
+
+## Resultado observado
+
+A fase ajustou o parsing numérico RTD no canonical pricing e adicionou cobertura para formatos numéricos.
+
+As evidências de pytest foram registradas em docs/checkpoints/evidencias/.
+
+A fase foi integrada à main no commit dddbec8.
+
+---
+
+# Fase 6.10 — Restauração e sincronização documental da ROTA_MESTRE_3
+
+## Status
+
+Em encerramento.
+
+## Objetivo
+
+Restaurar os documentos principais da ROTA_MESTRE_3, confirmar seu conteúdo e sincronizar a auditoria com as Fases 6.7, 6.8 e 6.9.
+
+## Branch
+
+    fase-6-10-restaura-documentacao-rota-mestre-3
+
+## Arquivos restaurados
+
+    docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md
+    docs/AUDITORIA_ROTA_MESTRE_3.md
+
+## Commit de restauração
+
+    1a20cea docs: restaura rota mestre 3 e auditoria
+
+## Comandos executados
+
+    git checkout main
+    git pull --ff-only origin main
+    git checkout -b fase-6-10-restaura-documentacao-rota-mestre-3
+    git ls-tree -r --name-only 8a56969 docs | grep -E "ROTA_MESTRE_3|AUDITORIA_ROTA_MESTRE_3"
+    git show 8a56969:docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md | sed -n '1,120p'
+    git show 8a56969:docs/AUDITORIA_ROTA_MESTRE_3.md | sed -n '1,160p'
+    git checkout 8a56969 -- docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md docs/AUDITORIA_ROTA_MESTRE_3.md
+    git status --short
+    git diff --check
+    git add docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md docs/AUDITORIA_ROTA_MESTRE_3.md
+    git commit -m "docs: restaura rota mestre 3 e auditoria"
+
+## Resultado observado
+
+    A  docs/AUDITORIA_ROTA_MESTRE_3.md
+    A  docs/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md
+
+Após commit:
+
+    1a20cea docs: restaura rota mestre 3 e auditoria
+
+O working tree ficou limpo.
+
+## Observação sobre erro de terminal
+
+Após o commit, houve colagem acidental de prompt e saída do terminal como se fossem comandos.
+
+Foram observados erros como:
+
+    bash: syntax error near unexpected token '('
+    bash: $: command not found
+
+Esses erros não representaram falha do Git nem alteração funcional. O estado final observado permaneceu consistente.
+
+## Sincronização executada
+
+Foram localizados e registrados os artefatos das Fases 6.7, 6.8 e 6.9:
+
+    docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md
+    docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md
+    docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+
+Evidências relacionadas:
+
+    docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt
+    docs/checkpoints/evidencias/fase-6-7-pytest-baseline-canonical-rtd.txt
+    docs/checkpoints/evidencias/fase-6-7-pytest-baseline-rtd-option-quotes.txt
+    docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt
+    docs/checkpoints/evidencias/fase-6-8-pytest-guardrail-matriz-diagnostico-rtd.txt
+    docs/checkpoints/evidencias/fase-6-9-pytest-canonical-pricing-rtd-number-formats.txt
+    docs/checkpoints/evidencias/fase-6-9-pytest-pricing-execution-services.txt
+
+## Decisão
+
+A Fase 6.10 é estritamente documental.
+
+Nenhuma alteração funcional está autorizada nesta fase.
+
+Nenhuma alteração de banco está autorizada nesta fase.
+
+Nenhuma alteração de UI/API está autorizada nesta fase.
+
+A próxima etapa somente poderá avançar após commit e integração da documentação restaurada e sincronizada.
