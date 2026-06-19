@@ -77,7 +77,7 @@ def test_rtd_legacy_fallback_can_feed_pricing_payload_when_no_canonical_legs_exi
     assert "alias_legacy_aba" not in canonical_input["structure"]
 
     canonical_leg = canonical_input["structure"]["legs"][0]
-    assert canonical_leg["position_side"] == "LONG"
+    assert canonical_leg["position_side"] == "COMPRADO"
     assert canonical_leg["option_type"] == "CALL"
     assert canonical_leg["symbol"] == "BOVAE195"
 
