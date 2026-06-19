@@ -150,3 +150,38 @@ Conclusões:
 Decisão:
 
 Referências documentais antigas indicando `rtd_option_quotes` como ausente devem ser tratadas como histórico de um estado anterior, não como descrição do estado atual da branch.
+
+## Mapa runtime de leitura RTD no pricing
+
+Foi realizado diagnóstico sem alteração funcional para identificar o caminho real de leitura RTD usado pelo fluxo runtime principal de pricing.
+
+Evidência registrada em:
+
+- `docs/checkpoints/evidencias/fase-6-11-mapa-runtime-leitura-rtd-pricing.txt`
+
+Conclusões:
+
+- O fluxo runtime principal de pricing não lê diretamente `rtd_option_quotes`.
+- A entrada produtiva parte de `services/pricing_execution_app_service.py`.
+- `PricingExecutionAppService` instancia `CanonicalPricingFacade` usando `dados/app.db` como banco padrão.
+- O caminho confirmado passa por:
+  - `PricingExecutionAppService`
+  - `CanonicalPricingFacade`
+  - `MarketSnapshotRepository`
+  - `MarketSnapshotSelector`
+  - `PricingExecutionService`
+  - `PricingExecutionPersistenceService`
+- As tabelas efetivamente lidas pelo caminho runtime são:
+  - `manual_analise_robo_legs`
+  - `rtd_analise_robo_legs`
+  - `rtd_analise_robo`
+- A política de seleção observada é manual > RTD por ativo.
+- `rtd_option_quotes` existe na branch atual, possui repository e serviço de enriquecimento relacionados, mas não foi encontrada instanciação produtiva desses componentes no fluxo runtime principal de pricing.
+- Portanto, nesta branch, `rtd_option_quotes` deve ser tratada como camada RTD latente/de staging/enriquecimento, não como fonte ativa do pipeline principal de pricing.
+
+Decisão:
+
+A continuidade funcional da Fase 6.11 deve considerar que o runtime atual de pricing está ancorado em `MarketSnapshotRepository`/`MarketSnapshotSelector`, não em `rtd_option_quotes`.
+
+Qualquer integração futura de `rtd_option_quotes` ao pricing runtime deve ser feita como microfatia explícita, com teste automatizado antes da alteração funcional.
+
