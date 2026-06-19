@@ -1,5 +1,7 @@
 from typing import Any
 
+from domain.position_side import to_pricing_engine_side
+
 
 def _clean_text(value: Any) -> str | None:
     if value is None:
@@ -35,7 +37,7 @@ def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
 
         pricing_legs.append(
             {
-                "side": _clean_upper_text(leg["position_side"]),
+                "side": to_pricing_engine_side(leg["position_side"]),
                 "instrument_type": "OPTION",
                 "option_type": _clean_upper_text(leg["option_type"]),
                 "symbol": _clean_upper_text(leg.get("symbol")),
