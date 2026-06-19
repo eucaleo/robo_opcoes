@@ -1,0 +1,435 @@
+Fase 8 - Mapa de impacto do cadastro de estruturas com leg minima
+
+Base:
+- ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP
+- Fase 7 aprovada no escopo vigente
+
+Regra:
+- Nenhuma alteracao funcional em UI/API/repository/service antes deste mapa.
+
+Branch:
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+HEAD:
+e23eb50 docs: close rtd vigente regression validation phase
+
+Status:
+## fase-6-11-retomada-funcional-pos-restauracao-documental
+?? docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt
+?? docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt
+
+
+============================================================
+Arquivos centrais existentes
+============================================================
+OK repositories/structures_repository.py
+OK api/structures_controller.py
+OK UI/components/structure_editor_dialog.py
+OK UI/components/structures_list_panel.py
+OK services/legacy_structure_legs_reader.py
+OK services/legacy_structure_legs_importer.py
+OK services/structure_input_mapper.py
+OK services/structure_market_input_assembler.py
+OK services/pricing_input_service.py
+OK services/canonical_pricing_facade.py
+OK scripts/import_legacy_structure_legs.py
+OK infra/bootstrap_structures_schema.py
+
+============================================================
+Assinaturas relevantes
+============================================================
+
+>>> repositories/structures_repository.py
+38:def _utc_now_iso() -> str:
+42:def _validate_expiration_date(value: str) -> str:
+58:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+89:def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
+168:class StructuresRepository:
+169:    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+176:    def _connect(self) -> sqlite3.Connection:
+186:    def _row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
+191:    def _fetch_legs(
+208:    def _ensure_structure_exists(
+222:    def ensure_audit_schema(self, conn: sqlite3.Connection) -> None:
+263:    def _log_action(
+304:    def create_structure(self, data: dict[str, Any]) -> int:
+343:    def create_structure_with_legs(
+446:    def list_structures(
+469:    def get_structure(self, structure_id: int) -> dict[str, Any] | None:
+494:    def update_structure(self, structure_id: int, data: dict[str, Any]) -> None:
+548:    def archive_structure(self, structure_id: int) -> None:
+584:    def add_leg(self, structure_id: int, leg_data: dict[str, Any]) -> int:
+630:    def replace_legs(
+686:    def count_legs(self, structure_id: int) -> int:
+701:    def get_structure_by_alias(self, alias: str) -> dict[str, Any] | None:
+729:    def get_structure_id_by_alias(self, alias: str) -> int | None:
+739:    def get_audit_log(
+765:    def get_full_audit_log(
+
+>>> api/structures_controller.py
+29:class CreateStructureRequest(BaseModel):
+36:class UpdateStructureRequest(BaseModel):
+48:class LegRequest(BaseModel):
+63:class ReplaceLegRequest(BaseModel):
+72:class CreateStructureResponse(BaseModel):
+76:class StructureSummaryResponse(BaseModel):
+87:class StructureDetailResponse(StructureSummaryResponse):
+91:class AddLegResponse(BaseModel):
+99:def _get_or_404(structure_id: int) -> dict[str, Any]:
+114:def create_structure(request: CreateStructureRequest) -> CreateStructureResponse:
+123:def list_structures(
+131:def get_structure(structure_id: int) -> StructureDetailResponse:
+137:def update_structure(structure_id: int, request: UpdateStructureRequest) -> None:
+153:def archive_structure(structure_id: int) -> None:
+172:def add_leg(structure_id: int, request: LegRequest) -> AddLegResponse:
+188:def replace_legs(structure_id: int, request: ReplaceLegRequest) -> None:
+205:def remove_leg(structure_id: int, leg_id: int) -> None:
+291:class RecordStructureEventRequest(_StructureEventsBaseModel):
+304:class CancelStructureEventRequest(_StructureEventsBaseModel):
+308:def _structure_events_model_dump(model: _StructureEventsBaseModel) -> dict[str, _StructureEventsAny]:
+314:def _structure_events_result_payload(result: _StructureEventsAny) -> dict[str, _StructureEventsAny]:
+320:def _structure_events_value_error_to_http(exc: ValueError) -> _StructureEventsHTTPException:
+326:def _ensure_structure_exists_for_events(structure_id: int) -> None:
+335:def _validate_record_structure_event_request(
+388:def get_structure_effective_state(
+413:def record_structure_event(
+435:def list_structure_events(
+454:def list_events(
+497:def get_structure_event(event_id: int) -> dict[str, _StructureEventsAny]:
+516:def cancel_structure_event(
+
+>>> services/legacy_structure_legs_reader.py
+9:class LegacyStructureLegsReader:
+24:    def __init__(self, robo_legs_repository: RoboLegsRepository | None = None):
+27:    def read_by_structure_id(
+
+>>> services/legacy_structure_legs_importer.py
+30:class LegacyStructureLegsReaderProtocol(Protocol):
+31:    def read_by_structure_id(
+39:class LegacyStructureLegsImporter:
+51:    def __init__(
+60:    def import_by_structure_id(
+
+>>> services/structure_input_mapper.py
+4:def _clean_text(value: Any) -> str | None:
+11:def _clean_upper_text(value: Any) -> str | None:
+16:def _to_float_or_none(value: Any) -> float | None:
+26:def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+49:def _map_leg_to_structure_input(leg: dict[str, Any]) -> dict[str, Any]:
+83:def to_structure_input(structure: dict[str, Any]) -> dict[str, Any]:
+
+>>> services/structure_market_input_assembler.py
+6:def assemble_structure_market_input(
+
+>>> services/pricing_input_service.py
+7:class PricingInputService:
+8:    def __init__(
+14:    def build_pricing_payload(
+26:    def build_pricing_payload_from_canonical_input(
+
+>>> services/canonical_pricing_facade.py
+44:def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+75:def _to_float(value: Any, default: float = 0.0) -> float:
+109:def _normalize_expiration_date(value: Any) -> str | None:
+131:def _pick(data: dict[str, Any], *names: str) -> Any:
+139:def _quote_ident(name: str) -> str:
+143:def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+234:def _snapshot_result_to_payload(
+320:class CanonicalPricingFacade:
+334:    def __init__(
+350:    def execute_pricing(
+
+============================================================
+Auditoria schema/dados local - somente leitura
+============================================================
+db_path=dados\app.db
+
+Tabelas centrais:
+- structures: OK
+- structure_legs: OK
+- rtd_analise_robo_legs: AUSENTE
+- manual_analise_robo_legs: AUSENTE
+- pricing_executions: OK
+- structure_decisions: AUSENTE
+- payoff_curve_points: AUSENTE
+
+Contagens:
+- structures: 0
+- structure_legs: 0
+- pricing_executions: 0
+
+Colunas:
+[structures]
+  - id INTEGER notnull=0 pk=1
+  - name TEXT notnull=1 pk=0
+  - underlying_asset TEXT notnull=1 pk=0
+  - alias_legacy_aba TEXT notnull=0 pk=0
+  - status TEXT notnull=1 pk=0
+  - notes TEXT notnull=0 pk=0
+  - created_at TEXT notnull=1 pk=0
+  - updated_at TEXT notnull=1 pk=0
+[structure_legs]
+  - id INTEGER notnull=0 pk=1
+  - structure_id INTEGER notnull=1 pk=0
+  - position_side TEXT notnull=1 pk=0
+  - option_type TEXT notnull=1 pk=0
+  - symbol TEXT notnull=0 pk=0
+  - strike REAL notnull=1 pk=0
+  - expiration_date TEXT notnull=1 pk=0
+  - quantity INTEGER notnull=1 pk=0
+  - premium REAL notnull=0 pk=0
+  - multiplier REAL notnull=1 pk=0
+  - leg_order INTEGER notnull=1 pk=0
+  - notes TEXT notnull=0 pk=0
+  - created_at TEXT notnull=1 pk=0
+  - updated_at TEXT notnull=1 pk=0
+
+Vinculo structures x structure_legs:
+
+Vinculo structures.alias_legacy_aba x legs legadas:
+
+============================================================
+Pytest collect-only focado
+============================================================
+ ATT/tests/test_structures_repository.py ATT/tests/test_structures_api.py ATT/tests/test_structures_legs_endpoints.py ATT/tests/test_structure_editor_dialog.py ATT/tests/test_structure_editor_integration.py ATT/tests/test_legacy_structure_legs_importer.py ATT/tests/test_legacy_structure_legs_importer_integration.py ATT/tests/test_legacy_structure_legs_reader.py ATT/tests/test_structure_input_mapper.py ATT/tests/test_structure_market_input_assembler.py ATT/tests/test_pricing_input_service.py ATT/tests/test_canonical_input_service.py
+
+ATT/tests/test_structures_repository.py::test_create_structure_normalizes_underlying_asset
+ATT/tests/test_structures_repository.py::test_create_structure_raises_when_name_missing
+ATT/tests/test_structures_repository.py::test_create_structure_raises_when_underlying_asset_missing
+ATT/tests/test_structures_repository.py::test_create_structure_raises_when_status_invalid
+ATT/tests/test_structures_repository.py::test_list_structures_excludes_archived_by_default
+ATT/tests/test_structures_repository.py::test_list_structures_can_include_archived
+ATT/tests/test_structures_repository.py::test_get_structure_returns_legs_ordered_by_leg_order
+ATT/tests/test_structures_repository.py::test_update_structure_updates_fields_and_keeps_missing_ones
+ATT/tests/test_structures_repository.py::test_update_structure_raises_when_structure_not_found
+ATT/tests/test_structures_repository.py::test_archive_structure_marks_structure_as_archived
+ATT/tests/test_structures_repository.py::test_archive_structure_raises_when_not_found
+ATT/tests/test_structures_repository.py::test_add_leg_adds_leg_to_structure
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[position_side-INVALID-invalid position_side: INVALID]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[option_type-INVALID-invalid option_type: INVALID]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[quantity-abc-quantity must be integer]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[quantity-0-quantity must be > 0]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[multiplier-abc-multiplier must be numeric]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[multiplier-0-multiplier must be > 0]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[leg_order-abc-leg_order must be integer]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[leg_order-0-leg_order must be >= 1]
+ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[expiration_date-20-06-2026-expiration_date must be a valid date in YYYY-MM-DD format]
+ATT/tests/test_structures_repository.py::test_add_leg_raises_when_structure_not_found
+ATT/tests/test_structures_repository.py::test_replace_legs_replaces_existing_legs
+ATT/tests/test_structures_repository.py::test_replace_legs_raises_when_structure_not_found
+ATT/tests/test_structures_repository.py::test_get_structure_returns_none_when_not_found
+ATT/tests/test_structures_api.py::TestCreateStructure::test_cria_e_retorna_201
+ATT/tests/test_structures_api.py::TestCreateStructure::test_retorna_structure_id_correto
+ATT/tests/test_structures_api.py::TestCreateStructure::test_payload_minimo_sem_opcionais
+ATT/tests/test_structures_api.py::TestCreateStructure::test_payload_completo_com_alias_e_notes
+ATT/tests/test_structures_api.py::TestCreateStructure::test_repo_chamado_exatamente_uma_vez
+ATT/tests/test_structures_api.py::TestCreateStructure::test_repo_chamado_com_name_correto
+ATT/tests/test_structures_api.py::TestCreateStructure::test_400_quando_repo_levanta_value_error
+ATT/tests/test_structures_api.py::TestCreateStructure::test_400_mensagem_de_erro_propagada
+ATT/tests/test_structures_api.py::TestCreateStructure::test_422_sem_campo_obrigatorio_underlying_asset
+ATT/tests/test_structures_api.py::TestCreateStructure::test_422_sem_campo_obrigatorio_name
+ATT/tests/test_structures_api.py::TestCreateStructure::test_422_name_vazio
+ATT/tests/test_structures_api.py::TestCreateStructure::test_422_underlying_asset_vazio
+ATT/tests/test_structures_api.py::TestCreateStructure::test_422_body_ausente
+ATT/tests/test_structures_api.py::TestListStructures::test_retorna_200
+ATT/tests/test_structures_api.py::TestListStructures::test_retorna_lista
+ATT/tests/test_structures_api.py::TestListStructures::test_lista_com_um_item
+ATT/tests/test_structures_api.py::TestListStructures::test_campos_obrigatorios_no_summary
+ATT/tests/test_structures_api.py::TestListStructures::test_summary_nao_contem_legs
+ATT/tests/test_structures_api.py::TestListStructures::test_include_archived_false_por_padrao
+ATT/tests/test_structures_api.py::TestListStructures::test_include_archived_true_quando_passado
+ATT/tests/test_structures_api.py::TestListStructures::test_include_archived_false_explicito
+ATT/tests/test_structures_api.py::TestListStructures::test_lista_vazia_retorna_200
+ATT/tests/test_structures_api.py::TestListStructures::test_lista_com_multiplos_itens
+ATT/tests/test_structures_api.py::TestGetStructure::test_retorna_200
+ATT/tests/test_structures_api.py::TestGetStructure::test_campo_legs_presente
+ATT/tests/test_structures_api.py::TestGetStructure::test_legs_e_lista
+ATT/tests/test_structures_api.py::TestGetStructure::test_legs_com_um_item
+ATT/tests/test_structures_api.py::TestGetStructure::test_campos_obrigatorios_no_detalhe
+ATT/tests/test_structures_api.py::TestGetStructure::test_id_correto_na_resposta
+ATT/tests/test_structures_api.py::TestGetStructure::test_repo_chamado_com_id_correto
+ATT/tests/test_structures_api.py::TestGetStructure::test_404_quando_nao_encontrado
+ATT/tests/test_structures_api.py::TestGetStructure::test_404_detalhe_contem_id
+ATT/tests/test_structures_api.py::TestGetStructure::test_404_id_zero
+ATT/tests/test_structures_api.py::TestGetStructure::test_leg_campos_obrigatorios
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_retorna_204
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_sem_body_na_resposta_204
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_repo_update_chamado_com_id_correto
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_repo_update_chamado_com_notes
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_atualiza_name
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_atualiza_underlying_asset
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_atualiza_alias_legacy_aba
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_atualiza_status_para_archived
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_atualiza_status_para_active
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_merge_parcial_so_envia_campos_presentes
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_400_sem_campos
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_400_mensagem_no_fields
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_404_quando_nao_encontrado
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_400_quando_repo_levanta_value_error
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_422_status_invalido
+ATT/tests/test_structures_api.py::TestUpdateStructure::test_422_name_vazio
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_retorna_204
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_sem_body_na_resposta_204
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_repo_archive_chamado_com_id_correto
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_repo_archive_chamado_exatamente_uma_vez
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_repo_get_chamado_antes_do_archive
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_404_quando_nao_encontrado
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_404_detalhe_contem_id
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_404_nao_chama_archive_se_nao_encontrado
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_400_quando_repo_levanta_value_error
+ATT/tests/test_structures_api.py::TestArchiveStructure::test_400_mensagem_propagada
+ATT/tests/test_structures_api.py::TestResponseSchema::test_create_response_tem_structure_id_inteiro
+ATT/tests/test_structures_api.py::TestResponseSchema::test_list_response_underlying_asset_em_maiusculas
+ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_alias_legacy_aba_presente
+ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_status_e_string
+ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_status_valor_valido
+ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_leg_strike_e_float
+ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_leg_position_side_valido
+ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_leg_option_type_valido
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_retorna_201
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_retorna_leg_id
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_repo_chamado_com_structure_id_correto
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_repo_chamado_com_payload_correto
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_404_estrutura_inexistente
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_400_quando_repo_levanta_value_error
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_position_side_invalido
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_option_type_invalido
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_strike_zero
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_quantity_zero
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_aceita_leg_order_zero
+ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_leg_order_negativo
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_retorna_204
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_sem_body_na_resposta
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_repo_chamado_com_structure_id_correto
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_repo_recebe_lista_com_um_item
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_repo_recebe_dados_corretos
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_404_estrutura_inexistente
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_400_quando_repo_levanta_value_error
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_422_lista_vazia
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_aceita_leg_order_zero
+ATT/tests/test_structures_legs_endpoints.py::TestReplaceLegs::test_replace_legs_aceita_multiplas_legs
+ATT/tests/test_structures_legs_endpoints.py::TestRemoveLeg::test_remove_leg_retorna_204
+ATT/tests/test_structures_legs_endpoints.py::TestRemoveLeg::test_remove_leg_404_estrutura_inexistente
+ATT/tests/test_structures_legs_endpoints.py::TestRemoveLeg::test_remove_leg_404_leg_inexistente
+ATT/tests/test_structures_legs_endpoints.py::TestRemoveLeg::test_remove_leg_404_detalhe_contem_leg_id
+ATT/tests/test_structure_editor_dialog.py::TestBuildLegsPayload::test_campos_originais_preservados
+ATT/tests/test_structure_editor_dialog.py::TestBuildLegsPayload::test_duas_legs_sem_contaminar_indices
+ATT/tests/test_structure_editor_dialog.py::TestBuildLegsPayload::test_leg_order_comeca_em_1
+ATT/tests/test_structure_editor_dialog.py::TestBuildLegsPayload::test_leg_order_sequencial
+ATT/tests/test_structure_editor_dialog.py::TestBuildLegsPayload::test_lista_vazia_retorna_lista_vazia
+ATT/tests/test_structure_editor_dialog.py::TestBuildLegsPayload::test_nao_modifica_legs_rows_original
+ATT/tests/test_structure_editor_dialog.py::TestLoadExisting::test_carrega_campos_do_repositorio
+ATT/tests/test_structure_editor_dialog.py::TestLoadExisting::test_carrega_legs_em_legs_rows
+ATT/tests/test_structure_editor_dialog.py::TestLoadExisting::test_destroi_se_estrutura_nao_encontrada
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveCreate::test_create_structure_chamado_com_campos_corretos
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveCreate::test_name_vazio_nao_chama_create
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveCreate::test_replace_legs_chamado_apos_create
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveCreate::test_saved_true_apos_sucesso
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveCreate::test_underlying_vazio_nao_chama_create
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveUpdate::test_create_nao_e_chamado_no_modo_edicao
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveUpdate::test_replace_legs_usa_structure_id_existente
+ATT/tests/test_structure_editor_dialog.py::TestCmdSaveUpdate::test_update_structure_chamado_com_structure_id_correto
+ATT/tests/test_structure_editor_dialog.py::TestStructureEditorDialogStaticChecks::test_arquivo_existe
+ATT/tests/test_structure_editor_dialog.py::TestStructureEditorDialogStaticChecks::test_classe_presente
+ATT/tests/test_structure_editor_dialog.py::TestStructureEditorDialogStaticChecks::test_construtor_aceita_db_path
+ATT/tests/test_structure_editor_dialog.py::TestStructureEditorDialogStaticChecks::test_construtor_aceita_repo_injetado
+ATT/tests/test_structure_editor_dialog.py::TestStructureEditorDialogStaticChecks::test_importavel
+ATT/tests/test_structure_editor_dialog.py::TestStructureEditorDialogStaticChecks::test_nao_importa_sqlite3_diretamente
+ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_leg_order_comeca_em_1
+ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_main_window_arquivo_existe
+ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_main_window_importa_structure_editor_dialog
+ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_main_window_nao_importa_sqlite3_diretamente
+ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_main_window_tem_metodo_on_structure_edit_request
+ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_structure_editor_dialog_arquivo_existe
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestCriar::test_db_path_repassado_ao_dialog
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestCriar::test_dialog_instanciado_com_structure_id_none
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestCriar::test_load_chamado_se_saved_true
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestCriar::test_load_nao_chamado_se_saved_false
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestEditar::test_dialog_instanciado_com_structure_id_correto
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestEditar::test_load_chamado_apos_edicao_bem_sucedida
+ATT/tests/test_structure_editor_integration.py::TestOnStructureEditRequestEditar::test_load_nao_chamado_se_edicao_cancelada
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_create_nao_chamado_no_modo_edicao
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_destroy_chamado_apos_salvar
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_exception_nao_propaga
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_replace_legs_sid_correto_criacao
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_replace_legs_sid_correto_edicao
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_saved_false_se_name_vazio
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_saved_false_se_underlying_vazio
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_saved_true_apos_criar
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_saved_true_apos_editar
+ATT/tests/test_structure_editor_integration.py::TestCmdSave::test_update_nao_chamado_no_modo_criacao
+ATT/tests/test_structure_editor_integration.py::TestIntegracaoLegs::test_legs_payload_preserva_position_side
+ATT/tests/test_structure_editor_integration.py::TestIntegracaoLegs::test_legs_payload_tem_leg_order_sequencial
+ATT/tests/test_structure_editor_integration.py::TestIntegracaoLegs::test_replace_legs_recebe_2_legs
+ATT/tests/test_legacy_structure_legs_importer.py::test_import_by_structure_id_replaces_legs_and_writes_audit_log
+ATT/tests/test_legacy_structure_legs_importer.py::test_import_by_structure_id_raises_when_reader_returns_no_legs
+ATT/tests/test_legacy_structure_legs_importer.py::test_import_by_structure_id_raises_when_structure_does_not_exist
+ATT/tests/test_legacy_structure_legs_importer_integration.py::test_importer_integrates_real_reader_robo_repository_and_structures_repository
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_propagates_mapper_errors
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_integrates_structure_alias_with_rtd_legs
+ATT/tests/test_legacy_structure_legs_reader.py::test_read_by_structure_id_raises_when_structure_has_no_alias
+ATT/tests/test_structure_input_mapper.py::test_to_structure_input_should_not_expose_alias_legacy_aba
+ATT/tests/test_structure_market_input_assembler.py::StructureMarketInputAssemblerTests::test_should_assemble_structure_and_market_input
+ATT/tests/test_structure_market_input_assembler.py::StructureMarketInputAssemblerTests::test_should_raise_when_market_snapshot_is_missing
+ATT/tests/test_structure_market_input_assembler.py::StructureMarketInputAssemblerTests::test_should_raise_when_structure_is_missing
+ATT/tests/test_structure_market_input_assembler.py::StructureMarketInputAssemblerTests::test_should_raise_when_underlying_asset_mismatches
+ATT/tests/test_pricing_input_service.py::test_build_pricing_payload_calls_canonical_input_service
+ATT/tests/test_pricing_input_service.py::test_build_pricing_payload_from_canonical_input_delegates_to_adapter
+ATT/tests/test_pricing_input_service.py::test_build_pricing_payload_passes_none_reference_date
+ATT/tests/test_pricing_input_service.py::test_build_pricing_payload_propagates_canonical_input_service_error
+ATT/tests/test_pricing_input_service.py::test_build_pricing_payload_from_canonical_input_propagates_adapter_error
+ATT/tests/test_canonical_input_service.py::CanonicalInputServiceTests::test_should_always_prefer_canonical_legs_when_structure_already_has_legs
+ATT/tests/test_canonical_input_service.py::CanonicalInputServiceTests::test_should_enrich_market_with_internal_structure_metrics
+ATT/tests/test_canonical_input_service.py::CanonicalInputServiceTests::test_should_keep_internal_metric_fields_as_none_when_no_legs
+ATT/tests/test_canonical_input_service.py::CanonicalInputServiceTests::test_should_return_empty_when_legacy_fallback_returns_no_legs
+ATT/tests/test_canonical_input_service.py::CanonicalInputServiceTests::test_should_return_empty_when_no_canonical_legs_and_fallback_disabled
+ATT/tests/test_canonical_input_service.py::CanonicalInputServiceTests::test_should_use_legacy_robo_only_when_no_canonical_legs_exist
+
+193 tests collected in 2.46s
+
+============================================================
+Execucao pytest focada - cadastro estruturas leg minima
+============================================================
+ ATT/tests/test_structures_repository.py ATT/tests/test_structures_api.py ATT/tests/test_structures_legs_endpoints.py ATT/tests/test_structure_editor_dialog.py ATT/tests/test_structure_editor_integration.py ATT/tests/test_legacy_structure_legs_importer.py ATT/tests/test_legacy_structure_legs_importer_integration.py ATT/tests/test_legacy_structure_legs_reader.py ATT/tests/test_structure_input_mapper.py ATT/tests/test_structure_market_input_assembler.py ATT/tests/test_pricing_input_service.py ATT/tests/test_canonical_input_service.py
+
+........................................................................ [ 37%]
+........................................................................ [ 74%]
+.................................................                        [100%]
+193 passed in 17.77s
+
+============================================================
+Conclusao do mapa de impacto
+============================================================
+
+Achados:
+- O modulo de cadastro de estruturas esta presente e possui repository, API, UI e testes focados.
+- O repository ja possui operacoes para criar estrutura, criar estrutura com legs, adicionar legs, substituir legs e contar legs.
+- A API possui endpoints dedicados para cadastro de estrutura e manutencao de legs.
+- O schema local possui structures e structure_legs, com campos suficientes para uma leg minima canonica.
+- O banco local inspecionado esta vazio: structures=0, structure_legs=0 e pricing_executions=0.
+- As tabelas legadas rtd_analise_robo_legs e manual_analise_robo_legs nao existem no app.db local inspecionado.
+- A suite focada de cadastro/legs/pricing input/importacao legada coletou e executou 193 testes com sucesso.
+
+Mapa de impacto funcional:
+- UI: UI/components/structure_editor_dialog.py e UI/components/structures_list_panel.py.
+- API: api/structures_controller.py, especialmente CreateStructureRequest, LegRequest e ReplaceLegRequest.
+- Repository: repositories/structures_repository.py, especialmente create_structure, create_structure_with_legs, add_leg, replace_legs e validacao de legs.
+- Services: structure_input_mapper, structure_market_input_assembler, pricing_input_service e canonical_pricing_facade.
+- Legado/importacao: legacy_structure_legs_reader, legacy_structure_legs_importer e scripts/import_legacy_structure_legs.py.
+- Testes: structures_repository, structures_api, structures_legs_endpoints, structure_editor, legacy_structure_legs_importer/reader, structure_input_mapper, pricing_input_service e canonical_input_service.
+
+Riscos:
+- Tornar leg minima obrigatoria apenas na API pode quebrar fluxo da UI se a tela ainda criar estrutura antes das legs.
+- Tornar leg minima obrigatoria apenas no repository pode quebrar testes ou fluxos legados que criam estrutura vazia para posterior preenchimento.
+- Depender de RTD/manual como fallback nao e suficiente no banco local, pois as tabelas legadas nao existem no app.db inspecionado.
+- Backfill ou importacao persistente de legs deve ser fase separada, com dados reais e rollback definido.
+
+Decisao tecnica:
+- Fase 8 fica aprovada como diagnostico e mapa de impacto, sem alteracao funcional.
+- Nao executar mudanca em UI/API/repository/service dentro deste fechamento.
+- Proxima fase funcional deve ser test-first e limitada a garantir cadastro atomico de estrutura com leg minima ou validacao explicita do fluxo atual.
+
+Evidencia de testes:
+- pytest focado: 193 collected / 193 passed.
