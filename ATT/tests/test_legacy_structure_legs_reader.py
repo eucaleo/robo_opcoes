@@ -60,7 +60,7 @@ def test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload():
 
     assert result == [
         {
-            "position_side": "LONG",
+            "position_side": "COMPRADO",
             "option_type": "CALL",
             "symbol": "BOVAE195",
             "strike": 195.0,
@@ -71,7 +71,7 @@ def test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload():
             "leg_order": 1,
         },
         {
-            "position_side": "SHORT",
+            "position_side": "VENDIDO",
             "option_type": "PUT",
             "symbol": "BOVAO185",
             "strike": 185.0,
@@ -208,7 +208,7 @@ def test_read_by_structure_id_integrates_structure_alias_with_rtd_legs(tmp_path)
 
     assert result == [
         {
-            "position_side": "LONG",
+            "position_side": "COMPRADO",
             "option_type": "CALL",
             "symbol": "BOVAE195",
             "strike": 195.0,

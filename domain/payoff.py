@@ -1,6 +1,7 @@
 from typing import Any
 
 from domain.canonical_validators import validate_canonical_input
+from domain.position_side import to_pricing_engine_side
 
 
 def _round_money(value: float, digits: int = 6) -> float:
@@ -8,7 +9,7 @@ def _round_money(value: float, digits: int = 6) -> float:
 
 
 def _normalize_side(value: Any) -> str:
-    return str(value or "").strip().upper()
+    return to_pricing_engine_side(value)
 
 
 def _normalize_option_type(value: Any) -> str:

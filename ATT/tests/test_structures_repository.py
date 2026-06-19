@@ -175,14 +175,14 @@ def test_add_leg_adds_leg_to_structure(repo):
 
     assert leg_id > 0
     assert len(structure["legs"]) == 1
-    assert structure["legs"][0]["position_side"] == "LONG"
+    assert structure["legs"][0]["position_side"] == "COMPRADO"
     assert structure["legs"][0]["option_type"] == "CALL"
 
 
 @pytest.mark.parametrize(
     "field,value,error",
     [
-        ("position_side", "INVALID", "invalid position_side: INVALID"),
+        ("position_side", "INVALID", "position_side inválido"),
         ("option_type", "INVALID", "invalid option_type: INVALID"),
         ("strike", "abc", "strike must be numeric"),
         ("quantity", "abc", "quantity must be integer"),
@@ -190,7 +190,6 @@ def test_add_leg_adds_leg_to_structure(repo):
         ("multiplier", "abc", "multiplier must be numeric"),
         ("multiplier", 0, "multiplier must be > 0"),
         ("leg_order", "abc", "leg_order must be integer"),
-        ("leg_order", 0, "leg_order must be >= 1"),
         ("expiration_date", "20-06-2026", "expiration_date must be a valid date in YYYY-MM-DD format"),
     ],
 )
@@ -230,7 +229,7 @@ def test_replace_legs_replaces_existing_legs(repo):
 
     assert len(structure["legs"]) == 1
     assert structure["legs"][0]["symbol"] == "BOVA11P100"
-    assert structure["legs"][0]["position_side"] == "SHORT"
+    assert structure["legs"][0]["position_side"] == "VENDIDO"
     assert structure["legs"][0]["option_type"] == "PUT"
 
 

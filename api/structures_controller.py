@@ -13,9 +13,10 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from repositories.structures_repository import StructuresRepository
+from domain.position_side import normalize_position_side
 
 router = APIRouter(tags=["structures"])
 
@@ -47,7 +48,7 @@ class UpdateStructureRequest(BaseModel):
 
 class LegRequest(BaseModel):
     """Schema compartilhado por AddLegRequest e ReplaceLegRequest."""
-    position_side: str   = Field(..., pattern=r"^(LONG|SHORT)$")
+    position_side: str   = Field(..., min_length=1)
     option_type: str     = Field(..., pattern=r"^(CALL|PUT)$")
     strike: float        = Field(..., gt=0)
     expiration_date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
@@ -58,6 +59,11 @@ class LegRequest(BaseModel):
     symbol: str | None   = None
     premium: float | None = None
     notes: str | None    = None
+
+    @field_validator("position_side", mode="before")
+    @classmethod
+    def _normalize_position_side(cls, value):
+        return normalize_position_side(value)
 
 
 class ReplaceLegRequest(BaseModel):

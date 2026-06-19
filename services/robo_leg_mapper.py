@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from domain.position_side import normalize_position_side
+
 
 def _read_attr(obj: Any, name: str, default: Any = None) -> Any:
     if hasattr(obj, name):
@@ -50,12 +52,10 @@ def to_canonical_leg(leg: Any, multiplier: float = 1.0) -> dict[str, Any]:
     cv_str = str(cv).upper().strip() if cv is not None else ""
     call_put_str = str(call_put).upper().strip() if call_put is not None else ""
 
-    if cv_str == "C":
-        position_side = "LONG"
-    elif cv_str == "V":
-        position_side = "SHORT"
-    else:
-        raise ValueError(f"invalid cv: {cv}")
+    try:
+        position_side = normalize_position_side(cv_str)
+    except ValueError as exc:
+        raise ValueError(f"invalid cv: {cv}") from exc
 
     if call_put_str == "CALL":
         option_type = "CALL"

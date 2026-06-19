@@ -1,0 +1,51 @@
+Fase 6.11 - Decisao final sobre testes RTD historicos
+
+Contexto:
+Foram recuperados previews historicos de testes relacionados ao fluxo RTD,
+CanonicalPricingFacade, repositorios e persistencia de fonte de preco.
+
+Analises executadas:
+- sanitizacao de nomes de arquivos historicos;
+- tentativa de coleta pytest;
+- tentativa de importabilidade;
+- busca por datas de exclusao nominal via git log --diff-filter=D.
+
+Resultado da importabilidade:
+- Alguns arquivos importam, mas isso nao garante aderencia ao contrato atual.
+- Outros arquivos falham por dependerem de helpers privados removidos, como:
+  - _resolve_rtd_option_quotes_db_path
+  - _lookup_rtd_option_quote
+- Um fluxo historico depende de script inexistente na estrutura atual:
+  - docs/checkpoints/scripts/import_rtd_links_to_option_quotes.py
+
+Resultado da busca por exclusoes:
+Nao foram encontradas exclusoes diretas para os nomes consultados via
+git log --diff-filter=D.
+
+Interpretacao:
+A ausencia de commits de exclusao nominal nao prova que os testes sejam atuais
+ou restauraveis. O conjunto analisado permanece classificado como evidencia
+historica, pois nao responde de forma confiavel a arquitetura vigente apos as
+transicoes rota_1 -> rota_2 -> rota_3.
+
+Decisao:
+Os testes RTD historicos recuperados nao serao restaurados integralmente.
+
+Motivos:
+- risco de reintroduzir contratos obsoletos;
+- risco de acoplar novamente testes a helpers privados removidos;
+- risco de retrabalho;
+- risco de falsos regressivos;
+- desalinhamento potencial com a arquitetura atual.
+
+Encaminhamento:
+A partir deste ponto, a cobertura deve ser criada ou ajustada apenas contra os
+contratos atuais do sistema, especialmente os comportamentos vigentes da rota_3.
+
+Prioridades futuras:
+- CanonicalPricingFacade atual;
+- payload atual de execucao de pricing;
+- persistencia atual de fonte de preco;
+- repositorios vigentes relacionados a RTD;
+- fallback RTD apenas se ainda fizer parte do comportamento atual;
+- testes novos que respondam diretamente a evolucao recente do sistema.

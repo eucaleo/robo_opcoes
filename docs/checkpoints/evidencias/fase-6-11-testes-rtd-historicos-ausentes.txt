@@ -1,0 +1,25 @@
+Fase 6.11 - Conferencia de testes RTD historicos citados na rota
+
+Branch:
+fase-6-11-retomada-funcional-pos-restauracao-documental
+
+Testes citados na rota/documentacao historica e ausentes no estado atual:
+
+- ATT/tests/test_canonical_pricing_facade_rtd_db_path.py
+- ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py
+- ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py
+- ATT/tests/test_pricing_execution_price_source_persistence.py
+- ATT/tests/test_fase_11_rtd_integrated_flow.py
+
+Resultado observado:
+pytest retornou "file or directory not found" para os cinco arquivos.
+
+Decisao:
+Nao tratar como regressao funcional imediata.
+Antes de recriar testes, mapear testes existentes equivalentes e consultar historico Git.
+
+Teste existente executado:
+python -m pytest ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py -v
+
+Resultado:
+1 passed

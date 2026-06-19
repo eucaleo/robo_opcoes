@@ -18,7 +18,7 @@ def test_to_canonical_leg_should_map_long_call():
 
     result = to_canonical_leg(leg)
 
-    assert result["position_side"] == "LONG"
+    assert result["position_side"] == "COMPRADO"
     assert result["option_type"] == "CALL"
     assert result["symbol"] == "BOVAE195"
     assert result["strike"] == 195.0
@@ -41,7 +41,7 @@ def test_to_canonical_leg_should_map_short_put():
 
     result = to_canonical_leg(leg)
 
-    assert result["position_side"] == "SHORT"
+    assert result["position_side"] == "VENDIDO"
     assert result["option_type"] == "PUT"
     assert result["symbol"] == "BOVAO185"
     assert result["expiration_date"] == "2026-05-15"

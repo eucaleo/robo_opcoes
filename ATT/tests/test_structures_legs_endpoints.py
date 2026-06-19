@@ -22,7 +22,7 @@ from fastapi.testclient import TestClient
 # ---------------------------------------------------------------------------
 
 FAKE_LEG_PAYLOAD = {
-    "position_side":   "LONG",
+    "position_side":   "COMPRADO",
     "option_type":     "CALL",
     "strike":          38.0,
     "expiration_date": "2026-07-18",
@@ -107,7 +107,7 @@ class TestAddLeg:
         tc.post("/structures/1/legs", json=FAKE_LEG_PAYLOAD)
         args = repo.add_leg.call_args[0]
         assert args[1]["strike"] == 38.0
-        assert args[1]["position_side"] == "LONG"
+        assert args[1]["position_side"] == "COMPRADO"
 
     def test_add_leg_404_estrutura_inexistente(self, client_legs):
         tc, repo = client_legs
@@ -228,7 +228,7 @@ class TestReplaceLegs:
             "legs": [
                 {**FAKE_LEG_PAYLOAD, "leg_order": 0},
                 {**FAKE_LEG_PAYLOAD, "leg_order": 1, "option_type": "PUT",
-                 "position_side": "SHORT"},
+                 "position_side": "VENDIDO"},
             ]
         }
         resp = tc.put("/structures/1/legs", json=payload)
