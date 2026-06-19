@@ -213,7 +213,7 @@ def test_importer_integrates_real_reader_robo_repository_and_structures_reposito
 
     imported_leg = legs[0]
 
-    assert imported_leg["position_side"] == "SHORT"
+    assert imported_leg["position_side"] == "VENDIDO"
     assert imported_leg["option_type"] == "PUT"
     assert imported_leg["symbol"] == "MANUALPUT185"
     assert imported_leg["strike"] == 185.0
