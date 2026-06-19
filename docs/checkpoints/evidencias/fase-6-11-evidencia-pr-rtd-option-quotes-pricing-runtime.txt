@@ -1,11 +1,11 @@
 ## fase-6-11 pull request
-Fri Jun 19 19:51:46     2026
+Fri Jun 19 20:21:54     2026
 
 ## branch
 fase-6-11-retomada-funcional-pos-restauracao-documental
 
 ## pr
-https://github.com/eucaleo/robo_opcoes/pull/NUMERO_DO_PR
+https://github.com/eucaleo/robo_opcoes/pull/7
 
-## status
- M docs/checkpoints/evidencias/fase-6-11-evidencia-pr-rtd-option-quotes-pricing-runtime.txt
+## status antes da evidencia
+clean
