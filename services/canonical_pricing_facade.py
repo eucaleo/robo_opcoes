@@ -79,13 +79,24 @@ def _to_float(value: Any, default: float = 0.0) -> float:
 
         if isinstance(value, str):
             text = value.strip()
+            if not text:
+                return default
+
             text = text.replace("R$", "").replace("$", "").strip()
 
             # Remove espaços internos comuns em valores monetários.
             text = text.replace(" ", "")
 
-            # Caso BR simples: "124,66"
-            if "," in text and "." not in text:
+            # Formatos comuns vindos de RTD/planilha:
+            #   BR: "1.234,56" -> "1234.56"
+            #   US: "1,234.56" -> "1234.56"
+            #   BR simples: "124,66" -> "124.66"
+            if "," in text and "." in text:
+                if text.rfind(",") > text.rfind("."):
+                    text = text.replace(".", "").replace(",", ".")
+                else:
+                    text = text.replace(",", "")
+            elif "," in text:
                 text = text.replace(",", ".")
 
             return float(text)
