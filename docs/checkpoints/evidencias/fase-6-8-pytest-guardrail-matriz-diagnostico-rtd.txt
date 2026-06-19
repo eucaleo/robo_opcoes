@@ -1,0 +1,35 @@
+Fase 6.8 - Guardrail matriz diagnostico RTD canonical
+
+Branch:
+fase-6-8-guardrail-matriz-diagnostico-rtd
+
+Base:
+4960ca0 docs: consolidate fase 6.7 rtd canonical diagnostics
+ffb1fab merge: integra fase 17 mapa de pastas e arquivos
+
+Comandos executados:
+
+python -m pytest ATT/tests/test_canonical_pricing_facade.py -q
+
+Resultado:
+.......                                            [100%]
+7 passed in 0.30s
+
+python -m pytest ATT/tests/test_pricing_execution_service.py ATT/tests/test_pricing_execution_app_service.py -q
+
+Resultado:
+...........                                        [100%]
+11 passed in 1.08s
+
+Arquivos criados:
+ATT/tests/test_canonical_pricing_facade.py
+
+Cobertura adicionada:
+- matriz canonica de _snapshot_result_to_payload()
+- underlying_asset explicito nao derivado da aba legada
+- normalizacao de preco BR
+- normalizacao de vencimento
+- inferencia e precedencia de side/position_side
+- preservacao de metadados
+- fallback de spot_price via banco
+- rejeicao de spot_price invalido ou ausente
