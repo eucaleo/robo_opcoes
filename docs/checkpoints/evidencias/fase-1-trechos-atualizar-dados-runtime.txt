@@ -1,0 +1,298 @@
+### UI/main_window.py linhas 40-190
+        self._payoff_worker_id = 0
+
+        # Loading animation
+        self._loading_animation_active = False
+        self._loading_animation_chars = ["", "", "", "", "", "", "", "", "", ""]
+        self._loading_animation_index = 0
+        self._loading_payoff = False
+        self._stop_loading_animation()
+
+        # Última decisão selecionada (preservada entre refreshes)
+        self.last_selected_decision: Optional[Dict] = None
+
+        # Controle de recalc em andamento
+        self._recalc_in_progress = False
+
+        # Configurar layout principal
+        self._setup_layout()
+        self._setup_menus()
+        self._bind_events()
+
+        # Carregar dados iniciais
+        self.refresh_data()
+
+    def _setup_layout(self):
+        """Organiza layout em painéis."""
+        main_paned = ttk.PanedWindow(self.root, orient="horizontal")
+        main_paned.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Painel esquerdo: filtros + grid
+        left_frame = ttk.Frame(main_paned)
+        main_paned.add(left_frame, weight=1)
+
+        # Painel direito: notebook com abas
+        right_frame = ttk.Frame(main_paned)
+        main_paned.add(right_frame, weight=2)
+
+        # === PAINEL ESQUERDO ===
+        self.filters_panel = FiltersPanel(
+            parent=left_frame,
+            on_filter_change=self.on_filter_change,
+        )
+        self.filters_panel.pack(fill="x", padx=5, pady=5)
+
+        self.decisions_grid = DecisionsGrid(
+            parent=left_frame,
+            on_selection_change=self.on_decision_selected,
+        )
+        self.decisions_grid.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # === PAINEL DIREITO ===
+        right_notebook = ttk.Notebook(right_frame)
+        right_notebook.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Aba 1: Detalhes da Decisão
+        details_frame = ttk.Frame(right_notebook)
+        right_notebook.add(details_frame, text="Detalhes da Decisão")
+
+        self.details_panel = DetailsPanel(
+            details_frame,
+            on_recalculate=self.recalculate_structure,
+            app_db_path=self._db_path,
+        )
+        self.details_panel.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Aba 2: Gráfico de Payoff
+        chart_frame = ttk.Frame(right_notebook)
+        right_notebook.add(chart_frame, text="Curva de Payoff")
+
+        self.payoff_chart = PayoffChart(chart_frame)
+        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Aba 3: Estruturas (Fase 5 -- alteracao_10)
+        self._setup_structures_tab(right_notebook)
+
+        # Status bar
+        self.status_bar = ttk.Label(
+            self.root,
+            text="Pronto",
+            relief=tk.SUNKEN,
+            anchor="w",
+        )
+        self.status_bar.pack(side="bottom", fill="x")
+
+    def _setup_menus(self):
+        """Cria menu superior."""
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # Menu Arquivo
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Arquivo", menu=file_menu)
+        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+        file_menu.add_separator()
+        file_menu.add_command(label="Sair", command=self.root.quit)
+
+        # Menu Ferramentas
+        tools_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Ferramentas", menu=tools_menu)
+        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+        tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+        tools_menu.add_separator()
+        tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+
+        # Menu Ajuda
+        help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Ajuda", menu=help_menu)
+        help_menu.add_command(label="Sobre", command=self.show_about)
+
+    def _bind_events(self):
+        """Vincula atalhos de teclado."""
+        self.root.bind("<F5>", lambda e: self.refresh_data())
+        self.root.bind("<Control-q>", lambda e: self.root.quit())
+
+    # ------------------------------------------------------------------
+    # Callbacks
+    # ------------------------------------------------------------------
+
+    def on_filter_change(self, filters: Dict):
+        """Callback quando filtros mudam."""
+        self.status_bar.config(text="Aplicando filtros...")
+        try:
+            filtered_data = self.data_model.get_decisions(filters)
+            self.decisions_grid.update_data(filtered_data)
+            count = len(filtered_data)
+            self.status_bar.config(text=f"{count} decisões encontradas")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao aplicar filtros: {e}")
+            self.status_bar.config(text="Erro nos filtros")
+
+    def on_decision_selected(self, decision_data: Dict):
+        """Callback quando uma decisão é selecionada no grid.
+        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+        """
+        if not decision_data:
+            return
+
+        self.last_selected_decision = dict(decision_data)
+
+        # Atualizar painel de detalhes (síncrono, leve)
+        try:
+            self.details_panel.update_decision(decision_data)
+        except Exception as e:
+            print(f"[UI] Erro ao atualizar detalhes: {e}")
+
+        # Carregar payoff em background -- apenas structure_id necessário
+        structure_id = decision_data.get("structure_id")
+        timestamp = decision_data.get("timestamp")  # opcional
+
+        if structure_id is not None:
+
+### UI/main_window.py linhas 260-310
+                if current_worker_id == self._payoff_worker_id:
+                    self.root.after(
+                        0,
+                        self._handle_payoff_error,
+                        str(e),
+                        current_worker_id,
+                    )
+
+        thread = threading.Thread(target=load_worker, daemon=True)
+        thread.start()
+
+    def refresh_data(self):
+        """Recarrega dados do banco.
+        alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
+        """
+        self.status_bar.config(text="Carregando dados...")
+        try:
+            self.data_model.refresh()
+
+            try:
+                self.filters_panel.update_structures(
+                    self.data_model.get_structures()
+                )
+            except Exception:
+                pass
+
+            try:
+                self.filters_panel.reset_filters()
+            except Exception:
+                pass
+
+            decisions = self.data_model.get_decisions()
+            self.decisions_grid.update_data(decisions)
+
+            preserved = False
+            d = self.last_selected_decision
+
+            if d:
+                target_sid = d.get("structure_id")  # chave canônica
+                target_ts = d.get("timestamp")       # auxiliar
+
+                # Reselecionar na grid: structure_id é suficiente
+                if target_sid is not None:
+                    try:
+                        self.decisions_grid.select_by_key(target_sid, target_ts)
+                    except Exception:
+                        pass
+
+                    try:
+                        self.details_panel.update_decision(d)
+                    except Exception:
+
+### UI/models/ui_data.py linhas 180-270
+        raise RuntimeError(
+            "Coluna 'structure_id' nao encontrada no colmap. "
+            "Execute a migration do alteracao_33 antes de continuar."
+        )
+
+    def _resolve_structure_key(self, structure_id: str) -> int:
+        """
+        alteracao_34: structure_id e sempre INTEGER.
+        Aceita str ("7") ou int (7). Lanca ValueError se nao conversivel.
+        """
+        try:
+            return int(structure_id)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"structure_id invalido: {structure_id!r}. "
+                "Esperado inteiro ou string numerica."
+            ) from exc
+
+    # ------------------------------------------------------------------
+    # API pública
+    # ------------------------------------------------------------------
+
+    def refresh(self):
+        self._detect_tables()
+        self._build_consolidations_colmap()
+        self._build_payoff_colmap()
+        self._cache_structures = self._load_structures()
+
+    def _load_structures(self) -> List[str]:
+        # alteracao_36_E: abre e fecha conexao local
+        c = self._consolidations_cols
+        if not c.get("structure_id"):
+            raise RuntimeError(
+                "Coluna 'structure_id' nao encontrada em "
+                f"{self._consolidations_table}. "
+                "Execute a migration do alteracao_33 antes de continuar."
+            )
+        sid_col = c["structure_id"]
+        conn = self._connect()
+        try:
+            q = (
+                f"SELECT DISTINCT CAST({sid_col} AS TEXT) AS structure_id "
+                f"FROM {self._consolidations_table} "
+                f"WHERE {sid_col} IS NOT NULL "
+                f"ORDER BY structure_id"
+            )
+            rows = conn.execute(q).fetchall()
+            return [r["structure_id"] for r in rows]
+        finally:
+            conn.close()
+
+    def get_structures(self) -> List[str]:
+        """Alias de get_structure_ids() para compatibilidade."""
+        if not self._cache_structures:
+            self._cache_structures = self._load_structures()
+        return list(self._cache_structures)
+
+    def get_structure_ids(self) -> List[str]:
+        """alteracao_34: metodo canonico. Substitui get_structures()."""
+        if not self._cache_structures:
+            self._cache_structures = self._load_structures()
+        return list(self._cache_structures)
+
+    def get_abas(self) -> list:
+        """Alias readonly de get_structure_ids() -- compat UI (alteracao_34:filtro_aba)."""
+        return self.get_structure_ids()
+
+    def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
+        """
+        Retorna lista de decisões.
+        alteracao_33: filtra por structure_id quando disponível.
+        alteracao_36_E: conn local por chamada.
+        """
+        if not self._consolidations_table:
+            self.refresh()
+
+        c = self._consolidations_cols
+
+        # Expressão para pl_pct_of_max
+        if c.get("pl_pct_of_max"):
+            pl_pct_expr = c["pl_pct_of_max"]
+        elif c.get("ratio"):
+            pl_pct_expr = c["ratio"]
+        elif c.get("pl_atual") and c.get("pl_max"):
+            pl_pct_expr = (
+                f"CASE WHEN {c['pl_max']} IS NULL OR {c['pl_max']} = 0 "
+                f"THEN NULL ELSE ({c['pl_atual']} * 1.0 / {c['pl_max']}) END"
+            )
+        else:
+            pl_pct_expr = "NULL"
+
