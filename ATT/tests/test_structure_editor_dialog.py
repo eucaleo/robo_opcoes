@@ -596,3 +596,46 @@ def test_build_legs_payload_preserva_premium_none():
     payload = dlg._build_legs_payload()
 
     assert payload[0]["premium"] is None
+
+
+# FASE_2B_QUANTITY_NORMALIZATION_TESTS
+import pytest
+
+
+def _dlg_com_quantity_para_teste(quantity_value):
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "COMPRADO",
+            "option_type": "CALL",
+            "strike": "100,00",
+            "expiration_date": "2026-12-18",
+            "quantity": quantity_value,
+            "premium": None,
+            "multiplier": 1,
+            "symbol": "TESTC100",
+            "notes": None,
+        }
+    ]
+    return dlg
+
+
+@pytest.mark.parametrize("quantity_value", ["1", "1,0", "1.0"])
+def test_build_legs_payload_normaliza_quantity_inteiro_valido(quantity_value):
+    dlg = _dlg_com_quantity_para_teste(quantity_value)
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["quantity"] == 1
+    assert isinstance(payload[0]["quantity"], int)
+
+
+@pytest.mark.parametrize("quantity_value", ["1,5", "abc"])
+def test_build_legs_payload_rejeita_quantity_invalido(quantity_value):
+    dlg = _dlg_com_quantity_para_teste(quantity_value)
+
+    with pytest.raises(
+        (ValueError, TypeError),
+        match=r"(?i)(quantity|quantidade|inteiro|integer|invalid|inv[aá]lid)",
+    ):
+        dlg._build_legs_payload()
