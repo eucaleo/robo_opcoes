@@ -1,0 +1,602 @@
+./.pytest_cache/v/cache/nodeids:52:  "ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py::test_resolve_effective_leg_price_preserves_explicit_manual_price",
+./.pytest_cache/v/cache/nodeids:53:  "ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py::test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual",
+./.pytest_cache/v/cache/nodeids:54:  "ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py::test_snapshot_result_to_payload_does_not_leak_rtd_traceability_for_manual_price",
+./.pytest_cache/v/cache/nodeids:119:  "ATT/tests/test_market_snapshot_selector.py::test_selector_keeps_manual_leg_ahead_of_rtd_option_quotes",
+./.pytest_cache/v/cache/nodeids:120:  "ATT/tests/test_market_snapshot_selector.py::test_selector_prioritizes_rtd_option_quotes_over_legacy_rtd_when_no_manual_exists",
+./.pytest_cache/v/cache/nodeids:310:  "ATT/tests/test_robo_legs_repository.py::test_get_legs_falls_back_to_rtd_when_manual_empty",
+./.pytest_cache/v/cache/nodeids:311:  "ATT/tests/test_robo_legs_repository.py::test_get_legs_prefers_manual_over_rtd",
+./.pytest_cache/v/cache/nodeids:312:  "ATT/tests/test_robo_legs_repository.py::test_has_manual_detects_existing_row",
+./.pytest_cache/v/cache/nodeids:314:  "ATT/tests/test_robo_legs_repository.py::test_list_timestamps_prefers_manual_then_rtd",
+./.pytest_cache/v/cache/nodeids:320:  "ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd",
+./.pytest_cache/v/cache/nodeids:322:  "ATT/tests/test_robo_legs_status_service.py::test_status_prefers_manual_when_manual_exists",
+./.pytest_cache/v/cache/nodeids:326:  "ATT/tests/test_robo_legs_status_service.py::test_status_uses_rtd_when_manual_missing",
+./.pytest_cache/v/cache/nodeids:442:  "ATT/tests/test_structure_events_effective_state.py::test_apply_events_manual_close_with_quantity_reduces_leg",
+./.pytest_cache/v/cache/nodeids:443:  "ATT/tests/test_structure_events_effective_state.py::test_apply_events_manual_close_without_quantity_zeros_leg",
+./.pytest_cache/v/cache/nodeids:489:  "ATT/tests/test_structure_events_service.py::test_register_manual_close_forces_manual_source",
+./api/structures_controller.py:276:    "manual_close",
+./api/structures_controller.py:290:    "manual",
+./api/structures_controller.py:305:    source: str = "manual"
+./ATT/tests/test_canonical_pricing_facade.py:15:        "manual_overrides": [],
+./ATT/tests/test_canonical_pricing_facade.py:76:        manual_overrides=["price"],
+./ATT/tests/test_canonical_pricing_facade.py:95:        "manual_overrides": ["price"],
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:50:        CREATE TABLE manual_analise_robo_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:147:def _insert_legacy_manual_leg(db_path):
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:151:        INSERT INTO manual_analise_robo_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:158:            185.0, 5000, 'manualput185', '2026-06-20', 1.23
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:178:    _insert_legacy_manual_leg(db_path)
+./ATT/tests/test_legacy_structure_legs_reader.py:127:        CREATE TABLE manual_analise_robo_legs (
+./ATT/tests/test_market_snapshot_selector.py:16:    def __init__(self, *, manual=None, rtd_option_quotes=None, rtd=None):
+./ATT/tests/test_market_snapshot_selector.py:17:        self.manual = manual or []
+./ATT/tests/test_market_snapshot_selector.py:21:    def get_manual_legs(self, ref):
+./ATT/tests/test_market_snapshot_selector.py:22:        return self.manual
+./ATT/tests/test_market_snapshot_selector.py:31:def test_selector_prioritizes_rtd_option_quotes_over_legacy_rtd_when_no_manual_exists():
+./ATT/tests/test_market_snapshot_selector.py:47:    assert result.manual_overrides == []
+./ATT/tests/test_market_snapshot_selector.py:50:def test_selector_keeps_manual_leg_ahead_of_rtd_option_quotes():
+./ATT/tests/test_market_snapshot_selector.py:51:    manual_leg = _leg("BOVAE195", "manual", 1.30)
+./ATT/tests/test_market_snapshot_selector.py:57:            manual=[manual_leg],
+./ATT/tests/test_market_snapshot_selector.py:67:    assert result.legs == [manual_leg]
+./ATT/tests/test_market_snapshot_selector.py:68:    assert result.manual_overrides == ["BOVAE195"]
+./ATT/tests/test_pricing_execution_persistence_service.py:194:            "snapshot_source": "manual",
+./ATT/tests/test_robo_legs_repository.py:11:        CREATE TABLE manual_analise_robo_legs (
+./ATT/tests/test_robo_legs_repository.py:42:def test_get_legs_prefers_manual_over_rtd(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:49:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:72:def test_get_legs_falls_back_to_rtd_when_manual_empty(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:96:def test_has_manual_detects_existing_row(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:103:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:112:    assert repo.has_manual("AB3", "2026-05-19 10:00:00") is True
+./ATT/tests/test_robo_legs_repository.py:113:    assert repo.has_manual("AB3", "2026-05-19 11:00:00") is False
+./ATT/tests/test_robo_legs_repository.py:116:def test_list_timestamps_prefers_manual_then_rtd(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:123:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:128:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:153:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+./ATT/tests/test_robo_legs_status_repository.py:14:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+./ATT/tests/test_robo_legs_status_repository.py:18:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+./ATT/tests/test_robo_legs_status_repository.py:22:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+./ATT/tests/test_robo_legs_status_repository.py:36:    manual_latest, rtd_latest = repo.latest_timestamps("TESTE")
+./ATT/tests/test_robo_legs_status_repository.py:38:    assert manual_latest == datetime(2026, 5, 19, 11, 0, 0)
+./ATT/tests/test_robo_legs_status_repository.py:47:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+./ATT/tests/test_robo_legs_status_repository.py:56:    manual_latest, rtd_latest = repo.latest_timestamps("INEXISTENTE")
+./ATT/tests/test_robo_legs_status_repository.py:58:    assert manual_latest is None
+./ATT/tests/test_robo_legs_status_service.py:14:    def __init__(self, manual_latest=None, rtd_latest=None):
+./ATT/tests/test_robo_legs_status_service.py:15:        self._manual_latest = manual_latest
+./ATT/tests/test_robo_legs_status_service.py:21:        return self._manual_latest, self._rtd_latest
+./ATT/tests/test_robo_legs_status_service.py:31:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=None),
+./ATT/tests/test_robo_legs_status_service.py:42:    assert result.manual_latest_ts is None
+./ATT/tests/test_robo_legs_status_service.py:48:def test_status_prefers_manual_when_manual_exists():
+./ATT/tests/test_robo_legs_status_service.py:49:    manual_latest = datetime(2026, 5, 19, 10, 0, 0)
+./ATT/tests/test_robo_legs_status_service.py:54:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=rtd_latest),
+./ATT/tests/test_robo_legs_status_service.py:61:    assert result.chosen_ts == manual_latest
+./ATT/tests/test_robo_legs_status_service.py:62:    assert result.manual_latest_ts == manual_latest
+./ATT/tests/test_robo_legs_status_service.py:68:def test_status_uses_rtd_when_manual_missing():
+./ATT/tests/test_robo_legs_status_service.py:73:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=rtd_latest),
+./ATT/tests/test_robo_legs_status_service.py:81:    assert result.manual_latest_ts is None
+./ATT/tests/test_robo_legs_status_service.py:88:    manual_latest = datetime(2026, 5, 19, 10, 0, 0)
+./ATT/tests/test_robo_legs_status_service.py:92:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./ATT/tests/test_robo_legs_status_service.py:104:    manual_latest = datetime(2026, 5, 19, 10, 5, 0)
+./ATT/tests/test_robo_legs_status_service.py:108:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./ATT/tests/test_robo_legs_status_service.py:119:    manual_latest = datetime(2026, 5, 19, 10, 0, 0)
+./ATT/tests/test_robo_legs_status_service.py:123:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./ATT/tests/test_structures_archive_wiring.py:514:    Executar manualmente em ambiente com display disponivel.
+./ATT/tests/test_structure_events_api.py:32:    "source": "manual",
+./ATT/tests/test_structure_events_api.py:65:    "source": "manual",
+./ATT/tests/test_structure_events_effective_state.py:129:def test_apply_events_manual_close_with_quantity_reduces_leg():
+./ATT/tests/test_structure_events_effective_state.py:137:                    "event_type": "manual_close",
+./ATT/tests/test_structure_events_effective_state.py:152:def test_apply_events_manual_close_without_quantity_zeros_leg():
+./ATT/tests/test_structure_events_effective_state.py:160:                    "event_type": "manual_close",
+./ATT/tests/test_structure_events_repository.py:72:            "source": "manual",
+./ATT/tests/test_structure_events_repository.py:92:    assert event["source"] == "manual"
+./ATT/tests/test_structure_events_repository.py:131:            "source": "manual",
+./ATT/tests/test_structure_events_repository.py:167:            "source": "manual",
+./ATT/tests/test_structure_events_repository.py:198:            "event_type": "manual_close",
+./ATT/tests/test_structure_events_repository.py:200:            "source": "manual",
+./ATT/tests/test_structure_events_repository.py:222:            "source": "manual",
+./ATT/tests/test_structure_events_repository.py:231:            "source": "manual",
+./ATT/tests/test_structure_events_repository.py:317:        "source": "manual",
+./ATT/tests/test_structure_events_service.py:97:        source="manual",
+./ATT/tests/test_structure_events_service.py:111:    assert record["source"] == "manual"
+./ATT/tests/test_structure_events_service.py:158:def test_register_manual_close_forces_manual_source(service):
+./ATT/tests/test_structure_events_service.py:159:    record = service.register_manual_close(
+./ATT/tests/test_structure_events_service.py:164:        notes="encerramento manual",
+./ATT/tests/test_structure_events_service.py:167:    assert record["event_type"] == "manual_close"
+./ATT/tests/test_structure_events_service.py:168:    assert record["source"] == "manual"
+./ATT/tests/test_structure_events_service.py:261:        "source": "manual",
+./db/schema.py:81:    source         TEXT    NOT NULL DEFAULT 'manual',
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:8:2. Cadastro manual de estruturas e erro de strike.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:11:5. Leitura RTD, manual e rtd_option_quotes.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:86:## 2. Cadastro manual e erro de strike
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:259:## 5. Fluxo RTD/manual/rtd_option_quotes
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:272:    MarketSnapshotRepository.get_manual_legs()
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:280:    manual > rtd_option_quotes > rtd
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:290:    manual_analise_robo_legs / rtd_analise_robo_legs
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:311:### H1 — Erro de strike no cadastro manual
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:337:### H3 — Inconsistência entre RTD, manual e rtd_option_quotes
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:346:    Evidenciar e testar política manual > rtd_option_quotes > rtd no fluxo completo.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:392:4. O fluxo RTD usa política manual > rtd_option_quotes > rtd.
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:203:360:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:206:404:    def is_manual_first(self) -> bool:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:226:7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:237:257:      get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:251:360:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:252:366:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:255:410:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:256:437:        manual_legs = self._repo.get_manual_legs(effective_ref)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:53:./ATT/tests/test_market_snapshot_selector.py:16:    def __init__(self, *, manual=None, rtd_option_quotes=None, rtd=None):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:60:./ATT/tests/test_market_snapshot_selector.py:31:def test_selector_prioritizes_rtd_option_quotes_over_legacy_rtd_when_no_manual_exists():
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:66:./ATT/tests/test_market_snapshot_selector.py:50:def test_selector_keeps_manual_leg_ahead_of_rtd_option_quotes():
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:73:./ATT/tests/test_robo_legs_repository.py:42:def test_get_legs_prefers_manual_over_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:75:./ATT/tests/test_robo_legs_repository.py:72:def test_get_legs_falls_back_to_rtd_when_manual_empty(tmp_path):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:77:./ATT/tests/test_robo_legs_repository.py:116:def test_list_timestamps_prefers_manual_then_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:80:./ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:83:./ATT/tests/test_robo_legs_status_repository.py:36:    manual_latest, rtd_latest = repo.latest_timestamps("TESTE")
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:86:./ATT/tests/test_robo_legs_status_repository.py:56:    manual_latest, rtd_latest = repo.latest_timestamps("INEXISTENTE")
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:88:./ATT/tests/test_robo_legs_status_service.py:14:    def __init__(self, manual_latest=None, rtd_latest=None):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:90:./ATT/tests/test_robo_legs_status_service.py:21:        return self._manual_latest, self._rtd_latest
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:91:./ATT/tests/test_robo_legs_status_service.py:31:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:94:./ATT/tests/test_robo_legs_status_service.py:54:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=rtd_latest),
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:96:./ATT/tests/test_robo_legs_status_service.py:68:def test_status_uses_rtd_when_manual_missing():
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:98:./ATT/tests/test_robo_legs_status_service.py:73:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=rtd_latest),
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:102:./ATT/tests/test_robo_legs_status_service.py:92:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:103:./ATT/tests/test_robo_legs_status_service.py:108:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:104:./ATT/tests/test_robo_legs_status_service.py:123:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:134:./domain/calculation_request.py:28:VALID_SOURCES        = {"rtd", "manual", "ui"}
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:135:./domain/calculation_request.py:178:    source             : 'rtd' | 'manual' | 'ui'
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:140:./domain/market_snapshot.py:60:    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:146:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:179:./repositories/robo_legs_repository.py:36:      manual_analise_robo_legs > rtd_analise_robo_legs
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:185:./repositories/robo_legs_repository.py:101:        prefer: str = "manual_then_rtd",
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:188:./repositories/robo_legs_repository.py:271:        prefer: str = "manual_then_rtd",
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:189:./repositories/robo_legs_status_repository.py:47:        Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:191:./repositories/robo_legs_status_repository.py:76:        Retorna (manual_latest_ts, rtd_latest_ts).
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:207:./scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:216:./services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:217:./services/canonical_input_service.py:151:        legs pelo resultado do selector (manual > rtd).
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:218:./services/canonical_input_service.py:188:    # Legs via selector (manual > rtd)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:220:./services/canonical_pricing_facade.py:363:            #  2. Seleciona snapshot (manual > rtd) 
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:221:./services/legacy_structure_legs_reader.py:16:      - ler pernas legadas manual/rtd;
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:222:./services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:226:./services/market_snapshot_selector.py:47:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:250:./services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:251:./services/robo_legs_service.py:23:      - obtém legs com regra manual > rtd
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:252:./services/robo_legs_status_service.py:65:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:253:./services/robo_legs_status_service.py:69:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:9:./domain/calculation_request.py:28:VALID_SOURCES        = {"rtd", "manual", "ui"}
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:10:./domain/calculation_request.py:178:    source             : 'rtd' | 'manual' | 'ui'
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:15:./domain/market_snapshot.py:60:    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:21:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:54:./repositories/robo_legs_repository.py:36:      manual_analise_robo_legs > rtd_analise_robo_legs
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:60:./repositories/robo_legs_repository.py:101:        prefer: str = "manual_then_rtd",
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:63:./repositories/robo_legs_repository.py:271:        prefer: str = "manual_then_rtd",
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:64:./repositories/robo_legs_status_repository.py:47:        Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:66:./repositories/robo_legs_status_repository.py:76:        Retorna (manual_latest_ts, rtd_latest_ts).
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:82:./scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:91:./services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:92:./services/canonical_input_service.py:151:        legs pelo resultado do selector (manual > rtd).
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:93:./services/canonical_input_service.py:188:    # Legs via selector (manual > rtd)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:95:./services/canonical_pricing_facade.py:363:            #  2. Seleciona snapshot (manual > rtd) 
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:96:./services/legacy_structure_legs_reader.py:16:      - ler pernas legadas manual/rtd;
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:97:./services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:101:./services/market_snapshot_selector.py:47:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:125:./services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:126:./services/robo_legs_service.py:23:      - obtém legs com regra manual > rtd
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:127:./services/robo_legs_status_service.py:65:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:128:./services/robo_legs_status_service.py:69:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:249:    # Construcao manual do CalculationRequest
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:84:    FROM manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:257:      get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:360:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:366:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:369:  - Se existir snapshot manual para o ativo, usa manual
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:401:    manual_overrides: list[str] = field(default_factory=list)
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:404:    def is_manual_first(self) -> bool:
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:405:        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:410:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:437:        manual_legs = self._repo.get_manual_legs(effective_ref)
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:453:        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:454:        for leg in manual_legs:
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:455:            if leg.ativo and leg.ativo not in manual_by_ativo:
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:456:                manual_by_ativo[leg.ativo] = leg
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:469:            set(manual_by_ativo)
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:478:            if ativo in manual_by_ativo:
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:479:                legs_selected.append(manual_by_ativo[ativo])
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:487:        if manual_legs:
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:498:            manual_overrides=overrides,
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:154:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:8:2. Cadastro manual de estruturas e erro de strike.
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:158:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:86:## 2. Cadastro manual e erro de strike
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:171:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:311:### H1 — Erro de strike no cadastro manual
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:563:./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:1:# Fase 2A — Reprodução: strike no fluxo manual
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:564:./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:4:- Reproduzir e documentar o comportamento atual relacionado ao campo strike no fluxo manual.
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:565:./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:5:- Identificar onde o strike é recebido, validado, normalizado e usado.
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:566:./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:11:- Escopo desta fase: fluxo manual / strike
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:737:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:745:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:118:- Ao digitar ou aplicar o simbolo da opcao, o sistema deve buscar automaticamente os dados da opcao.- O usuario nao deve precisar digitar manualmente strike e vencimento quando o simbolo for reconhecido.- Se o simbolo nao for encontrado, o sistema deve informar claramente.- Se houver divergencia entre simbolo, tipo e ativo, o sistema deve bloquear ou pedir confirmacao.- A estrutura so deve ser salva como funcional se possuir dados minimos para payoff e decisoes.
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:1:# Fase 2A — Reprodução: strike no fluxo manual
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:4:- Reproduzir e documentar o comportamento atual relacionado ao campo strike no fluxo manual.
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:11:- Escopo desta fase: fluxo manual / strike
+./docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:60:def test_resolve_effective_leg_price_preserves_explicit_manual_price
+./docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:61:def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual
+./docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:213:docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py:110:def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
+./docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:345:docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py:68:                "price_source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:348:docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py:101:    assert loaded["pricing_payload"]["legs"][1]["price_source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-11-auditoria-testes-rtd-historicos-git.txt:39:852d9be test: valida diagnostico neutro em preco manual
+./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:101:ATT/tests/test_robo_legs_repository.py::test_get_legs_prefers_manual_over_rtd
+./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:102:ATT/tests/test_robo_legs_repository.py::test_get_legs_falls_back_to_rtd_when_manual_empty
+./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:103:ATT/tests/test_robo_legs_repository.py::test_list_timestamps_prefers_manual_then_rtd
+./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:104:ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd
+./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:105:ATT/tests/test_robo_legs_status_service.py::test_status_uses_rtd_when_manual_missing
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:71:ATT/tests/test_pricing_execution_persistence_service.py:194:            "snapshot_source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:103:ATT/tests/test_structure_events_api.py:32:    "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:104:ATT/tests/test_structure_events_api.py:65:    "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:105:ATT/tests/test_structure_events_repository.py:72:            "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:106:ATT/tests/test_structure_events_repository.py:92:    assert event["source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:108:ATT/tests/test_structure_events_repository.py:131:            "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:111:ATT/tests/test_structure_events_repository.py:167:            "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:112:ATT/tests/test_structure_events_repository.py:200:            "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:113:ATT/tests/test_structure_events_repository.py:222:            "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:114:ATT/tests/test_structure_events_repository.py:231:            "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:116:ATT/tests/test_structure_events_repository.py:317:        "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:117:ATT/tests/test_structure_events_service.py:97:        source="manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:118:ATT/tests/test_structure_events_service.py:111:    assert record["source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:121:ATT/tests/test_structure_events_service.py:158:def test_register_manual_close_forces_manual_source(service):
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:122:ATT/tests/test_structure_events_service.py:168:    assert record["source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:126:ATT/tests/test_structure_events_service.py:261:        "source": "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:142:repositories/market_snapshot_repository.py:177:      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:150:repositories/structure_events_repository.py:144:    source = str(data.get("source", "manual")).strip().lower()
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:154:repositories/structure_events_repository.py:209:                source         TEXT    NOT NULL DEFAULT 'manual',
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:165:services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:217:services/market_snapshot_selector.py:39:        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:220:services/market_snapshot_selector.py:100:        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:223:services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:239:services/structure_events_service.py:118:        source: str = "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:242:services/structure_events_service.py:182:            source="manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:243:services/structure_events_service.py:193:        source: str = "manual",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:253:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:703:            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:754:Política de precedência de snapshots: manual > rtd.
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:757:  - Se existir snapshot manual, usa manual
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:786:    manual_overrides: list[str] = field(default_factory=list)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:789:    def is_manual_first(self) -> bool:
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:790:        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:795:    Aplica a política manual > rtd para selecionar o snapshot canônico.
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:823:        manual_legs = self._repo.get_manual_legs(effective_ref)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:829:        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:830:        for leg in manual_legs:
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:831:            if leg.ativo and leg.ativo not in manual_by_ativo:
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:832:                manual_by_ativo[leg.ativo] = leg
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:839:        todos_ativos = sorted(set(manual_by_ativo) | set(rtd_by_ativo))
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:844:            if ativo in manual_by_ativo:
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:845:                legs_selected.append(manual_by_ativo[ativo])
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:851:        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:857:            manual_overrides=overrides,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:937:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1011:    FROM manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1109:      get_manual_legs(aba)  -> lista de LegMarketSnapshot source=MANUAL
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1142:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1161:            legs = self.get_manual_legs(ref)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1451:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1594:        legs pelo resultado do selector (manual > rtd).
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1631:    # Legs via selector (manual > rtd)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1687:            "manual_overrides": result.manual_overrides,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1688:            "is_manual_first":  result.is_manual_first,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1819:        "manual_overrides": [],
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1880:        manual_overrides=["price"],
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1899:        "manual_overrides": ["price"],
+./docs/checkpoints/evidencias/fase-6-11-mapa-runtime-leitura-rtd-pricing.txt:38:- manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-6-11-mapa-runtime-leitura-rtd-pricing.txt:43:MarketSnapshotSelector aplica manual > RTD por ativo:
+./docs/checkpoints/evidencias/fase-6-11-mapa-runtime-leitura-rtd-pricing.txt:44:- se houver leg manual para o ativo, usa manual;
+./docs/checkpoints/evidencias/fase-6-11-mapa-runtime-leitura-rtd-pricing.txt:69:git grep -n "market_snapshot\|manual\|rtd_analise\|rtd_option_quotes\|source\|legs\|snapshot"
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:98:ATT/tests/test_robo_legs_repository.py:42:def test_get_legs_prefers_manual_over_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:100:ATT/tests/test_robo_legs_repository.py:72:def test_get_legs_falls_back_to_rtd_when_manual_empty(tmp_path):
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:102:ATT/tests/test_robo_legs_repository.py:116:def test_list_timestamps_prefers_manual_then_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:105:ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:108:ATT/tests/test_robo_legs_status_repository.py:36:    manual_latest, rtd_latest = repo.latest_timestamps("TESTE")
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:111:ATT/tests/test_robo_legs_status_repository.py:56:    manual_latest, rtd_latest = repo.latest_timestamps("INEXISTENTE")
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:113:ATT/tests/test_robo_legs_status_service.py:14:    def __init__(self, manual_latest=None, rtd_latest=None):
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:115:ATT/tests/test_robo_legs_status_service.py:21:        return self._manual_latest, self._rtd_latest
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:116:ATT/tests/test_robo_legs_status_service.py:31:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:119:ATT/tests/test_robo_legs_status_service.py:54:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=rtd_latest),
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:121:ATT/tests/test_robo_legs_status_service.py:68:def test_status_uses_rtd_when_manual_missing():
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:123:ATT/tests/test_robo_legs_status_service.py:73:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=rtd_latest),
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:127:ATT/tests/test_robo_legs_status_service.py:92:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:128:ATT/tests/test_robo_legs_status_service.py:108:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:129:ATT/tests/test_robo_legs_status_service.py:123:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:17:services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:30:services/canonical_input_service.py:151:        legs pelo resultado do selector (manual > rtd).
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:33:services/canonical_input_service.py:188:    # Legs via selector (manual > rtd)
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:76:services/canonical_pricing_facade.py:363:            #  2. Seleciona snapshot (manual > rtd) 
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:151:services/legacy_structure_legs_reader.py:16:      - ler pernas legadas manual/rtd;
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:161:services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd.
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:163:services/market_snapshot_selector.py:44:    Aplica a política manual > rtd para selecionar o snapshot canônico.
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:169:services/market_snapshot_selector.py:88:        todos_ativos = sorted(set(manual_by_ativo) | set(rtd_by_ativo))
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:172:services/market_snapshot_selector.py:100:        source = SnapshotSource.MANUAL if manual_legs else SnapshotSource.RTD
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:173:services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:194:services/robo_legs_service.py:23:      - obtém legs com regra manual > rtd
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:197:services/robo_legs_status_service.py:65:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:198:services/robo_legs_status_service.py:69:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:268:ATT/tests/test_robo_legs_repository.py:42:def test_get_legs_prefers_manual_over_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:270:ATT/tests/test_robo_legs_repository.py:72:def test_get_legs_falls_back_to_rtd_when_manual_empty(tmp_path):
+./docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:272:ATT/tests/test_robo_legs_repository.py:116:def test_list_timestamps_prefers_manual_then_rtd(tmp_path):
+./docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt:60:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:108:    assert price_source == "manual"
+./docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt:64:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:112:    assert "manual explícito" in traceability["rtd_validation_message"]
+./docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt:95:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:348:    assert leg["price_source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt:144:ATT/tests/test_pricing_execution_price_source_persistence.py:68:                "price_source": "manual",
+./docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt:146:ATT/tests/test_pricing_execution_price_source_persistence.py:101:    assert loaded["pricing_payload"]["legs"][1]["price_source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt:172:services/canonical_pricing_facade.py:480:                "rtd_validation_message": "Preço manual explícito preservado; RTD não consultado.",
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:2:ATT/tests/test_canonical_pricing_facade_execute_pricing_rtd_integration.py:162:            CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:23:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:89:def test_resolve_effective_leg_price_preserves_explicit_manual_price():
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:24:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:102:        leg_source="manual",
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:25:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:108:    assert price_source == "manual"
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:26:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:112:    assert "manual explícito" in traceability["rtd_validation_message"]
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:27:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:116:def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:28:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:204:        manual_overrides=[],
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:29:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:302:def test_snapshot_result_to_payload_does_not_leak_rtd_traceability_for_manual_price(tmp_path):
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:30:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:325:                "source": "manual",
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:31:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:330:        source="manual",
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:32:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:332:        manual_overrides=[],
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:33:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:348:    assert leg["price_source"] == "manual"
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:34:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:475:        manual_overrides=[],
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:35:ATT/tests/test_canonical_pricing_facade_rtd_price_resolution.py:518:        manual_overrides=[],
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:40:services/canonical_pricing_facade.py:196:def _is_manual_source(value: Any) -> bool:
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:41:services/canonical_pricing_facade.py:197:    """Retorna True quando a fonte da leg é manual."""
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:42:services/canonical_pricing_facade.py:202:    return "manual" in str(raw).strip().lower()
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:45:services/canonical_pricing_facade.py:465:      manual explícito > rtd_option_quotes > preço original do snapshot.
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:46:services/canonical_pricing_facade.py:472:    if _is_manual_source(leg_source) and original_price > 0:
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:47:services/canonical_pricing_facade.py:475:            "manual",
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:48:services/canonical_pricing_facade.py:480:                "rtd_validation_message": "Preço manual explícito preservado; RTD não consultado.",
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:63:services/canonical_pricing_facade.py:781:            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+./docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt:66:services/canonical_pricing_facade.py:834:            #  2. Seleciona snapshot (manual > rtd) 
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:102:ATT/tests/test_robo_legs_repository.py::test_get_legs_prefers_manual_over_rtd PASSED [ 16%]
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:103:ATT/tests/test_robo_legs_repository.py::test_get_legs_falls_back_to_rtd_when_manual_empty PASSED [ 33%]
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:104:ATT/tests/test_robo_legs_repository.py::test_has_manual_detects_existing_row PASSED [ 50%]
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:105:ATT/tests/test_robo_legs_repository.py::test_list_timestamps_prefers_manual_then_rtd PASSED [ 66%]
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:119:ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd PASSED [ 50%]
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:133:ATT/tests/test_robo_legs_status_service.py::test_status_prefers_manual_when_manual_exists PASSED [ 33%]
+./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:134:ATT/tests/test_robo_legs_status_service.py::test_status_uses_rtd_when_manual_missing PASSED [ 50%]
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:30:docs/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:81:docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt:151:services/legacy_structure_legs_reader.py:16:      - ler pernas legadas manual/rtd;
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:474:ATT/tests/test_legacy_structure_legs_importer_integration.py:50:        CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:484:ATT/tests/test_legacy_structure_legs_importer_integration.py:151:        INSERT INTO manual_analise_robo_legs (
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:512:ATT/tests/test_legacy_structure_legs_reader.py:127:        CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:647:ATT/tests/test_robo_legs_repository.py:11:        CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:649:ATT/tests/test_robo_legs_repository.py:49:        INSERT INTO manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:652:ATT/tests/test_robo_legs_repository.py:103:        INSERT INTO manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:653:ATT/tests/test_robo_legs_repository.py:123:        INSERT INTO manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:654:ATT/tests/test_robo_legs_repository.py:128:        INSERT INTO manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:656:ATT/tests/test_robo_legs_repository.py:153:        INSERT INTO manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:660:ATT/tests/test_robo_legs_status_repository.py:14:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:662:ATT/tests/test_robo_legs_status_repository.py:18:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:663:ATT/tests/test_robo_legs_status_repository.py:22:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:665:ATT/tests/test_robo_legs_status_repository.py:47:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1500:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:180:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1506:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:216:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1508:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:309:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1520:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:462:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1529:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:498:- vínculo com RTD: ainda indireto por alias/tabelas rtd_analise_robo_legs e manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1541:docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:139:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1550:docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:278:| `manual_analise_robo_legs` | legado | isolar e substituir progressivamente |
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1559:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:89:repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1561:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:91:repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1562:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:93:repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1563:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:94:repositories/robo_legs_repository.py:63:            table="manual_analise_robo_legs",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1565:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:96:repositories/robo_legs_repository.py:87:            FROM manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1566:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:97:repositories/robo_legs_repository.py:109:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1568:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:99:repositories/robo_legs_repository.py:119:                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs "
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1570:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:101:repositories/robo_legs_status_repository.py:53:                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1584:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:284:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1591:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:394:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1594:docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:158:manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1603:docs/FASE_6_CAMADA_CANONICA_LEITURA.md:90:- `manual_analise_robo_legs`
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1604:docs/FASE_6_CAMADA_CANONICA_LEITURA.md:101:- `manual_analise_robo_legs > rtd_analise_robo_legs`
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1613:docs/FASE_6_CAMADA_CANONICA_LEITURA.md:256:- A regra `manual_analise_robo_legs > rtd_analise_robo_legs` deve ser preservada.
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1626:docs/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1663:docs/fase_8_banco_fonte_verdade_auditoria.md:96:- manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1667:docs/fase_8_banco_fonte_verdade_auditoria.md:114:- manual_analise_robo_legs: 0
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1676:docs/fase_8_banco_fonte_verdade_auditoria.md:158:- manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1686:docs/fase_8_banco_fonte_verdade_auditoria.md:260:- manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1692:docs/fase_8_banco_fonte_verdade_auditoria.md:280:- manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1832:repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1834:repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1854:repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1856:repositories/robo_legs_repository.py:63:            table="manual_analise_robo_legs",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1858:repositories/robo_legs_repository.py:87:            FROM manual_analise_robo_legs
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1859:repositories/robo_legs_repository.py:109:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1861:repositories/robo_legs_repository.py:119:                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs "
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1872:repositories/robo_legs_repository.py:252:    def has_manual_by_structure_id(
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1874:repositories/robo_legs_repository.py:257:        """Versão canônica de has_manual() por structure_id."""
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1888:repositories/robo_legs_status_repository.py:53:                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:2059:scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:151:- manual_analise_robo_legs: AUSENTE
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:412:- As tabelas legadas rtd_analise_robo_legs e manual_analise_robo_legs nao existem no app.db local inspecionado.
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:426:- Depender de RTD/manual como fallback nao e suficiente no banco local, pois as tabelas legadas nao existem no app.db inspecionado.
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2535:    "manual_close",
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt:162:            CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py.txt:89:def test_resolve_effective_leg_price_preserves_explicit_manual_price():
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py.txt:102:        leg_source="manual",
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py.txt:110:def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py.txt:183:        manual_overrides=[],
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:220:            CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt:68:                "price_source": "manual",
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt:101:    assert loaded["pricing_payload"]["legs"][1]["price_source"] == "manual"
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt:162:            CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py.txt:89:def test_resolve_effective_leg_price_preserves_explicit_manual_price():
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py.txt:102:        leg_source="manual",
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py.txt:110:def test_resolve_effective_leg_price_uses_rtd_when_source_is_not_manual():
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py.txt:183:        manual_overrides=[],
+./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:220:            CREATE TABLE manual_analise_robo_legs (
+./docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt:68:                "price_source": "manual",
+./docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt:101:    assert loaded["pricing_payload"]["legs"][1]["price_source"] == "manual"
+./docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md:175:  - `manual_analise_robo_legs`
+./docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md:178:- A política de seleção observada é manual > RTD por ativo.
+./docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md:13:1. preço manual explícito;
+./docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md:65:### Preço manual explícito
+./docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md:69:- price_source permanece manual;
+./docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md:74:- rtd_price_source não é propagado para a leg manual.
+./docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:152:| `db/init_excel_schema.py` | Aplicador manual do schema legado | Inicializador legado isolado |
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:39:| Fase 3 | Cadastro manual, payoff e decisões | Pendente |
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:50:| P-003 | Estrutura manual aparece, mas não gera payoff | Pendente |
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:51:| P-004 | Estrutura manual não gera decisões | Pendente |
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:86:| EV-003 | Teste/print | Estrutura manual aparece, mas não gera payoff/decisões | Registrado |
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:100:| PE-003 | Garantir cadastro manual funcional | Alta | Pendente |
+./docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+./docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:9:Nova estrutura criada no sistema aparece corretamente na UI sem edição manual no Excel.
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:180:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:216:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:309:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:462:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:498:- vínculo com RTD: ainda indireto por alias/tabelas rtd_analise_robo_legs e manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:70:Podem mudar de formato, depender de Excel, RTD, exportação manual ou captura externa.
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:139:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:278:| `manual_analise_robo_legs` | legado | isolar e substituir progressivamente |
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:89:repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs) e manuais (manual_analise_robo_legs),
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:91:repositories/market_snapshot_repository.py:79:    FROM manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:93:repositories/robo_legs_repository.py:35:      manual_analise_robo_legs > rtd_analise_robo_legs
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:94:repositories/robo_legs_repository.py:63:            table="manual_analise_robo_legs",
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:96:repositories/robo_legs_repository.py:87:            FROM manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:97:repositories/robo_legs_repository.py:109:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:99:repositories/robo_legs_repository.py:119:                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs "
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:101:repositories/robo_legs_status_repository.py:53:                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:284:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:291:A camada de domínio e repositórios já está majoritariamente desacoplada de arquivo físico, mas ainda depende semanticamente das tabelas rtd_* e manual_*.
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:315:- Os testes criam tabelas `manual_*` e `rtd_*` para validar comportamento dos repositórios.
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:394:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:158:manual_analise_robo_legs
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:165:Candidatas mais fortes a fonte canônica do que as tabelas rtd_*, quando representam decisão/manual override do usuário.
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:312:### 5.4 Tabelas manual_*
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:317:Tabelas manual_* representam dado mantido pela aplicação ou override manual.
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:344:Mapear todos os SELECT/INSERT/UPDATE envolvendo rtd_*, manual_* e tabelas legadas do Excel.
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:370:git grep -n "rtd_analise\|rtd_consolidacoes\|rtd_rolls\|rtd_hist\|rtd_encerramentos\|manual_analise"
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:386:Tabelas manual_* são candidatas a fonte canônica quando representam dado do usuário.
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:393:Fase 6 - Criar ou consolidar uma camada canônica de leitura, escondendo nomes rtd_* e manual_* atrás de repositórios/interfaces estáveis.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:5:Criar ou consolidar uma camada canônica de leitura para esconder tabelas físicas `rtd_*` e `manual_*` atrás de repositórios, interfaces ou serviços estáveis.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:27:- Tabelas `manual_*` representam dados mantidos/editados pela aplicação.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:32:Ainda existem referências físicas a tabelas `rtd_*` e `manual_*` fora de uma fronteira canônica clara.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:45:- `manual_analise*`
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:90:- `manual_analise_robo_legs`
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:101:- `manual_analise_robo_legs > rtd_analise_robo_legs`
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:214:- remoção de tabelas `manual_*`.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:242:- quais referências físicas `rtd_*` e `manual_*` são aceitáveis;
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:253:- O acesso direto a `rtd_*` e `manual_*` é aceitável nos repositórios e no adaptador bridge.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:256:- A regra `manual_analise_robo_legs > rtd_analise_robo_legs` deve ser preservada.
+./docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:260:Fase 7 - Refatoração incremental dos vazamentos de `rtd_*` e `manual_*` fora da camada de repositórios/adaptadores.
+./docs/evolucoes de fases/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md:5:Isolar referências diretas a nomes físicos legados de tabelas `rtd_*` e `manual_*` fora das camadas autorizadas de acesso a dados.
+./docs/evolucoes de fases/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md:46:git grep -n "rtd_analise\\|manual_analise" -- domain/market_snapshot.py services/canonical_pricing_facade.py || true
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:96:- manual_analise_robo_legs
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:114:- manual_analise_robo_legs: 0
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:158:- manual_analise_robo_legs
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:260:- manual_analise_robo_legs
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:280:- manual_analise_robo_legs
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:212:## Microfatia — Diagnóstico neutro para preço manual
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:216:- `852d9be test: valida diagnostico neutro em preco manual`
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:220:- Garantir que preço manual explícito seja preservado no canonical pricing sem consulta ao RTD.
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:224:1. `price` e `premium` preservam o valor manual.
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:225:2. `price_source` permanece como `manual`.
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:230:7. Metadados concretos da quote RTD não vazam para a perna manual.
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:235:- `docs/checkpoints/evidencias/fase-6-6-pytest-metadados-rtd-canonical-manual-price.txt`
+./docs/migracoes/fase-14-migracao-dados-legados.md:39:Esses registros devem ser tratados em fase posterior de reconciliação de órfãos legados ou criação/mapeamento manual de estrutura ABEV3.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:56:1. Erro ao adicionar manualmente uma estrutura com valores usando virgula
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:59:Ao adicionar manualmente uma estrutura, o sistema apresenta erro semelhante a:
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:64:No contexto brasileiro, o usuario tende a informar valores decimais usando virgula. Isso gera erro de validacao e impede o cadastro manual adequado.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:76:- Formularios de inclusao manual de estrutura.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:118:- Ao digitar ou aplicar o simbolo da opcao, o sistema deve buscar automaticamente os dados da opcao.- O usuario nao deve precisar digitar manualmente strike e vencimento quando o simbolo for reconhecido.- Se o simbolo nao for encontrado, o sistema deve informar claramente.- Se houver divergencia entre simbolo, tipo e ativo, o sistema deve bloquear ou pedir confirmacao.- A estrutura so deve ser salva como funcional se possuir dados minimos para payoff e decisoes.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:139:- Normalizacao de comprado e vendido nao esta sendo aplicada no cadastro manual.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:145:- O pipeline nao esta processando estruturas cadastradas manualmente.- A estrutura nova nao atende algum filtro de consolidacao.- O status "active" nao esta sendo considerado corretamente.- O campo structure_id pode nao estar sendo gravado ou relacionado corretamente.- O modo canonical pode estar filtrando a estrutura incorretamente.- A consolidacao ignora estruturas criadas pela interface manual.- Faltam campos derivados exigidos por structure_decisions.- A estrutura tem legs suficientes para exibicao, mas nao suficientes para decisao.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:149:- Criar estrutura manual com uma ou mais legs validas.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:156:Apos cadastrar uma estrutura manual ativa e executar o pipeline, a tabela structure_decisions deve conter registros vinculados a essa estrutura, ou o sistema deve informar claramente por que ela foi rejeitada.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:215:Payoff provavelmente nao esta sendo gerado para estrutura manual	
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:218:Porem a curva de payoff nao funciona para a estrutura cadastrada manualmente.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:220:A tabela de pontos de payoff existe, mas a estrutura manual provavelmente nao possui pontos gerados ou nao esta sendo localizada pelo filtro ativo.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:222:- payoff_curve_points nao recebe dados para estruturas manuais.- O gerador de payoff depende da consolidacao em structure_decisions.- O filtro por structure_id em modo canonical nao encontra a estrutura criada manualmente.- O pipeline nao chama a etapa de payoff para estruturas novas.- Existem dados suficientes para exibir as legs, mas nao para gerar curva.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:226:- Ao salvar estrutura manual valida e executar pipeline, devem ser gerados pontos em payoff_curve_points para a estrutura.- Se os pontos nao forem gerados, o sistema deve informar o motivo.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:274:1. Criar uma estrutura manual usando ponto decimal.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:275:2. Criar uma estrutura manual usando virgula decimal.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:320:6. Criar teste do fluxo de inclusao manual.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:329:Garantir que a estrutura cadastrada manualmente fique pronta para uso funcional.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:333:3. Comparar estrutura criada manualmente com estrutura usada nos testes existentes.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:339:9. Criar teste integrado de cadastro manual ate payoff.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:340:10. Criar teste integrado de cadastro manual ate busca de decisoes.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:357:8. Criar teste ou verificacao manual documentada.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:388:3. Testar fluxo manual de cadastro.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:409:| Cadastro manual funcional | Parcial | Estrutura pronta para payoff e decisoes | Pendente |
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:426:2. Priorizar primeiro o cadastro manual funcional.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:430:6. Toda correcao deve ter teste ou evidencia manual registrada.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:434:1. Cadastrar estrutura manualmente com numeros no formato brasileiro.
+./domain/calculation_request.py:28:VALID_SOURCES        = {"rtd", "manual", "ui"}
+./domain/calculation_request.py:178:    source             : 'rtd' | 'manual' | 'ui'
+./domain/market_snapshot.py:20:    MANUAL = "manual"
+./domain/market_snapshot.py:60:    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
+./dto/robo_legs_status_dto.py:26:    manual_latest_ts: Optional[datetime]
+./dto/robo_leg_dto.py:10:    MANUAL = "manual"
+./mapear_repositorio.sh:385:  echo "5. **Auditar manualmente antes de decidir**"
+./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./repositories/market_snapshot_repository.py:83:    FROM manual_analise_robo_legs
+./repositories/market_snapshot_repository.py:256:      get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+./repositories/market_snapshot_repository.py:359:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./repositories/market_snapshot_repository.py:378:            legs = self.get_manual_legs(ref)
+./repositories/robo_legs_repository.py:36:      manual_analise_robo_legs > rtd_analise_robo_legs
+./repositories/robo_legs_repository.py:63:        manual = self._query_legs(
+./repositories/robo_legs_repository.py:64:            table="manual_analise_robo_legs",
+./repositories/robo_legs_repository.py:69:        if manual:
+./repositories/robo_legs_repository.py:70:            return manual
+./repositories/robo_legs_repository.py:80:    def has_manual(self, ref: StructureRef, timestamp: Any) -> bool:
+./repositories/robo_legs_repository.py:88:            FROM manual_analise_robo_legs
+./repositories/robo_legs_repository.py:101:        prefer: str = "manual_then_rtd",
+./repositories/robo_legs_repository.py:110:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
+./repositories/robo_legs_repository.py:120:                "SELECT DISTINCT timestamp FROM manual_analise_robo_legs "
+./repositories/robo_legs_repository.py:254:    def has_manual_by_structure_id(
+./repositories/robo_legs_repository.py:259:        """Versão canônica de has_manual() por structure_id."""
+./repositories/robo_legs_repository.py:263:        return self.has_manual(
+./repositories/robo_legs_repository.py:271:        prefer: str = "manual_then_rtd",
+./repositories/robo_legs_status_repository.py:47:        Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
+./repositories/robo_legs_status_repository.py:53:                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
+./repositories/robo_legs_status_repository.py:76:        Retorna (manual_latest_ts, rtd_latest_ts).
+./repositories/structure_events_repository.py:11:- encerramento manual
+./repositories/structure_events_repository.py:35:        "manual_close",
+./repositories/structure_events_repository.py:59:        "manual",
+./repositories/structure_events_repository.py:144:    source = str(data.get("source", "manual")).strip().lower()
+./repositories/structure_events_repository.py:209:                source         TEXT    NOT NULL DEFAULT 'manual',
+./scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+./services/calculation_orchestrator.py:248:    # Construcao manual do CalculationRequest
+./services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./services/canonical_input_service.py:151:        legs pelo resultado do selector (manual > rtd).
+./services/canonical_input_service.py:188:    # Legs via selector (manual > rtd)
+./services/canonical_input_service.py:244:            "manual_overrides": result.manual_overrides,
+./services/canonical_input_service.py:245:            "is_manual_first":  result.is_manual_first,
+./services/canonical_pricing_facade.py:314:            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+./services/canonical_pricing_facade.py:363:            #  2. Seleciona snapshot (manual > rtd) 
+./services/legacy_structure_legs_reader.py:16:      - ler pernas legadas manual/rtd;
+./services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./services/market_snapshot_selector.py:6:  - Se existir snapshot manual para o ativo, usa manual
+./services/market_snapshot_selector.py:38:    manual_overrides: list[str] = field(default_factory=list)
+./services/market_snapshot_selector.py:41:    def is_manual_first(self) -> bool:
+./services/market_snapshot_selector.py:42:        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+./services/market_snapshot_selector.py:47:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./services/market_snapshot_selector.py:74:        manual_legs = self._repo.get_manual_legs(effective_ref)
+./services/market_snapshot_selector.py:90:        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+./services/market_snapshot_selector.py:91:        for leg in manual_legs:
+./services/market_snapshot_selector.py:92:            if leg.ativo and leg.ativo not in manual_by_ativo:
+./services/market_snapshot_selector.py:93:                manual_by_ativo[leg.ativo] = leg
+./services/market_snapshot_selector.py:106:            set(manual_by_ativo)
+./services/market_snapshot_selector.py:115:            if ativo in manual_by_ativo:
+./services/market_snapshot_selector.py:116:                legs_selected.append(manual_by_ativo[ativo])
+./services/market_snapshot_selector.py:124:        if manual_legs:
+./services/market_snapshot_selector.py:135:            manual_overrides=overrides,
+./services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./services/robo_legs_service.py:23:      - obtém legs com regra manual > rtd
+./services/robo_legs_status_service.py:65:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+./services/robo_legs_status_service.py:69:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
+./services/robo_legs_status_service.py:71:        if manual_latest is not None:
+./services/robo_legs_status_service.py:73:            chosen_ts = manual_latest
+./services/robo_legs_status_service.py:84:                manual_latest_ts=None,
+./services/robo_legs_status_service.py:105:            manual_latest_ts=manual_latest,
+./services/structure_events_service.py:16:        "manual_close",
+./services/structure_events_service.py:30:        "manual",
+./services/structure_events_service.py:118:        source: str = "manual",
+./services/structure_events_service.py:162:    def register_manual_close(
+./services/structure_events_service.py:177:            event_type="manual_close",
+./services/structure_events_service.py:182:            source="manual",
+./services/structure_events_service.py:193:        source: str = "manual",
+./services/structure_events_service.py:303:        - manual_close reduz se quantity foi informado; senão zera.
+./services/structure_events_service.py:369:            if event_type == "manual_close":
+./utils/leg_normalizers.py:147:        if value_str in ['manual', 'man', 'm']:

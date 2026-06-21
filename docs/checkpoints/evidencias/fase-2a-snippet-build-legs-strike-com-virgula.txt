@@ -1,0 +1,3 @@
+PAYLOAD: [{'position_side': 'COMPRADO', 'option_type': 'CALL', 'strike': '100,00', 'expiration_date': '2026-12-18', 'quantity': '1', 'premium': None, 'multiplier': '1', 'symbol': 'TESTC100', 'notes': None, 'leg_order': 1}]
+STRIKE_VALUE: 100,00
+STRIKE_TYPE: str
