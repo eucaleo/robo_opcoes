@@ -1,0 +1,397 @@
+### UI/components/structure_editor_dialog.py linhas 220-380
+    # ------------------------------------------------------------------
+
+    def _load_existing(self):
+        """
+        Carrega campos e legs de uma estrutura existente via repositorio.
+        Usa self._structure_id (nao recebe argumento -- compativel com testes
+        que chamam dlg._load_existing() sem parametros).
+        """
+        data = self._repo.get_structure(self._structure_id)
+        if data is None:
+            messagebox.showerror(
+                "Erro",
+                f"Estrutura {self._structure_id} nao encontrada.",
+                parent=self,
+            )
+            self.destroy()
+            return
+
+        self._f_name.set(data.get("name", ""))
+        self._f_underlying.set(data.get("underlying_asset", ""))
+        self._f_alias.set(data.get("alias_legacy_aba") or "")
+        self._f_status.set(data.get("status", "active"))
+        self._f_notes.set(data.get("notes") or "")
+
+        self._legs_rows = list(data.get("legs", []))
+        self._refresh_leg_tree()
+
+    # ------------------------------------------------------------------
+    # Renderizacao da leg tree
+    # ------------------------------------------------------------------
+
+    def _refresh_leg_tree(self):
+        self._leg_tree.delete(*self._leg_tree.get_children())
+        for i, leg in enumerate(self._legs_rows, 1):
+            self._leg_tree.insert("", "end", iid=str(i - 1), values=(
+                i,
+                leg.get("position_side", ""),
+                leg.get("option_type", ""),
+                leg.get("strike", ""),
+                leg.get("expiration_date", ""),
+                leg.get("quantity", ""),
+                leg.get("premium") or "",
+                leg.get("multiplier", 1),
+                leg.get("symbol") or "",
+            ))
+
+    def _selected_leg_index(self) -> Optional[int]:
+        sel = self._leg_tree.selection()
+        if not sel:
+            return None
+        try:
+            return int(sel[0])
+        except (ValueError, TypeError):
+            return None
+
+    # ------------------------------------------------------------------
+    # Callbacks de legs
+    # ------------------------------------------------------------------
+
+    def _on_leg_double_click(self, _event=None):
+        """Popula o formulario com a leg duplo-clicada."""
+        idx = self._selected_leg_index()
+        if idx is None:
+            return
+        leg = self._legs_rows[idx]
+        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+        self._lf_type.set(leg.get("option_type", "CALL"))
+        self._lf_strike.set(str(leg.get("strike", "")))
+        self._lf_expiry.set(str(leg.get("expiration_date", "")))
+        self._lf_qty.set(str(leg.get("quantity", "1")))
+        self._lf_premium.set(str(leg.get("premium") or ""))
+        self._lf_mult.set(str(leg.get("multiplier", 1)))
+        self._lf_symbol.set(str(leg.get("symbol") or ""))
+
+    def _cmd_add_leg(self):
+        """Adiciona uma leg nova em branco e seleciona para edicao."""
+        new_leg = {
+            "position_side":   "COMPRADO",
+            "option_type":     "CALL",
+            "strike":          "",
+            "expiration_date": "",
+            "quantity":        1,
+            "premium":         None,
+            "multiplier":      1.0,
+            "leg_order":       len(self._legs_rows) + 1,
+            "symbol":          None,
+            "notes":           None,
+        }
+        self._legs_rows.append(new_leg)
+        self._refresh_leg_tree()
+        new_iid = str(len(self._legs_rows) - 1)
+        self._leg_tree.selection_set(new_iid)
+        self._on_leg_double_click()
+
+    # ------------------------------------------------------------------
+    # _add_leg_row: alias publico exigido pelos checks estaticos do alteracao_69
+    # Delega para _cmd_add_leg mantendo compatibilidade total.
+    # ------------------------------------------------------------------
+    def _add_leg_row(self):
+        """
+        Alias publico de _cmd_add_leg().
+        Exigido por test_classe_presente (alteracao_69) que verifica:
+            hasattr(StructureEditorDialog, '_add_leg_row')
+        """
+        self._cmd_add_leg()
+
+    def _cmd_remove_leg(self):
+        idx = self._selected_leg_index()
+        if idx is None:
+            messagebox.showwarning("Remover Leg", "Selecione uma leg primeiro.", parent=self)
+            return
+        self._legs_rows.pop(idx)
+        self._refresh_leg_tree()
+
+    def _cmd_move_leg(self, direction: int):
+        idx = self._selected_leg_index()
+        if idx is None:
+            return
+        new_idx = idx + direction
+        if new_idx < 0 or new_idx >= len(self._legs_rows):
+            return
+        self._legs_rows[idx], self._legs_rows[new_idx] = (
+            self._legs_rows[new_idx],
+            self._legs_rows[idx],
+        )
+        self._refresh_leg_tree()
+        self._leg_tree.selection_set(str(new_idx))
+
+    def _cmd_apply_leg(self):
+        """Aplica os valores do formulario na leg selecionada."""
+        idx = self._selected_leg_index()
+        if idx is None:
+            messagebox.showwarning(
+                "Aplicar Leg", "Selecione uma leg na lista primeiro.", parent=self
+            )
+            return
+
+        self._legs_rows[idx] = {
+            "position_side":   normalize_position_side(self._lf_side.get()),
+            "option_type":     self._lf_type.get(),
+            "strike":          self._lf_strike.get(),
+            "expiration_date": self._lf_expiry.get(),
+            "quantity":        self._lf_qty.get(),
+            "premium":         self._lf_premium.get() or None,
+            "multiplier":      self._lf_mult.get() or 1,
+            "leg_order":       idx + 1,
+            "symbol":          self._lf_symbol.get() or None,
+            "notes":           None,
+        }
+        self._refresh_leg_tree()
+
+    # ------------------------------------------------------------------
+    # Logica de payload (pura -- testavel sem display)
+    # ------------------------------------------------------------------
+
+    def _build_legs_payload(self) -> list[dict]:
+        """
+        Constroi lista de legs com leg_order sequencial a partir de 1.
+
+        Logica pura: nao modifica _legs_rows nem acessa Tk.
+        Testavel sem display (TestBuildLegsPayload no alteracao_69).
+
+### repositories/structures_repository.py linhas 70-140
+    if not underlying_asset:
+        raise ValueError("underlying_asset is required")
+
+    if status not in VALID_STRUCTURE_STATUS:
+        raise ValueError(f"invalid status: {status}")
+
+    if alias_legacy_aba is not None:
+        alias_legacy_aba = str(alias_legacy_aba).strip() or None
+
+    if notes is not None:
+        notes = str(notes).strip() or None
+
+    return {
+        "name": name,
+        "underlying_asset": underlying_asset,
+        "alias_legacy_aba": alias_legacy_aba,
+        "status": status,
+        "notes": notes,
+    }
+
+
+def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
+    position_side   = normalize_position_side(leg.get("position_side"))
+    option_type     = str(leg.get("option_type", "")).strip().upper()
+    strike          = leg.get("strike")
+    expiration_date = _validate_expiration_date(leg.get("expiration_date"))
+    quantity        = leg.get("quantity")
+    multiplier      = leg.get("multiplier", 1)
+    symbol          = leg.get("symbol")
+    notes           = leg.get("notes")
+
+    if position_side not in VALID_POSITION_SIDES:
+        raise ValueError(f"invalid position_side: {position_side}")
+
+    if option_type not in VALID_OPTION_TYPES:
+        raise ValueError(f"invalid option_type: {option_type}")
+
+    try:
+        strike = float(strike)
+    except Exception as exc:
+        raise ValueError("strike must be numeric") from exc
+
+    if strike <= 0:
+        raise ValueError("strike must be > 0")
+
+    try:
+        quantity = int(quantity)
+    except Exception as exc:
+        raise ValueError("quantity must be integer") from exc
+
+    if quantity <= 0:
+        raise ValueError("quantity must be > 0")
+
+    try:
+        multiplier = float(multiplier)
+    except Exception as exc:
+        raise ValueError("multiplier must be numeric") from exc
+
+    if multiplier <= 0:
+        raise ValueError("multiplier must be > 0")
+
+    try:
+        leg_order = int(leg.get("leg_order", 0))
+    except Exception as exc:
+        raise ValueError("leg_order must be integer") from exc
+
+    if leg_order < 0:
+        raise ValueError("leg_order must be >= 0")
+
+    premium = leg.get("premium")
+    if premium is not None:
+
+### validators/leg_validator.py linhas 1-120
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any
+
+
+@dataclass(frozen=True)
+class ValidationErrorItem:
+    code: str
+    field: str
+    aba: str
+
+
+class ValidationReport:
+    def __init__(self, errors: list[ValidationErrorItem] | None = None):
+        self.errors = errors or []
+
+    def is_ok(self) -> bool:
+        return len(self.errors) == 0
+
+
+def validate_legs(legs: list[Any]) -> ValidationReport:
+    errors: list[ValidationErrorItem] = []
+
+    for leg in legs:
+        aba = getattr(leg, "aba", "") or ""
+
+        cv = getattr(leg, "cv", None)
+        cv_value = getattr(cv, "value", cv)
+        if cv_value not in ("C", "V"):
+            errors.append(
+                ValidationErrorItem(
+                    code="invalid_cv",
+                    field="cv",
+                    aba=aba,
+                )
+            )
+
+        call_put = getattr(leg, "call_put", None)
+        call_put_value = getattr(call_put, "value", call_put)
+        if call_put_value not in ("CALL", "PUT"):
+            errors.append(
+                ValidationErrorItem(
+                    code="invalid_call_put",
+                    field="call_put",
+                    aba=aba,
+                )
+            )
+
+        quant = getattr(leg, "quant", None)
+        if not isinstance(quant, int) or quant <= 0:
+            errors.append(
+                ValidationErrorItem(
+                    code="invalid_quant",
+                    field="quant",
+                    aba=aba,
+                )
+            )
+
+        strike = getattr(leg, "strike", None)
+        if strike is None:
+            errors.append(
+                ValidationErrorItem(
+                    code="missing_strike",
+                    field="strike",
+                    aba=aba,
+                )
+            )
+
+        ativo = getattr(leg, "ativo", None)
+        if not ativo:
+            errors.append(
+                ValidationErrorItem(
+                    code="missing_ativo",
+                    field="ativo",
+                    aba=aba,
+                )
+            )
+
+    return ValidationReport(errors)
+
+### validators/validators__init__.py linhas 1-120
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, List
+
+
+@dataclass(frozen=True)
+class ValidationErrorItem:
+    code: str
+    field: str
+    aba: str
+
+
+class ValidationReport:
+    def __init__(self, errors: List[ValidationErrorItem] | None = None):
+        self.errors = errors or []
+
+    def is_ok(self) -> bool:
+        return len(self.errors) == 0
+
+
+def validate_legs(legs: list[Any]) -> ValidationReport:
+    errors: list[ValidationErrorItem] = []
+
+    for leg in legs:
+        aba = getattr(leg, "aba", "") or ""
+
+        cv = getattr(leg, "cv", None)
+        if cv not in ("C", "V"):
+            errors.append(
+                ValidationErrorItem(
+                    code="invalid_cv",
+                    field="cv",
+                    aba=aba,
+                )
+            )
+
+        call_put = getattr(leg, "call_put", None)
+        if call_put not in ("CALL", "PUT"):
+            errors.append(
+                ValidationErrorItem(
+                    code="invalid_call_put",
+                    field="call_put",
+                    aba=aba,
+                )
+            )
+
+        quant = getattr(leg, "quant", None)
+        if not isinstance(quant, int) or quant <= 0:
+            errors.append(
+                ValidationErrorItem(
+                    code="invalid_quant",
+                    field="quant",
+                    aba=aba,
+                )
+            )
+
+        strike = getattr(leg, "strike", None)
+        if strike is None:
+            errors.append(
+                ValidationErrorItem(
+                    code="missing_strike",
+                    field="strike",
+                    aba=aba,
+                )
+            )
+
+        ativo = getattr(leg, "ativo", None)
+        if not ativo:
+            errors.append(
+                ValidationErrorItem(
+                    code="missing_ativo",
+                    field="ativo",
+                    aba=aba,
+                )
+            )
+
+    return ValidationReport(errors)

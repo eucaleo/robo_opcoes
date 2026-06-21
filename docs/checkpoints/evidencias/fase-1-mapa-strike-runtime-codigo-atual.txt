@@ -1,0 +1,91 @@
+./api/structures_controller.py:53:    strike: float        = Field(..., gt=0)
+./db/import_excel.py:44:        "STRIKE": "strike",
+./db/schema_excel.py:56:  strike REAL,
+./domain/calculation_request.py:75:    strike        : decimal positivo
+./domain/calculation_request.py:85:    strike:          float
+./domain/calculation_request.py:116:        # strike deve ser positivo
+./domain/calculation_request.py:117:        object.__setattr__(self, "strike", _require_positive(self.strike, "strike"))
+./domain/canonical_validators.py:25:        if leg.get("strike") is None:
+./domain/canonical_validators.py:26:            errors.append(f"structure.legs[{index}].strike is required")
+./domain/contracts.py:10:    strike: float
+./domain/contracts.py:59:                strike=float(leg.get("strike")),
+./domain/contracts.py:107:                        "strike": leg.strike,
+./domain/market_snapshot.py:45:    strike          : Optional[float] = None
+./domain/payoff.py:19:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./domain/payoff.py:21:        return max(spot_at_expiration - strike, 0.0)
+./domain/payoff.py:23:        return max(strike - spot_at_expiration, 0.0)
+./domain/payoff.py:31:    strike = float(leg.get("strike") or 0.0)
+./domain/payoff.py:39:        strike=strike,
+./dto/robo_leg_dto.py:30:    strike: float
+./infra/bootstrap_structures_schema.py:57:                strike          REAL    NOT NULL,
+./infra/bootstrap_structures_schema.py:163:                strike           REAL,
+./repositories/market_snapshot_repository.py:50:        strike,
+./repositories/market_snapshot_repository.py:77:        strike,
+./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+./repositories/market_snapshot_repository.py:233:        strike=_first_float(quote_row["strike"], base_leg.strike),
+./repositories/market_snapshot_repository.py:285:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+./repositories/market_snapshot_repository.py:305:                strike,
+./repositories/robo_legs_repository.py:171:        strike    = pick("strike", "k", "preco_exercicio")
+./repositories/robo_legs_repository.py:190:            strike=float(strike)       if strike  is not None else 0.0,
+./repositories/rtd_option_quotes_repository.py:32:                strike,
+./repositories/rtd_option_quotes_repository.py:64:                strike,
+./repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./repositories/rtd_option_quotes_repository.py:96:                strike,
+./repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./repositories/structures_repository.py:94:    strike          = leg.get("strike")
+./repositories/structures_repository.py:108:        strike = float(strike)
+./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+./repositories/structures_repository.py:112:    if strike <= 0:
+./repositories/structures_repository.py:113:        raise ValueError("strike must be > 0")
+./repositories/structures_repository.py:126:        raise ValueError("multiplier must be numeric") from exc
+./repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+./repositories/structures_repository.py:156:        "strike":          strike,
+./repositories/structures_repository.py:200:                strike, expiration_date, quantity, premium, multiplier,
+./repositories/structures_repository.py:403:                        strike, expiration_date, quantity, premium,
+./repositories/structures_repository.py:412:                        leg["strike"],
+./repositories/structures_repository.py:598:                    strike, expiration_date, quantity, premium,
+./repositories/structures_repository.py:604:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+./repositories/structures_repository.py:652:                        strike, expiration_date, quantity, premium,
+./repositories/structures_repository.py:658:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+./repositories/structure_events_repository.py:142:            raise ValueError("price must be numeric when provided") from exc
+./repositories/system_snapshots_repository.py:179:                strike,
+./repositories/system_snapshots_repository.py:198:                leg.get("strike"),
+./scripts/apply_fase9_atomic_create.py:118:                        strike, expiration_date, quantity, premium,
+./scripts/apply_fase9_atomic_create.py:127:                        leg["strike"],
+./scripts/apply_fase9_update_tests_atomic_create.py:78:            "position_side": "LONG", "option_type": "CALL", "strike": 100.0,
+./scripts/apply_fase9_update_tests_atomic_create.py:96:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+./services/calculation_orchestrator.py:72:                strike=float(row["strike"]),
+./services/calculation_orchestrator.py:121:            "strike":          leg.strike,
+./services/calculation_orchestrator.py:267:                    strike=float(leg["strike"]),
+./services/calculation_orchestrator.py:310:                "strike":          leg.strike,
+./services/calculation_orchestrator.py:472:                    "strike":          leg["strike"],
+./services/canonical_input_service.py:228:                "strike":           leg.strike,
+./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+./services/legacy_robo_legs_fallback.py:232:            "strike": float(data.get("strike") or 0.0),
+./services/pricing_payload_adapter.py:44:                "strike": float(leg["strike"]),
+./services/robo_leg_mapper.py:47:    strike = _read_attr(leg, "strike")
+./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+./services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+./services/structure_input_mapper.py:56:        "strike": leg["strike"],
+./services/structure_leg_rtd_enrichment_service.py:40:        - strike;
+./services/structure_leg_rtd_enrichment_service.py:57:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+./services/structure_leg_rtd_enrichment_service.py:106:            raise ValueError(f"{field_name} must be numeric") from exc
+./UI/components/structure_editor_dialog.py:136:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+./UI/components/structure_editor_dialog.py:137:        leg_hdrs   = ["#", "Lado", "Tipo", "Strike", "Vencimento", "Qtde", "Premio", "Mult", "Simbolo"]
+./UI/components/structure_editor_dialog.py:174:        self._lf_strike  = tk.StringVar()
+./UI/components/structure_editor_dialog.py:195:            ("Strike",              self._lf_strike),
+./UI/components/structure_editor_dialog.py:258:                leg.get("strike", ""),
+./UI/components/structure_editor_dialog.py:287:        self._lf_strike.set(str(leg.get("strike", "")))
+./UI/components/structure_editor_dialog.py:299:            "strike":          "",
+./UI/components/structure_editor_dialog.py:360:            "strike":          self._lf_strike.get(),
+./UI/main_window.py:666:                    f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
+./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+./validators/leg_validator.py:60:        strike = getattr(leg, "strike", None)
+./validators/leg_validator.py:61:        if strike is None:
+./validators/leg_validator.py:64:                    code="missing_strike",
+./validators/leg_validator.py:65:                    field="strike",
+./validators/validators__init__.py:58:        strike = getattr(leg, "strike", None)
+./validators/validators__init__.py:59:        if strike is None:
+./validators/validators__init__.py:62:                    code="missing_strike",
+./validators/validators__init__.py:63:                    field="strike",

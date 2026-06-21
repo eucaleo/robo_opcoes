@@ -1,0 +1,147 @@
+./bridge_ingest_csv.py:33:    CsvSpec("analise_raiox.csv",          "rtd_analise_raiox",          "replace"),
+./bridge_ingest_csv.py:34:    CsvSpec("consolidacoes.csv",           "rtd_consolidacoes",           "replace"),
+./bridge_ingest_csv.py:35:    CsvSpec("analise_robo.csv",            "rtd_analise_robo",            "replace"),
+./bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+./bridge_ingest_csv.py:37:    CsvSpec("configuracoes.csv",           "rtd_configuracoes",           "replace"),
+./bridge_ingest_csv.py:39:    CsvSpec("rolls_detectados.csv",        "rtd_rolls_detectados",        "append"),
+./bridge_ingest_csv.py:40:    CsvSpec("hist_robo.csv",               "rtd_hist_robo",               "append"),
+./bridge_ingest_csv.py:41:    CsvSpec("encerramentos_manuais.csv",   "rtd_encerramentos_manuais",   "append"),
+./domain/calculation_request.py:28:VALID_SOURCES        = {"rtd", "manual", "ui"}
+./domain/calculation_request.py:178:    source             : 'rtd' | 'manual' | 'ui'
+./domain/calculation_request.py:187:    option_quotes:       Optional[dict]  = None   # bid/ask por símbolo
+./domain/calculation_request.py:219:    O orquestrador monta este objeto a partir do DB e do bridge/RTD,
+./domain/market_snapshot.py:19:    RTD    = "rtd"
+./domain/market_snapshot.py:50:    source          : SnapshotSource  = SnapshotSource.RTD
+./domain/market_snapshot.py:60:    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
+./domain/market_snapshot.py:72:    source             : SnapshotSource                 = SnapshotSource.RTD
+./domain/payoff_features.py:109:    timestamp + aba                rastreabilidade opcional (legado RTD).
+./dto/robo_legs_status_dto.py:27:    rtd_latest_ts: Optional[datetime]
+./dto/robo_leg_dto.py:11:    RTD = "rtd"
+./repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotações RTD de opções
+./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./repositories/market_snapshot_repository.py:28:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+./repositories/market_snapshot_repository.py:32:_SQL_RTD_LEGS = """
+./repositories/market_snapshot_repository.py:54:    FROM rtd_analise_robo_legs
+./repositories/market_snapshot_repository.py:88:_SQL_RTD_SUMMARY = """
+./repositories/market_snapshot_repository.py:102:    FROM rtd_analise_robo
+./repositories/market_snapshot_repository.py:191:def _row_to_rtd_option_quote_leg(
+./repositories/market_snapshot_repository.py:196:    Converte uma cotação de rtd_option_quotes em LegMarketSnapshot mantendo
+./repositories/market_snapshot_repository.py:197:    os campos posicionais da leg RTD original.
+./repositories/market_snapshot_repository.py:199:    A tabela rtd_option_quotes é cache de cotação. Ela não define composição
+./repositories/market_snapshot_repository.py:201:    em rtd_analise_robo_legs.
+./repositories/market_snapshot_repository.py:242:        source=RTD_OPTION_QUOTES_SOURCE,
+./repositories/market_snapshot_repository.py:254:      get_rtd_legs(aba)                -> lista de LegMarketSnapshot source=RTD
+./repositories/market_snapshot_repository.py:255:      get_rtd_option_quote_legs(aba)   -> lista enriquecida source=rtd_option_quotes
+./repositories/market_snapshot_repository.py:257:      get_rtd_summary(aba)             -> dict com cabecalho RTD ou None
+./repositories/market_snapshot_repository.py:271:    # -- RTD ------------------------------------------------------------------
+./repositories/market_snapshot_repository.py:273:    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./repositories/market_snapshot_repository.py:276:            rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
+./repositories/market_snapshot_repository.py:277:        return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
+./repositories/market_snapshot_repository.py:279:    def get_rtd_option_quote_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+./repositories/market_snapshot_repository.py:281:        Retorna legs RTD enriquecidas com rtd_option_quotes.
+./repositories/market_snapshot_repository.py:283:        A composição da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./repositories/market_snapshot_repository.py:284:        dessa composição, se houver cotação em rtd_option_quotes.codigo_opcao,
+./repositories/market_snapshot_repository.py:287:        base_legs = self.get_rtd_legs(ref)
+./repositories/market_snapshot_repository.py:321:            FROM rtd_option_quotes
+./repositories/market_snapshot_repository.py:330:            # Banco sem tabela rtd_option_quotes: mantém compatibilidade com
+./repositories/market_snapshot_repository.py:345:                enriched.append(_row_to_rtd_option_quote_leg(base_leg, quote_row))
+./repositories/market_snapshot_repository.py:349:    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+./repositories/market_snapshot_repository.py:352:            row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
+./repositories/market_snapshot_repository.py:370:        source: SnapshotSource = SnapshotSource.RTD,
+./repositories/market_snapshot_repository.py:374:        if source == SnapshotSource.RTD:
+./repositories/market_snapshot_repository.py:375:            legs = self.get_rtd_legs(ref)
+./repositories/market_snapshot_repository.py:376:            summary = self.get_rtd_summary(ref)
+./repositories/robo_legs_repository.py:36:      manual_analise_robo_legs > rtd_analise_robo_legs
+./repositories/robo_legs_repository.py:57:        - Se vazio, tenta RTD
+./repositories/robo_legs_repository.py:72:        rtd = self._query_legs(
+./repositories/robo_legs_repository.py:73:            table="rtd_analise_robo_legs",
+./repositories/robo_legs_repository.py:76:            fonte=FonteType.RTD,
+./repositories/robo_legs_repository.py:78:        return rtd
+./repositories/robo_legs_repository.py:101:        prefer: str = "manual_then_rtd",
+./repositories/robo_legs_repository.py:112:                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?
+./repositories/robo_legs_repository.py:128:                "SELECT DISTINCT timestamp FROM rtd_analise_robo_legs "
+./repositories/robo_legs_repository.py:271:        prefer: str = "manual_then_rtd",
+./repositories/robo_legs_status_repository.py:47:        Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
+./repositories/robo_legs_status_repository.py:57:                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?",
+./repositories/robo_legs_status_repository.py:76:        Retorna (manual_latest_ts, rtd_latest_ts).
+./repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+./repositories/rtd_option_quotes_repository.py:10:class RtdOptionQuotesRepository:
+./repositories/rtd_option_quotes_repository.py:12:    Leitura da tabela rtd_option_quotes.
+./repositories/rtd_option_quotes_repository.py:14:    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+./repositories/rtd_option_quotes_repository.py:15:    e funciona como cache centralizado das cotações RTD de opções.
+./repositories/rtd_option_quotes_repository.py:48:            FROM rtd_option_quotes
+./repositories/rtd_option_quotes_repository.py:80:            FROM rtd_option_quotes
+./repositories/rtd_option_quotes_repository.py:112:            FROM rtd_option_quotes
+./repositories/structure_events_repository.py:15:Tabelas legadas como rtd_encerramentos_manuais e rtd_rolls_detectados seguem
+./repositories/ui_data_table_candidates.py:8:legados de staging, como tabelas rtd_*.
+./repositories/ui_data_table_candidates.py:13:    "rtd_consolidacoes",
+./repositories/ui_data_table_candidates.py:14:    "rtd_consolidations",
+./repositories/ui_data_table_candidates.py:16:    "rtd_decisions",
+./repositories/ui_data_table_candidates.py:21:    "rtd_payoff_points",
+./repositories/ui_data_table_candidates.py:22:    "rtd_payoff_curva",
+./scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+./services/calculation_orchestrator.py:97:        source=str(snapshot_row.get("source", "rtd")),
+./services/calculation_orchestrator.py:99:        option_quotes=snapshot_row.get("option_quotes"),
+./services/calculation_orchestrator.py:142:            "option_quotes":    getattr(request.market_snapshot, "option_quotes",      {}),
+./services/calculation_orchestrator.py:291:            source=str(market_snapshot_dict.get("source", "rtd")),
+./services/calculation_orchestrator.py:292:            option_quotes=market_snapshot_dict.get("option_quotes"),
+./services/calculation_orchestrator.py:331:                "option_quotes":    getattr(request.market_snapshot, "option_quotes", {}),
+./services/calculation_orchestrator.py:490:            "source":             snapshot.get("source", "rtd"),
+./services/calculation_orchestrator.py:491:            "option_quotes":      snapshot.get("option_quotes"),
+./services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+./services/canonical_input_service.py:151:        legs pelo resultado do selector (manual > rtd).
+./services/canonical_input_service.py:188:    # Legs via selector (manual > rtd)
+./services/canonical_pricing_facade.py:90:            # Formatos comuns vindos de RTD/planilha:
+./services/canonical_pricing_facade.py:363:            #  2. Seleciona snapshot (manual > rtd) 
+./services/legacy_structure_legs_reader.py:16:      - ler pernas legadas manual/rtd;
+./services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./services/market_snapshot_selector.py:7:  - Caso contrário, se existir cotação em rtd_option_quotes para a leg RTD, usa rtd_option_quotes
+./services/market_snapshot_selector.py:8:  - Caso contrário, usa rtd_analise_robo_legs
+./services/market_snapshot_selector.py:19:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+./services/market_snapshot_selector.py:47:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./services/market_snapshot_selector.py:75:        rtd_legs = self._repo.get_rtd_legs(effective_ref)
+./services/market_snapshot_selector.py:77:        get_rtd_option_quote_legs = getattr(
+./services/market_snapshot_selector.py:79:            "get_rtd_option_quote_legs",
+./services/market_snapshot_selector.py:82:        if callable(get_rtd_option_quote_legs):
+./services/market_snapshot_selector.py:83:            rtd_option_quote_legs = get_rtd_option_quote_legs(effective_ref)
+./services/market_snapshot_selector.py:85:            rtd_option_quote_legs = []
+./services/market_snapshot_selector.py:95:        rtd_option_quote_by_ativo: dict[str, LegMarketSnapshot] = {}
+./services/market_snapshot_selector.py:96:        for leg in rtd_option_quote_legs:
+./services/market_snapshot_selector.py:97:            if leg.ativo and leg.ativo not in rtd_option_quote_by_ativo:
+./services/market_snapshot_selector.py:98:                rtd_option_quote_by_ativo[leg.ativo] = leg
+./services/market_snapshot_selector.py:100:        rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+./services/market_snapshot_selector.py:101:        for leg in rtd_legs:
+./services/market_snapshot_selector.py:102:            if leg.ativo and leg.ativo not in rtd_by_ativo:
+./services/market_snapshot_selector.py:103:                rtd_by_ativo[leg.ativo] = leg
+./services/market_snapshot_selector.py:107:            | set(rtd_option_quote_by_ativo)
+./services/market_snapshot_selector.py:108:            | set(rtd_by_ativo)
+./services/market_snapshot_selector.py:117:                if ativo in rtd_option_quote_by_ativo or ativo in rtd_by_ativo:
+./services/market_snapshot_selector.py:119:            elif ativo in rtd_option_quote_by_ativo:
+./services/market_snapshot_selector.py:120:                legs_selected.append(rtd_option_quote_by_ativo[ativo])
+./services/market_snapshot_selector.py:122:                legs_selected.append(rtd_by_ativo[ativo])
+./services/market_snapshot_selector.py:126:        elif rtd_option_quote_legs:
+./services/market_snapshot_selector.py:127:            source = RTD_OPTION_QUOTES_SOURCE
+./services/market_snapshot_selector.py:129:            source = SnapshotSource.RTD
+./services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+./services/robo_legs_service.py:23:      - obtém legs com regra manual > rtd
+./services/robo_legs_status_service.py:65:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(ref=ref)
+./services/robo_legs_status_service.py:69:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
+./services/robo_legs_status_service.py:74:        elif rtd_latest is not None:
+./services/robo_legs_status_service.py:75:            chosen_fonte = FonteType.RTD
+./services/robo_legs_status_service.py:76:            chosen_ts = rtd_latest
+./services/robo_legs_status_service.py:85:                rtd_latest_ts=None,
+./services/robo_legs_status_service.py:106:            rtd_latest_ts=rtd_latest,
+./services/structure_leg_rtd_enrichment_service.py:1:"""Service de enriquecimento de legs de estruturas via RTD.
+./services/structure_leg_rtd_enrichment_service.py:5:- consultar rtd_option_quotes por codigo_opcao;
+./services/structure_leg_rtd_enrichment_service.py:18:class StructureLegRtdEnrichmentService:
+./services/structure_leg_rtd_enrichment_service.py:19:    """Enriquece uma leg de estrutura usando dados de rtd_option_quotes."""
+./services/structure_leg_rtd_enrichment_service.py:21:    def __init__(self, rtd_option_quotes_repository: Any) -> None:
+./services/structure_leg_rtd_enrichment_service.py:22:        self._repo = rtd_option_quotes_repository
+./services/structure_leg_rtd_enrichment_service.py:38:        Campos enriquecidos via RTD:
+./services/structure_leg_rtd_enrichment_service.py:49:            raise ValueError("symbol is required for RTD leg enrichment")
+./services/structure_leg_rtd_enrichment_service.py:123:                raise ValueError(f"missing required RTD field: {field}")
+./UI/main_window.py:509:* Excel RTD  CSV Bridge
+./utils/leg_normalizers.py:140:            return FonteType.RTD
+./utils/leg_normalizers.py:149:        elif value_str in ['rtd', 'real_time', 'rt', 'auto']:
+./utils/leg_normalizers.py:150:            return FonteType.RTD
+./utils/leg_normalizers.py:152:            return FonteType.RTD

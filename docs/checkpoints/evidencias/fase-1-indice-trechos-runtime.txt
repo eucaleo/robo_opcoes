@@ -1,0 +1,343 @@
+
+================================================================
+ARQUIVO: docs/checkpoints/evidencias/fase-1-trechos-atualizar-dados-runtime.txt
+================================================================
+
+### Cabeçalhos de seções
+1:### UI/main_window.py linhas 40-190
+154:### UI/main_window.py linhas 260-310
+207:### UI/models/ui_data.py linhas 180-270
+
+### Classes e funções encontradas
+25:    def _setup_layout(self):
+85:    def _setup_menus(self):
+112:    def _bind_events(self):
+121:    def on_filter_change(self, filters: Dict):
+133:    def on_decision_selected(self, decision_data: Dict):
+166:    def refresh_data(self):
+213:    def _resolve_structure_key(self, structure_id: str) -> int:
+230:    def refresh(self):
+236:    def _load_structures(self) -> List[str]:
+259:    def get_structures(self) -> List[str]:
+265:    def get_structure_ids(self) -> List[str]:
+271:    def get_abas(self) -> list:
+275:    def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
+
+### Chamadas/pontos relevantes
+23:        self.refresh_data()
+61:            on_recalculate=self.recalculate_structure,
+93:        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+114:        self.root.bind("<F5>", lambda e: self.refresh_data())
+126:            self.decisions_grid.update_data(filtered_data)
+144:            self.details_panel.update_decision(decision_data)
+166:    def refresh_data(self):
+172:            self.data_model.refresh()
+175:                self.filters_panel.update_structures(
+187:            self.decisions_grid.update_data(decisions)
+204:                        self.details_panel.update_decision(d)
+230:    def refresh(self):
+282:            self.refresh()
+
+================================================================
+ARQUIVO: docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt
+================================================================
+
+### Cabeçalhos de seções
+1:### services/calculation_orchestrator.py linhas 1-260
+263:### domain/payoff.py linhas 1-180
+440:### domain/decision.py linhas 1-220
+655:### services/derived_service.py linhas 1-220
+877:### services/derived_payoff_persistence.py linhas 1-220
+1099:### db/derived_repo.py linhas 70-470
+
+### Classes e funções encontradas
+33:def _normalize_position_side(raw: str) -> str:
+40:def _normalize_option_type(raw: str) -> str:
+51:def build_calculation_request(
+112:def _request_to_payoff_dict(
+150:def run_payoff(
+167:def run_decision(
+199:def run_full_pipeline(
+228:class CalculationOrchestrator:
+240:    def __init__(
+252:    def build_calculation_request(
+270:def _round_money(value: float, digits: int = 6) -> float:
+274:def _normalize_side(value: Any) -> str:
+278:def _normalize_option_type(value: Any) -> str:
+282:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+290:def _compute_leg_payoff_at_expiration(leg: dict[str, Any], spot_at_expiration: float) -> float:
+314:def compute_payoff_curve_from_canonical_legs(
+386:def compute_payoff_from_canonical_input(
+472:def _interp_payoff(points: List[Tuple[float, float]], spot: float) -> float:
+489:def _ratio(numerator: float, denominator: float) -> float:
+508:def compute_decision_from_inputs(
+579:def compute_decision_from_payoff(
+633:def compute_decision_from_contract(
+689:def _load_aba_cache() -> None:
+706:def _resolve_structure_id(aba: Optional[str]) -> Optional[int]:
+714:def invalidate_aba_cache() -> None:
+723:def _now_iso() -> str:
+727:def _safe_str(value: Any) -> Optional[str]:
+734:def _unwrap_ref(ref: Any) -> Optional[str]:
+744:def _resolve_storage_key(
+782:def _merge_meta(
+806:def init_db():
+815:def save_payoff_curve(
+865:def save_payoff_from_canonical_payload(
+889:class DerivedPayoffPersistence:
+904:    def persist(
+946:    def _persist_payoff(
+982:    def _persist_decision(
+1060:    def _build_canonical_input(
+1176:def _normalize_why_fields(
+1200:def _apply_schema(conn: sqlite3.Connection) -> None:
+1234:def ensure_derived_tables(conn: sqlite3.Connection) -> None:
+1243:class DerivedRepo:
+1251:    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
+1259:    def _connect(self) -> sqlite3.Connection:
+1264:    def _bootstrap(self) -> None:
+1271:    def _table_columns(self, table: str) -> List[str]:
+1287:    def _extract_ts_aba(
+1312:    def write_decision_snapshot_atomic(
+1337:    def insert_structure_decision(
+1362:    def write_payoff_snapshot_atomic(
+1412:    def insert_payoff_points(
+1459:    def write_complete_snapshot_atomic(
+
+### Chamadas/pontos relevantes
+4:# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+5:# alteracao_47: run_full_pipeline, multiplier fix (1.0), run_decision auto-extract
+7:#           run_full_pipeline_from_db
+21:from domain.payoff import compute_payoff_from_canonical_input
+22:from domain.decision import compute_decision_from_contract
+73:                strike=float(row["strike"]),
+122:            "strike":          leg.strike,
+150:def run_payoff(
+159:    return compute_payoff_from_canonical_input(
+167:def run_decision(
+196:    return compute_decision_from_contract(contract, payoff=payoff)
+199:def run_full_pipeline(
+207:    payoff_result = run_payoff(
+214:    decision_result = run_decision(request, payoff=payoff_result)
+282:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+284:        return max(spot_at_expiration - strike, 0.0)
+286:        return max(strike - spot_at_expiration, 0.0)
+294:    strike = float(leg.get("strike") or 0.0)
+302:        strike=strike,
+314:def compute_payoff_curve_from_canonical_legs(
+386:def compute_payoff_from_canonical_input(
+420:    result = compute_payoff_curve_from_canonical_legs(
+446:Funcoes canonicas: compute_decision_from_inputs, compute_decision_from_payoff,
+447:compute_decision_from_contract.
+508:def compute_decision_from_inputs(
+579:def compute_decision_from_payoff(
+623:    return compute_decision_from_inputs(
+633:def compute_decision_from_contract(
+642:        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+649:    return compute_decision_from_inputs(
+661:alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+675:    insert_payoff_points,
+676:    insert_structure_decision,
+815:def save_payoff_curve(
+854:        return insert_payoff_points(
+865:def save_payoff_from_canonical_payload(
+883:from domain.payoff import compute_payoff_from_canonical_input
+884:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+926:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+927:        if not payoff_saved:
+934:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+935:        if not decision_saved:
+954:            payoff_result = compute_payoff_from_canonical_input(canonical_input)
+963:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+1035:            save_decision_from_canonical_payload(
+1065:        Monta o canonical_input esperado por compute_payoff_from_canonical_input().
+1104:# alteracao_36_A: adicionar structure_id ao DDL de payoff_curve_points
+1107:CREATE TABLE IF NOT EXISTS payoff_curve_points (
+1121:ON payoff_curve_points (timestamp, aba, point_spot)
+1127:ON payoff_curve_points (structure_id, timestamp)
+1131:CREATE TABLE IF NOT EXISTS structure_decisions (
+1152:ON structure_decisions (timestamp, aba)
+1157:ON structure_decisions (aba, timestamp)
+1162:ON structure_decisions (timestamp)
+1168:        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
+1207:    # alteracao_36_A: migration incremental payoff_curve_points
+1208:    existing_cols = _table_columns(conn, "payoff_curve_points")
+1222:    # Índices de structure_decisions
+1312:    def write_decision_snapshot_atomic(
+1328:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+1331:            rowid = self._insert_decision(cur, ts, ab, decision_dict)
+1337:    def insert_structure_decision(
+1352:            rowid = self._insert_decision(cur, ts, ab, decision_dict, replace=True)
+1362:    def write_payoff_snapshot_atomic(
+1384:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+1389:                INSERT INTO payoff_curve_points
+1412:    def insert_payoff_points(
+1432:                INSERT OR REPLACE INTO payoff_curve_points
+1478:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+1483:                INSERT INTO payoff_curve_points
+
+================================================================
+ARQUIVO: docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt
+================================================================
+
+### Cabeçalhos de seções
+1:### repositories/market_snapshot_repository.py linhas 1-360
+363:### services/market_snapshot_selector.py linhas 1-260
+501:### repositories/rtd_option_quotes_repository.py linhas 1-160
+622:### services/structure_leg_rtd_enrichment_service.py linhas 1-180
+
+### Classes e funções encontradas
+112:def _ref_to_aba(ref: StructureRef | str) -> str:
+121:def _parse_br_float(value) -> Optional[float]:
+132:def _first_float(*values) -> Optional[float]:
+140:def _first_text(*values) -> str | None:
+150:def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
+161:def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
+192:def _row_to_rtd_option_quote_leg(
+250:class MarketSnapshotRepository:
+262:    def __init__(self, db_path: Path | str = _DEFAULT_DB) -> None:
+267:    def _connect(self) -> sqlite3.Connection:
+274:    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+280:    def get_rtd_option_quote_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+350:    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+360:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+385:def _ref_to_aba(ref: StructureRef | str) -> str:
+395:class SnapshotSelectionResult:
+404:    def is_manual_first(self) -> bool:
+408:class MarketSnapshotSelector:
+413:    def __init__(self, repository: MarketSnapshotRepository) -> None:
+416:    def select(
+511:class RtdOptionQuotesRepository:
+519:    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+522:    def _connect(self) -> sqlite3.Connection:
+527:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+559:    def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+591:    def list_all(self) -> list[dict[str, Any]]:
+640:class StructureLegRtdEnrichmentService:
+643:    def __init__(self, rtd_option_quotes_repository: Any) -> None:
+646:    def enrich(self, leg_data: dict[str, Any]) -> dict[str, Any]:
+709:    def _normalize_symbol(value: Any) -> str:
+715:    def _normalize_required_text(value: Any, field_name: str) -> str:
+724:    def _to_float(value: Any, field_name: str) -> float:
+731:    def _to_int(value: Any, field_name: str) -> int:
+738:    def _ensure_required_quote_fields(
+
+### Chamadas/pontos relevantes
+7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+29:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+51:        strike,
+78:        strike,
+183:        strike=_parse_br_float(row["strike"]),
+197:    Converte uma cotação de rtd_option_quotes em LegMarketSnapshot mantendo
+200:    A tabela rtd_option_quotes é cache de cotação. Ela não define composição
+234:        strike=_first_float(quote_row["strike"], base_leg.strike),
+239:            quote_row["updated_at"],
+255:      get_rtd_legs(aba)                -> lista de LegMarketSnapshot source=RTD
+256:      get_rtd_option_quote_legs(aba)   -> lista enriquecida source=rtd_option_quotes
+257:      get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+258:      get_rtd_summary(aba)             -> dict com cabecalho RTD ou None
+274:    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+280:    def get_rtd_option_quote_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+282:        Retorna legs RTD enriquecidas com rtd_option_quotes.
+285:        dessa composição, se houver cotação em rtd_option_quotes.codigo_opcao,
+286:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+288:        base_legs = self.get_rtd_legs(ref)
+306:                strike,
+320:                updated_at,
+322:            FROM rtd_option_quotes
+324:            ORDER BY updated_at DESC, created_at DESC
+331:            # Banco sem tabela rtd_option_quotes: mantém compatibilidade com
+350:    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+360:    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+366:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+370:  - Caso contrário, se existir cotação em rtd_option_quotes para a leg RTD, usa rtd_option_quotes
+382:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+410:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+437:        manual_legs = self._repo.get_manual_legs(effective_ref)
+438:        rtd_legs = self._repo.get_rtd_legs(effective_ref)
+440:        get_rtd_option_quote_legs = getattr(
+442:            "get_rtd_option_quote_legs",
+445:        if callable(get_rtd_option_quote_legs):
+446:            rtd_option_quote_legs = get_rtd_option_quote_legs(effective_ref)
+501:### repositories/rtd_option_quotes_repository.py linhas 1-160
+502:# repositories/rtd_option_quotes_repository.py
+513:    Leitura da tabela rtd_option_quotes.
+533:                strike,
+547:                updated_at,
+549:            FROM rtd_option_quotes
+565:                strike,
+579:                updated_at,
+581:            FROM rtd_option_quotes
+583:            ORDER BY vencimento, call_put, strike, codigo_opcao
+597:                strike,
+611:                updated_at,
+613:            FROM rtd_option_quotes
+614:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+627:- consultar rtd_option_quotes por codigo_opcao;
+641:    """Enriquece uma leg de estrutura usando dados de rtd_option_quotes."""
+643:    def __init__(self, rtd_option_quotes_repository: Any) -> None:
+644:        self._repo = rtd_option_quotes_repository
+662:        - strike;
+679:            required=("ativo_base", "call_put", "strike", "vencimento"),
+692:            "strike": self._to_float(quote.get("strike"), "strike"),
+
+================================================================
+ARQUIVO: docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt
+================================================================
+
+### Cabeçalhos de seções
+1:### UI/components/structure_editor_dialog.py linhas 220-380
+164:### repositories/structures_repository.py linhas 70-140
+237:### validators/leg_validator.py linhas 1-120
+319:### validators/validators__init__.py linhas 1-120
+
+### Classes e funções encontradas
+4:    def _load_existing(self):
+33:    def _refresh_leg_tree(self):
+48:    def _selected_leg_index(self) -> Optional[int]:
+61:    def _on_leg_double_click(self, _event=None):
+76:    def _cmd_add_leg(self):
+100:    def _add_leg_row(self):
+108:    def _cmd_remove_leg(self):
+116:    def _cmd_move_leg(self, direction: int):
+130:    def _cmd_apply_leg(self):
+157:    def _build_legs_payload(self) -> list[dict]:
+186:def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
+245:class ValidationErrorItem:
+251:class ValidationReport:
+252:    def __init__(self, errors: list[ValidationErrorItem] | None = None):
+255:    def is_ok(self) -> bool:
+259:def validate_legs(legs: list[Any]) -> ValidationReport:
+327:class ValidationErrorItem:
+333:class ValidationReport:
+334:    def __init__(self, errors: List[ValidationErrorItem] | None = None):
+337:    def is_ok(self) -> bool:
+341:def validate_legs(legs: list[Any]) -> ValidationReport:
+
+### Chamadas/pontos relevantes
+34:        self._leg_tree.delete(*self._leg_tree.get_children())
+36:            self._leg_tree.insert("", "end", iid=str(i - 1), values=(
+40:                leg.get("strike", ""),
+69:        self._lf_strike.set(str(leg.get("strike", "")))
+76:    def _cmd_add_leg(self):
+81:            "strike":          "",
+98:    # Delega para _cmd_add_leg mantendo compatibilidade total.
+102:        Alias publico de _cmd_add_leg().
+106:        self._cmd_add_leg()
+108:    def _cmd_remove_leg(self):
+116:    def _cmd_move_leg(self, direction: int):
+130:    def _cmd_apply_leg(self):
+142:            "strike":          self._lf_strike.get(),
+189:    strike          = leg.get("strike")
+203:        strike = float(strike)
+205:        raise ValueError("strike must be numeric") from exc
+207:    if strike <= 0:
+208:        raise ValueError("strike must be > 0")
+297:        strike = getattr(leg, "strike", None)
+298:        if strike is None:
+301:                    code="missing_strike",
+302:                    field="strike",
+377:        strike = getattr(leg, "strike", None)
+378:        if strike is None:
+381:                    code="missing_strike",
+382:                    field="strike",
