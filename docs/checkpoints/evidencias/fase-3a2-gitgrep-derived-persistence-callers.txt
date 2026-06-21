@@ -1,0 +1,212 @@
+ATT/tests/test_derived_service.py:86:def test_save_payoff_from_canonical_payload_should_use_resolved_storage_key(monkeypatch):
+ATT/tests/test_derived_service.py:89:    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+ATT/tests/test_derived_service.py:97:    monkeypatch.setattr(ds, "save_payoff_curve", fake_save_payoff_curve)
+ATT/tests/test_derived_service.py:110:    result = ds.save_payoff_from_canonical_payload(payload)
+ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+ATT/tests/test_derived_service.py:128:    def fake_save_decision(ref, decision, timestamp=None):
+ATT/tests/test_derived_service.py:134:    monkeypatch.setattr(ds, "save_decision", fake_save_decision)
+ATT/tests/test_derived_service.py:141:    result = ds.save_decision_from_canonical_payload(
+UI/components/details_panel.py:410:            "structure_decisions",
+UI/components/details_panel.py:411:            "payoff_curve_points",
+UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+UI/components/details_panel.py:900:                FROM structure_decisions
+UI/components/details_panel.py:922:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:934:                FROM payoff_curve_points
+UI/components/details_panel.py:962:                FROM structure_decisions
+UI/components/details_panel.py:975:                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/main_window.py:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+db/derived_repo.py:1:# db/derived_repo.py
+db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+db/derived_repo.py:9:  - Encapsula lógica em classe DerivedRepo (resolve alteracao_26 / alteracao_30)
+db/derived_repo.py:74:# alteracao_36_A: adicionar structure_id ao DDL de payoff_curve_points
+db/derived_repo.py:77:CREATE TABLE IF NOT EXISTS payoff_curve_points (
+db/derived_repo.py:91:ON payoff_curve_points (timestamp, aba, point_spot)
+db/derived_repo.py:97:ON payoff_curve_points (structure_id, timestamp)
+db/derived_repo.py:101:CREATE TABLE IF NOT EXISTS structure_decisions (
+db/derived_repo.py:122:ON structure_decisions (timestamp, aba)
+db/derived_repo.py:127:ON structure_decisions (aba, timestamp)
+db/derived_repo.py:132:ON structure_decisions (timestamp)
+db/derived_repo.py:138:        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
+db/derived_repo.py:177:    # alteracao_36_A: migration incremental payoff_curve_points
+db/derived_repo.py:178:    existing_cols = _table_columns(conn, "payoff_curve_points")
+db/derived_repo.py:192:    # Índices de structure_decisions
+db/derived_repo.py:210:# DerivedRepo -- API canônica com gerenciamento próprio de conexão
+db/derived_repo.py:213:class DerivedRepo:
+db/derived_repo.py:298:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:354:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:359:                INSERT INTO payoff_curve_points
+db/derived_repo.py:402:                INSERT OR REPLACE INTO payoff_curve_points
+db/derived_repo.py:448:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:453:                INSERT INTO payoff_curve_points
+db/derived_repo.py:474:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:500:                    FROM payoff_curve_points
+db/derived_repo.py:510:                    FROM payoff_curve_points
+db/derived_repo.py:521:                    FROM payoff_curve_points
+db/derived_repo.py:562:                f"SELECT * FROM structure_decisions {where} ORDER BY id DESC LIMIT ?",
+db/derived_repo.py:579:                FROM structure_decisions d
+db/derived_repo.py:580:                LEFT JOIN payoff_curve_points p
+db/derived_repo.py:588:                FROM payoff_curve_points p
+db/derived_repo.py:589:                LEFT JOIN structure_decisions d
+db/derived_repo.py:611:                f"DELETE FROM payoff_curve_points "
+db/derived_repo.py:623:                f"DELETE FROM structure_decisions "
+db/derived_repo.py:648:            {verb} INTO structure_decisions
+db/derived_repo.py:691:        "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:695:        INSERT INTO payoff_curve_points
+db/derived_repo.py:726:        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:732:        INSERT INTO structure_decisions
+db/derived_repo.py:785:        INSERT OR REPLACE INTO payoff_curve_points
+db/derived_repo.py:819:        INSERT OR REPLACE INTO structure_decisions
+db/derived_repo.py:852:            FROM payoff_curve_points
+db/derived_repo.py:859:            FROM payoff_curve_points
+db/derived_repo.py:867:            FROM payoff_curve_points
+db/derived_repo.py:880:        FROM structure_decisions d
+db/derived_repo.py:881:        LEFT JOIN payoff_curve_points p ON (d.aba = p.aba AND d.timestamp = p.timestamp)
+db/derived_repo.py:888:        FROM payoff_curve_points p
+db/derived_repo.py:889:        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+db/derived_repo.py:909:        DELETE FROM payoff_curve_points
+db/derived_repo.py:921:        DELETE FROM structure_decisions
+db/migrations/add_structure_id_to_payoff_curve_points.py:1:# db/migrations/add_structure_id_to_payoff_curve_points.py
+db/migrations/add_structure_id_to_payoff_curve_points.py:3:Migration: adiciona structure_id em payoff_curve_points
+db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+db/migrations/add_structure_id_to_payoff_curve_points.py:7:    python db/migrations/add_structure_id_to_payoff_curve_points.py
+db/migrations/add_structure_id_to_payoff_curve_points.py:8:    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/derived.db
+db/migrations/add_structure_id_to_payoff_curve_points.py:18:    #  payoff_curve_points 
+db/migrations/add_structure_id_to_payoff_curve_points.py:20:        "payoff_curve_points: verificar se structure_id já existe",
+db/migrations/add_structure_id_to_payoff_curve_points.py:24:        "payoff_curve_points: ADD COLUMN structure_id",
+db/migrations/add_structure_id_to_payoff_curve_points.py:25:        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER",
+db/migrations/add_structure_id_to_payoff_curve_points.py:28:        "payoff_curve_points: BACKFILL structure_id",
+db/migrations/add_structure_id_to_payoff_curve_points.py:30:        UPDATE payoff_curve_points
+db/migrations/add_structure_id_to_payoff_curve_points.py:33:            FROM structure_decisions d
+db/migrations/add_structure_id_to_payoff_curve_points.py:34:            WHERE d.aba       = payoff_curve_points.aba
+db/migrations/add_structure_id_to_payoff_curve_points.py:35:              AND d.timestamp = payoff_curve_points.timestamp
+db/migrations/add_structure_id_to_payoff_curve_points.py:41:        "payoff_curve_points: CREATE INDEX sid+ts",
+db/migrations/add_structure_id_to_payoff_curve_points.py:44:            ON payoff_curve_points (structure_id, timestamp)
+db/migrations/add_structure_id_to_payoff_curve_points.py:58:            FROM structure_decisions d
+db/migrations/add_structure_id_to_payoff_curve_points.py:106:        for table in ("payoff_curve_points", "payoff_curve_summary"):
+db/reader.py:58:                    FROM payoff_curve_points
+db/reader.py:67:                    FROM payoff_curve_points
+db/reader.py:69:                        SELECT MAX(timestamp) FROM payoff_curve_points WHERE {ref.db_column()} = ?
+db/reader.py:99:            columns = self._get_table_columns(conn, "structure_decisions")
+db/reader.py:129:                FROM structure_decisions
+db/schema.py:7:CREATE TABLE IF NOT EXISTS payoff_curve_points (
+db/schema.py:19:ON payoff_curve_points(timestamp, aba);
+db/schema.py:22:ON payoff_curve_points(point_spot);
+db/schema.py:25:CREATE TABLE IF NOT EXISTS structure_decisions (
+db/schema.py:46:ON structure_decisions(timestamp, aba);
+db/schema.py:49:ON structure_decisions(decision);
+db/schema.py:52:ON structure_decisions(ratio);
+db/writer.py:27:    def save_payoff_points(self, 
+db/writer.py:72:                INSERT INTO payoff_curve_points 
+db/writer.py:91:        DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic()
+db/writer.py:97:            "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+db/writer.py:102:        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+db/writer.py:129:                SELECT * FROM structure_decisions 
+db/writer.py:146:                FROM payoff_curve_points 
+repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+scripts/patch_derived_payoff_timestamp_consistency.sh:8:path = Path("services/derived_payoff_persistence.py")
+scripts/patch_derived_payoff_timestamp_consistency.sh:11:    raise SystemExit("[ERROR] Arquivo não encontrado: services/derived_payoff_persistence.py")
+scripts/patch_derived_payoff_timestamp_consistency.sh:43:        """        self._persist_payoff(pricing_payload, result)
+scripts/patch_derived_payoff_timestamp_consistency.sh:50:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+scripts/patch_derived_payoff_timestamp_consistency.sh:53:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:61:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:70:# _persist_payoff signature: retorna bool e recebe snapshot_ts
+scripts/patch_derived_payoff_timestamp_consistency.sh:75:        """    def _persist_payoff(
+scripts/patch_derived_payoff_timestamp_consistency.sh:81:        """    def _persist_payoff(
+scripts/patch_derived_payoff_timestamp_consistency.sh:88:        "_persist_payoff signature",
+scripts/patch_derived_payoff_timestamp_consistency.sh:95:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:102:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:112:    "            save_payoff_from_canonical_payload(payoff_result)\n",
+scripts/patch_derived_payoff_timestamp_consistency.sh:113:    "            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)\n",
+scripts/patch_derived_payoff_timestamp_consistency.sh:118:if 'derived_payoff_persistence: %d pontos gravados -- structure_id=%s' in text and "return True\n\n        except Exception:" not in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:122:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:130:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:138:        "_persist_payoff return True",
+scripts/patch_derived_payoff_timestamp_consistency.sh:146:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:153:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:160:        "_persist_payoff return False exception",
+scripts/patch_derived_payoff_timestamp_consistency.sh:207:        "save_decision timestamp",
+scripts/patch_derived_payoff_timestamp_consistency.sh:211:if 'derived_payoff_persistence: decisão gravada -- structure_id=%s' in text and "return True\n\n        except Exception:" in text:
+scripts/patch_derived_payoff_timestamp_consistency.sh:216:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:224:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:238:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:246:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+scripts/patch_derived_payoff_timestamp_consistency.sh:263:    "save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)",
+scripts/patch_derived_payoff_timestamp_consistency.sh:265:    "payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)",
+scripts/patch_derived_payoff_timestamp_consistency.sh:280:    print("[OK] Patch aplicado em services/derived_payoff_persistence.py")
+scripts/patch_derived_payoff_timestamp_consistency.sh:283:python -m py_compile services/derived_payoff_persistence.py
+scripts/purge_derived_snapshots.py:12:    "payoff_curve_points",
+scripts/purge_derived_snapshots.py:13:    "structure_decisions",
+scripts/repair_derived_db_consistency.py:20:        FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:21:        LEFT JOIN payoff_curve_points p
+scripts/repair_derived_db_consistency.py:31:        FROM payoff_curve_points p
+scripts/repair_derived_db_consistency.py:32:        LEFT JOIN structure_decisions d
+scripts/repair_derived_db_consistency.py:122:            FROM payoff_curve_points
+scripts/repair_derived_db_consistency.py:133:            FROM structure_decisions
+scripts/repair_derived_db_consistency.py:199:                        UPDATE structure_decisions
+scripts/repair_derived_db_consistency.py:222:                FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:223:                LEFT JOIN payoff_curve_points p
+scripts/repair_derived_db_consistency.py:244:                        f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+scripts/repair_derived_db_consistency.py:255:                FROM payoff_curve_points p
+scripts/repair_derived_db_consistency.py:256:                LEFT JOIN structure_decisions d
+scripts/repair_derived_db_consistency.py:275:                        DELETE FROM payoff_curve_points
+scripts/repair_derived_db_consistency.py:278:                            FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:279:                            WHERE d.aba = payoff_curve_points.aba
+scripts/repair_derived_db_consistency.py:280:                              AND d.timestamp = payoff_curve_points.timestamp
+scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+scripts/validate_derived_db.py:18:from db.derived_repo import validate_snapshot_consistency
+scripts/validate_derived_db.py:65:        points_count = safe_count("payoff_curve_points")
+scripts/validate_derived_db.py:66:        decisions_count = safe_count("structure_decisions")
+scripts/validate_derived_db.py:71:            print("[WARN] Tabela payoff_curve_points nao acessivel (ou nao existe).")
+scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:330:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:346:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/derived_payoff_persistence.py:1:# services/derived_payoff_persistence.py
+services/derived_payoff_persistence.py:7:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:12:class DerivedPayoffPersistence:
+services/derived_payoff_persistence.py:33:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+services/derived_payoff_persistence.py:40:                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+services/derived_payoff_persistence.py:49:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:52:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+services/derived_payoff_persistence.py:60:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+services/derived_payoff_persistence.py:69:    def _persist_payoff(
+services/derived_payoff_persistence.py:81:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+services/derived_payoff_persistence.py:86:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+services/derived_payoff_persistence.py:88:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+services/derived_payoff_persistence.py:96:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+services/derived_payoff_persistence.py:158:            save_decision_from_canonical_payload(
+services/derived_payoff_persistence.py:166:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+services/derived_payoff_persistence.py:173:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+services/derived_service.py:16:from db.derived_repo import (
+services/derived_service.py:82:    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+services/derived_service.py:160:def save_payoff_curve(
+services/derived_service.py:210:def save_payoff_from_canonical_payload(
+services/derived_service.py:242:        sig = inspect.signature(save_payoff_curve)
+services/derived_service.py:254:        return save_payoff_curve(
+services/derived_service.py:263:    return save_payoff_curve(
+services/derived_service.py:272:def save_decision(
+services/derived_service.py:304:def save_decision_from_canonical_payload(
+services/derived_service.py:339:    return save_decision(
+services/derived_service.py:367:            FROM payoff_curve_points
+services/derived_service.py:394:              FROM payoff_curve_points
+services/derived_service.py:419:                "PRAGMA table_info(structure_decisions)"
+services/derived_service.py:437:            FROM structure_decisions
+services/derived_service.py:522:    def save_payoff_curve(self, *args, **kwargs):
+services/derived_service.py:523:        return save_payoff_curve(*args, **kwargs)
+services/derived_service.py:525:    def save_decision(self, *args, **kwargs):
+services/derived_service.py:526:        return save_decision(*args, **kwargs)
+services/payoff_persistence_port.py:1:# services/payoff_persistence_port.py
+services/pricing_execution_persistence_service.py:7:from services.payoff_persistence_port import PayoffPersistencePort
+services/pricing_execution_persistence_service.py:16:        payoff_persistence_port: PayoffPersistencePort | None = None,
+services/pricing_execution_persistence_service.py:22:        self._payoff_port = payoff_persistence_port
+services/pricing_execution_persistence_service.py:78:                    "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",

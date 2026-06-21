@@ -1,0 +1,340 @@
+services/calculation_orchestrator.py:3:# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+services/calculation_orchestrator.py:4:# alteracao_47: run_full_pipeline, multiplier fix (1.0), run_decision auto-extract
+services/calculation_orchestrator.py:21:from domain.decision import compute_decision_from_contract
+services/calculation_orchestrator.py:166:def run_decision(
+services/calculation_orchestrator.py:195:    return compute_decision_from_contract(contract, payoff=payoff)
+services/calculation_orchestrator.py:205:    """alteracao_47: pipeline completo payoff + decision."""
+services/calculation_orchestrator.py:213:    decision_result = run_decision(request, payoff=payoff_result)
+services/calculation_orchestrator.py:217:        "decision":         decision_result,
+services/calculation_orchestrator.py:233:    - Executar payoff e decisao sem acessar raw DB diretamente
+services/calculation_orchestrator.py:338:    # run_payoff / run_decision / run_full_pipeline
+services/calculation_orchestrator.py:356:    def run_decision(
+services/calculation_orchestrator.py:384:        return compute_decision_from_contract(contract, payoff=payoff_result)
+services/calculation_orchestrator.py:393:        """Executa run_payoff -> run_decision em sequencia."""
+services/calculation_orchestrator.py:395:        decision_result = self.run_decision(request, payoff_result=payoff_result)
+services/calculation_orchestrator.py:399:            "decision":         decision_result,
+services/calculation_orchestrator.py:506:        Retorna dict com chaves: structure_id, payoff, decision.
+services/calculation_orchestrator.py:517:            "decision":     pipeline_result["decision"],
+services/derived_payoff_persistence.py:7:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:57:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:58:        if not decision_saved:
+services/derived_payoff_persistence.py:105:    def _persist_decision(
+services/derived_payoff_persistence.py:136:            decision_dict = {
+services/derived_payoff_persistence.py:137:                "decision":      "HOLD",
+services/derived_payoff_persistence.py:158:            save_decision_from_canonical_payload(
+services/derived_payoff_persistence.py:159:                decision=decision_dict,
+services/derived_service.py:4:alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+services/derived_service.py:17:    cleanup_old_decisions,
+services/derived_service.py:21:    insert_structure_decision,
+services/derived_service.py:272:def save_decision(
+services/derived_service.py:274:    decision: Dict[str, Any],
+services/derived_service.py:284:    enriched_decision = {
+services/derived_service.py:285:        **decision,
+services/derived_service.py:288:            **(decision.get("meta") or {}),
+services/derived_service.py:296:        return insert_structure_decision(
+services/derived_service.py:300:            decision_dict=enriched_decision,
+services/derived_service.py:304:def save_decision_from_canonical_payload(
+services/derived_service.py:305:    decision: Dict[str, Any],
+services/derived_service.py:327:    enriched_decision = {
+services/derived_service.py:328:        **decision,
+services/derived_service.py:331:            **(decision.get("meta") or {}),
+services/derived_service.py:339:    return save_decision(
+services/derived_service.py:341:        decision=enriched_decision,
+services/derived_service.py:354:        deleted_dec    = cleanup_old_decisions(conn, days_to_keep=days_to_keep)
+services/derived_service.py:355:        return {"payoff_deleted": deleted_payoff, "decisions_deleted": deleted_dec}
+services/derived_service.py:411:def get_recent_decisions():
+services/derived_service.py:419:                "PRAGMA table_info(structure_decisions)"
+services/derived_service.py:424:            "timestamp", "aba", "decision", "level",
+services/derived_service.py:437:            FROM structure_decisions
+services/derived_service.py:442:        decisions = []
+services/derived_service.py:477:            decisions.append(item)
+services/derived_service.py:479:        return decisions
+services/derived_service.py:512:    get_payoff_by_aba() ausente por decisao de design (alteracao_65): interface simplificada.
+services/derived_service.py:525:    def save_decision(self, *args, **kwargs):
+services/derived_service.py:526:        return save_decision(*args, **kwargs)
+services/pricing_execution_persistence_service.py:125:                decision_json=self._extract_result_field(inner, "decision"),
+services/structure_analysis_service.py:6:from domain.decision import compute_decision_from_payoff
+services/structure_analysis_service.py:72:            decision = {
+services/structure_analysis_service.py:73:                "decision":      "HOLD",
+services/structure_analysis_service.py:92:                "decision": decision,
+services/structure_analysis_service.py:96:        decision = compute_decision_from_payoff(
+services/structure_analysis_service.py:105:        decision["dte_min"] = dte_min_effective
+services/structure_analysis_service.py:108:        decision["why"]["dte_gate"] = dte_gate
+services/structure_analysis_service.py:120:            "decision": decision,
+repositories/system_snapshots_repository.py:17:    "decision_json",
+repositories/system_snapshots_repository.py:91:        decision_json: dict[str, Any] | list[Any] | None = None,
+repositories/system_snapshots_repository.py:124:                    decision_json,
+repositories/system_snapshots_repository.py:141:                    _to_json(decision_json),
+repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+repositories/ui_data_table_candidates.py:15:    "decisions",
+repositories/ui_data_table_candidates.py:16:    "rtd_decisions",
+domain/calculation_request.py:220:    e o domínio (payoff, decision) recebe SOMENTE este objeto -- sem
+domain/decision.py:6:Funcoes canonicas: compute_decision_from_inputs, compute_decision_from_payoff,
+domain/decision.py:7:compute_decision_from_contract.
+domain/decision.py:55:# Mapeamento decision  level
+domain/decision.py:58:    "WATCH":        1,   # nível interno, mapeado para decision="HOLD" level=1
+domain/decision.py:68:def compute_decision_from_inputs(
+domain/decision.py:114:    decision = "HOLD" if _internal == "WATCH" else _internal
+domain/decision.py:129:        "decision":      decision,
+domain/decision.py:139:def compute_decision_from_payoff(
+domain/decision.py:153:            "decision":      "HOLD",
+domain/decision.py:174:            "decision":      "HOLD",
+domain/decision.py:183:    return compute_decision_from_inputs(
+domain/decision.py:193:def compute_decision_from_contract(
+domain/decision.py:202:        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+domain/decision.py:209:    return compute_decision_from_inputs(
+UI/components/decisions_grid.py:1:# UI/components/decisions_grid.py
+UI/components/decisions_grid.py:27:            "decision",
+UI/components/decisions_grid.py:45:        self.tree.heading("decision", text="Decisão")
+UI/components/decisions_grid.py:55:        self.tree.column("decision", width=100, anchor="center")
+UI/components/decisions_grid.py:100:    def update_data(self, decisions: List[Dict]):
+UI/components/decisions_grid.py:102:        self.current_data = decisions.copy()
+UI/components/decisions_grid.py:107:        for i, decision in enumerate(decisions, 1):
+UI/components/decisions_grid.py:108:            timestamp = self._format_timestamp(decision.get("timestamp"))
+UI/components/decisions_grid.py:111:                decision.get("structure_id") or decision.get("aba") or "N/A"
+UI/components/decisions_grid.py:113:            decision_text = decision.get("decision", "N/A")
+UI/components/decisions_grid.py:114:            level = decision.get("level", "")
+UI/components/decisions_grid.py:115:            ratio = self._format_ratio(decision.get("pl_pct_of_max"))
+UI/components/decisions_grid.py:116:            dte = decision.get("dte_min", "")
+UI/components/decisions_grid.py:117:            pl_atual = self._format_currency(decision.get("pl_atual"))
+UI/components/decisions_grid.py:118:            pl_max = self._format_currency(decision.get("pl_max"))
+UI/components/decisions_grid.py:121:                decision_text
+UI/components/decisions_grid.py:122:                if decision_text in ["HOLD", "PREPARE_ROLL", "CLOSE_REOPEN", "ROLL", "ENTER"]
+UI/components/decisions_grid.py:133:                    decision_text,
+UI/components/decisions_grid.py:181:    def get_selected_decision(self) -> Optional[Dict]:
+UI/components/details_panel.py:17:        self._current_decision = None
+UI/components/details_panel.py:410:            "structure_decisions",
+UI/components/details_panel.py:482:        self.decision_label = ttk.Label(
+UI/components/details_panel.py:485:        self.decision_label.grid(row=1, column=1, sticky="ew", padx=(0, 10))
+UI/components/details_panel.py:641:    def update_decision(self, decision_data: Dict):
+UI/components/details_panel.py:642:        self._current_decision = dict(decision_data) if decision_data else None
+UI/components/details_panel.py:644:        self.timestamp_label.config(text=decision_data.get("timestamp", "N/A"))
+UI/components/details_panel.py:647:        structure_id = decision_data.get("structure_id") or "N/A"
+UI/components/details_panel.py:650:        self.decision_label.config(text=decision_data.get("decision", "N/A"))
+UI/components/details_panel.py:651:        self.level_label.config(text=str(decision_data.get("level", "N/A")))
+UI/components/details_panel.py:653:        self._format_currency_label(self.pl_atual_label, decision_data.get("pl_atual"))
+UI/components/details_panel.py:654:        self._format_currency_label(self.pl_max_label, decision_data.get("pl_max"))
+UI/components/details_panel.py:656:        ratio = decision_data.get("pl_pct_of_max")
+UI/components/details_panel.py:661:        self.dte_label.config(text=str(decision_data.get("dte_min", "N/A")))
+UI/components/details_panel.py:663:        spot_ref = decision_data.get("spot_reference") or decision_data.get("spot_ref")
+UI/components/details_panel.py:672:        why_payload = decision_data.get("why") or decision_data.get("why_json")
+UI/components/details_panel.py:720:        self._current_decision = None
+UI/components/details_panel.py:722:            self.timestamp_label, self.structure_label, self.decision_label,
+UI/components/details_panel.py:878:    def _fetch_latest_decision_from_derived(
+UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+UI/components/details_panel.py:892:                "structure_id", "timestamp", "decision", "level",
+UI/components/details_panel.py:900:                FROM structure_decisions
+UI/components/details_panel.py:962:                FROM structure_decisions
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/components/details_panel.py:1025:        decision = self._fetch_latest_decision_from_derived(structure_id)
+UI/components/details_panel.py:1026:        if decision:
+UI/components/details_panel.py:1027:            self.update_decision(decision)
+UI/components/details_panel.py:1033:        if decision:
+UI/components/details_panel.py:1034:            spot_ref = decision.get("spot_reference")
+UI/components/details_panel.py:1047:        decision = self._current_decision
+UI/components/details_panel.py:1048:        if not decision:
+UI/components/details_panel.py:1055:        structure_id = decision.get("structure_id")
+UI/components/filters_panel.py:54:        self.decision_var = tk.StringVar()
+UI/components/filters_panel.py:55:        self.decision_combo = ttk.Combobox(
+UI/components/filters_panel.py:57:            textvariable=self.decision_var,
+UI/components/filters_panel.py:62:        self.decision_combo.pack(side="left", padx=(5, 0))
+UI/components/filters_panel.py:101:        self.decision_combo.bind("<<ComboboxSelected>>", lambda e: self._apply_filters())
+UI/components/filters_panel.py:116:        if self.decision_var.get().strip():
+UI/components/filters_panel.py:117:            filters["decision"] = self.decision_var.get().strip()
+UI/components/filters_panel.py:139:        self.decision_var.set("")
+UI/components/payoff_chart.py:66:        self._last_decision_data: Dict = {}
+UI/components/payoff_chart.py:164:        self._last_decision_data = {}
+UI/components/payoff_chart.py:171:        decision_data: Optional[Dict] = None,
+UI/components/payoff_chart.py:179:        self._last_decision_data = dict(decision_data) if decision_data else {}
+UI/components/payoff_chart.py:182:            payoff_points, decision_data, overlay_curve=self._fixed_curve
+UI/components/payoff_chart.py:248:        """Redesenha com os dados salvos em _last_points/_last_decision_data."""
+UI/components/payoff_chart.py:252:                self._last_decision_data or {},
+UI/components/payoff_chart.py:259:        decision_data: Optional[Dict],
+UI/components/payoff_chart.py:307:        if overlay_curve and decision_data:
+UI/components/payoff_chart.py:309:                decision_data.get("structure_id")
+UI/components/payoff_chart.py:310:                or decision_data.get("aba", "")
+UI/components/payoff_chart.py:351:        if decision_data:
+UI/components/payoff_chart.py:352:            raw = decision_data.get("spot_ref") or decision_data.get("spot_reference")
+UI/components/payoff_chart.py:416:        if decision_data:
+UI/components/payoff_chart.py:418:                decision_data.get("structure_id")
+UI/components/payoff_chart.py:419:                or decision_data.get("aba", "")
+UI/components/payoff_chart.py:421:            dec = decision_data.get("decision", "")
+UI/components/structures_list_panel.py:94:        self._search_var = tk.StringVar()
+UI/components/structures_list_panel.py:95:        search_entry = ttk.Entry(toolbar, textvariable=self._search_var, width=18)
+UI/components/structures_list_panel.py:96:        search_entry.pack(side="left", padx=(2, 4))
+UI/components/structures_list_panel.py:97:        self._search_var.trace_add("write", lambda *_: self._apply_filter())
+UI/components/structures_list_panel.py:174:        term = self._search_var.get().strip().lower()
+UI/main_window.py:10:from UI.components.decisions_grid import DecisionsGrid
+UI/main_window.py:50:        self.last_selected_decision: Optional[Dict] = None
+UI/main_window.py:83:        self.decisions_grid = DecisionsGrid(
+UI/main_window.py:85:            on_selection_change=self.on_decision_selected,
+UI/main_window.py:87:        self.decisions_grid.pack(fill="both", expand=True, padx=5, pady=5)
+UI/main_window.py:163:            filtered_data = self.data_model.get_decisions(filters)
+UI/main_window.py:164:            self.decisions_grid.update_data(filtered_data)
+UI/main_window.py:171:    def on_decision_selected(self, decision_data: Dict):
+UI/main_window.py:175:        if not decision_data:
+UI/main_window.py:178:        self.last_selected_decision = dict(decision_data)
+UI/main_window.py:182:            self.details_panel.update_decision(decision_data)
+UI/main_window.py:187:        structure_id = decision_data.get("structure_id")
+UI/main_window.py:188:        timestamp = decision_data.get("timestamp")  # opcional
+UI/main_window.py:191:            self._start_payoff_load(structure_id, timestamp, decision_data)
+UI/main_window.py:200:        decision_data=None,   # alteracao_36: opcional
+UI/main_window.py:205:        if decision_data is None:
+UI/main_window.py:206:            decision_data = {"structure_id": structure_id}
+UI/main_window.py:256:                    decision_data,
+UI/main_window.py:291:            decisions = self.data_model.get_decisions()
+UI/main_window.py:292:            self.decisions_grid.update_data(decisions)
+UI/main_window.py:295:            d = self.last_selected_decision
+UI/main_window.py:304:                        self.decisions_grid.select_by_key(target_sid, target_ts)
+UI/main_window.py:309:                        self.details_panel.update_decision(d)
+UI/main_window.py:330:                text=f"Dados atualizados - {len(decisions)} decisões"
+UI/main_window.py:346:                current_data = self.decisions_grid.get_current_data()
+UI/main_window.py:525:        decision_data: Dict,
+UI/main_window.py:537:                overlays = self.payoff_chart.update_chart(points, decision_data)
+UI/main_window.py:552:                used_ts = (info_dict or {}).get("used_timestamp") or decision_data.get(
+UI/main_window.py:558:                if used_ts and used_ts != decision_data.get("timestamp"):
+UI/models/ui_data.py:24:    "decision":      ["decision", "decisao", "action"],
+UI/models/ui_data.py:247:    def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
+UI/models/ui_data.py:274:            "timestamp", "structure_id", "aba", "decision", "level",
+UI/models/ui_data.py:336:            if filters.get("decision"):
+UI/models/ui_data.py:337:                where.append("t.decision = ?")
+UI/models/ui_data.py:338:                params.append(filters["decision"])
+UI/models/ui_data.py:351:                t.timestamp, t.structure_id, t.aba, t.decision, t.level,
+UI/models/ui_data.py:603:                "timestamp", "structure_id", "aba", "decision", "level",
+ATT/checks/check_cleanup_residuals.py:126:    return any(re.search(pattern, line) for pattern in ALLOW_PATH_PATTERNS)
+ATT/checks/check_cleanup_residuals.py:136:            if re.search(pattern, normalized):
+ATT/tests/test_decision.py:1:from domain.decision import compute_decision_from_payoff
+ATT/tests/test_decision.py:4:def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
+ATT/tests/test_decision.py:6:    Garante que compute_decision_from_payoff funciona com payoff canônico
+ATT/tests/test_decision.py:17:    result = compute_decision_from_payoff(
+ATT/tests/test_decision.py:22:    assert "decision" in result
+ATT/tests/test_decision.py:24:    assert result["decision"] in ("HOLD", "WATCH", "PREPARE", "PREPARE_ROLL", "CLOSE_REOPEN", "CLOSE")
+ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+ATT/tests/test_derived_service.py:128:    def fake_save_decision(ref, decision, timestamp=None):
+ATT/tests/test_derived_service.py:130:        captured["decision"] = decision
+ATT/tests/test_derived_service.py:134:    monkeypatch.setattr(ds, "save_decision", fake_save_decision)
+ATT/tests/test_derived_service.py:141:    result = ds.save_decision_from_canonical_payload(
+ATT/tests/test_derived_service.py:142:        decision=payload,
+ATT/tests/test_derived_service.py:151:    assert captured["decision"]["meta"]["origin"] == "test"
+ATT/tests/test_derived_service.py:152:    assert captured["decision"]["meta"]["structure_id"] == 321
+ATT/tests/test_derived_service.py:153:    assert captured["decision"]["meta"]["structure_name"] == "Fence"
+ATT/tests/test_derived_service.py:154:    assert captured["decision"]["meta"]["underlying_asset"] == "VALE3"
+ATT/tests/test_derived_service.py:155:    assert captured["decision"]["meta"]["storage_key"] == "structure:321"
+ATT/tests/test_orchestrator_run_methods.py:2:Testes para os métodos run_payoff e run_decision
+ATT/tests/test_orchestrator_run_methods.py:17:    run_decision,
+ATT/tests/test_orchestrator_run_methods.py:172:# Testes: run_decision
+ATT/tests/test_orchestrator_run_methods.py:177:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:179:        mock_decide.return_value = {"decision": "hold", "score": 0.7}
+ATT/tests/test_orchestrator_run_methods.py:182:        result = run_decision(req, pl_atual=200.0, pl_max=500.0, dte_min=10)
+ATT/tests/test_orchestrator_run_methods.py:189:        assert result == {"decision": "hold", "score": 0.7}
+ATT/tests/test_orchestrator_run_methods.py:191:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:197:        run_decision(req, payoff=payoff, pl_max=600.0, pl_atual=100.0)
+ATT/tests/test_orchestrator_run_methods.py:202:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:207:        run_decision(req)
+ATT/tests/test_orchestrator_run_methods.py:214:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:219:        run_decision(req, pl_max=300.0)
+ATT/tests/test_orchestrator_run_methods.py:224:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:226:        expected = {"decision": "close", "reason": "dte_gate"}
+ATT/tests/test_orchestrator_run_methods.py:230:        result = run_decision(req, pl_max=100.0, pl_atual=80.0, dte_min=2)
+ATT/tests/test_payoff_chart.py:85:        chart._last_decision_data  = {}
+ATT/tests/test_payoff_chart.py:332:    def test_update_chart_saves_decision_data(self):
+ATT/tests/test_payoff_chart.py:334:        dd  = {"structure_id": "collar_1", "decision": "BUY", "spot_ref": 100.0}
+ATT/tests/test_payoff_chart.py:335:        self.chart.update_chart(pts, decision_data=dd)
+ATT/tests/test_payoff_chart.py:336:        self.assertEqual(self.chart._last_decision_data["structure_id"], "collar_1")
+ATT/tests/test_payoff_chart.py:352:        result = self.chart.update_chart(pts, decision_data={"spot_ref": 100.0})
+ATT/tests/test_payoff_chart.py:357:        result = self.chart.update_chart(_linear_points(), decision_data={})
+ATT/tests/test_payoff_chart.py:395:        dd  = {"structure_id": "strangle_X", "aba": "old_aba", "decision": "BUY"}
+ATT/tests/test_payoff_chart.py:396:        self.chart.update_chart(pts, decision_data=dd)
+ATT/tests/test_payoff_chart.py:402:        dd  = {"aba": "straddle_Y", "decision": "SELL"}
+ATT/tests/test_payoff_chart.py:403:        self.chart.update_chart(pts, decision_data=dd)
+ATT/tests/test_payoff_chart.py:427:    def test_update_chart_none_decision_data(self):
+ATT/tests/test_payoff_chart.py:428:        result = self.chart.update_chart(_linear_points(), decision_data=None)
+ATT/tests/test_pricing_execution_persistence_service.py:223:            "decision": {
+ATT/tests/test_pricing_execution_persistence_service.py:261:    assert call["decision_json"] == {
+ATT/tests/test_structures_archive_wiring.py:138:        match = re.search(padrao, src, re.DOTALL)
+ATT/tests/test_structure_analysis_service.py:125:    assert "decision" in result
+ATT/tests/test_structure_analysis_service.py:141:    decision = result["decision"]
+ATT/tests/test_structure_analysis_service.py:142:    assert decision is not None
+ATT/tests/test_structure_analysis_service.py:143:    assert decision["decision"] == "HOLD"
+ATT/tests/test_structure_analysis_service.py:144:    assert decision["dte_min"] == 0
+ATT/tests/test_structure_analysis_service.py:145:    assert "why" in decision
+ATT/tests/test_structure_analysis_service.py:146:    assert "why_json" in decision
+ATT/tests/test_structure_analysis_service.py:147:    assert isinstance(decision["why"], dict)
+ATT/tests/test_structure_analysis_service.py:148:    assert "reasons" in decision["why"]
+ATT/tests/test_structure_analysis_service.py:149:    assert "alternatives" in decision["why"]
+ATT/tests/test_structure_analysis_service.py:166:    assert result["decision"]["dte_min"] == 9
+ATT/tests/test_structure_analysis_service.py:169:def test_structure_analysis_service_analyze_returns_structured_decision_for_invalid_payoff():
+ATT/tests/test_structure_analysis_service.py:180:    assert "decision" in result
+ATT/tests/test_structure_analysis_service.py:181:    assert result["decision"] is not None
+ATT/tests/test_structure_analysis_service.py:182:    assert result["decision"]["decision"] == "HOLD"
+ATT/tests/test_structure_analysis_service.py:183:    assert result["decision"]["level"] == 0
+ATT/tests/test_structure_analysis_service.py:184:    assert result["decision"]["why"]["error"] == "payoff is required"
+ATT/tests/test_structure_analysis_service.py:185:    assert "validation_errors" in result["decision"]["why"]
+ATT/tests/test_structure_analysis_service.py:206:    decision = result["decision"]
+ATT/tests/test_structure_analysis_service.py:208:    assert decision is not None
+ATT/tests/test_structure_analysis_service.py:209:    assert "why" in decision
+ATT/tests/test_structure_analysis_service.py:210:    assert decision["why"]["thresholds_used"] == thresholds
+ATT/tests/test_structure_analysis_service.py:211:    assert decision["why"]["dte_gate"] == 10
+ATT/tests/test_structure_analysis_service.py:227:        for alternative in result["decision"]["why"]["alternatives"]
+ATT/tests/test_structure_analysis_service.py:262:def test_structure_analysis_service_passes_effective_dte_to_decision(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:276:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:289:            "decision": "HOLD",
+ATT/tests/test_structure_analysis_service.py:304:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:305:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:324:    assert result["decision"]["dte_min"] == 3
+ATT/tests/test_structure_analysis_service.py:339:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:347:            "decision": "HOLD",
+ATT/tests/test_structure_analysis_service.py:362:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:363:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:370:    assert result["decision"]["dte_min"] == 0
+ATT/tests/test_structure_analysis_service.py:387:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:396:            "decision": "HOLD",
+ATT/tests/test_structure_analysis_service.py:411:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:412:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:423:    assert result["decision"]["dte_min"] == 9
+ATT/tests/test_structure_analysis_service.py:507:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:516:            "decision": "HOLD",
+ATT/tests/test_structure_analysis_service.py:527:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:528:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:553:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:562:            "decision": "HOLD",
+ATT/tests/test_structure_analysis_service.py:573:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:574:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:600:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:608:            "decision": "HOLD",
+ATT/tests/test_structure_analysis_service.py:619:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:620:        fake_compute_decision_from_payoff,
+ATT/tests/test_system_snapshots_repository.py:121:        decision_json={"action": "hold"},
+ATT/tests/test_system_snapshots_repository.py:168:    assert snapshot["decision_json"] == {"action": "hold"}
+ATT/tests/test_system_snapshots_schema.py:69:        "decision_json",
+ATT/tests/test_ui_data_migration.py:27:def decisions(model):
+ATT/tests/test_ui_data_migration.py:28:    return model.get_decisions()
+ATT/tests/test_ui_data_migration.py:46:def non_empty_decisions(decisions):
+ATT/tests/test_ui_data_migration.py:47:    if not decisions:
+ATT/tests/test_ui_data_migration.py:49:    return decisions
+ATT/tests/test_ui_data_migration.py:86:# Nível 2 -- get_decisions() com structure_id
+ATT/tests/test_ui_data_migration.py:89:def test_decisions_nao_vazia(non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:90:    assert len(non_empty_decisions) > 0, "Deve haver ao menos uma decisão no banco"
+ATT/tests/test_ui_data_migration.py:93:def test_decisions_tem_structure_id(decisions):
+ATT/tests/test_ui_data_migration.py:94:    for d in decisions:
+ATT/tests/test_ui_data_migration.py:98:def test_decisions_tem_aba(decisions):
+ATT/tests/test_ui_data_migration.py:99:    for d in decisions:
+ATT/tests/test_ui_data_migration.py:103:def test_structure_id_igual_a_aba(decisions):
+ATT/tests/test_ui_data_migration.py:108:    for d in decisions:
+ATT/tests/test_ui_data_migration.py:120:def test_decisions_tem_timestamp(decisions):
+ATT/tests/test_ui_data_migration.py:121:    for d in decisions:
+ATT/tests/test_ui_data_migration.py:137:    filtered = model.get_decisions(filters={"structure_id": sid_str})
+ATT/tests/test_ui_data_migration.py:146:def test_filtro_por_aba_continuidade(model, decisions):
+ATT/tests/test_ui_data_migration.py:149:    Verificamos que filtrar por aba de uma decisao real retorna >= 1 resultado
+ATT/tests/test_ui_data_migration.py:152:    if not decisions:
+ATT/tests/test_ui_data_migration.py:153:        pytest.skip("Sem decisoes para testar filtro por aba")
+ATT/tests/test_ui_data_migration.py:154:    aba_real = decisions[0]["aba"]        # ex: 'SBSP3'
+ATT/tests/test_ui_data_migration.py:155:    filtered_aba = model.get_decisions(filters={"aba": aba_real})
+ATT/tests/test_ui_data_migration.py:170:def test_payoff_curve_info_retorna_dados(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:171:    d0 = non_empty_decisions[0]
+ATT/tests/test_ui_data_migration.py:177:def test_payoff_curve_info_tem_structure_id(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:178:    d0 = non_empty_decisions[0]
+ATT/tests/test_ui_data_migration.py:183:def test_payoff_curve_info_aba_continuidade(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:184:    d0 = non_empty_decisions[0]
+ATT/tests/test_ui_data_migration.py:192:def test_payoff_curve_info_pontos_validos(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:193:    d0 = non_empty_decisions[0]

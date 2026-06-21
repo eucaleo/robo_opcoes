@@ -1,0 +1,320 @@
+# repositories/structures_repository.py
+"""
+Repositório canônico de estruturas e suas pernas (legs).
+
+alteracao_11: conexões SQLite fechadas explicitamente via try/finally.
+alteracao_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
+alteracao_63: fix _validate_leg -- leg_order aceita >= 0 (era >= 1, bug).
+alteracao_70: revertido leg_order para >= 1 (0 é inválido; alteracao_63 era equivocado).
+alteracao_72: audit trail -- toda mutacao registrada em structure_audit_log.
+          _log_action() interno; atomico na mesma transacao do metodo.
+          get_audit_log() e get_full_audit_log() para consulta.
+          ensure_audit_schema() cria tabela e indices idx_audit_log_structure_id
+          e idx_audit_log_changed_at.
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from domain.position_side import CANONICAL_POSITION_SIDES, normalize_position_side
+
+
+VALID_POSITION_SIDES: frozenset[str] = CANONICAL_POSITION_SIDES
+VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
+VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
+
+# Acoes validas registradas no audit log -- alteracao_72
+AUDIT_ACTIONS: frozenset[str] = frozenset(
+    {"CREATE", "UPDATE", "ARCHIVE", "ADD_LEG", "REPLACE_LEGS"}
+)
+
+
+# ---------------------------------------------------------------------------
+# Helpers de validação / normalização (funções puras, sem I/O)
+# ---------------------------------------------------------------------------
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _validate_expiration_date(value: str) -> str:
+    if value is None or not str(value).strip():
+        raise ValueError("expiration_date is required")
+
+    value = str(value).strip()
+
+    try:
+        parsed = datetime.strptime(value, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError(
+            "expiration_date must be a valid date in YYYY-MM-DD format"
+        ) from exc
+
+    return parsed.strftime("%Y-%m-%d")
+
+
+def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+    name = str(data.get("name", "")).strip()
+    underlying_asset = str(data.get("underlying_asset", "")).strip().upper()
+    alias_legacy_aba = data.get("alias_legacy_aba")
+    status = str(data.get("status", "active")).strip().lower()
+    notes = data.get("notes")
+
+    if not name:
+        raise ValueError("name is required")
+
+    if not underlying_asset:
+        raise ValueError("underlying_asset is required")
+
+    if status not in VALID_STRUCTURE_STATUS:
+        raise ValueError(f"invalid status: {status}")
+
+    if alias_legacy_aba is not None:
+        alias_legacy_aba = str(alias_legacy_aba).strip() or None
+
+    if notes is not None:
+        notes = str(notes).strip() or None
+
+    return {
+        "name": name,
+        "underlying_asset": underlying_asset,
+        "alias_legacy_aba": alias_legacy_aba,
+        "status": status,
+        "notes": notes,
+    }
+
+
+def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
+    position_side   = normalize_position_side(leg.get("position_side"))
+    option_type     = str(leg.get("option_type", "")).strip().upper()
+    strike          = leg.get("strike")
+    expiration_date = _validate_expiration_date(leg.get("expiration_date"))
+    quantity        = leg.get("quantity")
+    multiplier      = leg.get("multiplier", 1)
+    symbol          = leg.get("symbol")
+    notes           = leg.get("notes")
+
+    if position_side not in VALID_POSITION_SIDES:
+        raise ValueError(f"invalid position_side: {position_side}")
+
+    if option_type not in VALID_OPTION_TYPES:
+        raise ValueError(f"invalid option_type: {option_type}")
+
+    try:
+        strike = float(strike)
+    except Exception as exc:
+        raise ValueError("strike must be numeric") from exc
+
+    if strike <= 0:
+        raise ValueError("strike must be > 0")
+
+    try:
+        quantity = int(quantity)
+    except Exception as exc:
+        raise ValueError("quantity must be integer") from exc
+
+    if quantity <= 0:
+        raise ValueError("quantity must be > 0")
+
+    try:
+        multiplier = float(multiplier)
+    except Exception as exc:
+        raise ValueError("multiplier must be numeric") from exc
+
+    if multiplier <= 0:
+        raise ValueError("multiplier must be > 0")
+
+    try:
+        leg_order = int(leg.get("leg_order", 0))
+    except Exception as exc:
+        raise ValueError("leg_order must be integer") from exc
+
+    if leg_order < 0:
+        raise ValueError("leg_order must be >= 0")
+
+    premium = leg.get("premium")
+    if premium is not None:
+        try:
+            premium = float(premium)
+        except Exception as exc:
+            raise ValueError("premium must be numeric when provided") from exc
+
+    if symbol is not None:
+        symbol = str(symbol).strip() or None
+
+    if notes is not None:
+        notes = str(notes).strip() or None
+
+    return {
+        "position_side":   position_side,
+        "option_type":     option_type,
+        "symbol":          symbol,
+        "strike":          strike,
+        "expiration_date": expiration_date,
+        "quantity":        quantity,
+        "premium":         premium,
+        "multiplier":      multiplier,
+        "leg_order":       leg_order,
+        "notes":           notes,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Repositório
+# ---------------------------------------------------------------------------
+
+class StructuresRepository:
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+        self.db_path = str(db_path)
+
+    # ------------------------------------------------------------------
+    # Infraestrutura de conexão
+    # ------------------------------------------------------------------
+
+    def _connect(self) -> sqlite3.Connection:
+        db_path = Path(self.db_path)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        return conn
+
+    @staticmethod
+    def _row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
+        if row is None:
+            return None
+        return dict(row)
+
+    def _fetch_legs(
+        self, conn: sqlite3.Connection, structure_id: int
+    ) -> list[dict[str, Any]]:
+        rows = conn.execute(
+            """
+            SELECT
+                id, structure_id, position_side, option_type, symbol,
+                strike, expiration_date, quantity, premium, multiplier,
+                leg_order, notes, created_at, updated_at
+            FROM structure_legs
+            WHERE structure_id = ?
+            ORDER BY leg_order ASC, id ASC
+            """,
+            (structure_id,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def _ensure_structure_exists(
+        self, conn: sqlite3.Connection, structure_id: int
+    ) -> None:
+        row = conn.execute(
+            "SELECT id FROM structures WHERE id = ?",
+            (structure_id,),
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+    # ------------------------------------------------------------------
+    # alteracao_72 -- Schema do audit log
+    # ------------------------------------------------------------------
+
+    def ensure_audit_schema(self, conn: sqlite3.Connection) -> None:
+        """
+        Cria a tabela structure_audit_log e seus indices caso nao existam.
+        Deve ser chamado dentro de uma conexao aberta, antes do primeiro uso.
+        Idempotente (CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS).
+
+        alteracao_72
+        """
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+                ON structure_audit_log (structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+                ON structure_audit_log (changed_at)
+            """
+        )
+
+    # ------------------------------------------------------------------
+    # alteracao_72 -- Audit log interno
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _log_action(
+        conn: sqlite3.Connection,
+        structure_id: int,
+        action: str,
+        before: dict[str, Any] | None = None,
+        after: dict[str, Any] | None = None,
+        notes: str | None = None,
+        changed_by: str | None = None,
+    ) -> None:
+        """
+        Insere uma linha em structure_audit_log dentro da conexao ativa.
+        Deve ser chamado ANTES do conn.commit() do metodo pai para garantir
+        atomicidade. Nao abre conexao propria -- usa a conexao passada.
+        Falhas sao silenciadas para nao derrubar a operacao principal.
+        """
+        try:
+            conn.execute(
+                """
+                INSERT INTO structure_audit_log
+                    (structure_id, action, changed_by, changed_at,
+                     before_json, after_json, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    structure_id,
+                    action,
+                    changed_by,
+                    _utc_now_iso(),
+                    json.dumps(before, ensure_ascii=False) if before is not None else None,
+                    json.dumps(after,  ensure_ascii=False) if after  is not None else None,
+                    notes,
+                ),
+            )
+        except Exception:
+            # Log nao pode derrubar operacao principal
+            pass
+
+    # ------------------------------------------------------------------
+    # CREATE
+    # ------------------------------------------------------------------
+
+    def create_structure(self, data: dict[str, Any]) -> int:
+        payload = _normalize_structure_payload(data)
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            cursor = conn.execute(
+                """
+                INSERT INTO structures (
+                    name, underlying_asset, alias_legacy_aba,
+                    status, notes, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload["name"], payload["underlying_asset"],

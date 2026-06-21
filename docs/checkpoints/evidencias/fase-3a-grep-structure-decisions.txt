@@ -1,0 +1,225 @@
+./db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+./db/derived_repo.py:101:CREATE TABLE IF NOT EXISTS structure_decisions (
+./db/derived_repo.py:122:ON structure_decisions (timestamp, aba)
+./db/derived_repo.py:127:ON structure_decisions (aba, timestamp)
+./db/derived_repo.py:132:ON structure_decisions (timestamp)
+./db/derived_repo.py:192:    # Índices de structure_decisions
+./db/derived_repo.py:298:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./db/derived_repo.py:474:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./db/derived_repo.py:562:                f"SELECT * FROM structure_decisions {where} ORDER BY id DESC LIMIT ?",
+./db/derived_repo.py:579:                FROM structure_decisions d
+./db/derived_repo.py:589:                LEFT JOIN structure_decisions d
+./db/derived_repo.py:623:                f"DELETE FROM structure_decisions "
+./db/derived_repo.py:648:            {verb} INTO structure_decisions
+./db/derived_repo.py:726:        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./db/derived_repo.py:732:        INSERT INTO structure_decisions
+./db/derived_repo.py:819:        INSERT OR REPLACE INTO structure_decisions
+./db/derived_repo.py:880:        FROM structure_decisions d
+./db/derived_repo.py:889:        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+./db/derived_repo.py:921:        DELETE FROM structure_decisions
+./db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+./db/migrations/add_structure_id_to_payoff_curve_points.py:33:            FROM structure_decisions d
+./db/migrations/add_structure_id_to_payoff_curve_points.py:58:            FROM structure_decisions d
+./db/reader.py:99:            columns = self._get_table_columns(conn, "structure_decisions")
+./db/reader.py:129:                FROM structure_decisions
+./db/schema.py:25:CREATE TABLE IF NOT EXISTS structure_decisions (
+./db/schema.py:46:ON structure_decisions(timestamp, aba);
+./db/schema.py:49:ON structure_decisions(decision);
+./db/schema.py:52:ON structure_decisions(ratio);
+./db/writer.py:129:                SELECT * FROM structure_decisions 
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:239:    structure_decisions
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:246:    structure_decisions
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:390:   usando payoff_curve_points e structure_decisions.
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:158:1131:CREATE TABLE IF NOT EXISTS structure_decisions (
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:159:1152:ON structure_decisions (timestamp, aba)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:160:1157:ON structure_decisions (aba, timestamp)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:161:1162:ON structure_decisions (timestamp)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:165:1222:    # Índices de structure_decisions
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:167:1328:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:141:./db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:145:./db/derived_repo.py:101:CREATE TABLE IF NOT EXISTS structure_decisions (
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:149:./db/derived_repo.py:122:ON structure_decisions (timestamp, aba)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:152:./db/derived_repo.py:127:ON structure_decisions (aba, timestamp)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:155:./db/derived_repo.py:132:ON structure_decisions (timestamp)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:162:./db/derived_repo.py:192:    # Índices de structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:177:./db/derived_repo.py:298:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:188:./db/derived_repo.py:474:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:192:./db/derived_repo.py:562:                f"SELECT * FROM structure_decisions {where} ORDER BY id DESC LIMIT ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:193:./db/derived_repo.py:579:                FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:195:./db/derived_repo.py:589:                LEFT JOIN structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:201:./db/derived_repo.py:623:                f"DELETE FROM structure_decisions "
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:206:./db/derived_repo.py:648:            {verb} INTO structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:218:./db/derived_repo.py:726:        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:221:./db/derived_repo.py:732:        INSERT INTO structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:239:./db/derived_repo.py:819:        INSERT OR REPLACE INTO structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:249:./db/derived_repo.py:880:        FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:251:./db/derived_repo.py:889:        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:257:./db/derived_repo.py:921:        DELETE FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:258:./db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:259:./db/migrations/add_structure_id_to_payoff_curve_points.py:33:            FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:260:./db/migrations/add_structure_id_to_payoff_curve_points.py:58:            FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:265:./db/reader.py:99:            columns = self._get_table_columns(conn, "structure_decisions")
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:267:./db/reader.py:129:                FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:269:./db/schema.py:25:CREATE TABLE IF NOT EXISTS structure_decisions (
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:272:./db/schema.py:46:ON structure_decisions(timestamp, aba);
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:274:./db/schema.py:49:ON structure_decisions(decision);
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:276:./db/schema.py:52:ON structure_decisions(ratio);
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:289:./db/writer.py:129:                SELECT * FROM structure_decisions 
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:314:./repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:317:./scripts/purge_derived_snapshots.py:13:    "structure_decisions",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:318:./scripts/repair_derived_db_consistency.py:20:        FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:320:./scripts/repair_derived_db_consistency.py:32:        LEFT JOIN structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:330:./scripts/repair_derived_db_consistency.py:133:            FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:339:./scripts/repair_derived_db_consistency.py:199:                        UPDATE structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:347:./scripts/repair_derived_db_consistency.py:222:                FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:350:./scripts/repair_derived_db_consistency.py:244:                        f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:354:./scripts/repair_derived_db_consistency.py:256:                LEFT JOIN structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:355:./scripts/repair_derived_db_consistency.py:278:                            FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:360:./scripts/validate_derived_db.py:66:        decisions_count = safe_count("structure_decisions")
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:363:./scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:417:./services/derived_service.py:419:                "PRAGMA table_info(structure_decisions)"
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:419:./services/derived_service.py:437:            FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:465:./UI/components/details_panel.py:410:            "structure_decisions",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:484:./UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:486:./UI/components/details_panel.py:900:                FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:487:./UI/components/details_panel.py:962:                FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:488:./UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:2:./db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:6:./db/derived_repo.py:101:CREATE TABLE IF NOT EXISTS structure_decisions (
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:10:./db/derived_repo.py:122:ON structure_decisions (timestamp, aba)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:13:./db/derived_repo.py:127:ON structure_decisions (aba, timestamp)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:16:./db/derived_repo.py:132:ON structure_decisions (timestamp)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:23:./db/derived_repo.py:192:    # Índices de structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:38:./db/derived_repo.py:298:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:49:./db/derived_repo.py:474:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:53:./db/derived_repo.py:562:                f"SELECT * FROM structure_decisions {where} ORDER BY id DESC LIMIT ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:54:./db/derived_repo.py:579:                FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:56:./db/derived_repo.py:589:                LEFT JOIN structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:62:./db/derived_repo.py:623:                f"DELETE FROM structure_decisions "
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:67:./db/derived_repo.py:648:            {verb} INTO structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:79:./db/derived_repo.py:726:        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:82:./db/derived_repo.py:732:        INSERT INTO structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:100:./db/derived_repo.py:819:        INSERT OR REPLACE INTO structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:110:./db/derived_repo.py:880:        FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:112:./db/derived_repo.py:889:        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:118:./db/derived_repo.py:921:        DELETE FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:119:./db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:120:./db/migrations/add_structure_id_to_payoff_curve_points.py:33:            FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:121:./db/migrations/add_structure_id_to_payoff_curve_points.py:58:            FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:126:./db/reader.py:99:            columns = self._get_table_columns(conn, "structure_decisions")
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:128:./db/reader.py:129:                FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:130:./db/schema.py:25:CREATE TABLE IF NOT EXISTS structure_decisions (
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:133:./db/schema.py:46:ON structure_decisions(timestamp, aba);
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:135:./db/schema.py:49:ON structure_decisions(decision);
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:137:./db/schema.py:52:ON structure_decisions(ratio);
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:150:./db/writer.py:129:                SELECT * FROM structure_decisions 
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:175:./repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:178:./scripts/purge_derived_snapshots.py:13:    "structure_decisions",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:179:./scripts/repair_derived_db_consistency.py:20:        FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:181:./scripts/repair_derived_db_consistency.py:32:        LEFT JOIN structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:191:./scripts/repair_derived_db_consistency.py:133:            FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:200:./scripts/repair_derived_db_consistency.py:199:                        UPDATE structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:208:./scripts/repair_derived_db_consistency.py:222:                FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:211:./scripts/repair_derived_db_consistency.py:244:                        f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:215:./scripts/repair_derived_db_consistency.py:256:                LEFT JOIN structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:216:./scripts/repair_derived_db_consistency.py:278:                            FROM structure_decisions d
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:221:./scripts/validate_derived_db.py:66:        decisions_count = safe_count("structure_decisions")
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:224:./scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:278:./services/derived_service.py:419:                "PRAGMA table_info(structure_decisions)"
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:280:./services/derived_service.py:437:            FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:326:./UI/components/details_panel.py:410:            "structure_decisions",
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:345:./UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:347:./UI/components/details_panel.py:900:                FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:348:./UI/components/details_panel.py:962:                FROM structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:349:./UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:156:./db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:217:./db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:467:./UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:6:./db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:67:./db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:317:./UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1131:CREATE TABLE IF NOT EXISTS structure_decisions (
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1152:ON structure_decisions (timestamp, aba)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1157:ON structure_decisions (aba, timestamp)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1162:ON structure_decisions (timestamp)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1222:    # Índices de structure_decisions
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1328:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:649:./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:363:./scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:686:./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:224:./scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2686:./scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+./docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:504:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:145:- O pipeline nao esta processando estruturas cadastradas manualmente.- A estrutura nova nao atende algum filtro de consolidacao.- O status "active" nao esta sendo considerado corretamente.- O campo structure_id pode nao estar sendo gravado ou relacionado corretamente.- O modo canonical pode estar filtrando a estrutura incorretamente.- A consolidacao ignora estruturas criadas pela interface manual.- Faltam campos derivados exigidos por structure_decisions.- A estrutura tem legs suficientes para exibicao, mas nao suficientes para decisao.
+./docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:506:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:156:Apos cadastrar uma estrutura manual ativa e executar o pipeline, a tabela structure_decisions deve conter registros vinculados a essa estrutura, ou o sistema deve informar claramente por que ela foi rejeitada.
+./docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:510:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:222:- payoff_curve_points nao recebe dados para estruturas manuais.- O gerador de payoff depende da consolidacao em structure_decisions.- O filtro por structure_id em modo canonical nao encontra a estrutura criada manualmente.- O pipeline nao chama a etapa de payoff para estruturas novas.- Existem dados suficientes para exibir as legs, mas nao para gerar curva.
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:249:docs/fase_8_banco_fonte_verdade_auditoria.md:444:A tabela `structure_decisions` possui decisões associadas a `structure_id`.
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1175:UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1710:docs/fase_8_banco_fonte_verdade_auditoria.md:444:A tabela `structure_decisions` possui decisões associadas a `structure_id`.
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:153:- structure_decisions: AUSENTE
+./docs/decisions/structure_ref_created_at.md:47:INSERT INTO structure_decisions
+./docs/decisions/structure_ref_created_at.md:53:INSERT INTO structure_decisions
+./docs/evolucoes de fases/baseline_v1.md:396:*	structure_decisions
+./docs/evolucoes de fases/baseline_v1.md:413:4.2 structure_decisions
+./docs/evolucoes de fases/baseline_v1.md:484:*	structure_decisions
+./docs/evolucoes de fases/baseline_v1.md:492:*	db: add payoff_curve_points and structure_decisions tables
+./docs/evolucoes de fases/baseline_v1.md:547:*	structure_decisions
+./docs/evolucoes de fases/baseline_v1a.md:22:*	Tabelas derivadas (payoff_curve_points, structure_decisions) para análises
+./docs/evolucoes de fases/baseline_v1a.md:65:CREATE TABLE structure_decisions (    id INTEGER PRIMARY KEY AUTOINCREMENT,    timestamp TEXT NOT NULL,    aba TEXT NOT NULL,    decision TEXT NOT NULL,    level INTEGER NOT NULL,    pl_atual REAL,    pl_max REAL,    pl_pct_of_max REAL,    dte_min INTEGER,    why_json TEXT,    created_at TEXT DEFAULT CURRENT_TIMESTAMP);
+./docs/evolucoes de fases/baseline_v2.md:11:| structure_decisions       |                  |           [v]            | Decisão por estrutura/aba após pipeline                |
+./docs/evolucoes de fases/executed_v1.md:247:- **Tabela `structure_decisions`**: Decisões automatizadas (HOLD, ROLL, etc.) com métricas
+./docs/evolucoes de fases/executed_v1.md:254:structure_decisions: id, timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:71:- structure_decisions
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:78:- structure_decisions: 12
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:288:- structure_decisions
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:444:A tabela `structure_decisions` possui decisões associadas a `structure_id`.
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:16:    - linha 42: `CREATE TABLE IF NOT EXISTS structure_decisions (`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:17:    - linha 42: `CREATE TABLE IF NOT EXISTS structure_decisions (`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:21:    - linha 25: `CREATE TABLE IF NOT EXISTS structure_decisions (`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:22:    - linha 25: `CREATE TABLE IF NOT EXISTS structure_decisions (`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:395:## structure_decisions
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:398:    - linha 349: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:399:    - linha 349: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:400:    - linha 451: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:401:    - linha 451: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:403:    - linha 163: `INSERT OR REPLACE INTO structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:404:    - linha 163: `INSERT OR REPLACE INTO structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:405:    - linha 223: `DELETE FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:406:    - linha 223: `DELETE FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:408:    - linha 87: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:409:    - linha 87: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:410:    - linha 177: `cursor.execute("SELECT DISTINCT aba FROM structure_decisions ORDER BY aba")`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:411:    - linha 177: `cursor.execute("SELECT DISTINCT aba FROM structure_decisions ORDER BY aba")`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:413:    - linha 113: `INSERT INTO structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:414:    - linha 113: `INSERT INTO structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:415:    - linha 129: `SELECT * FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:416:    - linha 129: `SELECT * FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:418:    - linha 163: `FROM structure_decisions d`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:419:    - linha 163: `FROM structure_decisions d`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:421:    - linha 51: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:422:    - linha 51: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:424:    - linha 179: `FROM structure_decisions`
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:425:    - linha 179: `FROM structure_decisions`
+./docs/evolucoes de fases/roteiro_v2.md:12:- Gera tabelas: `payoff_curve_points`, `structure_decisions`
+./docs/evolucoes de fases/SQL_SURFACE_MAP_v2.md:11:| structure_decisions     | CREATE            | db/schema.py, db/derived_repo.py                 |
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:129:    	Consolidacao: structure_decisions (linhas: 0, estruturas: 0)
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:145:- O pipeline nao esta processando estruturas cadastradas manualmente.- A estrutura nova nao atende algum filtro de consolidacao.- O status "active" nao esta sendo considerado corretamente.- O campo structure_id pode nao estar sendo gravado ou relacionado corretamente.- O modo canonical pode estar filtrando a estrutura incorretamente.- A consolidacao ignora estruturas criadas pela interface manual.- Faltam campos derivados exigidos por structure_decisions.- A estrutura tem legs suficientes para exibicao, mas nao suficientes para decisao.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:147:- Verificar se a estrutura ID 2 existe na tabela principal de estruturas.- Verificar se as 4 legs existem na tabela de legs.- Verificar se o pipeline le essa estrutura.- Verificar por que structure_decisions permanece com 0 linhas.- Registrar quais estruturas foram lidas, ignoradas ou rejeitadas pelo pipeline.- Criar log de motivo quando uma estrutura for ignorada pela consolidacao.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:156:Apos cadastrar uma estrutura manual ativa e executar o pipeline, a tabela structure_decisions deve conter registros vinculados a essa estrutura, ou o sistema deve informar claramente por que ela foi rejeitada.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:222:- payoff_curve_points nao recebe dados para estruturas manuais.- O gerador de payoff depende da consolidacao em structure_decisions.- O filtro por structure_id em modo canonical nao encontra a estrutura criada manualmente.- O pipeline nao chama a etapa de payoff para estruturas novas.- Existem dados suficientes para exibir as legs, mas nao para gerar curva.
+./repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+./scripts/purge_derived_snapshots.py:13:    "structure_decisions",
+./scripts/repair_derived_db_consistency.py:20:        FROM structure_decisions d
+./scripts/repair_derived_db_consistency.py:32:        LEFT JOIN structure_decisions d
+./scripts/repair_derived_db_consistency.py:133:            FROM structure_decisions
+./scripts/repair_derived_db_consistency.py:199:                        UPDATE structure_decisions
+./scripts/repair_derived_db_consistency.py:222:                FROM structure_decisions d
+./scripts/repair_derived_db_consistency.py:244:                        f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+./scripts/repair_derived_db_consistency.py:256:                LEFT JOIN structure_decisions d
+./scripts/repair_derived_db_consistency.py:278:                            FROM structure_decisions d
+./scripts/validate_derived_db.py:66:        decisions_count = safe_count("structure_decisions")
+./scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+./services/derived_service.py:419:                "PRAGMA table_info(structure_decisions)"
+./services/derived_service.py:437:            FROM structure_decisions
+./UI/components/details_panel.py:410:            "structure_decisions",
+./UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+./UI/components/details_panel.py:900:                FROM structure_decisions
+./UI/components/details_panel.py:962:                FROM structure_decisions
+./UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",

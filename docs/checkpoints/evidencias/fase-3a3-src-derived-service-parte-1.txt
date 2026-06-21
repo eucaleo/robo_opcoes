@@ -1,0 +1,380 @@
+from __future__ import annotations
+# services/derived_service.py
+"""
+alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+alteracao_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
+alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+"""
+
+import inspect
+import json
+import sqlite3
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+from db.config import connect_app, connect_derived
+from db.derived_repo import (
+    cleanup_old_decisions,
+    cleanup_old_payoff_data,
+    ensure_derived_tables,
+    insert_payoff_points,
+    insert_structure_decision,
+)
+from src.domain.refs.structure_ref import StructureRef
+
+
+# ------------------------------------------------------------------
+# Cache modulo-level: aba -> structure_id
+# ------------------------------------------------------------------
+
+_ABA_TO_STRUCTURE_ID: Dict[str, int] = {}
+_ABA_CACHE_LOADED: bool = False
+
+
+def _load_aba_cache() -> None:
+    global _ABA_TO_STRUCTURE_ID, _ABA_CACHE_LOADED
+    try:
+        with connect_app() as conn:
+            cur = conn.execute("""
+                SELECT id, alias_legacy_aba
+                FROM structures
+                WHERE alias_legacy_aba IS NOT NULL
+                  AND alias_legacy_aba != ''
+            """)
+            _ABA_TO_STRUCTURE_ID = {row[1]: row[0] for row in cur.fetchall()}
+    except Exception:
+        _ABA_TO_STRUCTURE_ID = {}
+    finally:
+        _ABA_CACHE_LOADED = True
+
+
+def _resolve_structure_id(aba: Optional[str]) -> Optional[int]:
+    if not _ABA_CACHE_LOADED:
+        _load_aba_cache()
+    if not aba:
+        return None
+    return _ABA_TO_STRUCTURE_ID.get(aba)
+
+
+def invalidate_aba_cache() -> None:
+    global _ABA_CACHE_LOADED
+    _ABA_CACHE_LOADED = False
+
+
+# ------------------------------------------------------------------
+# Helpers internos
+# ------------------------------------------------------------------
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _safe_str(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _unwrap_ref(ref: Any) -> Optional[str]:
+    """
+    alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
+    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+    """
+    if isinstance(ref, StructureRef):
+        return ref.aba
+    return _safe_str(ref)
+
+
+def _resolve_storage_key(
+    aba: Optional[str] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+) -> str:
+    # 1. aba explícita tem prioridade máxima
+    resolved_aba = _safe_str(aba)
+    if resolved_aba:
+        return resolved_aba
+
+    # 2. structure_id → resolver alias_legacy_aba via cache (FIX alteracao_66)
+    resolved_sid = _safe_str(structure_id)
+    if resolved_sid:
+        try:
+            sid_int = int(resolved_sid)
+            if not _ABA_CACHE_LOADED:
+                _load_aba_cache()
+            id_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+            alias = id_to_aba.get(sid_int)
+            if alias:
+                return alias  # "BOVA11" em vez de "structure:7"
+        except (ValueError, TypeError):
+            pass
+        return f"structure:{resolved_sid}"  # fallback sem alias
+
+    # 3. fallbacks por nome/ativo
+    resolved_structure_name = _safe_str(structure_name)
+    if resolved_structure_name:
+        return resolved_structure_name
+
+    resolved_underlying_asset = _safe_str(underlying_asset)
+    if resolved_underlying_asset:
+        return resolved_underlying_asset
+
+    return "unknown"
+
+
+def _merge_meta(
+    meta: Optional[Dict[str, Any]] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+    reference_date: Any = None,
+    input_meta: Optional[Dict[str, Any]] = None,
+    storage_key: Optional[str] = None,
+) -> Dict[str, Any]:
+    return {
+        **(meta or {}),
+        "structure_id":     structure_id,
+        "structure_name":   structure_name,
+        "underlying_asset": underlying_asset,
+        "reference_date":   reference_date,
+        "input_meta":       input_meta or {},
+        "storage_key":      storage_key,
+    }
+
+
+# ------------------------------------------------------------------
+# Init
+# ------------------------------------------------------------------
+
+def init_db():
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+
+
+# ------------------------------------------------------------------
+# Payoff
+# ------------------------------------------------------------------
+
+def save_payoff_curve(
+    ref: Any,
+    points: List[Union[Tuple[float, float], Dict[str, float]]],
+    spot_ref: Optional[float] = None,
+    meta: Optional[Dict[str, Any]] = None,
+    timestamp: Optional[str] = None,
+    structure_id: Any = None,
+) -> int:
+    """
+    alteracao_57: 'ref' aceita StructureRef, str ou None.
+    _unwrap_ref() extrai a string aba de forma segura.
+    """
+    ts           = timestamp or _now_iso()
+    storage_key  = _unwrap_ref(ref) or "unknown"
+    resolved_sid = (
+        int(structure_id)
+        if structure_id is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    norm_points: List[Tuple[float, float]] = []
+    for p in points or []:
+        if isinstance(p, (tuple, list)) and len(p) == 2:
+            norm_points.append((float(p[0]), float(p[1])))
+        elif isinstance(p, dict):
+            x = p.get("point_spot") or p.get("s_t")
+            y = p.get("point_pl")   or p.get("pl_venc")
+            if x is None or y is None:
+                continue
+            norm_points.append((float(x), float(y)))
+
+    effective_meta = {
+        **(meta or {}),
+        "storage_key":  storage_key,
+        "structure_id": resolved_sid,
+    }
+
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+        return insert_payoff_points(
+            conn=conn,
+            timestamp=ts,
+            aba=storage_key,
+            points=norm_points,
+            spot_ref=spot_ref,
+            meta=effective_meta,
+            structure_id=resolved_sid,
+        )
+
+
+def save_payoff_from_canonical_payload(
+    payoff: Dict[str, Any],
+    aba: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> int:
+    ts = timestamp or _now_iso()
+
+    storage_key = _resolve_storage_key(
+        aba=aba,
+        structure_id=payoff.get("structure_id"),
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+    )
+
+    sid_from_payload = payoff.get("structure_id")
+    resolved_sid = (
+        int(sid_from_payload)
+        if sid_from_payload is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    meta = _merge_meta(
+        meta=payoff.get("meta"),
+        structure_id=resolved_sid,
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+        reference_date=payoff.get("reference_date"),
+        input_meta=payoff.get("input_meta"),
+        storage_key=storage_key,
+    )
+
+    try:
+        sig = inspect.signature(save_payoff_curve)
+        accepts_structure_id = (
+            "structure_id" in sig.parameters
+            or any(
+                p.kind == inspect.Parameter.VAR_KEYWORD
+                for p in sig.parameters.values()
+            )
+        )
+    except (TypeError, ValueError):
+        accepts_structure_id = True
+
+    if accepts_structure_id:
+        return save_payoff_curve(
+            ref=storage_key,
+            points=payoff.get("points", []),
+            spot_ref=payoff.get("spot_ref"),
+            meta=meta,
+            timestamp=ts,
+            structure_id=resolved_sid,
+        )
+
+    return save_payoff_curve(
+        ref=storage_key,
+        points=payoff.get("points", []),
+        spot_ref=payoff.get("spot_ref"),
+        meta=meta,
+        timestamp=ts,
+    )
+
+
+def save_decision(
+    ref: Any,
+    decision: Dict[str, Any],
+    timestamp: Optional[str] = None,
+) -> int:
+    """
+    alteracao_57: 'ref' aceita StructureRef, str ou None.
+    """
+    ts           = timestamp or _now_iso()
+    storage_key  = _unwrap_ref(ref) or "unknown"
+    resolved_sid = _resolve_structure_id(storage_key)
+
+    enriched_decision = {
+        **decision,
+        "structure_id": resolved_sid,
+        "meta": {
+            **(decision.get("meta") or {}),
+            "storage_key":  storage_key,
+            "structure_id": resolved_sid,
+        },
+    }
+
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+        return insert_structure_decision(
+            conn=conn,
+            timestamp=ts,
+            aba=storage_key,
+            decision_dict=enriched_decision,
+        )
+
+
+def save_decision_from_canonical_payload(
+    decision: Dict[str, Any],
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+    aba: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> int:
+    ts = timestamp or _now_iso()
+
+    storage_key = _resolve_storage_key(
+        aba=aba,
+        structure_id=structure_id,
+        structure_name=structure_name,
+        underlying_asset=underlying_asset,
+    )
+
+    resolved_sid = (
+        int(structure_id)
+        if structure_id is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    enriched_decision = {
+        **decision,
+        "structure_id": resolved_sid,
+        "meta": {
+            **(decision.get("meta") or {}),
+            "structure_id":     resolved_sid,
+            "structure_name":   structure_name,
+            "underlying_asset": underlying_asset,
+            "storage_key":      storage_key,
+        },
+    }
+
+    return save_decision(
+        ref=storage_key,
+        decision=enriched_decision,
+        timestamp=ts,
+    )
+
+
+# ------------------------------------------------------------------
+# Cleanup
+# ------------------------------------------------------------------
+
+def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+        deleted_payoff = cleanup_old_payoff_data(conn, days_to_keep=days_to_keep)
+        deleted_dec    = cleanup_old_decisions(conn, days_to_keep=days_to_keep)
+        return {"payoff_deleted": deleted_payoff, "decisions_deleted": deleted_dec}
+
+
+# ------------------------------------------------------------------
+# Leituras
+# ------------------------------------------------------------------
+
+def get_all_payoff_curves():
+    with connect_derived() as conn:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT timestamp, aba, point_spot, point_pl, meta_json
+            FROM payoff_curve_points
+            ORDER BY timestamp DESC, point_spot
+        """)
+        return [
+            {
+                "timestamp":  row[0],
+                "aba":        row[1],
+                "point_spot": row[2],
+                "point_pl":   row[3],
+                "meta_json":  json.loads(row[4]) if row[4] else None,
+            }
+            for row in cursor.fetchall()
+        ]
+

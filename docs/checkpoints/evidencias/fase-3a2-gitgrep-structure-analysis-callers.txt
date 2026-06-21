@@ -1,0 +1,58 @@
+ATT/tests/test_structure_analysis_service.py:3:from services.structure_analysis_service import StructureAnalysisService
+ATT/tests/test_structure_analysis_service.py:111:def test_structure_analysis_service_analyze_returns_full_pipeline():
+ATT/tests/test_structure_analysis_service.py:112:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:116:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:152:def test_structure_analysis_service_analyze_uses_explicit_dte_min_over_inferred():
+ATT/tests/test_structure_analysis_service.py:153:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:157:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:169:def test_structure_analysis_service_analyze_returns_structured_decision_for_invalid_payoff():
+ATT/tests/test_structure_analysis_service.py:170:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:174:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:188:def test_structure_analysis_service_analyze_propagates_custom_thresholds_and_dte_gate():
+ATT/tests/test_structure_analysis_service.py:189:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:199:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:214:def test_structure_analysis_service_analyze_propagates_spread_warning():
+ATT/tests/test_structure_analysis_service.py:215:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:219:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:231:def test_structure_analysis_service_forwards_reference_date_to_canonical_service():
+ATT/tests/test_structure_analysis_service.py:233:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:237:    service.analyze(
+ATT/tests/test_structure_analysis_service.py:250:def test_structure_analysis_service_propagates_canonical_input_service_error():
+ATT/tests/test_structure_analysis_service.py:254:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:259:        service.analyze(structure_id=404)
+ATT/tests/test_structure_analysis_service.py:262:def test_structure_analysis_service_passes_effective_dte_to_decision(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:264:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:296:        "services.structure_analysis_service.compute_dte_min_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:300:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:304:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:308:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:327:def test_structure_analysis_service_uses_zero_when_inferred_dte_is_none(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:329:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:354:        "services.structure_analysis_service.compute_dte_min_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:358:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:362:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:366:    result = service.analyze(structure_id=1)
+ATT/tests/test_structure_analysis_service.py:373:def test_structure_analysis_service_explicit_dte_overrides_inferred_value(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:375:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:403:        "services.structure_analysis_service.compute_dte_min_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:407:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:411:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:415:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:497:def test_structure_analysis_service_infers_spread_pct_medio_from_internal_metrics(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:498:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:523:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:527:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:531:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:543:def test_structure_analysis_service_explicit_spread_pct_overrides_internal_metrics(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:544:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:569:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:573:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:577:    result = service.analyze(
+ATT/tests/test_structure_analysis_service.py:592:def test_structure_analysis_service_exposes_internal_structure_metrics(monkeypatch):
+ATT/tests/test_structure_analysis_service.py:593:    service = StructureAnalysisService(
+ATT/tests/test_structure_analysis_service.py:615:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:619:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:623:    result = service.analyze(
+services/structure_analysis_service.py:1:# services/structure_analysis_service.py
+services/structure_analysis_service.py:14:class StructureAnalysisService:
+services/structure_analysis_service.py:18:    def analyze(

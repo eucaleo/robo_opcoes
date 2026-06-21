@@ -1,0 +1,381 @@
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+                ON structure_audit_log (structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+                ON structure_audit_log (changed_at)
+            """
+        )
+
+    # ------------------------------------------------------------------
+    # alteracao_72 -- Audit log interno
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _log_action(
+        conn: sqlite3.Connection,
+        structure_id: int,
+        action: str,
+        before: dict[str, Any] | None = None,
+        after: dict[str, Any] | None = None,
+        notes: str | None = None,
+        changed_by: str | None = None,
+    ) -> None:
+        """
+        Insere uma linha em structure_audit_log dentro da conexao ativa.
+        Deve ser chamado ANTES do conn.commit() do metodo pai para garantir
+        atomicidade. Nao abre conexao propria -- usa a conexao passada.
+        Falhas sao silenciadas para nao derrubar a operacao principal.
+        """
+        try:
+            conn.execute(
+                """
+                INSERT INTO structure_audit_log
+                    (structure_id, action, changed_by, changed_at,
+                     before_json, after_json, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    structure_id,
+                    action,
+                    changed_by,
+                    _utc_now_iso(),
+                    json.dumps(before, ensure_ascii=False) if before is not None else None,
+                    json.dumps(after,  ensure_ascii=False) if after  is not None else None,
+                    notes,
+                ),
+            )
+        except Exception:
+            # Log nao pode derrubar operacao principal
+            pass
+
+    # ------------------------------------------------------------------
+    # CREATE
+    # ------------------------------------------------------------------
+
+    def create_structure(self, data: dict[str, Any]) -> int:
+        payload = _normalize_structure_payload(data)
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            cursor = conn.execute(
+                """
+                INSERT INTO structures (
+                    name, underlying_asset, alias_legacy_aba,
+                    status, notes, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload["name"], payload["underlying_asset"],
+                    payload["alias_legacy_aba"], payload["status"],
+                    payload["notes"], now, now,
+                ),
+            )
+            new_id = int(cursor.lastrowid)
+
+            # alteracao_72: registrar criacao no audit log
+            self._log_action(
+                conn,
+                structure_id=new_id,
+                action="CREATE",
+                before=None,
+                after={**payload, "id": new_id, "created_at": now, "updated_at": now},
+            )
+
+            conn.commit()
+            return new_id
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+
+    def create_structure_with_legs(
+        self,
+        data: dict[str, Any],
+        legs: list[dict[str, Any]],
+    ) -> int:
+        """
+        Cria uma estrutura e suas legs em uma única transação.
+
+        Garante que não exista estrutura persistida sem legs caso a gravação
+        de alguma perna falhe.
+        """
+        payload = _normalize_structure_payload(data)
+        validated_legs = [_validate_leg(leg) for leg in legs]
+
+        if not validated_legs:
+            raise ValueError("estrutura deve ter ao menos uma leg")
+
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            cursor = conn.execute(
+                """
+                INSERT INTO structures (
+                    name, underlying_asset, alias_legacy_aba,
+                    status, notes, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payload["name"],
+                    payload["underlying_asset"],
+                    payload["alias_legacy_aba"],
+                    payload["status"],
+                    payload["notes"],
+                    now,
+                    now,
+                ),
+            )
+            new_id = int(cursor.lastrowid)
+
+            self._log_action(
+                conn,
+                structure_id=new_id,
+                action="CREATE",
+                before=None,
+                after={
+                    **payload,
+                    "id": new_id,
+                    "created_at": now,
+                    "updated_at": now,
+                },
+            )
+
+            for leg in validated_legs:
+                conn.execute(
+                    """
+                    INSERT INTO structure_legs (
+                        structure_id, position_side, option_type, symbol,
+                        strike, expiration_date, quantity, premium,
+                        multiplier, leg_order, notes, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        new_id,
+                        leg["position_side"],
+                        leg["option_type"],
+                        leg["symbol"],
+                        leg["strike"],
+                        leg["expiration_date"],
+                        leg["quantity"],
+                        leg["premium"],
+                        leg["multiplier"],
+                        leg["leg_order"],
+                        leg["notes"],
+                        now,
+                        now,
+                    ),
+                )
+
+            self._log_action(
+                conn,
+                structure_id=new_id,
+                action="REPLACE_LEGS",
+                before=None,
+                after={
+                    "legs_count": len(validated_legs),
+                    "replaced_at": now,
+                },
+            )
+
+            conn.commit()
+            return new_id
+
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # READ
+    # ------------------------------------------------------------------
+
+    def list_structures(
+        self, include_archived: bool = False
+    ) -> list[dict[str, Any]]:
+        query = """
+            SELECT id, name, underlying_asset, alias_legacy_aba,
+                   status, notes, created_at, updated_at
+            FROM structures
+        """
+        params: tuple[Any, ...] = ()
+
+        if not include_archived:
+            query += " WHERE status = ?"
+            params = ("active",)
+
+        query += " ORDER BY id ASC"
+
+        conn = self._connect()
+        try:
+            rows = conn.execute(query, params).fetchall()
+            return [dict(row) for row in rows]
+        finally:
+            conn.close()
+
+    def get_structure(self, structure_id: int) -> dict[str, Any] | None:
+        conn = self._connect()
+        try:
+            row = conn.execute(
+                """
+                SELECT id, name, underlying_asset, alias_legacy_aba,
+                       status, notes, created_at, updated_at
+                FROM structures WHERE id = ?
+                """,
+                (structure_id,),
+            ).fetchone()
+
+            structure = self._row_to_dict(row)
+            if structure is None:
+                return None
+
+            structure["legs"] = self._fetch_legs(conn, structure_id)
+            return structure
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # UPDATE
+    # ------------------------------------------------------------------
+
+    def update_structure(self, structure_id: int, data: dict[str, Any]) -> None:
+        current = self.get_structure(structure_id)
+        if current is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+        # snapshot antes da mudanca (sem legs para manter log enxuto)
+        before_snap = {k: v for k, v in current.items() if k != "legs"}
+
+        merged = {
+            "name":             data.get("name",             current["name"]),
+            "underlying_asset": data.get("underlying_asset", current["underlying_asset"]),
+            "alias_legacy_aba": data.get("alias_legacy_aba", current["alias_legacy_aba"]),
+            "status":           data.get("status",           current["status"]),
+            "notes":            data.get("notes",            current["notes"]),
+        }
+        payload = _normalize_structure_payload(merged)
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            conn.execute(
+                """
+                UPDATE structures
+                SET name=?, underlying_asset=?, alias_legacy_aba=?,
+                    status=?, notes=?, updated_at=?
+                WHERE id=?
+                """,
+                (
+                    payload["name"], payload["underlying_asset"],
+                    payload["alias_legacy_aba"], payload["status"],
+                    payload["notes"], now, structure_id,
+                ),
+            )
+
+            # alteracao_72: registrar atualizacao no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="UPDATE",
+                before=before_snap,
+                after={**payload, "id": structure_id, "updated_at": now},
+            )
+
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # ARCHIVE (soft-delete)
+    # ------------------------------------------------------------------
+
+    def archive_structure(self, structure_id: int) -> None:
+        current = self.get_structure(structure_id)
+        if current is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+        before_snap = {k: v for k, v in current.items() if k != "legs"}
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            self._ensure_structure_exists(conn, structure_id)
+            conn.execute(
+                "UPDATE structures SET status=?, updated_at=? WHERE id=?",
+                ("archived", now, structure_id),
+            )
+
+            # alteracao_72: registrar arquivamento no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="ARCHIVE",
+                before=before_snap,
+                after={**before_snap, "status": "archived", "updated_at": now},
+            )
+
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
+        finally:
+            conn.close()
+
+    # ------------------------------------------------------------------
+    # LEGS
+    # ------------------------------------------------------------------
+
+    def add_leg(self, structure_id: int, leg_data: dict[str, Any]) -> int:
+        leg = _validate_leg(leg_data)
+        now = _utc_now_iso()
+
+        conn = self._connect()
+        try:
+            self._ensure_structure_exists(conn, structure_id)
+
+            cursor = conn.execute(
+                """
+                INSERT INTO structure_legs (
+                    structure_id, position_side, option_type, symbol,
+                    strike, expiration_date, quantity, premium,
+                    multiplier, leg_order, notes, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    structure_id, leg["position_side"], leg["option_type"],
+                    leg["symbol"], leg["strike"], leg["expiration_date"],
+                    leg["quantity"], leg["premium"], leg["multiplier"],
+                    leg["leg_order"], leg["notes"], now, now,
+                ),
+            )
+            leg_id = int(cursor.lastrowid)
+
+            conn.execute(
+                "UPDATE structures SET updated_at=? WHERE id=?",
+                (now, structure_id),
+            )
+
+            # alteracao_72: registrar adicao de leg no audit log
+            self._log_action(
+                conn,
+                structure_id=structure_id,
+                action="ADD_LEG",

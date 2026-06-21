@@ -1,0 +1,197 @@
+        self._f_notes.set(data.get("notes") or "")
+
+        self._legs_rows = list(data.get("legs", []))
+        self._refresh_leg_tree()
+
+    # ------------------------------------------------------------------
+    # Renderizacao da leg tree
+    # ------------------------------------------------------------------
+
+    def _refresh_leg_tree(self):
+        self._leg_tree.delete(*self._leg_tree.get_children())
+        for i, leg in enumerate(self._legs_rows, 1):
+            self._leg_tree.insert("", "end", iid=str(i - 1), values=(
+                i,
+                leg.get("position_side", ""),
+                leg.get("option_type", ""),
+                leg.get("strike", ""),
+                leg.get("expiration_date", ""),
+                leg.get("quantity", ""),
+                leg.get("premium") or "",
+                leg.get("multiplier", 1),
+                leg.get("symbol") or "",
+            ))
+
+    def _selected_leg_index(self) -> Optional[int]:
+        sel = self._leg_tree.selection()
+        if not sel:
+            return None
+        try:
+            return int(sel[0])
+        except (ValueError, TypeError):
+            return None
+
+    # ------------------------------------------------------------------
+    # Callbacks de legs
+    # ------------------------------------------------------------------
+
+    def _on_leg_double_click(self, _event=None):
+        """Popula o formulario com a leg duplo-clicada."""
+        idx = self._selected_leg_index()
+        if idx is None:
+            return
+        leg = self._legs_rows[idx]
+        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+        self._lf_type.set(leg.get("option_type", "CALL"))
+        self._lf_strike.set(str(leg.get("strike", "")))
+        self._lf_expiry.set(str(leg.get("expiration_date", "")))
+        self._lf_qty.set(str(leg.get("quantity", "1")))
+        self._lf_premium.set(str(leg.get("premium") or ""))
+        self._lf_mult.set(str(leg.get("multiplier", 1)))
+        self._lf_symbol.set(str(leg.get("symbol") or ""))
+
+    def _cmd_add_leg(self):
+        """Adiciona uma leg nova em branco e seleciona para edicao."""
+        new_leg = {
+            "position_side":   "COMPRADO",
+            "option_type":     "CALL",
+            "strike":          "",
+            "expiration_date": "",
+            "quantity":        1,
+            "premium":         None,
+            "multiplier":      1.0,
+            "leg_order":       len(self._legs_rows) + 1,
+            "symbol":          None,
+            "notes":           None,
+        }
+        self._legs_rows.append(new_leg)
+        self._refresh_leg_tree()
+        new_iid = str(len(self._legs_rows) - 1)
+        self._leg_tree.selection_set(new_iid)
+        self._on_leg_double_click()
+
+    # ------------------------------------------------------------------
+    # _add_leg_row: alias publico exigido pelos checks estaticos do alteracao_69
+    # Delega para _cmd_add_leg mantendo compatibilidade total.
+    # ------------------------------------------------------------------
+    def _add_leg_row(self):
+        """
+        Alias publico de _cmd_add_leg().
+        Exigido por test_classe_presente (alteracao_69) que verifica:
+            hasattr(StructureEditorDialog, '_add_leg_row')
+        """
+        self._cmd_add_leg()
+
+    def _cmd_remove_leg(self):
+        idx = self._selected_leg_index()
+        if idx is None:
+            messagebox.showwarning("Remover Leg", "Selecione uma leg primeiro.", parent=self)
+            return
+        self._legs_rows.pop(idx)
+        self._refresh_leg_tree()
+
+    def _cmd_move_leg(self, direction: int):
+        idx = self._selected_leg_index()
+        if idx is None:
+            return
+        new_idx = idx + direction
+        if new_idx < 0 or new_idx >= len(self._legs_rows):
+            return
+        self._legs_rows[idx], self._legs_rows[new_idx] = (
+            self._legs_rows[new_idx],
+            self._legs_rows[idx],
+        )
+        self._refresh_leg_tree()
+        self._leg_tree.selection_set(str(new_idx))
+
+    def _cmd_apply_leg(self):
+        """Aplica os valores do formulario na leg selecionada."""
+        idx = self._selected_leg_index()
+        if idx is None:
+            messagebox.showwarning(
+                "Aplicar Leg", "Selecione uma leg na lista primeiro.", parent=self
+            )
+            return
+
+        self._legs_rows[idx] = {
+            "position_side":   normalize_position_side(self._lf_side.get()),
+            "option_type":     self._lf_type.get(),
+            "strike":          self._lf_strike.get(),
+            "expiration_date": self._lf_expiry.get(),
+            "quantity":        self._lf_qty.get(),
+            "premium":         self._lf_premium.get() or None,
+            "multiplier":      self._lf_mult.get() or 1,
+            "leg_order":       idx + 1,
+            "symbol":          self._lf_symbol.get() or None,
+            "notes":           None,
+        }
+        self._refresh_leg_tree()
+
+    # ------------------------------------------------------------------
+    # Logica de payload (pura -- testavel sem display)
+    # ------------------------------------------------------------------
+
+    def _build_legs_payload(self) -> list[dict]:
+        """
+        Constroi lista de legs com leg_order sequencial a partir de 1.
+
+        Logica pura: nao modifica _legs_rows nem acessa Tk.
+        Testavel sem display (TestBuildLegsPayload no alteracao_69).
+        """
+        return [
+            {
+                **leg,
+                "position_side": normalize_position_side(
+                    leg.get("position_side", "COMPRADO")
+                ),
+                "strike": _parse_decimal(leg.get("strike"), "strike"),
+                "leg_order": i,
+            }
+            for i, leg in enumerate(self._legs_rows, 1)
+        ]
+
+    # ------------------------------------------------------------------
+    # Salvar
+    # ------------------------------------------------------------------
+
+    def _cmd_save(self):
+        name       = self._f_name.get().strip()
+        underlying = self._f_underlying.get().strip()
+
+        if not name:
+            messagebox.showwarning("Salvar", "O campo 'Nome' e obrigatorio.", parent=self)
+            return
+        if not underlying:
+            messagebox.showwarning("Salvar", "O campo 'Ativo' e obrigatorio.", parent=self)
+            return
+
+        structure_data = {
+            "name":             name,
+            "underlying_asset": underlying,
+            "alias_legacy_aba": self._f_alias.get().strip() or None,
+            "status":           self._f_status.get(),
+            "notes":            self._f_notes.get().strip() or None,
+        }
+
+        try:
+            legs_payload = self._build_legs_payload()
+
+            if self._structure_id is None:
+                # --- Modo criacao ---
+                sid = self._repo.create_structure_with_legs(
+                    structure_data,
+                    legs_payload,
+                )
+            else:
+                # --- Modo edicao ---
+                sid = self._structure_id
+                self._repo.update_structure(sid, structure_data)
+                self._repo.replace_legs(sid, legs_payload)
+
+            self.saved = True
+            self.destroy()
+
+        except ValueError as exc:
+            messagebox.showerror("Erro de Validacao", str(exc), parent=self)
+        except Exception as exc:
+            messagebox.showerror("Erro", f"Falha ao salvar: {exc}", parent=self)

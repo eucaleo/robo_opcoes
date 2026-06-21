@@ -1,0 +1,150 @@
+
+
+def get_payoff_by_structure_id(structure_id: int):
+    """
+    alteracao_56/alteracao_65: único ponto de entrada canônico para leitura de payoff.
+    get_payoff_by_aba() removida da interface pública (alteracao_65).
+    """
+    ref = StructureRef.from_id(structure_id)
+    col, val = ref.db_pair()
+    with connect_derived() as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            f"""
+            SELECT timestamp, point_spot, point_pl, meta_json
+              FROM payoff_curve_points
+             WHERE {col} = ?
+             ORDER BY point_spot
+            """,
+            (val,),
+        )
+        return [
+            {
+                "timestamp":  row[0],
+                "point_spot": row[1],
+                "point_pl":   row[2],
+                "meta_json":  json.loads(row[3]) if row[3] else None,
+            }
+            for row in cursor.fetchall()
+        ]
+
+
+def get_recent_decisions():
+    with connect_derived() as conn:
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+
+        cols = [
+            row["name"]
+            for row in cursor.execute(
+                "PRAGMA table_info(structure_decisions)"
+            ).fetchall()
+        ]
+
+        select_cols = [
+            "timestamp", "aba", "decision", "level",
+            "pl_atual", "pl_max", "pl_pct_of_max", "dte_min",
+            "spot_ref", "meta_json", "created_at",
+        ]
+        if "structure_id" in cols:
+            select_cols.append("structure_id")
+        if "why" in cols:
+            select_cols.append("why")
+        if "why_json" in cols:
+            select_cols.append("why_json")
+
+        cursor.execute(f"""
+            SELECT {", ".join(select_cols)}
+            FROM structure_decisions
+            ORDER BY timestamp DESC
+            LIMIT 50
+        """)
+
+        decisions = []
+        for row in cursor.fetchall():
+            item = dict(row)
+            why_val      = item.get("why")
+            why_json_val = item.get("why_json")
+
+            if isinstance(why_val, str):
+                try:
+                    item["why"] = json.loads(why_val)
+                except Exception:
+                    pass
+            elif why_val is None and why_json_val is not None:
+                try:
+                    item["why"] = (
+                        json.loads(why_json_val)
+                        if isinstance(why_json_val, str)
+                        else why_json_val
+                    )
+                except Exception:
+                    item["why"] = why_json_val
+
+            if item.get("structure_id") is None:
+                for src_key in ("why_json", "meta_json"):
+                    raw = item.get(src_key)
+                    if not raw:
+                        continue
+                    try:
+                        parsed = json.loads(raw) if isinstance(raw, str) else raw
+                        sid = parsed.get("structure_id")
+                        if sid is not None:
+                            item["structure_id"] = sid
+                            break
+                    except Exception:
+                        pass
+
+            decisions.append(item)
+
+        return decisions
+
+
+# ---------------------------------------------------------------------------
+# alteracao_59 -- format_report + snapshot_aba (surface canônica)
+# ---------------------------------------------------------------------------
+
+def format_report(entries) -> str:
+    """Formata relatório de auditoria de surface ABA em texto legível."""
+    lines: list[str] = []
+    for e in entries:
+        aba_str = getattr(e, "aba_str", str(getattr(e, "structure_id", "")))
+        sid     = getattr(e, "structure_id", "?")
+        ref     = getattr(e, "reference_date", "?")
+        lines.append(f"{sid} | {ref} | {aba_str}")
+    return "\n".join(lines)
+
+
+def snapshot_aba(ref: "StructureRef") -> str:
+    """Retorna aba_str canônico a partir de um StructureRef."""
+    aba_str = ref.aba if hasattr(ref, "aba") and ref.aba else str(ref.structure_id)
+    return aba_str
+
+
+# ------------------------------------------------------------------
+# alteracao_65 -- DerivedService: fachada orientada a objetos
+# get_payoff_by_aba() removida da interface pública.
+# get_payoff_by_structure_id() é o único ponto de entrada canônico.
+# ------------------------------------------------------------------
+
+class DerivedService:
+    """Fachada OO sobre as funcoes standalone do derived_service.
+    alteracao_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
+    get_payoff_by_aba() ausente por decisao de design (alteracao_65): interface simplificada.
+    """
+
+    # alteracao_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
+    # Chamadores legados devem migrar para get_payoff_by_structure_id().
+
+    def get_payoff_by_structure_id(self, structure_id: int):
+        """Retorna pontos de payoff para a estrutura informada."""
+        return get_payoff_by_structure_id(structure_id)
+
+    def save_payoff_curve(self, *args, **kwargs):
+        return save_payoff_curve(*args, **kwargs)
+
+    def save_decision(self, *args, **kwargs):
+        return save_decision(*args, **kwargs)
+
+    def cleanup_derived(self, days_to_keep: int = 30):
+        return cleanup_derived(days_to_keep)

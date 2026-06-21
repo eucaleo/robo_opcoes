@@ -1,0 +1,71 @@
+            "Não persistir execução OK com spot_price <= 0."
+        )
+
+    return {
+        "structure_id":     structure_id,
+        "underlying_asset": underlying_asset,
+        "reference_date":   reference_date,
+        "spot_price":       spot_price,
+        "interest_rate":    0.0,
+        "volatility":       0.0,
+        "legs":             legs_data,
+        "meta": {
+            "snapshot_source":  str(selection_result.source),
+            "snapshot_aba":     selection_result.aba,
+            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+            "legs_count":       len(legs_data),
+        },
+    }
+
+
+class CanonicalPricingFacade:
+    """
+    Orquestra o pipeline canônico ponta a ponta:
+
+        structure_id
+             alias_legacy_aba + underlying_asset  (query em structures)
+                     MarketSnapshotSelector.select(aba=...)
+                             pricing_payload  (underlying_asset = ativo real)
+                                     PricingExecutionService.execute_payload()
+                                             PricingExecutionPersistenceService.persist()
+                                                     DerivedPayoffPersistence.persist()
+                                                             derived.db
+    """
+
+    def __init__(
+        self,
+        db_path: Path | str = _DEFAULT_DB,
+        pricing_execution_service: PricingExecutionService | None = None,
+        persistence_service: PricingExecutionPersistenceService | None = None,
+    ) -> None:
+        self._db_path  = Path(db_path)
+        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+        self._selector = MarketSnapshotSelector(repository=self._repo)
+        self._engine   = pricing_execution_service or PricingExecutionService()
+
+        self._persister = persistence_service or PricingExecutionPersistenceService(
+            payoff_persistence_port=DerivedPayoffPersistence(),
+            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+        )
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        started_at = time.perf_counter()
+
+        try:
+            #  1. Resolve aba + underlying_asset 
+            aba, underlying_asset = _get_structure_info(   #  C6/C8
+                structure_id, self._db_path
+            )
+
+            #  2. Seleciona snapshot (manual > rtd) 
+            selection = self._selector.select(aba=aba)
+
+            #  3. Monta pricing_payload 
+            pricing_payload = _snapshot_result_to_payload(
+                selection_result=selection,
+                structure_id=structure_id,
+                underlying_asset=underlying_asset,          #  C7/C8
