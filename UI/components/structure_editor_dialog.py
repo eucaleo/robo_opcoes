@@ -38,6 +38,24 @@ from repositories.structures_repository import StructuresRepository
 from domain.position_side import normalize_position_side
 
 
+def _parse_decimal(value, field_name: str) -> float:
+    if value is None:
+        raise ValueError(f"{field_name} is required")
+
+    if isinstance(value, str):
+        value = value.strip()
+        if not value:
+            raise ValueError(f"{field_name} is required")
+
+        if "," in value:
+            value = value.replace(".", "").replace(",", ".")
+
+    try:
+        return float(value)
+    except Exception as exc:
+        raise ValueError(f"{field_name} must be numeric") from exc
+
+
 class StructureEditorDialog(tk.Toplevel):
     """Dialog modal de criacao / edicao de estrutura."""
 
@@ -385,6 +403,7 @@ class StructureEditorDialog(tk.Toplevel):
                 "position_side": normalize_position_side(
                     leg.get("position_side", "COMPRADO")
                 ),
+                "strike": _parse_decimal(leg.get("strike"), "strike"),
                 "leg_order": i,
             }
             for i, leg in enumerate(self._legs_rows, 1)
@@ -413,9 +432,9 @@ class StructureEditorDialog(tk.Toplevel):
             "notes":            self._f_notes.get().strip() or None,
         }
 
-        legs_payload = self._build_legs_payload()
-
         try:
+            legs_payload = self._build_legs_payload()
+
             if self._structure_id is None:
                 # --- Modo criacao ---
                 sid = self._repo.create_structure_with_legs(
