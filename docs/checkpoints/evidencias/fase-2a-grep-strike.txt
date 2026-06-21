@@ -1,0 +1,833 @@
+./.pytest_cache/v/cache/nodeids:309:  "ATT/tests/test_robo_leg_mapper.py::test_to_canonical_leg_should_raise_for_invalid_strike",
+./.pytest_cache/v/cache/nodeids:571:  "ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_leg_strike_e_float",
+./.pytest_cache/v/cache/nodeids:644:  "ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_strike_zero",
+./.pytest_cache/v/cache/nodeids:676:  "ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]",
+./api/structures_controller.py:53:    strike: float        = Field(..., gt=0)
+./ATT/tests/test_canonical_input_service.py:79:                    "strike": 195.0,
+./ATT/tests/test_canonical_input_service.py:129:                        "strike": 195.0,
+./ATT/tests/test_canonical_input_service.py:224:                    "strike": 190.0,
+./ATT/tests/test_canonical_input_service.py:240:                    "strike": 185.0,
+./ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+./ATT/tests/test_canonical_pricing_facade.py:58:    assert leg["strike"] == pytest.approx(expected)
+./ATT/tests/test_canonical_pricing_facade.py:70:                "strike": "100,00",
+./ATT/tests/test_canonical_pricing_facade.py:104:    assert leg["strike"] == 100.0
+./ATT/tests/test_canonical_validators.py:15:                    "strike": 195.0,
+./ATT/tests/test_contracts.py:15:                    "strike": 195.0,
+./ATT/tests/test_legacy_robo_legs_fallback.py:95:                "strike": 100,
+./ATT/tests/test_legacy_robo_legs_fallback.py:113:    assert legs[0]["strike"] == 100.0
+./ATT/tests/test_legacy_structure_legs_importer.py:33:            strike REAL NOT NULL,
+./ATT/tests/test_legacy_structure_legs_importer.py:75:            strike, expiration_date, quantity, premium,
+./ATT/tests/test_legacy_structure_legs_importer.py:118:            "strike": 195.0,
+./ATT/tests/test_legacy_structure_legs_importer.py:129:            "strike": 200.0,
+./ATT/tests/test_legacy_structure_legs_importer.py:216:            "strike": 195.0,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:36:            strike REAL NOT NULL,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:56:            strike REAL,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:71:            strike REAL,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:112:            strike, expiration_date, quantity, premium,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:134:            strike, quant, ativo, vencimento, preco
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:153:            strike, quant, ativo, vencimento, preco
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:219:    assert imported_leg["strike"] == 185.0
+./ATT/tests/test_legacy_structure_legs_reader.py:30:            strike=195.0,
+./ATT/tests/test_legacy_structure_legs_reader.py:39:            strike=185.0,
+./ATT/tests/test_legacy_structure_legs_reader.py:66:            "strike": 195.0,
+./ATT/tests/test_legacy_structure_legs_reader.py:77:            "strike": 185.0,
+./ATT/tests/test_legacy_structure_legs_reader.py:93:            strike=195.0,
+./ATT/tests/test_legacy_structure_legs_reader.py:133:            strike REAL,
+./ATT/tests/test_legacy_structure_legs_reader.py:148:            strike REAL,
+./ATT/tests/test_legacy_structure_legs_reader.py:181:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_legacy_structure_legs_reader.py:214:            "strike": 195.0,
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:28:            strike TEXT,
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:44:            strike TEXT,
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:85:            strike,
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:131:                strike,
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:197:    assert leg.strike == 195.0
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:226:    strike="195,00",
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:244:            strike,
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:267:            strike,
+./ATT/tests/test_orchestrator_run_methods.py:30:        strike=100.0,
+./ATT/tests/test_orchestrator_run_methods.py:84:        leg = _make_leg(strike=110.0, option_type="put", position_side="short")
+./ATT/tests/test_orchestrator_run_methods.py:87:        assert legs[0]["strike"] == 110.0
+./ATT/tests/test_orchestrator_run_methods.py:110:            _make_leg(strike=100.0, leg_order=0),
+./ATT/tests/test_orchestrator_run_methods.py:111:            _make_leg(strike=110.0, option_type="put", leg_order=1),
+./ATT/tests/test_orchestrator_run_methods.py:116:        assert result_legs[1]["strike"] == 110.0
+./ATT/tests/test_orchestrator_run_methods.py:249:            strike=50.0,
+./ATT/tests/test_payoff_canonical.py:15:                    "strike": 195.0,
+./ATT/tests/test_pricing_execution_persistence_service.py:203:                "strike": 36.0,
+./ATT/tests/test_pricing_payload_adapter.py:19:                        "strike": 195.0,
+./ATT/tests/test_pricing_payload_adapter.py:52:                        "strike": 195,
+./ATT/tests/test_pricing_payload_adapter.py:99:                                "strike": 195.0,
+./ATT/tests/test_robo_legs_repository.py:17:            strike REAL,
+./ATT/tests/test_robo_legs_repository.py:31:            strike REAL,
+./ATT/tests/test_robo_legs_repository.py:50:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:55:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:80:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:104:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:124:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:129:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:134:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:154:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_repository.py:159:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./ATT/tests/test_robo_legs_service.py:23:        strike=120.0,
+./ATT/tests/test_robo_legs_service.py:56:        strike=120.0,
+./ATT/tests/test_robo_leg_mapper.py:13:        "strike": 195.0,
+./ATT/tests/test_robo_leg_mapper.py:24:    assert result["strike"] == 195.0
+./ATT/tests/test_robo_leg_mapper.py:36:        "strike": 185.0,
+./ATT/tests/test_robo_leg_mapper.py:55:        "strike": 195.0,
+./ATT/tests/test_robo_leg_mapper.py:70:        "strike": 195.0,
+./ATT/tests/test_robo_leg_mapper.py:80:def test_to_canonical_leg_should_raise_for_invalid_strike():
+./ATT/tests/test_robo_leg_mapper.py:85:        "strike": "abc",
+./ATT/tests/test_robo_leg_mapper.py:91:    with pytest.raises(ValueError, match=r"invalid strike: abc"):
+./ATT/tests/test_robo_leg_mapper.py:100:        "strike": 195.0,
+./ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:41:                "strike": 195.0,
+./ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:106:            "strike": 195.0,
+./ATT/tests/test_structures_api.py:45:            "strike": 38.0,
+./ATT/tests/test_structures_api.py:67:    "strike":          38.0,
+./ATT/tests/test_structures_api.py:376:        for campo in ("id", "structure_id", "position_side", "option_type", "strike",
+./ATT/tests/test_structures_api.py:586:    def test_detail_leg_strike_e_float(self, client):
+./ATT/tests/test_structures_api.py:590:        assert isinstance(leg["strike"], float)
+./ATT/tests/test_structures_archive_wiring.py:545:                " strike REAL, expiration_date TEXT, quantity INTEGER, "
+./ATT/tests/test_structures_legs_endpoints.py:27:    "strike":          38.0,
+./ATT/tests/test_structures_legs_endpoints.py:109:        assert args[1]["strike"] == 38.0
+./ATT/tests/test_structures_legs_endpoints.py:137:    def test_add_leg_422_strike_zero(self, client_legs):
+./ATT/tests/test_structures_legs_endpoints.py:139:        payload = {**FAKE_LEG_PAYLOAD, "strike": 0}
+./ATT/tests/test_structures_legs_endpoints.py:196:        assert leg["strike"] == 38.0
+./ATT/tests/test_structures_repository.py:29:        "strike": 120.0,
+./ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+./ATT/tests/test_structures_repository.py:120:            strike=110.0,
+./ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+./ATT/tests/test_structures_repository.py:212:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+./ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+./ATT/tests/test_structures_repository.py:223:                strike=100,
+./ATT/tests/test_structure_analysis_service.py:37:                        "strike": 190.0,
+./ATT/tests/test_structure_analysis_service.py:47:                        "strike": 185.0,
+./ATT/tests/test_structure_analysis_service.py:451:                        "strike": 190.0,
+./ATT/tests/test_structure_analysis_service.py:467:                        "strike": 185.0,
+./ATT/tests/test_structure_editor_dialog.py:88:        r = self._dialog([{"strike": 100.0}])._build_legs_payload()
+./ATT/tests/test_structure_editor_dialog.py:92:        legs = [{"strike": 100.0}, {"strike": 110.0}, {"strike": 90.0}]
+./ATT/tests/test_structure_editor_dialog.py:98:            "position_side": "VENDIDO", "option_type": "CALL", "strike": 195.0,
+./ATT/tests/test_structure_editor_dialog.py:104:        self.assertEqual(r["strike"], 195.0)
+./ATT/tests/test_structure_editor_dialog.py:108:        legs = [{"strike": 100.0}]
+./ATT/tests/test_structure_editor_dialog.py:114:        legs = [{"strike": 100.0}, {"strike": 110.0}]
+./ATT/tests/test_structure_editor_dialog.py:118:        self.assertEqual(r[0]["strike"], 100.0)
+./ATT/tests/test_structure_editor_dialog.py:119:        self.assertEqual(r[1]["strike"], 110.0)
+./ATT/tests/test_structure_editor_dialog.py:166:            "position_side": "COMPRADO", "option_type": "CALL", "strike": 195.0,
+./ATT/tests/test_structure_editor_dialog.py:177:        self.assertEqual(dlg._legs_rows[0]["strike"], 195.0)
+./ATT/tests/test_structure_editor_dialog.py:250:            "position_side": "COMPRADO", "option_type": "CALL", "strike": 100.0,
+./ATT/tests/test_structure_editor_dialog.py:268:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+./ATT/tests/test_structure_editor_dialog.py:442:            "strike": 100.0,
+./ATT/tests/test_structure_editor_dialog.py:453:            "strike": 90.0,
+./ATT/tests/test_structure_editor_integration.py:364:             "strike": "10.00", "expiration_date": "2025-01-17",
+./ATT/tests/test_structure_editor_integration.py:529:             "strike": "25.00", "expiration_date": "2025-03-21",
+./ATT/tests/test_structure_editor_integration.py:533:             "strike": "27.00", "expiration_date": "2025-03-21",
+./ATT/tests/test_structure_events_effective_state.py:31:                "strike": 190.0,
+./ATT/tests/test_structure_events_effective_state.py:42:                "strike": 185.0,
+./ATT/tests/test_structure_events_repository.py:42:        "strike": 120.0,
+./ATT/tests/test_structure_events_repository.py:275:        valid_leg_payload(symbol="PETR4C40", strike=40.0),
+./ATT/tests/test_structure_input_mapper.py:15:                "strike": 195.0,
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:25:                "strike": 130.0,
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:48:        "strike": 130.0,
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:66:                "strike": 28.0,
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:84:    assert leg["strike"] == 28.0
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:131:                    "strike": 130.0,
+./ATT/tests/test_structure_market_input_assembler.py:18:                    "strike": 195.0,
+./ATT/tests/test_structure_metrics.py:43:                    "strike": 190.0,
+./ATT/tests/test_structure_metrics.py:50:                    "strike": 185.0,
+./ATT/tests/test_system_snapshots_repository.py:45:    strike: float,
+./ATT/tests/test_system_snapshots_repository.py:54:            strike,
+./ATT/tests/test_system_snapshots_repository.py:71:            strike,
+./ATT/tests/test_system_snapshots_repository.py:96:            strike=10.0,
+./ATT/tests/test_system_snapshots_repository.py:103:            strike=12.0,
+./ATT/tests/test_system_snapshots_repository.py:131:                "strike": 10.0,
+./ATT/tests/test_system_snapshots_repository.py:145:                "strike": 12.0,
+./ATT/tests/test_system_snapshots_repository.py:233:                "strike": 30.0,
+./ATT/tests/test_system_snapshots_schema.py:105:        "strike",
+./backups/app_fase12_rtd_option_quotes_ok.sql:19:                strike          REAL    NOT NULL,
+./backups/app_fase12_rtd_option_quotes_ok.sql:85:                strike           REAL,
+./backups/app_fase12_rtd_option_quotes_ok.sql:104:    strike REAL,
+./backups/app_fase12_rtd_option_quotes_ok.sql:128:INSERT INTO rtd_option_quotes VALUES(2,'PRIOG800','PRIO3','CALL',80.0,'2026-07-17',0.04,0.0,0.0,0.16,0.0,0.0,0.0144,0.0044,-0.0074,0.6123,'lista_rtd_excel','{"ask": 0.16, "ativo_base": "PRIO3", "bid": 0.0, "call_put": "Call", "codigo_opcao": "PRIOG800", "delta": 0.0144, "gamma": 0.0044, "iv": 0.0, "strike": 80.0, "theta": -0.0074, "ultima_quantidade": 0.0, "ultimo_preco": 0.04, "vega": 0.6123, "vencimento": 46220.125, "volume": 0.0}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./backups/app_fase12_rtd_option_quotes_ok.sql:129:INSERT INTO rtd_option_quotes VALUES(3,'PRIOH515','PRIO3','CALL',51.5,'2026-08-21',7.43,0.0,0.0,0.0,0.0,0.0,0.8147,0.0317,-0.0458,6.5386,'lista_rtd_excel','{"ask": 0.0, "ativo_base": "PRIO3", "bid": 0.0, "call_put": "Call", "codigo_opcao": "PRIOH515", "delta": 0.8147, "gamma": 0.0317, "iv": 0.0, "strike": 51.5, "theta": -0.0458, "ultima_quantidade": 0.0, "ultimo_preco": 7.43, "vega": 6.5386, "vencimento": 46255.125, "volume": 0.0}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./backups/app_fase12_rtd_option_quotes_ok.sql:130:INSERT INTO rtd_option_quotes VALUES(4,'PRIOT700','PRIO3','PUT',70.0,'2026-08-21',12.07,200.0,0.0,19.0,20119.5,0.0,-0.8658,0.0245,0.0142,5.2916,'lista_rtd_excel','{"ask": 19.0, "ativo_base": "PRIO3", "bid": 0.0, "call_put": "Put", "codigo_opcao": "PRIOT700", "delta": -0.8658, "gamma": 0.0245, "iv": 0.0, "strike": 70.0, "theta": 0.0142, "ultima_quantidade": 200.0, "ultimo_preco": 12.07, "vega": 5.2916, "vencimento": 46255.125, "volume": 20119.5}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./backups/app_fase12_rtd_option_quotes_ok.sql:131:INSERT INTO rtd_option_quotes VALUES(5,'PRIOS525','PRIO3','PUT',52.5,'2026-07-17',0.6,400.0,0.5,0.7,25040.8,0.0,-0.1811,0.0451,-0.0288,4.4093,'lista_rtd_excel','{"ask": 0.7, "ativo_base": "PRIO3", "bid": 0.5, "call_put": "Put", "codigo_opcao": "PRIOS525", "delta": -0.1811, "gamma": 0.0451, "iv": 0.0, "strike": 52.5, "theta": -0.0288, "ultima_quantidade": 400.0, "ultimo_preco": 0.6, "vega": 4.4093, "vencimento": 46220.125, "volume": 25040.8}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./dados/RTD_LINKS.csv:1:﻿codigo_opcao;ativo_base;call_put;strike;vencimento;ultimo_preco;ultima_quantidade;bid;ask;volume;iv;delta;gamma;theta;vega
+./db/import_excel.py:44:        "STRIKE": "strike",
+./db/schema_excel.py:56:  strike REAL,
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:8:2. Cadastro manual de estruturas e erro de strike.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:33:    fase-1-mapa-strike-codigo-atual.txt
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:34:    fase-1-mapa-strike-runtime-codigo-atual.txt
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:41:    fase-1-trechos-strike-runtime.txt
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:86:## 2. Cadastro manual e erro de strike
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:104:    _cmd_add_leg() cria uma leg com strike vazio.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:105:    _cmd_apply_leg() monta payload com strike vindo de self._lf_strike.get().
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:106:    structures_repository.py lê strike a partir de leg.get("strike").
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:107:    structures_repository.py tenta converter strike com float(strike).
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:108:    em caso de falha, levanta ValueError("strike must be numeric").
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:112:    Leg nova nasce com strike vazio.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:118:    Payload leva strike como string vazia ou texto inválido.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:124:    float(strike)
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:127:    ValueError("strike must be numeric")
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:131:    validators verificam strike is None,
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:132:    mas a UI pode enviar strike como string vazia.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:136:    Normalizar e validar strike na borda da UI antes de persistir.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:311:### H1 — Erro de strike no cadastro manual
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:315:    UI envia strike vazio ou string inválida.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:316:    Repositório tenta float(strike).
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:317:    Erro exibido: "strike must be numeric".
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:321:    Validar e normalizar strike antes de chamar o repositório.
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:387:1. O erro "strike must be numeric" provavelmente nasce do envio de strike vazio
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:67:282:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:113:73:                strike=float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:114:122:            "strike":          leg.strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:122:282:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:123:284:        return max(spot_at_expiration - strike, 0.0)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:124:286:        return max(strike - spot_at_expiration, 0.0)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:125:294:    strike = float(leg.get("strike") or 0.0)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:126:302:        strike=strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:228:51:        strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:229:78:        strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:230:183:        strike=_parse_br_float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:233:234:        strike=_first_float(quote_row["strike"], base_leg.strike),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:243:286:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:245:306:                strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:265:533:                strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:268:565:                strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:271:583:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:272:597:                strike,
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:275:614:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:280:662:        - strike;
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:281:679:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:282:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:285:ARQUIVO: docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:320:40:                leg.get("strike", ""),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:321:69:        self._lf_strike.set(str(leg.get("strike", "")))
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:323:81:            "strike":          "",
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:330:142:            "strike":          self._lf_strike.get(),
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:331:189:    strike          = leg.get("strike")
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:332:203:        strike = float(strike)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:333:205:        raise ValueError("strike must be numeric") from exc
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:334:207:    if strike <= 0:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:335:208:        raise ValueError("strike must be > 0")
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:336:297:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:337:298:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:338:301:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:339:302:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:340:377:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:341:378:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:342:381:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:343:382:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:1:./api/structures_controller.py:53:    strike: float        = Field(..., gt=0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:2:./ATT/tests/test_canonical_input_service.py:79:                    "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:3:./ATT/tests/test_canonical_input_service.py:129:                        "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:4:./ATT/tests/test_canonical_input_service.py:224:                    "strike": 190.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:5:./ATT/tests/test_canonical_input_service.py:240:                    "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:6:./ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:7:./ATT/tests/test_canonical_pricing_facade.py:58:    assert leg["strike"] == pytest.approx(expected)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:8:./ATT/tests/test_canonical_pricing_facade.py:70:                "strike": "100,00",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:9:./ATT/tests/test_canonical_pricing_facade.py:104:    assert leg["strike"] == 100.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:10:./ATT/tests/test_canonical_validators.py:15:                    "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:11:./ATT/tests/test_contracts.py:15:                    "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:12:./ATT/tests/test_legacy_robo_legs_fallback.py:95:                "strike": 100,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:13:./ATT/tests/test_legacy_robo_legs_fallback.py:113:    assert legs[0]["strike"] == 100.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:14:./ATT/tests/test_legacy_structure_legs_importer.py:33:            strike REAL NOT NULL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:15:./ATT/tests/test_legacy_structure_legs_importer.py:75:            strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:16:./ATT/tests/test_legacy_structure_legs_importer.py:118:            "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:17:./ATT/tests/test_legacy_structure_legs_importer.py:129:            "strike": 200.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:18:./ATT/tests/test_legacy_structure_legs_importer.py:216:            "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:19:./ATT/tests/test_legacy_structure_legs_importer_integration.py:36:            strike REAL NOT NULL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:20:./ATT/tests/test_legacy_structure_legs_importer_integration.py:56:            strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:21:./ATT/tests/test_legacy_structure_legs_importer_integration.py:71:            strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:22:./ATT/tests/test_legacy_structure_legs_importer_integration.py:112:            strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:23:./ATT/tests/test_legacy_structure_legs_importer_integration.py:134:            strike, quant, ativo, vencimento, preco
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:24:./ATT/tests/test_legacy_structure_legs_importer_integration.py:153:            strike, quant, ativo, vencimento, preco
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:25:./ATT/tests/test_legacy_structure_legs_importer_integration.py:219:    assert imported_leg["strike"] == 185.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:26:./ATT/tests/test_legacy_structure_legs_reader.py:30:            strike=195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:27:./ATT/tests/test_legacy_structure_legs_reader.py:39:            strike=185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:28:./ATT/tests/test_legacy_structure_legs_reader.py:66:            "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:29:./ATT/tests/test_legacy_structure_legs_reader.py:77:            "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:30:./ATT/tests/test_legacy_structure_legs_reader.py:93:            strike=195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:31:./ATT/tests/test_legacy_structure_legs_reader.py:133:            strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:32:./ATT/tests/test_legacy_structure_legs_reader.py:148:            strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:33:./ATT/tests/test_legacy_structure_legs_reader.py:181:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:34:./ATT/tests/test_legacy_structure_legs_reader.py:214:            "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:35:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:28:            strike TEXT,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:36:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:44:            strike TEXT,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:37:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:85:            strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:38:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:131:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:39:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:197:    assert leg.strike == 195.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:40:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:226:    strike="195,00",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:41:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:244:            strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:42:./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:267:            strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:43:./ATT/tests/test_orchestrator_run_methods.py:30:        strike=100.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:44:./ATT/tests/test_orchestrator_run_methods.py:84:        leg = _make_leg(strike=110.0, option_type="put", position_side="short")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:45:./ATT/tests/test_orchestrator_run_methods.py:87:        assert legs[0]["strike"] == 110.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:46:./ATT/tests/test_orchestrator_run_methods.py:110:            _make_leg(strike=100.0, leg_order=0),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:47:./ATT/tests/test_orchestrator_run_methods.py:111:            _make_leg(strike=110.0, option_type="put", leg_order=1),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:48:./ATT/tests/test_orchestrator_run_methods.py:116:        assert result_legs[1]["strike"] == 110.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:49:./ATT/tests/test_orchestrator_run_methods.py:249:            strike=50.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:50:./ATT/tests/test_payoff_canonical.py:15:                    "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:51:./ATT/tests/test_pricing_execution_persistence_service.py:203:                "strike": 36.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:52:./ATT/tests/test_pricing_payload_adapter.py:19:                        "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:53:./ATT/tests/test_pricing_payload_adapter.py:52:                        "strike": 195,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:54:./ATT/tests/test_pricing_payload_adapter.py:99:                                "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:55:./ATT/tests/test_robo_legs_repository.py:17:            strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:56:./ATT/tests/test_robo_legs_repository.py:31:            strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:57:./ATT/tests/test_robo_legs_repository.py:50:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:58:./ATT/tests/test_robo_legs_repository.py:55:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:59:./ATT/tests/test_robo_legs_repository.py:80:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:60:./ATT/tests/test_robo_legs_repository.py:104:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:61:./ATT/tests/test_robo_legs_repository.py:124:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:62:./ATT/tests/test_robo_legs_repository.py:129:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:63:./ATT/tests/test_robo_legs_repository.py:134:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:64:./ATT/tests/test_robo_legs_repository.py:154:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:65:./ATT/tests/test_robo_legs_repository.py:159:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:66:./ATT/tests/test_robo_legs_service.py:23:        strike=120.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:67:./ATT/tests/test_robo_legs_service.py:56:        strike=120.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:68:./ATT/tests/test_robo_leg_mapper.py:13:        "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:69:./ATT/tests/test_robo_leg_mapper.py:24:    assert result["strike"] == 195.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:70:./ATT/tests/test_robo_leg_mapper.py:36:        "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:71:./ATT/tests/test_robo_leg_mapper.py:55:        "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:72:./ATT/tests/test_robo_leg_mapper.py:70:        "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:73:./ATT/tests/test_robo_leg_mapper.py:80:def test_to_canonical_leg_should_raise_for_invalid_strike():
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:74:./ATT/tests/test_robo_leg_mapper.py:85:        "strike": "abc",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:75:./ATT/tests/test_robo_leg_mapper.py:91:    with pytest.raises(ValueError, match=r"invalid strike: abc"):
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:76:./ATT/tests/test_robo_leg_mapper.py:100:        "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:77:./ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:41:                "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:78:./ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:106:            "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:79:./ATT/tests/test_structures_api.py:45:            "strike": 38.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:80:./ATT/tests/test_structures_api.py:67:    "strike":          38.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:81:./ATT/tests/test_structures_api.py:376:        for campo in ("id", "structure_id", "position_side", "option_type", "strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:82:./ATT/tests/test_structures_api.py:586:    def test_detail_leg_strike_e_float(self, client):
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:83:./ATT/tests/test_structures_api.py:590:        assert isinstance(leg["strike"], float)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:84:./ATT/tests/test_structures_archive_wiring.py:545:                " strike REAL, expiration_date TEXT, quantity INTEGER, "
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:85:./ATT/tests/test_structures_legs_endpoints.py:27:    "strike":          38.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:86:./ATT/tests/test_structures_legs_endpoints.py:109:        assert args[1]["strike"] == 38.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:87:./ATT/tests/test_structures_legs_endpoints.py:137:    def test_add_leg_422_strike_zero(self, client_legs):
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:88:./ATT/tests/test_structures_legs_endpoints.py:139:        payload = {**FAKE_LEG_PAYLOAD, "strike": 0}
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:89:./ATT/tests/test_structures_legs_endpoints.py:196:        assert leg["strike"] == 38.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:90:./ATT/tests/test_structures_repository.py:29:        "strike": 120.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:91:./ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:92:./ATT/tests/test_structures_repository.py:120:            strike=110.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:93:./ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:95:./ATT/tests/test_structures_repository.py:212:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:96:./ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:97:./ATT/tests/test_structures_repository.py:223:                strike=100,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:98:./ATT/tests/test_structure_analysis_service.py:37:                        "strike": 190.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:99:./ATT/tests/test_structure_analysis_service.py:47:                        "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:100:./ATT/tests/test_structure_analysis_service.py:451:                        "strike": 190.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:101:./ATT/tests/test_structure_analysis_service.py:467:                        "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:102:./ATT/tests/test_structure_editor_dialog.py:88:        r = self._dialog([{"strike": 100.0}])._build_legs_payload()
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:103:./ATT/tests/test_structure_editor_dialog.py:92:        legs = [{"strike": 100.0}, {"strike": 110.0}, {"strike": 90.0}]
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:104:./ATT/tests/test_structure_editor_dialog.py:98:            "position_side": "VENDIDO", "option_type": "CALL", "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:105:./ATT/tests/test_structure_editor_dialog.py:104:        self.assertEqual(r["strike"], 195.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:106:./ATT/tests/test_structure_editor_dialog.py:108:        legs = [{"strike": 100.0}]
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:107:./ATT/tests/test_structure_editor_dialog.py:114:        legs = [{"strike": 100.0}, {"strike": 110.0}]
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:108:./ATT/tests/test_structure_editor_dialog.py:118:        self.assertEqual(r[0]["strike"], 100.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:109:./ATT/tests/test_structure_editor_dialog.py:119:        self.assertEqual(r[1]["strike"], 110.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:110:./ATT/tests/test_structure_editor_dialog.py:166:            "position_side": "COMPRADO", "option_type": "CALL", "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:111:./ATT/tests/test_structure_editor_dialog.py:177:        self.assertEqual(dlg._legs_rows[0]["strike"], 195.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:112:./ATT/tests/test_structure_editor_dialog.py:250:            "position_side": "COMPRADO", "option_type": "CALL", "strike": 100.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:113:./ATT/tests/test_structure_editor_dialog.py:268:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:114:./ATT/tests/test_structure_editor_dialog.py:442:            "strike": 100.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:115:./ATT/tests/test_structure_editor_dialog.py:453:            "strike": 90.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:116:./ATT/tests/test_structure_editor_integration.py:364:             "strike": "10.00", "expiration_date": "2025-01-17",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:117:./ATT/tests/test_structure_editor_integration.py:529:             "strike": "25.00", "expiration_date": "2025-03-21",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:118:./ATT/tests/test_structure_editor_integration.py:533:             "strike": "27.00", "expiration_date": "2025-03-21",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:119:./ATT/tests/test_structure_events_effective_state.py:31:                "strike": 190.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:120:./ATT/tests/test_structure_events_effective_state.py:42:                "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:121:./ATT/tests/test_structure_events_repository.py:42:        "strike": 120.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:122:./ATT/tests/test_structure_events_repository.py:275:        valid_leg_payload(symbol="PETR4C40", strike=40.0),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:125:./ATT/tests/test_structure_input_mapper.py:15:                "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:126:./ATT/tests/test_structure_leg_rtd_enrichment_service.py:25:                "strike": 130.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:127:./ATT/tests/test_structure_leg_rtd_enrichment_service.py:48:        "strike": 130.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:128:./ATT/tests/test_structure_leg_rtd_enrichment_service.py:66:                "strike": 28.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:129:./ATT/tests/test_structure_leg_rtd_enrichment_service.py:84:    assert leg["strike"] == 28.0
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:130:./ATT/tests/test_structure_leg_rtd_enrichment_service.py:131:                    "strike": 130.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:131:./ATT/tests/test_structure_market_input_assembler.py:18:                    "strike": 195.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:132:./ATT/tests/test_structure_metrics.py:43:                    "strike": 190.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:133:./ATT/tests/test_structure_metrics.py:50:                    "strike": 185.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:134:./ATT/tests/test_system_snapshots_repository.py:45:    strike: float,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:135:./ATT/tests/test_system_snapshots_repository.py:54:            strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:136:./ATT/tests/test_system_snapshots_repository.py:71:            strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:137:./ATT/tests/test_system_snapshots_repository.py:96:            strike=10.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:138:./ATT/tests/test_system_snapshots_repository.py:103:            strike=12.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:139:./ATT/tests/test_system_snapshots_repository.py:131:                "strike": 10.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:140:./ATT/tests/test_system_snapshots_repository.py:145:                "strike": 12.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:141:./ATT/tests/test_system_snapshots_repository.py:233:                "strike": 30.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:142:./ATT/tests/test_system_snapshots_schema.py:105:        "strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:143:./db/import_excel.py:44:        "STRIKE": "strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:144:./db/schema_excel.py:56:  strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:145:./domain/calculation_request.py:75:    strike        : decimal positivo
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:146:./domain/calculation_request.py:85:    strike:          float
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:147:./domain/calculation_request.py:116:        # strike deve ser positivo
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:148:./domain/calculation_request.py:117:        object.__setattr__(self, "strike", _require_positive(self.strike, "strike"))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:149:./domain/canonical_validators.py:25:        if leg.get("strike") is None:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:150:./domain/canonical_validators.py:26:            errors.append(f"structure.legs[{index}].strike is required")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:151:./domain/contracts.py:10:    strike: float
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:152:./domain/contracts.py:59:                strike=float(leg.get("strike")),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:153:./domain/contracts.py:107:                        "strike": leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:154:./domain/market_snapshot.py:45:    strike          : Optional[float] = None
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:155:./domain/payoff.py:19:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:156:./domain/payoff.py:21:        return max(spot_at_expiration - strike, 0.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:157:./domain/payoff.py:23:        return max(strike - spot_at_expiration, 0.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:158:./domain/payoff.py:31:    strike = float(leg.get("strike") or 0.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:159:./domain/payoff.py:39:        strike=strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:160:./dto/robo_leg_dto.py:30:    strike: float
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:161:./infra/bootstrap_structures_schema.py:57:                strike          REAL    NOT NULL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:162:./infra/bootstrap_structures_schema.py:163:                strike           REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:163:./repositories/market_snapshot_repository.py:50:        strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:164:./repositories/market_snapshot_repository.py:77:        strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:165:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:166:./repositories/market_snapshot_repository.py:233:        strike=_first_float(quote_row["strike"], base_leg.strike),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:167:./repositories/market_snapshot_repository.py:285:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:168:./repositories/market_snapshot_repository.py:305:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:169:./repositories/robo_legs_repository.py:171:        strike    = pick("strike", "k", "preco_exercicio")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:170:./repositories/robo_legs_repository.py:190:            strike=float(strike)       if strike  is not None else 0.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:171:./repositories/rtd_option_quotes_repository.py:32:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:172:./repositories/rtd_option_quotes_repository.py:64:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:173:./repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:174:./repositories/rtd_option_quotes_repository.py:96:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:175:./repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:176:./repositories/structures_repository.py:94:    strike          = leg.get("strike")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:177:./repositories/structures_repository.py:108:        strike = float(strike)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:178:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:179:./repositories/structures_repository.py:112:    if strike <= 0:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:180:./repositories/structures_repository.py:113:        raise ValueError("strike must be > 0")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:183:./repositories/structures_repository.py:156:        "strike":          strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:184:./repositories/structures_repository.py:200:                strike, expiration_date, quantity, premium, multiplier,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:185:./repositories/structures_repository.py:403:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:186:./repositories/structures_repository.py:412:                        leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:187:./repositories/structures_repository.py:598:                    strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:188:./repositories/structures_repository.py:604:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:189:./repositories/structures_repository.py:652:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:190:./repositories/structures_repository.py:658:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:192:./repositories/system_snapshots_repository.py:179:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:193:./repositories/system_snapshots_repository.py:198:                leg.get("strike"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:194:./scripts/apply_fase9_atomic_create.py:118:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:195:./scripts/apply_fase9_atomic_create.py:127:                        leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:196:./scripts/apply_fase9_update_tests_atomic_create.py:78:            "position_side": "LONG", "option_type": "CALL", "strike": 100.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:197:./scripts/apply_fase9_update_tests_atomic_create.py:96:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:198:./services/calculation_orchestrator.py:72:                strike=float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:199:./services/calculation_orchestrator.py:121:            "strike":          leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:200:./services/calculation_orchestrator.py:267:                    strike=float(leg["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:201:./services/calculation_orchestrator.py:310:                "strike":          leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:202:./services/calculation_orchestrator.py:472:                    "strike":          leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:203:./services/canonical_input_service.py:228:                "strike":           leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:204:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:205:./services/legacy_robo_legs_fallback.py:232:            "strike": float(data.get("strike") or 0.0),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:206:./services/pricing_payload_adapter.py:44:                "strike": float(leg["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:207:./services/robo_leg_mapper.py:47:    strike = _read_attr(leg, "strike")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:208:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:210:./services/structure_input_mapper.py:56:        "strike": leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:211:./services/structure_leg_rtd_enrichment_service.py:40:        - strike;
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:212:./services/structure_leg_rtd_enrichment_service.py:57:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:213:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:215:./UI/components/structure_editor_dialog.py:136:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:217:./UI/components/structure_editor_dialog.py:174:        self._lf_strike  = tk.StringVar()
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:218:./UI/components/structure_editor_dialog.py:195:            ("Strike",              self._lf_strike),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:219:./UI/components/structure_editor_dialog.py:258:                leg.get("strike", ""),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:220:./UI/components/structure_editor_dialog.py:287:        self._lf_strike.set(str(leg.get("strike", "")))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:221:./UI/components/structure_editor_dialog.py:299:            "strike":          "",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:222:./UI/components/structure_editor_dialog.py:360:            "strike":          self._lf_strike.get(),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:223:./UI/main_window.py:666:                    f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:224:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:225:./validators/leg_validator.py:60:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:226:./validators/leg_validator.py:61:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:227:./validators/leg_validator.py:64:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:228:./validators/leg_validator.py:65:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:229:./validators/validators__init__.py:58:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:230:./validators/validators__init__.py:59:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:231:./validators/validators__init__.py:62:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:232:./validators/validators__init__.py:63:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:1:./api/structures_controller.py:53:    strike: float        = Field(..., gt=0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:2:./db/import_excel.py:44:        "STRIKE": "strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:3:./db/schema_excel.py:56:  strike REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:4:./domain/calculation_request.py:75:    strike        : decimal positivo
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:5:./domain/calculation_request.py:85:    strike:          float
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:6:./domain/calculation_request.py:116:        # strike deve ser positivo
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:7:./domain/calculation_request.py:117:        object.__setattr__(self, "strike", _require_positive(self.strike, "strike"))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:8:./domain/canonical_validators.py:25:        if leg.get("strike") is None:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:9:./domain/canonical_validators.py:26:            errors.append(f"structure.legs[{index}].strike is required")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:10:./domain/contracts.py:10:    strike: float
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:11:./domain/contracts.py:59:                strike=float(leg.get("strike")),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:12:./domain/contracts.py:107:                        "strike": leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:13:./domain/market_snapshot.py:45:    strike          : Optional[float] = None
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:14:./domain/payoff.py:19:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:15:./domain/payoff.py:21:        return max(spot_at_expiration - strike, 0.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:16:./domain/payoff.py:23:        return max(strike - spot_at_expiration, 0.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:17:./domain/payoff.py:31:    strike = float(leg.get("strike") or 0.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:18:./domain/payoff.py:39:        strike=strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:19:./dto/robo_leg_dto.py:30:    strike: float
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:20:./infra/bootstrap_structures_schema.py:57:                strike          REAL    NOT NULL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:21:./infra/bootstrap_structures_schema.py:163:                strike           REAL,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:22:./repositories/market_snapshot_repository.py:50:        strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:23:./repositories/market_snapshot_repository.py:77:        strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:24:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:25:./repositories/market_snapshot_repository.py:233:        strike=_first_float(quote_row["strike"], base_leg.strike),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:26:./repositories/market_snapshot_repository.py:285:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:27:./repositories/market_snapshot_repository.py:305:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:28:./repositories/robo_legs_repository.py:171:        strike    = pick("strike", "k", "preco_exercicio")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:29:./repositories/robo_legs_repository.py:190:            strike=float(strike)       if strike  is not None else 0.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:30:./repositories/rtd_option_quotes_repository.py:32:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:31:./repositories/rtd_option_quotes_repository.py:64:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:32:./repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:33:./repositories/rtd_option_quotes_repository.py:96:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:34:./repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:35:./repositories/structures_repository.py:94:    strike          = leg.get("strike")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:36:./repositories/structures_repository.py:108:        strike = float(strike)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:37:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:38:./repositories/structures_repository.py:112:    if strike <= 0:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:39:./repositories/structures_repository.py:113:        raise ValueError("strike must be > 0")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:42:./repositories/structures_repository.py:156:        "strike":          strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:43:./repositories/structures_repository.py:200:                strike, expiration_date, quantity, premium, multiplier,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:44:./repositories/structures_repository.py:403:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:45:./repositories/structures_repository.py:412:                        leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:46:./repositories/structures_repository.py:598:                    strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:47:./repositories/structures_repository.py:604:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:48:./repositories/structures_repository.py:652:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:49:./repositories/structures_repository.py:658:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:51:./repositories/system_snapshots_repository.py:179:                strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:52:./repositories/system_snapshots_repository.py:198:                leg.get("strike"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:53:./scripts/apply_fase9_atomic_create.py:118:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:54:./scripts/apply_fase9_atomic_create.py:127:                        leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:55:./scripts/apply_fase9_update_tests_atomic_create.py:78:            "position_side": "LONG", "option_type": "CALL", "strike": 100.0,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:56:./scripts/apply_fase9_update_tests_atomic_create.py:96:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:57:./services/calculation_orchestrator.py:72:                strike=float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:58:./services/calculation_orchestrator.py:121:            "strike":          leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:59:./services/calculation_orchestrator.py:267:                    strike=float(leg["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:60:./services/calculation_orchestrator.py:310:                "strike":          leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:61:./services/calculation_orchestrator.py:472:                    "strike":          leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:62:./services/canonical_input_service.py:228:                "strike":           leg.strike,
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:63:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:64:./services/legacy_robo_legs_fallback.py:232:            "strike": float(data.get("strike") or 0.0),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:65:./services/pricing_payload_adapter.py:44:                "strike": float(leg["strike"]),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:66:./services/robo_leg_mapper.py:47:    strike = _read_attr(leg, "strike")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:67:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:69:./services/structure_input_mapper.py:56:        "strike": leg["strike"],
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:70:./services/structure_leg_rtd_enrichment_service.py:40:        - strike;
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:71:./services/structure_leg_rtd_enrichment_service.py:57:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:72:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:74:./UI/components/structure_editor_dialog.py:136:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:76:./UI/components/structure_editor_dialog.py:174:        self._lf_strike  = tk.StringVar()
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:77:./UI/components/structure_editor_dialog.py:195:            ("Strike",              self._lf_strike),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:78:./UI/components/structure_editor_dialog.py:258:                leg.get("strike", ""),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:79:./UI/components/structure_editor_dialog.py:287:        self._lf_strike.set(str(leg.get("strike", "")))
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:80:./UI/components/structure_editor_dialog.py:299:            "strike":          "",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:81:./UI/components/structure_editor_dialog.py:360:            "strike":          self._lf_strike.get(),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:82:./UI/main_window.py:666:                    f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:83:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:84:./validators/leg_validator.py:60:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:85:./validators/leg_validator.py:61:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:86:./validators/leg_validator.py:64:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:87:./validators/leg_validator.py:65:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:88:./validators/validators__init__.py:58:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:89:./validators/validators__init__.py:59:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:90:./validators/validators__init__.py:62:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:91:./validators/validators__init__.py:63:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:73:                strike=float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:122:            "strike":          leg.strike,
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:282:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:284:        return max(spot_at_expiration - strike, 0.0)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:286:        return max(strike - spot_at_expiration, 0.0)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:294:    strike = float(leg.get("strike") or 0.0)
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:302:        strike=strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:51:        strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:78:        strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:183:        strike=_parse_br_float(row["strike"]),
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:234:        strike=_first_float(quote_row["strike"], base_leg.strike),
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:286:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:306:                strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:533:                strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:565:                strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:583:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:597:                strike,
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:614:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:662:        - strike;
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:679:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:40:                leg.get("strike", ""),
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:69:        self._lf_strike.set(str(leg.get("strike", "")))
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:81:            "strike":          "",
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:142:            "strike":          self._lf_strike.get(),
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:189:    strike          = leg.get("strike")
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:203:        strike = float(strike)
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:205:        raise ValueError("strike must be numeric") from exc
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:207:    if strike <= 0:
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:208:        raise ValueError("strike must be > 0")
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:297:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:298:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:301:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:302:                    field="strike",
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:377:        strike = getattr(leg, "strike", None)
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:378:        if strike is None:
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:381:                    code="missing_strike",
+./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:382:                    field="strike",
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:1:# Fase 2A — Reprodução: strike no fluxo manual
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:4:- Reproduzir e documentar o comportamento atual relacionado ao campo strike no fluxo manual.
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:5:- Identificar onde o strike é recebido, validado, normalizado e usado.
+./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:11:- Escopo desta fase: fluxo manual / strike
+./docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt:42:- strike REAL
+./docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt:73:- PRIOG800 / PRIO3 / CALL / strike 80.0 / vencimento 2026-07-17 / ultimo_preco 0.04
+./docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt:74:- PRIOH515 / PRIO3 / CALL / strike 51.5 / vencimento 2026-08-21 / ultimo_preco 7.43
+./docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt:75:- PRIOS525 / PRIO3 / PUT  / strike 52.5 / vencimento 2026-07-17 / ultimo_preco 0.6
+./docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt:76:- PRIOT700 / PRIO3 / PUT  / strike 70.0 / vencimento 2026-08-21 / ultimo_preco 12.07
+./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:99:ATT/tests/test_robo_leg_mapper.py::test_to_canonical_leg_should_raise_for_invalid_strike
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:651:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:978:        strike,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1005:        strike,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1091:        strike=_parse_br_float(row["strike"]),
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1220:                strike,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1252:                strike,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1270:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1284:                strike,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1301:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1385:                "strike": float(leg["strike"]),
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1671:                "strike":           leg.strike,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1847:                    "strike": raw_numeric,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1862:    assert leg["strike"] == pytest.approx(expected)
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1874:                "strike": "100,00",
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1908:    assert leg["strike"] == 100.0
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:2016:                "strike": 195.0,
+./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:2081:            "strike": 195.0,
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:260:docs/fase_8_banco_fonte_verdade_auditoria.md:467:- rtd_analise_robo_legs.strike -> structure_legs.strike
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:917:ATT/tests/test_structures_api.py:376:        for campo in ("id", "structure_id", "position_side", "option_type", "strike",
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1035:ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1050:ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1051:ATT/tests/test_structures_repository.py:214:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1657:docs/executed_v1.md:91:# ANTES (PROBLEMÁTICO)cursor.execute("""    SELECT * FROM rtd_analise_robo_legs     WHERE aba = ?     ORDER BY timestamp DESC, strike     LIMIT 10""", (aba,))
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1660:docs/executed_v1.md:114:    # Carrega TODAS as legs do mesmo snapshot    cursor.execute(        """SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike""",        (aba, ts)    )    # ... rest
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1721:docs/fase_8_banco_fonte_verdade_auditoria.md:467:- rtd_analise_robo_legs.strike -> structure_legs.strike
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:177:  - strike REAL notnull=1 pk=0
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:210:ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:287:ATT/tests/test_structures_api.py::TestResponseSchema::test_detail_leg_strike_e_float
+./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:298:ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_strike_zero
+./docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:257:- preenchimento automático de option_type, strike, expiration_date e underlying_asset;
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:9:- Enriquecer automaticamente option_type, strike, expiration_date e underlying_asset a partir de rtd_option_quotes.
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:60:ATT/tests/test_legacy_structure_legs_reader.py:181:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:71:ATT/tests/test_robo_legs_repository.py:50:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:72:ATT/tests/test_robo_legs_repository.py:55:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:74:ATT/tests/test_robo_legs_repository.py:80:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:76:ATT/tests/test_robo_legs_repository.py:104:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:77:ATT/tests/test_robo_legs_repository.py:124:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:78:ATT/tests/test_robo_legs_repository.py:129:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:79:ATT/tests/test_robo_legs_repository.py:134:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:80:ATT/tests/test_robo_legs_repository.py:154:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:81:ATT/tests/test_robo_legs_repository.py:159:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:111:repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:117:repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:181:ATT/tests/test_structures_legs_endpoints.py:137:    def test_add_leg_422_strike_zero(self, client_legs):
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:201:ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:210:ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:211:ATT/tests/test_structures_repository.py:214:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:422:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:454:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:472:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:486:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:503:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:564:    strike: float        = Field(..., gt=0)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:697:    strike          = leg.get("strike")
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:711:        strike = float(strike)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:713:        raise ValueError("strike must be numeric") from exc
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:715:    if strike <= 0:
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:716:        raise ValueError("strike must be > 0")
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:810:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:819:                        leg["strike"],
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1005:                    strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1011:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1059:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1065:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1261:./.pytest_cache/v/cache/nodeids:608:  "ATT/tests/test_structures_legs_endpoints.py::TestAddLeg::test_add_leg_422_strike_zero",
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1292:./.pytest_cache/v/cache/nodeids:639:  "ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]",
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1404:./backups/app_fase12_rtd_option_quotes_ok.sql:128:INSERT INTO rtd_option_quotes VALUES(2,'PRIOG800','PRIO3','CALL',80.0,'2026-07-17',0.04,0.0,0.0,0.16,0.0,0.0,0.0144,0.0044,-0.0074,0.6123,'lista_rtd_excel','{"ask": 0.16, "ativo_base": "PRIO3", "bid": 0.0, "call_put": "Call", "codigo_opcao": "PRIOG800", "delta": 0.0144, "gamma": 0.0044, "iv": 0.0, "strike": 80.0, "theta": -0.0074, "ultima_quantidade": 0.0, "ultimo_preco": 0.04, "vega": 0.6123, "vencimento": 46220.125, "volume": 0.0}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1405:./backups/app_fase12_rtd_option_quotes_ok.sql:129:INSERT INTO rtd_option_quotes VALUES(3,'PRIOH515','PRIO3','CALL',51.5,'2026-08-21',7.43,0.0,0.0,0.0,0.0,0.0,0.8147,0.0317,-0.0458,6.5386,'lista_rtd_excel','{"ask": 0.0, "ativo_base": "PRIO3", "bid": 0.0, "call_put": "Call", "codigo_opcao": "PRIOH515", "delta": 0.8147, "gamma": 0.0317, "iv": 0.0, "strike": 51.5, "theta": -0.0458, "ultima_quantidade": 0.0, "ultimo_preco": 7.43, "vega": 6.5386, "vencimento": 46255.125, "volume": 0.0}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1406:./backups/app_fase12_rtd_option_quotes_ok.sql:130:INSERT INTO rtd_option_quotes VALUES(4,'PRIOT700','PRIO3','PUT',70.0,'2026-08-21',12.07,200.0,0.0,19.0,20119.5,0.0,-0.8658,0.0245,0.0142,5.2916,'lista_rtd_excel','{"ask": 19.0, "ativo_base": "PRIO3", "bid": 0.0, "call_put": "Put", "codigo_opcao": "PRIOT700", "delta": -0.8658, "gamma": 0.0245, "iv": 0.0, "strike": 70.0, "theta": 0.0142, "ultima_quantidade": 200.0, "ultimo_preco": 12.07, "vega": 5.2916, "vencimento": 46255.125, "volume": 20119.5}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1407:./backups/app_fase12_rtd_option_quotes_ok.sql:131:INSERT INTO rtd_option_quotes VALUES(5,'PRIOS525','PRIO3','PUT',52.5,'2026-07-17',0.6,400.0,0.5,0.7,25040.8,0.0,-0.1811,0.0451,-0.0288,4.4093,'lista_rtd_excel','{"ask": 0.7, "ativo_base": "PRIO3", "bid": 0.5, "call_put": "Put", "codigo_opcao": "PRIOS525", "delta": -0.1811, "gamma": 0.0451, "iv": 0.0, "strike": 52.5, "theta": -0.0288, "ultima_quantidade": 400.0, "ultimo_preco": 0.6, "vega": 4.4093, "vencimento": 46220.125, "volume": 25040.8}','2026-06-17 19:17:11','2026-06-17 16:08:36');
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1614:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1646:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1664:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1678:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1695:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1795:    strike          = leg.get("strike")
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1809:        strike = float(strike)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1811:        raise ValueError("strike must be numeric") from exc
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1813:    if strike <= 0:
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1814:        raise ValueError("strike must be > 0")
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1857:        "strike":          strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1962:                    strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1968:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2016:                        strike, expiration_date, quantity, premium,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2022:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2140:./ATT/tests/test_structures_legs_endpoints.py:137:    def test_add_leg_422_strike_zero(self, client_legs):
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2179:./ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2188:./ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2189:./ATT/tests/test_structures_repository.py:214:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2317:    strike: float        = Field(..., gt=0)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2581:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2613:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2631:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2645:                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2662:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2710:        - strike;
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2727:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2743:            "strike": self._to_float(quote.get("strike"), "strike"),
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2827:    "strike":          38.0,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2909:        assert args[1]["strike"] == 38.0
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2937:    def test_add_leg_422_strike_zero(self, client_legs):
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2939:        payload = {**FAKE_LEG_PAYLOAD, "strike": 0}
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2996:        assert leg["strike"] == 38.0
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3128:            "strike": 38.0,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3150:    "strike":          38.0,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3359:    52	    strike: float        = Field(..., gt=0)
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3583:    32	                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3615:    64	                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3633:    82	            ORDER BY vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3647:    96	                strike,
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3664:   113	            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3712:    38	        - strike;
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3729:    55	            required=("ativo_base", "call_put", "strike", "vencimento"),
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3745:    71	            "strike": self._to_float(quote.get("strike"), "strike"),
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt:103:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt:130:                strike,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt:179:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt:247:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt:273:                strike,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py.txt:174:                "strike": 10.0,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:91:                strike REAL,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:161:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:188:                strike,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:237:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:315:                ["ABCD11", "ABCD", "strike", "10.0", "2026-06-15T10:01:00"],
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt:55:                "strike": 100.0,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt:64:                "strike": 95.0,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt:121:                "strike": 50.0,
+./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt:218:                "strike": 100.0,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt:103:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt:130:                strike,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt:179:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt:247:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt:273:                strike,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py.txt:174:                "strike": 10.0,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:91:                strike REAL,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:161:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:188:                strike,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:237:                strike TEXT,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:315:                ["ABCD11", "ABCD", "strike", "10.0", "2026-06-15T10:01:00"],
+./docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt:55:                "strike": 100.0,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt:64:                "strike": 95.0,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt:121:                "strike": 50.0,
+./docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt:218:                "strike": 100.0,
+./docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md:42:- `strike`
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:48:| P-001 | Erro com vírgula decimal em strike/preço | Pendente |
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:85:| EV-002 | Teste/print | Erro strike must be numeric com vírgula decimal | Registrado |
+./docs/evolucoes de fases/3B_CLOSURE_REPORT.md:63:- `strike` -> `float`
+./docs/evolucoes de fases/3B_CLOSURE_REPORT.md:71:- erro explícito para `strike` inválido
+./docs/evolucoes de fases/3B_CLOSURE_REPORT.md:103:- erro para `strike` inválido
+./docs/evolucoes de fases/baseline_v1.md:309:*	strike
+./docs/evolucoes de fases/baseline_v1.md:329:*	c_v, quant, valor_executado, call_put, strike
+./docs/evolucoes de fases/executed_v1.md:46:*	cv, call_put, quant, valor_executado, strike
+./docs/evolucoes de fases/executed_v1.md:49:*	existem timestamp, aba, ativo, cv, call_put, quant, valor_executado, strike, etc.
+./docs/evolucoes de fases/executed_v1.md:91:# ANTES (PROBLEMÁTICO)cursor.execute("""    SELECT * FROM rtd_analise_robo_legs     WHERE aba = ?     ORDER BY timestamp DESC, strike     LIMIT 10""", (aba,))
+./docs/evolucoes de fases/executed_v1.md:101:# ANTES (INCOMPLETO)if 'CALL' in call_put:    intrinsic = max(s_t - strike, 0)else:    intrinsic = max(strike - s_t, 0)  # PUT
+./docs/evolucoes de fases/executed_v1.md:114:    # Carrega TODAS as legs do mesmo snapshot    cursor.execute(        """SELECT * FROM rtd_analise_robo_legs           WHERE aba = ? AND timestamp = ?           ORDER BY strike""",        (aba, ts)    )    # ... rest
+./docs/evolucoes de fases/executed_v1.md:122:if is_call:    intrinsic = max(s_t - strike, 0)else:  # PUT    intrinsic = max(strike - s_t, 0)
+./docs/evolucoes de fases/executed_v1.md:131:Resultado: Campos cv, call_put, quant, valor_executado, strike confirmados.
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:328:- strike
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:368:- strike
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:381:- `strike` e `vencimento` podem alimentar os campos normalizados de perna.
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:428:- strike
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:467:- rtd_analise_robo_legs.strike -> structure_legs.strike
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:60:(strike must be numeric) O sistema aceita valores com ponto decimal, por exemplo:   10.50 
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:77:- Validadores de strike.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:82:- O sistema deve aceitar strike informado com virgula decimal.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:83:- O sistema deve aceitar strike informado com ponto decimal.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:92:  		strike must be numeric
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:100:- O botao "Aplicar Leg" deve aceitar strike e premio com virgula decimal.- O botao "Salvar" deve aceitar legs com valores digitados em formato brasileiro.- A mensagem "strike must be numeric" nao deve aparecer para valores validos como 158,00.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:113:Mesmo que o simbolo da opcao permita inferir tipo, vencimento ou strike, o sistema deve validar a consistencia entre:
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:118:- Ao digitar ou aplicar o simbolo da opcao, o sistema deve buscar automaticamente os dados da opcao.- O usuario nao deve precisar digitar manualmente strike e vencimento quando o simbolo for reconhecido.- Se o simbolo nao for encontrado, o sistema deve informar claramente.- Se houver divergencia entre simbolo, tipo e ativo, o sistema deve bloquear ou pedir confirmacao.- A estrutura so deve ser salva como funcional se possuir dados minimos para payoff e decisoes.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:138:- Quantidade, preco, strike ou tipo da opcao estao nulos ou invalidos.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:315:1. Identificar pontos de conversao de strike, preco e quantidade.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:336:6. Garantir preenchimento de strike, tipo, quantidade, preco e vencimento quando necessarios.
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:407:| Aceitar virgula em strike | Falha | Aceita virgula e ponto | Pendente |
+./domain/calculation_request.py:75:    strike        : decimal positivo
+./domain/calculation_request.py:85:    strike:          float
+./domain/calculation_request.py:116:        # strike deve ser positivo
+./domain/calculation_request.py:117:        object.__setattr__(self, "strike", _require_positive(self.strike, "strike"))
+./domain/canonical_validators.py:25:        if leg.get("strike") is None:
+./domain/canonical_validators.py:26:            errors.append(f"structure.legs[{index}].strike is required")
+./domain/contracts.py:10:    strike: float
+./domain/contracts.py:59:                strike=float(leg.get("strike")),
+./domain/contracts.py:107:                        "strike": leg.strike,
+./domain/market_snapshot.py:45:    strike          : Optional[float] = None
+./domain/payoff.py:19:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+./domain/payoff.py:21:        return max(spot_at_expiration - strike, 0.0)
+./domain/payoff.py:23:        return max(strike - spot_at_expiration, 0.0)
+./domain/payoff.py:31:    strike = float(leg.get("strike") or 0.0)
+./domain/payoff.py:39:        strike=strike,
+./dto/robo_leg_dto.py:30:    strike: float
+./infra/bootstrap_structures_schema.py:57:                strike          REAL    NOT NULL,
+./infra/bootstrap_structures_schema.py:163:                strike           REAL,
+./repositories/market_snapshot_repository.py:50:        strike,
+./repositories/market_snapshot_repository.py:77:        strike,
+./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+./repositories/market_snapshot_repository.py:233:        strike=_first_float(quote_row["strike"], base_leg.strike),
+./repositories/market_snapshot_repository.py:285:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+./repositories/market_snapshot_repository.py:305:                strike,
+./repositories/robo_legs_repository.py:171:        strike    = pick("strike", "k", "preco_exercicio")
+./repositories/robo_legs_repository.py:190:            strike=float(strike)       if strike  is not None else 0.0,
+./repositories/rtd_option_quotes_repository.py:32:                strike,
+./repositories/rtd_option_quotes_repository.py:64:                strike,
+./repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+./repositories/rtd_option_quotes_repository.py:96:                strike,
+./repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+./repositories/structures_repository.py:94:    strike          = leg.get("strike")
+./repositories/structures_repository.py:108:        strike = float(strike)
+./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+./repositories/structures_repository.py:112:    if strike <= 0:
+./repositories/structures_repository.py:113:        raise ValueError("strike must be > 0")
+./repositories/structures_repository.py:156:        "strike":          strike,
+./repositories/structures_repository.py:200:                strike, expiration_date, quantity, premium, multiplier,
+./repositories/structures_repository.py:403:                        strike, expiration_date, quantity, premium,
+./repositories/structures_repository.py:412:                        leg["strike"],
+./repositories/structures_repository.py:598:                    strike, expiration_date, quantity, premium,
+./repositories/structures_repository.py:604:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+./repositories/structures_repository.py:652:                        strike, expiration_date, quantity, premium,
+./repositories/structures_repository.py:658:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+./repositories/system_snapshots_repository.py:179:                strike,
+./repositories/system_snapshots_repository.py:198:                leg.get("strike"),
+./scripts/apply_fase9_atomic_create.py:118:                        strike, expiration_date, quantity, premium,
+./scripts/apply_fase9_atomic_create.py:127:                        leg["strike"],
+./scripts/apply_fase9_update_tests_atomic_create.py:78:            "position_side": "LONG", "option_type": "CALL", "strike": 100.0,
+./scripts/apply_fase9_update_tests_atomic_create.py:96:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+./scripts/refresh_rtd_option_quotes_excel.ps1.bak:75:        "strike",
+./scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:81:        "strike",
+./services/calculation_orchestrator.py:72:                strike=float(row["strike"]),
+./services/calculation_orchestrator.py:121:            "strike":          leg.strike,
+./services/calculation_orchestrator.py:267:                    strike=float(leg["strike"]),
+./services/calculation_orchestrator.py:310:                "strike":          leg.strike,
+./services/calculation_orchestrator.py:472:                    "strike":          leg["strike"],
+./services/canonical_input_service.py:228:                "strike":           leg.strike,
+./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+./services/legacy_robo_legs_fallback.py:232:            "strike": float(data.get("strike") or 0.0),
+./services/pricing_payload_adapter.py:44:                "strike": float(leg["strike"]),
+./services/robo_leg_mapper.py:47:    strike = _read_attr(leg, "strike")
+./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+./services/structure_input_mapper.py:56:        "strike": leg["strike"],
+./services/structure_leg_rtd_enrichment_service.py:40:        - strike;
+./services/structure_leg_rtd_enrichment_service.py:57:            required=("ativo_base", "call_put", "strike", "vencimento"),
+./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+./UI/components/structure_editor_dialog.py:136:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+./UI/components/structure_editor_dialog.py:174:        self._lf_strike  = tk.StringVar()
+./UI/components/structure_editor_dialog.py:195:            ("Strike",              self._lf_strike),
+./UI/components/structure_editor_dialog.py:258:                leg.get("strike", ""),
+./UI/components/structure_editor_dialog.py:287:        self._lf_strike.set(str(leg.get("strike", "")))
+./UI/components/structure_editor_dialog.py:299:            "strike":          "",
+./UI/components/structure_editor_dialog.py:360:            "strike":          self._lf_strike.get(),
+./UI/main_window.py:666:                    f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
+./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+./validators/leg_validator.py:60:        strike = getattr(leg, "strike", None)
+./validators/leg_validator.py:61:        if strike is None:
+./validators/leg_validator.py:64:                    code="missing_strike",
+./validators/leg_validator.py:65:                    field="strike",
+./validators/validators__init__.py:58:        strike = getattr(leg, "strike", None)
+./validators/validators__init__.py:59:        if strike is None:
+./validators/validators__init__.py:62:                    code="missing_strike",
+./validators/validators__init__.py:63:                    field="strike",
