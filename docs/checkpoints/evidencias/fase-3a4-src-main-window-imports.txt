@@ -1,0 +1,80 @@
+# UI/main_window.py
+#!/usr/bin/env python3
+"""
+UI Principal - Sistema de Derivados
+Carrega dados de derived.db e app.db para exibir decisões e payoffs
+"""
+from UI.models.ui_data import UIDataModel
+from UI.components.payoff_chart import PayoffChart
+from UI.components.details_panel import DetailsPanel
+from UI.components.decisions_grid import DecisionsGrid
+from UI.components.filters_panel import FiltersPanel
+from UI.components.structures_list_panel import StructuresListPanel
+from UI.components.structure_editor_dialog import StructureEditorDialog
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+from UI.debug_utils import debug, info
+import tkinter as tk
+from tkinter import ttk, messagebox
+import matplotlib.pyplot as plt
+# FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import
+from pathlib import Path
+import threading
+import time
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+class MainWindow:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Sistema de Derivados - Análise de Decisões")
+        self.root.geometry("1400x900")
+
+        # Data model
+        self.data_model = UIDataModel()
+
+        # Caminho canônico ao banco operacional (alteracao_70/71)
+        self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+
+        # Threading control: evitar freeze da UI
+        self._payoff_worker_id = 0
+
+        # Loading animation
+        self._loading_animation_active = False
+        self._loading_animation_chars = ["", "", "", "", "", "", "", "", "", ""]
+        self._loading_animation_index = 0
+        self._loading_payoff = False
+        self._stop_loading_animation()
+
+        # Última decisão selecionada (preservada entre refreshes)
+        self.last_selected_decision: Optional[Dict] = None
+
+        # Controle de recalc em andamento
+        self._recalc_in_progress = False
+
+        # Configurar layout principal
+        self._setup_layout()
+        self._setup_menus()
+        self._bind_events()
+
+        # Carregar dados iniciais
+        self.refresh_data()
+
+    def _setup_layout(self):
+        """Organiza layout em painéis."""
+        main_paned = ttk.PanedWindow(self.root, orient="horizontal")
+        main_paned.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Painel esquerdo: filtros + grid
+        left_frame = ttk.Frame(main_paned)
+        main_paned.add(left_frame, weight=1)
+
+        # Painel direito: notebook com abas
+        right_frame = ttk.Frame(main_paned)
+        main_paned.add(right_frame, weight=2)
+
+        # === PAINEL ESQUERDO ===
+        self.filters_panel = FiltersPanel(
+            parent=left_frame,
+            on_filter_change=self.on_filter_change,
+        )

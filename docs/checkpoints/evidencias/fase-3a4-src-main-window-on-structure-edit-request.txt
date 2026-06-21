@@ -1,0 +1,31 @@
+675:    def _on_structure_edit_request(self, structure_id: Optional[int]):
+676-        """Abre dialog de criação (None) ou edição (int)."""
+677-        dlg = StructureEditorDialog(
+678-            self.root,
+679-            structure_id=structure_id,
+680-            db_path=self._db_path,                            # ← usa instância
+681-        )
+682-        self.root.wait_window(dlg)
+683-        if dlg.saved:
+684-            self.structures_list.load()
+685-
+686-            try:
+687-                self.status_bar.config(text="Estrutura salva com sucesso.")
+688-            except Exception:
+689-                pass
+690-
+691-    # ------------------------------------------------------------------
+692-    # Entry point
+693-    # ------------------------------------------------------------------
+694-
+695-    def run(self):
+696-        """Inicia a aplicação."""
+697-        self.root.mainloop()
+698-
+699-def main():
+700-    """Entry point da UI."""
+701-    app = MainWindow()
+702-    app.run()
+703-
+704-if __name__ == "__main__":
+705-    main()

@@ -269,24 +269,42 @@ def save_payoff_from_canonical_payload(
     )
 
 
+
 def save_decision(
     ref: Any,
     decision: Dict[str, Any],
     timestamp: Optional[str] = None,
+    structure_id: Any = None,
 ) -> int:
     """
     alteracao_57: 'ref' aceita StructureRef, str ou None.
+
+    Fase 3A.4:
+    - Preserva structure_id explícito recebido por argumento, pelo payload
+      ou pelo meta.
+    - Só tenta resolver por storage_key/alias quando não há structure_id explícito.
     """
-    ts           = timestamp or _now_iso()
-    storage_key  = _unwrap_ref(ref) or "unknown"
-    resolved_sid = _resolve_structure_id(storage_key)
+    ts = timestamp or _now_iso()
+    storage_key = _unwrap_ref(ref) or "unknown"
+
+    explicit_sid = structure_id
+    if explicit_sid is None:
+        explicit_sid = decision.get("structure_id")
+    if explicit_sid is None:
+        explicit_sid = (decision.get("meta") or {}).get("structure_id")
+
+    resolved_sid = (
+        int(explicit_sid)
+        if explicit_sid is not None
+        else _resolve_structure_id(storage_key)
+    )
 
     enriched_decision = {
         **decision,
         "structure_id": resolved_sid,
         "meta": {
             **(decision.get("meta") or {}),
-            "storage_key":  storage_key,
+            "storage_key": storage_key,
             "structure_id": resolved_sid,
         },
     }

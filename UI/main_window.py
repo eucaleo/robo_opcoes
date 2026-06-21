@@ -681,12 +681,69 @@ Baseline: executed_v1 + baseline_v1b"""
         )
         self.root.wait_window(dlg)
         if dlg.saved:
+            saved_structure_id = getattr(dlg, "saved_structure_id", None) or structure_id
+
             self.structures_list.load()
 
             try:
                 self.status_bar.config(text="Estrutura salva com sucesso.")
             except Exception:
                 pass
+
+            if saved_structure_id is not None:
+                self._reprice_structure_after_save(int(saved_structure_id))
+
+
+    def _reprice_structure_after_save(self, structure_id: int) -> None:
+        """
+        Recalcula pricing/payoff/decisão após criação ou edição manual.
+
+        Usa thread para não congelar a UI.
+        Falhas não desfazem o cadastro da estrutura.
+        """
+
+        def _set_status(text: str) -> None:
+            try:
+                self.status_bar.config(text=text)
+            except Exception:
+                pass
+
+        def _post_status(text: str) -> None:
+            try:
+                self.root.after(0, lambda: _set_status(text))
+            except Exception:
+                _set_status(text)
+
+        sid = int(structure_id)
+        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+
+        def _worker() -> None:
+            try:
+                # Import lazy para evitar side-effects no import da UI/testes.
+                from services.canonical_pricing_facade import CanonicalPricingFacade
+
+                facade = CanonicalPricingFacade(db_path=self._db_path)
+                facade.execute_pricing(sid)
+
+                def _after_success() -> None:
+                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+                    try:
+                        self.refresh_data()
+                    except Exception:
+                        pass
+
+                try:
+                    self.root.after(0, _after_success)
+                except Exception:
+                    _after_success()
+
+            except Exception as exc:
+                _post_status(
+                    f"Estrutura {sid} salva, mas o recálculo automático falhou: {exc}"
+                )
+
+        threading.Thread(target=_worker, daemon=True).start()
+
 
     # ------------------------------------------------------------------
     # Entry point

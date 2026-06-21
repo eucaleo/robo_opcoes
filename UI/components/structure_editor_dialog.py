@@ -72,6 +72,7 @@ class StructureEditorDialog(tk.Toplevel):
         self._structure_id = structure_id
         self._db_path      = db_path
         self.saved         = False
+        self.saved_structure_id = None
         self._legs_rows: list[dict] = []
 
         # Injeta repositorio mockado em testes, ou cria o real em producao
@@ -390,28 +391,89 @@ class StructureEditorDialog(tk.Toplevel):
     # Logica de payload (pura -- testavel sem display)
     # ------------------------------------------------------------------
 
+
     def _build_legs_payload(self) -> list[dict]:
         """
-        Constroi lista de legs com leg_order sequencial a partir de 1.
+        Constrói lista de legs com leg_order sequencial a partir de 1.
 
-        Logica pura: nao modifica _legs_rows nem acessa Tk.
-        Testavel sem display (TestBuildLegsPayload no alteracao_69).
+        Regras:
+        - Não modifica self._legs_rows.
+        - Normaliza position_side legado: LONG/SHORT -> COMPRADO/VENDIDO.
+        - Aceita decimal pt-BR com vírgula em strike, premium e multiplier.
+        - Mantém premium None quando vazio.
         """
-        return [
-            {
-                **leg,
-                "position_side": normalize_position_side(
-                    leg.get("position_side", "COMPRADO")
-                ),
-                "strike": _parse_decimal(leg.get("strike"), "strike"),
-                "leg_order": i,
-            }
-            for i, leg in enumerate(self._legs_rows, 1)
-        ]
 
-    # ------------------------------------------------------------------
-    # Salvar
-    # ------------------------------------------------------------------
+        def _parse_decimal(value, field_name: str) -> float:
+            if value is None or value == "":
+                raise ValueError(f"{field_name} is required")
+
+            if isinstance(value, (int, float)):
+                return float(value)
+
+            text = str(value).strip()
+            if not text:
+                raise ValueError(f"{field_name} is required")
+
+            # Suporta "100,50" e também "1.234,56".
+            if "," in text and "." in text:
+                text = text.replace(".", "").replace(",", ".")
+            else:
+                text = text.replace(",", ".")
+
+            try:
+                return float(text)
+            except ValueError as exc:
+                raise ValueError(f"{field_name} must be numeric") from exc
+
+        def _parse_int(value, field_name: str) -> int:
+            number = _parse_decimal(value, field_name)
+            if int(number) != number:
+                raise ValueError(f"{field_name} must be integer")
+            return int(number)
+
+        def _normalize_position_side(value) -> str:
+            text = str(value or "").strip().upper()
+            mapping = {
+                "LONG": "COMPRADO",
+                "BUY": "COMPRADO",
+                "BOUGHT": "COMPRADO",
+                "COMPRADO": "COMPRADO",
+                "SHORT": "VENDIDO",
+                "SELL": "VENDIDO",
+                "SOLD": "VENDIDO",
+                "VENDIDO": "VENDIDO",
+            }
+            return mapping.get(text, text)
+
+        payload = []
+
+        for index, leg in enumerate(self._legs_rows, start=1):
+            row = dict(leg)
+
+            row["position_side"] = _normalize_position_side(
+                row.get("position_side", "COMPRADO")
+            )
+            row["strike"] = _parse_decimal(row.get("strike"), "strike")
+            row["quantity"] = _parse_int(row.get("quantity", 1), "quantity")
+
+            premium_raw = row.get("premium")
+            row["premium"] = (
+                None
+                if premium_raw in (None, "")
+                else _parse_decimal(premium_raw, "premium")
+            )
+
+            multiplier_raw = row.get("multiplier")
+            row["multiplier"] = (
+                1
+                if multiplier_raw in (None, "")
+                else _parse_decimal(multiplier_raw, "multiplier")
+            )
+
+            row["leg_order"] = index
+            payload.append(row)
+
+        return payload
 
     def _cmd_save(self):
         name       = self._f_name.get().strip()
@@ -447,6 +509,25 @@ class StructureEditorDialog(tk.Toplevel):
                 self._repo.update_structure(sid, structure_data)
                 self._repo.replace_legs(sid, legs_payload)
 
+            try:
+                if getattr(self, "_structure_id", None) is not None:
+                    self.saved_structure_id = int(self._structure_id)
+                else:
+                    _candidate_saved_structure_id = (
+                        locals().get("created_structure_id")
+                        or locals().get("new_structure_id")
+                        or locals().get("structure_id")
+                        or locals().get("sid")
+                        or locals().get("new_id")
+                        or locals().get("created_id")
+                    )
+                    self.saved_structure_id = (
+                        int(_candidate_saved_structure_id)
+                        if _candidate_saved_structure_id is not None
+                        else None
+                    )
+            except Exception:
+                self.saved_structure_id = getattr(self, "_structure_id", None)
             self.saved = True
             self.destroy()
 

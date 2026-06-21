@@ -530,3 +530,69 @@ def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
 
     assert payload[0]["strike"] == 100.0
     assert original_leg["strike"] == "100,00"
+
+# FASE_3A4_TESTS_STRUCTURE_EDITOR_DIALOG
+
+def test_build_legs_payload_normaliza_premium_com_virgula_para_float():
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "COMPRADO",
+            "option_type": "CALL",
+            "strike": "100,00",
+            "expiration_date": "2026-12-18",
+            "quantity": 1,
+            "premium": "1,25",
+            "multiplier": 1,
+            "symbol": "TESTC100",
+            "notes": None,
+        }
+    ]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["premium"] == 1.25
+    assert isinstance(payload[0]["premium"], float)
+
+
+def test_build_legs_payload_normaliza_multiplier_com_virgula_para_float():
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "COMPRADO",
+            "option_type": "CALL",
+            "strike": "100,00",
+            "expiration_date": "2026-12-18",
+            "quantity": 1,
+            "premium": None,
+            "multiplier": "100,0",
+            "symbol": "TESTC100",
+            "notes": None,
+        }
+    ]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["multiplier"] == 100.0
+    assert isinstance(payload[0]["multiplier"], float)
+
+
+def test_build_legs_payload_preserva_premium_none():
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "COMPRADO",
+            "option_type": "CALL",
+            "strike": "100,00",
+            "expiration_date": "2026-12-18",
+            "quantity": 1,
+            "premium": None,
+            "multiplier": 1,
+            "symbol": "TESTC100",
+            "notes": None,
+        }
+    ]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["premium"] is None

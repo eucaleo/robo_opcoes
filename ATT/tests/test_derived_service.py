@@ -153,3 +153,44 @@ def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
     assert captured["decision"]["meta"]["structure_name"] == "Fence"
     assert captured["decision"]["meta"]["underlying_asset"] == "VALE3"
     assert captured["decision"]["meta"]["storage_key"] == "structure:321"
+
+# FASE_3A4_TESTS_DERIVED_SERVICE
+
+def test_save_decision_preserva_structure_id_explicito_sem_alias(monkeypatch):
+    import services.derived_service as svc
+
+    captured = {}
+
+    class FakeConn:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            return False
+
+    def fake_insert_structure_decision(conn, timestamp, aba, decision_dict):
+        captured["timestamp"] = timestamp
+        captured["aba"] = aba
+        captured["decision_dict"] = decision_dict
+        return 1
+
+    monkeypatch.setattr(svc, "connect_derived", lambda: FakeConn())
+    monkeypatch.setattr(svc, "ensure_derived_tables", lambda conn: None)
+    monkeypatch.setattr(svc, "_resolve_structure_id", lambda storage_key: None)
+    monkeypatch.setattr(svc, "insert_structure_decision", fake_insert_structure_decision)
+
+    result = svc.save_decision(
+        ref="structure:7",
+        decision={
+            "structure_id": 7,
+            "decision": "hold",
+            "meta": {"source": "test"},
+        },
+        timestamp="2026-06-21T00:00:00+00:00",
+    )
+
+    assert result == 1
+    assert captured["aba"] == "structure:7"
+    assert captured["decision_dict"]["structure_id"] == 7
+    assert captured["decision_dict"]["meta"]["structure_id"] == 7
+    assert captured["decision_dict"]["meta"]["storage_key"] == "structure:7"
