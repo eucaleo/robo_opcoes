@@ -466,3 +466,67 @@ def test_build_legs_payload_normaliza_position_side_legado_long_short():
     assert payload[0]["leg_order"] == 1
     assert payload[1]["position_side"] == "VENDIDO"
     assert payload[1]["leg_order"] == 2
+
+def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "COMPRADO",
+            "option_type": "CALL",
+            "strike": "100,00",
+            "expiration_date": "2026-12-18",
+            "quantity": 1,
+            "premium": None,
+            "multiplier": 1,
+            "symbol": "TESTC100",
+            "notes": None,
+        }
+    ]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["strike"] == 100.0
+    assert isinstance(payload[0]["strike"], float)
+
+
+def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+    dlg = object.__new__(StructureEditorDialog)
+    dlg._legs_rows = [
+        {
+            "position_side": "COMPRADO",
+            "option_type": "CALL",
+            "strike": "100.50",
+            "expiration_date": "2026-12-18",
+            "quantity": 1,
+            "premium": None,
+            "multiplier": 1,
+            "symbol": "TESTC100",
+            "notes": None,
+        }
+    ]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["strike"] == 100.50
+    assert isinstance(payload[0]["strike"], float)
+
+
+def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+    dlg = object.__new__(StructureEditorDialog)
+    original_leg = {
+        "position_side": "COMPRADO",
+        "option_type": "CALL",
+        "strike": "100,00",
+        "expiration_date": "2026-12-18",
+        "quantity": 1,
+        "premium": None,
+        "multiplier": 1,
+        "symbol": "TESTC100",
+        "notes": None,
+    }
+    dlg._legs_rows = [original_leg]
+
+    payload = dlg._build_legs_payload()
+
+    assert payload[0]["strike"] == 100.0
+    assert original_leg["strike"] == "100,00"
