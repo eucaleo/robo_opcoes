@@ -1,0 +1,59 @@
+FASE 3A.4 - VALIDACAO MANUAL UI
+
+Data: 2026-06-21
+Branch: fase-3a4-auto-pricing-manual-save
+Objetivo: Validar visualmente que estrutura manual salva gera pricing, payoff e decisoes.
+
+Checklist:
+
+1. Abrir sistema pela interface.
+Status:
+Observacao:
+
+2. Cadastrar estrutura manual valida.
+Nome da estrutura:
+Ativo:
+Quantidade de legs:
+Status:
+Observacao:
+
+3. Salvar estrutura.
+ID gerado:
+Status:
+Observacao:
+
+4. Confirmar que a estrutura aparece na listagem.
+Status:
+Observacao:
+
+5. Abrir detalhes da estrutura.
+Legs exibidas corretamente:
+Status:
+Observacao:
+
+6. Verificar curva de payoff.
+Payoff exibido:
+Pontos gerados:
+Status:
+Observacao:
+
+7. Verificar busca/geracao de decisoes.
+Decisoes exibidas:
+Quantidade:
+Status:
+Observacao:
+
+8. Verificar se houve mensagem clara em caso de falha.
+Status:
+Observacao:
+
+Resultado final:
+[ ] Aprovado
+[ ] Reprovado
+[ ] Aprovado com ressalvas
+
+Evidencias complementares:
+- Print 1:
+- Print 2:
+- Log:
+- Banco/tabela:
