@@ -1,0 +1,1054 @@
+ATT/checks/check_cleanup_residuals.py:134:        normalized = path.replace("\\", "/")
+ATT/checks/check_cleanup_residuals.py:136:            if re.search(pattern, normalized):
+ATT/checks/check_cleanup_residuals.py:137:                violations.append(normalized)
+ATT/tests/test_canonical_pricing_facade.py:22:    "raw_numeric, expected",
+ATT/tests/test_canonical_pricing_facade.py:30:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+ATT/tests/test_canonical_pricing_facade.py:32:    raw_numeric,
+ATT/tests/test_canonical_pricing_facade.py:37:            spot_price=raw_numeric,
+ATT/tests/test_canonical_pricing_facade.py:41:                    "price": raw_numeric,
+ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+ATT/tests/test_derived_service.py:6:def test_now_iso_should_be_parseable_and_timezone_aware():
+ATT/tests/test_derived_service.py:8:    parsed = datetime.fromisoformat(value)
+ATT/tests/test_derived_service.py:10:    assert parsed.tzinfo is not None
+ATT/tests/test_market_snapshot_provider.py:8:def test_get_snapshot_normalizes_asset_and_uses_explicit_reference_date():
+ATT/tests/test_market_snapshot_provider.py:81:def test_get_snapshot_casts_numeric_fields_to_float():
+ATT/tests/test_position_side.py:3:from domain.position_side import normalize_position_side, to_pricing_engine_side
+ATT/tests/test_position_side.py:27:def test_normalize_position_side_accepts_aliases(raw, expected):
+ATT/tests/test_position_side.py:28:    assert normalize_position_side(raw) == expected
+ATT/tests/test_position_side.py:47:def test_normalize_position_side_rejects_invalid_values(raw):
+ATT/tests/test_position_side.py:49:        normalize_position_side(raw)
+ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+ATT/tests/test_structure_editor_dialog.py:421:            tree = ast.parse(f.read())
+ATT/tests/test_structure_editor_dialog.py:436:def test_build_legs_payload_normaliza_position_side_legado_long_short():
+ATT/tests/test_structure_editor_dialog.py:470:def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+ATT/tests/test_structure_editor_dialog.py:492:def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+ATT/tests/test_structure_editor_dialog.py:514:def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+ATT/tests/test_structure_editor_dialog.py:536:def test_build_legs_payload_normaliza_premium_com_virgula_para_float():
+ATT/tests/test_structure_editor_dialog.py:558:def test_build_legs_payload_normaliza_multiplier_com_virgula_para_float():
+ATT/tests/test_structure_editor_integration.py:338:        tree   = ast.parse(source)
+ATT/tests/test_structure_events_api.py:161:    def test_record_event_normaliza_retorno_int_para_event_id(self, client):
+ATT/tests/test_structure_events_api.py:287:    def test_cancel_event_normaliza_retorno_int(self, client):
+ATT/tests/test_structure_events_repository.py:298:        ("price", "abc", "price must be numeric when provided"),
+ATT/tests/test_structure_events_service.py:87:def test_record_event_delegates_to_repository_with_normalized_payload(service, fake_repo):
+ATT/tests/test_structure_events_service.py:246:            "price must be numeric",
+ATT/tests/test_structure_metrics.py:14:    normalize_position_side,
+ATT/tests/test_structure_metrics.py:75:def test_normalize_position_side_should_accept_legacy_cv_values():
+ATT/tests/test_structure_metrics.py:76:    assert normalize_position_side({"cv": "C"}) == "LONG"
+ATT/tests/test_structure_metrics.py:77:    assert normalize_position_side({"cv": "V"}) == "SHORT"
+ATT/tests/test_structures_api.py:566:        """underlying_asset deve ser armazenado em uppercase (normalização do repo)."""
+ATT/tests/test_structures_archive_wiring.py:106:            ast.parse(src)
+ATT/tests/test_structures_archive_wiring.py:165:            ast.parse(src)
+ATT/tests/test_structures_repository.py:41:def test_create_structure_normalizes_underlying_asset(repo):
+ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+ATT/tests/test_structures_repository.py:190:        ("multiplier", "abc", "multiplier must be numeric"),
+ATT/tests/test_ui_data_migration.py:132:    migração structure_id: structures retorna lista de str numericas; converte para int
+ATT/tests/test_ui_data_migration.py:148:    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+UI/components/structure_editor_dialog.py:38:from domain.position_side import normalize_position_side
+UI/components/structure_editor_dialog.py:41:def _parse_decimal(value, field_name: str) -> float:
+UI/components/structure_editor_dialog.py:56:        raise ValueError(f"{field_name} must be numeric") from exc
+UI/components/structure_editor_dialog.py:304:        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+UI/components/structure_editor_dialog.py:377:            "position_side":   normalize_position_side(self._lf_side.get()),
+UI/components/structure_editor_dialog.py:406:        def _parse_decimal(value, field_name: str) -> float:
+UI/components/structure_editor_dialog.py:426:                raise ValueError(f"{field_name} must be numeric") from exc
+UI/components/structure_editor_dialog.py:428:        def _parse_int(value, field_name: str) -> int:
+UI/components/structure_editor_dialog.py:429:            number = _parse_decimal(value, field_name)
+UI/components/structure_editor_dialog.py:434:        def _normalize_position_side(value) -> str:
+UI/components/structure_editor_dialog.py:453:            row["position_side"] = _normalize_position_side(
+UI/components/structure_editor_dialog.py:456:            row["strike"] = _parse_decimal(row.get("strike"), "strike")
+UI/components/structure_editor_dialog.py:457:            row["quantity"] = _parse_int(row.get("quantity", 1), "quantity")
+UI/components/structure_editor_dialog.py:463:                else _parse_decimal(premium_raw, "premium")
+UI/components/structure_editor_dialog.py:470:                else _parse_decimal(multiplier_raw, "multiplier")
+UI/models/ui_data.py:195:                "Esperado inteiro ou string numerica."
+UI/models/ui_data.py:404:        Aceita structure_id como inteiro ou string numerica ("7").
+UI/models/ui_data.py:405:        Strings nao-numericas lancam ValueError.
+api/structures_controller.py:19:from domain.position_side import normalize_position_side
+api/structures_controller.py:65:    def _normalize_position_side(cls, value):
+api/structures_controller.py:66:        return normalize_position_side(value)
+bridge_ingest_csv.py:5:import argparse
+bridge_ingest_csv.py:45:def normalize_col(col: str) -> str:
+bridge_ingest_csv.py:48:    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode("ascii")
+bridge_ingest_csv.py:137:    df.columns = [normalize_col(c) for c in df.columns]
+bridge_ingest_csv.py:220:    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
+bridge_ingest_csv.py:221:    parser.add_argument(
+bridge_ingest_csv.py:226:    parser.add_argument(
+bridge_ingest_csv.py:231:    args = parser.parse_args(argv)
+db/derived_repo.py:146:def _normalize_why_fields(
+db/derived_repo.py:643:        why, why_json = _normalize_why_fields(decision_dict)
+db/derived_repo.py:729:    why, why_json = _normalize_why_fields(decision_dict)
+db/derived_repo.py:815:    why, why_json = _normalize_why_fields(decision_dict)
+db/import_excel.py:16:def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+db/import_excel.py:96:        df = normalize_columns(df)
+db/migrations/add_structure_id_to_payoff_curve_points.py:12:import argparse
+db/migrations/add_structure_id_to_payoff_curve_points.py:126:    parser = argparse.ArgumentParser()
+db/migrations/add_structure_id_to_payoff_curve_points.py:127:    parser.add_argument("--db", default="dados/derived.db")
+db/migrations/add_structure_id_to_payoff_curve_points.py:128:    args = parser.parse_args()
+db/reader.py:30:    def _parse_json_maybe(self, value):
+db/reader.py:142:                why_series = df["why"].apply(self._parse_json_maybe)
+db/reader.py:145:                why_json_series = df["why_json"].apply(self._parse_json_maybe)
+docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:39:| Fase 2 | Correção da normalização numérica | Parcialmente concluída em strike; pendente validar preço, quantidade e fluxo completo |
+docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:63:| 5826883 | Correção | fix(editor): normalize strike decimal in legs payload | Fase 2 |
+docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:99:| Ação | Investigação e correção inicial da normalização de strike com vírgula decimal |
+docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:148:| EV-002 | Teste/print | Erro strike must be numeric com vírgula decimal | Registrado |
+docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:172:| PE-002 | Corrigir normalização numérica antes da validação | Alta | Parcialmente concluída para strike; pendente preço, quantidade e mensagens |
+docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:191:2. Retomar a Fase 2 para fechar a normalização numérica completa:
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:60:(strike must be numeric) O sistema aceita valores com ponto decimal, por exemplo:   10.50 
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:66:A validacao numerica esta usando conversao direta para float ou decimal sem normalizacao previa do formato brasileiro.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:68:Antes da validacao numerica, o sistema deve normalizar entradas monetarias e numericas aceitando:
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:74:O valor final interno deve ser convertido para formato numerico padrao do sistema.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:79:- Conversores de campos numericos.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:90:1. Erro de validacao numerica confirmado
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:92:  		strike must be numeric
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:95:Porem, apos estrutura salva ou exibida nos detalhes, o sistema apresenta os valores ja normalizados com ponto decimal, por exemplo:
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:98:- A falha esta provavelmente na validacao inicial do formulario ou no comando de aplicar/salvar leg.- O dominio ou a exibicao posterior ja consegue trabalhar com valor numerico convertido.- A correcao deve ocorrer antes da validacao "must be numeric", normalizando virgula para ponto quando aplicavel.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:100:- O botao "Aplicar Leg" deve aceitar strike e premio com virgula decimal.- O botao "Salvar" deve aceitar legs com valores digitados em formato brasileiro.- A mensagem "strike must be numeric" nao deve aparecer para valores validos como 158,00.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:311:Fase 2. Correcao da normalizacao numerica
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:313:Permitir entrada de valores numericos no formato brasileiro e no formato tecnico.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:316:2. Criar ou ajustar funcao central de normalizacao numerica.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:317:3. Aplicar a normalizacao antes da validacao.
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:335:5. Garantir normalizacao de comprado e vendido.
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:108:    em caso de falha, levanta ValueError("strike must be numeric").
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:127:    ValueError("strike must be numeric")
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:317:    Erro exibido: "strike must be numeric".
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:321:    Validar e normalizar strike antes de chamar o repositório.
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:387:1. O erro "strike must be numeric" provavelmente nasce do envio de strike vazio
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:54:33:def _normalize_position_side(raw: str) -> str:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:55:40:def _normalize_option_type(raw: str) -> str:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:65:274:def _normalize_side(value: Any) -> str:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:66:278:def _normalize_option_type(value: Any) -> str:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:92:1176:def _normalize_why_fields(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:191:121:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:219:709:    def _normalize_symbol(value: Any) -> str:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:220:715:    def _normalize_required_text(value: Any, field_name: str) -> str:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:221:724:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:226:7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:230:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:282:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:333:205:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:204:./db/derived_repo.py:643:        why, why_json = _normalize_why_fields(decision_dict)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:219:./db/derived_repo.py:729:    why, why_json = _normalize_why_fields(decision_dict)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:237:./db/derived_repo.py:815:    why, why_json = _normalize_why_fields(decision_dict)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:65:./db/derived_repo.py:643:        why, why_json = _normalize_why_fields(decision_dict)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:80:./db/derived_repo.py:729:    why, why_json = _normalize_why_fields(decision_dict)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt:98:./db/derived_repo.py:815:    why, why_json = _normalize_why_fields(decision_dict)
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:2:./ATT/tests/test_canonical_pricing_facade.py:30:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:80:./ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:146:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:269:./utils/leg_normalizers.py:140:            return FonteType.RTD
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:270:./utils/leg_normalizers.py:149:        elif value_str in ['rtd', 'real_time', 'rt', 'auto']:
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:271:./utils/leg_normalizers.py:150:            return FonteType.RTD
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:272:./utils/leg_normalizers.py:152:            return FonteType.RTD
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:21:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:144:./utils/leg_normalizers.py:140:            return FonteType.RTD
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:145:./utils/leg_normalizers.py:149:        elif value_str in ['rtd', 'real_time', 'rt', 'auto']:
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:146:./utils/leg_normalizers.py:150:            return FonteType.RTD
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:147:./utils/leg_normalizers.py:152:            return FonteType.RTD
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:6:./ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:93:./ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:94:./ATT/tests/test_structures_repository.py:190:        ("multiplier", "abc", "multiplier must be numeric"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:123:./ATT/tests/test_structure_events_repository.py:298:        ("price", "abc", "price must be numeric when provided"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:124:./ATT/tests/test_structure_events_service.py:246:            "price must be numeric",
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:165:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:178:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:181:./repositories/structures_repository.py:126:        raise ValueError("multiplier must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:182:./repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:191:./repositories/structure_events_repository.py:142:            raise ValueError("price must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:204:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:208:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:209:./services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:213:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:214:./services/structure_leg_rtd_enrichment_service.py:106:            raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:224:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:24:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:37:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:40:./repositories/structures_repository.py:126:        raise ValueError("multiplier must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:41:./repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:50:./repositories/structure_events_repository.py:142:            raise ValueError("price must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:63:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:67:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:68:./services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:72:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:73:./services/structure_leg_rtd_enrichment_service.py:106:            raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:83:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-1-trechos-atualizar-dados-runtime.txt:223:                "Esperado inteiro ou string numerica."
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:33:def _normalize_position_side(raw: str) -> str:
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:40:def _normalize_option_type(raw: str) -> str:
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:67:                position_side=_normalize_position_side(
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:70:                option_type=_normalize_option_type(
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:233:    - Montar CalculationRequest a partir de dicts ja normalizados
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:257:        """Monta CalculationRequest a partir de dicts ja normalizados."""
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:274:def _normalize_side(value: Any) -> str:
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:278:def _normalize_option_type(value: Any) -> str:
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:291:    position_side = _normalize_side(leg.get("position_side"))
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:292:    option_type = _normalize_option_type(leg.get("option_type"))
+docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt:1176:def _normalize_why_fields(
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:121:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:126:        normalized = str(value).strip().replace(",", ".")
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:127:        return float(normalized)
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:134:        parsed = _parse_br_float(value)
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:135:        if parsed is not None:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:136:            return parsed
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:162:    bid = _parse_br_float(row["bid"])
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:163:    ask = _parse_br_float(row["ask"])
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:171:        quant=_parse_br_float(row["quant"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:172:        valor_executado=_parse_br_float(row["valor_executado"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:176:        spread=_parse_br_float(row["spread"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:177:        spread_pct=_parse_br_float(row["spread_pct"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:178:        iv=_parse_br_float(row["iv"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:179:        delta=_parse_br_float(row["delta"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:180:        gamma=_parse_br_float(row["gamma"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:181:        theta=_parse_br_float(row["theta"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:182:        vega=_parse_br_float(row["vega"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:185:        dte=_parse_br_float(row["dte"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:186:        pl_realista=_parse_br_float(row["pl_realista"]),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:207:    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:637:from domain.position_side import normalize_position_side
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:654:        Campos opcionais preservados/normalizados:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:667:        symbol = self._normalize_symbol(
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:682:        position_side = normalize_position_side(leg_data.get("position_side"))
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:683:        option_type = self._normalize_required_text(
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:694:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:695:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:696:            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:702:            "underlying_asset": self._normalize_required_text(
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:709:    def _normalize_symbol(value: Any) -> str:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:715:    def _normalize_required_text(value: Any, field_name: str) -> str:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:718:        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:719:        if not normalized:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:721:        return normalized
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:724:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:728:            raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:67:        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:140:            "position_side":   normalize_position_side(self._lf_side.get()),
+docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:187:    position_side   = normalize_position_side(leg.get("position_side"))
+docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:205:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:221:        raise ValueError("multiplier must be numeric") from exc
+docs/checkpoints/evidencias/fase-12-fechamento-rota-mestre-3.md:52:- normalização de comprado/vendido;
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1:./.pytest_cache/v/cache/nodeids:219:  "ATT/tests/test_position_side.py::test_normalize_position_side_rejects_invalid_values[None]",
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:58:./ATT/checks/check_cleanup_residuals.py:134:        normalized = path.replace("\\", "/")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:120:./ATT/tests/test_derived_service.py:10:    assert parsed.tzinfo is not None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:148:./ATT/tests/test_market_snapshot_provider.py:81:def test_get_snapshot_casts_numeric_fields_to_float():
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:383:./ATT/tests/test_structure_events_api.py:287:    def test_cancel_event_normaliza_retorno_int(self, client):
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:594:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:191:121:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:602:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:221:724:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:604:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:230:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:608:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:282:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:769:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:165:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:775:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:204:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:778:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:208:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:779:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:213:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:780:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:224:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:789:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:24:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:795:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:63:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:798:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:67:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:799:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:72:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:800:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:83:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:948:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:121:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:951:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:126:        normalized = str(value).strip().replace(",", ".")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:952:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:127:        return float(normalized)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:955:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:134:        parsed = _parse_br_float(value)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:956:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:135:        if parsed is not None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:966:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:162:    bid = _parse_br_float(row["bid"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:967:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:163:    ask = _parse_br_float(row["ask"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:968:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:171:        quant=_parse_br_float(row["quant"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:969:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:172:        valor_executado=_parse_br_float(row["valor_executado"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:970:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:176:        spread=_parse_br_float(row["spread"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:971:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:177:        spread_pct=_parse_br_float(row["spread_pct"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:972:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:178:        iv=_parse_br_float(row["iv"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:973:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:179:        delta=_parse_br_float(row["delta"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:974:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:180:        gamma=_parse_br_float(row["gamma"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:975:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:181:        theta=_parse_br_float(row["theta"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:976:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:182:        vega=_parse_br_float(row["vega"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:977:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:978:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:185:        dte=_parse_br_float(row["dte"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:979:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:186:        pl_realista=_parse_br_float(row["pl_realista"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:982:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:207:    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1010:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1012:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:694:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1013:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:695:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1014:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:696:            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1019:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:718:        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1020:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:724:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1103:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:187:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:230:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1105:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:198:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:282:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1116:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:378:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:165:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1122:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:414:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:204:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1125:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:418:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:208:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1126:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:422:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:213:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1127:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:431:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:224:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1136:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:463:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:24:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1142:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:499:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:63:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1145:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:503:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:67:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1146:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:507:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:72:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1147:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:516:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:83:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1154:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:534:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1156:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:545:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1162:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:573:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:651:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1163:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:576:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1091:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1167:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:670:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2743:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1168:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:686:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3745:    71	            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1173:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:770:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1179:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:808:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1182:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:812:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1183:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:816:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1184:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:825:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1240:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:464:def _to_float(value: Any, default: float = 0.0) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1250:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:498:def _normalize_expiration_date(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1256:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:614:                            price = _to_float(row[0], 0.0)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1258:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:635:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1259:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:648:            "price":       _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1260:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:651:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1261:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:662:            "premium":         _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1266:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:678:    spot_price = _to_float(spot, 0.0)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1285:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1047:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1288:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1052:        normalized = str(value).strip().replace(",", ".")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1289:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1053:        return float(normalized)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1295:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1070:    bid = _parse_br_float(row["bid"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1296:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1071:    ask = _parse_br_float(row["ask"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1297:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1079:        quant=_parse_br_float(row["quant"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1298:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1080:        valor_executado=_parse_br_float(row["valor_executado"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1299:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1084:        spread=_parse_br_float(row["spread"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1300:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1085:        spread_pct=_parse_br_float(row["spread_pct"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1301:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1086:        iv=_parse_br_float(row["iv"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1302:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1087:        delta=_parse_br_float(row["delta"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1303:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1088:        gamma=_parse_br_float(row["gamma"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1304:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1089:        theta=_parse_br_float(row["theta"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1305:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1090:        vega=_parse_br_float(row["vega"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1306:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1091:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1307:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1093:        dte=_parse_br_float(row["dte"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1308:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1094:        pl_realista=_parse_br_float(row["pl_realista"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1314:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1166:                _parse_br_float(summary[key])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1627:./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:116:16:def _to_float_or_none(value: Any) -> float | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1629:./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:132:75:def _to_float(value: Any, default: float = 0.0) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1630:./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:133:109:def _normalize_expiration_date(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1762:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2743:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1764:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2745:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1765:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2746:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1766:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2747:            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1771:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2769:        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1772:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2775:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1815:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3745:    71	            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1817:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3747:    73	            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1818:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3748:    74	            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1819:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3749:    75	            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1824:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3771:    97	        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1825:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3777:   103	    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1890:./docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md:19:A função `_to_float()` passou a aceitar formatos numéricos comuns vindos de RTD, planilhas e fontes mistas BR/US:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1893:./docs/evolucoes de fases/3B_CLOSURE_REPORT.md:53:- `_to_float(value, field_name)`
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1910:./docs/evolucoes de fases/executed_v1.md:117:def normalize_side(cv_raw: str) -> Optional[str]:    if cv_raw is None:        return None    s = str(cv_raw).strip().upper()    if s in ("C", "COMPRA", "COMPRADO", "BUY", "B", "LONG"):        return "LONG"    if s in ("V", "VENDA", "VENDIDO", "SELL", "S", "SHORT"):        return "SHORT"    return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2056:./domain/structure_metrics.py:7:def _parse_date(value: str | None) -> date | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2061:./domain/structure_metrics.py:24:def _to_float(value: Any) -> float | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2074:./domain/structure_metrics.py:57:        value = _to_float(source.get(key))
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2087:./domain/structure_metrics.py:104:    bid_value = _to_float(bid)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2088:./domain/structure_metrics.py:105:    ask_value = _to_float(ask)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2092:./domain/structure_metrics.py:114:    bid_value = _to_float(bid)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2093:./domain/structure_metrics.py:115:    ask_value = _to_float(ask)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2097:./domain/structure_metrics.py:125:    mid_value = _to_float(mid)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2101:./domain/structure_metrics.py:136:def normalize_position_side(leg: dict[str, Any]) -> str | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2174:./repositories/market_snapshot_repository.py:120:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2177:./repositories/market_snapshot_repository.py:125:        normalized = str(value).strip().replace(",", ".")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2178:./repositories/market_snapshot_repository.py:126:        return float(normalized)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2181:./repositories/market_snapshot_repository.py:133:        parsed = _parse_br_float(value)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2182:./repositories/market_snapshot_repository.py:134:        if parsed is not None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2192:./repositories/market_snapshot_repository.py:161:    bid = _parse_br_float(row["bid"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2193:./repositories/market_snapshot_repository.py:162:    ask = _parse_br_float(row["ask"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2194:./repositories/market_snapshot_repository.py:170:        quant=_parse_br_float(row["quant"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2195:./repositories/market_snapshot_repository.py:171:        valor_executado=_parse_br_float(row["valor_executado"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2196:./repositories/market_snapshot_repository.py:175:        spread=_parse_br_float(row["spread"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2197:./repositories/market_snapshot_repository.py:176:        spread_pct=_parse_br_float(row["spread_pct"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2198:./repositories/market_snapshot_repository.py:177:        iv=_parse_br_float(row["iv"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2199:./repositories/market_snapshot_repository.py:178:        delta=_parse_br_float(row["delta"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2200:./repositories/market_snapshot_repository.py:179:        gamma=_parse_br_float(row["gamma"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2201:./repositories/market_snapshot_repository.py:180:        theta=_parse_br_float(row["theta"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2202:./repositories/market_snapshot_repository.py:181:        vega=_parse_br_float(row["vega"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2203:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2204:./repositories/market_snapshot_repository.py:184:        dte=_parse_br_float(row["dte"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2205:./repositories/market_snapshot_repository.py:185:        pl_realista=_parse_br_float(row["pl_realista"]),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2208:./repositories/market_snapshot_repository.py:206:    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2226:./repositories/market_snapshot_repository.py:383:                _parse_br_float(summary[key])
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2276:./repositories/robo_legs_repository.py:193:            vencimento=parse_vencimento(venc) if venc is not None else None,
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2288:./repositories/robo_legs_status_repository.py:61:        m = parse_timestamp(row_m["ts"]) if row_m and row_m["ts"] else None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2289:./repositories/robo_legs_status_repository.py:62:        r = parse_timestamp(row_r["ts"]) if row_r and row_r["ts"] else None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2357:./repositories/structure_events_repository.py:73:def _normalize_optional_text(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2360:./repositories/structure_events_repository.py:76:    normalized = str(value).strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2361:./repositories/structure_events_repository.py:77:    return normalized or None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2401:./repositories/structure_events_repository.py:382:            final_notes = normalized_notes if normalized_notes is not None else current["notes"]
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2558:./scripts/check_rota_desenvolvimento.py:361:        print("Pernas normalizadas por estrutura 44-48:")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2778:./services/canonical_pricing_facade.py:75:def _to_float(value: Any, default: float = 0.0) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2788:./services/canonical_pricing_facade.py:109:def _normalize_expiration_date(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2794:./services/canonical_pricing_facade.py:225:                            price = _to_float(row[0], 0.0)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2796:./services/canonical_pricing_facade.py:246:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2797:./services/canonical_pricing_facade.py:259:            "price":       _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2798:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2799:./services/canonical_pricing_facade.py:273:            "premium":         _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2804:./services/canonical_pricing_facade.py:289:    spot_price = _to_float(spot, 0.0)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3060:./services/robo_leg_mapper.py:29:def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3066:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3094:./services/structure_events_service.py:100:    def _normalize_optional_text(self, value: str | None) -> str | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3097:./services/structure_events_service.py:104:        normalized = str(value).strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3098:./services/structure_events_service.py:105:        return normalized or None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3156:./services/structure_input_mapper.py:18:def _to_float_or_none(value: Any) -> float | None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3168:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3170:./services/structure_leg_rtd_enrichment_service.py:72:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3171:./services/structure_leg_rtd_enrichment_service.py:73:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3172:./services/structure_leg_rtd_enrichment_service.py:74:            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3177:./services/structure_leg_rtd_enrichment_service.py:96:        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3178:./services/structure_leg_rtd_enrichment_service.py:102:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3430:./utils/leg_normalizers.py:12:    def normalize_call_put(value: Union[str, int, None]) -> CallPutType:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3431:./utils/leg_normalizers.py:14:        if value is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3432:./utils/leg_normalizers.py:15:            raise ValueError("call_put não pode ser None")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3433:./utils/leg_normalizers.py:17:        value_str = str(value).upper().strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3434:./utils/leg_normalizers.py:30:    def normalize_cv(value: Union[str, int, None]) -> CVType:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3435:./utils/leg_normalizers.py:32:        if value is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3436:./utils/leg_normalizers.py:33:            raise ValueError("cv não pode ser None")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3437:./utils/leg_normalizers.py:35:        value_str = str(value).upper().strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3438:./utils/leg_normalizers.py:64:        if value is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3439:./utils/leg_normalizers.py:65:            return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3440:./utils/leg_normalizers.py:68:            serial = float(value)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3441:./utils/leg_normalizers.py:72:            raw = value.strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3442:./utils/leg_normalizers.py:74:                return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3443:./utils/leg_normalizers.py:78:                return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3444:./utils/leg_normalizers.py:80:            raw_num = raw.replace(",", ".")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3445:./utils/leg_normalizers.py:82:                serial = float(raw_num)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3446:./utils/leg_normalizers.py:85:                return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3447:./utils/leg_normalizers.py:87:        return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3448:./utils/leg_normalizers.py:90:    def parse_timestamp(value: Union[str, int, float, datetime, pd.Timestamp, None]) -> datetime:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3449:./utils/leg_normalizers.py:92:        if value is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3450:./utils/leg_normalizers.py:93:            raise ValueError("timestamp não pode ser None")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3451:./utils/leg_normalizers.py:103:        if excel_dt is not None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3452:./utils/leg_normalizers.py:107:            raw = value.strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3453:./utils/leg_normalizers.py:132:    def parse_vencimento(value: Union[str, int, float, datetime, pd.Timestamp, None]) -> datetime:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3454:./utils/leg_normalizers.py:137:    def normalize_fonte(value: Union[str, FonteType, None]) -> FonteType:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3455:./utils/leg_normalizers.py:139:        if value is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3456:./utils/leg_normalizers.py:145:        value_str = str(value).lower().strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3457:./utils/leg_normalizers.py:155:    def from_dict(cls, data: dict, fonte: Optional[FonteType] = None) -> RoboLegDTO:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3458:./utils/leg_normalizers.py:159:            'aba': str(data.get('aba', '')).strip(),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3459:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3460:./utils/leg_normalizers.py:164:            'quant': int(data.get('quant', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3461:./utils/leg_normalizers.py:165:            'ativo': str(data.get('ativo', '')).strip().upper(),
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3462:./utils/leg_normalizers.py:172:            if field in data and data[field] is not None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:3463:./utils/leg_normalizers.py:181:    def from_dataframe_row(cls, row: pd.Series, fonte: Optional[FonteType] = None) -> RoboLegDTO:
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:5:ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:138:ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:200:repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:213:repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:237:services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:241:services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:245:services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-editor-dialog.txt:246:utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:10:./.pytest_cache/v/cache/nodeids:320:  "ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd",
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:52:./ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:118:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:226:7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:130:./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:80:./ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:145:./docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:146:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:166:./docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:21:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:185:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:7:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:210:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:565:./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:5:- Identificar onde o strike é recebido, validado, normalizado e usado.
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:212:./docs/checkpoints/evidencias/fase-2a-grep-strike.txt:737:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:226:./docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:104:ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:292:./docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:105:ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:353:./docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:119:ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd PASSED [ 50%]
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:497:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:532:./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:602:./utils/leg_normalizers.py:147:        if value_str in ['manual', 'man', 'm']:
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:5:ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:100:ATT/tests/test_structure_editor_dialog.py:436:def test_build_legs_payload_normaliza_position_side_legado_long_short():
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:137:ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:185:repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:198:repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:221:services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:225:services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:229:services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike-python-focado.txt:230:utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:4:./.pytest_cache/v/cache/nodeids:676:  "ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]",
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:10:./ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:97:./ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:163:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:108:    em caso de falha, levanta ValueError("strike must be numeric").
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:167:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:127:    ValueError("strike must be numeric")
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:174:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:317:    Erro exibido: "strike must be numeric".
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:175:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:321:    Validar e normalizar strike antes de chamar o repositório.
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:176:./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:387:1. O erro "strike must be numeric" provavelmente nasce do envio de strike vazio
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:187:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:230:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:198:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:282:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:206:./docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:333:205:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:222:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:6:./ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:309:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:93:./ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:378:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:165:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:391:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:178:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:414:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:204:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:418:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:208:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:422:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:213:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:431:./docs/checkpoints/evidencias/fase-1-mapa-strike-codigo-atual.txt:224:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:463:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:24:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:476:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:37:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:499:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:63:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:503:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:67:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:507:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:72:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:516:./docs/checkpoints/evidencias/fase-1-mapa-strike-runtime-codigo-atual.txt:83:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:534:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:183:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:545:./docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt:692:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:552:./docs/checkpoints/evidencias/fase-1-trechos-strike-runtime.txt:205:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:565:./docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:5:- Identificar onde o strike é recebido, validado, normalizado e usado.
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:573:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:651:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:576:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1091:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:584:./docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1847:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:599:./docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:210:ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:628:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:713:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:638:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1292:./.pytest_cache/v/cache/nodeids:639:  "ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]",
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:650:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1811:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:670:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2743:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:686:./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3745:    71	            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:719:./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:85:| EV-002 | Teste/print | Erro strike must be numeric com vírgula decimal | Registrado |
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:734:./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:381:- `strike` e `vencimento` podem alimentar os campos normalizados de perna.
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:737:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:35:1-	Erro ao adicionar manualmente uma estrutura (strike most be numeric) não aceita virgula como separador decimal, aceitando apenas ponto
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:738:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:60:(strike must be numeric) O sistema aceita valores com ponto decimal, por exemplo:   10.50 
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:742:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:92:  		strike must be numeric
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:743:./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:100:- O botao "Aplicar Leg" deve aceitar strike e premio com virgula decimal.- O botao "Salvar" deve aceitar legs com valores digitados em formato brasileiro.- A mensagem "strike must be numeric" nao deve aparecer para valores validos como 158,00.
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:770:./repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:783:./repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:808:./services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:812:./services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:816:./services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:825:./utils/leg_normalizers.py:163:            'strike': float(data.get('strike', 0)),
+docs/checkpoints/evidencias/fase-2a-repro-strike-fluxo-manual.txt:5:- Identificar onde o strike é recebido, validado, normalizado e usado.
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:3:_______ test_build_legs_payload_normaliza_strike_com_virgula_para_float _______
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:5:    def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:27:________ test_build_legs_payload_normaliza_strike_com_ponto_para_float ________
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:29:    def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:51:_____ test_build_legs_payload_nao_modifica_strike_original_ao_normalizar ______
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:53:    def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:75:FAILED ATT/tests/test_structure_editor_dialog.py::test_build_legs_payload_normaliza_strike_com_virgula_para_float
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:76:FAILED ATT/tests/test_structure_editor_dialog.py::test_build_legs_payload_normaliza_strike_com_ponto_para_float
+docs/checkpoints/evidencias/fase-2b-pytest-editor-strike-regressao-red.txt:77:FAILED ATT/tests/test_structure_editor_dialog.py::test_build_legs_payload_nao_modifica_strike_original_ao_normalizar
+docs/checkpoints/evidencias/fase-3a-find-arquivos-estrutura-payoff-decisoes.txt:187:./utils/__pycache__/leg_normalizers.cpython-313.pyc
+docs/checkpoints/evidencias/fase-3a-find-arquivos-estrutura-payoff-decisoes.txt:188:./utils/leg_normalizers.py
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:46:ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:324:ATT/tests/test_position_side.py:47:def test_normalize_position_side_rejects_invalid_values(raw):
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:930:ATT/tests/test_structure_editor_dialog.py:470:def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:937:ATT/tests/test_structure_editor_dialog.py:492:def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:944:ATT/tests/test_structure_editor_dialog.py:514:def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:1383:ATT/tests/test_structures_api.py:566:        """underlying_asset deve ser armazenado em uppercase (normalização do repo)."""
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:1485:ATT/tests/test_structures_repository.py:41:def test_create_structure_normalizes_underlying_asset(repo):
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:1523:ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:1609:ATT/tests/test_ui_data_migration.py:132:    migração structure_id: structures retorna lista de str numericas; converte para int
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:1615:ATT/tests/test_ui_data_migration.py:148:    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:1768:UI/components/structure_editor_dialog.py:406:                "strike": _parse_decimal(leg.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2055:domain/position_side.py:56:    canonical = normalize_position_side(value)
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2058:domain/structure_metrics.py:75:    exp = _parse_date(expiration_date)
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2103:repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2147:repositories/robo_legs_repository.py:181:        canonical_side = normalize_position_side(cv_raw)
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2283:repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2293:repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2521:services/canonical_pricing_facade.py:109:def _normalize_expiration_date(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2529:services/canonical_pricing_facade.py:246:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2535:services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2536:services/canonical_pricing_facade.py:273:            "premium":         _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2537:services/canonical_pricing_facade.py:274:            "expiration_date": _normalize_expiration_date(raw_expiry),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2648:services/derived_service.py:470:                        sid = parsed.get("structure_id")
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:2859:services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:3018:services/structure_leg_rtd_enrichment_service.py:61:        option_type = self._normalize_required_text(
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:3019:services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:3021:services/structure_leg_rtd_enrichment_service.py:72:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:3022:services/structure_leg_rtd_enrichment_service.py:73:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:3023:services/structure_leg_rtd_enrichment_service.py:80:            "underlying_asset": self._normalize_required_text(
+docs/checkpoints/evidencias/fase-3a-gitgrep-validacoes-filtros.txt:3024:services/structure_leg_rtd_enrichment_service.py:93:    def _normalize_required_text(value: Any, field_name: str) -> str:
+docs/checkpoints/evidencias/fase-3a-gitls-arquivos-estrutura-payoff-decisoes.txt:84:utils/leg_normalizers.py
+docs/checkpoints/evidencias/fase-3a-grep-decisoes.txt:205:ATT/checks/check_cleanup_residuals.py:136:            if re.search(pattern, normalized):
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:345:UI/models/ui_data.py:404:        Aceita structure_id como inteiro ou string numerica ("7").
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:735:services/derived_service.py:470:                        sid = parsed.get("structure_id")
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1132:repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1265:repositories/structures_repository.py:60:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1291:repositories/structures_repository.py:307:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1303:repositories/structures_repository.py:356:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1338:repositories/structures_repository.py:511:        payload = _normalize_structure_payload(merged)
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1405:repositories/structure_events_repository.py:92:def _normalize_event_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1442:repositories/structure_events_repository.py:307:        event = _normalize_event_payload(data)
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1534:domain/calculation_request.py:141:    legs              : pernas já normalizadas
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:1769:ATT/tests/test_canonical_pricing_facade.py:30:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:2442:ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:2850:ATT/tests/test_structures_repository.py:41:def test_create_structure_normalizes_underlying_asset(repo):
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3107:ATT/tests/test_structure_editor_dialog.py:436:def test_build_legs_payload_normaliza_position_side_legado_long_short():
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3114:ATT/tests/test_structure_editor_dialog.py:470:def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3119:ATT/tests/test_structure_editor_dialog.py:492:def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3124:ATT/tests/test_structure_editor_dialog.py:514:def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3446:ATT/tests/test_structure_events_service.py:87:def test_record_event_delegates_to_repository_with_normalized_payload(service, fake_repo):
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3654:ATT/tests/test_ui_data_migration.py:132:    migração structure_id: structures retorna lista de str numericas; converte para int
+docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:3661:ATT/tests/test_ui_data_migration.py:148:    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+docs/checkpoints/evidencias/fase-3a-src-domain-payoff.txt:11:def _normalize_side(value: Any) -> str:
+docs/checkpoints/evidencias/fase-3a-src-domain-payoff.txt:15:def _normalize_option_type(value: Any) -> str:
+docs/checkpoints/evidencias/fase-3a-src-domain-payoff.txt:28:    position_side = _normalize_side(leg.get("position_side"))
+docs/checkpoints/evidencias/fase-3a-src-domain-payoff.txt:29:    option_type = _normalize_option_type(leg.get("option_type"))
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-1.txt:38:from domain.position_side import normalize_position_side
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-1.txt:41:def _parse_decimal(value, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-1.txt:56:        raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-2.txt:44:        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-2.txt:117:            "position_side":   normalize_position_side(self._lf_side.get()),
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-2.txt:144:                "position_side": normalize_position_side(
+docs/checkpoints/evidencias/fase-3a-src-structure-editor-dialog-parte-2.txt:147:                "strike": _parse_decimal(leg.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-3a-src-structure-input-mapper.txt:3:from domain.position_side import normalize_position_side
+docs/checkpoints/evidencias/fase-3a-src-structure-input-mapper.txt:18:def _to_float_or_none(value: Any) -> float | None:
+docs/checkpoints/evidencias/fase-3a-src-structure-input-mapper.txt:29:    bid = _to_float_or_none(mapped_leg.get("bid"))
+docs/checkpoints/evidencias/fase-3a-src-structure-input-mapper.txt:30:    ask = _to_float_or_none(mapped_leg.get("ask"))
+docs/checkpoints/evidencias/fase-3a-src-structure-input-mapper.txt:53:        "position_side": normalize_position_side(leg["position_side"]),
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:23:from domain.position_side import CANONICAL_POSITION_SIDES, normalize_position_side
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:37:# Helpers de validação / normalização (funções puras, sem I/O)
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:51:        parsed = datetime.strptime(value, "%Y-%m-%d")
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:57:    return parsed.strftime("%Y-%m-%d")
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:60:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:92:    position_side   = normalize_position_side(leg.get("position_side"))
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:110:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:126:        raise ValueError("multiplier must be numeric") from exc
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:144:            raise ValueError("premium must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-1.txt:307:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-2.txt:37:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-3a-src-structures-repository-parte-2.txt:192:        payload = _normalize_structure_payload(merged)
+docs/checkpoints/evidencias/fase-3a-test-structures-repository.txt:41:def test_create_structure_normalizes_underlying_asset(repo):
+docs/checkpoints/evidencias/fase-3a-test-structures-repository.txt:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-3a-test-structures-repository.txt:190:        ("multiplier", "abc", "multiplier must be numeric"),
+docs/checkpoints/evidencias/fase-3a2-src-domain-payoff.txt:11:def _normalize_side(value: Any) -> str:
+docs/checkpoints/evidencias/fase-3a2-src-domain-payoff.txt:15:def _normalize_option_type(value: Any) -> str:
+docs/checkpoints/evidencias/fase-3a2-src-domain-payoff.txt:28:    position_side = _normalize_side(leg.get("position_side"))
+docs/checkpoints/evidencias/fase-3a2-src-domain-payoff.txt:29:    option_type = _normalize_option_type(leg.get("option_type"))
+docs/checkpoints/evidencias/fase-3a2-src-editor-save-build-legs.txt:64:        self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+docs/checkpoints/evidencias/fase-3a2-src-editor-save-build-legs.txt:137:            "position_side":   normalize_position_side(self._lf_side.get()),
+docs/checkpoints/evidencias/fase-3a2-src-editor-save-build-legs.txt:164:                "position_side": normalize_position_side(
+docs/checkpoints/evidencias/fase-3a2-src-editor-save-build-legs.txt:167:                "strike": _parse_decimal(leg.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-3a2-src-structures-repository-mutacoes.txt:68:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-3a2-src-structures-repository-mutacoes.txt:117:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-3a2-src-structures-repository-mutacoes.txt:272:        payload = _normalize_structure_payload(merged)
+docs/checkpoints/evidencias/fase-3a3-src-derived-service-parte-2.txt:90:                        parsed = json.loads(raw) if isinstance(raw, str) else raw
+docs/checkpoints/evidencias/fase-3a3-src-derived-service-parte-2.txt:91:                        sid = parsed.get("structure_id")
+docs/checkpoints/evidencias/fase-3a3-test-structure-editor-dialog.txt:421:            tree = ast.parse(f.read())
+docs/checkpoints/evidencias/fase-3a3-test-structure-editor-dialog.txt:436:def test_build_legs_payload_normaliza_position_side_legado_long_short():
+docs/checkpoints/evidencias/fase-3a3-test-structure-editor-dialog.txt:470:def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+docs/checkpoints/evidencias/fase-3a3-test-structure-editor-dialog.txt:492:def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+docs/checkpoints/evidencias/fase-3a3-test-structure-editor-dialog.txt:514:def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+docs/checkpoints/evidencias/fase-3a3-test-structure-editor-integration.txt:338:        tree   = ast.parse(source)
+docs/checkpoints/evidencias/fase-3a3-test-structures-repository.txt:41:def test_create_structure_normalizes_underlying_asset(repo):
+docs/checkpoints/evidencias/fase-3a3-test-structures-repository.txt:187:        ("strike", "abc", "strike must be numeric"),
+docs/checkpoints/evidencias/fase-3a3-test-structures-repository.txt:190:        ("multiplier", "abc", "multiplier must be numeric"),
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:34:-                "position_side": normalize_position_side(
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:37:-                "strike": _parse_decimal(leg.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:40:+        def _parse_decimal(value, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:60:+                raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:62:+        def _parse_int(value, field_name: str) -> int:
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:63:+            number = _parse_decimal(value, field_name)
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:68:+        def _normalize_position_side(value) -> str:
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:92:+            row["position_side"] = _normalize_position_side(
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:95:+            row["strike"] = _parse_decimal(row.get("strike"), "strike")
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:96:+            row["quantity"] = _parse_int(row.get("quantity", 1), "quantity")
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:102:+                else _parse_decimal(premium_raw, "premium")
+docs/checkpoints/evidencias/fase-3a4-diff-structure-editor-dialog.txt:109:+                else _parse_decimal(multiplier_raw, "multiplier")
+docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:7:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[R$ 1.234,56-1234.56]
+docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:8:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[1.234,56-1234.56]
+docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:9:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[1,234.56-1234.56]
+docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:10:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[R$ 124,66-124.66]
+docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt:104:ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:9:5c88db8 docs: record full regression for position side normalization
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:11:2168e34 docs: close position side normalization stage
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:12:ba59be9 refactor: centralize calculation position side normalization
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:98:ATT/tests/test_structure_editor_integration.py:338:        tree   = ast.parse(source)
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:382:            parsed = datetime.strptime(reference_date, "%Y-%m-%d")
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:386:        if parsed.strftime("%Y-%m-%d") != reference_date:
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:464:def _to_float(value: Any, default: float = 0.0) -> float:
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:498:def _normalize_expiration_date(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:614:                            price = _to_float(row[0], 0.0)
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:635:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:648:            "price":       _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:651:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:662:            "premium":         _to_float(raw_price, 0.0),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:663:            "expiration_date": _normalize_expiration_date(raw_expiry),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:678:    spot_price = _to_float(spot, 0.0)
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:938:normaliza os campos e retorna objetos LegMarketSnapshot prontos para uso.
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1047:def _parse_br_float(value) -> Optional[float]:
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1052:        normalized = str(value).strip().replace(",", ".")
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1053:        return float(normalized)
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1070:    bid = _parse_br_float(row["bid"])
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1071:    ask = _parse_br_float(row["ask"])
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1079:        quant=_parse_br_float(row["quant"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1080:        valor_executado=_parse_br_float(row["valor_executado"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1084:        spread=_parse_br_float(row["spread"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1085:        spread_pct=_parse_br_float(row["spread_pct"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1086:        iv=_parse_br_float(row["iv"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1087:        delta=_parse_br_float(row["delta"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1088:        gamma=_parse_br_float(row["gamma"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1089:        theta=_parse_br_float(row["theta"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1090:        vega=_parse_br_float(row["vega"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1091:        strike=_parse_br_float(row["strike"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1093:        dte=_parse_br_float(row["dte"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1094:        pl_realista=_parse_br_float(row["pl_realista"]),
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1166:                _parse_br_float(summary[key])
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1826:    "raw_numeric, expected",
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1834:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1836:    raw_numeric,
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1841:            spot_price=raw_numeric,
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1845:                    "price": raw_numeric,
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt:1847:                    "strike": raw_numeric,
+docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:33:ATT/tests/test_canonical_pricing_facade.py:30:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:51:FunctionDef: _to_float linha 75
+docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:52:FunctionDef: _normalize_expiration_date linha 109
+docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:73:ATT/tests/test_canonical_pricing_facade.py:30:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt:105:ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+docs/checkpoints/evidencias/fase-6-8-pytest-guardrail-matriz-diagnostico-rtd.txt:30:- normalizacao de preco BR
+docs/checkpoints/evidencias/fase-6-8-pytest-guardrail-matriz-diagnostico-rtd.txt:31:- normalizacao de vencimento
+docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:46:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[R$ 1.234,56-1234.56] PASSED [  9%]
+docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:47:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[1.234,56-1234.56] PASSED [ 18%]
+docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:48:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[1,234.56-1234.56] PASSED [ 27%]
+docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:49:ATT/tests/test_canonical_pricing_facade.py::test_snapshot_result_to_payload_normalizes_common_rtd_number_formats[R$ 124,66-124.66] PASSED [ 36%]
+docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt:119:ATT/tests/test_robo_legs_status_repository.py::test_latest_timestamps_returns_parsed_manual_and_rtd PASSED [ 50%]
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:49:docs/baseline_v1a.md:61:-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:226:docs/fase_8_banco_fonte_verdade_auditoria.md:251:- A próxima ação técnica deve mapear como as estruturas existentes em structures se relacionam com rtd_analise_robo_legs e como esse vínculo pode ser migrado ou normalizado sem corromper dados.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:272:docs/validacoes/fase-15-validacao-integrada.md:104:- pernas normalizadas para estruturas 44-48 presentes em `structure_legs`.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:371:./utils/leg_normalizers.py
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1117:ATT/tests/test_ui_data_migration.py:132:    migração structure_id: structures retorna lista de str numericas; converte para int
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1124:ATT/tests/test_ui_data_migration.py:148:    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1308:UI/models/ui_data.py:404:        Aceita structure_id como inteiro ou string numerica ("7").
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1641:docs/baseline_v1a.md:61:-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1682:docs/fase_8_banco_fonte_verdade_auditoria.md:251:- A próxima ação técnica deve mapear como as estruturas existentes em structures se relacionam com rtd_analise_robo_legs e como esse vínculo pode ser migrado ou normalizado sem corromper dados.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1732:docs/validacoes/fase-15-validacao-integrada.md:104:- pernas normalizadas para estruturas 44-48 presentes em `structure_legs`.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:2196:services/derived_service.py:470:                        sid = parsed.get("structure_id")
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:2217:services/legacy_structure_legs_importer.py:6:Importa pernas legadas ja normalizadas pelo LegacyStructureLegsReader
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:45:58:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:116:16:def _to_float_or_none(value: Any) -> float | None:
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:132:75:def _to_float(value: Any, default: float = 0.0) -> float:
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:133:109:def _normalize_expiration_date(value: Any) -> str | None:
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:196:ATT/tests/test_structures_repository.py::test_create_structure_normalizes_underlying_asset
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:210:ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]
+docs/checkpoints/evidencias/fase-8-mapa-impacto-cadastro-estruturas-leg-minima.txt:213:ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[multiplier-abc-multiplier must be numeric]
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:163:    normalize_position_side
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:174:- passou a normalizar via normalize_position_side;
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:185:- _validate_leg passou a normalizar position_side;
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:196:- enrichment passou a normalizar position_side usando o normalizador central;
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:258:- normalização central de position_side;
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:275:58:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:640:# Helpers de validação / normalização (funções puras, sem I/O)
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:654:        parsed = datetime.strptime(value, "%Y-%m-%d")
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:660:    return parsed.strftime("%Y-%m-%d")
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:663:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:713:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:729:        raise ValueError("multiplier must be numeric") from exc
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:763:        payload = _normalize_structure_payload(data)
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:918:        payload = _normalize_structure_payload(merged)
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1287:./.pytest_cache/v/cache/nodeids:634:  "ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[multiplier-abc-multiplier must be numeric]",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1292:./.pytest_cache/v/cache/nodeids:639:  "ATT/tests/test_structures_repository.py::test_add_leg_validates_fields[strike-abc-strike must be numeric]",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1375:./.pytest_cache/v/cache/nodeids:93:  "ATT/tests/test_import_rtd_links_to_option_quotes.py::test_load_and_normalize_vertical_csv",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1376:./.pytest_cache/v/cache/nodeids:94:  "ATT/tests/test_import_rtd_links_to_option_quotes.py::test_normalize_call_put_accepts_aliases",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1377:./.pytest_cache/v/cache/nodeids:95:  "ATT/tests/test_import_rtd_links_to_option_quotes.py::test_parse_br_number_accepts_common_br_and_us_formats",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1388:./.pytest_cache/v/cache/nodeids:303:  "ATT/tests/test_run_rtd_option_quotes_pipeline.py::test_main_parses_arguments_and_runs_pipeline",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1738:# Helpers de validação / normalização (funções puras, sem I/O)
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1752:        parsed = datetime.strptime(value, "%Y-%m-%d")
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1758:    return parsed.strftime("%Y-%m-%d")
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1761:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1811:        raise ValueError("strike must be numeric") from exc
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1827:        raise ValueError("multiplier must be numeric") from exc
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1845:            raise ValueError("premium must be numeric when provided") from exc
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2702:        Campos opcionais preservados/normalizados:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2715:        symbol = self._normalize_symbol(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2730:        position_side = self._normalize_required_text(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2734:        option_type = self._normalize_required_text(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2743:            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2745:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2746:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2747:            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2753:            "underlying_asset": self._normalize_required_text(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2760:    def _normalize_symbol(value: Any) -> str:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2766:    def _normalize_required_text(value: Any, field_name: str) -> str:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2769:        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2770:        if not normalized:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2772:        return normalized
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2775:    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:2779:            raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3704:    30	        Campos opcionais preservados/normalizados:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3717:    43	        symbol = self._normalize_symbol(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3732:    58	        position_side = self._normalize_required_text(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3736:    62	        option_type = self._normalize_required_text(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3745:    71	            "strike": self._to_float(quote.get("strike"), "strike"),
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3747:    73	            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3748:    74	            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3749:    75	            "multiplier": self._to_float(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3755:    81	            "underlying_asset": self._normalize_required_text(
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3762:    88	    def _normalize_symbol(value: Any) -> str:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3768:    94	    def _normalize_required_text(value: Any, field_name: str) -> str:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3771:    97	        normalized = str(value).strip().upper()
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3772:    98	        if not normalized:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3774:   100	        return normalized
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3777:   103	    def _to_float(value: Any, field_name: str) -> float:
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:3781:   107	            raise ValueError(f"{field_name} must be numeric") from exc
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:367:    assert import_stats.options_normalized == 1
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:367:    assert import_stats.options_normalized == 1
+docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md:21:3. Preços em formato brasileiro são normalizados.
+docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md:22:4. expiration_date é normalizada para data ISO.
+docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md:5:Robustecer a normalização numérica usada pela fachada canônica de pricing RTD, preservando o contrato do payload protegido pelos guardrails da Fase 6.8.
+docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md:19:A função `_to_float()` passou a aceitar formatos numéricos comuns vindos de RTD, planilhas e fontes mistas BR/US:
+docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md:26:A normalização preserva compatibilidade com os formatos já suportados e mantém retorno default em caso de valor inválido.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:1:# 10.1_normalizacao_comprado_vendido
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:26:A fonte única para normalização semântica de lado da posição é:
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:32:    normalize_position_side(value) -> COMPRADO/VENDIDO
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:39:- Evitar normalizadores paralelos.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:41:- Aliases legados podem ser aceitos na entrada, mas devem ser normalizados imediatamente.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:56:- Trocar upper-case simples por normalização semântica.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:86:- Salvar payload normalizado.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:101:- Remover normalizações manuais duplicadas.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:120:- Reduzir normalizadores paralelos.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:139:- Entrada/canonical de estrutura normalizada para `COMPRADO` / `VENDIDO`.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:150:- `domain/position_side.py`: fonte única de normalização e conversão.
+docs/evolucoes de fases/10.1_normalizacao_comprado_vendido.md:156:- `utils/leg_normalizers.py`: utilitário legado mantido por compatibilidade; não alterado nesta etapa para evitar impacto fora do fluxo 10.1.
+docs/evolucoes de fases/3B_CLOSURE_REPORT.md:53:- `_to_float(value, field_name)`
+docs/evolucoes de fases/3B_CLOSURE_REPORT.md:62:- `ativo` -> `symbol` normalizado em uppercase/trim
+docs/evolucoes de fases/3B_CLOSURE_REPORT.md:80:- `_parse_date(value)`
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:512:## Validação integrada do marco 10.1 — normalização COMPRADO/VENDIDO
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:521:Registrar a validação regressiva após fechamento e tag do marco de normalização de lado da posição.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:524:5c88db8 docs: record full regression for position side normalization
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:525:fase-10.1-position-side-normalization-closed
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:528:- docs/10.1_normalizacao_comprado_vendido.md
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:537:    git tag --list "fase-10.1-position-side-normalization-closed"
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:551:  - fase-10.1-position-side-normalization-closed
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:576:- 5c88db8 docs: record full regression for position side normalization
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:63:Devem alimentar repositórios, snapshots ou processos de normalização.
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:280:| `rtd_option_quotes` | entrada bruta | tratar como cotação importada/normalizada |
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:357:entrada bruta     -> importar, normalizar e não usar como cadastro canônico
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:120:bridge_ingest_csv.py:220:    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:153:utils/leg_normalizers.py:50:        Converte serial date do Excel para datetime.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:154:utils/leg_normalizers.py:51:        Base prática compatível com pandas/openpyxl:
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:155:utils/leg_normalizers.py:59:        Tenta interpretar value como serial do Excel.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:156:utils/leg_normalizers.py:91:        """Parser robusto para timestamp, incluindo serial Excel."""
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:157:utils/leg_normalizers.py:101:        # tenta serial Excel cedo, antes do pandas genérico
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:299:utils/leg_normalizers.py
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:313:- `utils/leg_normalizers.py` converte serial date do Excel, mas não lê Excel.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:215:utils/leg_normalizers.py
+docs/evolucoes de fases/baseline_v1.md:127:Responsável por conectar no Excel via COM, identificar abas de ativos automaticamente, ler a tabela (header linha 1, dados linha 2, até 10 linhas), normalizar valores e produzir um "snapshot".
+docs/evolucoes de fases/baseline_v1.md:137:*	normalize_cell(value)
+docs/evolucoes de fases/baseline_v1.md:434:mas não são combinados com `pl_max` do payoff sem normalização.
+docs/evolucoes de fases/baseline_v1.md:577:*	Mostra reasons/alternatives (parsed do JSON)
+docs/evolucoes de fases/baseline_v1a.md:19:0.3 Tabelas e normalização (confirmado)
+docs/evolucoes de fases/baseline_v1a.md:34:*	Validação: encoding, normalização, tolerância a dados faltantes
+docs/evolucoes de fases/baseline_v1a.md:61:-- Exemplo de estrutura atual (criada dinamicamente)CREATE TABLE rtd_analise_robo_legs (    ativo TEXT,    cv TEXT,     quant TEXT,    valor_executado TEXT,    -- ... todas as colunas normalizadas como TEXT);
+docs/evolucoes de fases/baseline_v2.md:42:- Depois, normalização via pipeline e escritor/reader no derived
+docs/evolucoes de fases/executed_v1.md:36:Correção proposta: normalizar para LONG/SHORT.
+docs/evolucoes de fases/executed_v1.md:117:def normalize_side(cv_raw: str) -> Optional[str]:    if cv_raw is None:        return None    s = str(cv_raw).strip().upper()    if s in ("C", "COMPRA", "COMPRADO", "BUY", "B", "LONG"):        return "LONG"    if s in ("V", "VENDA", "VENDIDO", "SELL", "S", "SHORT"):        return "SHORT"    return None
+docs/evolucoes de fases/executed_v1.md:161:*	[OK] CORRIGIDO: Side normalization (cv)
+docs/evolucoes de fases/executed_v1.md:162:*	[OK] CORRIGIDO: Option type normalization (call_put)
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:191:- contratos de opções normalizados
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:192:- ativos/instrumentos normalizados
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:251:- A próxima ação técnica deve mapear como as estruturas existentes em structures se relacionam com rtd_analise_robo_legs e como esse vínculo pode ser migrado ou normalizado sem corromper dados.
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:321:Colunas disponíveis para normalização:
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:341:- Ainda não há dados normalizados nessa tabela.
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:342:- A normalização pode ser tecnicamente viável, mas exige mapeamento explícito e testado dos campos legados.
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:381:- `strike` e `vencimento` podem alimentar os campos normalizados de perna.
+docs/migracoes/fase-14-migracao-dados-legados.md:11:- Evento legado `OPEN` normalizado como `opening`.
+docs/validacoes/fase-15-validacao-integrada.md:104:- pernas normalizadas para estruturas 44-48 presentes em `structure_legs`.
+domain/calculation_request.py:11:já normalizados pelo orquestrador.
+domain/calculation_request.py:71:    Representa uma perna (leg) da estrutura, já normalizada.
+domain/calculation_request.py:141:    legs              : pernas já normalizadas
+domain/calculation_request.py:202:        # Tenta parsear timestamp para garantir que é válido
+domain/payoff.py:11:def _normalize_side(value: Any) -> str:
+domain/payoff.py:15:def _normalize_option_type(value: Any) -> str:
+domain/payoff.py:28:    position_side = _normalize_side(leg.get("position_side"))
+domain/payoff.py:29:    option_type = _normalize_option_type(leg.get("option_type"))
+domain/position_side.py:36:def normalize_position_side(value: Any) -> str:
+domain/position_side.py:56:    canonical = normalize_position_side(value)
+domain/structure_metrics.py:7:def _parse_date(value: str | None) -> date | None:
+domain/structure_metrics.py:24:def _to_float(value: Any) -> float | None:
+domain/structure_metrics.py:57:        value = _to_float(source.get(key))
+domain/structure_metrics.py:74:    ref = _parse_date(reference_date)
+domain/structure_metrics.py:75:    exp = _parse_date(expiration_date)
+domain/structure_metrics.py:104:    bid_value = _to_float(bid)
+domain/structure_metrics.py:105:    ask_value = _to_float(ask)
+domain/structure_metrics.py:114:    bid_value = _to_float(bid)
+domain/structure_metrics.py:115:    ask_value = _to_float(ask)
+domain/structure_metrics.py:125:    mid_value = _to_float(mid)
+domain/structure_metrics.py:136:def normalize_position_side(leg: dict[str, Any]) -> str | None:
+domain/structure_metrics.py:161:    side = normalize_position_side(leg)
+domain/structure_metrics.py:179:    side = normalize_position_side(leg)
+domain/structure_metrics.py:286:        "side": normalize_position_side(leg),
+repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+repositories/market_snapshot_repository.py:120:def _parse_br_float(value) -> Optional[float]:
+repositories/market_snapshot_repository.py:125:        normalized = str(value).strip().replace(",", ".")
+repositories/market_snapshot_repository.py:126:        return float(normalized)
+repositories/market_snapshot_repository.py:133:        parsed = _parse_br_float(value)
+repositories/market_snapshot_repository.py:134:        if parsed is not None:
+repositories/market_snapshot_repository.py:135:            return parsed
+repositories/market_snapshot_repository.py:161:    bid = _parse_br_float(row["bid"])
+repositories/market_snapshot_repository.py:162:    ask = _parse_br_float(row["ask"])
+repositories/market_snapshot_repository.py:170:        quant=_parse_br_float(row["quant"]),
+repositories/market_snapshot_repository.py:171:        valor_executado=_parse_br_float(row["valor_executado"]),
+repositories/market_snapshot_repository.py:175:        spread=_parse_br_float(row["spread"]),
+repositories/market_snapshot_repository.py:176:        spread_pct=_parse_br_float(row["spread_pct"]),
+repositories/market_snapshot_repository.py:177:        iv=_parse_br_float(row["iv"]),
+repositories/market_snapshot_repository.py:178:        delta=_parse_br_float(row["delta"]),
+repositories/market_snapshot_repository.py:179:        gamma=_parse_br_float(row["gamma"]),
+repositories/market_snapshot_repository.py:180:        theta=_parse_br_float(row["theta"]),
+repositories/market_snapshot_repository.py:181:        vega=_parse_br_float(row["vega"]),
+repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+repositories/market_snapshot_repository.py:184:        dte=_parse_br_float(row["dte"]),
+repositories/market_snapshot_repository.py:185:        pl_realista=_parse_br_float(row["pl_realista"]),
+repositories/market_snapshot_repository.py:206:    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+repositories/market_snapshot_repository.py:383:                _parse_br_float(summary[key])
+repositories/robo_legs_repository.py:13:from domain.position_side import normalize_position_side
+repositories/robo_legs_repository.py:18:from utils.leg_normalizers import parse_timestamp, parse_vencimento
+repositories/robo_legs_repository.py:60:        ts = parse_timestamp(timestamp)
+repositories/robo_legs_repository.py:82:        ts = parse_timestamp(timestamp)
+repositories/robo_legs_repository.py:159:        """Mapeia colunas -> DTO com normalização simples."""
+repositories/robo_legs_repository.py:181:        canonical_side = normalize_position_side(cv_raw)
+repositories/robo_legs_repository.py:187:            timestamp=parse_timestamp(timestamp),
+repositories/robo_legs_repository.py:193:            vencimento=parse_vencimento(venc) if venc is not None else None,
+repositories/robo_legs_status_repository.py:16:from utils.leg_normalizers import parse_timestamp
+repositories/robo_legs_status_repository.py:61:        m = parse_timestamp(row_m["ts"]) if row_m and row_m["ts"] else None
+repositories/robo_legs_status_repository.py:62:        r = parse_timestamp(row_r["ts"]) if row_r and row_r["ts"] else None
+repositories/structure_events_repository.py:73:def _normalize_optional_text(value: Any) -> str | None:
+repositories/structure_events_repository.py:76:    normalized = str(value).strip()
+repositories/structure_events_repository.py:77:    return normalized or None
+repositories/structure_events_repository.py:92:def _normalize_event_payload(data: dict[str, Any]) -> dict[str, Any]:
+repositories/structure_events_repository.py:142:            raise ValueError("price must be numeric when provided") from exc
+repositories/structure_events_repository.py:163:        "symbol": _normalize_optional_text(data.get("symbol")),
+repositories/structure_events_repository.py:165:        "notes": _normalize_optional_text(data.get("notes")),
+repositories/structure_events_repository.py:307:        event = _normalize_event_payload(data)
+repositories/structure_events_repository.py:368:        normalized_notes = _normalize_optional_text(notes)
+repositories/structure_events_repository.py:382:            final_notes = normalized_notes if normalized_notes is not None else current["notes"]
+repositories/structures_repository.py:23:from domain.position_side import CANONICAL_POSITION_SIDES, normalize_position_side
+repositories/structures_repository.py:37:# Helpers de validação / normalização (funções puras, sem I/O)
+repositories/structures_repository.py:51:        parsed = datetime.strptime(value, "%Y-%m-%d")
+repositories/structures_repository.py:57:    return parsed.strftime("%Y-%m-%d")
+repositories/structures_repository.py:60:def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+repositories/structures_repository.py:92:    position_side   = normalize_position_side(leg.get("position_side"))
+repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+repositories/structures_repository.py:126:        raise ValueError("multiplier must be numeric") from exc
+repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+repositories/structures_repository.py:307:        payload = _normalize_structure_payload(data)
+repositories/structures_repository.py:356:        payload = _normalize_structure_payload(data)
+repositories/structures_repository.py:511:        payload = _normalize_structure_payload(merged)
+scripts/apply_fase9_atomic_create.py:71:        payload = _normalize_structure_payload(data)
+scripts/check_rota_desenvolvimento.py:89:def parse_git_log(output: str) -> list[CommitInfo]:
+scripts/check_rota_desenvolvimento.py:143:        for commit in parse_git_log(output):
+scripts/check_rota_desenvolvimento.py:160:    commits = parse_git_log(output)
+scripts/check_rota_desenvolvimento.py:361:        print("Pernas normalizadas por estrutura 44-48:")
+scripts/import_legacy_structure_legs.py:3:import argparse
+scripts/import_legacy_structure_legs.py:25:def _build_parser() -> argparse.ArgumentParser:
+scripts/import_legacy_structure_legs.py:26:    parser = argparse.ArgumentParser(
+scripts/import_legacy_structure_legs.py:33:    parser.add_argument(
+scripts/import_legacy_structure_legs.py:40:    parser.add_argument(
+scripts/import_legacy_structure_legs.py:46:    parser.add_argument(
+scripts/import_legacy_structure_legs.py:52:    parser.add_argument(
+scripts/import_legacy_structure_legs.py:58:    return parser
+scripts/import_legacy_structure_legs.py:73:    parser = _build_parser()
+scripts/import_legacy_structure_legs.py:74:    args = parser.parse_args(argv)
+scripts/purge_derived_snapshots.py:4:import argparse
+scripts/purge_derived_snapshots.py:33:    parser = argparse.ArgumentParser(
+scripts/purge_derived_snapshots.py:36:    parser.add_argument(
+scripts/purge_derived_snapshots.py:41:    parser.add_argument(
+scripts/purge_derived_snapshots.py:46:    parser.add_argument(
+scripts/purge_derived_snapshots.py:52:    parser.add_argument(
+scripts/purge_derived_snapshots.py:57:    args = parser.parse_args()
+scripts/purge_derived_snapshots.py:60:        parser.error("use --all ou --older-than-hours N")
+scripts/repair_derived_db_consistency.py:4:import argparse
+scripts/repair_derived_db_consistency.py:11:def parse_ts(value: str) -> datetime:
+scripts/repair_derived_db_consistency.py:48:    parser = argparse.ArgumentParser(
+scripts/repair_derived_db_consistency.py:51:    parser.add_argument(
+scripts/repair_derived_db_consistency.py:56:    parser.add_argument(
+scripts/repair_derived_db_consistency.py:62:    parser.add_argument(
+scripts/repair_derived_db_consistency.py:67:    parser.add_argument(
+scripts/repair_derived_db_consistency.py:72:    parser.add_argument(
+scripts/repair_derived_db_consistency.py:77:    parser.add_argument(
+scripts/repair_derived_db_consistency.py:82:    args = parser.parse_args()
+scripts/repair_derived_db_consistency.py:85:        parser.error("use --apply ou --dry-run, não ambos")
+scripts/repair_derived_db_consistency.py:153:                            parse_ts(d["timestamp"]) - parse_ts(p["timestamp"])
+scripts/run_derived_pipeline.py:4:import argparse
+scripts/run_derived_pipeline.py:44:    parser = argparse.ArgumentParser(description="Run derived pipeline")
+scripts/run_derived_pipeline.py:45:    parser.add_argument(
+scripts/run_derived_pipeline.py:50:    args = parser.parse_args(argv)
+services/calculation_orchestrator.py:32:def _normalize_position_side(raw: str) -> str:
+services/calculation_orchestrator.py:39:def _normalize_option_type(raw: str) -> str:
+services/calculation_orchestrator.py:66:                position_side=_normalize_position_side(
+services/calculation_orchestrator.py:69:                option_type=_normalize_option_type(
+services/calculation_orchestrator.py:232:    - Montar CalculationRequest a partir de dicts ja normalizados
+services/calculation_orchestrator.py:256:        """Monta CalculationRequest a partir de dicts ja normalizados."""
+services/calculation_orchestrator.py:261:                    position_side=_normalize_position_side(
+services/calculation_orchestrator.py:264:                    option_type=_normalize_option_type(
+services/canonical_pricing_facade.py:75:def _to_float(value: Any, default: float = 0.0) -> float:
+services/canonical_pricing_facade.py:109:def _normalize_expiration_date(value: Any) -> str | None:
+services/canonical_pricing_facade.py:225:                            price = _to_float(row[0], 0.0)
+services/canonical_pricing_facade.py:246:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+services/canonical_pricing_facade.py:259:            "price":       _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+services/canonical_pricing_facade.py:273:            "premium":         _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:274:            "expiration_date": _normalize_expiration_date(raw_expiry),
+services/canonical_pricing_facade.py:289:    spot_price = _to_float(spot, 0.0)
+services/derived_service.py:487:                        parsed = json.loads(raw) if isinstance(raw, str) else raw
+services/derived_service.py:488:                        sid = parsed.get("structure_id")
+services/legacy_robo_legs_fallback.py:4:from domain.position_side import normalize_position_side
+services/legacy_robo_legs_fallback.py:209:        position_side = self._normalize_position_side(
+services/legacy_robo_legs_fallback.py:212:        option_type = self._normalize_option_type(
+services/legacy_robo_legs_fallback.py:257:    def _normalize_position_side(self, value: Any) -> str:
+services/legacy_robo_legs_fallback.py:258:        return normalize_position_side(value)
+services/legacy_robo_legs_fallback.py:260:    def _normalize_option_type(self, value: Any) -> str:
+services/legacy_structure_legs_importer.py:6:Importa pernas legadas ja normalizadas pelo LegacyStructureLegsReader
+services/pricing_execution_app_service.py:135:            parsed = datetime.strptime(reference_date, "%Y-%m-%d")
+services/pricing_execution_app_service.py:139:        if parsed.strftime("%Y-%m-%d") != reference_date:
+services/robo_leg_mapper.py:5:from domain.position_side import normalize_position_side
+services/robo_leg_mapper.py:29:def _to_float(value: Any, field_name: str) -> float:
+services/robo_leg_mapper.py:56:        position_side = normalize_position_side(cv_str)
+services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+services/robo_legs_status_service.py:21:from utils.leg_normalizers import parse_timestamp
+services/robo_legs_status_service.py:49:        requested_ts = parse_timestamp(requested_timestamp)
+services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+services/structure_events_service.py:100:    def _normalize_optional_text(self, value: str | None) -> str | None:
+services/structure_events_service.py:104:        normalized = str(value).strip()
+services/structure_events_service.py:105:        return normalized or None
+services/structure_events_service.py:139:            "symbol": self._normalize_optional_text(symbol),
+services/structure_events_service.py:141:            "notes": self._normalize_optional_text(notes),
+services/structure_events_service.py:216:            notes=self._normalize_optional_text(notes),
+services/structure_events_service.py:436:        symbol = self._normalize_optional_text(event.get("symbol"))
+services/structure_events_service.py:454:                leg_symbol = self._normalize_optional_text(leg.get("symbol"))
+services/structure_input_mapper.py:3:from domain.position_side import normalize_position_side
+services/structure_input_mapper.py:18:def _to_float_or_none(value: Any) -> float | None:
+services/structure_input_mapper.py:29:    bid = _to_float_or_none(mapped_leg.get("bid"))
+services/structure_input_mapper.py:30:    ask = _to_float_or_none(mapped_leg.get("ask"))
+services/structure_input_mapper.py:53:        "position_side": normalize_position_side(leg["position_side"]),
+services/structure_leg_rtd_enrichment_service.py:15:from domain.position_side import normalize_position_side
+services/structure_leg_rtd_enrichment_service.py:32:        Campos opcionais preservados/normalizados:
+services/structure_leg_rtd_enrichment_service.py:45:        symbol = self._normalize_symbol(
+services/structure_leg_rtd_enrichment_service.py:60:        position_side = normalize_position_side(leg_data.get("position_side"))
+services/structure_leg_rtd_enrichment_service.py:61:        option_type = self._normalize_required_text(
+services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+services/structure_leg_rtd_enrichment_service.py:72:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+services/structure_leg_rtd_enrichment_service.py:73:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+services/structure_leg_rtd_enrichment_service.py:74:            "multiplier": self._to_float(
+services/structure_leg_rtd_enrichment_service.py:80:            "underlying_asset": self._normalize_required_text(
+services/structure_leg_rtd_enrichment_service.py:87:    def _normalize_symbol(value: Any) -> str:
+services/structure_leg_rtd_enrichment_service.py:93:    def _normalize_required_text(value: Any, field_name: str) -> str:
+services/structure_leg_rtd_enrichment_service.py:96:        normalized = str(value).strip().upper()
+services/structure_leg_rtd_enrichment_service.py:97:        if not normalized:
+services/structure_leg_rtd_enrichment_service.py:99:        return normalized
+services/structure_leg_rtd_enrichment_service.py:102:    def _to_float(value: Any, field_name: str) -> float:
+services/structure_leg_rtd_enrichment_service.py:106:            raise ValueError(f"{field_name} must be numeric") from exc
+utils/leg_normalizers.py:12:    def normalize_call_put(value: Union[str, int, None]) -> CallPutType:
+utils/leg_normalizers.py:30:    def normalize_cv(value: Union[str, int, None]) -> CVType:
+utils/leg_normalizers.py:57:    def _try_parse_excel_serial(value) -> Optional[datetime]:
+utils/leg_normalizers.py:90:    def parse_timestamp(value: Union[str, int, float, datetime, pd.Timestamp, None]) -> datetime:
+utils/leg_normalizers.py:102:        excel_dt = LegNormalizer._try_parse_excel_serial(value)
+utils/leg_normalizers.py:132:    def parse_vencimento(value: Union[str, int, float, datetime, pd.Timestamp, None]) -> datetime:
+utils/leg_normalizers.py:134:        return LegNormalizer.parse_timestamp(value)
+utils/leg_normalizers.py:137:    def normalize_fonte(value: Union[str, FonteType, None]) -> FonteType:
+utils/leg_normalizers.py:156:        """Cria DTO a partir de dicionário com normalização automática"""
+utils/leg_normalizers.py:158:        normalized_data = {
+utils/leg_normalizers.py:160:            'timestamp': cls.parse_timestamp(data.get('timestamp')),
+utils/leg_normalizers.py:161:            'cv': cls.normalize_cv(data.get('cv')),
+utils/leg_normalizers.py:162:            'call_put': cls.normalize_call_put(data.get('call_put')),
+utils/leg_normalizers.py:166:            'vencimento': cls.parse_vencimento(data.get('vencimento')),
+utils/leg_normalizers.py:167:            'fonte': fonte or cls.normalize_fonte(data.get('fonte'))
+utils/leg_normalizers.py:174:                    normalized_data[field] = cls.parse_timestamp(data[field])
+utils/leg_normalizers.py:176:                    normalized_data[field] = data[field]
+utils/leg_normalizers.py:178:        return RoboLegDTO(**normalized_data)
+utils/leg_normalizers.py:186:def normalize_call_put(value):
+utils/leg_normalizers.py:187:    return LegNormalizer.normalize_call_put(value)
+utils/leg_normalizers.py:190:def normalize_cv(value):
+utils/leg_normalizers.py:191:    return LegNormalizer.normalize_cv(value)
+utils/leg_normalizers.py:194:def parse_timestamp(value):
+utils/leg_normalizers.py:195:    return LegNormalizer.parse_timestamp(value)
+utils/leg_normalizers.py:198:def parse_vencimento(value):
+utils/leg_normalizers.py:199:    return LegNormalizer.parse_vencimento(value)
+utils/leg_normalizers.py:202:def normalize_fonte(value):
+utils/leg_normalizers.py:203:    return LegNormalizer.normalize_fonte(value)

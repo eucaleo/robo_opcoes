@@ -1,0 +1,310 @@
+UI/components/decisions_grid.py:94:            index = int(item_id) - 1
+UI/components/decisions_grid.py:187:            index = int(selection[0]) - 1
+UI/components/details_panel.py:96:            return int(structure_id)
+UI/components/details_panel.py:666:                self.spot_ref_label.config(text=f"{float(spot_ref):.2f}")
+UI/components/details_panel.py:700:                    text=", ".join([f"{float(be):.2f}" for be in breakevens])
+UI/components/details_panel.py:870:            v = float(value)
+UI/components/details_panel.py:941:                (float(r["point_spot"]), float(r["point_pl"]))
+UI/components/details_panel.py:1012:        x = float(spot_ref)
+UI/components/details_panel.py:1092:                print(f"[UI] Erro delegando recalc: {e}")
+UI/components/filters_panel.py:121:                filters["level_min"] = int(self.level_var.get().strip())
+UI/components/filters_panel.py:127:                filters["dte_max"] = int(self.dte_var.get().strip())
+UI/components/payoff_chart.py:24:        s = f"{float(x):,.{decimals}f}"
+UI/components/payoff_chart.py:37:        x = float(x)
+UI/components/payoff_chart.py:115:            w = int(self.winfo_width())
+UI/components/payoff_chart.py:116:            h = int(self.winfo_height())
+UI/components/payoff_chart.py:199:                points.append({"spot": float(x), "pl": float(y)})
+UI/components/payoff_chart.py:284:                xs.append(float(x))
+UI/components/payoff_chart.py:285:                ys.append(float(y))
+UI/components/payoff_chart.py:327:                    overlay_xs.append(float(x))
+UI/components/payoff_chart.py:328:                    overlay_ys.append(float(y))
+UI/components/payoff_chart.py:354:                spot_ref = float(raw) if raw is not None else None
+UI/components/payoff_chart.py:488:                bks.append(float(x0))
+UI/components/payoff_chart.py:496:                bks.append(float(xz))
+UI/components/payoff_chart.py:513:            x = float(x)
+UI/components/payoff_chart.py:525:                    return float(y0 + t * (y1 - y0))
+UI/components/structures_list_panel.py:217:            return int(self._tree.item(sel[0])["values"][0])
+UI/components/structure_editor_dialog.py:54:        return float(value)
+UI/components/structure_editor_dialog.py:56:        raise ValueError(f"{field_name} must be numeric") from exc
+UI/components/structure_editor_dialog.py:290:            return int(sel[0])
+UI/components/structure_editor_dialog.py:411:                return float(value)
+UI/components/structure_editor_dialog.py:424:                return float(text)
+UI/components/structure_editor_dialog.py:426:                raise ValueError(f"{field_name} must be numeric") from exc
+UI/components/structure_editor_dialog.py:428:        def _parse_int(value, field_name: str) -> int:
+UI/components/structure_editor_dialog.py:430:            if int(number) != number:
+UI/components/structure_editor_dialog.py:432:            return int(number)
+UI/components/structure_editor_dialog.py:457:            row["quantity"] = _parse_int(row.get("quantity", 1), "quantity")
+UI/components/structure_editor_dialog.py:514:                    self.saved_structure_id = int(self._structure_id)
+UI/components/structure_editor_dialog.py:525:                        int(_candidate_saved_structure_id)
+UI/debug_utils.py:18:        print("[UI][DEBUG]", *args, **kwargs)
+UI/debug_utils.py:22:    print("[UI]", *args, **kwargs)
+UI/debug_utils.py:27:        print("[PayoffChart] DEBUG", *args, **kwargs)
+UI/debug_utils.py:31:    print("[PayoffChart]", *args, **kwargs)
+UI/main_window.py:184:            print(f"[UI] Erro ao atualizar detalhes: {e}")
+UI/main_window.py:392:                print("[UI] Erro notificando details_panel fim recalc:", e)
+UI/main_window.py:411:                    print("[UI] Recalc STDOUT:\n", res.stdout)
+UI/main_window.py:413:                    print("[UI] Recalc STDERR:\n", res.stderr)
+UI/main_window.py:424:                    print("[UI] Recalc STDOUT:\n", e.stdout)
+UI/main_window.py:426:                    print("[UI] Recalc STDERR:\n", e.stderr)
+UI/main_window.py:429:                print("[UI] Erro inesperado recalc:", e)
+UI/main_window.py:468:                print("[UI] Pipeline STDOUT:\n", res.stdout)
+UI/main_window.py:470:                print("[UI] Pipeline STDERR:\n", res.stderr)
+UI/main_window.py:577:        print(f"[UI] Erro no payoff: {error_msg}")
+UI/main_window.py:694:                self._reprice_structure_after_save(int(saved_structure_id))
+UI/main_window.py:717:        sid = int(structure_id)
+UI/models/ui_data.py:57:        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+UI/models/ui_data.py:142:            print(f"[UI] Usando contrato canônico para {self._payoff_table}")
+UI/models/ui_data.py:145:            print(f"[UI] Usando aliases flexíveis para {self._payoff_table}")
+UI/models/ui_data.py:164:            print(
+UI/models/ui_data.py:191:            return int(structure_id)
+UI/models/ui_data.py:325:                    params.append(int(structure_filter))
+UI/models/ui_data.py:342:                params.append(int(filters["level_min"]))
+UI/models/ui_data.py:346:                params.append(int(filters["dte_max"]))
+UI/models/ui_data.py:372:                    item["structure_id"] = int(item["aba"])
+UI/models/ui_data.py:595:        info["query_ms"] = int((time.time() - t0) * 1000)
+services/calculation_orchestrator.py:72:                strike=float(row["strike"]),
+services/calculation_orchestrator.py:74:                quantity=int(row["quantity"]),
+services/calculation_orchestrator.py:76:                premium=float(row["premium"]) if row.get("premium") is not None else None,
+services/calculation_orchestrator.py:77:                multiplier=float(row.get("multiplier") or 1.0),
+services/calculation_orchestrator.py:78:                leg_order=int(row.get("leg_order") or i),
+services/calculation_orchestrator.py:86:        structure_id=int(structure_row["id"]),
+services/calculation_orchestrator.py:96:        spot_price=float(snapshot_row["spot_price"]),
+services/calculation_orchestrator.py:176:        _pl_max = float(payoff.get("pl_max") or 0.0)
+services/calculation_orchestrator.py:182:        _pl_atual = float(payoff.get("pl_atual") or payoff.get("pl_now") or 0.0)
+services/calculation_orchestrator.py:267:                    strike=float(leg["strike"]),
+services/calculation_orchestrator.py:269:                    quantity=int(leg["quantity"]),
+services/calculation_orchestrator.py:271:                    premium=float(leg["premium"]) if leg.get("premium") is not None else None,
+services/calculation_orchestrator.py:272:                    multiplier=float(leg.get("multiplier") or 1.0),
+services/calculation_orchestrator.py:273:                    leg_order=int(leg.get("leg_order") or i),
+services/calculation_orchestrator.py:279:            structure_id=int(structure_dict["structure_id"]),
+services/calculation_orchestrator.py:290:            spot_price=float(market_snapshot_dict.get("spot_price", 0.0)),
+services/calculation_orchestrator.py:364:        _pl_max = float(
+services/calculation_orchestrator.py:367:        _pl_atual = float(
+services/canonical_pricing_facade.py:75:def _to_float(value: Any, default: float = 0.0) -> float:
+services/canonical_pricing_facade.py:102:            return float(text)
+services/canonical_pricing_facade.py:104:        return float(value)
+services/canonical_pricing_facade.py:225:                            price = _to_float(row[0], 0.0)
+services/canonical_pricing_facade.py:246:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+services/canonical_pricing_facade.py:259:            "price":       _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+services/canonical_pricing_facade.py:273:            "premium":         _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:289:    spot_price = _to_float(spot, 0.0)
+services/canonical_pricing_facade.py:383:            duration_ms = int((time.perf_counter() - started_at) * 1000)
+services/canonical_pricing_facade.py:404:            duration_ms   = int((time.perf_counter() - started_at) * 1000)
+services/derived_payoff_persistence.py:132:                    pl_pct_of_max = round(float(pl_atual) / float(pl_max), 6)
+services/derived_service.py:104:            sid_int = int(resolved_sid)
+services/derived_service.py:175:        int(structure_id)
+services/derived_service.py:183:            norm_points.append((float(p[0]), float(p[1])))
+services/derived_service.py:189:            norm_points.append((float(x), float(y)))
+services/derived_service.py:226:        int(sid_from_payload)
+services/derived_service.py:297:        int(explicit_sid)
+services/derived_service.py:340:        int(structure_id)
+services/legacy_robo_legs_fallback.py:232:            "strike": float(data.get("strike") or 0.0),
+services/legacy_robo_legs_fallback.py:234:            "quantity": int(data.get("quant") or data.get("quantity") or 0),
+services/legacy_robo_legs_fallback.py:235:            "premium": float(data["preco"]) if data.get("preco") is not None else (
+services/legacy_robo_legs_fallback.py:236:                float(data["premium"]) if data.get("premium") is not None else None
+services/legacy_robo_legs_fallback.py:238:            "multiplier": float(data.get("multiplier") or 1.0),
+services/market_snapshot_provider.py:67:            "spot_price": float(market["spot_price"]),
+services/market_snapshot_provider.py:68:            "interest_rate": float(market["interest_rate"]),
+services/market_snapshot_provider.py:69:            "volatility": float(market["volatility"]),
+services/pricing_engine_stub.py:13:        total_quantity = sum(int(leg["quantity"]) for leg in legs)
+services/pricing_engine_stub.py:25:                "spot_price": float(pricing_payload["spot_price"]),
+services/pricing_engine_stub.py:26:                "interest_rate": float(pricing_payload["interest_rate"]),
+services/pricing_engine_stub.py:27:                "volatility": float(pricing_payload["volatility"]),
+services/pricing_execution_orchestration_service.py:42:            duration_ms = int((time.perf_counter() - started_at) * 1000)
+services/pricing_execution_orchestration_service.py:58:            duration_ms = int((time.perf_counter() - started_at) * 1000)
+services/pricing_execution_persistence_service.py:115:                structure_id=int(structure_id),
+services/pricing_payload_adapter.py:44:                "strike": float(leg["strike"]),
+services/pricing_payload_adapter.py:46:                "quantity": int(leg["quantity"]),
+services/pricing_payload_adapter.py:47:                "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
+services/pricing_payload_adapter.py:48:                "multiplier": float(leg["multiplier"]),
+services/pricing_payload_adapter.py:57:        "spot_price": float(market["spot_price"]),
+services/pricing_payload_adapter.py:58:        "interest_rate": float(market["interest_rate"]),
+services/pricing_payload_adapter.py:59:        "volatility": float(market["volatility"]),
+services/robo_leg_mapper.py:29:def _to_float(value: Any, field_name: str) -> float:
+services/robo_leg_mapper.py:31:        return float(value)
+services/robo_leg_mapper.py:36:def _to_int(value: Any, field_name: str) -> int:
+services/robo_leg_mapper.py:38:        return int(value)
+services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+services/robo_leg_mapper.py:73:        "quantity": _to_int(quant, "quant"),
+services/robo_leg_mapper.py:74:        "premium": float(preco) if preco is not None else None,
+services/robo_leg_mapper.py:75:        "multiplier": float(multiplier),
+services/structure_events_service.py:44:    def _validate_positive_int(self, value: int, field_name: str) -> None:
+services/structure_events_service.py:48:    def _validate_optional_positive_int(
+services/structure_events_service.py:54:            self._validate_positive_int(value, field_name)
+services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+services/structure_events_service.py:122:        self._validate_positive_int(structure_id, "structure_id")
+services/structure_events_service.py:123:        self._validate_optional_positive_int(leg_id, "leg_id")
+services/structure_events_service.py:138:            "price": float(price) if price is not None else None,
+services/structure_events_service.py:213:        self._validate_positive_int(event_id, "event_id")
+services/structure_events_service.py:220:        self._validate_positive_int(event_id, "event_id")
+services/structure_events_service.py:233:        self._validate_optional_positive_int(structure_id, "structure_id")
+services/structure_events_service.py:261:        self._validate_positive_int(structure_id, "structure_id")
+services/structure_events_service.py:274:        self._validate_optional_positive_int(structure_id, "structure_id")
+services/structure_events_service.py:333:                int(event.get("id") or 0),
+services/structure_events_service.py:399:            structure_id = int(raw)
+services/structure_events_service.py:412:            quantity = int(raw or 0)
+services/structure_events_service.py:419:        quantity = max(int(quantity), 0)
+services/structure_events_service.py:447:                    if leg_raw_id is not None and int(leg_raw_id) == int(leg_id):
+services/structure_events_service.py:469:            quantity_to_reduce = int(quantity)
+services/structure_input_mapper.py:23:        return float(value)
+services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+services/structure_leg_rtd_enrichment_service.py:72:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+services/structure_leg_rtd_enrichment_service.py:73:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+services/structure_leg_rtd_enrichment_service.py:74:            "multiplier": self._to_float(
+services/structure_leg_rtd_enrichment_service.py:78:            "leg_order": self._to_int(leg_data.get("leg_order", 0), "leg_order"),
+services/structure_leg_rtd_enrichment_service.py:102:    def _to_float(value: Any, field_name: str) -> float:
+services/structure_leg_rtd_enrichment_service.py:104:            return float(value)
+services/structure_leg_rtd_enrichment_service.py:106:            raise ValueError(f"{field_name} must be numeric") from exc
+services/structure_leg_rtd_enrichment_service.py:109:    def _to_int(value: Any, field_name: str) -> int:
+services/structure_leg_rtd_enrichment_service.py:111:            return int(value)
+domain/calculation_request.py:43:        v = float(value)
+domain/contracts.py:59:                strike=float(leg.get("strike")),
+domain/contracts.py:61:                quantity=float(leg.get("quantity")),
+domain/contracts.py:63:                multiplier=float(leg.get("multiplier", 1.0)),
+domain/contracts.py:69:            structure_id=int(structure_raw.get("structure_id")),
+domain/contracts.py:78:            spot_price=float(market_raw.get("spot_price")),
+domain/decision.py:169:        pl_atual = _interp_payoff(points, float(spot))
+domain/decision.py:171:    if not math.isfinite(float(pl_max)):
+domain/decision.py:184:        pl_atual=float(pl_atual),
+domain/decision.py:185:        pl_max=float(pl_max),
+domain/decision.py:198:    pl_max  = float(getattr(contract, "pl_max",  None) or 0.0)
+domain/decision.py:204:    pl_atual = float(
+domain/payoff.py:8:    return round(float(value), digits)
+domain/payoff.py:31:    strike = float(leg.get("strike") or 0.0)
+domain/payoff.py:32:    quantity = float(leg.get("quantity") or 0.0)
+domain/payoff.py:33:    multiplier = float(leg.get("multiplier") or 1.0)
+domain/payoff.py:35:    premium_value = float(premium) if premium is not None else 0.0
+domain/payoff.py:75:    s_min = float(spot_ref) * float(low_pct)
+domain/payoff.py:76:    s_max = float(spot_ref) * float(high_pct)
+domain/payoff.py:77:    step = float(spot_ref) * float(step_pct)
+domain/payoff.py:139:            "spot_ref": float(market.get("spot_price") or 0.0),
+domain/payoff.py:155:    spot_ref = float(market.get("spot_price") or 0.0)
+domain/payoff_features.py:20:    pts = [(float(x), float(y)) for x, y in points]
+domain/payoff_features.py:59:            out.append(float(x))
+domain/payoff_features.py:71:    xs = sorted(set(float(x) for x in [pts[0][0]] + bes + [pts[-1][0]]))
+domain/payoff_features.py:93:    return [(float(a), float(b)) for a, b in ranges if b - a > 1e-9]
+domain/payoff_features.py:116:    pl_min = float(min(ys))
+domain/payoff_features.py:117:    pl_max = float(max(ys))
+domain/payoff_features.py:121:        pl_at_spot_ref = _interp_y_at_x(pts, float(spot_ref))
+domain/payoff_features.py:131:        "spot_ref":          float(spot_ref) if spot_ref is not None else None,
+domain/payoff_features.py:132:        "points_count":      int(len(pts)),
+domain/payoff_features.py:135:        "pl_at_spot_ref":    float(pl_at_spot_ref) if pl_at_spot_ref is not None else None,
+domain/payoff_features.py:137:        "be_count":          int(len(bes)),
+domain/payoff_features.py:139:        "pos_ranges_count":  int(len(pos_ranges)),
+domain/payoff_features.py:140:        "max_drawdown_like": float(pl_max - pl_min),
+domain/structure_metrics.py:24:def _to_float(value: Any) -> float | None:
+domain/structure_metrics.py:32:        return float(value)
+domain/structure_metrics.py:41:        return float(text)
+domain/structure_metrics.py:55:def _first_float(source: dict[str, Any], keys: Iterable[str]) -> float | None:
+domain/structure_metrics.py:57:        value = _to_float(source.get(key))
+domain/structure_metrics.py:104:    bid_value = _to_float(bid)
+domain/structure_metrics.py:105:    ask_value = _to_float(ask)
+domain/structure_metrics.py:114:    bid_value = _to_float(bid)
+domain/structure_metrics.py:115:    ask_value = _to_float(ask)
+domain/structure_metrics.py:125:    mid_value = _to_float(mid)
+domain/structure_metrics.py:149:        quantity = _first_float(leg, ("quantity", "quant", "qty", "qtd"))
+domain/structure_metrics.py:170:    quantity = _first_float(leg, ("quantity", "quant", "qty", "qtd"))
+domain/structure_metrics.py:181:    bid = _first_float(leg, ("bid",))
+domain/structure_metrics.py:182:    ask = _first_float(leg, ("ask",))
+domain/structure_metrics.py:183:    mid = _first_float(leg, ("mid",))
+domain/structure_metrics.py:184:    last = _first_float(leg, ("last", "ultimo", "último", "preco", "price"))
+domain/structure_metrics.py:205:    entry_price = _first_float(
+domain/structure_metrics.py:221:        premium = _first_float(leg, ("premium", "premio", "prêmio"))
+domain/structure_metrics.py:226:            bid = _first_float(leg, ("bid",))
+domain/structure_metrics.py:227:            ask = _first_float(leg, ("ask",))
+domain/structure_metrics.py:228:            mid = _first_float(leg, ("mid",))
+domain/structure_metrics.py:237:        return _first_float(leg, ("pl_realista",))
+domain/structure_metrics.py:242:    greek_value = _first_float(leg, (greek_name,))
+domain/structure_metrics.py:255:    bid = _first_float(leg, ("bid",))
+domain/structure_metrics.py:256:    ask = _first_float(leg, ("ask",))
+domain/structure_metrics.py:260:        mid = _first_float(leg, ("mid",))
+domain/structure_metrics.py:264:        spread = _first_float(leg, ("spread",))
+domain/structure_metrics.py:268:        spread_pct = _first_float(leg, ("spread_pct",))
+domain/structure_metrics.py:270:    dte = _first_float(leg, ("dte",))
+domain/structure_metrics.py:272:        dte = int(dte)
+repositories/market_snapshot_repository.py:120:def _parse_br_float(value) -> Optional[float]:
+repositories/market_snapshot_repository.py:126:        return float(normalized)
+repositories/market_snapshot_repository.py:131:def _first_float(*values) -> Optional[float]:
+repositories/market_snapshot_repository.py:133:        parsed = _parse_br_float(value)
+repositories/market_snapshot_repository.py:161:    bid = _parse_br_float(row["bid"])
+repositories/market_snapshot_repository.py:162:    ask = _parse_br_float(row["ask"])
+repositories/market_snapshot_repository.py:170:        quant=_parse_br_float(row["quant"]),
+repositories/market_snapshot_repository.py:171:        valor_executado=_parse_br_float(row["valor_executado"]),
+repositories/market_snapshot_repository.py:175:        spread=_parse_br_float(row["spread"]),
+repositories/market_snapshot_repository.py:176:        spread_pct=_parse_br_float(row["spread_pct"]),
+repositories/market_snapshot_repository.py:177:        iv=_parse_br_float(row["iv"]),
+repositories/market_snapshot_repository.py:178:        delta=_parse_br_float(row["delta"]),
+repositories/market_snapshot_repository.py:179:        gamma=_parse_br_float(row["gamma"]),
+repositories/market_snapshot_repository.py:180:        theta=_parse_br_float(row["theta"]),
+repositories/market_snapshot_repository.py:181:        vega=_parse_br_float(row["vega"]),
+repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+repositories/market_snapshot_repository.py:184:        dte=_parse_br_float(row["dte"]),
+repositories/market_snapshot_repository.py:185:        pl_realista=_parse_br_float(row["pl_realista"]),
+repositories/market_snapshot_repository.py:203:    bid = _first_float(quote_row["bid"], base_leg.bid)
+repositories/market_snapshot_repository.py:204:    ask = _first_float(quote_row["ask"], base_leg.ask)
+repositories/market_snapshot_repository.py:206:    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+repositories/market_snapshot_repository.py:208:    valor_executado = _first_float(
+repositories/market_snapshot_repository.py:228:        iv=_first_float(quote_row["iv"], base_leg.iv),
+repositories/market_snapshot_repository.py:229:        delta=_first_float(quote_row["delta"], base_leg.delta),
+repositories/market_snapshot_repository.py:230:        gamma=_first_float(quote_row["gamma"], base_leg.gamma),
+repositories/market_snapshot_repository.py:231:        theta=_first_float(quote_row["theta"], base_leg.theta),
+repositories/market_snapshot_repository.py:232:        vega=_first_float(quote_row["vega"], base_leg.vega),
+repositories/market_snapshot_repository.py:233:        strike=_first_float(quote_row["strike"], base_leg.strike),
+repositories/market_snapshot_repository.py:383:                _parse_br_float(summary[key])
+repositories/market_snapshot_repository.py:393:            num_pernas=int(_f("num_pernas")) if _f("num_pernas") is not None else None,
+repositories/market_snapshot_repository.py:394:            dte_min=int(_f("dte_min")) if _f("dte_min") is not None else None,
+repositories/robo_legs_repository.py:190:            strike=float(strike)       if strike  is not None else 0.0,
+repositories/robo_legs_repository.py:191:            quant=int(quant)           if quant   is not None else 0,
+repositories/robo_legs_repository.py:195:            id=int(leg_id)             if leg_id  is not None else None,
+repositories/robo_legs_repository.py:196:            preco=float(preco)         if preco   is not None else None,
+repositories/structures_repository.py:108:        strike = float(strike)
+repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+repositories/structures_repository.py:116:        quantity = int(quantity)
+repositories/structures_repository.py:124:        multiplier = float(multiplier)
+repositories/structures_repository.py:126:        raise ValueError("multiplier must be numeric") from exc
+repositories/structures_repository.py:132:        leg_order = int(leg.get("leg_order", 0))
+repositories/structures_repository.py:142:            premium = float(premium)
+repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+repositories/structures_repository.py:325:            new_id = int(cursor.lastrowid)
+repositories/structures_repository.py:383:            new_id = int(cursor.lastrowid)
+repositories/structures_repository.py:609:            leg_id = int(cursor.lastrowid)
+repositories/structures_repository.py:695:            return int(row["n"]) if row else 0
+repositories/structures_repository.py:735:        return int(result["id"])
+repositories/structure_events_repository.py:97:        structure_id = int(data.get("structure_id"))
+repositories/structure_events_repository.py:108:            leg_id = int(leg_id_raw)
+repositories/structure_events_repository.py:130:            quantity = int(quantity_raw)
+repositories/structure_events_repository.py:140:            price = float(price_raw)
+repositories/structure_events_repository.py:142:            raise ValueError("price must be numeric when provided") from exc
+repositories/structure_events_repository.py:355:            return int(cur.lastrowid)
+repositories/structure_events_repository.py:363:        event_id = int(event_id)
+repositories/structure_events_repository.py:406:        event_id = int(event_id)
+repositories/structure_events_repository.py:438:            structure_id = int(structure_id)
+repositories/structure_events_repository.py:460:        limit = int(limit)
+repositories/structure_events_repository.py:461:        offset = int(offset)
+repositories/structure_events_repository.py:511:            structure_id = int(structure_id)
+repositories/structure_events_repository.py:542:            return int(row["total"])
+repositories/system_snapshots_repository.py:147:            snapshot_id = int(cur.lastrowid)
+repositories/system_snapshots_repository.py:277:        return self.get_snapshot(int(snapshots[0]["id"]))
+ATT/tests/conftest.py:26:print(f"\n[conftest] PROJECT_ROOT : {PROJECT_ROOT}")
+ATT/tests/conftest.py:27:print(f"[conftest] DB_PATH      : {DB_PATH}")
+ATT/tests/conftest.py:28:print(f"[conftest] DB existe?   : {DB_PATH.exists()}")
+ATT/tests/conftest.py:129:            self._val = int(kw.get("value", 0))
+ATT/tests/conftest.py:131:        def set(self, v):   self._val = int(v)
+ATT/tests/test_market_snapshot_provider.py:81:def test_get_snapshot_casts_numeric_fields_to_float():
+ATT/tests/test_payoff_chart.py:227:    def test_exact_point(self):
+ATT/tests/test_payoff_chart.py:431:    def test_update_chart_single_point(self):
+ATT/tests/test_payoff_chart.py:459:    def test_find_breakevens_single_point(self):
+ATT/tests/test_structures_api.py:586:    def test_detail_leg_strike_e_float(self, client):
+ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+ATT/tests/test_structures_repository.py:190:        ("multiplier", "abc", "multiplier must be numeric"),
+ATT/tests/test_structure_editor_dialog.py:470:def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+ATT/tests/test_structure_editor_dialog.py:492:def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+ATT/tests/test_structure_editor_dialog.py:536:def test_build_legs_payload_normaliza_premium_com_virgula_para_float():
+ATT/tests/test_structure_editor_dialog.py:558:def test_build_legs_payload_normaliza_multiplier_com_virgula_para_float():
+ATT/tests/test_structure_events_api.py:287:    def test_cancel_event_normaliza_retorno_int(self, client):
+ATT/tests/test_structure_events_repository.py:298:        ("price", "abc", "price must be numeric when provided"),
+ATT/tests/test_structure_events_service.py:246:            "price must be numeric",
+ATT/tests/test_system_snapshots_repository.py:36:    return int(cur.lastrowid)
+ATT/tests/test_system_snapshots_repository.py:82:    return int(cur.lastrowid)
+ATT/tests/test_ui_data_migration.py:136:    sid_int = int(sid_str)           # 36

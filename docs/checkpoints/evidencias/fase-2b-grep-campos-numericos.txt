@@ -1,0 +1,832 @@
+UI/components/payoff_chart.py:450:            p, ["point_spot", "spot", "x", "underlying", "price", "underlying_spot"]
+UI/components/structure_editor_dialog.py:155:        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+UI/components/structure_editor_dialog.py:193:        self._lf_strike  = tk.StringVar()
+UI/components/structure_editor_dialog.py:196:        self._lf_premium = tk.StringVar()
+UI/components/structure_editor_dialog.py:214:            ("Strike",              self._lf_strike),
+UI/components/structure_editor_dialog.py:225:            ("Premio",  self._lf_premium),
+UI/components/structure_editor_dialog.py:277:                leg.get("strike", ""),
+UI/components/structure_editor_dialog.py:279:                leg.get("quantity", ""),
+UI/components/structure_editor_dialog.py:280:                leg.get("premium") or "",
+UI/components/structure_editor_dialog.py:306:        self._lf_strike.set(str(leg.get("strike", "")))
+UI/components/structure_editor_dialog.py:308:        self._lf_qty.set(str(leg.get("quantity", "1")))
+UI/components/structure_editor_dialog.py:309:        self._lf_premium.set(str(leg.get("premium") or ""))
+UI/components/structure_editor_dialog.py:318:            "strike":          "",
+UI/components/structure_editor_dialog.py:320:            "quantity":        1,
+UI/components/structure_editor_dialog.py:321:            "premium":         None,
+UI/components/structure_editor_dialog.py:379:            "strike":          self._lf_strike.get(),
+UI/components/structure_editor_dialog.py:381:            "quantity":        self._lf_qty.get(),
+UI/components/structure_editor_dialog.py:382:            "premium":         self._lf_premium.get() or None,
+UI/components/structure_editor_dialog.py:402:        - Aceita decimal pt-BR com vírgula em strike, premium e multiplier.
+UI/components/structure_editor_dialog.py:403:        - Mantém premium None quando vazio.
+UI/components/structure_editor_dialog.py:456:            row["strike"] = _parse_decimal(row.get("strike"), "strike")
+UI/components/structure_editor_dialog.py:457:            row["quantity"] = _parse_int(row.get("quantity", 1), "quantity")
+UI/components/structure_editor_dialog.py:459:            premium_raw = row.get("premium")
+UI/components/structure_editor_dialog.py:460:            row["premium"] = (
+UI/components/structure_editor_dialog.py:462:                if premium_raw in (None, "")
+UI/components/structure_editor_dialog.py:463:                else _parse_decimal(premium_raw, "premium")
+UI/main_window.py:666:                    f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
+UI/main_window.py:667:                    f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '--'}",
+UI/main_window.py:668:                    f"         Prêmio : {leg.get('premium')}  Mult: {leg.get('multiplier')}",
+UI/main_window.py:694:                self._reprice_structure_after_save(int(saved_structure_id))
+UI/main_window.py:697:    def _reprice_structure_after_save(self, structure_id: int) -> None:
+services/calculation_orchestrator.py:72:                strike=float(row["strike"]),
+services/calculation_orchestrator.py:74:                quantity=int(row["quantity"]),
+services/calculation_orchestrator.py:76:                premium=float(row["premium"]) if row.get("premium") is not None else None,
+services/calculation_orchestrator.py:96:        spot_price=float(snapshot_row["spot_price"]),
+services/calculation_orchestrator.py:121:            "strike":          leg.strike,
+services/calculation_orchestrator.py:123:            "quantity":        leg.quantity,
+services/calculation_orchestrator.py:125:            "premium":         getattr(leg, "premium",     None),
+services/calculation_orchestrator.py:139:            "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:267:                    strike=float(leg["strike"]),
+services/calculation_orchestrator.py:269:                    quantity=int(leg["quantity"]),
+services/calculation_orchestrator.py:271:                    premium=float(leg["premium"]) if leg.get("premium") is not None else None,
+services/calculation_orchestrator.py:290:            spot_price=float(market_snapshot_dict.get("spot_price", 0.0)),
+services/calculation_orchestrator.py:310:                "strike":          leg.strike,
+services/calculation_orchestrator.py:312:                "quantity":        leg.quantity,
+services/calculation_orchestrator.py:314:                "premium":         getattr(leg, "premium",    None),
+services/calculation_orchestrator.py:328:                "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:472:                    "strike":          leg["strike"],
+services/calculation_orchestrator.py:474:                    "quantity":        leg["quantity"],
+services/calculation_orchestrator.py:476:                    "premium":         leg.get("premium"),
+services/calculation_orchestrator.py:489:            "spot_price":         snapshot.get("spot_price", 0.0),
+services/canonical_input_service.py:15:    "spot_price":         float | None,
+services/canonical_input_service.py:174:            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+services/canonical_input_service.py:228:                "strike":           leg.strike,
+services/canonical_pricing_facade.py:143:def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+services/canonical_pricing_facade.py:165:    price_candidates = {
+services/canonical_pricing_facade.py:167:        "spot_price",
+services/canonical_pricing_facade.py:168:        "underlying_price",
+services/canonical_pricing_facade.py:169:        "last_price",
+services/canonical_pricing_facade.py:170:        "price",
+services/canonical_pricing_facade.py:171:        "preco",
+services/canonical_pricing_facade.py:172:        "preco_atual",
+services/canonical_pricing_facade.py:200:                price_cols = [
+services/canonical_pricing_facade.py:202:                    for name in price_candidates
+services/canonical_pricing_facade.py:206:                if not symbol_cols or not price_cols:
+services/canonical_pricing_facade.py:210:                    for price_col in price_cols:
+services/canonical_pricing_facade.py:212:                            f"SELECT {_quote_ident(price_col)} "
+services/canonical_pricing_facade.py:215:                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+services/canonical_pricing_facade.py:225:                            price = _to_float(row[0], 0.0)
+services/canonical_pricing_facade.py:226:                            if price > 0:
+services/canonical_pricing_facade.py:227:                                return price
+services/canonical_pricing_facade.py:246:        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+services/canonical_pricing_facade.py:248:        raw_price = _pick(d, "premium", "price", "valor_executado")
+services/canonical_pricing_facade.py:254:            side = "SHORT" if quantity < 0 else "LONG"
+services/canonical_pricing_facade.py:258:            "quantity":    quantity,
+services/canonical_pricing_facade.py:259:            "price":       _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:262:            "strike":      _to_float(_pick(d, "strike"), 0.0),
+services/canonical_pricing_facade.py:273:            "premium":         _to_float(raw_price, 0.0),
+services/canonical_pricing_facade.py:283:        getattr(selection_result, "spot_price", None)
+services/canonical_pricing_facade.py:285:        or getattr(selection_result, "underlying_price", None)
+services/canonical_pricing_facade.py:286:        or getattr(selection_result, "last_price", None)
+services/canonical_pricing_facade.py:289:    spot_price = _to_float(spot, 0.0)
+services/canonical_pricing_facade.py:291:    if spot_price <= 0:
+services/canonical_pricing_facade.py:292:        spot_price = _lookup_spot_price(
+services/canonical_pricing_facade.py:297:    if spot_price <= 0:
+services/canonical_pricing_facade.py:299:            f"spot_price inválido ou ausente para underlying_asset={underlying_asset}. "
+services/canonical_pricing_facade.py:300:            "Não persistir execução OK com spot_price <= 0."
+services/canonical_pricing_facade.py:307:        "spot_price":       spot_price,
+services/derived_payoff_persistence.py:124:            spot_ref          = pricing_payload.get("spot_price")
+services/derived_payoff_persistence.py:127:                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
+services/derived_payoff_persistence.py:191:          A) já canônico: { structure: { legs, ... }, market: { spot_price, ... } }
+services/derived_payoff_persistence.py:192:          B) flat:        { legs: [...], spot_price: ..., structure_id: ..., ... }
+services/derived_payoff_persistence.py:202:        spot_price     = pricing_payload.get("spot_price") or 0.0
+services/derived_payoff_persistence.py:214:                "spot_price":       spot_price,
+services/legacy_robo_legs_fallback.py:232:            "strike": float(data.get("strike") or 0.0),
+services/legacy_robo_legs_fallback.py:234:            "quantity": int(data.get("quant") or data.get("quantity") or 0),
+services/legacy_robo_legs_fallback.py:235:            "premium": float(data["preco"]) if data.get("preco") is not None else (
+services/legacy_robo_legs_fallback.py:236:                float(data["premium"]) if data.get("premium") is not None else None
+services/market_snapshot_provider.py:7:        "spot_price": 198.35,
+services/market_snapshot_provider.py:12:        "spot_price": 124.66,
+services/market_snapshot_provider.py:17:        "spot_price": 168.67,
+services/market_snapshot_provider.py:22:        "spot_price": 66.84,
+services/market_snapshot_provider.py:27:        "spot_price": 87.37,
+services/market_snapshot_provider.py:32:        "spot_price": 37.42,
+services/market_snapshot_provider.py:37:        "spot_price": 61.80,
+services/market_snapshot_provider.py:67:            "spot_price": float(market["spot_price"]),
+services/pricing_engine_stub.py:13:        total_quantity = sum(int(leg["quantity"]) for leg in legs)
+services/pricing_engine_stub.py:24:                "total_quantity": total_quantity,
+services/pricing_engine_stub.py:25:                "spot_price": float(pricing_payload["spot_price"]),
+services/pricing_engine_stub.py:31:                "premium_paid": 0.0,
+services/pricing_execution_persistence_service.py:43:        total_quantity = metrics.get("total_quantity")
+services/pricing_execution_persistence_service.py:54:            total_quantity=total_quantity,
+services/pricing_execution_persistence_service.py:153:            "spot_price": pricing_payload.get("spot_price"),
+services/pricing_execution_query_service.py:99:            persisted_total_quantity = execution.get("total_quantity")
+services/pricing_execution_query_service.py:122:                "total_quantity": (
+services/pricing_execution_query_service.py:123:                    persisted_total_quantity
+services/pricing_execution_query_service.py:124:                    if persisted_total_quantity is not None
+services/pricing_execution_query_service.py:125:                    else metrics.get("total_quantity")
+services/pricing_payload_adapter.py:44:                "strike": float(leg["strike"]),
+services/pricing_payload_adapter.py:46:                "quantity": int(leg["quantity"]),
+services/pricing_payload_adapter.py:47:                "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
+services/pricing_payload_adapter.py:57:        "spot_price": float(market["spot_price"]),
+services/robo_leg_mapper.py:47:    strike = _read_attr(leg, "strike")
+services/robo_leg_mapper.py:50:    preco = _read_attr(leg, "preco")
+services/robo_leg_mapper.py:71:        "strike": _to_float(strike, "strike"),
+services/robo_leg_mapper.py:73:        "quantity": _to_int(quant, "quant"),
+services/robo_leg_mapper.py:74:        "premium": float(preco) if preco is not None else None,
+services/structure_events_service.py:80:    def _validate_quantity(self, quantity: int | None) -> None:
+services/structure_events_service.py:81:        if quantity is None:
+services/structure_events_service.py:84:        if not isinstance(quantity, int):
+services/structure_events_service.py:85:            raise ValueError("quantity must be an integer")
+services/structure_events_service.py:87:        if quantity < 0:
+services/structure_events_service.py:88:            raise ValueError("quantity must be greater than or equal to zero")
+services/structure_events_service.py:90:    def _validate_price(self, price: float | int | None) -> None:
+services/structure_events_service.py:91:        if price is None:
+services/structure_events_service.py:94:        if not isinstance(price, int | float):
+services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+services/structure_events_service.py:97:        if price < 0:
+services/structure_events_service.py:98:            raise ValueError("price must be greater than or equal to zero")
+services/structure_events_service.py:115:        quantity: int | None = None,
+services/structure_events_service.py:116:        price: float | int | None = None,
+services/structure_events_service.py:127:        self._validate_quantity(quantity)
+services/structure_events_service.py:128:        self._validate_price(price)
+services/structure_events_service.py:137:            "quantity": quantity,
+services/structure_events_service.py:138:            "price": float(price) if price is not None else None,
+services/structure_events_service.py:168:        quantity: int | None = None,
+services/structure_events_service.py:169:        price: float | int | None = None,
+services/structure_events_service.py:179:            quantity=quantity,
+services/structure_events_service.py:180:            price=price,
+services/structure_events_service.py:296:        com quantidades efetivas nas legs.
+services/structure_events_service.py:300:        - note, opening, adjustment e rollover não alteram quantidade.
+services/structure_events_service.py:301:        - partial_close reduz quantidade.
+services/structure_events_service.py:303:        - manual_close reduz se quantity foi informado; senão zera.
+services/structure_events_service.py:323:                    "_original_quantity": self._extract_leg_quantity(leg),
+services/structure_events_service.py:360:                self._reduce_target_legs(target_legs, event.get("quantity"))
+services/structure_events_service.py:370:                if event.get("quantity") is None:
+services/structure_events_service.py:373:                    self._reduce_target_legs(target_legs, event.get("quantity"))
+services/structure_events_service.py:383:            self._extract_leg_quantity(leg) == 0
+services/structure_events_service.py:408:    def _extract_leg_quantity(self, leg: dict[str, Any]) -> int:
+services/structure_events_service.py:409:        raw = leg.get("quantity", leg.get("quant", 0))
+services/structure_events_service.py:412:            quantity = int(raw or 0)
+services/structure_events_service.py:416:        return max(quantity, 0)
+services/structure_events_service.py:418:    def _set_leg_quantity(self, leg: dict[str, Any], quantity: int) -> None:
+services/structure_events_service.py:419:        quantity = max(int(quantity), 0)
+services/structure_events_service.py:421:        if "quantity" in leg:
+services/structure_events_service.py:422:            leg["quantity"] = quantity
+services/structure_events_service.py:424:            leg["quant"] = quantity
+services/structure_events_service.py:426:            leg["quantity"] = quantity
+services/structure_events_service.py:428:        leg["operational_status"] = "closed" if quantity == 0 else "open"
+services/structure_events_service.py:463:        quantity: Any,
+services/structure_events_service.py:465:        if quantity is None:
+services/structure_events_service.py:469:            quantity_to_reduce = int(quantity)
+services/structure_events_service.py:471:            raise ValueError("event quantity must be integer") from exc
+services/structure_events_service.py:473:        if quantity_to_reduce < 0:
+services/structure_events_service.py:474:            raise ValueError("event quantity must be greater than or equal to zero")
+services/structure_events_service.py:477:            current_quantity = self._extract_leg_quantity(leg)
+services/structure_events_service.py:478:            self._set_leg_quantity(
+services/structure_events_service.py:480:                max(current_quantity - quantity_to_reduce, 0),
+services/structure_events_service.py:485:            self._set_leg_quantity(leg, 0)
+services/structure_input_mapper.py:56:        "strike": leg["strike"],
+services/structure_input_mapper.py:58:        "quantity": leg["quantity"],
+services/structure_input_mapper.py:59:        "premium": leg.get("premium"),
+services/structure_leg_rtd_enrichment_service.py:30:        - quantity.
+services/structure_leg_rtd_enrichment_service.py:33:        - premium;
+services/structure_leg_rtd_enrichment_service.py:40:        - strike;
+services/structure_leg_rtd_enrichment_service.py:57:            required=("ativo_base", "call_put", "strike", "vencimento"),
+services/structure_leg_rtd_enrichment_service.py:70:            "strike": self._to_float(quote.get("strike"), "strike"),
+services/structure_leg_rtd_enrichment_service.py:72:            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+services/structure_leg_rtd_enrichment_service.py:73:            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+services/structure_market_input_assembler.py:30:            "spot_price": market_snapshot["spot_price"],
+domain/calculation_request.py:75:    strike        : decimal positivo
+domain/calculation_request.py:77:    quantity      : inteiro positivo (direção fica em position_side)
+domain/calculation_request.py:79:    premium       : preço de entrada -- opcional
+domain/calculation_request.py:85:    strike:          float
+domain/calculation_request.py:87:    quantity:        int
+domain/calculation_request.py:90:    premium:     Optional[float] = None
+domain/calculation_request.py:116:        # strike deve ser positivo
+domain/calculation_request.py:117:        object.__setattr__(self, "strike", _require_positive(self.strike, "strike"))
+domain/calculation_request.py:118:        # quantity deve ser inteiro positivo
+domain/calculation_request.py:119:        if not isinstance(self.quantity, int) or self.quantity <= 0:
+domain/calculation_request.py:120:            raise ValueError(f"quantity deve ser inteiro positivo, recebeu: {self.quantity!r}")
+domain/calculation_request.py:177:    spot_price         : preço spot positivo
+domain/calculation_request.py:183:    spot_price:         float
+domain/calculation_request.py:195:            self, "spot_price",
+domain/calculation_request.py:196:            _require_positive(self.spot_price, "spot_price")
+domain/canonical_validators.py:25:        if leg.get("strike") is None:
+domain/canonical_validators.py:26:            errors.append(f"structure.legs[{index}].strike is required")
+domain/canonical_validators.py:27:        if leg.get("quantity") is None:
+domain/canonical_validators.py:28:            errors.append(f"structure.legs[{index}].quantity is required")
+domain/canonical_validators.py:32:    if market.get("spot_price") is None:
+domain/canonical_validators.py:33:        errors.append("market.spot_price is required")
+domain/contracts.py:10:    strike: float
+domain/contracts.py:12:    quantity: float
+domain/contracts.py:13:    premium: float | None
+domain/contracts.py:29:    spot_price: float
+domain/contracts.py:59:                strike=float(leg.get("strike")),
+domain/contracts.py:61:                quantity=float(leg.get("quantity")),
+domain/contracts.py:62:                premium=leg.get("premium"),
+domain/contracts.py:78:            spot_price=float(market_raw.get("spot_price")),
+domain/contracts.py:107:                        "strike": leg.strike,
+domain/contracts.py:109:                        "quantity": leg.quantity,
+domain/contracts.py:110:                        "premium": leg.premium,
+domain/contracts.py:119:                "spot_price": self.market.spot_price,
+domain/market_snapshot.py:45:    strike          : Optional[float] = None
+domain/payoff.py:19:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+domain/payoff.py:21:        return max(spot_at_expiration - strike, 0.0)
+domain/payoff.py:23:        return max(strike - spot_at_expiration, 0.0)
+domain/payoff.py:31:    strike = float(leg.get("strike") or 0.0)
+domain/payoff.py:32:    quantity = float(leg.get("quantity") or 0.0)
+domain/payoff.py:34:    premium = leg.get("premium")
+domain/payoff.py:35:    premium_value = float(premium) if premium is not None else 0.0
+domain/payoff.py:39:        strike=strike,
+domain/payoff.py:43:    payoff_unit = intrinsic - premium_value
+domain/payoff.py:48:    return payoff_unit * quantity * multiplier
+domain/payoff.py:139:            "spot_ref": float(market.get("spot_price") or 0.0),
+domain/payoff.py:155:    spot_ref = float(market.get("spot_price") or 0.0)
+domain/structure_metrics.py:149:        quantity = _first_float(leg, ("quantity", "quant", "qty", "qtd"))
+domain/structure_metrics.py:150:        if quantity is None:
+domain/structure_metrics.py:152:        return "SHORT" if quantity < 0 else "LONG"
+domain/structure_metrics.py:169:def leg_quantity(leg: dict[str, Any]) -> float | None:
+domain/structure_metrics.py:170:    quantity = _first_float(leg, ("quantity", "quant", "qty", "qtd"))
+domain/structure_metrics.py:172:    if quantity is None:
+domain/structure_metrics.py:175:    return abs(quantity)
+domain/structure_metrics.py:178:def compute_realistic_price(leg: dict[str, Any]) -> float | None:
+domain/structure_metrics.py:184:    last = _first_float(leg, ("last", "ultimo", "último", "preco", "price"))
+domain/structure_metrics.py:203:    quantity = leg_quantity(leg)
+domain/structure_metrics.py:205:    entry_price = _first_float(
+domain/structure_metrics.py:209:            "execution_price",
+domain/structure_metrics.py:210:            "entry_price",
+domain/structure_metrics.py:211:            "preco_execucao",
+domain/structure_metrics.py:213:            "preco_entrada",
+domain/structure_metrics.py:218:    realistic_price = compute_realistic_price(leg)
+domain/structure_metrics.py:220:    if entry_price is None:
+domain/structure_metrics.py:221:        premium = _first_float(leg, ("premium", "premio", "prêmio"))
+domain/structure_metrics.py:223:        if premium is not None:
+domain/structure_metrics.py:224:            entry_price = premium
+domain/structure_metrics.py:234:                realistic_price = mid
+domain/structure_metrics.py:236:    if quantity is None or entry_price is None or realistic_price is None:
+domain/structure_metrics.py:239:    return (realistic_price - entry_price) * quantity * position_multiplier(leg)
+domain/structure_metrics.py:243:    quantity = leg_quantity(leg)
+domain/structure_metrics.py:245:    if greek_value is None or quantity is None:
+domain/structure_metrics.py:248:    return greek_value * quantity * position_multiplier(leg)
+domain/structure_metrics.py:287:        "quantity": leg_quantity(leg),
+domain/structure_metrics.py:291:        "preco_realista": compute_realistic_price(leg),
+repositories/market_snapshot_repository.py:50:        strike,
+repositories/market_snapshot_repository.py:77:        strike,
+repositories/market_snapshot_repository.py:149:def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
+repositories/market_snapshot_repository.py:150:    # Calcula mid price. Nao usa coluna 'last' - nao existe no schema.
+repositories/market_snapshot_repository.py:163:    mid = _mid_price(bid, ask)
+repositories/market_snapshot_repository.py:182:        strike=_parse_br_float(row["strike"]),
+repositories/market_snapshot_repository.py:205:    mid = _mid_price(bid, ask)
+repositories/market_snapshot_repository.py:206:    ultimo_preco = _parse_br_float(quote_row["ultimo_preco"])
+repositories/market_snapshot_repository.py:210:        ultimo_preco,
+repositories/market_snapshot_repository.py:233:        strike=_first_float(quote_row["strike"], base_leg.strike),
+repositories/market_snapshot_repository.py:285:        preço/greeks/strike/vencimento passam a vir da cotação centralizada.
+repositories/market_snapshot_repository.py:305:                strike,
+repositories/market_snapshot_repository.py:307:                ultimo_preco,
+repositories/market_snapshot_repository.py:308:                ultima_quantidade,
+repositories/pricing_executions_repository.py:39:        total_quantity: int | None = None,
+repositories/pricing_executions_repository.py:61:                    duration_ms, number_of_legs, total_quantity, theoretical_value,
+repositories/pricing_executions_repository.py:68:                    duration_ms, number_of_legs, total_quantity, theoretical_value,
+repositories/pricing_executions_repository.py:88:            "total_quantity": total_quantity,
+repositories/robo_legs_repository.py:171:        strike    = pick("strike", "k", "preco_exercicio")
+repositories/robo_legs_repository.py:172:        quant     = pick("quant", "qty", "qtd", "quantidade")
+repositories/robo_legs_repository.py:175:        preco     = pick("preco", "price", "premium")
+repositories/robo_legs_repository.py:190:            strike=float(strike)       if strike  is not None else 0.0,
+repositories/robo_legs_repository.py:196:            preco=float(preco)         if preco   is not None else None,
+repositories/rtd_option_quotes_repository.py:32:                strike,
+repositories/rtd_option_quotes_repository.py:34:                ultimo_preco,
+repositories/rtd_option_quotes_repository.py:35:                ultima_quantidade,
+repositories/rtd_option_quotes_repository.py:64:                strike,
+repositories/rtd_option_quotes_repository.py:66:                ultimo_preco,
+repositories/rtd_option_quotes_repository.py:67:                ultima_quantidade,
+repositories/rtd_option_quotes_repository.py:82:            ORDER BY vencimento, call_put, strike, codigo_opcao
+repositories/rtd_option_quotes_repository.py:96:                strike,
+repositories/rtd_option_quotes_repository.py:98:                ultimo_preco,
+repositories/rtd_option_quotes_repository.py:99:                ultima_quantidade,
+repositories/rtd_option_quotes_repository.py:113:            ORDER BY ativo_base, vencimento, call_put, strike, codigo_opcao
+repositories/structures_repository.py:94:    strike          = leg.get("strike")
+repositories/structures_repository.py:96:    quantity        = leg.get("quantity")
+repositories/structures_repository.py:108:        strike = float(strike)
+repositories/structures_repository.py:110:        raise ValueError("strike must be numeric") from exc
+repositories/structures_repository.py:112:    if strike <= 0:
+repositories/structures_repository.py:113:        raise ValueError("strike must be > 0")
+repositories/structures_repository.py:116:        quantity = int(quantity)
+repositories/structures_repository.py:118:        raise ValueError("quantity must be integer") from exc
+repositories/structures_repository.py:120:    if quantity <= 0:
+repositories/structures_repository.py:121:        raise ValueError("quantity must be > 0")
+repositories/structures_repository.py:139:    premium = leg.get("premium")
+repositories/structures_repository.py:140:    if premium is not None:
+repositories/structures_repository.py:142:            premium = float(premium)
+repositories/structures_repository.py:144:            raise ValueError("premium must be numeric when provided") from exc
+repositories/structures_repository.py:156:        "strike":          strike,
+repositories/structures_repository.py:158:        "quantity":        quantity,
+repositories/structures_repository.py:159:        "premium":         premium,
+repositories/structures_repository.py:200:                strike, expiration_date, quantity, premium, multiplier,
+repositories/structures_repository.py:403:                        strike, expiration_date, quantity, premium,
+repositories/structures_repository.py:412:                        leg["strike"],
+repositories/structures_repository.py:414:                        leg["quantity"],
+repositories/structures_repository.py:415:                        leg["premium"],
+repositories/structures_repository.py:598:                    strike, expiration_date, quantity, premium,
+repositories/structures_repository.py:604:                    leg["symbol"], leg["strike"], leg["expiration_date"],
+repositories/structures_repository.py:605:                    leg["quantity"], leg["premium"], leg["multiplier"],
+repositories/structures_repository.py:652:                        strike, expiration_date, quantity, premium,
+repositories/structures_repository.py:658:                        leg["symbol"], leg["strike"], leg["expiration_date"],
+repositories/structures_repository.py:659:                        leg["quantity"], leg["premium"], leg["multiplier"],
+repositories/structure_events_repository.py:126:    quantity_raw = data.get("quantity")
+repositories/structure_events_repository.py:127:    quantity: int | None = None
+repositories/structure_events_repository.py:128:    if quantity_raw is not None:
+repositories/structure_events_repository.py:130:            quantity = int(quantity_raw)
+repositories/structure_events_repository.py:132:            raise ValueError("quantity must be integer when provided") from exc
+repositories/structure_events_repository.py:133:        if quantity <= 0:
+repositories/structure_events_repository.py:134:            raise ValueError("quantity must be > 0 when provided")
+repositories/structure_events_repository.py:136:    price_raw = data.get("price")
+repositories/structure_events_repository.py:137:    price: float | None = None
+repositories/structure_events_repository.py:138:    if price_raw is not None:
+repositories/structure_events_repository.py:140:            price = float(price_raw)
+repositories/structure_events_repository.py:142:            raise ValueError("price must be numeric when provided") from exc
+repositories/structure_events_repository.py:161:        "quantity": quantity,
+repositories/structure_events_repository.py:162:        "price": price,
+repositories/structure_events_repository.py:206:                quantity       INTEGER,
+repositories/structure_events_repository.py:207:                price          REAL,
+repositories/structure_events_repository.py:328:                    quantity,
+repositories/structure_events_repository.py:329:                    price,
+repositories/structure_events_repository.py:344:                    event["quantity"],
+repositories/structure_events_repository.py:345:                    event["price"],
+repositories/system_snapshots_repository.py:179:                strike,
+repositories/system_snapshots_repository.py:181:                quantity,
+repositories/system_snapshots_repository.py:182:                premium,
+repositories/system_snapshots_repository.py:198:                leg.get("strike"),
+repositories/system_snapshots_repository.py:200:                leg.get("quantity"),
+repositories/system_snapshots_repository.py:201:                leg.get("premium"),
+ATT/tests/test_canonical_input_service.py:21:            "spot_price": 198.35,
+ATT/tests/test_canonical_input_service.py:79:                    "strike": 195.0,
+ATT/tests/test_canonical_input_service.py:81:                    "quantity": 5000,
+ATT/tests/test_canonical_input_service.py:82:                    "premium": None,
+ATT/tests/test_canonical_input_service.py:129:                        "strike": 195.0,
+ATT/tests/test_canonical_input_service.py:131:                        "quantity": 5000,
+ATT/tests/test_canonical_input_service.py:132:                        "premium": None,
+ATT/tests/test_canonical_input_service.py:224:                    "strike": 190.0,
+ATT/tests/test_canonical_input_service.py:226:                    "quantity": 10,
+ATT/tests/test_canonical_input_service.py:227:                    "premium": 1.00,
+ATT/tests/test_canonical_input_service.py:240:                    "strike": 185.0,
+ATT/tests/test_canonical_input_service.py:242:                    "quantity": 10,
+ATT/tests/test_canonical_input_service.py:243:                    "premium": 0.85,
+ATT/tests/test_canonical_pricing_facade.py:12:        "spot_price": 124.66,
+ATT/tests/test_canonical_pricing_facade.py:37:            spot_price=raw_numeric,
+ATT/tests/test_canonical_pricing_facade.py:40:                    "quantity": "100",
+ATT/tests/test_canonical_pricing_facade.py:41:                    "price": raw_numeric,
+ATT/tests/test_canonical_pricing_facade.py:43:                    "strike": raw_numeric,
+ATT/tests/test_canonical_pricing_facade.py:53:    assert payload["spot_price"] == pytest.approx(expected)
+ATT/tests/test_canonical_pricing_facade.py:56:    assert leg["price"] == pytest.approx(expected)
+ATT/tests/test_canonical_pricing_facade.py:57:    assert leg["premium"] == pytest.approx(expected)
+ATT/tests/test_canonical_pricing_facade.py:58:    assert leg["strike"] == pytest.approx(expected)
+ATT/tests/test_canonical_pricing_facade.py:66:                "quantity": "-100",
+ATT/tests/test_canonical_pricing_facade.py:67:                "price": "R$ 1,25",
+ATT/tests/test_canonical_pricing_facade.py:70:                "strike": "100,00",
+ATT/tests/test_canonical_pricing_facade.py:75:        spot_price="124,66",
+ATT/tests/test_canonical_pricing_facade.py:76:        manual_overrides=["price"],
+ATT/tests/test_canonical_pricing_facade.py:90:    assert payload["spot_price"] == 124.66
+ATT/tests/test_canonical_pricing_facade.py:95:        "manual_overrides": ["price"],
+ATT/tests/test_canonical_pricing_facade.py:102:    assert leg["price"] == 1.25
+ATT/tests/test_canonical_pricing_facade.py:103:    assert leg["premium"] == 1.25
+ATT/tests/test_canonical_pricing_facade.py:104:    assert leg["strike"] == 100.0
+ATT/tests/test_canonical_pricing_facade.py:115:        ({"quantity": "100", "price": 2.5, "asset": "ABCD100"}, "LONG"),
+ATT/tests/test_canonical_pricing_facade.py:116:        ({"quantity": "-100", "price": 2.5, "asset": "ABCD100"}, "SHORT"),
+ATT/tests/test_canonical_pricing_facade.py:117:        ({"quantity": "100", "price": 2.5, "asset": "ABCD100", "side": "short"}, "SHORT"),
+ATT/tests/test_canonical_pricing_facade.py:118:        ({"quantity": "-100", "price": 2.5, "asset": "ABCD100", "position_side": "long"}, "LONG"),
+ATT/tests/test_canonical_pricing_facade.py:139:        conn.execute("CREATE TABLE market_prices (underlying_asset TEXT, spot REAL)")
+ATT/tests/test_canonical_pricing_facade.py:141:            "INSERT INTO market_prices (underlying_asset, spot) VALUES (?, ?)",
+ATT/tests/test_canonical_pricing_facade.py:147:        selection_result=_selection(spot_price=0, legs=[]),
+ATT/tests/test_canonical_pricing_facade.py:154:    assert payload["spot_price"] == 124.66
+ATT/tests/test_canonical_pricing_facade.py:162:            selection_result=_selection(spot_price=0, legs=[]),
+ATT/tests/test_canonical_pricing_facade.py:169:    assert "spot_price inválido ou ausente para underlying_asset=SMAL11" in str(exc.value)
+ATT/tests/test_canonical_pricing_facade.py:170:    assert "Não persistir execução OK com spot_price <= 0" in str(exc.value)
+ATT/tests/test_canonical_validators.py:15:                    "strike": 195.0,
+ATT/tests/test_canonical_validators.py:17:                    "quantity": 1,
+ATT/tests/test_canonical_validators.py:18:                    "premium": None,
+ATT/tests/test_canonical_validators.py:26:            "spot_price": 198.35,
+ATT/tests/test_contracts.py:15:                    "strike": 195.0,
+ATT/tests/test_contracts.py:17:                    "quantity": 5000,
+ATT/tests/test_contracts.py:18:                    "premium": None,
+ATT/tests/test_contracts.py:26:            "spot_price": 198.35,
+ATT/tests/test_legacy_robo_legs_fallback.py:95:                "strike": 100,
+ATT/tests/test_legacy_robo_legs_fallback.py:98:                "preco": 1.5,
+ATT/tests/test_legacy_robo_legs_fallback.py:113:    assert legs[0]["strike"] == 100.0
+ATT/tests/test_legacy_robo_legs_fallback.py:114:    assert legs[0]["quantity"] == 2
+ATT/tests/test_legacy_structure_legs_importer.py:33:            strike REAL NOT NULL,
+ATT/tests/test_legacy_structure_legs_importer.py:35:            quantity INTEGER NOT NULL,
+ATT/tests/test_legacy_structure_legs_importer.py:36:            premium REAL,
+ATT/tests/test_legacy_structure_legs_importer.py:75:            strike, expiration_date, quantity, premium,
+ATT/tests/test_legacy_structure_legs_importer.py:118:            "strike": 195.0,
+ATT/tests/test_legacy_structure_legs_importer.py:120:            "quantity": 5000,
+ATT/tests/test_legacy_structure_legs_importer.py:121:            "premium": 1.23,
+ATT/tests/test_legacy_structure_legs_importer.py:129:            "strike": 200.0,
+ATT/tests/test_legacy_structure_legs_importer.py:131:            "quantity": 5000,
+ATT/tests/test_legacy_structure_legs_importer.py:132:            "premium": 0.78,
+ATT/tests/test_legacy_structure_legs_importer.py:216:            "strike": 195.0,
+ATT/tests/test_legacy_structure_legs_importer.py:218:            "quantity": 5000,
+ATT/tests/test_legacy_structure_legs_importer.py:219:            "premium": 1.23,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:36:            strike REAL NOT NULL,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:38:            quantity INTEGER NOT NULL,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:39:            premium REAL,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:56:            strike REAL,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:60:            preco REAL
+ATT/tests/test_legacy_structure_legs_importer_integration.py:71:            strike REAL,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:75:            preco REAL
+ATT/tests/test_legacy_structure_legs_importer_integration.py:112:            strike, expiration_date, quantity, premium,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:134:            strike, quant, ativo, vencimento, preco
+ATT/tests/test_legacy_structure_legs_importer_integration.py:153:            strike, quant, ativo, vencimento, preco
+ATT/tests/test_legacy_structure_legs_importer_integration.py:219:    assert imported_leg["strike"] == 185.0
+ATT/tests/test_legacy_structure_legs_importer_integration.py:221:    assert imported_leg["quantity"] == 5000
+ATT/tests/test_legacy_structure_legs_importer_integration.py:222:    assert imported_leg["premium"] == 1.23
+ATT/tests/test_legacy_structure_legs_reader.py:30:            strike=195.0,
+ATT/tests/test_legacy_structure_legs_reader.py:33:            preco=1.23,
+ATT/tests/test_legacy_structure_legs_reader.py:39:            strike=185.0,
+ATT/tests/test_legacy_structure_legs_reader.py:42:            preco=0.98,
+ATT/tests/test_legacy_structure_legs_reader.py:66:            "strike": 195.0,
+ATT/tests/test_legacy_structure_legs_reader.py:68:            "quantity": 5000,
+ATT/tests/test_legacy_structure_legs_reader.py:69:            "premium": 1.23,
+ATT/tests/test_legacy_structure_legs_reader.py:77:            "strike": 185.0,
+ATT/tests/test_legacy_structure_legs_reader.py:79:            "quantity": 1000,
+ATT/tests/test_legacy_structure_legs_reader.py:80:            "premium": 0.98,
+ATT/tests/test_legacy_structure_legs_reader.py:93:            strike=195.0,
+ATT/tests/test_legacy_structure_legs_reader.py:96:            preco=1.0,
+ATT/tests/test_legacy_structure_legs_reader.py:133:            strike REAL,
+ATT/tests/test_legacy_structure_legs_reader.py:137:            preco REAL
+ATT/tests/test_legacy_structure_legs_reader.py:148:            strike REAL,
+ATT/tests/test_legacy_structure_legs_reader.py:152:            preco REAL
+ATT/tests/test_legacy_structure_legs_reader.py:181:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_legacy_structure_legs_reader.py:214:            "strike": 195.0,
+ATT/tests/test_legacy_structure_legs_reader.py:216:            "quantity": 5000,
+ATT/tests/test_legacy_structure_legs_reader.py:217:            "premium": 1.23,
+ATT/tests/test_market_snapshot_provider.py:12:                "spot_price": 198.35,
+ATT/tests/test_market_snapshot_provider.py:24:        "spot_price": 198.35,
+ATT/tests/test_market_snapshot_provider.py:34:                "spot_price": 37.42,
+ATT/tests/test_market_snapshot_provider.py:46:    assert snapshot["spot_price"] == 37.42
+ATT/tests/test_market_snapshot_provider.py:55:                "spot_price": 61.80,
+ATT/tests/test_market_snapshot_provider.py:70:                "spot_price": 61.80,
+ATT/tests/test_market_snapshot_provider.py:85:                "spot_price": "198.35",
+ATT/tests/test_market_snapshot_provider.py:94:    assert snapshot["spot_price"] == 198.35
+ATT/tests/test_market_snapshot_provider.py:97:    assert isinstance(snapshot["spot_price"], float)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:28:            strike TEXT,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:44:            strike TEXT,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:46:            ultimo_preco TEXT,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:47:            ultima_quantidade TEXT,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:85:            strike,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:131:                strike,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:133:                ultimo_preco,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:134:                ultima_quantidade,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:197:    assert leg.strike == 195.0
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:226:    strike="195,00",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:228:    ultimo_preco="1,23",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:244:            strike,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:246:            ultimo_preco,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:247:            ultima_quantidade,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:267:            strike,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:269:            ultimo_preco,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:298:            ultimo_preco="1,23",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:323:            ultimo_preco="1,11",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:338:            ultimo_preco="1,45",
+ATT/tests/test_orchestrator_run_methods.py:30:        strike=100.0,
+ATT/tests/test_orchestrator_run_methods.py:32:        quantity=1,
+ATT/tests/test_orchestrator_run_methods.py:34:        premium=3.5,
+ATT/tests/test_orchestrator_run_methods.py:54:        spot_price=spot,
+ATT/tests/test_orchestrator_run_methods.py:84:        leg = _make_leg(strike=110.0, option_type="put", position_side="short")
+ATT/tests/test_orchestrator_run_methods.py:87:        assert legs[0]["strike"] == 110.0
+ATT/tests/test_orchestrator_run_methods.py:94:        assert m["spot_price"] == 55.5
+ATT/tests/test_orchestrator_run_methods.py:110:            _make_leg(strike=100.0, leg_order=0),
+ATT/tests/test_orchestrator_run_methods.py:111:            _make_leg(strike=110.0, option_type="put", leg_order=1),
+ATT/tests/test_orchestrator_run_methods.py:116:        assert result_legs[1]["strike"] == 110.0
+ATT/tests/test_orchestrator_run_methods.py:135:        assert canonical["market"]["spot_price"] == 50.0
+ATT/tests/test_orchestrator_run_methods.py:249:            strike=50.0,
+ATT/tests/test_orchestrator_run_methods.py:252:            premium=2.0,
+ATT/tests/test_orchestrator_run_methods.py:253:            quantity=1,
+ATT/tests/test_payoff_canonical.py:15:                    "strike": 195.0,
+ATT/tests/test_payoff_canonical.py:17:                    "quantity": 1,
+ATT/tests/test_payoff_canonical.py:18:                    "premium": 2.0,
+ATT/tests/test_payoff_canonical.py:26:            "spot_price": 198.35,
+ATT/tests/test_pricing_engine_stub.py:13:        "spot_price": 198.35,
+ATT/tests/test_pricing_engine_stub.py:17:            {"quantity": 1000},
+ATT/tests/test_pricing_engine_stub.py:18:            {"quantity": 500},
+ATT/tests/test_pricing_engine_stub.py:32:            "total_quantity": 1500,
+ATT/tests/test_pricing_engine_stub.py:33:            "spot_price": 198.35,
+ATT/tests/test_pricing_engine_stub.py:39:            "premium_paid": 0.0,
+ATT/tests/test_pricing_engine_stub.py:60:        "spot_price": 198.35,
+ATT/tests/test_pricing_executions_repository.py:25:            total_quantity     INTEGER,
+ATT/tests/test_pricing_executions_repository.py:59:        total_quantity=0,
+ATT/tests/test_pricing_executions_repository.py:71:    assert record["total_quantity"] == 0
+ATT/tests/test_pricing_execution_persistence_service.py:19:        total_quantity,
+ATT/tests/test_pricing_execution_persistence_service.py:31:                "total_quantity": total_quantity,
+ATT/tests/test_pricing_execution_persistence_service.py:58:                "total_quantity": 2000,
+ATT/tests/test_pricing_execution_persistence_service.py:81:            "total_quantity": 2000,
+ATT/tests/test_pricing_execution_persistence_service.py:126:            "total_quantity": None,
+ATT/tests/test_pricing_execution_persistence_service.py:190:        "spot_price": 35.50,
+ATT/tests/test_pricing_execution_persistence_service.py:203:                "strike": 36.0,
+ATT/tests/test_pricing_execution_persistence_service.py:204:                "quantity": 100,
+ATT/tests/test_pricing_execution_persistence_service.py:205:                "premium": 1.23,
+ATT/tests/test_pricing_execution_persistence_service.py:215:                "total_quantity": 100,
+ATT/tests/test_pricing_execution_persistence_service.py:253:    assert call["market_json"]["spot_price"] == 35.50
+ATT/tests/test_pricing_execution_persistence_service.py:256:        "total_quantity": 100,
+ATT/tests/test_pricing_execution_persistence_service.py:355:            "spot_price": 35.50,
+ATT/tests/test_pricing_execution_query_service.py:28:    total_quantity=None,
+ATT/tests/test_pricing_execution_query_service.py:31:    nested_total_quantity: int = 200,
+ATT/tests/test_pricing_execution_query_service.py:45:        "total_quantity": total_quantity,
+ATT/tests/test_pricing_execution_query_service.py:56:                    "total_quantity": nested_total_quantity,
+ATT/tests/test_pricing_execution_query_service.py:104:            total_quantity=999,
+ATT/tests/test_pricing_execution_query_service.py:107:            nested_total_quantity=200,
+ATT/tests/test_pricing_execution_query_service.py:119:    assert summaries[0]["total_quantity"] == 999
+ATT/tests/test_pricing_execution_query_service.py:128:            total_quantity=None,
+ATT/tests/test_pricing_execution_query_service.py:131:            nested_total_quantity=400,
+ATT/tests/test_pricing_execution_query_service.py:143:    assert summaries[0]["total_quantity"] == 400
+ATT/tests/test_pricing_execution_service.py:39:        "metrics": {"number_of_legs": 0, "total_quantity": 0},
+ATT/tests/test_pricing_input_service.py:37:            "spot_price": 198.35,
+ATT/tests/test_pricing_payload_adapter.py:19:                        "strike": 195.0,
+ATT/tests/test_pricing_payload_adapter.py:21:                        "quantity": 5000,
+ATT/tests/test_pricing_payload_adapter.py:22:                        "premium": None,
+ATT/tests/test_pricing_payload_adapter.py:29:                "spot_price": 198.35,
+ATT/tests/test_pricing_payload_adapter.py:52:                        "strike": 195,
+ATT/tests/test_pricing_payload_adapter.py:54:                        "quantity": 4000,
+ATT/tests/test_pricing_payload_adapter.py:55:                        "premium": 1.25,
+ATT/tests/test_pricing_payload_adapter.py:62:                "spot_price": 198.35,
+ATT/tests/test_pricing_payload_adapter.py:99:                                "strike": 195.0,
+ATT/tests/test_pricing_payload_adapter.py:101:                                "quantity": 5000,
+ATT/tests/test_pricing_payload_adapter.py:102:                                "premium": None,
+ATT/tests/test_pricing_payload_adapter.py:109:                        "spot_price": 198.35,
+ATT/tests/test_robo_legs_repository.py:17:            strike REAL,
+ATT/tests/test_robo_legs_repository.py:21:            preco REAL
+ATT/tests/test_robo_legs_repository.py:31:            strike REAL,
+ATT/tests/test_robo_legs_repository.py:35:            preco REAL
+ATT/tests/test_robo_legs_repository.py:50:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:55:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:80:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:104:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:124:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:129:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:134:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:154:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:159:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_service.py:23:        strike=120.0,
+ATT/tests/test_robo_legs_service.py:28:        preco=1.23,
+ATT/tests/test_robo_legs_service.py:56:        strike=120.0,
+ATT/tests/test_robo_legs_service.py:61:        preco=1.23,
+ATT/tests/test_robo_leg_mapper.py:13:        "strike": 195.0,
+ATT/tests/test_robo_leg_mapper.py:16:        "preco": 1.23,
+ATT/tests/test_robo_leg_mapper.py:24:    assert result["strike"] == 195.0
+ATT/tests/test_robo_leg_mapper.py:26:    assert result["quantity"] == 5000
+ATT/tests/test_robo_leg_mapper.py:27:    assert result["premium"] == 1.23
+ATT/tests/test_robo_leg_mapper.py:36:        "strike": 185.0,
+ATT/tests/test_robo_leg_mapper.py:39:        "preco": 0.98,
+ATT/tests/test_robo_leg_mapper.py:55:        "strike": 195.0,
+ATT/tests/test_robo_leg_mapper.py:58:        "preco": 1.0,
+ATT/tests/test_robo_leg_mapper.py:70:        "strike": 195.0,
+ATT/tests/test_robo_leg_mapper.py:73:        "preco": 1.0,
+ATT/tests/test_robo_leg_mapper.py:80:def test_to_canonical_leg_should_raise_for_invalid_strike():
+ATT/tests/test_robo_leg_mapper.py:85:        "strike": "abc",
+ATT/tests/test_robo_leg_mapper.py:88:        "preco": 1.0,
+ATT/tests/test_robo_leg_mapper.py:91:    with pytest.raises(ValueError, match=r"invalid strike: abc"):
+ATT/tests/test_robo_leg_mapper.py:100:        "strike": 195.0,
+ATT/tests/test_robo_leg_mapper.py:103:        "preco": 1.0,
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:20:            "spot_price": 198.35,
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:41:                "strike": 195.0,
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:44:                "preco": 1.23,
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:97:    assert pricing_payload["spot_price"] == 198.35
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:106:            "strike": 195.0,
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:108:            "quantity": 5000,
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:109:            "premium": 1.23,
+ATT/tests/test_structures_api.py:45:            "strike": 38.0,
+ATT/tests/test_structures_api.py:47:            "quantity": 1,
+ATT/tests/test_structures_api.py:48:            "premium": 1.25,
+ATT/tests/test_structures_api.py:67:    "strike":          38.0,
+ATT/tests/test_structures_api.py:69:    "quantity":        1,
+ATT/tests/test_structures_api.py:73:    "premium":         1.25,
+ATT/tests/test_structures_api.py:376:        for campo in ("id", "structure_id", "position_side", "option_type", "strike",
+ATT/tests/test_structures_api.py:377:                      "expiration_date", "quantity", "multiplier", "leg_order"):
+ATT/tests/test_structures_api.py:586:    def test_detail_leg_strike_e_float(self, client):
+ATT/tests/test_structures_api.py:590:        assert isinstance(leg["strike"], float)
+ATT/tests/test_structures_archive_wiring.py:545:                " strike REAL, expiration_date TEXT, quantity INTEGER, "
+ATT/tests/test_structures_archive_wiring.py:546:                " premium REAL, multiplier REAL DEFAULT 1, leg_order INTEGER, "
+ATT/tests/test_structures_legs_endpoints.py:27:    "strike":          38.0,
+ATT/tests/test_structures_legs_endpoints.py:29:    "quantity":        1,
+ATT/tests/test_structures_legs_endpoints.py:33:    "premium":         1.25,
+ATT/tests/test_structures_legs_endpoints.py:109:        assert args[1]["strike"] == 38.0
+ATT/tests/test_structures_legs_endpoints.py:137:    def test_add_leg_422_strike_zero(self, client_legs):
+ATT/tests/test_structures_legs_endpoints.py:139:        payload = {**FAKE_LEG_PAYLOAD, "strike": 0}
+ATT/tests/test_structures_legs_endpoints.py:143:    def test_add_leg_422_quantity_zero(self, client_legs):
+ATT/tests/test_structures_legs_endpoints.py:145:        payload = {**FAKE_LEG_PAYLOAD, "quantity": 0}
+ATT/tests/test_structures_legs_endpoints.py:196:        assert leg["strike"] == 38.0
+ATT/tests/test_structures_repository.py:29:        "strike": 120.0,
+ATT/tests/test_structures_repository.py:31:        "quantity": 2,
+ATT/tests/test_structures_repository.py:32:        "premium": 1.5,
+ATT/tests/test_structures_repository.py:113:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11C130", strike=130.0))
+ATT/tests/test_structures_repository.py:120:            strike=110.0,
+ATT/tests/test_structures_repository.py:187:        ("strike", "abc", "strike must be numeric"),
+ATT/tests/test_structures_repository.py:188:        ("quantity", "abc", "quantity must be integer"),
+ATT/tests/test_structures_repository.py:189:        ("quantity", 0, "quantity must be > 0"),
+ATT/tests/test_structures_repository.py:212:    repo.add_leg(structure_id, valid_leg_payload(leg_order=1, symbol="BOVA11C120", strike=120))
+ATT/tests/test_structures_repository.py:213:    repo.add_leg(structure_id, valid_leg_payload(leg_order=2, symbol="BOVA11P110", strike=110, option_type="PUT"))
+ATT/tests/test_structures_repository.py:223:                strike=100,
+ATT/tests/test_structure_analysis_service.py:37:                        "strike": 190.0,
+ATT/tests/test_structure_analysis_service.py:39:                        "quantity": 2000,
+ATT/tests/test_structure_analysis_service.py:40:                        "premium": None,
+ATT/tests/test_structure_analysis_service.py:47:                        "strike": 185.0,
+ATT/tests/test_structure_analysis_service.py:49:                        "quantity": 2000,
+ATT/tests/test_structure_analysis_service.py:50:                        "premium": None,
+ATT/tests/test_structure_analysis_service.py:58:                "spot_price": 198.35,
+ATT/tests/test_structure_analysis_service.py:98:                "spot_price": 198.35,
+ATT/tests/test_structure_analysis_service.py:451:                        "strike": 190.0,
+ATT/tests/test_structure_analysis_service.py:453:                        "quantity": 10,
+ATT/tests/test_structure_analysis_service.py:454:                        "execution_price": 1.00,
+ATT/tests/test_structure_analysis_service.py:467:                        "strike": 185.0,
+ATT/tests/test_structure_analysis_service.py:469:                        "quantity": 10,
+ATT/tests/test_structure_analysis_service.py:470:                        "execution_price": 1.00,
+ATT/tests/test_structure_analysis_service.py:484:                "spot_price": 198.35,
+ATT/tests/test_structure_editor_dialog.py:88:        r = self._dialog([{"strike": 100.0}])._build_legs_payload()
+ATT/tests/test_structure_editor_dialog.py:92:        legs = [{"strike": 100.0}, {"strike": 110.0}, {"strike": 90.0}]
+ATT/tests/test_structure_editor_dialog.py:98:            "position_side": "VENDIDO", "option_type": "CALL", "strike": 195.0,
+ATT/tests/test_structure_editor_dialog.py:99:            "expiration_date": "2026-05-15", "quantity": 5000,
+ATT/tests/test_structure_editor_dialog.py:100:            "premium": None, "multiplier": 1,
+ATT/tests/test_structure_editor_dialog.py:104:        self.assertEqual(r["strike"], 195.0)
+ATT/tests/test_structure_editor_dialog.py:108:        legs = [{"strike": 100.0}]
+ATT/tests/test_structure_editor_dialog.py:114:        legs = [{"strike": 100.0}, {"strike": 110.0}]
+ATT/tests/test_structure_editor_dialog.py:118:        self.assertEqual(r[0]["strike"], 100.0)
+ATT/tests/test_structure_editor_dialog.py:119:        self.assertEqual(r[1]["strike"], 110.0)
+ATT/tests/test_structure_editor_dialog.py:166:            "position_side": "COMPRADO", "option_type": "CALL", "strike": 195.0,
+ATT/tests/test_structure_editor_dialog.py:167:            "expiration_date": "2026-05-15", "quantity": 5000,
+ATT/tests/test_structure_editor_dialog.py:168:            "premium": None, "multiplier": 1,
+ATT/tests/test_structure_editor_dialog.py:177:        self.assertEqual(dlg._legs_rows[0]["strike"], 195.0)
+ATT/tests/test_structure_editor_dialog.py:250:            "position_side": "COMPRADO", "option_type": "CALL", "strike": 100.0,
+ATT/tests/test_structure_editor_dialog.py:251:            "expiration_date": "2026-05-15", "quantity": 1000,
+ATT/tests/test_structure_editor_dialog.py:252:            "premium": None, "multiplier": 1, "symbol": None,
+ATT/tests/test_structure_editor_dialog.py:268:        self.assertEqual(legs_arg[0]["strike"], 100.0)
+ATT/tests/test_structure_editor_dialog.py:442:            "strike": 100.0,
+ATT/tests/test_structure_editor_dialog.py:444:            "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:445:            "premium": None,
+ATT/tests/test_structure_editor_dialog.py:453:            "strike": 90.0,
+ATT/tests/test_structure_editor_dialog.py:455:            "quantity": 2,
+ATT/tests/test_structure_editor_dialog.py:456:            "premium": None,
+ATT/tests/test_structure_editor_dialog.py:470:def test_build_legs_payload_normaliza_strike_com_virgula_para_float():
+ATT/tests/test_structure_editor_dialog.py:476:            "strike": "100,00",
+ATT/tests/test_structure_editor_dialog.py:478:            "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:479:            "premium": None,
+ATT/tests/test_structure_editor_dialog.py:488:    assert payload[0]["strike"] == 100.0
+ATT/tests/test_structure_editor_dialog.py:489:    assert isinstance(payload[0]["strike"], float)
+ATT/tests/test_structure_editor_dialog.py:492:def test_build_legs_payload_normaliza_strike_com_ponto_para_float():
+ATT/tests/test_structure_editor_dialog.py:498:            "strike": "100.50",
+ATT/tests/test_structure_editor_dialog.py:500:            "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:501:            "premium": None,
+ATT/tests/test_structure_editor_dialog.py:510:    assert payload[0]["strike"] == 100.50
+ATT/tests/test_structure_editor_dialog.py:511:    assert isinstance(payload[0]["strike"], float)
+ATT/tests/test_structure_editor_dialog.py:514:def test_build_legs_payload_nao_modifica_strike_original_ao_normalizar():
+ATT/tests/test_structure_editor_dialog.py:519:        "strike": "100,00",
+ATT/tests/test_structure_editor_dialog.py:521:        "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:522:        "premium": None,
+ATT/tests/test_structure_editor_dialog.py:531:    assert payload[0]["strike"] == 100.0
+ATT/tests/test_structure_editor_dialog.py:532:    assert original_leg["strike"] == "100,00"
+ATT/tests/test_structure_editor_dialog.py:536:def test_build_legs_payload_normaliza_premium_com_virgula_para_float():
+ATT/tests/test_structure_editor_dialog.py:542:            "strike": "100,00",
+ATT/tests/test_structure_editor_dialog.py:544:            "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:545:            "premium": "1,25",
+ATT/tests/test_structure_editor_dialog.py:554:    assert payload[0]["premium"] == 1.25
+ATT/tests/test_structure_editor_dialog.py:555:    assert isinstance(payload[0]["premium"], float)
+ATT/tests/test_structure_editor_dialog.py:564:            "strike": "100,00",
+ATT/tests/test_structure_editor_dialog.py:566:            "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:567:            "premium": None,
+ATT/tests/test_structure_editor_dialog.py:580:def test_build_legs_payload_preserva_premium_none():
+ATT/tests/test_structure_editor_dialog.py:586:            "strike": "100,00",
+ATT/tests/test_structure_editor_dialog.py:588:            "quantity": 1,
+ATT/tests/test_structure_editor_dialog.py:589:            "premium": None,
+ATT/tests/test_structure_editor_dialog.py:598:    assert payload[0]["premium"] is None
+ATT/tests/test_structure_editor_integration.py:364:             "strike": "10.00", "expiration_date": "2025-01-17",
+ATT/tests/test_structure_editor_integration.py:365:             "quantity": 1, "premium": None, "multiplier": 1.0,
+ATT/tests/test_structure_editor_integration.py:529:             "strike": "25.00", "expiration_date": "2025-03-21",
+ATT/tests/test_structure_editor_integration.py:530:             "quantity": 1, "premium": None, "multiplier": 1.0,
+ATT/tests/test_structure_editor_integration.py:533:             "strike": "27.00", "expiration_date": "2025-03-21",
+ATT/tests/test_structure_editor_integration.py:534:             "quantity": 1, "premium": None, "multiplier": 1.0,
+ATT/tests/test_structure_events_api.py:29:    "quantity": 100,
+ATT/tests/test_structure_events_api.py:30:    "price": 1.25,
+ATT/tests/test_structure_events_api.py:44:    "effective_quantity_by_leg": {
+ATT/tests/test_structure_events_api.py:53:            "quantity": 100,
+ATT/tests/test_structure_events_api.py:62:    "quantity": 100,
+ATT/tests/test_structure_events_api.py:63:    "price": 1.25,
+ATT/tests/test_structure_events_api.py:126:        assert kwargs["price"] == 1.25
+ATT/tests/test_structure_events_api.py:306:        assert body["effective_quantity_by_leg"]["10"] == 100
+ATT/tests/test_structure_events_effective_state.py:31:                "strike": 190.0,
+ATT/tests/test_structure_events_effective_state.py:33:                "quantity": 100,
+ATT/tests/test_structure_events_effective_state.py:34:                "premium": 1.0,
+ATT/tests/test_structure_events_effective_state.py:42:                "strike": 185.0,
+ATT/tests/test_structure_events_effective_state.py:44:                "quantity": 100,
+ATT/tests/test_structure_events_effective_state.py:45:                "premium": 1.0,
+ATT/tests/test_structure_events_effective_state.py:52:def test_apply_events_partial_close_reduces_target_leg_quantity():
+ATT/tests/test_structure_events_effective_state.py:63:                    "quantity": 40,
+ATT/tests/test_structure_events_effective_state.py:71:    assert result["legs"][0]["quantity"] == 60
+ATT/tests/test_structure_events_effective_state.py:72:    assert result["legs"][1]["quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:73:    assert result["legs"][0]["_original_quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:89:                    "quantity": None,
+ATT/tests/test_structure_events_effective_state.py:97:    assert result["legs"][0]["quantity"] == 0
+ATT/tests/test_structure_events_effective_state.py:98:    assert result["legs"][1]["quantity"] == 0
+ATT/tests/test_structure_events_effective_state.py:115:                    "quantity": 40,
+ATT/tests/test_structure_events_effective_state.py:123:    assert result["legs"][0]["quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:124:    assert result["legs"][1]["quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:129:def test_apply_events_manual_close_with_quantity_reduces_leg():
+ATT/tests/test_structure_events_effective_state.py:140:                    "quantity": 25,
+ATT/tests/test_structure_events_effective_state.py:148:    assert result["legs"][0]["quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:149:    assert result["legs"][1]["quantity"] == 75
+ATT/tests/test_structure_events_effective_state.py:152:def test_apply_events_manual_close_without_quantity_zeros_leg():
+ATT/tests/test_structure_events_effective_state.py:163:                    "quantity": None,
+ATT/tests/test_structure_events_effective_state.py:171:    assert result["legs"][0]["quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:172:    assert result["legs"][1]["quantity"] == 0
+ATT/tests/test_structure_events_effective_state.py:185:                    "quantity": None,
+ATT/tests/test_structure_events_effective_state.py:193:                    "quantity": None,
+ATT/tests/test_structure_events_effective_state.py:201:    assert result["legs"][0]["quantity"] == 100
+ATT/tests/test_structure_events_effective_state.py:202:    assert result["legs"][1]["quantity"] == 100
+ATT/tests/test_structure_events_repository.py:42:        "strike": 120.0,
+ATT/tests/test_structure_events_repository.py:44:        "quantity": 2,
+ATT/tests/test_structure_events_repository.py:45:        "premium": 1.5,
+ATT/tests/test_structure_events_repository.py:69:            "quantity": 1,
+ATT/tests/test_structure_events_repository.py:70:            "price": 2.35,
+ATT/tests/test_structure_events_repository.py:89:    assert event["quantity"] == 1
+ATT/tests/test_structure_events_repository.py:90:    assert event["price"] == 2.35
+ATT/tests/test_structure_events_repository.py:117:    assert event["quantity"] is None
+ATT/tests/test_structure_events_repository.py:118:    assert event["price"] is None
+ATT/tests/test_structure_events_repository.py:275:        valid_leg_payload(symbol="PETR4C40", strike=40.0),
+ATT/tests/test_structure_events_repository.py:296:        ("quantity", "abc", "quantity must be integer when provided"),
+ATT/tests/test_structure_events_repository.py:297:        ("quantity", 0, "quantity must be > 0 when provided"),
+ATT/tests/test_structure_events_repository.py:298:        ("price", "abc", "price must be numeric when provided"),
+ATT/tests/test_structure_events_service.py:94:        quantity=100,
+ATT/tests/test_structure_events_service.py:95:        price=1.23,
+ATT/tests/test_structure_events_service.py:108:    assert record["quantity"] == 100
+ATT/tests/test_structure_events_service.py:109:    assert record["price"] == 1.23
+ATT/tests/test_structure_events_service.py:139:        quantity=50,
+ATT/tests/test_structure_events_service.py:140:        price=2.5,
+ATT/tests/test_structure_events_service.py:151:    assert record["quantity"] == 50
+ATT/tests/test_structure_events_service.py:152:    assert record["price"] == 2.5
+ATT/tests/test_structure_events_service.py:162:        quantity=10,
+ATT/tests/test_structure_events_service.py:163:        price=1.0,
+ATT/tests/test_structure_events_service.py:169:    assert record["quantity"] == 10
+ATT/tests/test_structure_events_service.py:170:    assert record["price"] == 1.0
+ATT/tests/test_structure_events_service.py:229:            "quantity",
+ATT/tests/test_structure_events_service.py:230:            {"quantity": -1},
+ATT/tests/test_structure_events_service.py:231:            "quantity must be greater than or equal to zero",
+ATT/tests/test_structure_events_service.py:234:            "quantity",
+ATT/tests/test_structure_events_service.py:235:            {"quantity": 1.5},
+ATT/tests/test_structure_events_service.py:236:            "quantity must be an integer",
+ATT/tests/test_structure_events_service.py:239:            "price",
+ATT/tests/test_structure_events_service.py:240:            {"price": -0.01},
+ATT/tests/test_structure_events_service.py:241:            "price must be greater than or equal to zero",
+ATT/tests/test_structure_events_service.py:244:            "price",
+ATT/tests/test_structure_events_service.py:245:            {"price": "1.23"},
+ATT/tests/test_structure_events_service.py:246:            "price must be numeric",
+ATT/tests/test_structure_input_mapper.py:15:                "strike": 195.0,
+ATT/tests/test_structure_input_mapper.py:17:                "quantity": 5000,
+ATT/tests/test_structure_input_mapper.py:18:                "premium": None,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:25:                "strike": 130.0,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:36:            "quantity": 100,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:37:            "premium": 1.25,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:48:        "strike": 130.0,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:50:        "quantity": 100.0,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:51:        "premium": 1.25,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:66:                "strike": 28.0,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:77:            "quantity": "200",
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:84:    assert leg["strike"] == 28.0
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:86:    assert leg["quantity"] == 200.0
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:87:    assert leg["premium"] == 0.0
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:103:                "quantity": 100,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:118:                "quantity": 100,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:131:                    "strike": 130.0,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:142:                "quantity": 100,
+ATT/tests/test_structure_market_input_assembler.py:18:                    "strike": 195.0,
+ATT/tests/test_structure_market_input_assembler.py:20:                    "quantity": 5000,
+ATT/tests/test_structure_market_input_assembler.py:21:                    "premium": None,
+ATT/tests/test_structure_market_input_assembler.py:30:            "spot_price": 198.35,
+ATT/tests/test_structure_market_input_assembler.py:57:            "spot_price": 198.35,
+ATT/tests/test_structure_market_input_assembler.py:71:            "spot_price": 198.35,
+ATT/tests/test_structure_metrics.py:9:    compute_realistic_price,
+ATT/tests/test_structure_metrics.py:43:                    "strike": 190.0,
+ATT/tests/test_structure_metrics.py:45:                    "quantity": 1,
+ATT/tests/test_structure_metrics.py:50:                    "strike": 185.0,
+ATT/tests/test_structure_metrics.py:52:                    "quantity": 1,
+ATT/tests/test_structure_metrics.py:58:            "spot_price": 198.35,
+ATT/tests/test_structure_metrics.py:80:def test_compute_realistic_price_for_long_leg_uses_bid_first():
+ATT/tests/test_structure_metrics.py:88:    assert compute_realistic_price(leg) == 1.20
+ATT/tests/test_structure_metrics.py:91:def test_compute_realistic_price_for_short_leg_uses_ask_first():
+ATT/tests/test_structure_metrics.py:99:    assert compute_realistic_price(leg) == 0.80
+ATT/tests/test_structure_metrics.py:143:    assert result["quantity"] == 10
+ATT/tests/test_structure_metrics.py:147:    assert result["preco_realista"] == pytest.approx(1.20)
+ATT/tests/test_structure_metrics.py:173:    assert result["quantity"] == 10
+ATT/tests/test_structure_metrics.py:177:    assert result["preco_realista"] == pytest.approx(0.80)
+ATT/tests/test_structure_metrics.py:236:                    "quantity": 10,
+ATT/tests/test_structure_metrics.py:237:                    "execution_price": 1.00,
+ATT/tests/test_structure_metrics.py:245:                    "quantity": 10,
+ATT/tests/test_structure_metrics.py:246:                    "execution_price": 1.00,
+ATT/tests/test_structure_metrics.py:256:            "spot_price": 198.35,
+ATT/tests/test_system_snapshots_repository.py:45:    strike: float,
+ATT/tests/test_system_snapshots_repository.py:54:            strike,
+ATT/tests/test_system_snapshots_repository.py:56:            quantity,
+ATT/tests/test_system_snapshots_repository.py:57:            premium,
+ATT/tests/test_system_snapshots_repository.py:71:            strike,
+ATT/tests/test_system_snapshots_repository.py:96:            strike=10.0,
+ATT/tests/test_system_snapshots_repository.py:103:            strike=12.0,
+ATT/tests/test_system_snapshots_repository.py:131:                "strike": 10.0,
+ATT/tests/test_system_snapshots_repository.py:133:                "quantity": 100,
+ATT/tests/test_system_snapshots_repository.py:134:                "premium": 1.25,
+ATT/tests/test_system_snapshots_repository.py:145:                "strike": 12.0,
+ATT/tests/test_system_snapshots_repository.py:147:                "quantity": 100,
+ATT/tests/test_system_snapshots_repository.py:148:                "premium": 0.95,
+ATT/tests/test_system_snapshots_repository.py:233:                "strike": 30.0,
+ATT/tests/test_system_snapshots_repository.py:235:                "quantity": -100,
+ATT/tests/test_system_snapshots_repository.py:236:                "premium": 2.1,
+ATT/tests/test_system_snapshots_schema.py:105:        "strike",
+ATT/tests/test_system_snapshots_schema.py:107:        "quantity",
+ATT/tests/test_system_snapshots_schema.py:108:        "premium",
