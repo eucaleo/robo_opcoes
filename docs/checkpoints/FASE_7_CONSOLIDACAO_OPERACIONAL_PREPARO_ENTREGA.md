@@ -534,3 +534,79 @@ git tag --list "fase-6*"
 
 - A revisao de sensibilidade dos artefatos Excel versionados foi registrada sem alteracao funcional.
 - A Fase 7 segue preparada para definicao final do pacote de entrega e lista de exclusoes ou pre-requisitos.
+
+## Matriz provisoria do pacote de entrega da Fase 7
+
+### Escopo
+
+- Registro documental de matriz provisoria para montagem futura de pacote de entrega.
+- Nenhum pacote foi gerado nesta etapa.
+- Nenhum arquivo foi alterado, removido, criado, renomeado ou movido nesta etapa.
+- A matriz consolida criterios de inclusao, exclusao, pre-requisito externo e decisao manual.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base da matriz: 2f314a6 docs: revisa sensibilidade dos artefatos excel da fase 7
+
+### Resumo quantitativo do repositorio versionado
+
+- Total de arquivos versionados: 442
+- Arquivos em docs: 206
+- Arquivos em scripts: 59
+- Arquivos Python versionados: 182
+- Arquivos shell versionados: 41
+
+### Artefatos sensiveis ou condicionais detectados
+
+#### Workbooks Excel versionados na raiz
+
+- LISTA_RTD.xlsx
+- OPERACOES_E_OPCOES.xlsm
+
+#### Bancos locais versionados
+
+- Nenhum banco local versionado identificado por extensao.
+
+#### Arquivos de ambiente versionados
+
+- Nenhum arquivo de ambiente versionado identificado por padrao.
+
+#### Logs, temporarios ou backups versionados
+
+- Nenhum log, temporario ou backup versionado identificado por extensao.
+
+### Matriz provisoria de decisao
+
+| Classe | Tratamento provisório | Observacao |
+| --- | --- | --- |
+| Codigo-fonte versionado | Incluir no pacote tecnico | Sujeito a validacao de testes e dependencias |
+| Documentacao versionada | Incluir | Mantem rastreabilidade das fases e decisoes |
+| Scripts de apoio versionados | Incluir com ressalva | Diferenciar scripts operacionais de scripts apenas historicos |
+| Checkpoints e evidencias | Incluir com revisao | Podem conter caminhos locais ou referencias historicas |
+| Workbooks Excel reais | Excluir por padrao de pacote externo | Incluir apenas com aprovacao explicita e revisao de conteudo |
+| Workbooks com macro | Excluir por padrao de pacote externo | Exigem revisao especifica de seguranca e necessidade operacional |
+| Bancos locais e caches | Excluir por padrao | Substituir por migracoes, seeds ou fixtures quando necessario |
+| Arquivos de ambiente | Excluir | Usar exemplos sem segredos, se aplicavel |
+| Logs, temporarios e backups | Excluir | Nao devem compor entrega limpa |
+| Dependencias externas ausentes | Registrar como pre-requisito | Nao criar artefato automaticamente por referencia textual |
+
+### Pre-requisitos externos candidatos
+
+- Validar se LISTA_RTD.xlsm ainda e necessario ao fluxo real, pois ha muitas referencias textuais e ausencia no repositorio.
+- Validar se OPERACOES_E_OPCOES.xlsx e apenas legado ou se existe fluxo local que ainda depende dele.
+- Confirmar se LISTA_RTD.xlsx e OPERACOES_E_OPCOES.xlsm devem permanecer no repositorio ou migrar para fixture controlada.
+- Confirmar se a entrega final sera para uso interno, auditoria tecnica ou distribuicao externa.
+
+### Regras provisorias para montagem futura
+
+- Nao gerar pacote final enquanto houver decisao pendente sobre arquivos Excel reais.
+- Nao incluir dados reais em entrega externa sem aprovacao explicita.
+- Nao incluir macros sem revisao especifica.
+- Nao depender de arquivos ausentes sem declara-los como pre-requisitos.
+- Preferir dados sinteticos, seeds ou fixtures anonimizadas para reproducibilidade.
+
+### Conclusao da matriz
+
+- A matriz provisoria do pacote de entrega foi registrada sem alteracao funcional.
+- A Fase 7 segue preparada para consolidacao final do checklist de entrega.
