@@ -129,3 +129,48 @@ docs/checkpoints/evidencias/fase-3f-fix1-evidencia-final.txt
 Status:
 Patch aplicado e validado por diagnóstico de geração/persistência de payoff.
 
+
+## Fase 4 - Diagnostico Atualizar Dados
+
+Data: Sun Jun 21 22:14:57     2026
+
+Branch: fase-3a4-auto-pricing-manual-save
+
+Commit base: a1088b3
+
+Objetivo:
+Localizar handler do botao Atualizar dados, servicos de pipeline chamados,
+feedback atual exibido ao usuario e pontos onde inserir resumo rastreavel.
+
+Evidencia gerada:
+docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados.txt
+
+Status:
+Diagnostico iniciado. Nenhuma alteracao funcional aplicada nesta etapa.
+
+
+## Fase 4 Fix1 - Feedback operacional do pipeline
+
+Foi identificado que o menu **Arquivo > Atualizar Dados** apenas recarrega os dados já persistidos na UI por meio de `refresh_data()`, sem executar o pipeline.
+
+O menu **Ferramentas > Executar Pipeline** executa `scripts/run_derived_pipeline.py`. Antes do ajuste, o retorno visual era genérico: "Pipeline executado com sucesso!".
+
+Ajustes realizados:
+
+- `scripts/run_derived_pipeline.py` agora emite um resumo operacional em stdout.
+- O resumo inclui contagens disponíveis no `derived.db`, como decisões e pontos de payoff.
+- O script também emite uma linha parseável com o marcador `[PIPELINE_SUMMARY_JSON]`.
+- `UI/main_window.py` passou a extrair esse JSON e montar uma mensagem amigável no `messagebox`.
+- A status bar passou a receber um resumo curto após a execução do pipeline.
+- `Atualizar Dados` permanece limitado ao refresh da UI, preservando separação de responsabilidades.
+
+Validações:
+
+- `python -m py_compile UI/main_window.py scripts/run_derived_pipeline.py`
+- `python scripts/run_derived_pipeline.py --no-cleanup`
+- `git diff --check`
+
+Resultado esperado na UI:
+
+- Popup com resumo operacional do pipeline.
+- Status bar com decisões, pontos de payoff e erros.

@@ -431,6 +431,69 @@ class MainWindow:
 
         threading.Thread(target=worker, daemon=True).start()
 
+
+    def _extract_pipeline_summary(self, stdout: str) -> Dict:
+        """Extrai o resumo JSON emitido por scripts/run_derived_pipeline.py."""
+        import json
+
+        marker = "[PIPELINE_SUMMARY_JSON]"
+        for line in reversed((stdout or "").splitlines()):
+            if marker in line:
+                payload = line.split(marker, 1)[1].strip()
+                try:
+                    data = json.loads(payload)
+                    return data if isinstance(data, dict) else {}
+                except Exception:
+                    return {}
+        return {}
+
+    def _format_pipeline_value(self, value):
+        """Formata valores do resumo operacional para exibição."""
+        if value is None:
+            return "n/d"
+        return str(value)
+
+    def _build_pipeline_feedback_message(self, stdout: str) -> str:
+        """Monta mensagem amigável para o usuário após executar pipeline."""
+        summary = self._extract_pipeline_summary(stdout)
+
+        if not summary:
+            return (
+                "Pipeline executado com sucesso.\n\n"
+                "Resumo operacional não disponível no stdout do pipeline."
+            )
+
+        lines = [
+            "Pipeline executado com sucesso.",
+            "",
+            "Resumo operacional:",
+            f"- Estruturas: {self._format_pipeline_value(summary.get('structures'))}",
+            f"- Decisões: {self._format_pipeline_value(summary.get('decisions'))}",
+            f"- Pontos de payoff: {self._format_pipeline_value(summary.get('payoff_points'))}",
+            f"- Resumos de payoff: {self._format_pipeline_value(summary.get('payoff_summaries'))}",
+            f"- Execuções de pricing: {self._format_pipeline_value(summary.get('pricing_executions'))}",
+            f"- Cotações RTD atualizadas: {self._format_pipeline_value(summary.get('rtd_quotes_updated'))}",
+            f"- Avisos: {self._format_pipeline_value(summary.get('warnings'))}",
+            f"- Erros: {self._format_pipeline_value(summary.get('errors'))}",
+        ]
+        return "\n".join(lines)
+
+    def _build_pipeline_status_message(self, stdout: str) -> str:
+        """Monta texto curto para status bar após pipeline."""
+        summary = self._extract_pipeline_summary(stdout)
+        if not summary:
+            return "Pipeline executado com sucesso"
+
+        decisions = self._format_pipeline_value(summary.get("decisions"))
+        payoff_points = self._format_pipeline_value(summary.get("payoff_points"))
+        errors = self._format_pipeline_value(summary.get("errors"))
+
+        return (
+            f"Pipeline OK: decisões={decisions}; "
+            f"pontos_payoff={payoff_points}; erros={errors}"
+        )
+
+
     def run_pipeline(self):
         """Executa o pipeline de derivados."""
         result = messagebox.askyesno(
@@ -469,8 +532,12 @@ class MainWindow:
             if res.stderr:
                 print("[UI] Pipeline STDERR:\n", res.stderr)
 
-            messagebox.showinfo("Sucesso", "Pipeline executado com sucesso!")
+            feedback = self._build_pipeline_feedback_message(res.stdout or "")
+            status_msg = self._build_pipeline_status_message(res.stdout or "")
+
+            messagebox.showinfo("Sucesso", feedback)
             self.refresh_data()
+            self.status_bar.config(text=status_msg)
 
         except subprocess.CalledProcessError as e:
             messagebox.showerror(

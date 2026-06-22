@@ -1,0 +1,520 @@
+============================================================
+FASE 4 - DIAGNOSTICO LIMPO ATUALIZAR DADOS
+Data:
+Sun Jun 21 22:19:18     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+a1088b3
+============================================================
+
+== Status git ==
+ M docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md
+?? docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt
+?? docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados.txt
+?? scripts/fase-4-diagnostico-atualizar-dados-limpo.sh
+?? scripts/fase-4-diagnostico-atualizar-dados.sh
+
+== UI/main_window.py menus e handlers principais ==
+131:        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+140:        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+161:        self.status_bar.config(text="Aplicando filtros...")
+166:            self.status_bar.config(text=f"{count} decisões encontradas")
+169:            self.status_bar.config(text="Erro nos filtros")
+194:            self.status_bar.config(text="Dados insuficientes para payoff")
+212:            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+214:            self.status_bar.config(text="Carregando payoff...")
+271:    def refresh_data(self):
+275:        self.status_bar.config(text="Carregando dados...")
+329:            self.status_bar.config(
+335:            self.status_bar.config(text="Erro ao carregar dados")
+359:                self.status_bar.config(
+376:        self.status_bar.config(text=f"Recalculando {structure_id}...")
+381:                self.status_bar.config(text=msg)
+434:    def run_pipeline(self):
+437:            "Executar Pipeline",
+443:        self.status_bar.config(text="Executando pipeline...")
+472:            messagebox.showinfo("Sucesso", "Pipeline executado com sucesso!")
+483:            self.status_bar.config(text="Pipeline falhou")
+486:            self.status_bar.config(text="Erro ao executar pipeline")
+560:                self.status_bar.config(text=msg)
+563:                self.status_bar.config(text="Sem dados de payoff para esta seleção")
+576:        self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+593:            self.status_bar.config(text=f"{char} {base_text}")
+689:                self.status_bar.config(text="Estrutura salva com sucesso.")
+707:                self.status_bar.config(text=text)
+
+== scripts/run_derived_pipeline.py pontos principais ==
+28:        return validate_snapshot_consistency(conn)
+34:def _run_build_summaries(repo_root: str) -> int:
+36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+40:    return 0
+43:def main(argv=None) -> int:
+44:    parser = argparse.ArgumentParser(description="Run derived pipeline")
+59:    rc = _run_build_summaries(str(PROJECT_ROOT))
+61:        return rc
+64:    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+66:        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+67:        return 1
+69:    print("\n[OK] PIPELINE FINALIZADO COM SUCESSO!")
+70:    return 0
+
+== services/calculation_orchestrator.py pontos principais ==
+3:# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+4:# alteracao_47: run_full_pipeline, multiplier fix (1.0), run_decision auto-extract
+20:from domain.payoff import compute_payoff_from_canonical_input
+21:from domain.decision import compute_decision_from_contract
+34:        return to_pricing_engine_side(raw)
+43:    return _CP_NORM[v]
+104:    return CalculationRequest(structure=structure, market_snapshot=snapshot)
+111:def _request_to_payoff_dict(
+131:    return {
+149:def run_payoff(
+156:    """Executa calculo de payoff a partir de um CalculationRequest."""
+157:    canonical = _request_to_payoff_dict(request, extra_meta=extra_meta)
+158:    return compute_payoff_from_canonical_input(
+166:def run_decision(
+168:    payoff: Optional[dict] = None,
+175:    if _pl_max is None and payoff:
+176:        _pl_max = float(payoff.get("pl_max") or 0.0)
+181:    if _pl_atual is None and payoff:
+182:        _pl_atual = float(payoff.get("pl_atual") or payoff.get("pl_now") or 0.0)
+195:    return compute_decision_from_contract(contract, payoff=payoff)
+198:def run_full_pipeline(
+205:    """alteracao_47: pipeline completo payoff + decision."""
+206:    payoff_result = run_payoff(
+213:    decision_result = run_decision(request, payoff=payoff_result)
+215:    return {
+216:        "payoff":           payoff_result,
+217:        "decision":         decision_result,
+233:    - Executar payoff e decisao sem acessar raw DB diretamente
+297:        return CalculationRequest(structure=structure, market_snapshot=snapshot)
+303:    def _request_to_payoff_dict(self, request: CalculationRequest) -> Dict[str, Any]:
+304:        """Converte CalculationRequest para o dict de payoff."""
+320:        return {
+338:    # run_payoff / run_decision / run_full_pipeline
+341:    def run_payoff(
+348:        canonical = self._request_to_payoff_dict(request)
+349:        return compute_payoff_from_canonical_input(
+356:    def run_decision(
+359:        payoff_result: Optional[Dict[str, Any]] = None,
+361:        if payoff_result is None:
+362:            payoff_result = self.run_payoff(request)
+365:            payoff_result.get("pl_max") or payoff_result.get("max_profit") or 0.0
+368:            payoff_result.get("pl_atual")
+369:            or payoff_result.get("current_pl")
+370:            or payoff_result.get("pl_now")
+374:            payoff_result.get("dte_min")
+384:        return compute_decision_from_contract(contract, payoff=payoff_result)
+386:    def run_full_pipeline(
+393:        """Executa run_payoff -> run_decision em sequencia."""
+394:        payoff_result   = self.run_payoff(request, low_pct=low_pct, high_pct=high_pct, step_pct=step_pct)
+395:        decision_result = self.run_decision(request, payoff_result=payoff_result)
+397:        return {
+398:            "payoff":           payoff_result,
+399:            "decision":         decision_result,
+496:        return self.build_calculation_request(structure_dict, market_snapshot_dict)
+498:    def run_full_pipeline_from_db(
+506:        Retorna dict com chaves: structure_id, payoff, decision.
+514:        return {
+516:            "payoff":       pipeline_result["payoff"],
+517:            "decision":     pipeline_result["decision"],
+
+== Trecho UI/main_window.py 110-160 ==
+
+        # Aba 3: Estruturas (Fase 5 -- alteracao_10)
+        self._setup_structures_tab(right_notebook)
+
+        # Status bar
+        self.status_bar = ttk.Label(
+            self.root,
+            text="Pronto",
+            relief=tk.SUNKEN,
+            anchor="w",
+        )
+        self.status_bar.pack(side="bottom", fill="x")
+
+    def _setup_menus(self):
+        """Cria menu superior."""
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # Menu Arquivo
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Arquivo", menu=file_menu)
+        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+        file_menu.add_separator()
+        file_menu.add_command(label="Sair", command=self.root.quit)
+
+        # Menu Ferramentas
+        tools_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Ferramentas", menu=tools_menu)
+        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+        tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+        tools_menu.add_separator()
+        tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+
+        # Menu Ajuda
+        help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Ajuda", menu=help_menu)
+        help_menu.add_command(label="Sobre", command=self.show_about)
+
+    def _bind_events(self):
+        """Vincula atalhos de teclado."""
+        self.root.bind("<F5>", lambda e: self.refresh_data())
+        self.root.bind("<Control-q>", lambda e: self.root.quit())
+
+    # ------------------------------------------------------------------
+    # Callbacks
+    # ------------------------------------------------------------------
+
+    def on_filter_change(self, filters: Dict):
+        """Callback quando filtros mudam."""
+
+== Trecho UI/main_window.py 260-315 ==
+                if current_worker_id == self._payoff_worker_id:
+                    self.root.after(
+                        0,
+                        self._handle_payoff_error,
+                        str(e),
+                        current_worker_id,
+                    )
+
+        thread = threading.Thread(target=load_worker, daemon=True)
+        thread.start()
+
+    def refresh_data(self):
+        """Recarrega dados do banco.
+        alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
+        """
+        self.status_bar.config(text="Carregando dados...")
+        try:
+            self.data_model.refresh()
+
+            try:
+                self.filters_panel.update_structures(
+                    self.data_model.get_structures()
+                )
+            except Exception:
+                pass
+
+            try:
+                self.filters_panel.reset_filters()
+            except Exception:
+                pass
+
+            decisions = self.data_model.get_decisions()
+            self.decisions_grid.update_data(decisions)
+
+            preserved = False
+            d = self.last_selected_decision
+
+            if d:
+                target_sid = d.get("structure_id")  # chave canônica
+                target_ts = d.get("timestamp")       # auxiliar
+
+                # Reselecionar na grid: structure_id é suficiente
+                if target_sid is not None:
+                    try:
+                        self.decisions_grid.select_by_key(target_sid, target_ts)
+                    except Exception:
+                        pass
+
+                    try:
+                        self.details_panel.update_decision(d)
+                    except Exception:
+                        pass
+
+                    try:
+                        self._start_payoff_load(target_sid, target_ts, d)
+                        preserved = True
+
+== Trecho UI/main_window.py 380-490 ==
+            try:
+                self.status_bar.config(text=msg)
+            except Exception:
+                pass
+            try:
+                if hasattr(self, "details_panel") and hasattr(
+                    self.details_panel, "on_recalc_finished"
+                ):
+                    self.details_panel.on_recalc_finished(
+                        structure_id, ok=ok, message=msg
+                    )
+            except Exception as e:
+                print("[UI] Erro notificando details_panel fim recalc:", e)
+
+        def worker():
+            try:
+                project_root = Path(__file__).resolve().parents[1]
+                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+                if not script_path.exists():
+                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+
+                res = subprocess.run(
+                    [sys.executable, str(script_path)],
+                    cwd=str(project_root),
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+
+                if res.stdout:
+                    print("[UI] Recalc STDOUT:\n", res.stdout)
+                if res.stderr:
+                    print("[UI] Recalc STDERR:\n", res.stderr)
+
+                self.root.after(0, self.refresh_data)
+                self.root.after(
+                    0, lambda: finish(True, f"OK: {structure_id} recalculado")
+                )
+
+            except subprocess.TimeoutExpired:
+                self.root.after(0, lambda: finish(False, "Timeout no recálculo"))
+            except subprocess.CalledProcessError as e:
+                if e.stdout:
+                    print("[UI] Recalc STDOUT:\n", e.stdout)
+                if e.stderr:
+                    print("[UI] Recalc STDERR:\n", e.stderr)
+                self.root.after(0, lambda: finish(False, "Falha no recálculo"))
+            except Exception as e:
+                print("[UI] Erro inesperado recalc:", e)
+                self.root.after(0, lambda: finish(False, "Erro no recálculo"))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def run_pipeline(self):
+        """Executa o pipeline de derivados."""
+        result = messagebox.askyesno(
+            "Executar Pipeline",
+            "Executar pipeline de derivados?\nIsso pode demorar alguns segundos.",
+        )
+        if not result:
+            return
+
+        self.status_bar.config(text="Executando pipeline...")
+
+        try:
+            project_root = Path(__file__).resolve().parents[1]
+            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+            if not script_path.exists():
+                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+
+            if not script_path.exists():
+                raise FileNotFoundError(
+                    f"Não achei o script do pipeline em: {script_path}"
+                )
+
+            import subprocess
+            import sys
+
+            res = subprocess.run(
+                [sys.executable, str(script_path)],
+                cwd=str(project_root),
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            if res.stdout:
+                print("[UI] Pipeline STDOUT:\n", res.stdout)
+            if res.stderr:
+                print("[UI] Pipeline STDERR:\n", res.stderr)
+
+            messagebox.showinfo("Sucesso", "Pipeline executado com sucesso!")
+            self.refresh_data()
+
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror(
+                "Erro",
+                "Pipeline falhou:\n\nSTDOUT:\n"
+                + (e.stdout or "")
+                + "\n\nSTDERR:\n"
+                + (e.stderr or ""),
+            )
+            self.status_bar.config(text="Pipeline falhou")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao executar pipeline: {e}")
+            self.status_bar.config(text="Erro ao executar pipeline")
+
+    def check_databases(self):
+        """Verifica status dos bancos de dados."""
+        try:
+
+== Trecho scripts/run_derived_pipeline.py 1-180 ==
+#!/usr/bin/env python3
+import os
+import sys
+import argparse
+from pathlib import Path
+
+# --- bootstrap: garantir raiz do projeto no sys.path ANTES dos imports internos ---
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+# -----------------------------------------------------------------------------
+
+# Opcional: carregar .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+
+def validate_final_consistency() -> bool:
+    """Valida consistência dos snapshots após processamento."""
+    from db.config import connect_derived
+    from db.derived_repo import validate_snapshot_consistency
+    
+    conn = connect_derived()
+    try:
+        return validate_snapshot_consistency(conn)
+    finally:
+        conn.close()
+
+
+
+def _run_build_summaries(repo_root: str) -> int:
+    """
+    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+    (Implemente aqui quando necessário.)
+    """
+    _ = repo_root
+    return 0
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Run derived pipeline")
+    parser.add_argument(
+        "--no-cleanup",
+        action="store_true",
+        help="Não executar cleanup do derived.db antes de validar",
+    )
+    args = parser.parse_args(argv)
+
+    # Imports internos (mantidos aqui para respeitar sys.path/bootstrap)
+    from services.derived_service import cleanup_derived
+
+    if not args.no_cleanup:
+        cleanup_derived(days_to_keep=30)
+
+    # (Opcional) build summaries
+    rc = _run_build_summaries(str(PROJECT_ROOT))
+    if rc != 0:
+        return rc
+
+    # Validação final OBRIGATÓRIA
+    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+    if not validate_final_consistency():
+        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+        return 1
+
+    print("\n[OK] PIPELINE FINALIZADO COM SUCESSO!")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+============================================================
+FIM DIAGNOSTICO LIMPO FASE 4
+============================================================
+
+============================================================
+FASE 4 FIX1 - PATCH FEEDBACK OPERACIONAL PIPELINE
+Data:
+Mon Jun 22 08:34:24     2026
+Commit base:
+a1088b3
+
+== Status git ==
+ M UI/main_window.py
+ M docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md
+ M scripts/run_derived_pipeline.py
+?? docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt
+?? docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados.txt
+?? scripts/fase-4-diagnostico-atualizar-dados-limpo.sh
+?? scripts/fase-4-diagnostico-atualizar-dados.sh
+
+== Validação py_compile ==
+py_compile OK
+
+== Execução run_derived_pipeline.py --no-cleanup ==
+
+[PIPELINE] Validando consist�ncia final dos snapshots...
+[ok] Snapshots consistentes
+
+[PIPELINE] Resumo operacional:
+  Estruturas: None
+  Decis�es: 2
+  Pontos de payoff: 202
+  Resumos de payoff: None
+  Execu��es de pricing: None
+  Cota��es RTD atualizadas: 0
+  Avisos: 0
+  Erros: 0
+[PIPELINE_SUMMARY_JSON] {"decisions": 2, "errors": 0, "payoff_points": 202, "payoff_summaries": null, "pricing_executions": null, "rtd_quotes_updated": 0, "structures": null, "table_counts": {"payoff_curve_points": 202, "rtd_option_quotes": 4, "structure_decisions": 2}, "warnings": 0}
+
+[OK] PIPELINE FINALIZADO COM SUCESSO!
+
+== Diff stat ==
+warning: in the working copy of 'docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md', LF will be replaced by CRLF the next time Git touches it
+ UI/main_window.py                                  |  69 +++++++++++++-
+ .../auditoria-revisao-funcional-pos-uso-real.md    |  19 ++++
+ scripts/run_derived_pipeline.py                    | 102 +++++++++++++++++++++
+ 3 files changed, 189 insertions(+), 1 deletion(-)
+
+============================================================
+FASE 4 FIX1 - VALIDACAO FINAL FEEDBACK OPERACIONAL
+Data:
+Mon Jun 22 08:42:00     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit base:
+a1088b3
+
+== py_compile ==
+py_compile OK
+
+== Execucao pipeline --no-cleanup ==
+
+[PIPELINE] Validando consist�ncia final dos snapshots...
+[ok] Snapshots consistentes
+
+[PIPELINE] Resumo operacional:
+  Estruturas: n/d
+  Decis�es: 2
+  Pontos de payoff: 202
+  Resumos de payoff: n/d
+  Execu��es de pricing: n/d
+  Cota��es RTD atualizadas: 0
+  Avisos: 0
+  Erros: 0
+[PIPELINE_SUMMARY_JSON] {"decisions": 2, "errors": 0, "payoff_points": 202, "payoff_summaries": null, "pricing_executions": null, "rtd_quotes_updated": 0, "structures": null, "table_counts": {"payoff_curve_points": 202, "rtd_option_quotes": 4, "structure_decisions": 2}, "warnings": 0}
+
+[OK] PIPELINE FINALIZADO COM SUCESSO!
+
+== diff --check ==
+warning: in the working copy of 'docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md', LF will be replaced by CRLF the next time Git touches it
+
+== status ==
+ M UI/main_window.py
+ M docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md
+ M scripts/run_derived_pipeline.py
+?? docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt
+?? docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados.txt
+?? scripts/fase-4-diagnostico-atualizar-dados-limpo.sh
+?? scripts/fase-4-diagnostico-atualizar-dados.sh
+
+== diff stat ==
+warning: in the working copy of 'docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md', LF will be replaced by CRLF the next time Git touches it
+ UI/main_window.py                                  |  69 ++++++++++++-
+ .../auditoria-revisao-funcional-pos-uso-real.md    |  19 ++++
+ scripts/run_derived_pipeline.py                    | 107 +++++++++++++++++++++
+ 3 files changed, 194 insertions(+), 1 deletion(-)
+
+============================================================
