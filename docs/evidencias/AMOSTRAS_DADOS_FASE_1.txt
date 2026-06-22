@@ -1,0 +1,463 @@
+# Amostras de dados — Fase 1
+
+Data: 2026-06-22
+Branch: reinicio-normalizacao-idioma-ptbr
+
+Objetivo: registrar amostras controladas dos bancos operacionais sem alterar dados.
+
+APP_DB: dados\app.db
+APP_DB_EXISTE: True
+DERIVED_DB: dados\derived.db
+DERIVED_DB_EXISTE: True
+
+================================================================================
+dados/app.db — structures
+================================================================================
+
+[1]
+id: 2
+name: SBSP+SMAL=BOVA
+underlying_asset: BOVA11
+alias_legacy_aba: None
+status: active
+created_at: 2026-06-20T00:18:13.473337+00:00
+updated_at: 2026-06-20T00:18:13.473337+00:00
+
+[2]
+id: 3
+name: PRIO
+underlying_asset: PRIO3
+alias_legacy_aba: None
+status: active
+created_at: 2026-06-22T13:46:39.650335+00:00
+updated_at: 2026-06-22T13:46:39.650335+00:00
+
+================================================================================
+dados/app.db — structure_legs
+================================================================================
+
+[1]
+id: 3
+structure_id: 2
+leg_order: 1
+position_side: COMPRADO
+option_type: CALL
+symbol: BOVAH186
+strike: 186.0
+expiration_date: 2026-08-21
+quantity: 4000
+premium: 0.69
+multiplier: 1.0
+created_at: 2026-06-20T00:18:13.473337+00:00
+updated_at: 2026-06-20T00:18:13.473337+00:00
+
+[2]
+id: 4
+structure_id: 2
+leg_order: 2
+position_side: VENDIDO
+option_type: CALL
+symbol: BOVAG34
+strike: 157.0
+expiration_date: 2026-07-17
+quantity: 2500
+premium: 10.44
+multiplier: 1.0
+created_at: 2026-06-20T00:18:13.473337+00:00
+updated_at: 2026-06-20T00:18:13.473337+00:00
+
+[3]
+id: 5
+structure_id: 2
+leg_order: 3
+position_side: VENDIDO
+option_type: PUT
+symbol: BOVAG34
+strike: 184.0
+expiration_date: 2026-07-17
+quantity: 2500
+premium: 16.93
+multiplier: 1.0
+created_at: 2026-06-20T00:18:13.473337+00:00
+updated_at: 2026-06-20T00:18:13.473337+00:00
+
+[4]
+id: 6
+structure_id: 2
+leg_order: 4
+position_side: COMPRADO
+option_type: PUT
+symbol: BOVAT158
+strike: 158.0
+expiration_date: 2026-08-21
+quantity: 4000
+premium: 1.51
+multiplier: 1.0
+created_at: 2026-06-20T00:18:13.473337+00:00
+updated_at: 2026-06-20T00:18:13.473337+00:00
+
+[5]
+id: 7
+structure_id: 3
+leg_order: 1
+position_side: COMPRADO
+option_type: CALL
+symbol: PRIOG800
+strike: 80.0
+expiration_date: 2026-07-17
+quantity: 1000
+premium: 0.46
+multiplier: 1.0
+created_at: 2026-06-22T13:46:39.650335+00:00
+updated_at: 2026-06-22T13:46:39.650335+00:00
+
+[6]
+id: 8
+structure_id: 3
+leg_order: 2
+position_side: VENDIDO
+option_type: CALL
+symbol: PRIOH505
+strike: 50.5
+expiration_date: 2026-08-21
+quantity: 1000
+premium: 7.71
+multiplier: 1.0
+created_at: 2026-06-22T13:46:39.650335+00:00
+updated_at: 2026-06-22T13:46:39.650335+00:00
+
+[7]
+id: 9
+structure_id: 3
+leg_order: 3
+position_side: VENDIDO
+option_type: PUT
+symbol: PRIOT700
+strike: 70.0
+expiration_date: 2026-08-21
+quantity: 1000
+premium: 6.64
+multiplier: 1.0
+created_at: 2026-06-22T13:46:39.650335+00:00
+updated_at: 2026-06-22T13:46:39.650335+00:00
+
+[8]
+id: 10
+structure_id: 3
+leg_order: 4
+position_side: COMPRADO
+option_type: PUT
+symbol: PRIOS525
+strike: 52.5
+expiration_date: 2026-08-21
+quantity: 1000
+premium: 0.2
+multiplier: 1.0
+created_at: 2026-06-22T13:46:39.650335+00:00
+updated_at: 2026-06-22T13:46:39.650335+00:00
+
+================================================================================
+dados/app.db — pricing_executions últimos 10
+================================================================================
+
+[1]
+id: 7
+created_at: 2026-06-22T13:46:40.451149Z
+structure_id: 3
+underlying_asset: PRIO3
+reference_date: 2026-06-22
+execution_status: ok
+execution_engine: stub
+error_message: None
+duration_ms: 5
+number_of_legs: 4
+total_quantity: 4000
+theoretical_value: 0.0
+
+[2]
+id: 6
+created_at: 2026-06-22T01:08:58.487592Z
+structure_id: 2
+underlying_asset: BOVA11
+reference_date: 2026-06-21
+execution_status: ok
+execution_engine: stub
+error_message: None
+duration_ms: 5
+number_of_legs: 4
+total_quantity: 13000
+theoretical_value: 0.0
+
+[3]
+id: 5
+created_at: 2026-06-22T00:55:36.426879Z
+structure_id: 2
+underlying_asset: BOVA11
+reference_date: 2026-06-21
+execution_status: ok
+execution_engine: stub
+error_message: None
+duration_ms: 5
+number_of_legs: 4
+total_quantity: 13000
+theoretical_value: 0.0
+
+[4]
+id: 4
+created_at: 2026-06-22T00:48:01.785862Z
+structure_id: 2
+underlying_asset: BOVA11
+reference_date: 2026-06-21
+execution_status: ok
+execution_engine: stub
+error_message: None
+duration_ms: 5
+number_of_legs: 4
+total_quantity: 13000
+theoretical_value: 0.0
+
+[5]
+id: 3
+created_at: 2026-06-22T00:44:38.811207Z
+structure_id: 2
+underlying_asset: BOVA11
+reference_date: 2026-06-21
+execution_status: ok
+execution_engine: stub
+error_message: None
+duration_ms: 5
+number_of_legs: 4
+total_quantity: 13000
+theoretical_value: 0.0
+
+[6]
+id: 2
+created_at: 2026-06-22T00:40:32.840549Z
+structure_id: None
+underlying_asset: None
+reference_date: None
+execution_status: error
+execution_engine: stub
+error_message: alias_legacy_aba is null for structure_id=2
+duration_ms: 0
+number_of_legs: None
+total_quantity: None
+theoretical_value: None
+
+[7]
+id: 1
+created_at: 2026-06-22T00:36:20.967549Z
+structure_id: None
+underlying_asset: None
+reference_date: None
+execution_status: error
+execution_engine: stub
+error_message: alias_legacy_aba is null for structure_id=2
+duration_ms: 0
+number_of_legs: None
+total_quantity: None
+theoretical_value: None
+
+================================================================================
+dados/app.db — rtd_option_quotes
+================================================================================
+
+[1]
+id: 2
+codigo_opcao: PRIOG800
+ativo_base: PRIO3
+call_put: CALL
+strike: 80.0
+vencimento: 2026-07-17
+ultimo_preco: 0.04
+bid: 0.0
+ask: 0.0
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 08:59:54
+
+[2]
+id: 3
+codigo_opcao: PRIOH515
+ativo_base: PRIO3
+call_put: CALL
+strike: 51.5
+vencimento: 2026-08-21
+ultimo_preco: 7.43
+bid: 0.0
+ask: 0.0
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 08:59:54
+
+[3]
+id: 5
+codigo_opcao: PRIOS525
+ativo_base: PRIO3
+call_put: PUT
+strike: 52.5
+vencimento: 2026-07-17
+ultimo_preco: 0.6
+bid: 0.03
+ask: 0.7
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 08:59:54
+
+[4]
+id: 4
+codigo_opcao: PRIOT700
+ativo_base: PRIO3
+call_put: PUT
+strike: 70.0
+vencimento: 2026-08-21
+ultimo_preco: 12.07
+bid: 0.0
+ask: 19.0
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 08:59:54
+
+================================================================================
+dados/derived.db — structure_decisions
+================================================================================
+
+[1]
+id: 1
+timestamp: 2026-06-22T01:08:20.100326+00:00
+aba: structure:2
+structure_id: 2
+decision: HOLD
+level: 0
+pl_atual: 0.0
+pl_max: None
+pl_pct_of_max: None
+dte_min: None
+spot_ref: 198.35
+why: {"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}
+why_json: {"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}
+meta_json: {"structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "storage_key": "structure:2"}
+created_at: 2026-06-21T22:08:20.128530
+
+[2]
+id: 2
+timestamp: 2026-06-22T01:08:58.523780+00:00
+aba: structure:2
+structure_id: 2
+decision: HOLD
+level: 0
+pl_atual: 0.0
+pl_max: None
+pl_pct_of_max: None
+dte_min: None
+spot_ref: 198.35
+why: {"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}
+why_json: {"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}
+meta_json: {"structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "storage_key": "structure:2"}
+created_at: 2026-06-21T22:08:58.554224
+
+[3]
+id: 3
+timestamp: 2026-06-22T13:46:40.493888+00:00
+aba: structure:3
+structure_id: 3
+decision: HOLD
+level: 0
+pl_atual: 0.0
+pl_max: None
+pl_pct_of_max: None
+dte_min: None
+spot_ref: 66.84
+why: {"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}
+why_json: {"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}
+meta_json: {"structure_id": 3, "structure_name": "PRIO", "underlying_asset": "PRIO3", "reference_date": "2026-06-22", "storage_key": "structure:3"}
+created_at: 2026-06-22T10:46:40.523168
+
+================================================================================
+dados/derived.db — resumo payoff_curve_points
+================================================================================
+
+[1]
+timestamp: 2026-06-22T01:08:20.100326+00:00
+aba: structure:2
+structure_id: 2
+spot_ref: None
+min_point_spot: 99.175
+max_point_spot: 297.525
+min_point_pl: -12201.5
+max_point_pl: 154412.5
+qtd_pontos: 101
+
+[2]
+timestamp: 2026-06-22T01:08:58.523780+00:00
+aba: structure:2
+structure_id: 2
+spot_ref: None
+min_point_spot: 99.175
+max_point_spot: 297.525
+min_point_pl: -12201.5
+max_point_pl: 154412.5
+qtd_pontos: 101
+
+[3]
+timestamp: 2026-06-22T13:46:40.493888+00:00
+aba: structure:3
+structure_id: 3
+spot_ref: None
+min_point_spot: 33.42
+max_point_spot: 100.26
+min_point_pl: -15810.0
+max_point_pl: -3810.0
+qtd_pontos: 101
+
+================================================================================
+dados/derived.db — rtd_option_quotes
+================================================================================
+
+[1]
+id: 1
+codigo_opcao: PRIOG800
+ativo_base: PRIO3
+call_put: CALL
+strike: 80.0
+vencimento: 2026-07-17
+ultimo_preco: 0.04
+bid: 0.0
+ask: 0.0
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 11:05:51
+
+[2]
+id: 2
+codigo_opcao: PRIOH515
+ativo_base: PRIO3
+call_put: CALL
+strike: 51.5
+vencimento: 2026-08-21
+ultimo_preco: 7.43
+bid: 0.0
+ask: 0.0
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 11:05:51
+
+[3]
+id: 3
+codigo_opcao: PRIOS525
+ativo_base: PRIO3
+call_put: PUT
+strike: 52.5
+vencimento: 2026-07-17
+ultimo_preco: 0.6
+bid: 0.03
+ask: 0.7
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 11:05:51
+
+[4]
+id: 4
+codigo_opcao: PRIOT700
+ativo_base: PRIO3
+call_put: PUT
+strike: 70.0
+vencimento: 2026-08-21
+ultimo_preco: 12.07
+bid: 0.0
+ask: 19.0
+source: BTG_RTD_EXCEL
+updated_at: 2026-06-22 11:05:51
