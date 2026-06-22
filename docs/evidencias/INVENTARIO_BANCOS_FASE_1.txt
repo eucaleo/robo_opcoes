@@ -1,0 +1,591 @@
+# Inventário de bancos — Fase 1
+
+Data: 2026-06-22
+Branch: reinicio-normalizacao-idioma-ptbr
+
+================================================================================
+BANCO: backups\app_fase12_rtd_option_quotes_ok.db
+EXISTE: True
+TAMANHO_BYTES: 126976
+
+TABELAS_ENCONTRADAS:
+- pricing_executions
+- rtd_option_quotes
+- sqlite_sequence
+- structure_audit_log
+- structure_leg_snapshots
+- structure_legs
+- structure_snapshots
+- structures
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: 0
+- structure_legs: 0
+- structure_decisions: tabela inexistente
+- payoff_curve_points: tabela inexistente
+- rtd_option_quotes: 4
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: 0
+- system_snapshots: tabela inexistente
+- structure_events: tabela inexistente
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structures]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- name | type=TEXT | notnull=1 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=1 | pk=0 | default=None
+- alias_legacy_aba | type=TEXT | notnull=0 | pk=0 | default=None
+- status | type=TEXT | notnull=1 | pk=0 | default='active'
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[structure_legs]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- structure_id | type=INTEGER | notnull=1 | pk=0 | default=None
+- position_side | type=TEXT | notnull=1 | pk=0 | default=None
+- option_type | type=TEXT | notnull=1 | pk=0 | default=None
+- symbol | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=1 | pk=0 | default=None
+- expiration_date | type=TEXT | notnull=1 | pk=0 | default=None
+- quantity | type=INTEGER | notnull=1 | pk=0 | default=None
+- premium | type=REAL | notnull=0 | pk=0 | default=None
+- multiplier | type=REAL | notnull=1 | pk=0 | default=1
+- leg_order | type=INTEGER | notnull=1 | pk=0 | default=None
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[rtd_option_quotes]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- codigo_opcao | type=TEXT | notnull=1 | pk=0 | default=None
+- ativo_base | type=TEXT | notnull=0 | pk=0 | default=None
+- call_put | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=0 | pk=0 | default=None
+- vencimento | type=TEXT | notnull=0 | pk=0 | default=None
+- ultimo_preco | type=REAL | notnull=0 | pk=0 | default=None
+- ultima_quantidade | type=REAL | notnull=0 | pk=0 | default=None
+- bid | type=REAL | notnull=0 | pk=0 | default=None
+- ask | type=REAL | notnull=0 | pk=0 | default=None
+- volume | type=REAL | notnull=0 | pk=0 | default=None
+- iv | type=REAL | notnull=0 | pk=0 | default=None
+- delta | type=REAL | notnull=0 | pk=0 | default=None
+- gamma | type=REAL | notnull=0 | pk=0 | default=None
+- theta | type=REAL | notnull=0 | pk=0 | default=None
+- vega | type=REAL | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='rtd_links'
+- raw_json | type=TEXT | notnull=0 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+- created_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+
+[pricing_executions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=0 | pk=0 | default=None
+- reference_date | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_status | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_engine | type=TEXT | notnull=0 | pk=0 | default=None
+- error_message | type=TEXT | notnull=0 | pk=0 | default=None
+- duration_ms | type=INTEGER | notnull=0 | pk=0 | default=None
+- number_of_legs | type=INTEGER | notnull=0 | pk=0 | default=None
+- total_quantity | type=INTEGER | notnull=0 | pk=0 | default=None
+- theoretical_value | type=REAL | notnull=0 | pk=0 | default=None
+- pricing_payload | type=TEXT | notnull=0 | pk=0 | default=None
+- result | type=TEXT | notnull=0 | pk=0 | default=None
+
+================================================================================
+BANCO: dados\app.db
+EXISTE: True
+TAMANHO_BYTES: 200704
+
+TABELAS_ENCONTRADAS:
+- pricing_executions
+- rtd_option_quotes
+- sqlite_sequence
+- structure_audit_log
+- structure_events
+- structure_leg_snapshots
+- structure_legs
+- structure_snapshots
+- structures
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: 2
+- structure_legs: 8
+- structure_decisions: tabela inexistente
+- payoff_curve_points: tabela inexistente
+- rtd_option_quotes: 4
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: 7
+- system_snapshots: tabela inexistente
+- structure_events: 0
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structures]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- name | type=TEXT | notnull=1 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=1 | pk=0 | default=None
+- alias_legacy_aba | type=TEXT | notnull=0 | pk=0 | default=None
+- status | type=TEXT | notnull=1 | pk=0 | default='active'
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[structure_legs]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- structure_id | type=INTEGER | notnull=1 | pk=0 | default=None
+- position_side | type=TEXT | notnull=1 | pk=0 | default=None
+- option_type | type=TEXT | notnull=1 | pk=0 | default=None
+- symbol | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=1 | pk=0 | default=None
+- expiration_date | type=TEXT | notnull=1 | pk=0 | default=None
+- quantity | type=INTEGER | notnull=1 | pk=0 | default=None
+- premium | type=REAL | notnull=0 | pk=0 | default=None
+- multiplier | type=REAL | notnull=1 | pk=0 | default=1
+- leg_order | type=INTEGER | notnull=1 | pk=0 | default=None
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[rtd_option_quotes]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- codigo_opcao | type=TEXT | notnull=1 | pk=0 | default=None
+- ativo_base | type=TEXT | notnull=0 | pk=0 | default=None
+- call_put | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=0 | pk=0 | default=None
+- vencimento | type=TEXT | notnull=0 | pk=0 | default=None
+- ultimo_preco | type=REAL | notnull=0 | pk=0 | default=None
+- ultima_quantidade | type=REAL | notnull=0 | pk=0 | default=None
+- bid | type=REAL | notnull=0 | pk=0 | default=None
+- ask | type=REAL | notnull=0 | pk=0 | default=None
+- volume | type=REAL | notnull=0 | pk=0 | default=None
+- iv | type=REAL | notnull=0 | pk=0 | default=None
+- delta | type=REAL | notnull=0 | pk=0 | default=None
+- gamma | type=REAL | notnull=0 | pk=0 | default=None
+- theta | type=REAL | notnull=0 | pk=0 | default=None
+- vega | type=REAL | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='rtd_links'
+- raw_json | type=TEXT | notnull=0 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+- created_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+
+[pricing_executions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=0 | pk=0 | default=None
+- reference_date | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_status | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_engine | type=TEXT | notnull=0 | pk=0 | default=None
+- error_message | type=TEXT | notnull=0 | pk=0 | default=None
+- duration_ms | type=INTEGER | notnull=0 | pk=0 | default=None
+- number_of_legs | type=INTEGER | notnull=0 | pk=0 | default=None
+- total_quantity | type=INTEGER | notnull=0 | pk=0 | default=None
+- theoretical_value | type=REAL | notnull=0 | pk=0 | default=None
+- pricing_payload | type=TEXT | notnull=0 | pk=0 | default=None
+- result | type=TEXT | notnull=0 | pk=0 | default=None
+
+[structure_events]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- structure_id | type=INTEGER | notnull=1 | pk=0 | default=None
+- leg_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- event_type | type=TEXT | notnull=1 | pk=0 | default=None
+- event_status | type=TEXT | notnull=1 | pk=0 | default='registered'
+- event_date | type=TEXT | notnull=1 | pk=0 | default=None
+- quantity | type=INTEGER | notnull=0 | pk=0 | default=None
+- price | type=REAL | notnull=0 | pk=0 | default=None
+- symbol | type=TEXT | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='manual'
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- metadata_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+================================================================================
+BANCO: dados\derived.db
+EXISTE: True
+TAMANHO_BYTES: 278528
+
+TABELAS_ENCONTRADAS:
+- payoff_curve_points
+- rtd_option_quotes
+- sqlite_sequence
+- structure_decisions
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: tabela inexistente
+- structure_legs: tabela inexistente
+- structure_decisions: 3
+- payoff_curve_points: 303
+- rtd_option_quotes: 4
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: tabela inexistente
+- system_snapshots: tabela inexistente
+- structure_events: tabela inexistente
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structure_decisions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- timestamp | type=TEXT | notnull=1 | pk=0 | default=None
+- aba | type=TEXT | notnull=1 | pk=0 | default=None
+- decision | type=TEXT | notnull=1 | pk=0 | default=None
+- level | type=INTEGER | notnull=1 | pk=0 | default=None
+- pl_atual | type=REAL | notnull=0 | pk=0 | default=None
+- pl_max | type=REAL | notnull=0 | pk=0 | default=None
+- pl_pct_of_max | type=REAL | notnull=0 | pk=0 | default=None
+- dte_min | type=INTEGER | notnull=0 | pk=0 | default=None
+- why_json | type=TEXT | notnull=0 | pk=0 | default=None
+- spot_ref | type=REAL | notnull=0 | pk=0 | default=None
+- meta_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=0 | pk=0 | default=CURRENT_TIMESTAMP
+- why | type=TEXT | notnull=0 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+
+[payoff_curve_points]
+- timestamp | type=TEXT | notnull=1 | pk=0 | default=None
+- aba | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- spot_ref | type=REAL | notnull=0 | pk=0 | default=None
+- point_spot | type=REAL | notnull=1 | pk=0 | default=None
+- point_pl | type=REAL | notnull=1 | pk=0 | default=None
+- meta_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=0 | pk=0 | default=datetime('now')
+
+[rtd_option_quotes]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- codigo_opcao | type=TEXT | notnull=1 | pk=0 | default=None
+- ativo_base | type=TEXT | notnull=0 | pk=0 | default=None
+- call_put | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=0 | pk=0 | default=None
+- vencimento | type=TEXT | notnull=0 | pk=0 | default=None
+- ultimo_preco | type=REAL | notnull=0 | pk=0 | default=None
+- ultima_quantidade | type=REAL | notnull=0 | pk=0 | default=None
+- bid | type=REAL | notnull=0 | pk=0 | default=None
+- ask | type=REAL | notnull=0 | pk=0 | default=None
+- volume | type=REAL | notnull=0 | pk=0 | default=None
+- iv | type=REAL | notnull=0 | pk=0 | default=None
+- delta | type=REAL | notnull=0 | pk=0 | default=None
+- gamma | type=REAL | notnull=0 | pk=0 | default=None
+- theta | type=REAL | notnull=0 | pk=0 | default=None
+- vega | type=REAL | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='rtd_links'
+- raw_json | type=TEXT | notnull=0 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+- created_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+
+================================================================================
+BANCO: data\app.db
+EXISTE: False
+
+================================================================================
+BANCO: docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db
+EXISTE: True
+TAMANHO_BYTES: 159744
+
+TABELAS_ENCONTRADAS:
+- pricing_executions
+- rtd_option_quotes
+- sqlite_sequence
+- structure_audit_log
+- structure_events
+- structure_leg_snapshots
+- structure_legs
+- structure_snapshots
+- structures
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: 1
+- structure_legs: 4
+- structure_decisions: tabela inexistente
+- payoff_curve_points: tabela inexistente
+- rtd_option_quotes: 4
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: 0
+- system_snapshots: tabela inexistente
+- structure_events: 0
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structures]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- name | type=TEXT | notnull=1 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=1 | pk=0 | default=None
+- alias_legacy_aba | type=TEXT | notnull=0 | pk=0 | default=None
+- status | type=TEXT | notnull=1 | pk=0 | default='active'
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[structure_legs]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- structure_id | type=INTEGER | notnull=1 | pk=0 | default=None
+- position_side | type=TEXT | notnull=1 | pk=0 | default=None
+- option_type | type=TEXT | notnull=1 | pk=0 | default=None
+- symbol | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=1 | pk=0 | default=None
+- expiration_date | type=TEXT | notnull=1 | pk=0 | default=None
+- quantity | type=INTEGER | notnull=1 | pk=0 | default=None
+- premium | type=REAL | notnull=0 | pk=0 | default=None
+- multiplier | type=REAL | notnull=1 | pk=0 | default=1
+- leg_order | type=INTEGER | notnull=1 | pk=0 | default=None
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[rtd_option_quotes]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- codigo_opcao | type=TEXT | notnull=1 | pk=0 | default=None
+- ativo_base | type=TEXT | notnull=0 | pk=0 | default=None
+- call_put | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=0 | pk=0 | default=None
+- vencimento | type=TEXT | notnull=0 | pk=0 | default=None
+- ultimo_preco | type=REAL | notnull=0 | pk=0 | default=None
+- ultima_quantidade | type=REAL | notnull=0 | pk=0 | default=None
+- bid | type=REAL | notnull=0 | pk=0 | default=None
+- ask | type=REAL | notnull=0 | pk=0 | default=None
+- volume | type=REAL | notnull=0 | pk=0 | default=None
+- iv | type=REAL | notnull=0 | pk=0 | default=None
+- delta | type=REAL | notnull=0 | pk=0 | default=None
+- gamma | type=REAL | notnull=0 | pk=0 | default=None
+- theta | type=REAL | notnull=0 | pk=0 | default=None
+- vega | type=REAL | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='rtd_links'
+- raw_json | type=TEXT | notnull=0 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+- created_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+
+[pricing_executions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=0 | pk=0 | default=None
+- reference_date | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_status | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_engine | type=TEXT | notnull=0 | pk=0 | default=None
+- error_message | type=TEXT | notnull=0 | pk=0 | default=None
+- duration_ms | type=INTEGER | notnull=0 | pk=0 | default=None
+- number_of_legs | type=INTEGER | notnull=0 | pk=0 | default=None
+- total_quantity | type=INTEGER | notnull=0 | pk=0 | default=None
+- theoretical_value | type=REAL | notnull=0 | pk=0 | default=None
+- pricing_payload | type=TEXT | notnull=0 | pk=0 | default=None
+- result | type=TEXT | notnull=0 | pk=0 | default=None
+
+[structure_events]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- structure_id | type=INTEGER | notnull=1 | pk=0 | default=None
+- leg_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- event_type | type=TEXT | notnull=1 | pk=0 | default=None
+- event_status | type=TEXT | notnull=1 | pk=0 | default='registered'
+- event_date | type=TEXT | notnull=1 | pk=0 | default=None
+- quantity | type=INTEGER | notnull=0 | pk=0 | default=None
+- price | type=REAL | notnull=0 | pk=0 | default=None
+- symbol | type=TEXT | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='manual'
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- metadata_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+================================================================================
+BANCO: docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db
+EXISTE: True
+TAMANHO_BYTES: 49152
+
+TABELAS_ENCONTRADAS:
+- payoff_curve_points
+- rtd_option_quotes
+- sqlite_sequence
+- structure_decisions
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: tabela inexistente
+- structure_legs: tabela inexistente
+- structure_decisions: 0
+- payoff_curve_points: 0
+- rtd_option_quotes: 4
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: tabela inexistente
+- system_snapshots: tabela inexistente
+- structure_events: tabela inexistente
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structure_decisions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- timestamp | type=TEXT | notnull=1 | pk=0 | default=None
+- aba | type=TEXT | notnull=1 | pk=0 | default=None
+- decision | type=TEXT | notnull=1 | pk=0 | default=None
+- level | type=INTEGER | notnull=1 | pk=0 | default=None
+- pl_atual | type=REAL | notnull=0 | pk=0 | default=None
+- pl_max | type=REAL | notnull=0 | pk=0 | default=None
+- pl_pct_of_max | type=REAL | notnull=0 | pk=0 | default=None
+- dte_min | type=INTEGER | notnull=0 | pk=0 | default=None
+- why_json | type=TEXT | notnull=0 | pk=0 | default=None
+- spot_ref | type=REAL | notnull=0 | pk=0 | default=None
+- meta_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=0 | pk=0 | default=CURRENT_TIMESTAMP
+- why | type=TEXT | notnull=0 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+
+[payoff_curve_points]
+- timestamp | type=TEXT | notnull=1 | pk=0 | default=None
+- aba | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- spot_ref | type=REAL | notnull=0 | pk=0 | default=None
+- point_spot | type=REAL | notnull=1 | pk=0 | default=None
+- point_pl | type=REAL | notnull=1 | pk=0 | default=None
+- meta_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=0 | pk=0 | default=datetime('now')
+
+[rtd_option_quotes]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- codigo_opcao | type=TEXT | notnull=1 | pk=0 | default=None
+- ativo_base | type=TEXT | notnull=0 | pk=0 | default=None
+- call_put | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=0 | pk=0 | default=None
+- vencimento | type=TEXT | notnull=0 | pk=0 | default=None
+- ultimo_preco | type=REAL | notnull=0 | pk=0 | default=None
+- ultima_quantidade | type=REAL | notnull=0 | pk=0 | default=None
+- bid | type=REAL | notnull=0 | pk=0 | default=None
+- ask | type=REAL | notnull=0 | pk=0 | default=None
+- volume | type=REAL | notnull=0 | pk=0 | default=None
+- iv | type=REAL | notnull=0 | pk=0 | default=None
+- delta | type=REAL | notnull=0 | pk=0 | default=None
+- gamma | type=REAL | notnull=0 | pk=0 | default=None
+- theta | type=REAL | notnull=0 | pk=0 | default=None
+- vega | type=REAL | notnull=0 | pk=0 | default=None
+- source | type=TEXT | notnull=1 | pk=0 | default='rtd_links'
+- raw_json | type=TEXT | notnull=0 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+- created_at | type=TEXT | notnull=1 | pk=0 | default=CURRENT_TIMESTAMP
+
+================================================================================
+BANCO: _resgate_db\estado_schema_atual\app_schema_atual_vazio.db
+EXISTE: True
+TAMANHO_BYTES: 118784
+
+TABELAS_ENCONTRADAS:
+- pricing_executions
+- sqlite_sequence
+- structure_audit_log
+- structure_leg_snapshots
+- structure_legs
+- structure_snapshots
+- structures
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: 0
+- structure_legs: 0
+- structure_decisions: tabela inexistente
+- payoff_curve_points: tabela inexistente
+- rtd_option_quotes: tabela inexistente
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: 0
+- system_snapshots: tabela inexistente
+- structure_events: tabela inexistente
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structures]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- name | type=TEXT | notnull=1 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=1 | pk=0 | default=None
+- alias_legacy_aba | type=TEXT | notnull=0 | pk=0 | default=None
+- status | type=TEXT | notnull=1 | pk=0 | default='active'
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[structure_legs]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- structure_id | type=INTEGER | notnull=1 | pk=0 | default=None
+- position_side | type=TEXT | notnull=1 | pk=0 | default=None
+- option_type | type=TEXT | notnull=1 | pk=0 | default=None
+- symbol | type=TEXT | notnull=0 | pk=0 | default=None
+- strike | type=REAL | notnull=1 | pk=0 | default=None
+- expiration_date | type=TEXT | notnull=1 | pk=0 | default=None
+- quantity | type=INTEGER | notnull=1 | pk=0 | default=None
+- premium | type=REAL | notnull=0 | pk=0 | default=None
+- multiplier | type=REAL | notnull=1 | pk=0 | default=1
+- leg_order | type=INTEGER | notnull=1 | pk=0 | default=None
+- notes | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- updated_at | type=TEXT | notnull=1 | pk=0 | default=None
+
+[pricing_executions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- created_at | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- underlying_asset | type=TEXT | notnull=0 | pk=0 | default=None
+- reference_date | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_status | type=TEXT | notnull=0 | pk=0 | default=None
+- execution_engine | type=TEXT | notnull=0 | pk=0 | default=None
+- error_message | type=TEXT | notnull=0 | pk=0 | default=None
+- duration_ms | type=INTEGER | notnull=0 | pk=0 | default=None
+- number_of_legs | type=INTEGER | notnull=0 | pk=0 | default=None
+- total_quantity | type=INTEGER | notnull=0 | pk=0 | default=None
+- theoretical_value | type=REAL | notnull=0 | pk=0 | default=None
+- pricing_payload | type=TEXT | notnull=0 | pk=0 | default=None
+- result | type=TEXT | notnull=0 | pk=0 | default=None
+
+================================================================================
+BANCO: _resgate_db\estado_schema_atual\derived_schema_atual_vazio.db
+EXISTE: True
+TAMANHO_BYTES: 36864
+
+TABELAS_ENCONTRADAS:
+- payoff_curve_points
+- sqlite_sequence
+- structure_decisions
+
+CONTAGENS_TABELAS_DE_INTERESSE:
+- structures: tabela inexistente
+- structure_legs: tabela inexistente
+- structure_decisions: 0
+- payoff_curve_points: 0
+- rtd_option_quotes: tabela inexistente
+- manual_analise_robo_legs: tabela inexistente
+- rtd_analise_robo_legs: tabela inexistente
+- pricing_executions: tabela inexistente
+- system_snapshots: tabela inexistente
+- structure_events: tabela inexistente
+
+SCHEMA_TABELAS_DE_INTERESSE:
+
+[structure_decisions]
+- id | type=INTEGER | notnull=0 | pk=1 | default=None
+- timestamp | type=TEXT | notnull=1 | pk=0 | default=None
+- aba | type=TEXT | notnull=1 | pk=0 | default=None
+- decision | type=TEXT | notnull=1 | pk=0 | default=None
+- level | type=INTEGER | notnull=1 | pk=0 | default=None
+- pl_atual | type=REAL | notnull=0 | pk=0 | default=None
+- pl_max | type=REAL | notnull=0 | pk=0 | default=None
+- pl_pct_of_max | type=REAL | notnull=0 | pk=0 | default=None
+- dte_min | type=INTEGER | notnull=0 | pk=0 | default=None
+- why_json | type=TEXT | notnull=0 | pk=0 | default=None
+- spot_ref | type=REAL | notnull=0 | pk=0 | default=None
+- meta_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=0 | pk=0 | default=CURRENT_TIMESTAMP
+- why | type=TEXT | notnull=0 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+
+[payoff_curve_points]
+- timestamp | type=TEXT | notnull=1 | pk=0 | default=None
+- aba | type=TEXT | notnull=1 | pk=0 | default=None
+- structure_id | type=INTEGER | notnull=0 | pk=0 | default=None
+- spot_ref | type=REAL | notnull=0 | pk=0 | default=None
+- point_spot | type=REAL | notnull=1 | pk=0 | default=None
+- point_pl | type=REAL | notnull=1 | pk=0 | default=None
+- meta_json | type=TEXT | notnull=0 | pk=0 | default=None
+- created_at | type=TEXT | notnull=0 | pk=0 | default=datetime('now')
+
