@@ -374,3 +374,60 @@ git tag --list "fase-6*"
 
 - A revisao de dependencias dos arquivos de dados da raiz foi registrada sem alteracao funcional.
 - A Fase 7 segue preparada para decisao explicita sobre manutencao, documentacao ou tratamento desses artefatos.
+
+## Revisao de aderencia entre workbooks referenciados e versionados
+
+### Escopo
+
+- Revisao documental de aderencia entre workbooks citados e arquivos efetivamente presentes ou versionados.
+- Nenhum arquivo foi alterado, removido, criado ou movido nesta etapa.
+- O objetivo e identificar lacunas antes de decisao de empacotamento, limpeza ou entrega.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base da revisao: 71b56c0 docs: normaliza referencias da revisao de dependencias da fase 7
+
+### Workbooks versionados na raiz
+
+- LISTA_RTD.xlsx
+- OPERACOES_E_OPCOES.xlsm
+
+### Matriz de presenca dos workbooks relevantes
+
+- Arquivo: LISTA_RTD.xlsx
+  - Existe no diretorio de trabalho: sim
+  - Versionado pelo Git: sim
+  - Ignorado pelo Git: nao
+  - Quantidade de referencias textuais: 22
+  - Ultimo commit relacionado: 5b4c3bc chore: padroniza nome da lista rtd
+- Arquivo: LISTA_RTD.xlsm
+  - Existe no diretorio de trabalho: nao
+  - Versionado pelo Git: nao
+  - Ignorado pelo Git: nao
+  - Quantidade de referencias textuais: 46
+  - Ultimo commit relacionado: nao aplicavel
+- Arquivo: OPERACOES_E_OPCOES.xlsm
+  - Existe no diretorio de trabalho: sim
+  - Versionado pelo Git: sim
+  - Ignorado pelo Git: nao
+  - Quantidade de referencias textuais: 19
+  - Ultimo commit relacionado: 0496b78 data: atualiza planilhas e arquivos bridge
+- Arquivo: OPERACOES_E_OPCOES.xlsx
+  - Existe no diretorio de trabalho: nao
+  - Versionado pelo Git: nao
+  - Ignorado pelo Git: sim
+  - Quantidade de referencias textuais: 21
+  - Ultimo commit relacionado: nao aplicavel
+
+### Pontos de atencao operacional
+
+- Referencias a workbooks ausentes ou nao versionados podem indicar dependencia historica, dependencia externa ou lacuna de empacotamento.
+- Arquivos presentes e versionados, mas tambem ignorados, podem representar artefatos rastreados antes da regra de ignore.
+- Divergencias entre extensoes xlsx e xlsm devem ser tratadas com cuidado, pois arquivos xlsm podem conter macros e fluxos operacionais manuais.
+- Nenhuma decisao automatica de remocao, inclusao ou renomeacao deve ser tomada apenas por esta revisao.
+
+### Conclusao da revisao
+
+- A aderencia entre workbooks referenciados e versionados foi registrada sem alteracao funcional.
+- A Fase 7 segue preparada para uma decisao explicita de empacotamento e tratamento de artefatos Excel.
