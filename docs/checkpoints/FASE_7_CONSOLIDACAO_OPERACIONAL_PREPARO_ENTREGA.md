@@ -135,3 +135,38 @@ git tag --list "fase-6*"
 
 - A baseline tecnica foi registrada sem alteracao funcional.
 - O objetivo desta etapa e preparar a revisao operacional e a entrega controlada.
+
+## Revisao de higiene operacional
+
+### Escopo
+
+- Revisao documental de higiene operacional.
+- Nenhum arquivo funcional foi alterado ou removido nesta etapa.
+- A revisao serve para orientar a preparacao de entrega controlada.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base da revisao: 8ac307c docs: registra baseline tecnica operacional da fase 7
+- Arquivos versionados no momento da revisao: 436
+
+### Possiveis candidatos a limpeza ou verificacao
+
+- Nenhum candidato evidente encontrado nos padroes avaliados
+
+### Arquivos de dados ou binarios na raiz
+
+- LISTA_RTD.xlsx
+- OPERACOES_E_OPCOES.xlsm
+
+### Observacoes
+
+- Itens listados como candidatos nao devem ser removidos automaticamente.
+- Cada item deve ser avaliado quanto a necessidade operacional, historico e impacto na entrega.
+- Caso algum item seja essencial ao projeto, ele deve permanecer versionado e documentado.
+- Caso algum item seja artefato local, deve ser tratado em etapa propria com commit separado.
+
+### Conclusao da revisao
+
+- A revisao de higiene operacional foi registrada sem alteracao funcional.
+- A Fase 7 segue pronta para avaliacao controlada de limpeza, documentacao e empacotamento.
