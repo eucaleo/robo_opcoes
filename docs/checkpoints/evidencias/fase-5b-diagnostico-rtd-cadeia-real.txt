@@ -1,0 +1,698 @@
+============================================================
+FASE 5B - DIAGNOSTICO RTD CADEIA REAL E HISTORICO
+Data:
+Mon Jun 22 08:50:29     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+711f088
+============================================================
+
+== Status git ==
+?? docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt
+?? docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt
+?? scripts/fase-5-diagnostico-rtd.sh
+?? scripts/fase-5b-diagnostico-rtd-cadeia-real.sh
+
+== Arquivos rastreados relacionados a RTD/quotes ==
+ATT/tests/test_market_snapshot_provider.py
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py
+ATT/tests/test_market_snapshot_selector.py
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+ATT/tests/test_structure_leg_rtd_enrichment_service.py
+ATT/tests/test_structure_market_input_assembler.py
+ATT/tests/test_system_snapshots_repository.py
+ATT/tests/test_system_snapshots_schema.py
+LISTA_RTD.xlsx
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt
+docs/checkpoints/evidencias/fase-1-trechos-rtd-runtime.txt
+docs/checkpoints/evidencias/fase-3a-src-structure-market-input-assembler.txt
+docs/checkpoints/evidencias/fase-3a2-src-structure-market-input-assembler.txt
+docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt
+docs/checkpoints/evidencias/fase-6-11-auditoria-testes-rtd-historicos-git.txt
+docs/checkpoints/evidencias/fase-6-11-datas-exclusao-testes-rtd-historicos.txt
+docs/checkpoints/evidencias/fase-6-11-decisao-final-testes-rtd-historicos.txt
+docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt
+docs/checkpoints/evidencias/fase-6-11-evidencia-fechamento-rtd-option-quotes-pricing-runtime.txt
+docs/checkpoints/evidencias/fase-6-11-evidencia-guardrails-rtd-option-quotes-repository.txt
+docs/checkpoints/evidencias/fase-6-11-evidencia-integracao-rtd-option-quotes-pricing-runtime.txt
+docs/checkpoints/evidencias/fase-6-11-evidencia-pr-rtd-option-quotes-pricing-runtime.txt
+docs/checkpoints/evidencias/fase-6-11-evidencia-repository-rtd-option-quotes.txt
+docs/checkpoints/evidencias/fase-6-11-importabilidade-testes-rtd-historicos-sanitizados.txt
+docs/checkpoints/evidencias/fase-6-11-inventario-testes-rtd-option-canonical.txt
+docs/checkpoints/evidencias/fase-6-11-mapa-impacto-integracao-rtd-option-quotes-pricing-runtime.txt
+docs/checkpoints/evidencias/fase-6-11-mapa-runtime-leitura-rtd-pricing.txt
+docs/checkpoints/evidencias/fase-6-11-matriz-compatibilidade-testes-rtd-historicos.txt
+docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos-sanitizados.txt
+docs/checkpoints/evidencias/fase-6-11-pytest-collect-only-testes-rtd-historicos.txt
+docs/checkpoints/evidencias/fase-6-11-pytest-rtd-canonical-pricing-input-baseline.txt
+docs/checkpoints/evidencias/fase-6-11-pytest-rtd-canonical-pricing-input-guardrail.txt
+docs/checkpoints/evidencias/fase-6-11-recorte-rtd-canonical-pricing-input.txt
+docs/checkpoints/evidencias/fase-6-11-regressao-disponivel-rtd-canonical-pricing.txt
+docs/checkpoints/evidencias/fase-6-11-simbolos-atuais-rtd-pricing.txt
+docs/checkpoints/evidencias/fase-6-11-sintaxe-testes-rtd-historicos.txt
+docs/checkpoints/evidencias/fase-6-11-testes-rtd-historicos-ausentes.txt
+docs/checkpoints/evidencias/fase-6-7-inventario-diagnostico-rtd-canonical.txt
+docs/checkpoints/evidencias/fase-6-7-pytest-baseline-canonical-rtd.txt
+docs/checkpoints/evidencias/fase-6-7-pytest-baseline-rtd-option-quotes.txt
+docs/checkpoints/evidencias/fase-6-7-recorte-funcional-rtd-canonical.txt
+docs/checkpoints/evidencias/fase-6-8-pytest-guardrail-matriz-diagnostico-rtd.txt
+docs/checkpoints/evidencias/fase-6-9-pytest-canonical-pricing-rtd-number-formats.txt
+docs/checkpoints/evidencias/fase-7-execucao-testes-rtd-vigentes.txt
+docs/checkpoints/evidencias/fase-7-fechamento-validacao-regressiva-rtd-vigente.txt
+docs/checkpoints/evidencias/fase-7-validacao-regressiva-rtd-vigente.txt
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_execute_pricing_rtd_integration_from_b492f16.py.txt
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_db_path_from_bcb6ddb.py.txt
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_canonical_pricing_facade_rtd_price_resolution_from_0c7e123.py.txt
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_pricing_execution_price_source_persistence_from_d3a9dcc.py.txt
+docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_execute_pricing_rtd_integration.from-b492f16.py.txt
+docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_db_path.from-bcb6ddb.py.txt
+docs/checkpoints/evidencias/rtd_historico_preview/test_canonical_pricing_facade_rtd_price_resolution.from-0c7e123.py.txt
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt
+docs/checkpoints/evidencias/rtd_historico_preview/test_pricing_execution_price_source_persistence.from-d3a9dcc.py.txt
+docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md
+docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md
+docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+docs/evolucoes de fases/AUDITORIA_FASE_11_SNAPSHOTS_HISTORICO.md
+domain/market_snapshot.py
+repositories/market_snapshot_repository.py
+repositories/rtd_option_quotes_repository.py
+repositories/system_snapshots_repository.py
+scripts/purge_derived_snapshots.py
+services/market_snapshot_provider.py
+services/market_snapshot_selector.py
+services/structure_leg_rtd_enrichment_service.py
+services/structure_market_input_assembler.py
+
+== Arquivos atuais em scripts relacionados a RTD/quotes ==
+scripts/fase-5-diagnostico-rtd.sh
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh
+scripts/purge_derived_snapshots.py
+scripts/refresh_rtd_option_quotes_excel.ps1.bak
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak
+
+== Arquivos atuais em infra relacionados a RTD/quotes ==
+
+== Arquivos atuais em repositories/services relacionados a RTD/quotes ==
+repositories/market_snapshot_repository.py
+repositories/rtd_option_quotes_repository.py
+repositories/system_snapshots_repository.py
+services/market_snapshot_provider.py
+services/market_snapshot_selector.py
+services/structure_leg_rtd_enrichment_service.py
+services/structure_market_input_assembler.py
+
+== Historico Git de scripts RTD conhecidos ==
+---- scripts/run_rtd_option_quotes_pipeline.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+700a716 Corrige pipeline RTD wide com autobootstrap de schema
+1c045a5 index on main: ffb1fab merge: integra fase 17 mapa de pastas e arquivos
+a2aef25 feat: adiciona pipeline rtd option quotes
+
+---- scripts/import_rtd_links_to_option_quotes.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+1c045a5 index on main: ffb1fab merge: integra fase 17 mapa de pastas e arquivos
+7c0ab1a feat: cria importador rtd links para option quotes
+
+---- scripts/import_rtd_option_quotes_wide_csv.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+700a716 Corrige pipeline RTD wide com autobootstrap de schema
+229103c feat: adiciona pipeline operacional de refresh RTD
+
+---- scripts/build_rtd_symbols.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+229103c feat: adiciona pipeline operacional de refresh RTD
+
+---- scripts/run_rtd_refresh_full.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+229103c feat: adiciona pipeline operacional de refresh RTD
+
+---- scripts/audit_rtd_option_quotes.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+1c045a5 index on main: ffb1fab merge: integra fase 17 mapa de pastas e arquivos
+4bb674b feat: importa option quotes a partir do lista rtd excel
+cd1f06b feat: adiciona auditoria da tabela rtd option quotes
+
+---- scripts/refresh_rtd_option_quotes_excel.ps1 ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+229103c feat: adiciona pipeline operacional de refresh RTD
+
+---- infra/bootstrap_rtd_option_quotes_schema.py ----
+8a56969 chore: salvaguarda estado staged em main pos fase 6.6
+700a716 Corrige pipeline RTD wide com autobootstrap de schema
+3d2218e docs: registra reconciliação rtd option quotes e RTD Excel
+
+
+== Alteracoes historicas por nome contendo RTD em scripts/infra ==
+commit 711f0885b7f4354e8babb72a163135bd0511fecd
+commit a1088b35e2d32d19091fbf07961ff459d3ba49b9
+commit 861c17f5c8b9ad8a2ae285681ffe57b338487709
+commit 8550c2006fbfc0e186f0202cad0aa1cd93b41e2f
+commit 6d36c1cf4151131be54053d02f6d0727b5ec7bba
+commit 6ba7a6edc7a92875cf33c7cebb7df72098811eb7
+commit c5107e1d403e80478a146f4d6fa27254b0d48461
+commit 3cb13197d50595fb303380fd50887eb9a7be403c
+commit 93e984477fe5f6a96362e4e1a7ba180e9f6a5295
+commit b145981a799a855b30eb1f531ac47142cd2cf051
+commit 8a56969d0fc6de6c040be3e40ae5c65b06c0501a
+A	infra/bootstrap_rtd_option_quotes_schema.py
+A	scripts/audit_rtd_option_quotes.py
+A	scripts/build_rtd_symbols.py
+A	scripts/create_rtd_option_quotes_sheet.py
+A	scripts/import_lista_rtd_excel_to_option_quotes.py
+A	scripts/import_rtd_links_to_option_quotes.py
+A	scripts/import_rtd_option_quotes_wide_csv.py
+A	scripts/mapear_automacao_opcoes_rtd.py
+A	scripts/refresh_rtd_option_quotes_excel.ps1
+A	scripts/run_lista_rtd_option_quotes_pipeline.py
+A	scripts/run_rtd_option_quotes_pipeline.py
+A	scripts/run_rtd_refresh_full.py
+A	scripts/seed_current_rtd_option_quotes.py
+commit 700a71641382e58c6e19beecceb35405e7513f1b
+    Corrige pipeline RTD wide com autobootstrap de schema
+M	infra/bootstrap_rtd_option_quotes_schema.py
+M	scripts/import_rtd_option_quotes_wide_csv.py
+M	scripts/run_rtd_option_quotes_pipeline.py
+commit 229103c6dd5d3dac1d121778dec868e1ed6834ea
+    feat: adiciona pipeline operacional de refresh RTD
+A	scripts/build_rtd_symbols.py
+A	scripts/import_rtd_option_quotes_wide_csv.py
+A	scripts/refresh_rtd_option_quotes_excel.ps1
+A	scripts/run_rtd_refresh_full.py
+commit 3d2218e1660901039d2e60cbc7735f0bcbd425a9
+    docs: registra reconciliação rtd option quotes e RTD Excel
+A	infra/bootstrap_rtd_option_quotes_schema.py
+commit b8a320105e52877f0feaa1c35bcca8494d9a49c0
+    fix: importa cotações RTD de opções e fecha Excel corretamente
+A	scripts/create_rtd_option_quotes_sheet.py
+M	scripts/import_lista_rtd_excel_to_option_quotes.py
+commit 71f96cd6672400b16f461a87bf9b5d5d12fe1787
+commit 34759106118b26607dc55f6569907cacedaec551
+commit 1c045a518bb76d4b9f2d3d3b064869457807e320
+A	scripts/audit_rtd_option_quotes.py
+A	scripts/import_lista_rtd_excel_to_option_quotes.py
+A	scripts/import_rtd_links_to_option_quotes.py
+A	scripts/mapear_automacao_opcoes_rtd.py
+A	scripts/run_lista_rtd_option_quotes_pipeline.py
+A	scripts/run_rtd_option_quotes_pipeline.py
+A	scripts/seed_current_rtd_option_quotes.py
+commit 30e3eae3c8cc90fa516f39023b681e9b98f17d90
+    feat: adiciona pipeline lista rtd option quotes
+A	scripts/run_lista_rtd_option_quotes_pipeline.py
+commit 4bb674ba51811456c26c1c852e2e0ec1650b5984
+    feat: importa option quotes a partir do lista rtd excel
+M	scripts/audit_rtd_option_quotes.py
+A	scripts/import_lista_rtd_excel_to_option_quotes.py
+commit 533503c00837fb9c82cde73e10cd4eb40249ee59
+    feat: adiciona seed atual rtd option quotes
+A	scripts/seed_current_rtd_option_quotes.py
+commit a2aef25b66815d1a5e590174b9212369346a7699
+    feat: adiciona pipeline rtd option quotes
+A	scripts/run_rtd_option_quotes_pipeline.py
+commit cd1f06b83cbc9bcf8e121eca3d20fd2db5c5728d
+    feat: adiciona auditoria da tabela rtd option quotes
+A	scripts/audit_rtd_option_quotes.py
+commit 7c0ab1ab10d2305109cb9f091463fcd0fbc832cb
+    feat: cria importador rtd links para option quotes
+A	scripts/import_rtd_links_to_option_quotes.py
+commit aa79fbec13d4b653f493598cc8b8ee88da98fd91
+    docs: inicia fase 1 com mapeamento automatizado RTD
+A	scripts/mapear_automacao_opcoes_rtd.py
+commit 365499a49e933b9ecf7f7d00e800de5c6393f390
+commit 540694bebb63745c123e5743ad58a339a00b554c
+commit 4629dadfc46f9eeb313dcefd834dbdfcbb0dfb61
+commit 295af2a3435634720d4da87383f065a707971b48
+commit b8080a04566bb69538232dedb38e457800aef9f8
+commit 6e157eb5ad1a046b59726982fa24dae1ac256fa3
+commit 0bfad234828fa178a0a2123e12d0b3eb68ca3a46
+commit 925856e0851aed26bed4d97a353fd3f8557f5add
+D	scripts/git_mapear_fluxo_rtd.py
+D	scripts/import_rtd_links_csv.py
+D	scripts/mapear_rtd_opcoes.py
+D	scripts/patch_73_rtd_option_quotes.py
+D	scripts/seed_structures_from_rtd.py
+commit bec875aa1b4ca4f7477c92e04c17d06726a27792
+commit 34380b9fc45890b204701610f662b20670520301
+D	scripts/12_smoke_structure_market_input.py
+D	scripts/61_smoke_market_snapshot.py
+commit 37a5a1e25c41343729d856162d776a1ce34285b6
+commit a607e33ab1ccecfe86be8e53548fd1767d8806f4
+commit 4cb1a602a8d9ce35bdded2423a57330274c703ac
+commit 73e412a5c00b93fb8447b0bb1e2c16844f0565e6
+commit 2383050104d29653d1ecae5503c410cbb11d925d
+commit f2b12e1f0ba024aa8162e6079276021b965f4cca
+commit 07a212de2205993b08653720019ed9616e81430e
+commit 9b30c32281cac379c1e51e0b2a7e9205de968ffe
+    Adiciona seed de structures a partir das abas RTD
+A	scripts/seed_structures_from_rtd.py
+commit 632642001234773f30adbed285e4f99f6b5cb678
+commit 98984b39cea317c313f0833d6e6604ad30767546
+A	scripts/git_mapear_fluxo_rtd.py
+A	scripts/mapear_rtd_opcoes.py
+commit 525ad98eff8eecceaa44379a8a8685d8094dc315
+    Adiciona importacao de cotacoes RTD de opcoes via CSV
+A	scripts/import_rtd_links_csv.py
+A	scripts/patch_73_rtd_option_quotes.py
+commit cc4b91cae17b28bae0c013d4420605a4286ceacb
+commit bda11a31806a00f1a0b1c1285b9a591013e180b3
+commit 7af51cddbfb28a7ecda2279c09cca008b11b9280
+commit 22123849bf93de840aba7b9d33a07b98d3fdcdbd
+commit d9eca773fad050cf75f4fc93137d07c3cada1856
+    patch_66: importa legs legadas RTD/manual para structure_legs (canônico)
+commit 2e392dbcb329e2288acd54377721d0ec91d83d4e
+commit 22879aa6034ce3dab8431578ba45883969bbb77f
+commit 5939f8f4f0b3c0cf4d0d236759bd44cd9dc3771a
+commit 9acac5a74fdd9b8129d2a5671b8663c84fcc3686
+commit 464c6ab6dacefc8ee2d07a8606462b7e55fc700e
+commit bdcfc76b80bd7880d3c721ce88ba071542a31e24
+commit 8abb43595c31193bbcb882234ea6fe319159442e
+commit 9b8cc7376540da9d8cc41b628191377fe23b335b
+commit ce75a84a7ab99dca64be3c06d876345c1386d72f
+commit b5776f1892971d7132a30e08427fc6ce6ce54c3a
+commit 5bcbb2c2b7dcd467a6ceb80838dbb8efd73f25c0
+commit 442e33225b33709da284f3ba7ad4761f13e59267
+commit 03064c996819690cf70812963eacbd9dd945ccac
+commit e8ac8f9a12f3e0c535e97e6799abc689dc055033
+commit 27922313034c0986cd9b5c3f2269982181425de9
+    - Scripts temporários de diagnóstico incluídos no commit para rastreabilidade
+commit f37cfb6c4d4396831e68a50c2614d2fce9f53496
+commit 7f41adc3246ca27cdc0106e25e95f47dfc28f688
+commit ee9c16f4c1abf021e8a140530deb2c427ef6317b
+commit 0f496628ceb242e3b7f465ef8893f7d84c5c26b2
+commit 5c4d94b989588199788d79bc030988db4d04826c
+commit 71d2521dae4ee398b0a6113009811a00925f33f8
+commit 17bf55512e22d6a59f1be36ecd374b3ae411dceb
+commit 7ec30db5ce2c66656675ab609f910462019a1fd5
+commit b10f9f4abbcbc67d19382ad8ceb7b319f0ba6893
+commit f26a56334dcdef7f9827cba4458df55a26ce3cfd
+commit f11d90622651ef46fd443390e0244b44655f21f4
+    feat(patch_45): CalculationRequest — contrato canônico StructureInput + MarketSnapshotInput
+    - StructureLegInput, StructureInput, MarketSnapshotInput, CalculationRequest (frozen dataclasses)
+commit 6f5c8d6e128c9fdf80955a942bca3b1793e65c0f
+commit 1743049e3d8c5b37da97f61488b6b098faf7a7ee
+commit 9d5856a7e014768bd48737c504f3a93521e8159f
+commit b6269781d557144393612ecc52492b0c8e077df4
+commit e6df59ad56b713d5b2f15a2a8e82f86c23df2078
+commit beb88e8c5735bc8841cd462dfb181db67047d04c
+commit e7bd963b47ccc0d54a3d6ae6086a5bbf80894b68
+commit 6cf09a1f2ae20183a1b6045115e0014b4a359d5c
+commit 9d903206039f351ff41f936c70d220d5336264f9
+commit 82a2fbf99c6d402d428173686b72617b2f12c8fc
+commit 2e278c7742a5ec935f1b0ecf1bd9cb25c2f2675a
+commit d3d5c60d88c577c91880e6c9bf720ac7c8877414
+    - pipeline completo agora usa MarketSnapshotSelector (manual > rtd)
+commit 49fd54f40d91ac0482a5f190fddfef5c43db1e02
+commit b6e38b8b25fb315e73f39c17981ab6f3b44772ba
+commit e787fc7fa2ddc6990cb6f45bdcb2547b81dd71dd
+    test(smoke/patch_15): fix LegMarketSnapshot aba + execute_pricing(); pipeline smoke 5/5 OK
+commit 3519e83aaa90fd8b4cab9aee75eaf234f2ac2fbd
+    test(smoke/patch_14): fix LegMarketSnapshot aba arg + selector smoke 5/5 OK
+commit 83095dbf4bf69c971e0f485f9276ff00fb9acd48
+    patch_13: StructureMarketSnapshot + selector manual>rtd [smoke OK]
+A	scripts/61_smoke_market_snapshot.py
+commit 34e5667981b74c3f59bc72344c1b2aa722a7a784
+commit 7269d3bd24f6e871b1a3575173be428ff0d279b5
+commit 2ee6d3e1b3d598c504dda1df936b7242506a6c0c
+commit bd323526db53dd2d6fbe21b4d4af05d0dec4e47c
+commit 10d5c96a18732e4f1c7d6403760dbe3ff22a265e
+commit e8f642fd2a6a4fd45ea670cb8c2133052b0ec003
+commit e6aa9bacb69bf08ac20a2b9a09142cebd7bc3e51
+commit ec4a542291eb7d066543a88ad8bc51b773d3348d
+A	scripts/12_smoke_structure_market_input.py
+commit 1265485ccc223a715cff8c9ded41b0bd32ee09f7
+commit e4ba830a93abcb5bf4c136b46a2e9e7793e7915d
+commit a97e5b847c5a5204d704040981028431044aef4b
+commit 10d543a439fa2b014f4544089dfd1b226e77b43f
+commit f105b277eacbbc10d7edfb90b36ea52015667ff8
+commit 3be721bd3df39dfea4581bab729f9d26677dfafb
+commit adc3816d6a11cb14b0601921b0b72e7f36399e2b
+commit c7c9a11e306e968b7a011584a5a0ed8dd054fba0
+commit ab3451f2d5204aa9ca3738a1a792f8ed700de4e1
+commit ed705f6c7783e3f3e6d28cccc71a0380c3083ee3
+commit b8b1ea369a991a816d09ee182b85779e94f26f7f
+commit 0cfff302e5eaf72474dd88abc0254138c4292146
+commit fed842bb24ffb91d1cbb91b3f794ca4be42dd1e6
+commit 68cfa772cf1c5e75e889e2987d94bf9b09a21c84
+commit 315fb18f5a13101bfa62b9e14a0229d2b49db988
+commit 9a7bb7eaa7b7c28f94f1323744624986bcda9c7a
+A	scripts/db_probe_manual_vs_rtd.py
+A	scripts/list_abas_rtd.py
+A	scripts/seed_manual_legs_from_rtd.py
+commit fe300274052d9efc98901e598a464daa7d589487
+commit d6c2b298847e341c12980294fb4d49381247fa79
+commit 23b84dd9e40b226fe975a826afd8b9d4240fcb1f
+commit 777137efe195742798c683bfd84c98cd7772c3cf
+commit c757c9057243d0b151161101b864a0b0278b9ec5
+commit dec997a53c92084d77f477489f3a4bdebabc522a
+commit 69f8309f3faa231b70ab16b755cb9b1a4721cd67
+commit b7b1ca710aae5c62cfade9c37e12520d9f791f7e
+A	scripts/12_smoke_structure_market_input.py
+commit b5e9f37b5033db346be4339a6cf7ac3a0c53c7d9
+commit 51a8cb03b76589a20f5306cfee4424372d488701
+commit 57ece8a7a366d9dbfa400862afa4c3ffc82f27a4
+commit acc0d2c2278b3da23e6620a70bb2327fc4efe938
+commit 03540e1db1b78dacb7ce0068e4fa0723c6998c3e
+commit cbbb74b764010beac048bd76bad8833d8e71af4e
+commit 370722fee7326a04646a7d5eab11ffdee4106261
+commit c191a0c7d4113b4bc79db60e4b2850db12ccb8ef
+commit 7581f1d16f57114c92998d970a7db0434c4c5a5d
+commit f2999d0743060ef0620a64465bcdf2aeaf0c6d10
+    - Raw DB: data/app.db (rtd_* tables)
+commit 97247ee25a71f916bb580d455287ced426a4a9ec
+commit b63b5526f95d9c13846b6686230f9f830cc8604b
+commit 9c80612c0a3584f28c1b987f870db64a0da4e405
+commit a39d17cf579203af07e3fc8c3bf1f9be293963e6
+commit 165f98c010714fd9b23b02237a79da2f0c83f19e
+commit edd7b3192b4c00a9640f82ead49944ec93160d0c
+commit 3b065b43e8a7fbb18eddf5dcfb17bf8faa79ac4f
+
+== Conteudo atual dos scripts RTD existentes ==
+ARQUIVO AUSENTE NO WORKTREE: scripts/run_rtd_option_quotes_pipeline.py
+ARQUIVO AUSENTE NO WORKTREE: scripts/import_rtd_links_to_option_quotes.py
+ARQUIVO AUSENTE NO WORKTREE: scripts/import_rtd_option_quotes_wide_csv.py
+ARQUIVO AUSENTE NO WORKTREE: scripts/build_rtd_symbols.py
+ARQUIVO AUSENTE NO WORKTREE: scripts/run_rtd_refresh_full.py
+ARQUIVO AUSENTE NO WORKTREE: scripts/audit_rtd_option_quotes.py
+ARQUIVO AUSENTE NO WORKTREE: infra/bootstrap_rtd_option_quotes_schema.py
+
+== Testes vigentes relacionados ao pipeline/import/audit RTD ==
+TESTE AUSENTE: ATT/tests/test_run_rtd_option_quotes_pipeline.py
+TESTE AUSENTE: ATT/tests/test_import_rtd_links_to_option_quotes.py
+TESTE AUSENTE: ATT/tests/test_audit_rtd_option_quotes.py
+TESTE AUSENTE: ATT/tests/test_rtd_option_quotes_repository_contract.py
+============================================================
+TESTE: ATT/tests/test_structure_leg_rtd_enrichment_service.py
+============================================================
+import pytest
+
+from services.structure_leg_rtd_enrichment_service import (
+    StructureLegRtdEnrichmentService,
+)
+
+
+class FakeRtdOptionQuotesRepository:
+    def __init__(self, rows):
+        self.rows = rows
+        self.requested_codigo = None
+
+    def get_by_codigo(self, codigo_opcao):
+        self.requested_codigo = codigo_opcao
+        return self.rows.get(codigo_opcao)
+
+
+def test_enrich_leg_from_symbol_uses_rtd_quote_and_returns_canonical_leg():
+    repo = FakeRtdOptionQuotesRepository(
+        {
+            "BOVA11C130": {
+                "codigo_opcao": "BOVA11C130",
+                "ativo_base": "BOVA11",
+                "call_put": "CALL",
+                "strike": 130.0,
+                "vencimento": "2026-07-17",
+            }
+        }
+    )
+    service = StructureLegRtdEnrichmentService(repo)
+
+    leg = service.enrich(
+        {
+            "symbol": " bova11c130 ",
+            "position_side": "C",
+            "quantity": 100,
+            "premium": 1.25,
+            "leg_order": 0,
+            "notes": "entrada via simbolo",
+        }
+    )
+
+    assert repo.requested_codigo == "BOVA11C130"
+    assert leg == {
+        "symbol": "BOVA11C130",
+        "position_side": "COMPRADO",
+        "option_type": "CALL",
+        "strike": 130.0,
+        "expiration_date": "2026-07-17",
+        "quantity": 100.0,
+        "premium": 1.25,
+        "multiplier": 100.0,
+        "leg_order": 0,
+        "notes": "entrada via simbolo",
+        "underlying_asset": "BOVA11",
+    }
+
+
+def test_enrich_leg_accepts_codigo_opcao_as_symbol_alias():
+    repo = FakeRtdOptionQuotesRepository(
+        {
+            "PETR4P2800": {
+                "codigo_opcao": "PETR4P2800",
+                "ativo_base": "PETR4",
+                "call_put": "PUT",
+                "strike": 28.0,
+                "vencimento": "2026-08-21",
+            }
+        }
+    )
+    service = StructureLegRtdEnrichmentService(repo)
+
+    leg = service.enrich(
+        {
+            "codigo_opcao": "PETR4P2800",
+            "position_side": "V",
+            "quantity": "200",
+        }
+    )
+
+    assert leg["symbol"] == "PETR4P2800"
+    assert leg["position_side"] == "VENDIDO"
+    assert leg["option_type"] == "PUT"
+    assert leg["strike"] == 28.0
+    assert leg["expiration_date"] == "2026-08-21"
+    assert leg["quantity"] == 200.0
+    assert leg["premium"] == 0.0
+    assert leg["multiplier"] == 100.0
+    assert leg["leg_order"] == 0
+    assert leg["notes"] is None
+    assert leg["underlying_asset"] == "PETR4"
+
+
+def test_enrich_leg_raises_value_error_when_symbol_is_missing():
+    service = StructureLegRtdEnrichmentService(
+        FakeRtdOptionQuotesRepository({})
+    )
+
+    with pytest.raises(ValueError, match="symbol is required"):
+        service.enrich(
+            {
+                "position_side": "C",
+                "quantity": 100,
+            }
+        )
+
+
+def test_enrich_leg_raises_value_error_when_rtd_quote_is_not_found():
+    service = StructureLegRtdEnrichmentService(
+        FakeRtdOptionQuotesRepository({})
+    )
+
+    with pytest.raises(ValueError, match="option quote not found"):
+        service.enrich(
+            {
+                "symbol": "BOVA11C999",
+                "position_side": "C",
+                "quantity": 100,
+            }
+        )
+
+
+def test_enrich_leg_raises_value_error_when_rtd_quote_has_missing_required_fields():
+    service = StructureLegRtdEnrichmentService(
+        FakeRtdOptionQuotesRepository(
+            {
+                "BOVA11C130": {
+                    "codigo_opcao": "BOVA11C130",
+                    "ativo_base": "BOVA11",
+                    "call_put": "CALL",
+                    "strike": 130.0,
+                }
+            }
+        )
+    )
+
+    with pytest.raises(ValueError, match="missing required RTD field"):
+        service.enrich(
+            {
+                "symbol": "BOVA11C130",
+                "position_side": "C",
+                "quantity": 100,
+            }
+        )
+
+
+== Schema e contagem rtd_option_quotes em app.db e derived.db ==
+============================================================
+DB: dados/app.db
+Existe: True
+rtd_option_quotes existe: True
+linhas: 4
+colunas:
+- id INTEGER
+- codigo_opcao TEXT
+- ativo_base TEXT
+- call_put TEXT
+- strike REAL
+- vencimento TEXT
+- ultimo_preco REAL
+- ultima_quantidade REAL
+- bid REAL
+- ask REAL
+- volume REAL
+- iv REAL
+- delta REAL
+- gamma REAL
+- theta REAL
+- vega REAL
+- source TEXT
+- raw_json TEXT
+- updated_at TEXT
+- created_at TEXT
+ultimas linhas:
+{'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'ultimo_preco': 0.6, 'bid': 0.03, 'ask': 0.7, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+{'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'ultimo_preco': 12.07, 'bid': 0.0, 'ask': 19.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+{'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'ultimo_preco': 7.43, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+{'codigo_opcao': 'PRIOG800', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 80.0, 'ultimo_preco': 0.04, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+============================================================
+DB: dados/derived.db
+Existe: True
+rtd_option_quotes existe: True
+linhas: 4
+colunas:
+- id INTEGER
+- codigo_opcao TEXT
+- ativo_base TEXT
+- call_put TEXT
+- strike REAL
+- vencimento TEXT
+- ultimo_preco REAL
+- ultima_quantidade REAL
+- bid REAL
+- ask REAL
+- volume REAL
+- iv REAL
+- delta REAL
+- gamma REAL
+- theta REAL
+- vega REAL
+- source TEXT
+- raw_json TEXT
+- updated_at TEXT
+- created_at TEXT
+ultimas linhas:
+{'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'ultimo_preco': 12.07, 'bid': 0.0, 'ask': 19.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+{'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'ultimo_preco': 0.6, 'bid': 0.03, 'ask': 0.7, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+{'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'ultimo_preco': 7.43, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+{'codigo_opcao': 'PRIOG800', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 80.0, 'ultimo_preco': 0.04, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+
+== Arquivos de dados RTD atuais ==
+-rw-r--r-- 1 eucal 197609    464 Jun 17 22:11 RTD_LINKS.csv
+-rw-r--r-- 1 eucal 197609     40 Jun 17 22:10 rtd_symbols.txt
+
+== Primeiras linhas dados/RTD_LINKS.csv se existir ==
+Arquivo: dados\RTD_LINKS.csv
+Tamanho: 464 bytes
+codigo_opcao;ativo_base;call_put;strike;vencimento;ultimo_preco;ultima_quantidade;bid;ask;volume;iv;delta;gamma;theta;vega
+PRIOG800;PRIO3;Call;80;46220,125;0,04;0;0;0;0;0;0,0144;0,0044;-0,0074;0,6123
+PRIOH515;PRIO3;Call;51,5;46255,125;7,43;0;0;0;0;0;0,8147;0,0317;-0,0458;6,5386
+PRIOS525;PRIO3;Put;52,5;46220,125;0,6;400;0,03;0,7;25040,8;0;-0,1811;0,0451;-0,0288;4,4093
+PRIOT700;PRIO3;Put;70;46255,125;12,07;200;0;19;20119,5;0;-0,8658;0,0245;0,0142;5,2916
+
+== Busca por PowerShell/Excel/COM/RTD nos arquivos atuais ==
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:263:- Excel apenas como ponte RTD.
+scripts/fase-5-diagnostico-rtd.sh:8:  echo "FASE 5 - DIAGNOSTICO RTD"
+scripts/fase-5-diagnostico-rtd.sh:22:  echo "== Busca por RTD no projeto =="
+scripts/fase-5-diagnostico-rtd.sh:24:    -E "RTD|rtd|rtd_option_quotes|option_quotes|quotes" . 2>/dev/null | head -300
+scripts/fase-5-diagnostico-rtd.sh:37:  echo "== Arquivos candidatos RTD =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:8:  echo "FASE 5B - DIAGNOSTICO RTD CADEIA REAL E HISTORICO"
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:22:  echo "== Arquivos rastreados relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:26:  echo "== Arquivos atuais em scripts relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:33:  echo "== Arquivos atuais em infra relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:40:  echo "== Arquivos atuais em repositories/services relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:47:  echo "== Historico Git de scripts RTD conhecidos =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:64:  echo "== Alteracoes historicas por nome contendo RTD em scripts/infra =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:68:  echo "== Conteudo atual dos scripts RTD existentes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:90:  echo "== Testes vigentes relacionados ao pipeline/import/audit RTD =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:158:  echo "== Arquivos de dados RTD atuais =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:162:  echo "== Primeiras linhas dados/RTD_LINKS.csv se existir =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:163:  if [ -f dados/RTD_LINKS.csv ]; then
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:166:p = Path("dados/RTD_LINKS.csv")
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:174:    echo "dados/RTD_LINKS.csv ausente"
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:178:  echo "== Busca por PowerShell/Excel/COM/RTD nos arquivos atuais =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:180:    -E "Excel.Application|Workbooks|RefreshAll|RTD|LISTA_RTD|RTD_LINKS|win32com|powershell|Start-Process" \
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:2:    [string]$WorkbookPath = "C:\Users\eucal\projeto\LISTA_RTD.xlsm",
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:4:    [string]$CsvPath = "C:\Users\eucal\projeto\dados\RTD_LINKS.csv",
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:43:$excel = New-Object -ComObject Excel.Application
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:52:    $wb = Invoke-WithRetry { $excel.Workbooks.Open($WorkbookPath) }
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:54:    $sheetName = "RTD_OPTION_QUOTES"
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:118:            $formula = '=RTD("btg_pro_rtd";"";"' + $field + '";$A' + $row + ')'
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:130:    Write-Host "Aba RTD_OPTION_QUOTES preenchida. Linhas:" $symbols.Count
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:131:    Write-Host "Recalculando Excel/RTD..."
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:143:    # Copia somente a aba RTD_OPTION_QUOTES para novo workbook e salva como CSV UTF-8.
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:5:    [string]$WorkbookPath = "C:\Users\eucal\projeto\LISTA_RTD.xlsm",
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:7:    [string]$CsvPath = "C:\Users\eucal\projeto\dados\RTD_LINKS.csv",
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:46:$excel = New-Object -ComObject Excel.Application
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:58:    $wb = Invoke-WithRetry { $excel.Workbooks.Open($WorkbookPath) }
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:60:    $sheetName = "RTD_OPTION_QUOTES"
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:124:            $formula = '=RTD("btg_pro_rtd";"";"' + $field + '";$A' + $row + ')'
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:136:    Write-Host "Aba RTD_OPTION_QUOTES preenchida. Linhas:" $symbols.Count
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:137:    Write-Host "Recalculando Excel/RTD..."
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:149:    # Copia somente a aba RTD_OPTION_QUOTES para novo workbook e salva como CSV UTF-8.
+scripts/run_derived_pipeline.py:171:    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+services/canonical_pricing_facade.py:91:            # Formatos comuns vindos de RTD/planilha:
+services/canonical_pricing_facade.py.fase3e.bak:90:            # Formatos comuns vindos de RTD/planilha:
+services/canonical_pricing_facade.py.fase3e.fix2.bak:90:            # Formatos comuns vindos de RTD/planilha:
+services/market_snapshot_selector.py:7:  - Caso contrário, se existir cotação em rtd_option_quotes para a leg RTD, usa rtd_option_quotes
+services/market_snapshot_selector.py:19:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+services/market_snapshot_selector.py:127:            source = RTD_OPTION_QUOTES_SOURCE
+services/market_snapshot_selector.py:129:            source = SnapshotSource.RTD
+services/robo_legs_status_service.py:75:            chosen_fonte = FonteType.RTD
+services/structure_leg_rtd_enrichment_service.py:1:"""Service de enriquecimento de legs de estruturas via RTD.
+services/structure_leg_rtd_enrichment_service.py:38:        Campos enriquecidos via RTD:
+services/structure_leg_rtd_enrichment_service.py:49:            raise ValueError("symbol is required for RTD leg enrichment")
+services/structure_leg_rtd_enrichment_service.py:123:                raise ValueError(f"missing required RTD field: {field}")
+repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotações RTD de opções
+repositories/market_snapshot_repository.py:28:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+repositories/market_snapshot_repository.py:32:_SQL_RTD_LEGS = """
+repositories/market_snapshot_repository.py:88:_SQL_RTD_SUMMARY = """
+repositories/market_snapshot_repository.py:197:    os campos posicionais da leg RTD original.
+repositories/market_snapshot_repository.py:242:        source=RTD_OPTION_QUOTES_SOURCE,
+repositories/market_snapshot_repository.py:254:      get_rtd_legs(aba)                -> lista de LegMarketSnapshot source=RTD
+repositories/market_snapshot_repository.py:257:      get_rtd_summary(aba)             -> dict com cabecalho RTD ou None
+repositories/market_snapshot_repository.py:271:    # -- RTD ------------------------------------------------------------------
+repositories/market_snapshot_repository.py:276:            rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
+repositories/market_snapshot_repository.py:277:        return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
+repositories/market_snapshot_repository.py:281:        Retorna legs RTD enriquecidas com rtd_option_quotes.
+repositories/market_snapshot_repository.py:352:            row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
+repositories/market_snapshot_repository.py:370:        source: SnapshotSource = SnapshotSource.RTD,
+repositories/market_snapshot_repository.py:374:        if source == SnapshotSource.RTD:
+repositories/robo_legs_repository.py:57:        - Se vazio, tenta RTD
+repositories/robo_legs_repository.py:76:            fonte=FonteType.RTD,
+repositories/rtd_option_quotes_repository.py:14:    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+repositories/rtd_option_quotes_repository.py:15:    e funciona como cache centralizado das cotações RTD de opções.
+UI/main_window.py:475:            f"- Cotações RTD atualizadas: {self._format_pipeline_value(summary.get('rtd_quotes_updated'))}",
+UI/main_window.py:576:* Excel RTD  CSV Bridge
+UI/main_window.py.fase3e.bak:509:* Excel RTD  CSV Bridge
+UI/main_window.py.fase3e.fix2.bak:509:* Excel RTD  CSV Bridge
+ATT/tests/test_legacy_structure_legs_importer_integration.py:175:    # Insere RTD e MANUAL no mesmo timestamp.
+ATT/tests/test_legacy_structure_legs_importer_integration.py:226:    # Garante que a leg antiga foi substituida e que RTD nao foi usado
+ATT/tests/test_legacy_structure_legs_importer_integration.py:229:    assert imported_leg["symbol"] != "RTDLEG190"
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:182:    # Identidade/composição vêm da leg estrutural RTD.
+ATT/tests/test_robo_legs_status_service.py:79:    assert result.chosen_fonte == FonteType.RTD
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:137:    with pytest.raises(ValueError, match="missing required RTD field"):
+
+============================================================
+FIM DIAGNOSTICO FASE 5B
+============================================================

@@ -1,0 +1,1484 @@
+============================================================
+FASE 5C - RESTAURACAO RTD HISTORICO
+Data:
+Mon Jun 22 08:53:26     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+711f088
+Commit fonte:
+8a56969
+============================================================
+
+== Status git antes ==
+?? docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt
+?? docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt
+?? docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt
+?? scripts/fase-5-diagnostico-rtd.sh
+?? scripts/fase-5b-diagnostico-rtd-cadeia-real.sh
+?? scripts/fase-5c-restaurar-rtd-historico.sh
+
+== Restaurando arquivos existentes no commit fonte ==
+[RESTORE] infra/bootstrap_rtd_option_quotes_schema.py
+[RESTORE] scripts/audit_rtd_option_quotes.py
+[RESTORE] scripts/build_rtd_symbols.py
+[RESTORE] scripts/create_rtd_option_quotes_sheet.py
+[RESTORE] scripts/import_lista_rtd_excel_to_option_quotes.py
+[RESTORE] scripts/import_rtd_links_to_option_quotes.py
+[RESTORE] scripts/import_rtd_option_quotes_wide_csv.py
+[RESTORE] scripts/mapear_automacao_opcoes_rtd.py
+[RESTORE] scripts/refresh_rtd_option_quotes_excel.ps1
+[RESTORE] scripts/run_lista_rtd_option_quotes_pipeline.py
+[RESTORE] scripts/run_rtd_option_quotes_pipeline.py
+[RESTORE] scripts/run_rtd_refresh_full.py
+[RESTORE] scripts/seed_current_rtd_option_quotes.py
+[RESTORE] ATT/tests/test_audit_rtd_option_quotes.py
+[RESTORE] ATT/tests/test_import_rtd_links_to_option_quotes.py
+[RESTORE] ATT/tests/test_run_rtd_option_quotes_pipeline.py
+[RESTORE] ATT/tests/test_rtd_option_quotes_repository_contract.py
+
+== Status git depois da restauracao ==
+A  ATT/tests/test_audit_rtd_option_quotes.py
+A  ATT/tests/test_import_rtd_links_to_option_quotes.py
+A  ATT/tests/test_rtd_option_quotes_repository_contract.py
+A  ATT/tests/test_run_rtd_option_quotes_pipeline.py
+A  infra/bootstrap_rtd_option_quotes_schema.py
+A  scripts/audit_rtd_option_quotes.py
+A  scripts/build_rtd_symbols.py
+A  scripts/create_rtd_option_quotes_sheet.py
+A  scripts/import_lista_rtd_excel_to_option_quotes.py
+A  scripts/import_rtd_links_to_option_quotes.py
+A  scripts/import_rtd_option_quotes_wide_csv.py
+A  scripts/mapear_automacao_opcoes_rtd.py
+A  scripts/refresh_rtd_option_quotes_excel.ps1
+A  scripts/run_lista_rtd_option_quotes_pipeline.py
+A  scripts/run_rtd_option_quotes_pipeline.py
+A  scripts/run_rtd_refresh_full.py
+A  scripts/seed_current_rtd_option_quotes.py
+?? docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt
+?? docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt
+?? docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt
+?? scripts/fase-5-diagnostico-rtd.sh
+?? scripts/fase-5b-diagnostico-rtd-cadeia-real.sh
+?? scripts/fase-5c-restaurar-rtd-historico.sh
+
+== Arquivos RTD restaurados ==
+[OK] infra/bootstrap_rtd_option_quotes_schema.py
+[OK] scripts/audit_rtd_option_quotes.py
+[OK] scripts/build_rtd_symbols.py
+[OK] scripts/create_rtd_option_quotes_sheet.py
+[OK] scripts/import_lista_rtd_excel_to_option_quotes.py
+[OK] scripts/import_rtd_links_to_option_quotes.py
+[OK] scripts/import_rtd_option_quotes_wide_csv.py
+[OK] scripts/mapear_automacao_opcoes_rtd.py
+[OK] scripts/refresh_rtd_option_quotes_excel.ps1
+[OK] scripts/run_lista_rtd_option_quotes_pipeline.py
+[OK] scripts/run_rtd_option_quotes_pipeline.py
+[OK] scripts/run_rtd_refresh_full.py
+[OK] scripts/seed_current_rtd_option_quotes.py
+[OK] ATT/tests/test_audit_rtd_option_quotes.py
+[OK] ATT/tests/test_import_rtd_links_to_option_quotes.py
+[OK] ATT/tests/test_run_rtd_option_quotes_pipeline.py
+[OK] ATT/tests/test_rtd_option_quotes_repository_contract.py
+
+== Cabecalhos dos scripts restaurados ==
+============================================================
+ARQUIVO: infra/bootstrap_rtd_option_quotes_schema.py
+============================================================
+from __future__ import annotations
+
+import argparse
+import sqlite3
+from pathlib import Path
+
+
+TABLE_NAME = "rtd_option_quotes"
+
+REQUIRED_COLUMNS = {
+    "id",
+    "codigo_opcao",
+    "ativo_base",
+    "call_put",
+    "strike",
+    "vencimento",
+    "ultimo_preco",
+    "ultima_quantidade",
+    "bid",
+    "ask",
+    "volume",
+    "iv",
+    "delta",
+    "gamma",
+    "theta",
+    "vega",
+    "source",
+    "raw_json",
+    "updated_at",
+    "created_at",
+}
+
+
+DDL = """
+CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    codigo_opcao TEXT NOT NULL,
+    ativo_base TEXT,
+
+    call_put TEXT,
+    strike REAL,
+    vencimento TEXT,
+
+    ultimo_preco REAL,
+    ultima_quantidade REAL,
+
+    bid REAL,
+    ask REAL,
+    volume REAL,
+
+    iv REAL,
+    delta REAL,
+    gamma REAL,
+    theta REAL,
+    vega REAL,
+
+    source TEXT NOT NULL DEFAULT 'rtd_links',
+    raw_json TEXT,
+
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(codigo_opcao)
+)
+"""
+
+
+def table_exists(conn: sqlite3.Connection, table_name: str) -> bool:
+    row = conn.execute(
+        """
+        SELECT 1
+        FROM sqlite_master
+        WHERE type = 'table'
+          AND name = ?
+        LIMIT 1
+        """,
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
+def get_columns(conn: sqlite3.Connection, table_name: str) -> set[str]:
+    rows = conn.execute(f'PRAGMA table_info("{table_name}")').fetchall()
+    return {row[1] for row in rows}
+
+
+
+def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
+    db_path = Path(db_path)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(DDL)
+        conn.commit()
+
+        columns = get_columns(conn, TABLE_NAME)
+        missing = sorted(REQUIRED_COLUMNS - columns)
+
+        if missing:
+            raise RuntimeError(
+                "Tabela rtd_option_quotes existe, mas está sem colunas obrigatórias: "
+                + ", ".join(missing)
+            )
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="Cria/valida o schema vazio de rtd_option_quotes em banco SQLite."
+    )
+    parser.add_argument(
+        "--db",
+        default="dados/app.db",
+        help="Caminho do banco SQLite. Padrão: dados/app.db",
+    )
+    args = parser.parse_args()
+
+    db_path = Path(args.db)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print("Bootstrap rtd_option_quotes")
+    print(f"DB: {db_path.resolve()}")
+
+    with sqlite3.connect(str(db_path)) as conn:
+        existed_before = table_exists(conn, TABLE_NAME)
+
+        if existed_before:
+            print("[INFO] Tabela já existia. Validando schema...")
+        else:
+            print("[INFO] Tabela ausente. Criando schema vazio...")
+
+        conn.execute(DDL)
+        conn.commit()
+
+        columns = get_columns(conn, TABLE_NAME)
+        missing = sorted(REQUIRED_COLUMNS - columns)
+
+        if missing:
+            print("[ERRO] Tabela existe, mas está sem colunas obrigatórias:")
+            for col in missing:
+                print(f"  - {col}")
+            return 2
+
+        count = conn.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}").fetchone()[0]
+
+    print("[OK] Schema rtd_option_quotes disponível.")
+    print(f"[INFO] Linhas atuais: {count}")
+
+    if count == 0:
+        print("[INFO] Nenhum dado fictício foi inserido.")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+============================================================
+ARQUIVO: scripts/audit_rtd_option_quotes.py
+============================================================
+#!/usr/bin/env python
+"""
+Audita a tabela rtd_option_quotes em um banco SQLite.
+
+Uso típico:
+
+    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+
+O script não altera o banco.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sqlite3
+import sys
+from pathlib import Path
+from typing import Any
+
+
+TABLE_NAME = "rtd_option_quotes"
+
+REQUIRED_COLUMNS = {
+    "codigo_opcao",
+    "ativo_base",
+    "call_put",
+    "strike",
+    "vencimento",
+    "ultimo_preco",
+    "ultima_quantidade",
+    "bid",
+    "ask",
+    "volume",
+    "iv",
+    "delta",
+    "gamma",
+    "theta",
+    "vega",
+    "source",
+    "raw_json",
+    "updated_at",
+    "created_at",
+}
+
+
+def connect(db_path: Path) -> sqlite3.Connection:
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def table_exists(conn: sqlite3.Connection, table_name: str = TABLE_NAME) -> bool:
+    row = conn.execute(
+        """
+        SELECT 1
+        FROM sqlite_master
+        WHERE type = 'table'
+          AND name = ?
+        """,
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
+def table_columns(conn: sqlite3.Connection, table_name: str = TABLE_NAME) -> list[str]:
+    rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    return [str(row["name"]) for row in rows]
+
+
+def scalar(conn: sqlite3.Connection, sql: str, params: tuple[Any, ...] = ()) -> Any:
+    row = conn.execute(sql, params).fetchone()
+    if row is None:
+        return None
+    return row[0]
+
+
+def audit_database(db_path: str | Path, max_age_minutes: int = 30) -> dict[str, Any]:
+    db_path = Path(db_path)
+
+    result: dict[str, Any] = {
+        "database": str(db_path),
+        "table": TABLE_NAME,
+        "status": "ok",
+        "errors": [],
+        "warnings": [],
+        "metrics": {},
+        "columns": [],
+        "missing_columns": [],
+    }
+
+    if not db_path.exists():
+        result["status"] = "error"
+        result["errors"].append("database file not found")
+        return result
+
+    with connect(db_path) as conn:
+        if not table_exists(conn):
+            result["status"] = "error"
+            result["errors"].append(f"table not found: {TABLE_NAME}")
+            return result
+
+        columns = table_columns(conn)
+        column_set = set(columns)
+
+        result["columns"] = columns
+
+        missing_columns = sorted(REQUIRED_COLUMNS - column_set)
+        result["missing_columns"] = missing_columns
+
+        if missing_columns:
+            result["errors"].append(
+                "missing required columns: " + ", ".join(missing_columns)
+            )
+
+        row_count = int(
+            scalar(conn, f"SELECT COUNT(*) FROM {TABLE_NAME}") or 0
+        )
+        result["metrics"]["row_count"] = row_count
+
+        if row_count == 0:
+            result["warnings"].append("table is empty")
+
+        if "codigo_opcao" in column_set:
+            missing_codigo_count = int(
+                scalar(
+                    conn,
+                    f"""
+                    SELECT COUNT(*)
+                    FROM {TABLE_NAME}
+                    WHERE codigo_opcao IS NULL
+                       OR TRIM(codigo_opcao) = ''
+                    """,
+                )
+                or 0
+            )
+
+            distinct_codigo_count = int(
+                scalar(
+                    conn,
+                    f"""
+                    SELECT COUNT(DISTINCT codigo_opcao)
+                    FROM {TABLE_NAME}
+                    WHERE codigo_opcao IS NOT NULL
+                      AND TRIM(codigo_opcao) <> ''
+                    """,
+                )
+                or 0
+            )
+
+            duplicate_codigo_count = int(
+                scalar(
+                    conn,
+                    f"""
+                    SELECT COUNT(*)
+                    FROM (
+                        SELECT codigo_opcao
+                        FROM {TABLE_NAME}
+                        WHERE codigo_opcao IS NOT NULL
+                          AND TRIM(codigo_opcao) <> ''
+                        GROUP BY codigo_opcao
+                        HAVING COUNT(*) > 1
+                    ) duplicated
+                    """,
+                )
+                or 0
+            )
+
+            result["metrics"]["missing_codigo_count"] = missing_codigo_count
+            result["metrics"]["distinct_codigo_count"] = distinct_codigo_count
+            result["metrics"]["duplicate_codigo_count"] = duplicate_codigo_count
+
+            if missing_codigo_count > 0:
+                result["errors"].append(
+                    f"rows with missing codigo_opcao: {missing_codigo_count}"
+                )
+
+            if duplicate_codigo_count > 0:
+                result["errors"].append(
+                    f"duplicated codigo_opcao groups: {duplicate_codigo_count}"
+                )
+
+        if "updated_at" in column_set and max_age_minutes > 0:
+            stale_rows = int(
+                scalar(
+                    conn,
+                    f"""
+                    SELECT COUNT(*)
+                    FROM {TABLE_NAME}
+                    WHERE updated_at IS NOT NULL
+                      AND datetime(updated_at) < datetime('now', 'localtime', ?)
+                    """,
+                    (f"-{int(max_age_minutes)} minutes",),
+                )
+                or 0
+            )
+
+            result["metrics"]["stale_rows"] = stale_rows
+            result["metrics"]["max_age_minutes"] = int(max_age_minutes)
+
+            if stale_rows > 0:
+                result["warnings"].append(
+                    f"rows older than {int(max_age_minutes)} minutes: {stale_rows}"
+                )
+
+    if result["errors"]:
+        result["status"] = "error"
+    elif result["warnings"]:
+        result["status"] = "warn"
+    else:
+        result["status"] = "ok"
+
+    return result
+
+
+def print_human_report(result: dict[str, Any]) -> None:
+    print("Auditoria rtd_option_quotes")
+    print(f"Banco: {result['database']}")
+    print(f"Tabela: {result['table']}")
+
+============================================================
+ARQUIVO: scripts/build_rtd_symbols.py
+============================================================
+import argparse
+import sqlite3
+from pathlib import Path
+
+
+INACTIVE_STATUSES = {
+    "closed",
+    "encerrada",
+    "encerrado",
+    "inactive",
+    "inativa",
+    "cancelled",
+    "cancelada",
+    "canceled",
+    "arquivada",
+}
+
+
+def table_exists(cur, table):
+    row = cur.execute("""
+        SELECT name
+        FROM sqlite_master
+        WHERE type = 'table'
+          AND name = ?
+    """, (table,)).fetchone()
+    return row is not None
+
+
+def collect_from_structure_legs(cur, include_inactive=False):
+    if not table_exists(cur, "structure_legs"):
+        return []
+
+    if include_inactive or not table_exists(cur, "structures"):
+        rows = cur.execute("""
+            SELECT DISTINCT TRIM(symbol)
+            FROM structure_legs
+            WHERE symbol IS NOT NULL
+              AND TRIM(symbol) <> ''
+        """).fetchall()
+    else:
+        rows = cur.execute("""
+            SELECT DISTINCT TRIM(l.symbol)
+            FROM structure_legs l
+            LEFT JOIN structures s
+                   ON s.id = l.structure_id
+            WHERE l.symbol IS NOT NULL
+              AND TRIM(l.symbol) <> ''
+              AND (
+                    s.status IS NULL
+                    OR LOWER(TRIM(s.status)) NOT IN (
+                        'closed',
+                        'encerrada',
+                        'encerrado',
+                        'inactive',
+                        'inativa',
+                        'cancelled',
+                        'cancelada',
+                        'canceled',
+                        'arquivada'
+                    )
+              )
+        """).fetchall()
+
+    return [r[0] for r in rows if r and r[0]]
+
+
+def collect_from_structure_leg_snapshots(cur):
+    if not table_exists(cur, "structure_leg_snapshots"):
+        return []
+
+    rows = cur.execute("""
+        SELECT DISTINCT TRIM(symbol)
+        FROM structure_leg_snapshots
+        WHERE symbol IS NOT NULL
+          AND TRIM(symbol) <> ''
+    """).fetchall()
+
+    return [r[0] for r in rows if r and r[0]]
+
+
+def collect_from_rtd_option_quotes(cur):
+    if not table_exists(cur, "rtd_option_quotes"):
+        return []
+
+    rows = cur.execute("""
+        SELECT DISTINCT TRIM(codigo_opcao)
+        FROM rtd_option_quotes
+        WHERE codigo_opcao IS NOT NULL
+          AND TRIM(codigo_opcao) <> ''
+    """).fetchall()
+
+    return [r[0] for r in rows if r and r[0]]
+
+
+def normalize_symbols(values):
+    symbols = set()
+
+    for value in values:
+        if value is None:
+            continue
+
+        text = str(value).strip().upper()
+
+        if not text:
+            continue
+
+        symbols.add(text)
+
+    return sorted(symbols)
+
+
+def load_symbols(db_path, include_inactive=False, include_snapshots=True, include_existing_quotes=True):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+
+    try:
+        sources = []
+
+        leg_symbols = collect_from_structure_legs(cur, include_inactive=include_inactive)
+        sources.append(("structure_legs", leg_symbols))
+
+        snapshot_symbols = []
+        if include_snapshots:
+            snapshot_symbols = collect_from_structure_leg_snapshots(cur)
+            sources.append(("structure_leg_snapshots", snapshot_symbols))
+
+        quote_symbols = []
+        if include_existing_quotes:
+            quote_symbols = collect_from_rtd_option_quotes(cur)
+            sources.append(("rtd_option_quotes", quote_symbols))
+
+        all_symbols = []
+        for _, values in sources:
+            all_symbols.extend(values)
+
+        return normalize_symbols(all_symbols), sources
+
+    finally:
+        con.close()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--db", required=True)
+    parser.add_argument("--out", required=True)
+    parser.add_argument("--include-inactive", action="store_true")
+    parser.add_argument("--no-snapshots", action="store_true")
+    parser.add_argument("--no-existing-quotes", action="store_true")
+    parser.add_argument("--allow-empty", action="store_true")
+    args = parser.parse_args()
+
+    symbols, sources = load_symbols(
+        args.db,
+        include_inactive=args.include_inactive,
+        include_snapshots=not args.no_snapshots,
+        include_existing_quotes=not args.no_existing_quotes,
+    )
+
+    print("Fontes encontradas:")
+    for name, values in sources:
+        print(f"- {name}: {len(normalize_symbols(values))}")
+
+    out = Path(args.out)
+
+    if not symbols and not args.allow_empty:
+        print("")
+        print("Nenhum símbolo encontrado.")
+        print("Arquivo de saída NÃO foi sobrescrito para evitar apagar lista existente.")
+        print("Use --allow-empty se realmente quiser gerar arquivo vazio.")
+        return 2
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(symbols) + ("\n" if symbols else ""), encoding="utf-8")
+
+    print("")
+    print(f"Símbolos exportados: {len(symbols)}")
+    print(f"Arquivo: {out}")
+
+    for sym in symbols[:50]:
+        print(sym)
+
+    if len(symbols) > 50:
+        print(f"... mais {len(symbols) - 50}")
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+============================================================
+ARQUIVO: scripts/import_rtd_option_quotes_wide_csv.py
+============================================================
+import argparse
+import csv
+import json
+import sqlite3
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from infra.bootstrap_rtd_option_quotes_schema import ensure_rtd_option_quotes_schema
+
+
+NUMERIC_COLUMNS = {
+    "strike",
+    "ultimo_preco",
+    "ultima_quantidade",
+    "bid",
+    "ask",
+    "volume",
+    "iv",
+    "delta",
+    "gamma",
+    "theta",
+    "vega",
+}
+
+
+EXPECTED_COLUMNS = [
+    "codigo_opcao",
+    "ativo_base",
+    "call_put",
+    "strike",
+    "vencimento",
+    "ultimo_preco",
+    "ultima_quantidade",
+    "bid",
+    "ask",
+    "volume",
+    "iv",
+    "delta",
+    "gamma",
+    "theta",
+    "vega",
+]
+
+
+def now_text():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def parse_number(value):
+    if value is None:
+        return None
+
+    text = str(value).strip()
+
+    if text == "":
+        return None
+
+    invalids = {
+        "#N/D",
+        "#N/A",
+        "#VALOR!",
+        "#VALUE!",
+        "#REF!",
+        "#NAME?",
+        "#NOME?",
+        "#DIV/0!",
+        "N/A",
+        "NA",
+        "NULL",
+        "NONE",
+        "-",
+    }
+
+    if text.upper() in invalids:
+        return None
+
+    text = text.replace("R$", "").replace("%", "").strip()
+
+    # Formato BR: 20.119,50 -> 20119.50
+    if "," in text:
+        text = text.replace(".", "").replace(",", ".")
+
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def parse_excel_date(value):
+    if value is None:
+        return None
+
+    text = str(value).strip()
+
+    if text == "":
+        return None
+
+    # Já veio como data textual.
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d/%m/%y"):
+        try:
+            return datetime.strptime(text, fmt).strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+
+    serial = parse_number(text)
+
+    if serial is None:
+        return None
+
+    # Excel usa 1899-12-30 como base para compatibilidade histórica.
+    days = int(serial)
+    dt = datetime(1899, 12, 30) + timedelta(days=days)
+    return dt.strftime("%Y-%m-%d")
+
+
+def normalize_call_put(value):
+    text = "" if value is None else str(value).strip().upper()
+
+    if text in {"C", "CALL", "COMPRA"}:
+        return "CALL"
+
+    if text in {"P", "PUT", "VENDA"}:
+        return "PUT"
+
+    return text or None
+
+
+def clean_text(value):
+    if value is None:
+        return None
+
+    text = str(value).strip()
+
+    if text == "":
+        return None
+
+    return text
+
+
+def detect_dialect(csv_path):
+    sample = Path(csv_path).read_text(encoding="utf-8-sig", errors="replace")[:4096]
+
+    try:
+        return csv.Sniffer().sniff(sample, delimiters=";,")
+    except csv.Error:
+        class Dialect(csv.excel):
+            delimiter = ";"
+
+        return Dialect
+
+
+def load_csv(csv_path):
+    dialect = detect_dialect(csv_path)
+    rows = []
+
+    with open(csv_path, "r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f, dialect=dialect)
+
+        if not reader.fieldnames:
+            raise ValueError("CSV sem cabeçalho.")
+
+        fieldnames = [c.strip() for c in reader.fieldnames]
+        missing = [c for c in EXPECTED_COLUMNS if c not in fieldnames]
+
+        if missing:
+            raise ValueError("CSV sem colunas obrigatórias: " + ", ".join(missing))
+
+        for raw in reader:
+            codigo = clean_text(raw.get("codigo_opcao"))
+
+            if not codigo:
+                continue
+
+            record = {
+                "codigo_opcao": codigo.upper(),
+                "ativo_base": clean_text(raw.get("ativo_base")),
+                "call_put": normalize_call_put(raw.get("call_put")),
+                "strike": parse_number(raw.get("strike")),
+                "vencimento": parse_excel_date(raw.get("vencimento")),
+                "ultimo_preco": parse_number(raw.get("ultimo_preco")),
+                "ultima_quantidade": parse_number(raw.get("ultima_quantidade")),
+                "bid": parse_number(raw.get("bid")),
+                "ask": parse_number(raw.get("ask")),
+                "volume": parse_number(raw.get("volume")),
+                "iv": parse_number(raw.get("iv")),
+                "delta": parse_number(raw.get("delta")),
+                "gamma": parse_number(raw.get("gamma")),
+                "theta": parse_number(raw.get("theta")),
+                "vega": parse_number(raw.get("vega")),
+                "source": "BTG_RTD_EXCEL",
+                "raw_json": json.dumps(raw, ensure_ascii=False),
+            }
+
+            rows.append(record)
+
+    return rows
+
+
+def ensure_index(con):
+    con.execute("""
+        CREATE INDEX IF NOT EXISTS idx_rtd_option_quotes_codigo_opcao
+        ON rtd_option_quotes(codigo_opcao)
+    """)
+
+
+def import_rows(db_path, rows, dry_run=False):
+    updated_at = now_text()
+
+    stats = {
+        "input_rows": len(rows),
+        "inserted": 0,
+        "updated": 0,
+        "skipped": 0,
+        "updated_at": updated_at,
+
+============================================================
+ARQUIVO: scripts/run_rtd_option_quotes_pipeline.py
+============================================================
+#!/usr/bin/env python
+"""
+Executa o pipeline operacional de cotações RTD de opções.
+
+Fluxo:
+
+    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+
+Uso típico:
+
+    python scripts/run_rtd_option_quotes_pipeline.py
+    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+"""
+
+from __future__ import annotations
+
+import argparse
+import subprocess
+import sys
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+SCRIPTS_DIR = Path(__file__).resolve().parent
+
+IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_option_quotes_wide_csv.py"
+AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+
+
+def build_import_command(
+    csv_path: str,
+    db_path: str,
+    dry_run: bool = False,
+) -> list[str]:
+    command = [
+        sys.executable,
+        str(IMPORT_SCRIPT),
+        "--csv",
+        csv_path,
+        "--db",
+        db_path,
+    ]
+
+    if dry_run:
+        command.append("--dry-run")
+
+    return command
+
+
+def build_audit_command(
+    db_path: str,
+    max_age_minutes: int = 30,
+    json_output: bool = False,
+    fail_on_warn: bool = False,
+) -> list[str]:
+    command = [
+        sys.executable,
+        str(AUDIT_SCRIPT),
+        "--db",
+        db_path,
+        "--max-age-minutes",
+        str(int(max_age_minutes)),
+    ]
+
+    if json_output:
+        command.append("--json")
+
+    if fail_on_warn:
+        command.append("--fail-on-warn")
+
+    return command
+
+
+def run_command(command: list[str]) -> int:
+    completed = subprocess.run(command, cwd=REPO_ROOT)
+    return int(completed.returncode)
+
+
+def print_command(title: str, command: list[str]) -> None:
+    print("")
+    print(title)
+    print("-" * len(title))
+    print(" ".join(command))
+
+
+def run_pipeline(
+    csv_path: str = "dados/RTD_LINKS.csv",
+    db_path: str = "dados/app.db",
+    dry_run: bool = False,
+    max_age_minutes: int = 30,
+    json_audit: bool = False,
+    fail_on_warn: bool = False,
+) -> int:
+    print("Pipeline RTD option quotes")
+    print(f"CSV: {csv_path}")
+    print(f"DB: {db_path}")
+    print(f"Dry-run: {dry_run}")
+
+    import_command = build_import_command(
+        csv_path=csv_path,
+        db_path=db_path,
+        dry_run=dry_run,
+    )
+
+    print_command("Etapa 1 — Importação", import_command)
+    import_code = run_command(import_command)
+
+    if import_code != 0:
+        print("")
+        print(f"Pipeline interrompido: importador retornou código {import_code}.")
+        return import_code
+
+    if dry_run:
+        print("")
+        print("Pipeline concluído em dry-run. Auditoria não executada porque nada foi gravado.")
+        return 0
+
+    audit_command = build_audit_command(
+        db_path=db_path,
+        max_age_minutes=max_age_minutes,
+        json_output=json_audit,
+        fail_on_warn=fail_on_warn,
+    )
+
+    print_command("Etapa 2 — Auditoria", audit_command)
+    audit_code = run_command(audit_command)
+
+    if audit_code != 0:
+        print("")
+        print(f"Pipeline concluído com alerta/erro operacional. Auditor retornou código {audit_code}.")
+        return audit_code
+
+    print("")
+    print("Pipeline concluído com sucesso.")
+    return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Executa importação e auditoria de rtd_option_quotes."
+    )
+    parser.add_argument(
+        "--csv",
+        default="dados/RTD_LINKS.csv",
+        help="Caminho do CSV RTD_LINKS.csv. Padrão: dados/RTD_LINKS.csv",
+    )
+    parser.add_argument(
+        "--db",
+        default="dados/app.db",
+        help="Caminho do banco SQLite. Padrão: dados/app.db",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Executa somente validação/normalização do importador, sem gravar e sem auditar.",
+    )
+    parser.add_argument(
+        "--max-age-minutes",
+        type=int,
+        default=30,
+        help="Idade máxima esperada para updated_at na auditoria. Use 0 para desabilitar.",
+    )
+    parser.add_argument(
+        "--json-audit",
+        action="store_true",
+        help="Executa a auditoria com saída JSON.",
+    )
+    parser.add_argument(
+        "--fail-on-warn",
+        action="store_true",
+        help="Faz o pipeline retornar falha quando a auditoria retornar warn.",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+
+    return run_pipeline(
+        csv_path=args.csv,
+        db_path=args.db,
+        dry_run=args.dry_run,
+        max_age_minutes=args.max_age_minutes,
+        json_audit=args.json_audit,
+        fail_on_warn=args.fail_on_warn,
+    )
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+============================================================
+ARQUIVO: scripts/run_rtd_refresh_full.py
+============================================================
+import argparse
+import json
+import sqlite3
+import subprocess
+import sys
+from pathlib import Path
+
+
+def run_cmd(cmd, cwd=None, capture=False):
+    print("")
+    print(">>>", " ".join(str(x) for x in cmd))
+
+    if capture:
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        if result.stdout:
+            print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
+
+        if result.stderr:
+            print(result.stderr, end="" if result.stderr.endswith("\n") else "\n", file=sys.stderr)
+
+        return result
+
+    return subprocess.run(cmd, cwd=cwd)
+
+
+def count_quotes(db_path):
+    con = sqlite3.connect(db_path)
+    cur = con.cursor()
+
+    try:
+        row = cur.execute("""
+            SELECT
+                COUNT(*),
+                MAX(updated_at)
+            FROM rtd_option_quotes
+        """).fetchone()
+
+        return {
+            "count": row[0] if row else 0,
+            "max_updated_at": row[1] if row else None,
+        }
+    except sqlite3.Error:
+        return {
+            "count": None,
+            "max_updated_at": None,
+        }
+    finally:
+        con.close()
+
+
+def count_symbols_file(path):
+    p = Path(path)
+
+    if not p.exists():
+        return 0, []
+
+    symbols = [
+        line.strip()
+        for line in p.read_text(encoding="utf-8", errors="replace").splitlines()
+        if line.strip()
+    ]
+
+    return len(symbols), symbols
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Pipeline completo: gerar símbolos RTD, atualizar Excel/CSV e importar cotações no SQLite."
+    )
+
+    parser.add_argument("--db", default="dados/app.db")
+    parser.add_argument("--symbols", default="dados/rtd_symbols.txt")
+    parser.add_argument("--csv", default="dados/RTD_LINKS.csv")
+    parser.add_argument("--workbook", default="LISTA_RTD.xlsm")
+    parser.add_argument("--wait-seconds", type=int, default=25)
+    parser.add_argument("--visible", action="store_true", default=True)
+    parser.add_argument("--hidden", action="store_true")
+    parser.add_argument("--strict", action="store_true", help="Usa somente structure_legs como fonte de símbolos.")
+    parser.add_argument("--skip-excel", action="store_true", help="Pula o refresh do Excel e importa o CSV existente.")
+    parser.add_argument("--allow-empty", action="store_true", help="Permite lista vazia de símbolos.")
+    parser.add_argument("--dry-run", action="store_true", help="Mostra o que faria, sem executar.")
+    args = parser.parse_args()
+
+    root = Path.cwd()
+
+    db_path = Path(args.db)
+    symbols_path = Path(args.symbols)
+    csv_path = Path(args.csv)
+    workbook_path = Path(args.workbook)
+
+    build_script = Path("scripts/build_rtd_symbols.py")
+    import_script = Path("scripts/import_rtd_option_quotes_wide_csv.py")
+    ps1_script = Path("scripts/refresh_rtd_option_quotes_excel.ps1")
+
+    print("=== RTD Refresh Full ===")
+    print(f"Root: {root}")
+    print(f"DB: {db_path}")
+    print(f"Symbols: {symbols_path}")
+    print(f"CSV: {csv_path}")
+    print(f"Workbook: {workbook_path}")
+    print(f"Modo strict: {'SIM' if args.strict else 'NÃO'}")
+    print(f"Skip Excel: {'SIM' if args.skip_excel else 'NÃO'}")
+
+    required = [build_script, import_script]
+
+    if not args.skip_excel:
+        required.append(ps1_script)
+
+    missing = [str(p) for p in required if not p.exists()]
+
+    if missing:
+        print("")
+        print("ERRO: arquivos obrigatórios não encontrados:")
+        for item in missing:
+            print(f"- {item}")
+        return 1
+
+    before = count_quotes(db_path)
+    print("")
+    print("Estado antes:")
+    print(json.dumps(before, ensure_ascii=False, indent=2))
+
+    build_cmd = [
+        sys.executable,
+        str(build_script),
+        "--db",
+        str(db_path),
+        "--out",
+        str(symbols_path),
+    ]
+
+    if args.strict:
+        build_cmd += ["--no-existing-quotes", "--no-snapshots"]
+
+    if args.allow_empty:
+        build_cmd += ["--allow-empty"]
+
+    if args.dry_run:
+        print("")
+        print("DRY-RUN: comandos que seriam executados:")
+        print(" ".join(build_cmd))
+
+        if not args.skip_excel:
+            ps_cmd = [
+                "powershell.exe",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                str(ps1_script.resolve()),
+                "-WorkbookPath",
+                str(workbook_path.resolve()),
+                "-SymbolsPath",
+                str(symbols_path.resolve()),
+                "-CsvPath",
+                str(csv_path.resolve()),
+                "-WaitSeconds",
+                str(args.wait_seconds),
+            ]
+
+            if not args.hidden:
+                ps_cmd.append("-Visible")
+
+            print(" ".join(ps_cmd))
+
+        import_cmd = [
+            sys.executable,
+            str(import_script),
+            "--csv",
+            str(csv_path),
+            "--db",
+            str(db_path),
+            "--json",
+        ]
+
+        print(" ".join(import_cmd))
+        return 0
+
+    result = run_cmd(build_cmd)
+
+    if result.returncode != 0:
+        print("")
+        print("Pipeline interrompido na geração de símbolos.")
+        print("")
+        print("Observação:")
+        print("- Em modo --strict, isso é esperado se não houver registros em structure_legs.")
+        print("- Cadastre uma estrutura pelo sistema ou rode sem --strict para usar fallback de rtd_option_quotes.")
+        return result.returncode
+
+    symbol_count, symbols = count_symbols_file(symbols_path)
+
+    print("")
+    print(f"Símbolos no arquivo: {symbol_count}")
+
+    if symbol_count == 0 and not args.allow_empty:
+        print("")
+        print("Pipeline interrompido: nenhum símbolo para consultar no RTD.")
+        return 2
+
+    if symbols:
+        print("Primeiros símbolos:")
+        for symbol in symbols[:20]:
+            print(f"- {symbol}")
+
+        if len(symbols) > 20:
+            print(f"... mais {len(symbols) - 20}")
+
+    if not args.skip_excel:
+        ps_cmd = [
+            "powershell.exe",
+            "-NoProfile",
+            "-ExecutionPolicy",
+
+== PowerShell RTD restaurado se existir ==
+param(
+    [string]$WorkbookPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "LISTA_RTD.xlsm"),
+    [string]$SymbolsPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "dados\rtd_symbols.txt"),
+    [string]$CsvPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "dados\RTD_LINKS.csv"),
+    [int]$WaitSeconds = 20,
+    [switch]$Visible
+)
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
+
+function Invoke-WithRetry {
+    param(
+        [scriptblock]$Block,
+        [int]$Retries = 20,
+        [int]$DelayMs = 500
+    )
+
+    for ($i = 1; $i -le $Retries; $i++) {
+        try {
+            return & $Block
+        } catch {
+            if ($i -eq $Retries) {
+                throw
+            }
+            Start-Sleep -Milliseconds $DelayMs
+        }
+    }
+}
+
+if (!(Test-Path $SymbolsPath)) {
+    throw "Arquivo de símbolos não encontrado: $SymbolsPath"
+}
+
+$symbols = Get-Content $SymbolsPath |
+    ForEach-Object { $_.Trim().ToUpper() } |
+    Where-Object { $_ -ne "" } |
+    Select-Object -Unique
+
+if ($symbols.Count -eq 0) {
+    throw "Nenhum símbolo encontrado em: $SymbolsPath"
+}
+
+Write-Host "Símbolos carregados:" $symbols.Count
+
+$excel = New-Object -ComObject Excel.Application
+$excel.Visible = [bool]$Visible
+$excel.DisplayAlerts = $false
+$excel.EnableEvents = $false
+
+# xlCalculationAutomatic = -4105
+try {
+    $excel.Calculation = -4105
+} catch {
+    Write-Host ("Aviso: não foi possível alterar o modo de cálculo do Excel. Continuando. Detalhe: " + $_.Exception.Message)
+}
+try {
+    $wb = Invoke-WithRetry { $excel.Workbooks.Open($WorkbookPath) }
+
+    $sheetName = "RTD_OPTION_QUOTES"
+
+    $ws = $null
+    foreach ($s in $wb.Worksheets) {
+        if ($s.Name -eq $sheetName) {
+            $ws = $s
+            break
+        }
+    }
+
+    if ($null -eq $ws) {
+        $ws = $wb.Worksheets.Add()
+        $ws.Name = $sheetName
+    }
+
+    Invoke-WithRetry { $ws.Cells.Clear() | Out-Null }
+
+    $headers = @(
+        "codigo_opcao",
+        "ativo_base",
+        "call_put",
+        "strike",
+        "vencimento",
+        "ultimo_preco",
+        "ultima_quantidade",
+        "bid",
+        "ask",
+        "volume",
+        "iv",
+        "delta",
+        "gamma",
+        "theta",
+        "vega"
+    )
+
+    for ($c = 1; $c -le $headers.Count; $c++) {
+        $ws.Cells.Item(1, $c).Value2 = $headers[$c - 1]
+    }
+
+    $fields = @(
+        "QUOTE.UNDERLYING_SYMBOL",
+        "QUOTE.OPTION_TYPE",
+        "QUOTE.STRIKE_PRICE",
+        "QUOTE.MATURITYDATE",
+        "QUOTE.LAST_TRADE_PRICE",
+        "QUOTE.LAST_TRADE_QUANTITY",
+        "QUOTE.BID_PRICE",
+        "QUOTE.ASK_PRICE",
+        "QUOTE.VOLUME",
+        "QUOTE.IMPLIED_VOLATILITY",
+        "QUOTE.DELTA",
+        "QUOTE.GAMMA",
+        "QUOTE.THETA",
+        "QUOTE.VEGA"
+    )
+
+    $row = 2
+
+    foreach ($sym in $symbols) {
+        $ws.Cells.Item($row, 1).Value2 = $sym
+
+        for ($i = 0; $i -lt $fields.Count; $i++) {
+            $col = $i + 2
+            $field = $fields[$i]
+            $formula = '=RTD("btg_pro_rtd";"";"' + $field + '";$A' + $row + ')'
+            $ws.Cells.Item($row, $col).FormulaLocal = $formula
+        }
+
+        $row++
+    }
+
+    $lastRow = $symbols.Count + 1
+    $lastCol = $headers.Count
+
+    Invoke-WithRetry { $ws.Range($ws.Cells.Item(1,1), $ws.Cells.Item($lastRow,$lastCol)).Columns.AutoFit() | Out-Null }
+
+    Write-Host "Aba RTD_OPTION_QUOTES preenchida. Linhas:" $symbols.Count
+    Write-Host "Recalculando Excel/RTD..."
+
+    Invoke-WithRetry { $excel.CalculateFullRebuild() | Out-Null }
+
+    Start-Sleep -Seconds $WaitSeconds
+
+    Write-Host "Exportando CSV para:" $CsvPath
+
+    if (Test-Path $CsvPath) {
+        Remove-Item $CsvPath -Force
+    }
+
+    # Copia somente a aba RTD_OPTION_QUOTES para novo workbook e salva como CSV UTF-8.
+    Invoke-WithRetry { $ws.Copy() | Out-Null }
+    $csvWb = $excel.ActiveWorkbook
+
+    # 62 = xlCSVUTF8
+    Invoke-WithRetry { $csvWb.SaveAs($CsvPath, 62) | Out-Null }
+    Invoke-WithRetry { $csvWb.Close($false) | Out-Null }
+
+    Invoke-WithRetry { $wb.Save() | Out-Null }
+    Invoke-WithRetry { $wb.Close($false) | Out-Null }
+
+    Write-Host "OK: CSV gerado em $CsvPath"
+}
+finally {
+    $excel.Quit() | Out-Null
+}
+
+== Py compile dos arquivos Python RTD restaurados ==
+[OK] py_compile
+
+== Testes RTD restaurados disponíveis ==
+[TESTE] ATT/tests/test_audit_rtd_option_quotes.py
+[TESTE] ATT/tests/test_import_rtd_links_to_option_quotes.py
+[TESTE] ATT/tests/test_run_rtd_option_quotes_pipeline.py
+[TESTE] ATT/tests/test_rtd_option_quotes_repository_contract.py
+
+============================================================
+FIM FASE 5C RESTAURACAO
+============================================================

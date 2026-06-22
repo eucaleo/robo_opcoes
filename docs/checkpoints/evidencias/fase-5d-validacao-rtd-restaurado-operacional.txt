@@ -1,0 +1,241 @@
+============================================================
+FASE 5D - VALIDACAO OPERACIONAL RTD RESTAURADO
+Data:
+Mon Jun 22 08:59:52     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+711f088
+============================================================
+
+== Status git inicial ==
+A  ATT/tests/test_audit_rtd_option_quotes.py
+A  ATT/tests/test_import_rtd_links_to_option_quotes.py
+A  ATT/tests/test_rtd_option_quotes_repository_contract.py
+A  ATT/tests/test_run_rtd_option_quotes_pipeline.py
+A  infra/bootstrap_rtd_option_quotes_schema.py
+A  scripts/audit_rtd_option_quotes.py
+A  scripts/build_rtd_symbols.py
+A  scripts/create_rtd_option_quotes_sheet.py
+A  scripts/import_lista_rtd_excel_to_option_quotes.py
+A  scripts/import_rtd_links_to_option_quotes.py
+A  scripts/import_rtd_option_quotes_wide_csv.py
+A  scripts/mapear_automacao_opcoes_rtd.py
+A  scripts/refresh_rtd_option_quotes_excel.ps1
+A  scripts/run_lista_rtd_option_quotes_pipeline.py
+A  scripts/run_rtd_option_quotes_pipeline.py
+A  scripts/run_rtd_refresh_full.py
+A  scripts/seed_current_rtd_option_quotes.py
+?? docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt
+?? docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt
+?? docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt
+?? docs/checkpoints/evidencias/fase-5d-validacao-rtd-restaurado-operacional.txt
+?? scripts/fase-5-diagnostico-rtd.sh
+?? scripts/fase-5b-diagnostico-rtd-cadeia-real.sh
+?? scripts/fase-5c-restaurar-rtd-historico.sh
+?? scripts/fase-5d-validar-rtd-restaurado-operacional.sh
+
+== Arquivo CSV atual ==
+-rw-r--r-- 1 eucal 197609 464 Jun 17 22:11 dados/RTD_LINKS.csv
+
+Primeiras linhas:
+ï»¿codigo_opcao;ativo_base;call_put;strike;vencimento;ultimo_preco;ultima_quantidade;bid;ask;volume;iv;delta;gamma;theta;vega
+PRIOG800;PRIO3;Call;80;46220,125;0,04;0;0;0;0;0;0,0144;0,0044;-0,0074;0,6123
+PRIOH515;PRIO3;Call;51,5;46255,125;7,43;0;0;0;0;0;0,8147;0,0317;-0,0458;6,5386
+PRIOS525;PRIO3;Put;52,5;46220,125;0,6;400;0,03;0,7;25040,8;0;-0,1811;0,0451;-0,0288;4,4093
+PRIOT700;PRIO3;Put;70;46255,125;12,07;200;0;19;20119,5;0;-0,8658;0,0245;0,0142;5,2916
+
+== Arquivo de sÃ­mbolos atual ==
+-rw-r--r-- 1 eucal 197609 40 Jun 17 22:10 dados/rtd_symbols.txt
+
+PRIOG800
+PRIOH515
+PRIOS525
+PRIOT700
+
+== Auditoria antes - app.db ==
+Auditoria rtd_option_quotes
+Banco: dados\app.db
+Tabela: rtd_option_quotes
+Status: ok
+
+Métricas:
+- distinct_codigo_count: 4
+- duplicate_codigo_count: 0
+- missing_codigo_count: 0
+- row_count: 4
+
+== Auditoria antes - derived.db ==
+Auditoria rtd_option_quotes
+Banco: dados\derived.db
+Tabela: rtd_option_quotes
+Status: ok
+
+Métricas:
+- distinct_codigo_count: 4
+- duplicate_codigo_count: 0
+- missing_codigo_count: 0
+- row_count: 4
+
+== Dry-run importador - app.db ==
+Importação RTD wide CSV
+-----------------------
+input_rows: 4
+inserted: 0
+updated: 0
+skipped: 0
+updated_at: 2026-06-22 08:59:54
+
+== Dry-run importador - derived.db ==
+Importação RTD wide CSV
+-----------------------
+input_rows: 4
+inserted: 0
+updated: 0
+skipped: 0
+updated_at: 2026-06-22 08:59:54
+
+== Pipeline RTD restaurado - app.db ==
+Importação RTD wide CSV
+-----------------------
+input_rows: 4
+inserted: 0
+updated: 4
+skipped: 0
+updated_at: 2026-06-22 08:59:54
+Auditoria rtd_option_quotes
+Banco: dados\app.db
+Tabela: rtd_option_quotes
+Status: ok
+
+Métricas:
+- distinct_codigo_count: 4
+- duplicate_codigo_count: 0
+- missing_codigo_count: 0
+- row_count: 4
+Pipeline RTD option quotes
+CSV: dados/RTD_LINKS.csv
+DB: dados/app.db
+Dry-run: False
+
+Etapa 1 — Importação
+--------------------
+C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe C:\Users\eucal\projeto\scripts\import_rtd_option_quotes_wide_csv.py --csv dados/RTD_LINKS.csv --db dados/app.db
+
+Etapa 2 — Auditoria
+-------------------
+C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe C:\Users\eucal\projeto\scripts\audit_rtd_option_quotes.py --db dados/app.db --max-age-minutes 0
+
+Pipeline concluído com sucesso.
+
+== Pipeline RTD restaurado - derived.db ==
+Importação RTD wide CSV
+-----------------------
+input_rows: 4
+inserted: 0
+updated: 4
+skipped: 0
+updated_at: 2026-06-22 08:59:55
+Auditoria rtd_option_quotes
+Banco: dados\derived.db
+Tabela: rtd_option_quotes
+Status: ok
+
+Métricas:
+- distinct_codigo_count: 4
+- duplicate_codigo_count: 0
+- missing_codigo_count: 0
+- row_count: 4
+Pipeline RTD option quotes
+CSV: dados/RTD_LINKS.csv
+DB: dados/derived.db
+Dry-run: False
+
+Etapa 1 — Importação
+--------------------
+C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe C:\Users\eucal\projeto\scripts\import_rtd_option_quotes_wide_csv.py --csv dados/RTD_LINKS.csv --db dados/derived.db
+
+Etapa 2 — Auditoria
+-------------------
+C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe C:\Users\eucal\projeto\scripts\audit_rtd_option_quotes.py --db dados/derived.db --max-age-minutes 0
+
+Pipeline concluído com sucesso.
+
+== Auditoria depois - app.db ==
+Auditoria rtd_option_quotes
+Banco: dados\app.db
+Tabela: rtd_option_quotes
+Status: ok
+
+Métricas:
+- distinct_codigo_count: 4
+- duplicate_codigo_count: 0
+- missing_codigo_count: 0
+- row_count: 4
+
+== Auditoria depois - derived.db ==
+Auditoria rtd_option_quotes
+Banco: dados\derived.db
+Tabela: rtd_option_quotes
+Status: ok
+
+Métricas:
+- distinct_codigo_count: 4
+- duplicate_codigo_count: 0
+- missing_codigo_count: 0
+- row_count: 4
+
+== Estado SQLite resumido ==
+============================================================
+DB: dados/app.db
+Existe: True
+rtd_option_quotes existe: True
+{'total': 4, 'distintos': 4, 'min_updated_at': '2026-06-22 08:59:54', 'max_updated_at': '2026-06-22 08:59:54'}
+{'codigo_opcao': 'PRIOG800', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 80.0, 'vencimento': '2026-07-17', 'ultimo_preco': 0.04, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:54'}
+{'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'vencimento': '2026-08-21', 'ultimo_preco': 7.43, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:54'}
+{'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'vencimento': '2026-07-17', 'ultimo_preco': 0.6, 'bid': 0.03, 'ask': 0.7, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:54'}
+{'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'vencimento': '2026-08-21', 'ultimo_preco': 12.07, 'bid': 0.0, 'ask': 19.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:54'}
+============================================================
+DB: dados/derived.db
+Existe: True
+rtd_option_quotes existe: True
+{'total': 4, 'distintos': 4, 'min_updated_at': '2026-06-22 08:59:55', 'max_updated_at': '2026-06-22 08:59:55'}
+{'codigo_opcao': 'PRIOG800', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 80.0, 'vencimento': '2026-07-17', 'ultimo_preco': 0.04, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:55'}
+{'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'vencimento': '2026-08-21', 'ultimo_preco': 7.43, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:55'}
+{'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'vencimento': '2026-07-17', 'ultimo_preco': 0.6, 'bid': 0.03, 'ask': 0.7, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:55'}
+{'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'vencimento': '2026-08-21', 'ultimo_preco': 12.07, 'bid': 0.0, 'ask': 19.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:55'}
+
+== Testes RTD restaurados novamente ==
+...........................                                              [100%]
+27 passed in 0.74s
+
+== Status git final ==
+A  ATT/tests/test_audit_rtd_option_quotes.py
+A  ATT/tests/test_import_rtd_links_to_option_quotes.py
+A  ATT/tests/test_rtd_option_quotes_repository_contract.py
+A  ATT/tests/test_run_rtd_option_quotes_pipeline.py
+A  infra/bootstrap_rtd_option_quotes_schema.py
+A  scripts/audit_rtd_option_quotes.py
+A  scripts/build_rtd_symbols.py
+A  scripts/create_rtd_option_quotes_sheet.py
+A  scripts/import_lista_rtd_excel_to_option_quotes.py
+A  scripts/import_rtd_links_to_option_quotes.py
+A  scripts/import_rtd_option_quotes_wide_csv.py
+A  scripts/mapear_automacao_opcoes_rtd.py
+A  scripts/refresh_rtd_option_quotes_excel.ps1
+A  scripts/run_lista_rtd_option_quotes_pipeline.py
+A  scripts/run_rtd_option_quotes_pipeline.py
+A  scripts/run_rtd_refresh_full.py
+A  scripts/seed_current_rtd_option_quotes.py
+?? docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt
+?? docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt
+?? docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt
+?? docs/checkpoints/evidencias/fase-5d-validacao-rtd-restaurado-operacional.txt
+?? scripts/fase-5-diagnostico-rtd.sh
+?? scripts/fase-5b-diagnostico-rtd-cadeia-real.sh
+?? scripts/fase-5c-restaurar-rtd-historico.sh
+?? scripts/fase-5d-validar-rtd-restaurado-operacional.sh
+
+============================================================
+FIM FASE 5D VALIDACAO OPERACIONAL
+============================================================
