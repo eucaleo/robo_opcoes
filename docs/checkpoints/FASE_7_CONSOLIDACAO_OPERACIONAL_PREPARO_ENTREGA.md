@@ -431,3 +431,55 @@ git tag --list "fase-6*"
 
 - A aderencia entre workbooks referenciados e versionados foi registrada sem alteracao funcional.
 - A Fase 7 segue preparada para uma decisao explicita de empacotamento e tratamento de artefatos Excel.
+
+## Diretriz provisoria de empacotamento dos artefatos Excel
+
+### Escopo
+
+- Registro documental de diretriz provisoria para tratamento de arquivos Excel na entrega.
+- Nenhum arquivo foi alterado, removido, criado ou movido nesta etapa.
+- A diretriz se baseia nas revisoes de classificacao, dependencias e aderencia entre referencias e arquivos versionados.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base da diretriz: 411cd31 docs: revisa aderencia dos workbooks da fase 7
+
+### Diretriz por artefato
+
+- Arquivo: LISTA_RTD.xlsx
+  - Estado observado: presente e versionado na raiz.
+  - Leitura operacional: artefato legado ou historico, com referencias documentais relevantes.
+  - Diretriz provisoria: manter no repositorio ate decisao funcional explicita.
+  - Restricao para entrega externa: revisar conteudo antes de empacotar, pois pode conter dados operacionais ou sensiveis.
+
+- Arquivo: LISTA_RTD.xlsm
+  - Estado observado: referenciado com frequencia, mas ausente e nao versionado na raiz.
+  - Leitura operacional: possivel dependencia operacional externa, historica ou nao empacotada.
+  - Diretriz provisoria: nao criar, nao renomear e nao substituir automaticamente.
+  - Restricao para entrega externa: registrar como lacuna ou pre-requisito externo caso ainda seja necessario ao fluxo real.
+
+- Arquivo: OPERACOES_E_OPCOES.xlsm
+  - Estado observado: presente e versionado na raiz.
+  - Leitura operacional: artefato de dados operacional com potencial uso em validacoes locais e fluxos legados.
+  - Diretriz provisoria: manter versionado ate decisao funcional explicita.
+  - Restricao para entrega externa: revisar conteudo e macros antes de empacotar.
+
+- Arquivo: OPERACOES_E_OPCOES.xlsx
+  - Estado observado: referenciado, ausente, nao versionado e ignorado pelo Git.
+  - Leitura operacional: referencia legada ou alternativa ao workbook principal.
+  - Diretriz provisoria: nao incluir na entrega sem decisao explicita.
+  - Restricao para entrega externa: se necessario, documentar como arquivo local esperado ou substituir por fixture controlada.
+
+### Regras provisorias para entrega
+
+- Nao empacotar arquivos Excel com dados reais sem revisao de conteudo.
+- Nao empacotar arquivos com macro sem revisao especifica de seguranca e necessidade operacional.
+- Nao substituir extensoes xlsx por xlsm, ou xlsm por xlsx, sem validacao funcional.
+- Nao inferir que arquivo ausente deve ser criado apenas por haver referencia textual.
+- Caso a entrega precise ser reproduzivel sem planilhas reais, criar etapa futura para fixtures anonimizadas ou dados de exemplo.
+
+### Conclusao da diretriz
+
+- A diretriz provisoria de empacotamento dos artefatos Excel foi registrada sem alteracao funcional.
+- A Fase 7 segue preparada para revisao de sensibilidade dos artefatos versionados e definicao final de pacote de entrega.
