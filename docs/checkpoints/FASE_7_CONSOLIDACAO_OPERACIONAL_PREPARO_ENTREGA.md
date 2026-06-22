@@ -170,3 +170,42 @@ git tag --list "fase-6*"
 
 - A revisao de higiene operacional foi registrada sem alteracao funcional.
 - A Fase 7 segue pronta para avaliacao controlada de limpeza, documentacao e empacotamento.
+
+## Classificacao dos arquivos de dados na raiz
+
+### Escopo
+
+- Classificacao documental dos arquivos de dados ou binarios localizados na raiz.
+- Nenhum arquivo foi alterado, removido ou movido nesta etapa.
+- O objetivo e orientar a decisao de entrega sem risco funcional.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base da classificacao: 5c60d94 docs: registra revisao de higiene operacional da fase 7
+
+### Arquivos avaliados
+
+- Arquivo: LISTA_RTD.xlsx
+  - Tamanho em bytes: 14551
+  - Ultimo commit relacionado: 5b4c3bc chore: padroniza nome da lista rtd
+  - Classificacao preliminar: artefato de dados operacional
+  - Acao recomendada: manter documentado ate decisao funcional explicita
+- Arquivo: OPERACOES_E_OPCOES.xlsm
+  - Tamanho em bytes: 247837
+  - Ultimo commit relacionado: 0496b78 data: atualiza planilhas e arquivos bridge
+  - Classificacao preliminar: artefato de dados operacional
+  - Acao recomendada: manter documentado ate decisao funcional explicita
+
+### Diretriz de tratamento
+
+- Arquivos de planilha na raiz podem representar insumos operacionais, exemplos, bases manuais ou artefatos locais.
+- A remocao ou movimentacao deve ocorrer somente apos confirmacao de dependencia funcional.
+- Caso sejam essenciais, devem permanecer versionados e documentados.
+- Caso sejam apenas artefatos locais, devem ser removidos ou movidos em etapa propria, com commit separado.
+- Caso contenham dados sensiveis, devem ser tratados antes da entrega externa.
+
+### Conclusao da classificacao
+
+- A classificacao dos arquivos de dados da raiz foi registrada sem alteracao funcional.
+- A Fase 7 segue preparada para revisao de dependencias operacionais e empacotamento controlado.
