@@ -1,0 +1,59 @@
+# Check de consistência dos dados — Fase 1
+
+Data: 2026-06-22
+Branch: reinicio-normalizacao-idioma-ptbr
+
+Objetivo: detectar desalinhamentos entre estruturas, pernas, RTD, decisões e payoff sem alterar dados.
+
+
+================================================================================
+1. Estruturas com alias_legacy_aba nulo
+================================================================================
+{'id': 2, 'name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'alias_legacy_aba': None, 'status': 'active'}
+{'id': 3, 'name': 'PRIO', 'underlying_asset': 'PRIO3', 'alias_legacy_aba': None, 'status': 'active'}
+
+================================================================================
+2. Pernas sem cotação RTD correspondente por symbol/codigo_opcao em dados/app.db
+================================================================================
+{'structure_id': 2, 'structure_name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'leg_id': 3, 'leg_order': 1, 'symbol': 'BOVAH186', 'option_type': 'CALL', 'position_side': 'COMPRADO', 'strike': 186.0, 'expiration_date': '2026-08-21'}
+{'structure_id': 2, 'structure_name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'leg_id': 4, 'leg_order': 2, 'symbol': 'BOVAG34', 'option_type': 'CALL', 'position_side': 'VENDIDO', 'strike': 157.0, 'expiration_date': '2026-07-17'}
+{'structure_id': 2, 'structure_name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'leg_id': 5, 'leg_order': 3, 'symbol': 'BOVAG34', 'option_type': 'PUT', 'position_side': 'VENDIDO', 'strike': 184.0, 'expiration_date': '2026-07-17'}
+{'structure_id': 2, 'structure_name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'leg_id': 6, 'leg_order': 4, 'symbol': 'BOVAT158', 'option_type': 'PUT', 'position_side': 'COMPRADO', 'strike': 158.0, 'expiration_date': '2026-08-21'}
+{'structure_id': 3, 'structure_name': 'PRIO', 'underlying_asset': 'PRIO3', 'leg_id': 8, 'leg_order': 2, 'symbol': 'PRIOH505', 'option_type': 'CALL', 'position_side': 'VENDIDO', 'strike': 50.5, 'expiration_date': '2026-08-21'}
+
+================================================================================
+3. Pernas com cotação RTD por symbol, mas divergência de vencimento/strike/tipo
+================================================================================
+{'structure_id': 3, 'structure_name': 'PRIO', 'leg_id': 10, 'leg_order': 4, 'symbol': 'PRIOS525', 'leg_option_type': 'PUT', 'quote_call_put': 'PUT', 'leg_strike': 52.5, 'quote_strike': 52.5, 'leg_expiration_date': '2026-08-21', 'quote_vencimento': '2026-07-17'}
+
+================================================================================
+4. Cotações RTD sem perna correspondente em dados/app.db
+================================================================================
+{'id': 3, 'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'vencimento': '2026-08-21', 'ultimo_preco': 7.43, 'bid': 0.0, 'ask': 0.0, 'source': 'BTG_RTD_EXCEL', 'updated_at': '2026-06-22 08:59:54'}
+
+================================================================================
+5. Decisões cujo structure_id não existe em dados/app.db
+================================================================================
+(nenhuma)
+
+================================================================================
+6. Payoff cujo structure_id não existe em dados/app.db
+================================================================================
+(nenhum)
+
+================================================================================
+7. Decisões com aba diferente de structure:{structure_id}
+================================================================================
+(nenhuma)
+
+================================================================================
+8. Payoff com aba diferente de structure:{structure_id}
+================================================================================
+(nenhum)
+
+================================================================================
+9. Payoff com spot_ref nulo
+================================================================================
+{'timestamp': '2026-06-22T01:08:20.100326+00:00', 'aba': 'structure:2', 'structure_id': 2, 'qtd_pontos': 101}
+{'timestamp': '2026-06-22T01:08:58.523780+00:00', 'aba': 'structure:2', 'structure_id': 2, 'qtd_pontos': 101}
+{'timestamp': '2026-06-22T13:46:40.493888+00:00', 'aba': 'structure:3', 'structure_id': 3, 'qtd_pontos': 101}
