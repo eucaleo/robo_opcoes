@@ -1,0 +1,706 @@
+== Fase 3A - Diagnostico cadastro manual, payoff e decisoes ==
+
+Data:
+Sun Jun 21 21:07:59     2026
+
+1) Branch e estado git
+
+fase-3a4-auto-pricing-manual-save
+?? docs/checkpoints/evidencias/fase-3a-diagnostico-cadastro-payoff-decisoes.txt
+?? scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh
+ec21c9e test: registra suite geral apos fechamento da fase 2b
+908d862 docs: fecha validacao da normalizacao numerica fase 2b
+93e9844 chore: adiciona script de fechamento fase 2b
+51e4f8e test: adiciona regressao para normalizacao de quantity
+b145981 chore: adiciona scripts de automacao fase 2b
+c14fe17 docs: registra análise da normalização numérica fase 2b
+07eabe5 docs: registra validação manual da fase 3a4
+777cc9b docs: atualiza evolução completa da revisão funcional
+7f23b6f docs: registra validação integrada da fase 3a4
+a79b6c1 docs: adiciona evidências das fases 3a a 3a3
+
+2) Arquivos candidatos relacionados ao fluxo
+
+ATT/checks/check_legs.py
+ATT/checks/check_structures.py
+ATT/tests/test_canonical_input_service.py
+ATT/tests/test_decision.py
+ATT/tests/test_derived_service.py
+ATT/tests/test_legacy_robo_legs_fallback.py
+ATT/tests/test_legacy_structure_legs_importer.py
+ATT/tests/test_legacy_structure_legs_importer_integration.py
+ATT/tests/test_legacy_structure_legs_reader.py
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py
+ATT/tests/test_payoff_canonical.py
+ATT/tests/test_payoff_chart.py
+ATT/tests/test_pricing_execution_app_service.py
+ATT/tests/test_pricing_execution_orchestration_service.py
+ATT/tests/test_pricing_execution_persistence_service.py
+ATT/tests/test_pricing_execution_query_service.py
+ATT/tests/test_pricing_execution_service.py
+ATT/tests/test_pricing_executions_repository.py
+ATT/tests/test_pricing_input_service.py
+ATT/tests/test_robo_leg_mapper.py
+ATT/tests/test_robo_legs_repository.py
+ATT/tests/test_robo_legs_service.py
+ATT/tests/test_robo_legs_status_repository.py
+ATT/tests/test_robo_legs_status_service.py
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+ATT/tests/test_structure_analysis_service.py
+ATT/tests/test_structure_editor_dialog.py
+ATT/tests/test_structure_editor_integration.py
+ATT/tests/test_structure_events_api.py
+ATT/tests/test_structure_events_effective_state.py
+ATT/tests/test_structure_events_repository.py
+ATT/tests/test_structure_events_service.py
+ATT/tests/test_structure_input_mapper.py
+ATT/tests/test_structure_leg_rtd_enrichment_service.py
+ATT/tests/test_structure_market_input_assembler.py
+ATT/tests/test_structure_metrics.py
+ATT/tests/test_structures_api.py
+ATT/tests/test_structures_archive_wiring.py
+ATT/tests/test_structures_legs_endpoints.py
+ATT/tests/test_structures_repository.py
+ATT/tests/test_system_snapshots_repository.py
+UI/components/decisions_grid.py
+UI/components/payoff_chart.py
+UI/components/structure_editor_dialog.py
+UI/components/structures_list_panel.py
+api/structures_controller.py
+create_payoff_summary_table.py
+db/migrations/add_structure_id_to_payoff_curve_points.py
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md
+docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md
+docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md
+docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md
+docs/decisions/structure_ref_created_at.md
+docs/evolucoes de fases/EVOLUCAO_PRICING_PAYOFF.md
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md
+docs/evolucoes de fases/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md
+docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md
+docs/migracoes/fase-14-migracao-dados-legados.md
+domain/decision.py
+domain/payoff.py
+domain/payoff_features.py
+domain/structure_metrics.py
+dto/robo_leg_dto.py
+dto/robo_legs_status_dto.py
+infra/bootstrap_structures_schema.py
+repositories/market_snapshot_repository.py
+repositories/pricing_executions_repository.py
+repositories/robo_legs_repository.py
+repositories/robo_legs_status_repository.py
+repositories/rtd_option_quotes_repository.py
+repositories/structure_events_repository.py
+repositories/structures_repository.py
+repositories/system_snapshots_repository.py
+scripts/import_legacy_structure_legs.py
+scripts/run_derived_pipeline.py
+services/__init__.py
+services/calculation_orchestrator.py
+services/canonical_input_service.py
+services/canonical_pricing_facade.py
+services/derived_payoff_persistence.py
+services/derived_service.py
+services/legacy_robo_legs_fallback.py
+services/legacy_structure_legs_importer.py
+services/legacy_structure_legs_reader.py
+services/market_snapshot_provider.py
+services/market_snapshot_selector.py
+services/payoff_persistence_port.py
+services/pricing_engine_stub.py
+services/pricing_execution_app_service.py
+services/pricing_execution_orchestration_service.py
+services/pricing_execution_persistence_service.py
+services/pricing_execution_query_service.py
+services/pricing_execution_service.py
+services/pricing_input_service.py
+services/pricing_payload_adapter.py
+services/robo_leg_mapper.py
+services/robo_legs_service.py
+services/robo_legs_status_service.py
+services/structure_analysis_service.py
+services/structure_events_service.py
+services/structure_input_mapper.py
+services/structure_leg_rtd_enrichment_service.py
+services/structure_market_input_assembler.py
+src/domain/refs/structure_ref.py
+utils/leg_normalizers.py
+validators/leg_validator.py
+
+3) Ocorrencias relevantes no codigo
+
+./api/pricing_execution_controller.py:11:    structure_id: int
+./api/pricing_execution_controller.py:19:            structure_id=request.structure_id,
+./api/pricing_execution_controller.py:30:    structure_id: int | None = None,
+./api/pricing_execution_controller.py:39:            structure_id=structure_id,
+./api/pricing_execution_controller.py:52:    structure_id: int | None = None,
+./api/pricing_execution_controller.py:59:            structure_id=structure_id,
+./api/structures_controller.py:79:    structure_id: int
+./api/structures_controller.py:105:def _get_or_404(structure_id: int) -> dict[str, Any]:
+./api/structures_controller.py:106:    structure = _repo.get_structure(structure_id)
+./api/structures_controller.py:110:            detail=f"structure not found: {structure_id}",
+./api/structures_controller.py:122:        structure_id = _repo.create_structure(request.model_dump())
+./api/structures_controller.py:125:    return CreateStructureResponse(structure_id=structure_id)
+./api/structures_controller.py:136:@router.get("/structures/{structure_id}", response_model=StructureDetailResponse)
+./api/structures_controller.py:137:def get_structure(structure_id: int) -> StructureDetailResponse:
+./api/structures_controller.py:138:    structure = _get_or_404(structure_id)
+./api/structures_controller.py:142:@router.patch("/structures/{structure_id}", status_code=204)
+./api/structures_controller.py:143:def update_structure(structure_id: int, request: UpdateStructureRequest) -> None:
+./api/structures_controller.py:144:    _get_or_404(structure_id)
+./api/structures_controller.py:151:        _repo.update_structure(structure_id, data)
+./api/structures_controller.py:158:@router.delete("/structures/{structure_id}", status_code=204)
+./api/structures_controller.py:159:def archive_structure(structure_id: int) -> None:
+./api/structures_controller.py:160:    _get_or_404(structure_id)
+./api/structures_controller.py:162:        _repo.archive_structure(structure_id)
+./api/structures_controller.py:174:    "/structures/{structure_id}/legs",
+./api/structures_controller.py:178:def add_leg(structure_id: int, request: LegRequest) -> AddLegResponse:
+./api/structures_controller.py:183:    _get_or_404(structure_id)
+./api/structures_controller.py:186:        leg_id = _repo.add_leg(structure_id, request.model_dump())
+./api/structures_controller.py:193:@router.put("/structures/{structure_id}/legs", status_code=204)
+./api/structures_controller.py:194:def replace_legs(structure_id: int, request: ReplaceLegRequest) -> None:
+./api/structures_controller.py:199:    _get_or_404(structure_id)
+./api/structures_controller.py:203:            structure_id,
+./api/structures_controller.py:210:@router.delete("/structures/{structure_id}/legs/{leg_id}", status_code=204)
+./api/structures_controller.py:211:def remove_leg(structure_id: int, leg_id: int) -> None:
+./api/structures_controller.py:216:    _get_or_404(structure_id)
+./api/structures_controller.py:221:            "SELECT id FROM structure_legs WHERE id=? AND structure_id=?",
+./api/structures_controller.py:222:            (leg_id, structure_id),
+./api/structures_controller.py:228:                detail=f"leg not found: {leg_id} in structure {structure_id}",
+./api/structures_controller.py:240:            (now, structure_id),
+./api/structures_controller.py:276:    "manual_close",
+./api/structures_controller.py:290:    "manual",
+./api/structures_controller.py:305:    source: str = "manual"
+./api/structures_controller.py:332:def _ensure_structure_exists_for_events(structure_id: int) -> None:
+./api/structures_controller.py:333:    structure = _repo.get_structure(structure_id)
+./api/structures_controller.py:337:            detail=f"structure not found: {structure_id}",
+./api/structures_controller.py:391:    "/structures/{structure_id}/effective",
+./api/structures_controller.py:395:    structure_id: int,
+./api/structures_controller.py:406:    structure = _get_or_404(structure_id)
+./api/structures_controller.py:415:    "/structures/{structure_id}/events",
+./api/structures_controller.py:420:    structure_id: int,
+./api/structures_controller.py:423:    _ensure_structure_exists_for_events(structure_id)
+./api/structures_controller.py:428:            structure_id=structure_id,
+./api/structures_controller.py:438:    "/structures/{structure_id}/events",
+./api/structures_controller.py:442:    structure_id: int,
+./api/structures_controller.py:445:    _ensure_structure_exists_for_events(structure_id)
+./api/structures_controller.py:449:            structure_id,
+./api/structures_controller.py:461:    structure_id: int | None = None,
+./api/structures_controller.py:468:    if structure_id is not None and structure_id <= 0:
+./api/structures_controller.py:471:            detail="structure_id must be greater than zero",
+./api/structures_controller.py:488:            structure_id=structure_id,
+./ATT/checks/check_cleanup_residuals.py:18:    r"(^|/)scripts/smoke_canonical_and_domain\.py$",
+./ATT/checks/check_cleanup_residuals.py:30:    r"smoke_canonical_and_domain",
+./ATT/checks/check_cleanup_residuals.py:39:    r"canonical_flow_smoke",
+./ATT/checks/check_cleanup_residuals.py:40:    r"canonical_execution_probe",
+./ATT/checks/check_cleanup_residuals.py:76:    "scripts/patch_derived_payoff_timestamp_consistency.sh",
+./ATT/checks/check_end_to_end.py:21:    ROOT_DIR / "domain" / "payoff.py",
+./ATT/checks/check_end_to_end.py:22:    ROOT_DIR / "domain" / "payoff_features.py",
+./ATT/checks/check_end_to_end.py:36:    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+./ATT/checks/check_structures.py:22:    ROOT_DIR / "domain" / "payoff.py",
+./ATT/checks/check_structures.py:23:    ROOT_DIR / "domain" / "payoff_features.py",
+./ATT/checks/check_structures.py:33:    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+./ATT/tests/test_canonical_input_service.py:3:from services.canonical_input_service import CanonicalInputService
+./ATT/tests/test_canonical_input_service.py:10:    def get_structure(self, structure_id):
+./ATT/tests/test_canonical_input_service.py:11:        if self.structure and self.structure.get("id") == structure_id:
+./ATT/tests/test_canonical_input_service.py:68:    def test_should_always_prefer_canonical_legs_when_structure_already_has_legs(self):
+./ATT/tests/test_canonical_input_service.py:95:            prefer_canonical_legs=True,
+./ATT/tests/test_canonical_input_service.py:100:            structure_id=7,
+./ATT/tests/test_canonical_input_service.py:104:        self.assertEqual(result["meta"]["legs_source"], "canonical")
+./ATT/tests/test_canonical_input_service.py:110:    def test_should_use_legacy_robo_only_when_no_canonical_legs_exist(self):
+./ATT/tests/test_canonical_input_service.py:141:            structure_id=7,
+./ATT/tests/test_canonical_input_service.py:153:    def test_should_return_empty_when_no_canonical_legs_and_fallback_disabled(self):
+./ATT/tests/test_canonical_input_service.py:173:            structure_id=7,
+./ATT/tests/test_canonical_input_service.py:195:            prefer_canonical_legs=True,
+./ATT/tests/test_canonical_input_service.py:259:            prefer_canonical_legs=True,
+./ATT/tests/test_canonical_input_service.py:264:            structure_id=7,
+./ATT/tests/test_canonical_input_service.py:296:            prefer_canonical_legs=True,
+./ATT/tests/test_canonical_input_service.py:301:            structure_id=7,
+./ATT/tests/test_canonical_pricing_facade.py:6:from services.canonical_pricing_facade import _snapshot_result_to_payload
+./ATT/tests/test_canonical_pricing_facade.py:15:        "manual_overrides": [],
+./ATT/tests/test_canonical_pricing_facade.py:47:        structure_id=15,
+./ATT/tests/test_canonical_pricing_facade.py:76:        manual_overrides=["price"],
+./ATT/tests/test_canonical_pricing_facade.py:81:        structure_id=10,
+./ATT/tests/test_canonical_pricing_facade.py:87:    assert payload["structure_id"] == 10
+./ATT/tests/test_canonical_pricing_facade.py:95:        "manual_overrides": ["price"],
+./ATT/tests/test_canonical_pricing_facade.py:124:        structure_id=20,
+./ATT/tests/test_canonical_pricing_facade.py:148:        structure_id=30,
+./ATT/tests/test_canonical_pricing_facade.py:163:            structure_id=40,
+./ATT/tests/test_canonical_validators.py:1:from domain.canonical_validators import validate_canonical_input
+./ATT/tests/test_canonical_validators.py:4:def test_validate_canonical_input_should_not_require_alias_legacy_aba():
+./ATT/tests/test_canonical_validators.py:5:    canonical_input = {
+./ATT/tests/test_canonical_validators.py:7:            "structure_id": 7,
+./ATT/tests/test_canonical_validators.py:30:    errors = validate_canonical_input(canonical_input)
+./ATT/tests/test_contracts.py:4:def test_canonical_structure_market_input_from_dict_and_to_dict_without_alias_legacy_aba():
+./ATT/tests/test_contracts.py:7:            "structure_id": 7,
+./ATT/tests/test_contracts.py:32:            "legs_source": "canonical",
+./ATT/tests/test_contracts.py:38:    canonical_input = CanonicalStructureMarketInput.from_dict(payload)
+./ATT/tests/test_contracts.py:39:    result = canonical_input.to_dict()
+./ATT/tests/test_contracts.py:41:    assert result["structure"]["structure_id"] == 7
+./ATT/tests/test_contracts.py:45:    assert result["meta"]["legs_source"] == "canonical"
+./ATT/tests/test_decision.py:1:from domain.decision import compute_decision_from_payoff
+./ATT/tests/test_decision.py:4:def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
+./ATT/tests/test_decision.py:6:    Garante que compute_decision_from_payoff funciona com payoff canônico
+./ATT/tests/test_decision.py:9:    payoff = {
+./ATT/tests/test_decision.py:17:    result = compute_decision_from_payoff(
+./ATT/tests/test_decision.py:18:        payoff=payoff,
+./ATT/tests/test_decision.py:22:    assert "decision" in result
+./ATT/tests/test_decision.py:24:    assert result["decision"] in ("HOLD", "WATCH", "PREPARE", "PREPARE_ROLL", "CLOSE_REOPEN", "CLOSE")
+./ATT/tests/test_decision.py:26:    # com dte_min=12 > dte_gate=7 não há gate, decisão depende do ratio
+./ATT/tests/test_derived_service.py:16:        structure_id=7,
+./ATT/tests/test_derived_service.py:24:def test_resolve_storage_key_should_fallback_to_structure_id():
+./ATT/tests/test_derived_service.py:27:        structure_id=7,
+./ATT/tests/test_derived_service.py:38:        structure_id=None,
+./ATT/tests/test_derived_service.py:49:        structure_id=None,
+./ATT/tests/test_derived_service.py:60:        structure_id=None,
+./ATT/tests/test_derived_service.py:68:def test_merge_meta_should_enrich_with_canonical_identity():
+./ATT/tests/test_derived_service.py:71:        structure_id=7,
+./ATT/tests/test_derived_service.py:75:        input_meta={"legs_source": "canonical"},
+./ATT/tests/test_derived_service.py:79:    assert result["structure_id"] == 7
+./ATT/tests/test_derived_service.py:83:    assert result["input_meta"]["legs_source"] == "canonical"
+./ATT/tests/test_derived_service.py:86:def test_save_payoff_from_canonical_payload_should_use_resolved_storage_key(monkeypatch):
+./ATT/tests/test_derived_service.py:89:    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+./ATT/tests/test_derived_service.py:97:    monkeypatch.setattr(ds, "save_payoff_curve", fake_save_payoff_curve)
+./ATT/tests/test_derived_service.py:100:        "structure_id": 99,
+./ATT/tests/test_derived_service.py:110:    result = ds.save_payoff_from_canonical_payload(payload)
+./ATT/tests/test_derived_service.py:117:    assert captured["meta"]["structure_id"] == 99
+./ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+./ATT/tests/test_derived_service.py:128:    def fake_save_decision(ref, decision, timestamp=None):
+./ATT/tests/test_derived_service.py:130:        captured["decision"] = decision
+./ATT/tests/test_derived_service.py:134:    monkeypatch.setattr(ds, "save_decision", fake_save_decision)
+./ATT/tests/test_derived_service.py:141:    result = ds.save_decision_from_canonical_payload(
+./ATT/tests/test_derived_service.py:142:        decision=payload,
+./ATT/tests/test_derived_service.py:143:        structure_id=321,
+./ATT/tests/test_derived_service.py:151:    assert captured["decision"]["meta"]["origin"] == "test"
+./ATT/tests/test_derived_service.py:152:    assert captured["decision"]["meta"]["structure_id"] == 321
+./ATT/tests/test_derived_service.py:153:    assert captured["decision"]["meta"]["structure_name"] == "Fence"
+./ATT/tests/test_derived_service.py:154:    assert captured["decision"]["meta"]["underlying_asset"] == "VALE3"
+./ATT/tests/test_derived_service.py:155:    assert captured["decision"]["meta"]["storage_key"] == "structure:321"
+./ATT/tests/test_derived_service.py:159:def test_save_decision_preserva_structure_id_explicito_sem_alias(monkeypatch):
+./ATT/tests/test_derived_service.py:171:    def fake_insert_structure_decision(conn, timestamp, aba, decision_dict):
+./ATT/tests/test_derived_service.py:174:        captured["decision_dict"] = decision_dict
+./ATT/tests/test_derived_service.py:179:    monkeypatch.setattr(svc, "_resolve_structure_id", lambda storage_key: None)
+./ATT/tests/test_derived_service.py:180:    monkeypatch.setattr(svc, "insert_structure_decision", fake_insert_structure_decision)
+./ATT/tests/test_derived_service.py:182:    result = svc.save_decision(
+./ATT/tests/test_derived_service.py:184:        decision={
+./ATT/tests/test_derived_service.py:185:            "structure_id": 7,
+./ATT/tests/test_derived_service.py:186:            "decision": "hold",
+./ATT/tests/test_derived_service.py:194:    assert captured["decision_dict"]["structure_id"] == 7
+./ATT/tests/test_derived_service.py:195:    assert captured["decision_dict"]["meta"]["structure_id"] == 7
+./ATT/tests/test_derived_service.py:196:    assert captured["decision_dict"]["meta"]["storage_key"] == "structure:7"
+./ATT/tests/test_legacy_structure_legs_importer.py:29:            structure_id INTEGER NOT NULL,
+./ATT/tests/test_legacy_structure_legs_importer.py:42:            FOREIGN KEY (structure_id) REFERENCES structures(id)
+./ATT/tests/test_legacy_structure_legs_importer.py:53:def _insert_structure(db_path, structure_id=123):
+./ATT/tests/test_legacy_structure_legs_importer.py:65:    """, (structure_id,))
+./ATT/tests/test_legacy_structure_legs_importer.py:70:def _insert_existing_leg(db_path, structure_id=123):
+./ATT/tests/test_legacy_structure_legs_importer.py:74:            structure_id, position_side, option_type, symbol,
+./ATT/tests/test_legacy_structure_legs_importer.py:85:    """, (structure_id,))
+./ATT/tests/test_legacy_structure_legs_importer.py:95:    def read_by_structure_id(self, structure_id, timestamp):
+./ATT/tests/test_legacy_structure_legs_importer.py:98:                "structure_id": structure_id,
+./ATT/tests/test_legacy_structure_legs_importer.py:105:def test_import_by_structure_id_replaces_legs_and_writes_audit_log(tmp_path):
+./ATT/tests/test_legacy_structure_legs_importer.py:143:    result = importer.import_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_importer.py:144:        structure_id=123,
+./ATT/tests/test_legacy_structure_legs_importer.py:149:        "structure_id": 123,
+./ATT/tests/test_legacy_structure_legs_importer.py:157:            "structure_id": 123,
+./ATT/tests/test_legacy_structure_legs_importer.py:178:def test_import_by_structure_id_raises_when_reader_returns_no_legs(tmp_path):
+./ATT/tests/test_legacy_structure_legs_importer.py:194:        match=r"structure_id=123 sem legs legadas para importar",
+./ATT/tests/test_legacy_structure_legs_importer.py:196:        importer.import_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_importer.py:197:            structure_id=123,
+./ATT/tests/test_legacy_structure_legs_importer.py:206:def test_import_by_structure_id_raises_when_structure_does_not_exist(tmp_path):
+./ATT/tests/test_legacy_structure_legs_importer.py:231:        importer.import_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_importer.py:232:            structure_id=999,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:32:            structure_id INTEGER NOT NULL,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:45:            FOREIGN KEY (structure_id) REFERENCES structures(id)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:50:        CREATE TABLE manual_analise_robo_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:86:def _insert_structure(db_path, structure_id=123):
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:100:    """, (structure_id,))
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:106:def _insert_existing_canonical_leg(db_path, structure_id=123):
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:111:            structure_id, position_side, option_type, symbol,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:122:    """, (structure_id,))
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:147:def _insert_legacy_manual_leg(db_path):
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:151:        INSERT INTO manual_analise_robo_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:158:            185.0, 5000, 'manualput185', '2026-06-20', 1.23
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:173:    _insert_existing_canonical_leg(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:178:    _insert_legacy_manual_leg(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:195:    result = importer.import_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:196:        structure_id=123,
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:201:        "structure_id": 123,
+./ATT/tests/test_legacy_structure_legs_reader.py:14:    def get_legs_by_structure_id(self, structure_id, timestamp):
+./ATT/tests/test_legacy_structure_legs_reader.py:17:                "structure_id": structure_id,
+./ATT/tests/test_legacy_structure_legs_reader.py:24:def test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload():
+./ATT/tests/test_legacy_structure_legs_reader.py:49:    result = reader.read_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_reader.py:50:        structure_id=123,
+./ATT/tests/test_legacy_structure_legs_reader.py:56:            "structure_id": 123,
+./ATT/tests/test_legacy_structure_legs_reader.py:87:def test_read_by_structure_id_propagates_mapper_errors():
+./ATT/tests/test_legacy_structure_legs_reader.py:105:        reader.read_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_reader.py:106:            structure_id=123,
+./ATT/tests/test_legacy_structure_legs_reader.py:127:        CREATE TABLE manual_analise_robo_legs (
+./ATT/tests/test_legacy_structure_legs_reader.py:160:def test_read_by_structure_id_integrates_structure_alias_with_rtd_legs(tmp_path):
+./ATT/tests/test_legacy_structure_legs_reader.py:204:    result = reader.read_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_reader.py:205:        structure_id=123,
+./ATT/tests/test_legacy_structure_legs_reader.py:224:def test_read_by_structure_id_raises_when_structure_has_no_alias(tmp_path):
+./ATT/tests/test_legacy_structure_legs_reader.py:251:        match=r"structure_id=123 sem alias_legacy_aba em structures",
+./ATT/tests/test_legacy_structure_legs_reader.py:253:        reader.read_by_structure_id(
+./ATT/tests/test_legacy_structure_legs_reader.py:254:            structure_id=123,
+./ATT/tests/test_market_snapshot_selector.py:16:    def __init__(self, *, manual=None, rtd_option_quotes=None, rtd=None):
+./ATT/tests/test_market_snapshot_selector.py:17:        self.manual = manual or []
+./ATT/tests/test_market_snapshot_selector.py:21:    def get_manual_legs(self, ref):
+./ATT/tests/test_market_snapshot_selector.py:22:        return self.manual
+./ATT/tests/test_market_snapshot_selector.py:31:def test_selector_prioritizes_rtd_option_quotes_over_legacy_rtd_when_no_manual_exists():
+./ATT/tests/test_market_snapshot_selector.py:47:    assert result.manual_overrides == []
+./ATT/tests/test_market_snapshot_selector.py:50:def test_selector_keeps_manual_leg_ahead_of_rtd_option_quotes():
+./ATT/tests/test_market_snapshot_selector.py:51:    manual_leg = _leg("BOVAE195", "manual", 1.30)
+./ATT/tests/test_market_snapshot_selector.py:57:            manual=[manual_leg],
+./ATT/tests/test_market_snapshot_selector.py:67:    assert result.legs == [manual_leg]
+./ATT/tests/test_market_snapshot_selector.py:68:    assert result.manual_overrides == ["BOVAE195"]
+./ATT/tests/test_orchestrator_run_methods.py:2:Testes para os métodos run_payoff e run_decision
+./ATT/tests/test_orchestrator_run_methods.py:16:    _request_to_payoff_dict,
+./ATT/tests/test_orchestrator_run_methods.py:17:    run_decision,
+./ATT/tests/test_orchestrator_run_methods.py:18:    run_payoff,
+./ATT/tests/test_orchestrator_run_methods.py:48:        structure_id="struct-001",
+./ATT/tests/test_orchestrator_run_methods.py:64:# Testes: _request_to_payoff_dict
+./ATT/tests/test_orchestrator_run_methods.py:71:        result = _request_to_payoff_dict(req)
+./ATT/tests/test_orchestrator_run_methods.py:76:        s = _request_to_payoff_dict(req)["structure"]
+./ATT/tests/test_orchestrator_run_methods.py:77:        assert s["structure_id"] == "struct-001"
+./ATT/tests/test_orchestrator_run_methods.py:86:        legs = _request_to_payoff_dict(req)["structure"]["legs"]
+./ATT/tests/test_orchestrator_run_methods.py:93:        m = _request_to_payoff_dict(req)["market"]
+./ATT/tests/test_orchestrator_run_methods.py:100:        result = _request_to_payoff_dict(req, extra_meta=meta)
+./ATT/tests/test_orchestrator_run_methods.py:105:        result = _request_to_payoff_dict(req)
+./ATT/tests/test_orchestrator_run_methods.py:114:        result_legs = _request_to_payoff_dict(req)["structure"]["legs"]
+./ATT/tests/test_orchestrator_run_methods.py:120:# Testes: run_payoff
+./ATT/tests/test_orchestrator_run_methods.py:125:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+./ATT/tests/test_orchestrator_run_methods.py:130:        result = run_payoff(req)
+./ATT/tests/test_orchestrator_run_methods.py:133:        canonical = mock_compute.call_args[0][0]
+./ATT/tests/test_orchestrator_run_methods.py:134:        assert canonical["structure"]["structure_id"] == "struct-001"
+./ATT/tests/test_orchestrator_run_methods.py:135:        assert canonical["market"]["spot_price"] == 50.0
+./ATT/tests/test_orchestrator_run_methods.py:138:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+./ATT/tests/test_orchestrator_run_methods.py:143:        run_payoff(req, low_pct=0.8, high_pct=1.2, step_pct=0.005)
+./ATT/tests/test_orchestrator_run_methods.py:150:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+./ATT/tests/test_orchestrator_run_methods.py:155:        run_payoff(req, extra_meta={"tag": "ci"})
+./ATT/tests/test_orchestrator_run_methods.py:157:        canonical = mock_compute.call_args[0][0]
+./ATT/tests/test_orchestrator_run_methods.py:158:        assert canonical["meta"] == {"tag": "ci"}
+./ATT/tests/test_orchestrator_run_methods.py:160:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+./ATT/tests/test_orchestrator_run_methods.py:166:        result = run_payoff(req)
+./ATT/tests/test_orchestrator_run_methods.py:172:# Testes: run_decision
+./ATT/tests/test_orchestrator_run_methods.py:177:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+./ATT/tests/test_orchestrator_run_methods.py:179:        mock_decide.return_value = {"decision": "hold", "score": 0.7}
+./ATT/tests/test_orchestrator_run_methods.py:182:        result = run_decision(req, pl_atual=200.0, pl_max=500.0, dte_min=10)
+./ATT/tests/test_orchestrator_run_methods.py:189:        assert result == {"decision": "hold", "score": 0.7}
+./ATT/tests/test_orchestrator_run_methods.py:191:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+./ATT/tests/test_orchestrator_run_methods.py:192:    def test_payoff_dict_repassado(self, mock_decide):
+./ATT/tests/test_orchestrator_run_methods.py:195:        payoff = {"pl_max": 600.0, "points": [{"spot": 50, "pl": 0}]}
+./ATT/tests/test_orchestrator_run_methods.py:197:        run_decision(req, payoff=payoff, pl_max=600.0, pl_atual=100.0)
+./ATT/tests/test_orchestrator_run_methods.py:200:        assert kwargs["payoff"] == payoff
+./ATT/tests/test_orchestrator_run_methods.py:202:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+./ATT/tests/test_orchestrator_run_methods.py:207:        run_decision(req)
+./ATT/tests/test_orchestrator_run_methods.py:214:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+./ATT/tests/test_orchestrator_run_methods.py:219:        run_decision(req, pl_max=300.0)
+./ATT/tests/test_orchestrator_run_methods.py:224:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+./ATT/tests/test_orchestrator_run_methods.py:226:        expected = {"decision": "close", "reason": "dte_gate"}
+./ATT/tests/test_orchestrator_run_methods.py:230:        result = run_decision(req, pl_max=100.0, pl_atual=80.0, dte_min=2)
+./ATT/tests/test_orchestrator_run_methods.py:241:    Chama run_payoff sem mock.
+./ATT/tests/test_orchestrator_run_methods.py:245:    def test_sanidade_run_payoff_call_chain(self):
+./ATT/tests/test_orchestrator_run_methods.py:246:        pytest.importorskip("domain.payoff")
+./ATT/tests/test_orchestrator_run_methods.py:260:            result = run_payoff(req, low_pct=0.8, high_pct=1.2, step_pct=0.05)
+./ATT/tests/test_orchestrator_run_methods.py:261:            assert isinstance(result, dict), "run_payoff deve retornar dict"
+./ATT/tests/test_payoff_canonical.py:1:from domain.payoff import compute_payoff_from_canonical_input
+./ATT/tests/test_payoff_canonical.py:4:def test_compute_payoff_from_canonical_input_should_preserve_canonical_metadata():
+./ATT/tests/test_payoff_canonical.py:5:    canonical_input = {
+./ATT/tests/test_payoff_canonical.py:7:            "structure_id": 7,
+./ATT/tests/test_payoff_canonical.py:32:            "legs_source": "canonical",
+./ATT/tests/test_payoff_canonical.py:37:    result = compute_payoff_from_canonical_input(canonical_input)
+./ATT/tests/test_payoff_canonical.py:39:    assert result["structure_id"] == 7
+./ATT/tests/test_payoff_canonical.py:43:    assert result["input_meta"]["legs_source"] == "canonical"
+./ATT/tests/test_payoff_chart.py:1:# C:/users/eucal/projeto/ATT/tests/test_payoff_chart.py
+./ATT/tests/test_payoff_chart.py:3:Testes unitários para UI/components/payoff_chart.py
+./ATT/tests/test_payoff_chart.py:51:from UI.components.payoff_chart import (  # noqa: E402
+./ATT/tests/test_payoff_chart.py:65:    with patch("UI.components.payoff_chart.FigureCanvasTkAgg"), \
+./ATT/tests/test_payoff_chart.py:66:         patch("UI.components.payoff_chart.NavigationToolbar2Tk"), \
+./ATT/tests/test_payoff_chart.py:67:         patch("UI.components.payoff_chart.Figure") as MockFig, \
+./ATT/tests/test_payoff_chart.py:68:         patch("UI.components.payoff_chart.ttk.Frame.__init__", return_value=None), \
+./ATT/tests/test_payoff_chart.py:69:         patch("UI.components.payoff_chart.ttk.Frame.pack",     return_value=None), \
+./ATT/tests/test_payoff_chart.py:70:         patch("UI.components.payoff_chart.ttk.Frame.bind",     return_value=None):
+./ATT/tests/test_payoff_chart.py:85:        chart._last_decision_data  = {}
+./ATT/tests/test_payoff_chart.py:332:    def test_update_chart_saves_decision_data(self):
+./ATT/tests/test_payoff_chart.py:334:        dd  = {"structure_id": "collar_1", "decision": "BUY", "spot_ref": 100.0}
+./ATT/tests/test_payoff_chart.py:335:        self.chart.update_chart(pts, decision_data=dd)
+./ATT/tests/test_payoff_chart.py:336:        self.assertEqual(self.chart._last_decision_data["structure_id"], "collar_1")
+./ATT/tests/test_payoff_chart.py:352:        result = self.chart.update_chart(pts, decision_data={"spot_ref": 100.0})
+./ATT/tests/test_payoff_chart.py:357:        result = self.chart.update_chart(_linear_points(), decision_data={})
+./ATT/tests/test_payoff_chart.py:393:    def test_title_uses_structure_id(self):
+./ATT/tests/test_payoff_chart.py:395:        dd  = {"structure_id": "strangle_X", "aba": "old_aba", "decision": "BUY"}
+./ATT/tests/test_payoff_chart.py:396:        self.chart.update_chart(pts, decision_data=dd)
+./ATT/tests/test_payoff_chart.py:402:        dd  = {"aba": "straddle_Y", "decision": "SELL"}
+./ATT/tests/test_payoff_chart.py:403:        self.chart.update_chart(pts, decision_data=dd)
+./ATT/tests/test_payoff_chart.py:427:    def test_update_chart_none_decision_data(self):
+./ATT/tests/test_payoff_chart.py:428:        result = self.chart.update_chart(_linear_points(), decision_data=None)
+./ATT/tests/test_pricing_engine_stub.py:10:        "structure_id": 123,
+./ATT/tests/test_pricing_engine_stub.py:27:        "structure_id": 123,
+./ATT/tests/test_pricing_engine_stub.py:57:        "structure_id": 123,
+./ATT/tests/test_pricing_executions_repository.py:17:            structure_id       INTEGER,
+./ATT/tests/test_pricing_executions_repository.py:40:        "structure_id": 123,
+./ATT/tests/test_pricing_executions_repository.py:64:    assert record["structure_id"] == 123
+./ATT/tests/test_pricing_executions_repository.py:97:    assert record["structure_id"] is None
+./ATT/tests/test_pricing_executions_repository.py:110:            pricing_payload={"structure_id": 1},
+./ATT/tests/test_pricing_executions_repository.py:120:            "structure_id": 1,
+./ATT/tests/test_pricing_executions_repository.py:128:            "structure_id": 2,
+./ATT/tests/test_pricing_executions_repository.py:142:    rec1 = next(r for r in records if r["structure_id"] == 1)
+./ATT/tests/test_pricing_executions_repository.py:143:    rec2 = next(r for r in records if r["structure_id"] == 2)
+./ATT/tests/test_pricing_executions_repository.py:149:    assert record["structure_id"] == 2
+./ATT/tests/test_pricing_execution_app_service.py:9:    def execute_pricing(self, structure_id: int, reference_date: str | None = None):
+./ATT/tests/test_pricing_execution_app_service.py:10:        self.calls.append({"structure_id": structure_id, "reference_date": reference_date})
+./ATT/tests/test_pricing_execution_app_service.py:18:    def list_execution_summaries(self, structure_id=None, underlying_asset=None,
+./ATT/tests/test_pricing_execution_app_service.py:21:            "structure_id": structure_id, "underlying_asset": underlying_asset,
+./ATT/tests/test_pricing_execution_app_service.py:26:    def get_latest_execution_summary(self, structure_id=None, underlying_asset=None,
+./ATT/tests/test_pricing_execution_app_service.py:29:            "structure_id": structure_id, "underlying_asset": underlying_asset,
+./ATT/tests/test_pricing_execution_app_service.py:38:    def paginate_execution_summaries(self, structure_id=None, underlying_asset=None,
+./ATT/tests/test_pricing_execution_app_service.py:42:            "structure_id": structure_id, "underlying_asset": underlying_asset,
+./ATT/tests/test_pricing_execution_app_service.py:52:        canonical_pricing_facade=FakeCanonicalPricingFacade(response),
+./ATT/tests/test_pricing_execution_app_service.py:59:        "persisted": {"record": {"id": 123, "structure_id": 10, "reference_date": "2026-05-16"}}
+./ATT/tests/test_pricing_execution_app_service.py:62:        canonical_pricing_facade=facade,
+./ATT/tests/test_pricing_execution_app_service.py:65:    result = service.execute_pricing(structure_id=10, reference_date="2026-05-16")
+./ATT/tests/test_pricing_execution_app_service.py:66:    assert result == {"id": 123, "structure_id": 10, "reference_date": "2026-05-16"}
+./ATT/tests/test_pricing_execution_app_service.py:67:    assert facade.calls == [{"structure_id": 10, "reference_date": "2026-05-16"}]
+./ATT/tests/test_pricing_execution_app_service.py:74:        canonical_pricing_facade=facade,
+./ATT/tests/test_pricing_execution_app_service.py:77:    result = service.execute_pricing(structure_id=11, reference_date="2026-05-16")
+./ATT/tests/test_pricing_execution_app_service.py:81:def test_execute_pricing_rejects_invalid_structure_id():
+./ATT/tests/test_pricing_execution_app_service.py:84:        canonical_pricing_facade=facade,
+./ATT/tests/test_pricing_execution_app_service.py:88:        service.execute_pricing(structure_id=0, reference_date="2026-05-16")
+./ATT/tests/test_pricing_execution_app_service.py:91:        assert str(exc) == "structure_id must be greater than zero"
+./ATT/tests/test_pricing_execution_app_service.py:98:        canonical_pricing_facade=facade,
+./ATT/tests/test_pricing_execution_app_service.py:102:        service.execute_pricing(structure_id=10, reference_date="16-05-2026")
+./ATT/tests/test_pricing_execution_app_service.py:114:        canonical_pricing_facade=facade,
+./ATT/tests/test_pricing_execution_app_service.py:117:    result = service.execute_pricing(structure_id=10, reference_date=None)
+./ATT/tests/test_pricing_execution_app_service.py:119:    assert facade.calls == [{"structure_id": 10, "reference_date": None}]
+./ATT/tests/test_pricing_execution_app_service.py:126:        structure_id=1, underlying_asset="PETR4",
+./ATT/tests/test_pricing_execution_app_service.py:131:        "structure_id": 1, "underlying_asset": "PETR4",
+./ATT/tests/test_pricing_execution_app_service.py:140:        structure_id=2, underlying_asset="VALE3",
+./ATT/tests/test_pricing_execution_app_service.py:145:        "structure_id": 2, "underlying_asset": "VALE3",
+./ATT/tests/test_pricing_execution_app_service.py:162:        structure_id=1, underlying_asset="PETR4",
+./ATT/tests/test_pricing_execution_app_service.py:169:        "structure_id": 1, "underlying_asset": "PETR4",
+./ATT/tests/test_pricing_execution_controller.py:12:            "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:30:    def execute_pricing(self, structure_id: int, reference_date: str):
+./ATT/tests/test_pricing_execution_controller.py:35:                    "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_controller.py:46:        structure_id=None,
+./ATT/tests/test_pricing_execution_controller.py:57:                    "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_controller.py:72:        structure_id=None,
+./ATT/tests/test_pricing_execution_controller.py:81:                    "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_controller.py:117:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:125:            "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:131:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:147:                "structure_id": 999,
+./ATT/tests/test_pricing_execution_controller.py:168:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:187:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:207:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:242:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_controller.py:254:                "structure_id": 10,
+./ATT/tests/test_pricing_execution_orchestration_service.py:7:    def build_pricing_payload(self, structure_id: int, reference_date: str | None = None):
+./ATT/tests/test_pricing_execution_orchestration_service.py:9:            "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_orchestration_service.py:20:    def execute(self, structure_id: int, reference_date: str | None = None):
+./ATT/tests/test_pricing_execution_orchestration_service.py:23:                "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_orchestration_service.py:33:                "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_orchestration_service.py:82:        structure_id=123,
+./ATT/tests/test_pricing_execution_orchestration_service.py:88:            "structure_id": 123,
+./ATT/tests/test_pricing_execution_orchestration_service.py:93:    assert result["pricing_payload"]["structure_id"] == 123
+./ATT/tests/test_pricing_execution_orchestration_service.py:99:    assert persisted_call["pricing_payload"]["structure_id"] == 123
+./ATT/tests/test_pricing_execution_orchestration_service.py:115:        structure_id=999,
+./ATT/tests/test_pricing_execution_orchestration_service.py:121:            "structure_id": 999,
+./ATT/tests/test_pricing_execution_persistence_service.py:49:        "structure_id": 123,
+./ATT/tests/test_pricing_execution_persistence_service.py:186:        "structure_id": 123,
+./ATT/tests/test_pricing_execution_persistence_service.py:194:            "snapshot_source": "manual",
+./ATT/tests/test_pricing_execution_persistence_service.py:220:            "payoff": {
+./ATT/tests/test_pricing_execution_persistence_service.py:223:            "decision": {
+./ATT/tests/test_pricing_execution_persistence_service.py:247:    assert call["structure_id"] == 123
+./ATT/tests/test_pricing_execution_persistence_service.py:252:    assert call["structure_json"]["structure_id"] == 123
+./ATT/tests/test_pricing_execution_persistence_service.py:258:    assert call["payoff_json"] == {
+./ATT/tests/test_pricing_execution_persistence_service.py:261:    assert call["decision_json"] == {
+./ATT/tests/test_pricing_execution_persistence_service.py:316:            "structure_id": 123,
+./ATT/tests/test_pricing_execution_persistence_service.py:352:            "structure_id": 123,
+./ATT/tests/test_pricing_execution_query_service.py:20:    structure_id: int = 1,
+./ATT/tests/test_pricing_execution_query_service.py:37:        "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_query_service.py:48:            "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_query_service.py:147:def test_list_execution_summaries_filters_by_structure_id():
+./ATT/tests/test_pricing_execution_query_service.py:149:        make_execution(1, structure_id=10),
+./ATT/tests/test_pricing_execution_query_service.py:150:        make_execution(2, structure_id=20),
+./ATT/tests/test_pricing_execution_query_service.py:156:    summaries = service.list_execution_summaries(structure_id=20)
+./ATT/tests/test_pricing_execution_query_service.py:159:    assert summaries[0]["structure_id"] == 20
+./ATT/tests/test_pricing_execution_query_service.py:211:def test_list_execution_summaries_rejects_invalid_structure_id():
+./ATT/tests/test_pricing_execution_query_service.py:217:        service.list_execution_summaries(structure_id=0)
+./ATT/tests/test_pricing_execution_query_service.py:220:        assert str(exc) == "structure_id must be greater than zero"
+./ATT/tests/test_pricing_execution_service.py:9:    def build_pricing_payload(self, structure_id: int, reference_date: str | None = None):
+./ATT/tests/test_pricing_execution_service.py:12:                "structure_id": structure_id,
+./ATT/tests/test_pricing_execution_service.py:31:        "structure_id": 123,
+./ATT/tests/test_pricing_execution_service.py:50:    result = service.execute(structure_id=123, reference_date="2026-05-16")
+./ATT/tests/test_pricing_execution_service.py:54:            "structure_id": 123,
+./ATT/tests/test_pricing_execution_service.py:67:        "structure_id": 999,
+./ATT/tests/test_pricing_input_service.py:7:    def __init__(self, canonical_input=None, error=None):
+./ATT/tests/test_pricing_input_service.py:8:        self.canonical_input = canonical_input
+./ATT/tests/test_pricing_input_service.py:12:    def build_structure_market_input(self, structure_id: int, reference_date: str | None = None):
+./ATT/tests/test_pricing_input_service.py:15:                "structure_id": structure_id,
+./ATT/tests/test_pricing_input_service.py:23:        return self.canonical_input
+./ATT/tests/test_pricing_input_service.py:26:def test_build_pricing_payload_calls_canonical_input_service(monkeypatch):
+./ATT/tests/test_pricing_input_service.py:27:    canonical_input = {
+./ATT/tests/test_pricing_input_service.py:29:            "structure_id": 123,
+./ATT/tests/test_pricing_input_service.py:43:    fake_canonical_service = FakeCanonicalInputService(canonical_input)
+./ATT/tests/test_pricing_input_service.py:47:            "structure_id": value["structure"]["structure_id"],
+./ATT/tests/test_pricing_input_service.py:57:    service = PricingInputService(canonical_input_service=fake_canonical_service)
+./ATT/tests/test_pricing_input_service.py:60:        structure_id=123,
+./ATT/tests/test_pricing_input_service.py:64:    assert fake_canonical_service.calls == [
+./ATT/tests/test_pricing_input_service.py:66:            "structure_id": 123,
+./ATT/tests/test_pricing_input_service.py:71:        "structure_id": 123,
+./ATT/tests/test_pricing_input_service.py:77:def test_build_pricing_payload_from_canonical_input_delegates_to_adapter(monkeypatch):
+./ATT/tests/test_pricing_input_service.py:78:    canonical_input = {
+./ATT/tests/test_pricing_input_service.py:79:        "structure": {"structure_id": 999},
+./ATT/tests/test_pricing_input_service.py:87:        return {"ok": True, "structure_id": 999}
+./ATT/tests/test_pricing_input_service.py:94:    service = PricingInputService(canonical_input_service=None)
+./ATT/tests/test_pricing_input_service.py:96:    result = service.build_pricing_payload_from_canonical_input(canonical_input)
+./ATT/tests/test_pricing_input_service.py:98:    assert calls == [canonical_input]
+./ATT/tests/test_pricing_input_service.py:99:    assert result == {"ok": True, "structure_id": 999}
+./ATT/tests/test_pricing_input_service.py:103:    canonical_input = {
+./ATT/tests/test_pricing_input_service.py:104:        "structure": {"structure_id": 321},
+./ATT/tests/test_pricing_input_service.py:108:    fake_canonical_service = FakeCanonicalInputService(canonical_input)
+./ATT/tests/test_pricing_input_service.py:112:            "structure_id": value["structure"]["structure_id"],
+./ATT/tests/test_pricing_input_service.py:121:    service = PricingInputService(canonical_input_service=fake_canonical_service)
+./ATT/tests/test_pricing_input_service.py:123:    result = service.build_pricing_payload(structure_id=321)
+./ATT/tests/test_pricing_input_service.py:125:    assert fake_canonical_service.calls == [
+./ATT/tests/test_pricing_input_service.py:127:            "structure_id": 321,
+./ATT/tests/test_pricing_input_service.py:132:        "structure_id": 321,
+./ATT/tests/test_pricing_input_service.py:137:def test_build_pricing_payload_propagates_canonical_input_service_error(monkeypatch):
+./ATT/tests/test_pricing_input_service.py:138:    fake_canonical_service = FakeCanonicalInputService(
+./ATT/tests/test_pricing_input_service.py:153:    service = PricingInputService(canonical_input_service=fake_canonical_service)
+./ATT/tests/test_pricing_input_service.py:156:        service.build_pricing_payload(structure_id=404)
+./ATT/tests/test_pricing_input_service.py:158:    assert fake_canonical_service.calls == [
+./ATT/tests/test_pricing_input_service.py:160:            "structure_id": 404,
+./ATT/tests/test_pricing_input_service.py:167:def test_build_pricing_payload_from_canonical_input_propagates_adapter_error(monkeypatch):
+./ATT/tests/test_pricing_input_service.py:168:    canonical_input = {
+./ATT/tests/test_pricing_input_service.py:169:        "structure": {"structure_id": 888},
+./ATT/tests/test_pricing_input_service.py:174:        raise ValueError("invalid canonical input")
+./ATT/tests/test_pricing_input_service.py:181:    service = PricingInputService(canonical_input_service=None)
+./ATT/tests/test_pricing_input_service.py:183:    with pytest.raises(ValueError, match="invalid canonical input"):
+./ATT/tests/test_pricing_input_service.py:184:        service.build_pricing_payload_from_canonical_input(canonical_input)
+./ATT/tests/test_pricing_payload_adapter.py:8:        canonical_input = {
+./ATT/tests/test_pricing_payload_adapter.py:10:                "structure_id": 7,
+./ATT/tests/test_pricing_payload_adapter.py:35:        payload = to_pricing_payload(canonical_input)
+./ATT/tests/test_pricing_payload_adapter.py:37:        self.assertEqual(payload["structure_id"], 7)
+./ATT/tests/test_pricing_payload_adapter.py:42:        canonical_input = {
+./ATT/tests/test_pricing_payload_adapter.py:44:                "structure_id": 7,
+./ATT/tests/test_pricing_payload_adapter.py:68:        payload = to_pricing_payload(canonical_input)
+./ATT/tests/test_pricing_payload_adapter.py:89:                canonical_input = {
+./ATT/tests/test_pricing_payload_adapter.py:91:                        "structure_id": 7,
+./ATT/tests/test_pricing_payload_adapter.py:115:                payload = to_pricing_payload(canonical_input)
+./ATT/tests/test_robo_legs_repository.py:11:        CREATE TABLE manual_analise_robo_legs (
+./ATT/tests/test_robo_legs_repository.py:42:def test_get_legs_prefers_manual_over_rtd(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:49:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:72:def test_get_legs_falls_back_to_rtd_when_manual_empty(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:96:def test_has_manual_detects_existing_row(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:103:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:112:    assert repo.has_manual("AB3", "2026-05-19 10:00:00") is True
+./ATT/tests/test_robo_legs_repository.py:113:    assert repo.has_manual("AB3", "2026-05-19 11:00:00") is False
+./ATT/tests/test_robo_legs_repository.py:116:def test_list_timestamps_prefers_manual_then_rtd(tmp_path):
+./ATT/tests/test_robo_legs_repository.py:123:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:128:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_repository.py:153:        INSERT INTO manual_analise_robo_legs
+./ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+./ATT/tests/test_robo_legs_status_repository.py:14:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+./ATT/tests/test_robo_legs_status_repository.py:18:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+./ATT/tests/test_robo_legs_status_repository.py:22:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+./ATT/tests/test_robo_legs_status_repository.py:36:    manual_latest, rtd_latest = repo.latest_timestamps("TESTE")
+./ATT/tests/test_robo_legs_status_repository.py:38:    assert manual_latest == datetime(2026, 5, 19, 11, 0, 0)
+./ATT/tests/test_robo_legs_status_repository.py:47:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+./ATT/tests/test_robo_legs_status_repository.py:56:    manual_latest, rtd_latest = repo.latest_timestamps("INEXISTENTE")
+./ATT/tests/test_robo_legs_status_repository.py:58:    assert manual_latest is None
+./ATT/tests/test_robo_legs_status_service.py:14:    def __init__(self, manual_latest=None, rtd_latest=None):
+./ATT/tests/test_robo_legs_status_service.py:15:        self._manual_latest = manual_latest
+./ATT/tests/test_robo_legs_status_service.py:21:        return self._manual_latest, self._rtd_latest
+./ATT/tests/test_robo_legs_status_service.py:31:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=None),
+./ATT/tests/test_robo_legs_status_service.py:42:    assert result.manual_latest_ts is None
+./ATT/tests/test_robo_legs_status_service.py:48:def test_status_prefers_manual_when_manual_exists():
+./ATT/tests/test_robo_legs_status_service.py:49:    manual_latest = datetime(2026, 5, 19, 10, 0, 0)
+./ATT/tests/test_robo_legs_status_service.py:54:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=rtd_latest),
+./ATT/tests/test_robo_legs_status_service.py:61:    assert result.chosen_ts == manual_latest
+./ATT/tests/test_robo_legs_status_service.py:62:    assert result.manual_latest_ts == manual_latest
+./ATT/tests/test_robo_legs_status_service.py:68:def test_status_uses_rtd_when_manual_missing():
+./ATT/tests/test_robo_legs_status_service.py:73:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=rtd_latest),
+./ATT/tests/test_robo_legs_status_service.py:81:    assert result.manual_latest_ts is None
+./ATT/tests/test_robo_legs_status_service.py:88:    manual_latest = datetime(2026, 5, 19, 10, 0, 0)
+./ATT/tests/test_robo_legs_status_service.py:92:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./ATT/tests/test_robo_legs_status_service.py:104:    manual_latest = datetime(2026, 5, 19, 10, 5, 0)
+./ATT/tests/test_robo_legs_status_service.py:108:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./ATT/tests/test_robo_legs_status_service.py:119:    manual_latest = datetime(2026, 5, 19, 10, 0, 0)
+./ATT/tests/test_robo_legs_status_service.py:123:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+./ATT/tests/test_robo_leg_mapper.py:5:from services.robo_leg_mapper import to_canonical_leg
+./ATT/tests/test_robo_leg_mapper.py:8:def test_to_canonical_leg_should_map_long_call():
+
+4) Diagnostico do banco dados/derived.db
+
+DB: C:\Users\eucal\projeto\dados\derived.db
+existe: True
+
+Tabelas/views relacionadas:
+table: payoff_curve_points
+table: rtd_option_quotes
+table: structure_decisions
+
+Contagens principais:
+structures: indisponivel (no such table: structures)
+structure_legs: indisponivel (no such table: structure_legs)
+legs: indisponivel (no such table: legs)
+payoff_curve_points: 0
+structure_decisions: 0
+rtd_option_quotes: 4
+
+Schema resumido de estruturas, legs, payoff e decisoes:
+payoff_curve_points: timestamp, aba, structure_id, spot_ref, point_spot, point_pl, meta_json, created_at
+structure_decisions: id, timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max, dte_min, why_json, spot_ref, meta_json, created_at, why, structure_id
+
+5) Testes candidatos existentes
+
+
+ATT\tests
+ATT\tests\test_decision.py
+ATT\tests\test_legacy_robo_legs_fallback.py
+ATT\tests\test_legacy_structure_legs_importer.py
+ATT\tests\test_legacy_structure_legs_importer_integration.py
+ATT\tests\test_legacy_structure_legs_reader.py
+ATT\tests\test_payoff_canonical.py
+ATT\tests\test_payoff_chart.py
+ATT\tests\test_robo_leg_mapper.py
+ATT\tests\test_robo_legs_repository.py
+ATT\tests\test_robo_legs_service.py
+ATT\tests\test_robo_legs_status_repository.py
+ATT\tests\test_robo_legs_status_service.py
+ATT\tests\test_rtd_legacy_canonical_pricing_input_guardrail.py
+ATT\tests\test_structure_analysis_service.py
+ATT\tests\test_structure_editor_dialog.py
+ATT\tests\test_structure_editor_integration.py
+ATT\tests\test_structure_events_api.py
+ATT\tests\test_structure_events_effective_state.py
+ATT\tests\test_structure_events_repository.py
+ATT\tests\test_structure_events_service.py
+ATT\tests\test_structure_input_mapper.py
+ATT\tests\test_structure_leg_rtd_enrichment_service.py
+ATT\tests\test_structure_market_input_assembler.py
+ATT\tests\test_structure_metrics.py
+ATT\tests\test_structures_api.py
+ATT\tests\test_structures_archive_wiring.py
+ATT\tests\test_structures_legs_endpoints.py
+ATT\tests\test_structures_repository.py
+
+6) Pytest focado em cadastro, structure, payoff, decision e leg
+
+
+[conftest] PROJECT_ROOT : C:\Users\eucal\projeto
+[conftest] DB_PATH      : C:\Users\eucal\projeto\dados\derived.db
+[conftest] DB existe?   : True
+........................................................................ [ 13%]
+........................................................................ [ 27%]
+........................................................................ [ 40%]
+........................................................................ [ 54%]
+........................................................................ [ 67%]
+........................................................................ [ 81%]
+..........................ss............................................ [ 94%]
+...............s.s....sssss                                              [100%]
+522 passed, 9 skipped, 107 deselected in 36.72s
+
+== Fim do diagnostico Fase 3A ==
