@@ -610,3 +610,82 @@ git tag --list "fase-6*"
 
 - A matriz provisoria do pacote de entrega foi registrada sem alteracao funcional.
 - A Fase 7 segue preparada para consolidacao final do checklist de entrega.
+
+## Checklist consolidado de preparacao para entrega da Fase 7
+
+### Escopo
+
+- Consolidacao documental do estado de preparacao da Fase 7 para entrega.
+- Nenhum pacote foi gerado nesta etapa.
+- Nenhum arquivo operacional foi alterado, removido, criado, renomeado ou movido nesta etapa.
+- O checklist consolida as revisoes ja registradas sobre higiene, dependencias, workbooks, sensibilidade e matriz de pacote.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base do checklist: b9bc9c2 docs: registra matriz de pacote de entrega da fase 7
+- Total de arquivos versionados no momento da revisao: 443
+- Arquivos versionados em docs: 206
+- Arquivos versionados em scripts: 60
+
+### Revisoes documentais consolidadas
+
+- Higiene operacional da Fase 7: registrada.
+- Classificacao dos arquivos de dados da raiz: registrada.
+- Revisao de dependencias dos arquivos de dados da raiz: registrada.
+- Normalizacao de referencias da revisao de dependencias: registrada.
+- Revisao de aderencia entre workbooks referenciados e versionados: registrada.
+- Diretriz provisoria de empacotamento dos artefatos Excel: registrada.
+- Revisao de sensibilidade dos artefatos Excel versionados: registrada.
+- Matriz provisoria do pacote de entrega: registrada.
+
+### Arquivos de dados versionados na raiz observados
+
+- LISTA_RTD.xlsx
+- OPERACOES_E_OPCOES.xlsm
+
+### Workbooks Excel versionados na raiz observados
+
+- LISTA_RTD.xlsx
+- OPERACOES_E_OPCOES.xlsm
+
+### Checklist de prontidao documental
+
+- Estrutura documental da Fase 7 atualizada: sim.
+- Evidencia de arquivos sensiveis ou condicionais registrada: sim.
+- Decisao automatica de remocao de artefatos evitada: sim.
+- Decisao automatica de inclusao de workbooks ausentes evitada: sim.
+- Regras provisorias para entrega externa registradas: sim.
+- Necessidade de revisao manual de Excel real registrada: sim.
+- Necessidade de revisao especifica para macro registrada: sim.
+- Pre-requisitos externos candidatos registrados: sim.
+- Pacote final gerado nesta etapa: nao.
+- Alteracao funcional realizada nesta etapa: nao.
+
+### Pendencias que exigem decisao explicita
+
+- Decidir se LISTA_RTD.xlsx permanece no repositorio, entra no pacote interno ou deve ser substituido por fixture.
+- Decidir se OPERACOES_E_OPCOES.xlsm permanece no repositorio, entra no pacote interno ou deve ser excluido de entrega externa.
+- Decidir se LISTA_RTD.xlsm e pre-requisito externo, dependencia historica ou referencia obsoleta.
+- Decidir se OPERACOES_E_OPCOES.xlsx e dependencia local, referencia legada ou artefato a remover das referencias futuras.
+- Definir se a entrega final sera interna, tecnica, auditavel ou externa.
+- Definir se havera pacote reproduzivel com dados sinteticos, seeds ou fixtures anonimizadas.
+
+### Regras de bloqueio para pacote externo
+
+- Bloquear inclusao de planilhas reais sem revisao de conteudo e aprovacao explicita.
+- Bloquear inclusao de arquivos com macro sem revisao especifica de seguranca.
+- Bloquear inclusao de arquivos de ambiente com segredos.
+- Bloquear inclusao de logs, temporarios, caches e backups.
+- Bloquear dependencia silenciosa de arquivos ausentes.
+
+### Criterio provisorio de encerramento documental da Fase 7
+
+- A Fase 7 pode ser considerada documentalmente consolidada quando este checklist estiver versionado e enviado ao remoto.
+- A geracao de pacote final deve permanecer condicionada as decisoes explicitas listadas acima.
+- A consolidacao documental nao equivale a aprovacao automatica de distribuicao externa.
+
+### Conclusao do checklist
+
+- O checklist consolidado de preparacao para entrega da Fase 7 foi registrado sem alteracao funcional.
+- A Fase 7 segue pronta para decisao final de encerramento documental ou abertura de etapa especifica de empacotamento.
