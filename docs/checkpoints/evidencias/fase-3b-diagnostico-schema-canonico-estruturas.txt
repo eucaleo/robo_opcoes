@@ -1,0 +1,2591 @@
+== Fase 3B - Diagnostico schema canonico de estruturas ==
+
+Data:
+Sun Jun 21 21:12:47     2026
+
+1) Branch e estado git
+
+fase-3a4-auto-pricing-manual-save
+?? docs/checkpoints/evidencias/fase-3b-diagnostico-schema-canonico-estruturas.txt
+?? scripts/fase-3b-diagnostico-schema-canonico-estruturas.sh
+3cb1319 chore: inicia diagnostico fase 3a cadastro payoff decisoes
+ec21c9e test: registra suite geral apos fechamento da fase 2b
+908d862 docs: fecha validacao da normalizacao numerica fase 2b
+93e9844 chore: adiciona script de fechamento fase 2b
+51e4f8e test: adiciona regressao para normalizacao de quantity
+b145981 chore: adiciona scripts de automacao fase 2b
+c14fe17 docs: registra análise da normalização numérica fase 2b
+07eabe5 docs: registra validação manual da fase 3a4
+
+2) Localizacao de definicoes CREATE TABLE structures e structure_legs
+
+./ATT/tests/test_legacy_structure_legs_importer.py:14:        CREATE TABLE structures (
+./ATT/tests/test_legacy_structure_legs_importer.py:27:        CREATE TABLE structure_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:17:        CREATE TABLE structures (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:30:        CREATE TABLE structure_legs (
+./ATT/tests/test_legacy_structure_legs_reader.py:117:        CREATE TABLE structures (
+./ATT/tests/test_structures_archive_wiring.py:536:                "CREATE TABLE IF NOT EXISTS structures "
+./ATT/tests/test_structures_archive_wiring.py:542:                "CREATE TABLE IF NOT EXISTS structure_legs "
+./ATT/tests/test_structures_archive_wiring.py:573:                "CREATE TABLE IF NOT EXISTS structures "
+./ATT/tests/test_structures_archive_wiring.py:579:                "CREATE TABLE IF NOT EXISTS structure_legs "
+./backups/app_fase12_rtd_option_quotes_ok.sql:3:CREATE TABLE structures (
+./backups/app_fase12_rtd_option_quotes_ok.sql:13:CREATE TABLE structure_legs (
+./infra/bootstrap_structures_schema.py:33:            CREATE TABLE IF NOT EXISTS structures (
+./infra/bootstrap_structures_schema.py:51:            CREATE TABLE IF NOT EXISTS structure_legs (
+
+3) Localizacao de bootstrap_structures_schema
+
+./api/structures_controller.py:120:def create_structure(request: CreateStructureRequest) -> CreateStructureResponse:
+./api/structures_controller.py:122:        structure_id = _repo.create_structure(request.model_dump())
+./api/structures_controller.py:221:            "SELECT id FROM structure_legs WHERE id=? AND structure_id=?",
+./api/structures_controller.py:235:            "DELETE FROM structure_legs WHERE id=?",
+./api/structures_controller.py:332:def _ensure_structure_exists_for_events(structure_id: int) -> None:
+./api/structures_controller.py:423:    _ensure_structure_exists_for_events(structure_id)
+./api/structures_controller.py:445:    _ensure_structure_exists_for_events(structure_id)
+./ATT/checks/check_cleanup_residuals.py:75:    "scripts/import_legacy_structure_legs.py",
+./ATT/tests/test_legacy_structure_legs_importer.py:7:from services.legacy_structure_legs_importer import LegacyStructureLegsImporter
+./ATT/tests/test_legacy_structure_legs_importer.py:27:        CREATE TABLE structure_legs (
+./ATT/tests/test_legacy_structure_legs_importer.py:73:        INSERT INTO structure_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:9:from services.legacy_structure_legs_importer import LegacyStructureLegsImporter
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:10:from services.legacy_structure_legs_reader import LegacyStructureLegsReader
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:30:        CREATE TABLE structure_legs (
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:110:        INSERT INTO structure_legs (
+./ATT/tests/test_legacy_structure_legs_reader.py:6:from services.legacy_structure_legs_reader import LegacyStructureLegsReader
+./ATT/tests/test_legacy_structure_legs_reader.py:24:def test_read_by_structure_id_maps_legacy_legs_to_structure_legs_payload():
+./ATT/tests/test_structures_api.py:105:    repo.create_structure.return_value = 1
+./ATT/tests/test_structures_api.py:142:        repo.create_structure.return_value = 42
+./ATT/tests/test_structures_api.py:158:        payload = repo.create_structure.call_args[0][0]
+./ATT/tests/test_structures_api.py:170:        payload = repo.create_structure.call_args[0][0]
+./ATT/tests/test_structures_api.py:180:        repo.create_structure.assert_called_once()
+./ATT/tests/test_structures_api.py:188:        payload = repo.create_structure.call_args[0][0]
+./ATT/tests/test_structures_api.py:194:        repo.create_structure.side_effect = ValueError("nome duplicado")
+./ATT/tests/test_structures_api.py:204:        repo.create_structure.side_effect = ValueError("underlying_asset inválido")
+./ATT/tests/test_structures_api.py:557:    def test_create_response_tem_structure_id_inteiro(self, client):
+./ATT/tests/test_structures_archive_wiring.py:542:                "CREATE TABLE IF NOT EXISTS structure_legs "
+./ATT/tests/test_structures_archive_wiring.py:579:                "CREATE TABLE IF NOT EXISTS structure_legs "
+./ATT/tests/test_structures_repository.py:3:from infra.bootstrap_structures_schema import ensure_structures_schema
+./ATT/tests/test_structures_repository.py:10:    ensure_structures_schema(db_path)
+./ATT/tests/test_structures_repository.py:41:def test_create_structure_normalizes_underlying_asset(repo):
+./ATT/tests/test_structures_repository.py:42:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:53:def test_create_structure_raises_when_name_missing(repo):
+./ATT/tests/test_structures_repository.py:58:        repo.create_structure(payload)
+./ATT/tests/test_structures_repository.py:61:def test_create_structure_raises_when_underlying_asset_missing(repo):
+./ATT/tests/test_structures_repository.py:66:        repo.create_structure(payload)
+./ATT/tests/test_structures_repository.py:69:def test_create_structure_raises_when_status_invalid(repo):
+./ATT/tests/test_structures_repository.py:74:        repo.create_structure(payload)
+./ATT/tests/test_structures_repository.py:78:    active_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:79:    archived_id = repo.create_structure(
+./ATT/tests/test_structures_repository.py:94:    first_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:95:    second_id = repo.create_structure(
+./ATT/tests/test_structures_repository.py:111:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:132:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:156:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:170:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:197:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structures_repository.py:210:    structure_id = repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structure_editor_dialog.py:68:    repo.create_structure.return_value = create_return
+./ATT/tests/test_structure_editor_dialog.py:222:    def test_create_structure_chamado_com_campos_corretos(self):
+./ATT/tests/test_structure_editor_dialog.py:232:        self.mock_repo.create_structure_with_legs.assert_called_once()
+./ATT/tests/test_structure_editor_dialog.py:233:        args, _kwargs = self.mock_repo.create_structure_with_legs.call_args
+./ATT/tests/test_structure_editor_dialog.py:257:        self.mock_repo.create_structure_with_legs.assert_called_once()
+./ATT/tests/test_structure_editor_dialog.py:258:        args, _kwargs = self.mock_repo.create_structure_with_legs.call_args
+./ATT/tests/test_structure_editor_dialog.py:285:        self.mock_repo.create_structure.assert_not_called()
+./ATT/tests/test_structure_editor_dialog.py:294:        self.mock_repo.create_structure.assert_not_called()
+./ATT/tests/test_structure_editor_dialog.py:353:        self.mock_repo.create_structure.assert_not_called()
+./ATT/tests/test_structure_editor_integration.py:450:        dlg._repo.create_structure.return_value = 10
+./ATT/tests/test_structure_editor_integration.py:461:        dlg._repo.create_structure.return_value = 20
+./ATT/tests/test_structure_editor_integration.py:468:        dlg._repo.create_structure.assert_not_called()
+./ATT/tests/test_structure_editor_integration.py:472:        dlg._repo.create_structure.return_value = 99
+./ATT/tests/test_structure_editor_integration.py:479:        dlg._repo.create_structure_with_legs.return_value = 77
+./ATT/tests/test_structure_editor_integration.py:483:        dlg._repo.create_structure_with_legs.assert_called_once()
+./ATT/tests/test_structure_editor_integration.py:484:        args, _kwargs = dlg._repo.create_structure_with_legs.call_args
+./ATT/tests/test_structure_editor_integration.py:490:        dlg._repo.create_structure.assert_not_called()
+./ATT/tests/test_structure_editor_integration.py:513:        dlg._repo.create_structure_with_legs.side_effect = Exception("DB offline")
+./ATT/tests/test_structure_editor_integration.py:542:        dlg._repo.create_structure_with_legs.return_value = 5
+./ATT/tests/test_structure_editor_integration.py:546:        dlg._repo.create_structure_with_legs.assert_called_once()
+./ATT/tests/test_structure_editor_integration.py:547:        args, _kwargs = dlg._repo.create_structure_with_legs.call_args
+./ATT/tests/test_structure_events_repository.py:3:from infra.bootstrap_structures_schema import ensure_structures_schema
+./ATT/tests/test_structure_events_repository.py:11:    ensure_structures_schema(path)
+./ATT/tests/test_structure_events_repository.py:54:def create_structure_with_leg(structures_repo):
+./ATT/tests/test_structure_events_repository.py:55:    structure_id = structures_repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structure_events_repository.py:60:def test_create_event_persists_operational_event(events_repo, structures_repo):
+./ATT/tests/test_structure_events_repository.py:61:    structure_id, leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_structure_events_repository.py:99:def test_create_event_allows_structure_level_note_without_leg(events_repo, structures_repo):
+./ATT/tests/test_structure_events_repository.py:100:    structure_id = structures_repo.create_structure(valid_structure_payload())
+./ATT/tests/test_structure_events_repository.py:123:    structure_id, leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_structure_events_repository.py:150:    structure_id, leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_structure_events_repository.py:192:    structure_id, leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_structure_events_repository.py:214:    structure_id, leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_structure_events_repository.py:250:def test_create_event_raises_when_structure_not_found(events_repo):
+./ATT/tests/test_structure_events_repository.py:261:def test_create_event_raises_when_leg_does_not_belong_to_structure(
+./ATT/tests/test_structure_events_repository.py:265:    first_structure_id, _first_leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_structure_events_repository.py:266:    second_structure_id = structures_repo.create_structure(
+./ATT/tests/test_structure_events_repository.py:310:    structure_id, leg_id = create_structure_with_leg(structures_repo)
+./ATT/tests/test_system_snapshots_repository.py:8:from infra.bootstrap_structures_schema import ensure_structures_schema
+./ATT/tests/test_system_snapshots_repository.py:49:        INSERT INTO structure_legs (
+./ATT/tests/test_system_snapshots_repository.py:87:    ensure_structures_schema(db_path)
+./ATT/tests/test_system_snapshots_repository.py:183:    ensure_structures_schema(db_path)
+./ATT/tests/test_system_snapshots_repository.py:210:    ensure_structures_schema(db_path)
+./ATT/tests/test_system_snapshots_repository.py:259:def test_create_snapshot_requires_structure_id_and_structure_json(tmp_path: Path):
+./ATT/tests/test_system_snapshots_schema.py:4:from infra.bootstrap_structures_schema import ensure_structures_schema
+./ATT/tests/test_system_snapshots_schema.py:30:def test_ensure_structures_schema_creates_system_snapshot_tables(tmp_path: Path):
+./ATT/tests/test_system_snapshots_schema.py:33:    ensure_structures_schema(db_path)
+./ATT/tests/test_system_snapshots_schema.py:50:    ensure_structures_schema(db_path)
+./ATT/tests/test_system_snapshots_schema.py:89:    ensure_structures_schema(db_path)
+./ATT/tests/test_system_snapshots_schema.py:123:    assert ("structure_legs", "leg_id", "id", "NO ACTION") in foreign_keys
+./db/derived_repo.py:734:             dte_min, why, why_json, spot_ref, meta_json, created_at, structure_id)
+./db/derived_repo.py:821:             dte_min, why, why_json, spot_ref, meta_json, created_at, structure_id)
+./db/schema.py:87:    FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+./infra/bootstrap_structures_schema.py:1:# infra/bootstrap_structures_schema.py
+./infra/bootstrap_structures_schema.py:20:def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
+./infra/bootstrap_structures_schema.py:47:        # structure_legs                                                       #
+./infra/bootstrap_structures_schema.py:51:            CREATE TABLE IF NOT EXISTS structure_legs (
+./infra/bootstrap_structures_schema.py:173:                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+./infra/bootstrap_structures_schema.py:195:        # Indices -- structure_legs                                            #
+./infra/bootstrap_structures_schema.py:199:            CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id
+./infra/bootstrap_structures_schema.py:200:            ON structure_legs(structure_id)
+./infra/bootstrap_structures_schema.py:205:            CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id_leg_order
+./infra/bootstrap_structures_schema.py:206:            ON structure_legs(structure_id, leg_order)
+./repositories/pricing_executions_repository.py:59:                    created_at, structure_id, underlying_asset, reference_date,
+./repositories/pricing_executions_repository.py:66:                    created_at, structure_id, underlying_asset, reference_date,
+./repositories/structures_repository.py:12:          ensure_audit_schema() cria tabela e indices idx_audit_log_structure_id
+./repositories/structures_repository.py:202:            FROM structure_legs
+./repositories/structures_repository.py:210:    def _ensure_structure_exists(
+./repositories/structures_repository.py:306:    def create_structure(self, data: dict[str, Any]) -> int:
+./repositories/structures_repository.py:345:    def create_structure_with_legs(
+./repositories/structures_repository.py:401:                    INSERT INTO structure_legs (
+./repositories/structures_repository.py:560:            self._ensure_structure_exists(conn, structure_id)
+./repositories/structures_repository.py:592:            self._ensure_structure_exists(conn, structure_id)
+./repositories/structures_repository.py:596:                INSERT INTO structure_legs (
+./repositories/structures_repository.py:640:            self._ensure_structure_exists(conn, structure_id)
+./repositories/structures_repository.py:643:                "DELETE FROM structure_legs WHERE structure_id=?",
+./repositories/structures_repository.py:650:                    INSERT INTO structure_legs (
+./repositories/structures_repository.py:692:                "SELECT COUNT(*) AS n FROM structure_legs WHERE structure_id=?",
+./repositories/structure_events_repository.py:215:                FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+./repositories/structure_events_repository.py:270:    def _ensure_structure_exists(conn: sqlite3.Connection, structure_id: int) -> None:
+./repositories/structure_events_repository.py:279:    def _ensure_leg_belongs_to_structure(
+./repositories/structure_events_repository.py:290:            FROM structure_legs
+./repositories/structure_events_repository.py:313:            self._ensure_structure_exists(conn, event["structure_id"])
+./repositories/structure_events_repository.py:314:            self._ensure_leg_belongs_to_structure(
+./repositories/system_snapshots_repository.py:9:from infra.bootstrap_structures_schema import DB_PATH, ensure_structures_schema
+./repositories/system_snapshots_repository.py:70:        ensure_structures_schema(self.db_path)
+./scripts/apply_fase9_atomic_create.py:34:Foi criado método transacional create_structure_with_legs() no repository canônico.
+./scripts/apply_fase9_atomic_create.py:60:    def create_structure_with_legs(
+./scripts/apply_fase9_atomic_create.py:116:                    INSERT INTO structure_legs (
+./scripts/apply_fase9_atomic_create.py:161:if "def create_structure_with_legs(" in repo_text:
+./scripts/apply_fase9_atomic_create.py:162:    print("[SKIP] create_structure_with_legs já existe.")
+./scripts/apply_fase9_atomic_create.py:171:            raise SystemExit("[ERRO] Não encontrei ponto seguro para inserir create_structure_with_legs no repository.")
+./scripts/apply_fase9_atomic_create.py:175:    print("[OK] Método create_structure_with_legs adicionado.")
+./scripts/apply_fase9_atomic_create.py:179:if "create_structure_with_legs(" in ui_text:
+./scripts/apply_fase9_atomic_create.py:180:    print("[SKIP] UI já usa create_structure_with_legs.")
+./scripts/apply_fase9_atomic_create.py:195:    if "create_structure(" not in body or "replace_legs(" not in body:
+./scripts/apply_fase9_atomic_create.py:196:        raise SystemExit("[ERRO] Bloco de criação antigo não contém create_structure + replace_legs.")
+./scripts/apply_fase9_atomic_create.py:201:        "                sid = self._repo.create_structure_with_legs(\n"
+./scripts/apply_fase9_update_tests_atomic_create.py:43:    "test_create_structure_chamado_com_campos_corretos",
+./scripts/apply_fase9_update_tests_atomic_create.py:45:    def test_create_structure_chamado_com_campos_corretos(self):
+./scripts/apply_fase9_update_tests_atomic_create.py:55:        self.mock_repo.create_structure_with_legs.assert_called_once()
+./scripts/apply_fase9_update_tests_atomic_create.py:56:        args, _kwargs = self.mock_repo.create_structure_with_legs.call_args
+./scripts/apply_fase9_update_tests_atomic_create.py:85:        self.mock_repo.create_structure_with_legs.assert_called_once()
+./scripts/apply_fase9_update_tests_atomic_create.py:86:        args, _kwargs = self.mock_repo.create_structure_with_legs.call_args
+./scripts/apply_fase9_update_tests_atomic_create.py:116:        dlg._repo.create_structure_with_legs.side_effect = Exception("DB offline")
+./scripts/apply_fase9_update_tests_atomic_create.py:129:        dlg._repo.create_structure_with_legs.return_value = 77
+./scripts/apply_fase9_update_tests_atomic_create.py:133:        dlg._repo.create_structure_with_legs.assert_called_once()
+./scripts/apply_fase9_update_tests_atomic_create.py:134:        args, _kwargs = dlg._repo.create_structure_with_legs.call_args
+./scripts/apply_fase9_update_tests_atomic_create.py:140:        dlg._repo.create_structure.assert_not_called()
+./scripts/apply_fase9_update_tests_atomic_create.py:151:        dlg._repo.create_structure_with_legs.return_value = 5
+./scripts/apply_fase9_update_tests_atomic_create.py:155:        dlg._repo.create_structure_with_legs.assert_called_once()
+./scripts/apply_fase9_update_tests_atomic_create.py:156:        args, _kwargs = dlg._repo.create_structure_with_legs.call_args
+./scripts/check_rota_desenvolvimento.py:368:                    LEFT JOIN structure_legs l ON l.structure_id = s.id
+./scripts/check_rota_desenvolvimento.py:377:                    print(f"  - structure_id={row[0]} | alias={row[1]} | structure_legs={row[2]}")
+./scripts/check_rota_desenvolvimento.py:381:            print(f"  Erro ao consultar structure_legs: {exc}")
+./scripts/check_rota_desenvolvimento.py:420:        "- Se structure_legs já estiver populada para 44-48, a pendência central da Fase 8 pode ter sido tratada.\n"
+./scripts/import_legacy_structure_legs.py:19:from services.legacy_structure_legs_importer import (  # noqa: E402
+./scripts/import_legacy_structure_legs.py:22:from services.legacy_structure_legs_reader import LegacyStructureLegsReader  # noqa: E402
+./scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+./scripts/import_legacy_structure_legs.py:55:        help="Apenas lê e exibe as pernas canônicas, sem gravar em structure_legs.",
+./services/legacy_structure_legs_importer.py:1:# services/legacy_structure_legs_importer.py
+./services/legacy_structure_legs_importer.py:7:para a tabela canonica structure_legs.
+./services/legacy_structure_legs_importer.py:41:    Orquestra a importacao das legs legadas para structure_legs.
+./services/legacy_structure_legs_importer.py:48:            Repositório canônico de structures/structure_legs.
+./services/legacy_structure_legs_reader.py:17:      - converter para payload compatível com structure_legs;
+./services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./UI/components/structures_list_panel.py:284:            new_id = self._repo.create_structure({
+./UI/components/structure_editor_dialog.py:502:                sid = self._repo.create_structure_with_legs(
+./UI/components/structure_editor_dialog.py:517:                        locals().get("created_structure_id")
+
+4) Arquivos principais - cabecalhos e pontos relevantes
+
+
+---- infra/bootstrap_structures_schema.py ----
+# infra/bootstrap_structures_schema.py
+"""
+Garante o schema SQLite da aplicação (idempotente).
+Cria tabelas e índices se ainda não existirem.
+
+alteracao_72: adicionada tabela structure_audit_log para rastreabilidade de mudancas.
+"""
+from __future__ import annotations
+
+import sqlite3
+from pathlib import Path
+
+DB_PATH = Path("dados/app.db")
+
+
+# ---------------------------------------------------------------------------
+# DDL principal
+# ---------------------------------------------------------------------------
+
+def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
+    """Cria todas as tabelas e índices necessários (idempotente)."""
+    db_path = Path(db_path)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(db_path) as conn:
+        conn.execute("PRAGMA foreign_keys = ON;")
+
+        # ------------------------------------------------------------------ #
+        # structures                                                           #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structures (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                name             TEXT    NOT NULL,
+                underlying_asset TEXT    NOT NULL,
+                alias_legacy_aba TEXT,
+                status           TEXT    NOT NULL DEFAULT 'active',
+                notes            TEXT,
+                created_at       TEXT    NOT NULL,
+                updated_at       TEXT    NOT NULL
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_legs                                                       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_legs (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id    INTEGER NOT NULL,
+                position_side   TEXT    NOT NULL,
+                option_type     TEXT    NOT NULL,
+                symbol          TEXT,
+                strike          REAL    NOT NULL,
+                expiration_date TEXT    NOT NULL,
+                quantity        INTEGER NOT NULL,
+                premium         REAL,
+                multiplier      REAL    NOT NULL DEFAULT 1,
+                leg_order       INTEGER NOT NULL,
+                notes           TEXT,
+                created_at      TEXT    NOT NULL,
+                updated_at      TEXT    NOT NULL,
+                FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # pricing_executions                                                   #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS pricing_executions (
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at        TEXT    NOT NULL,
+                structure_id      INTEGER,
+                underlying_asset  TEXT,
+                reference_date    TEXT,
+                execution_status  TEXT,
+                execution_engine  TEXT,
+                error_message     TEXT,
+                duration_ms       INTEGER,
+                number_of_legs    INTEGER,
+                total_quantity    INTEGER,
+                theoretical_value REAL,
+                pricing_payload   TEXT,
+                result            TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_audit_log  [alteracao_72]                                      #
+        # Rastreia toda mutacao em structures: CREATE, UPDATE, ARCHIVE,        #
+        # ADD_LEG, REPLACE_LEGS.                                               #
+        # before_json / after_json sao snapshots do estado da estrutura        #
+        # (sem legs) serializado em JSON.                                      #
+        # changed_by e reservado para autenticacao futura; NULL por ora.       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_snapshots  [fase_11]                                      #
+        # Histórico operacional oficial gerado pelo sistema.                  #
+        # Uma linha representa um snapshot consolidado de uma estrutura.       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_snapshots (
+                id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at            TEXT    NOT NULL,
+                structure_id          INTEGER NOT NULL,
+                pricing_execution_id  INTEGER,
+                underlying_asset      TEXT,
+                reference_date        TEXT,
+                snapshot_source       TEXT    NOT NULL DEFAULT 'system',
+                structure_json        TEXT    NOT NULL,
+                market_json           TEXT,
+                metrics_json          TEXT,
+                payoff_json           TEXT,
+                decision_json         TEXT,
+                alerts_json           TEXT,
+                operation_state_json  TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (pricing_execution_id) REFERENCES pricing_executions(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_leg_snapshots  [fase_11]                                  #
+        # Histórico detalhado das pernas pertencentes a cada snapshot.         #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_leg_snapshots (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                snapshot_id      INTEGER NOT NULL,
+                structure_id     INTEGER NOT NULL,
+                leg_id           INTEGER,
+                leg_order        INTEGER,
+                position_side    TEXT,
+                option_type      TEXT,
+                symbol           TEXT,
+                strike           REAL,
+                expiration_date  TEXT,
+                quantity         INTEGER,
+                premium          REAL,
+                multiplier       REAL,
+                metrics_json     TEXT,
+                market_json      TEXT,
+                raw_json         TEXT,
+                FOREIGN KEY (snapshot_id) REFERENCES structure_snapshots(id) ON DELETE CASCADE,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structures                                                #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structures_underlying_asset
+            ON structures(underlying_asset)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structures_alias_legacy_aba
+            ON structures(alias_legacy_aba)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_legs                                            #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id
+            ON structure_legs(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id_leg_order
+            ON structure_legs(structure_id, leg_order)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- pricing_executions                                        #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id
+            ON pricing_executions(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at
+            ON pricing_executions(created_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_status
+            ON pricing_executions(execution_status)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_audit_log  [alteracao_72]                          #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+            ON structure_audit_log(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+            ON structure_audit_log(changed_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_action
+            ON structure_audit_log(action)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_snapshots  [fase_11]                           #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_id
+            ON structure_snapshots(structure_id)
+
+---- repositories/structures_repository.py ----
+# repositories/structures_repository.py
+"""
+Repositório canônico de estruturas e suas pernas (legs).
+
+alteracao_11: conexões SQLite fechadas explicitamente via try/finally.
+alteracao_42: get_structure_by_alias e get_structure_id_by_alias adicionados.
+alteracao_63: fix _validate_leg -- leg_order aceita >= 0 (era >= 1, bug).
+alteracao_70: revertido leg_order para >= 1 (0 é inválido; alteracao_63 era equivocado).
+alteracao_72: audit trail -- toda mutacao registrada em structure_audit_log.
+          _log_action() interno; atomico na mesma transacao do metodo.
+          get_audit_log() e get_full_audit_log() para consulta.
+          ensure_audit_schema() cria tabela e indices idx_audit_log_structure_id
+          e idx_audit_log_changed_at.
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from domain.position_side import CANONICAL_POSITION_SIDES, normalize_position_side
+
+
+VALID_POSITION_SIDES: frozenset[str] = CANONICAL_POSITION_SIDES
+VALID_OPTION_TYPES: frozenset[str] = frozenset({"CALL", "PUT"})
+VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
+
+# Acoes validas registradas no audit log -- alteracao_72
+AUDIT_ACTIONS: frozenset[str] = frozenset(
+    {"CREATE", "UPDATE", "ARCHIVE", "ADD_LEG", "REPLACE_LEGS"}
+)
+
+
+# ---------------------------------------------------------------------------
+# Helpers de validação / normalização (funções puras, sem I/O)
+# ---------------------------------------------------------------------------
+
+def _utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _validate_expiration_date(value: str) -> str:
+    if value is None or not str(value).strip():
+        raise ValueError("expiration_date is required")
+
+    value = str(value).strip()
+
+    try:
+        parsed = datetime.strptime(value, "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError(
+            "expiration_date must be a valid date in YYYY-MM-DD format"
+        ) from exc
+
+    return parsed.strftime("%Y-%m-%d")
+
+
+def _normalize_structure_payload(data: dict[str, Any]) -> dict[str, Any]:
+    name = str(data.get("name", "")).strip()
+    underlying_asset = str(data.get("underlying_asset", "")).strip().upper()
+    alias_legacy_aba = data.get("alias_legacy_aba")
+    status = str(data.get("status", "active")).strip().lower()
+    notes = data.get("notes")
+
+    if not name:
+        raise ValueError("name is required")
+
+    if not underlying_asset:
+        raise ValueError("underlying_asset is required")
+
+    if status not in VALID_STRUCTURE_STATUS:
+        raise ValueError(f"invalid status: {status}")
+
+    if alias_legacy_aba is not None:
+        alias_legacy_aba = str(alias_legacy_aba).strip() or None
+
+    if notes is not None:
+        notes = str(notes).strip() or None
+
+    return {
+        "name": name,
+        "underlying_asset": underlying_asset,
+        "alias_legacy_aba": alias_legacy_aba,
+        "status": status,
+        "notes": notes,
+    }
+
+
+def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
+    position_side   = normalize_position_side(leg.get("position_side"))
+    option_type     = str(leg.get("option_type", "")).strip().upper()
+    strike          = leg.get("strike")
+    expiration_date = _validate_expiration_date(leg.get("expiration_date"))
+    quantity        = leg.get("quantity")
+    multiplier      = leg.get("multiplier", 1)
+    symbol          = leg.get("symbol")
+    notes           = leg.get("notes")
+
+    if position_side not in VALID_POSITION_SIDES:
+        raise ValueError(f"invalid position_side: {position_side}")
+
+    if option_type not in VALID_OPTION_TYPES:
+        raise ValueError(f"invalid option_type: {option_type}")
+
+    try:
+        strike = float(strike)
+    except Exception as exc:
+        raise ValueError("strike must be numeric") from exc
+
+    if strike <= 0:
+        raise ValueError("strike must be > 0")
+
+    try:
+        quantity = int(quantity)
+    except Exception as exc:
+        raise ValueError("quantity must be integer") from exc
+
+    if quantity <= 0:
+        raise ValueError("quantity must be > 0")
+
+    try:
+        multiplier = float(multiplier)
+    except Exception as exc:
+        raise ValueError("multiplier must be numeric") from exc
+
+    if multiplier <= 0:
+        raise ValueError("multiplier must be > 0")
+
+    try:
+        leg_order = int(leg.get("leg_order", 0))
+    except Exception as exc:
+        raise ValueError("leg_order must be integer") from exc
+
+    if leg_order < 0:
+        raise ValueError("leg_order must be >= 0")
+
+    premium = leg.get("premium")
+    if premium is not None:
+        try:
+            premium = float(premium)
+        except Exception as exc:
+            raise ValueError("premium must be numeric when provided") from exc
+
+    if symbol is not None:
+        symbol = str(symbol).strip() or None
+
+    if notes is not None:
+        notes = str(notes).strip() or None
+
+    return {
+        "position_side":   position_side,
+        "option_type":     option_type,
+        "symbol":          symbol,
+        "strike":          strike,
+        "expiration_date": expiration_date,
+        "quantity":        quantity,
+        "premium":         premium,
+        "multiplier":      multiplier,
+        "leg_order":       leg_order,
+        "notes":           notes,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Repositório
+# ---------------------------------------------------------------------------
+
+class StructuresRepository:
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+        self.db_path = str(db_path)
+
+    # ------------------------------------------------------------------
+    # Infraestrutura de conexão
+    # ------------------------------------------------------------------
+
+    def _connect(self) -> sqlite3.Connection:
+        db_path = Path(self.db_path)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON;")
+        return conn
+
+    @staticmethod
+    def _row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
+        if row is None:
+            return None
+        return dict(row)
+
+    def _fetch_legs(
+        self, conn: sqlite3.Connection, structure_id: int
+    ) -> list[dict[str, Any]]:
+        rows = conn.execute(
+            """
+            SELECT
+                id, structure_id, position_side, option_type, symbol,
+                strike, expiration_date, quantity, premium, multiplier,
+                leg_order, notes, created_at, updated_at
+            FROM structure_legs
+            WHERE structure_id = ?
+            ORDER BY leg_order ASC, id ASC
+            """,
+            (structure_id,),
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def _ensure_structure_exists(
+        self, conn: sqlite3.Connection, structure_id: int
+    ) -> None:
+        row = conn.execute(
+            "SELECT id FROM structures WHERE id = ?",
+            (structure_id,),
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+    # ------------------------------------------------------------------
+    # alteracao_72 -- Schema do audit log
+    # ------------------------------------------------------------------
+
+    def ensure_audit_schema(self, conn: sqlite3.Connection) -> None:
+        """
+        Cria a tabela structure_audit_log e seus indices caso nao existam.
+        Deve ser chamado dentro de uma conexao aberta, antes do primeiro uso.
+        Idempotente (CREATE TABLE IF NOT EXISTS / CREATE INDEX IF NOT EXISTS).
+
+        alteracao_72
+        """
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+                ON structure_audit_log (structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+                ON structure_audit_log (changed_at)
+            """
+        )
+
+    # ------------------------------------------------------------------
+
+---- api/structures_controller.py ----
+# api/structures_controller.py
+"""
+alteracao_51 -- Exposição REST do CRUD de estruturas.
+alteracao_63 -- Endpoints de legs:
+    POST   /structures/{id}/legs            adiciona uma perna
+    PUT    /structures/{id}/legs            substitui todas as pernas (atômico)
+    DELETE /structures/{id}/legs/{leg_id}   remove perna individual
+
+    Fix: leg_order >= 0 (corrigido em _validate_leg do repositório).
+"""
+from __future__ import annotations
+
+from typing import Any
+
+from fastapi import APIRouter, HTTPException, Query
+from pydantic import BaseModel, Field, field_validator
+
+from repositories.structures_repository import StructuresRepository
+from domain.position_side import normalize_position_side
+
+router = APIRouter(tags=["structures"])
+
+_repo: StructuresRepository = StructuresRepository()
+
+
+# ---------------------------------------------------------------------------
+# Schemas de entrada — estrutura
+# ---------------------------------------------------------------------------
+
+class CreateStructureRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    underlying_asset: str = Field(..., min_length=1, max_length=50)
+    alias_legacy_aba: str | None = Field(default=None, max_length=100)
+    notes: str | None = None
+
+
+class UpdateStructureRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=200)
+    underlying_asset: str | None = Field(default=None, min_length=1, max_length=50)
+    alias_legacy_aba: str | None = Field(default=None, max_length=100)
+    notes: str | None = None
+    status: str | None = Field(default=None, pattern=r"^(active|archived)$")
+
+
+# ---------------------------------------------------------------------------
+# Schemas de entrada — legs  (alteracao_63)
+# ---------------------------------------------------------------------------
+
+class LegRequest(BaseModel):
+    """Schema compartilhado por AddLegRequest e ReplaceLegRequest."""
+    position_side: str   = Field(..., min_length=1)
+    option_type: str     = Field(..., pattern=r"^(CALL|PUT)$")
+    strike: float        = Field(..., gt=0)
+    expiration_date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
+    quantity: int        = Field(..., gt=0)
+    multiplier: float    = Field(default=1.0, gt=0)
+    # alteracao_63 fix: leg_order >= 0
+    leg_order: int       = Field(default=0, ge=0)
+    symbol: str | None   = None
+    premium: float | None = None
+    notes: str | None    = None
+
+    @field_validator("position_side", mode="before")
+    @classmethod
+    def _normalize_position_side(cls, value):
+        return normalize_position_side(value)
+
+
+class ReplaceLegRequest(BaseModel):
+    """Payload para PUT /structures/{id}/legs — lista de legs completa."""
+    legs: list[LegRequest] = Field(..., min_length=1)
+
+
+# ---------------------------------------------------------------------------
+# Schemas de resposta
+# ---------------------------------------------------------------------------
+
+class CreateStructureResponse(BaseModel):
+    structure_id: int
+
+
+class StructureSummaryResponse(BaseModel):
+    id: int
+    name: str
+    underlying_asset: str
+    alias_legacy_aba: str | None
+    status: str
+    notes: str | None
+    created_at: str
+    updated_at: str
+
+
+class StructureDetailResponse(StructureSummaryResponse):
+    legs: list[dict[str, Any]]
+
+
+class AddLegResponse(BaseModel):
+    leg_id: int
+
+
+# ---------------------------------------------------------------------------
+# Helpers internos
+# ---------------------------------------------------------------------------
+
+def _get_or_404(structure_id: int) -> dict[str, Any]:
+    structure = _repo.get_structure(structure_id)
+    if structure is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"structure not found: {structure_id}",
+        )
+    return structure
+
+
+# ---------------------------------------------------------------------------
+# Endpoints — estrutura (alteracao_51, inalterados)
+# ---------------------------------------------------------------------------
+
+@router.post("/structures", response_model=CreateStructureResponse, status_code=201)
+def create_structure(request: CreateStructureRequest) -> CreateStructureResponse:
+    try:
+        structure_id = _repo.create_structure(request.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return CreateStructureResponse(structure_id=structure_id)
+
+
+@router.get("/structures", response_model=list[StructureSummaryResponse])
+def list_structures(
+    include_archived: bool = Query(False, description="Inclui estruturas arquivadas"),
+) -> list[StructureSummaryResponse]:
+    rows = _repo.list_structures(include_archived=include_archived)
+    return [StructureSummaryResponse(**row) for row in rows]
+
+
+@router.get("/structures/{structure_id}", response_model=StructureDetailResponse)
+def get_structure(structure_id: int) -> StructureDetailResponse:
+    structure = _get_or_404(structure_id)
+    return StructureDetailResponse(**structure)
+
+
+@router.patch("/structures/{structure_id}", status_code=204)
+def update_structure(structure_id: int, request: UpdateStructureRequest) -> None:
+    _get_or_404(structure_id)
+
+    data = {k: v for k, v in request.model_dump().items() if v is not None}
+    if not data:
+        raise HTTPException(status_code=400, detail="nenhum campo fornecido para atualização")
+
+    try:
+        _repo.update_structure(structure_id, data)
+    except ValueError as exc:
+        message = str(exc)
+        status_code = 404 if "not found" in message else 400
+        raise HTTPException(status_code=status_code, detail=message) from exc
+
+
+@router.delete("/structures/{structure_id}", status_code=204)
+def archive_structure(structure_id: int) -> None:
+    _get_or_404(structure_id)
+    try:
+        _repo.archive_structure(structure_id)
+    except ValueError as exc:
+        message = str(exc)
+        status_code = 404 if "not found" in message else 400
+        raise HTTPException(status_code=status_code, detail=message) from exc
+
+
+# ---------------------------------------------------------------------------
+# Endpoints — legs  (alteracao_63)
+# ---------------------------------------------------------------------------
+
+@router.post(
+    "/structures/{structure_id}/legs",
+    response_model=AddLegResponse,
+    status_code=201,
+)
+def add_leg(structure_id: int, request: LegRequest) -> AddLegResponse:
+    """
+    Adiciona uma perna à estrutura.
+    Retorna o leg_id gerado.
+    """
+    _get_or_404(structure_id)
+
+    try:
+        leg_id = _repo.add_leg(structure_id, request.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return AddLegResponse(leg_id=leg_id)
+
+
+@router.put("/structures/{structure_id}/legs", status_code=204)
+def replace_legs(structure_id: int, request: ReplaceLegRequest) -> None:
+    """
+    Substitui TODAS as pernas da estrutura atomicamente.
+    A lista enviada substitui completamente o conjunto existente.
+    """
+    _get_or_404(structure_id)
+
+    try:
+        _repo.replace_legs(
+            structure_id,
+            [leg.model_dump() for leg in request.legs],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.delete("/structures/{structure_id}/legs/{leg_id}", status_code=204)
+def remove_leg(structure_id: int, leg_id: int) -> None:
+    """
+    Remove uma perna específica da estrutura.
+    Retorna 404 se a estrutura ou a leg não forem encontradas.
+    """
+    _get_or_404(structure_id)
+
+    conn = _repo._connect()
+    try:
+        row = conn.execute(
+            "SELECT id FROM structure_legs WHERE id=? AND structure_id=?",
+            (leg_id, structure_id),
+        ).fetchone()
+
+        if row is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"leg not found: {leg_id} in structure {structure_id}",
+            )
+
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc).isoformat()
+
+        conn.execute(
+            "DELETE FROM structure_legs WHERE id=?",
+            (leg_id,),
+        )
+        conn.execute(
+            "UPDATE structures SET updated_at=? WHERE id=?",
+            (now, structure_id),
+        )
+        conn.commit()
+    except HTTPException:
+        raise
+    except Exception as exc:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    finally:
+        conn.close()
+
+
+# ---------------------------------------------------------------------------
+# Endpoints — eventos operacionais
+# ---------------------------------------------------------------------------
+
+from datetime import datetime as _StructureEventsDateTime
+from typing import Any as _StructureEventsAny
+
+from fastapi import HTTPException as _StructureEventsHTTPException
+from pydantic import BaseModel as _StructureEventsBaseModel
+
+---- UI/components/structure_editor_dialog.py ----
+# UI/components/structure_editor_dialog.py
+"""
+StructureEditorDialog -- alteracao_10 / Fase 5
+Dialog modal para criar / editar uma estrutura com suas legs.
+
+Contrato com main_window.py:
+    dlg = StructureEditorDialog(
+        parent,
+        structure_id: int | None,   # None -> nova estrutura
+        db_path: str,
+    )
+    root.wait_window(dlg)
+    if dlg.saved: ...               # True se o usuario clicou Salvar com sucesso
+
+Atributos publicos esperados pelos testes de integracao:
+    saved           bool
+    _f_name         tk.StringVar
+    _f_underlying   tk.StringVar
+    _f_alias        tk.StringVar
+    _f_status       tk.StringVar
+    _f_notes        tk.StringVar
+    _legs_rows      list[dict]
+    _structure_id   int | None
+    _repo           StructuresRepository
+    _cmd_save()     metodo que executa a logica de salvar
+    _load_existing()       sem argumento -- usa self._structure_id
+    _build_legs_payload()  logica pura, testavel sem display
+    _build_ui()     constroi todos os widgets
+    _add_leg_row()  alias publico de _cmd_add_leg (exigido por checks estaticos)
+"""
+from __future__ import annotations
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+from typing import Optional
+
+from repositories.structures_repository import StructuresRepository
+from domain.position_side import normalize_position_side
+
+
+def _parse_decimal(value, field_name: str) -> float:
+    if value is None:
+        raise ValueError(f"{field_name} is required")
+
+    if isinstance(value, str):
+        value = value.strip()
+        if not value:
+            raise ValueError(f"{field_name} is required")
+
+        if "," in value:
+            value = value.replace(".", "").replace(",", ".")
+
+    try:
+        return float(value)
+    except Exception as exc:
+        raise ValueError(f"{field_name} must be numeric") from exc
+
+
+class StructureEditorDialog(tk.Toplevel):
+    """Dialog modal de criacao / edicao de estrutura."""
+
+    def __init__(
+        self,
+        parent: tk.Widget,
+        structure_id: Optional[int] = None,
+        db_path: str = "dados/app.db",
+        *,
+        _repo=None,                          # <-- injecao de dependencia (testes)
+    ):
+        super().__init__(parent)
+
+        self._structure_id = structure_id
+        self._db_path      = db_path
+        self.saved         = False
+        self.saved_structure_id = None
+        self._legs_rows: list[dict] = []
+
+        # Injeta repositorio mockado em testes, ou cria o real em producao
+        if _repo is not None:
+            self._repo = _repo
+        else:
+            self._repo = StructuresRepository(db_path)
+
+        # Variaveis de formulario -- inicializadas ANTES de _build_ui
+        # para que _load_existing() possa fazer .set() mesmo se chamado
+        # antes do mainloop (cenario de teste headless via object.__new__)
+        self._f_name       = tk.StringVar()
+        self._f_underlying = tk.StringVar()
+        self._f_alias      = tk.StringVar()
+        self._f_status     = tk.StringVar(value="active")
+        self._f_notes      = tk.StringVar()
+
+        self._build_ui()
+
+        if structure_id is not None:
+            self._load_existing()
+
+        # Comportamento modal
+        self.transient(parent)
+        self.grab_set()
+        self.resizable(True, True)
+        self.minsize(640, 480)
+
+    # ------------------------------------------------------------------
+    # Construcao da UI
+    # ------------------------------------------------------------------
+
+    def _build_ui(self):
+        title = "Nova Estrutura" if self._structure_id is None else "Editar Estrutura"
+        self.title(title)
+
+        # === Cabecalho ===
+        hdr = ttk.LabelFrame(self, text="Dados Gerais", padding=8)
+        hdr.pack(fill="x", padx=8, pady=(8, 4))
+
+        fields = [
+            ("Nome *",         self._f_name,       "entry", None),
+            ("Ativo *",        self._f_underlying, "entry", None),
+            ("Aba / Alias",    self._f_alias,      "entry", None),
+            ("Status",         self._f_status,     "combo", ["active", "archived"]),
+            ("Observacoes",    self._f_notes,      "entry", None),
+        ]
+
+        for row_idx, (label, var, widget_type, opts) in enumerate(fields):
+            ttk.Label(hdr, text=label, anchor="e", width=14).grid(
+                row=row_idx, column=0, sticky="e", padx=(0, 6), pady=2
+            )
+            if widget_type == "combo":
+                w = ttk.Combobox(
+                    hdr, textvariable=var, values=opts,
+                    state="readonly", width=14,
+                )
+            else:
+                w = ttk.Entry(hdr, textvariable=var, width=40)
+            w.grid(row=row_idx, column=1, sticky="ew", pady=2)
+
+        hdr.columnconfigure(1, weight=1)
+
+        # === Legs ===
+        legs_outer = ttk.LabelFrame(self, text="Legs", padding=8)
+        legs_outer.pack(fill="both", expand=True, padx=8, pady=4)
+
+        # Toolbar de legs
+        leg_toolbar = ttk.Frame(legs_outer)
+        leg_toolbar.pack(fill="x", pady=(0, 4))
+        ttk.Button(leg_toolbar, text="+ Leg",    command=self._cmd_add_leg).pack(side="left", padx=2)
+        ttk.Button(leg_toolbar, text="Remover",  command=self._cmd_remove_leg).pack(side="left", padx=2)
+        ttk.Button(leg_toolbar, text="▲",        command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
+        ttk.Button(leg_toolbar, text="▼",        command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
+
+        # Treeview de legs
+        leg_frame = ttk.Frame(legs_outer)
+        leg_frame.pack(fill="both", expand=True)
+
+        leg_cols   = ("order", "side", "type", "strike", "expiry", "qty", "premium", "mult", "symbol")
+        leg_hdrs   = ["#", "Lado", "Tipo", "Strike", "Vencimento", "Qtde", "Premio", "Mult", "Simbolo"]
+        leg_widths = [30, 60, 55, 80, 100, 55, 70, 50, 90]
+
+        self._leg_tree = ttk.Treeview(
+            leg_frame,
+            columns=leg_cols,
+            show="headings",
+            height=6,
+            selectmode="browse",
+        )
+        for col, hdr_text, w in zip(leg_cols, leg_hdrs, leg_widths):
+            self._leg_tree.heading(col, text=hdr_text)
+            self._leg_tree.column(col, width=w, anchor=tk.CENTER, stretch=(col == "expiry"))
+
+        leg_vsb = ttk.Scrollbar(leg_frame, orient="vertical", command=self._leg_tree.yview)
+        self._leg_tree.configure(yscrollcommand=leg_vsb.set)
+        leg_vsb.pack(side="right", fill="y")
+        self._leg_tree.pack(fill="both", expand=True)
+        self._leg_tree.bind("<Double-1>", self._on_leg_double_click)
+
+        # Formulario inline de edicao de leg
+        self._build_leg_form(legs_outer)
+
+        # === Botoes de acao ===
+        btn_bar = ttk.Frame(self)
+        btn_bar.pack(fill="x", padx=8, pady=8)
+
+        ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
+        ttk.Button(btn_bar, text="[SAVE] Salvar", command=self._cmd_save).pack(side="right", padx=4)
+
+    def _build_leg_form(self, parent: tk.Widget):
+        """Formulario colapsavel para editar / adicionar uma leg."""
+        form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
+        form.pack(fill="x", pady=(6, 0))
+
+        self._lf_side    = tk.StringVar(value="COMPRADO")
+        self._lf_type    = tk.StringVar(value="CALL")
+        self._lf_strike  = tk.StringVar()
+        self._lf_expiry  = tk.StringVar()
+        self._lf_qty     = tk.StringVar(value="1")
+        self._lf_premium = tk.StringVar()
+        self._lf_mult    = tk.StringVar(value="1")
+        self._lf_symbol  = tk.StringVar()
+
+        # Linha 1
+        r1 = ttk.Frame(form)
+        r1.pack(fill="x", pady=1)
+        for label, var, opts in [
+            ("Lado",  self._lf_side, ["COMPRADO", "VENDIDO"]),
+            ("Tipo",  self._lf_type, ["CALL", "PUT"]),
+        ]:
+            ttk.Label(r1, text=label + ":").pack(side="left")
+            ttk.Combobox(
+                r1, textvariable=var, values=opts,
+                state="readonly", width=8,
+            ).pack(side="left", padx=(0, 8))
+
+        for label, var in [
+            ("Strike",              self._lf_strike),
+            ("Venc (YYYY-MM-DD)",   self._lf_expiry),
+        ]:
+            ttk.Label(r1, text=label + ":").pack(side="left")
+            ttk.Entry(r1, textvariable=var, width=13).pack(side="left", padx=(0, 8))
+
+        # Linha 2
+        r2 = ttk.Frame(form)
+        r2.pack(fill="x", pady=1)
+        for label, var in [
+            ("Qtde",    self._lf_qty),
+            ("Premio",  self._lf_premium),
+            ("Mult",    self._lf_mult),
+            ("Simbolo", self._lf_symbol),
+        ]:
+            ttk.Label(r2, text=label + ":").pack(side="left")
+            ttk.Entry(r2, textvariable=var, width=10).pack(side="left", padx=(0, 8))
+
+        # Botao aplicar
+        ttk.Button(form, text="[v] Aplicar Leg", command=self._cmd_apply_leg).pack(
+            anchor="e", pady=(4, 0)
+        )
+
+    # ------------------------------------------------------------------
+    # Carregar estrutura existente
+    # ------------------------------------------------------------------
+
+    def _load_existing(self):
+        """
+        Carrega campos e legs de uma estrutura existente via repositorio.
+        Usa self._structure_id (nao recebe argumento -- compativel com testes
+        que chamam dlg._load_existing() sem parametros).
+        """
+        data = self._repo.get_structure(self._structure_id)
+        if data is None:
+            messagebox.showerror(
+                "Erro",
+                f"Estrutura {self._structure_id} nao encontrada.",
+                parent=self,
+            )
+            self.destroy()
+            return
+
+        self._f_name.set(data.get("name", ""))
+        self._f_underlying.set(data.get("underlying_asset", ""))
+        self._f_alias.set(data.get("alias_legacy_aba") or "")
+        self._f_status.set(data.get("status", "active"))
+
+---- UI/components/structures_list_panel.py ----
+# UI/components/structures_list_panel.py
+"""
+StructuresListPanel -- alteracao_10 / Fase 5
+Lista de estruturas com filtro de status, botoes CRUD e duplicar.
+
+alteracao_72: alias _on_archive_request -> _cmd_archive adicionado para
+          compatibilidade com checks de auditoria do alteracao_71.
+
+Contrato com main_window.py:
+    StructuresListPanel(
+        parent,
+        on_structure_selected: Callable[[dict | None], None],
+        on_request_edit:       Callable[[int | None], None],
+        db_path:               str,
+    )
+
+Atributos publicos esperados pelos testes de integracao:
+    _tree           ttk.Treeview
+    _status_var     tk.StringVar  ("active" | "all")
+    load()          recarrega a lista do banco
+"""
+from __future__ import annotations
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+from typing import Callable, Optional
+
+from repositories.structures_repository import StructuresRepository
+
+
+# ------------------------------------------------------------------
+# Constantes de layout
+# ------------------------------------------------------------------
+
+_COLUMNS = ("id", "name", "underlying_asset", "alias", "status", "legs")
+_HEADERS = {
+    "id":               ("ID",        45,  "center"),
+    "name":             ("Nome",      220, "w"),
+    "underlying_asset": ("Ativo",     80,  "center"),
+    "alias":            ("Aba/Alias", 110, "w"),
+    "status":           ("Status",    70,  "center"),
+    "legs":             ("Legs",      45,  "center"),
+}
+
+
+class StructuresListPanel(ttk.Frame):
+    """Painel esquerdo da aba Estruturas."""
+
+    def __init__(
+        self,
+        parent: tk.Widget,
+        on_structure_selected: Callable[[Optional[dict]], None],
+        on_request_edit: Callable[[Optional[int]], None],
+        db_path: str,
+        **kwargs,
+    ):
+        super().__init__(parent, **kwargs)
+
+        self._on_structure_selected = on_structure_selected
+        self._on_request_edit       = on_request_edit
+        self._db_path               = db_path
+        self._repo                  = StructuresRepository(db_path)
+        self._current_rows: list[dict] = []
+
+        self._build_toolbar()
+        self._build_tree()
+        self._build_buttons()
+
+        self.load()
+
+    # ------------------------------------------------------------------
+    # Construcao da UI
+    # ------------------------------------------------------------------
+
+    def _build_toolbar(self):
+        """Barra superior: filtro de status + busca por nome."""
+        toolbar = ttk.Frame(self)
+        toolbar.pack(fill="x", padx=4, pady=(4, 0))
+
+        ttk.Label(toolbar, text="Status:").pack(side="left")
+
+        self._status_var = tk.StringVar(value="active")
+        status_cb = ttk.Combobox(
+            toolbar,
+            textvariable=self._status_var,
+            values=["active", "all"],
+            state="readonly",
+            width=8,
+        )
+        status_cb.pack(side="left", padx=(2, 10))
+        status_cb.bind("<<ComboboxSelected>>", lambda _e: self.load())
+
+        ttk.Label(toolbar, text="Busca:").pack(side="left")
+        self._search_var = tk.StringVar()
+        search_entry = ttk.Entry(toolbar, textvariable=self._search_var, width=18)
+        search_entry.pack(side="left", padx=(2, 4))
+        self._search_var.trace_add("write", lambda *_: self._apply_filter())
+
+        ttk.Button(toolbar, text="", width=3,
+                   command=self.load).pack(side="left")
+
+    def _build_tree(self):
+        """Treeview + scrollbar."""
+        frame = ttk.Frame(self)
+        frame.pack(fill="both", expand=True, padx=4, pady=4)
+
+        self._tree = ttk.Treeview(
+            frame,
+            columns=_COLUMNS,
+            show="headings",
+            selectmode="browse",
+        )
+
+        for col in _COLUMNS:
+            header, width, anchor = _HEADERS[col]
+            self._tree.heading(col, text=header,
+                               command=lambda c=col: self._sort_by(c))
+            self._tree.column(
+                col, width=width, anchor=anchor, stretch=(col == "name")
+            )
+
+        vsb = ttk.Scrollbar(frame, orient="vertical",   command=self._tree.yview)
+        hsb = ttk.Scrollbar(frame, orient="horizontal", command=self._tree.xview)
+        self._tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+        vsb.pack(side="right",  fill="y")
+        hsb.pack(side="bottom", fill="x")
+        self._tree.pack(fill="both", expand=True)
+
+        self._tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+        self._tree.bind("<Double-1>",         self._on_tree_double_click)
+
+        self._tree.tag_configure("archived", foreground="#999999")
+        self._tree.tag_configure("active",   foreground="#1a1a1a")
+
+    def _build_buttons(self):
+        """Barra inferior com botoes de acao."""
+        btn_bar = ttk.Frame(self)
+        btn_bar.pack(fill="x", padx=4, pady=(0, 4))
+
+        actions = [
+            ("+ Nova",     self._cmd_new),
+            (" Editar",    self._cmd_edit),
+            (" Duplicar",  self._cmd_duplicate),
+            (" Arquivar",  self._cmd_archive),
+        ]
+        for label, cmd in actions:
+            ttk.Button(btn_bar, text=label, command=cmd).pack(
+                side="left", padx=2, pady=2
+            )
+
+        self._status_label_var = tk.StringVar(value="")
+        ttk.Label(
+            self,
+            textvariable=self._status_label_var,
+            foreground="#555555",
+            anchor="w",
+        ).pack(fill="x", padx=4, pady=(0, 2))
+
+    # ------------------------------------------------------------------
+    # Carregamento / filtro
+    # ------------------------------------------------------------------
+
+    def load(self):
+        """Recarrega do banco respeitando o filtro de status atual."""
+        include_archived = self._status_var.get() == "all"
+        self._current_rows = self._repo.list_structures(
+            include_archived=include_archived
+        )
+        self._apply_filter()
+
+    def _apply_filter(self):
+        """Filtra _current_rows pelo texto de busca e re-renderiza a tree."""
+        term = self._search_var.get().strip().lower()
+
+        filtered = self._current_rows
+        if term:
+            filtered = [
+                r for r in filtered
+                if term in r.get("name", "").lower()
+                or term in r.get("underlying_asset", "").lower()
+                or term in (r.get("alias_legacy_aba") or "").lower()
+            ]
+
+        sel_id = self._selected_id()
+
+        self._tree.delete(*self._tree.get_children())
+        for row in filtered:
+            n_legs = row.get("n_legs", 0)
+            iid = str(row["id"])
+            self._tree.insert(
+                "", "end", iid=iid,
+                values=(
+                    row["id"],
+                    row["name"],
+                    row["underlying_asset"],
+                    row.get("alias_legacy_aba") or "--",
+                    row["status"],
+                    n_legs if n_legs else "--",
+                ),
+                tags=(row["status"],),
+            )
+
+        if sel_id and self._tree.exists(str(sel_id)):
+            self._tree.selection_set(str(sel_id))
+            self._tree.see(str(sel_id))
+
+    # ------------------------------------------------------------------
+    # Helpers internos
+    # ------------------------------------------------------------------
+
+    def _selected_id(self) -> Optional[int]:
+        sel = self._tree.selection()
+        if not sel:
+            return None
+        try:
+            return int(self._tree.item(sel[0])["values"][0])
+        except (IndexError, ValueError, TypeError):
+            return None
+
+    def _get_full_structure(self, structure_id: int) -> Optional[dict]:
+        """Busca estrutura completa (com legs) pelo repositorio."""
+        try:
+            return self._repo.get_structure(structure_id)
+        except Exception:
+            return None
+
+    def _sort_by(self, col: str):
+        """Ordena a tree pela coluna clicada (toggle asc/desc)."""
+        items = [(self._tree.set(iid, col), iid)
+                 for iid in self._tree.get_children("")]
+        reverse = getattr(self, f"_sort_rev_{col}", False)
+        try:
+            items.sort(key=lambda x: (x[0] == "--", x[0]), reverse=reverse)
+        except TypeError:
+            items.sort(key=lambda x: str(x[0]), reverse=reverse)
+        for idx, (_, iid) in enumerate(items):
+            self._tree.move(iid, "", idx)
+        setattr(self, f"_sort_rev_{col}", not reverse)
+
+    # ------------------------------------------------------------------
+    # Callbacks da Treeview
+    # ------------------------------------------------------------------
+
+    def _on_tree_select(self, _event=None):
+        sid = self._selected_id()
+        if sid is None:
+            self._on_structure_selected(None)
+            return
+        structure = self._get_full_structure(sid)
+        self._on_structure_selected(structure)
+
+    def _on_tree_double_click(self, _event=None):
+        sid = self._selected_id()
+        if sid is not None:
+            self._on_request_edit(sid)
+
+    # ------------------------------------------------------------------
+    # Comandos dos botoes
+    # ------------------------------------------------------------------
+
+---- services/canonical_input_service.py ----
+from __future__ import annotations
+from domain.structure_metrics import compute_structure_metrics_from_canonical_input
+
+# services/canonical_input_service.py
+"""
+alteracao_25 — Separa responsabilidades de resolução de snapshot:
+  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+  - _resolve_snapshot        → merge das duas fontes em contrato completo para o assembler
+
+Contrato exigido pelo assemble_structure_market_input:
+  {
+    "reference_date":     str | None,
+    "underlying_asset":   str,
+    "spot_price":         float | None,
+    "interest_rate":      float | None,
+    "volatility":         float | None,
+    "legs":               list[dict],   # campo extra, assembler ignora mas outros consomem
+    "aba":                str | None,
+  }
+"""
+
+from src.domain.refs.structure_ref import StructureRef
+
+from typing import Any
+
+from repositories.structures_repository import StructuresRepository
+from repositories.structure_events_repository import StructureEventsRepository
+from services.legacy_robo_legs_fallback import LegacyRoboLegsFallback
+from services.market_snapshot_provider import MarketSnapshotProvider
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.structure_events_service import StructureEventsService
+from services.structure_market_input_assembler import assemble_structure_market_input
+
+
+class CanonicalInputService:
+    def __init__(
+        self,
+        repository: StructuresRepository | None = None,
+        market_snapshot_provider: MarketSnapshotProvider | None = None,
+        market_snapshot_selector: MarketSnapshotSelector | None = None,
+        robo_legs_service: Any | None = None,  # injeção explícita
+        structure_events_service: StructureEventsService | None = None,
+        prefer_canonical_legs: bool = True,
+        enable_legacy_legs_fallback: bool = True,
+        allow_legacy_name_fallback: bool = False,
+        enable_structure_events: bool = True,
+    ):
+        self.repository                  = repository or StructuresRepository()
+        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+        self.market_snapshot_selector    = market_snapshot_selector  # None = desabilitado
+        self.prefer_canonical_legs       = prefer_canonical_legs
+        self.enable_legacy_legs_fallback = enable_legacy_legs_fallback
+        self.allow_legacy_name_fallback  = allow_legacy_name_fallback
+
+        if robo_legs_service is not None:
+            # Injecao explicita — path canonico preferencial
+            self.robo_legs_service = robo_legs_service
+        else:
+            # BRIDGE LEGADO: import dinamico de robo_legs_service para compatibilidade
+            # com pipeline legado. Remover quando legado for desligado.
+            try:
+                from services.robo_legs_service import RoboLegsService  # noqa: PLC0415
+                self.robo_legs_service = RoboLegsService()
+            except ImportError:
+                self.robo_legs_service = None
+
+        # LegacyRoboLegsFallback sempre inicializado, independente da origem do robo_legs_service
+        self.legacy_robo_legs_fallback = LegacyRoboLegsFallback(
+            robo_legs_service=self.robo_legs_service,
+            allow_name_fallback=self.allow_legacy_name_fallback,
+        )
+
+        if structure_events_service is not None:
+            self.structure_events_service = structure_events_service
+        elif enable_structure_events and getattr(self.repository, "db_path", None):
+            self.structure_events_service = StructureEventsService(
+                structure_events_repository=StructureEventsRepository(
+                    db_path=self.repository.db_path,
+                )
+            )
+        else:
+            self.structure_events_service = None
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # API pública
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def build_structure_market_input(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        structure = self.repository.get_structure(structure_id)
+        if structure is None:
+            raise ValueError(f"structure not found: {structure_id}")
+
+        structure = {
+            **structure,
+            "name":              self._clean_text(structure.get("name")),
+            "underlying_asset":  self._clean_text(structure.get("underlying_asset")),
+            "alias_legacy_aba":  self._clean_text(structure.get("alias_legacy_aba")),
+        }
+
+        snapshot, snapshot_meta = self._resolve_snapshot(
+            structure=structure,
+            reference_date=reference_date,
+        )
+
+        effective_reference_date = reference_date or snapshot.get("reference_date")
+
+        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
+            structure=structure,
+            reference_date=effective_reference_date,
+        )
+
+        enriched_structure, events_meta = self._apply_structure_events(
+            structure=enriched_structure,
+        )
+
+        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
+        assembled_meta  = assembled.get("meta") or {}
+
+        return {
+            **assembled,
+            "meta": {
+                **assembled_meta,
+                "reference_date": effective_reference_date,
+                **enrichment_meta,
+                **events_meta,
+                **snapshot_meta,
+            },
+        }
+
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_snapshot(
+        self,
+        structure: dict[str, Any],
+        reference_date: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """
+        Monta o snapshot dict completo exigido pelo assembler.
+
+        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+        Se o selector estiver injetado E alias_legacy_aba existir, substitui as
+        legs pelo resultado do selector (manual > rtd).
+        """
+        underlying_asset = structure["underlying_asset"]
+        aba              = structure.get("alias_legacy_aba")
+
+        # 1. Spot, taxa, vol — sempre via provider
+        base_snapshot = self.market_snapshot_provider.get_snapshot(
+            underlying_asset,
+            reference_date=reference_date,
+        )
+
+        # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
+        if self.market_snapshot_selector is not None and aba:
+            ref = StructureRef.from_aba(aba)
+            legs_list, legs_meta = self._resolve_legs_via_selector(ref)
+            snapshot_source = legs_meta["snapshot_source"]
+        else:
+            legs_list  = base_snapshot.get("legs", [])
+            legs_meta  = {}
+            snapshot_source = "provider_legacy"
+
+        # 3. Monta contrato completo para o assembler
+        snapshot = {
+            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+                                        # interest_rate, volatility (e qualquer extra)
+            "aba":  aba,
+            "legs": legs_list,
+        }
+
+        meta = {
+            "snapshot_source":  snapshot_source,
+            **legs_meta,
+        }
+
+        return snapshot, meta
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Legs via selector (manual > rtd)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_legs_via_selector(
+        self,
+        ref: StructureRef,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """
+        Delega ao MarketSnapshotSelector e serializa legs completas.
+
+        Serialização cobre todos os campos de LegMarketSnapshot para que
+        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+        """
+        aba_str = ref.aba
+        result = self.market_snapshot_selector.select(aba_str)
+
+        legs_as_dict = [
+            {
+                # ── identificação ──────────────────────────────────────────
+                "aba":              leg.aba,
+                "ativo":            leg.ativo,
+                "source":           leg.source.value if hasattr(leg.source, "value") else str(leg.source),
+                # ── posição ────────────────────────────────────────────────
+                "cv":               leg.cv,
+                "call_put":         leg.call_put,
+                "quant":            leg.quant,
+                "valor_executado":  leg.valor_executado,
+                # ── preços ─────────────────────────────────────────────────
+                "bid":              leg.bid,
+                "ask":              leg.ask,
+                "mid":              leg.mid,
+                "spread":           leg.spread,
+                "spread_pct":       leg.spread_pct,
+                # ── greeks ─────────────────────────────────────────────────
+                "iv":               leg.iv,
+                "delta":            leg.delta,
+                "gamma":            leg.gamma,
+                "theta":            leg.theta,
+                "vega":             leg.vega,
+                # ── contrato ───────────────────────────────────────────────
+                "strike":           leg.strike,
+                "vencimento":       leg.vencimento,
+                "dte":              leg.dte,
+                "pl_realista":      leg.pl_realista,
+                # ── auditoria ──────────────────────────────────────────────
+                "timestamp":        leg.timestamp,
+            }
+            for leg in result.legs
+        ]
+
+        # reference_date derivada do timestamp da leg mais recente
+        reference_date = self._reference_date_from_legs(result.legs)
+
+        meta = {
+            "snapshot_source":  result.source.value if hasattr(result.source, "value") else str(result.source),
+            "snapshot_aba":     aba_str,
+            "manual_overrides": result.manual_overrides,
+            "is_manual_first":  result.is_manual_first,
+            "legs_reference_date": reference_date,
+        }
+
+        return legs_as_dict, meta
+
+    @staticmethod
+    def _reference_date_from_legs(legs) -> str | None:
+        """Extrai a data (YYYY-MM-DD) do timestamp mais recente entre as legs."""
+        timestamps = [leg.timestamp for leg in legs if leg.timestamp]
+        if not timestamps:
+            return None
+        latest = max(timestamps)          # ISO string → max() funciona diretamente
+        return latest[:10]               # "YYYY-MM-DD HH:MM:SS" → "YYYY-MM-DD"
+
+    # ──────────────────────────────────────────────────────────────────────────
+
+---- services/structure_market_input_assembler.py ----
+from typing import Any
+
+from services.structure_input_mapper import to_structure_input
+
+
+def assemble_structure_market_input(
+    structure: dict[str, Any],
+    market_snapshot: dict[str, Any],
+) -> dict[str, Any]:
+    if not structure:
+        raise ValueError("structure is required")
+
+    if not market_snapshot:
+        raise ValueError("market_snapshot is required")
+
+    structure_input = to_structure_input(structure)
+    structure_asset = structure_input["underlying_asset"]
+    market_asset = market_snapshot.get("underlying_asset")
+
+    if structure_asset != market_asset:
+        raise ValueError(
+            f"underlying_asset mismatch: structure={structure_asset} market={market_asset}"
+        )
+
+    return {
+        "structure": structure_input,
+        "market": {
+            "reference_date": market_snapshot["reference_date"],
+            "underlying_asset": market_snapshot["underlying_asset"],
+            "spot_price": market_snapshot["spot_price"],
+            "interest_rate": market_snapshot["interest_rate"],
+            "volatility": market_snapshot["volatility"],
+        },
+        "meta": {
+            "input_source": "structure_market_input_assembler",
+        },
+    }
+
+---- services/pricing_input_service.py ----
+from typing import Any
+
+from services.canonical_input_service import CanonicalInputService
+from services.pricing_payload_adapter import to_pricing_payload
+
+
+class PricingInputService:
+    def __init__(
+        self,
+        canonical_input_service: CanonicalInputService | None = None,
+    ):
+        self.canonical_input_service = canonical_input_service or CanonicalInputService()
+
+    def build_pricing_payload(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        canonical_input = self.canonical_input_service.build_structure_market_input(
+            structure_id=structure_id,
+            reference_date=reference_date,
+        )
+
+        return self.build_pricing_payload_from_canonical_input(canonical_input)
+
+    def build_pricing_payload_from_canonical_input(
+        self,
+        canonical_input: dict[str, Any],
+    ) -> dict[str, Any]:
+        return to_pricing_payload(canonical_input)
+
+---- services/derived_service.py ----
+from __future__ import annotations
+# services/derived_service.py
+"""
+alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+alteracao_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
+alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+"""
+
+import inspect
+import json
+import sqlite3
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+from db.config import connect_app, connect_derived
+from db.derived_repo import (
+    cleanup_old_decisions,
+    cleanup_old_payoff_data,
+    ensure_derived_tables,
+    insert_payoff_points,
+    insert_structure_decision,
+)
+from src.domain.refs.structure_ref import StructureRef
+
+
+# ------------------------------------------------------------------
+# Cache modulo-level: aba -> structure_id
+# ------------------------------------------------------------------
+
+_ABA_TO_STRUCTURE_ID: Dict[str, int] = {}
+_ABA_CACHE_LOADED: bool = False
+
+
+def _load_aba_cache() -> None:
+    global _ABA_TO_STRUCTURE_ID, _ABA_CACHE_LOADED
+    try:
+        with connect_app() as conn:
+            cur = conn.execute("""
+                SELECT id, alias_legacy_aba
+                FROM structures
+                WHERE alias_legacy_aba IS NOT NULL
+                  AND alias_legacy_aba != ''
+            """)
+            _ABA_TO_STRUCTURE_ID = {row[1]: row[0] for row in cur.fetchall()}
+    except Exception:
+        _ABA_TO_STRUCTURE_ID = {}
+    finally:
+        _ABA_CACHE_LOADED = True
+
+
+def _resolve_structure_id(aba: Optional[str]) -> Optional[int]:
+    if not _ABA_CACHE_LOADED:
+        _load_aba_cache()
+    if not aba:
+        return None
+    return _ABA_TO_STRUCTURE_ID.get(aba)
+
+
+def invalidate_aba_cache() -> None:
+    global _ABA_CACHE_LOADED
+    _ABA_CACHE_LOADED = False
+
+
+# ------------------------------------------------------------------
+# Helpers internos
+# ------------------------------------------------------------------
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _safe_str(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _unwrap_ref(ref: Any) -> Optional[str]:
+    """
+    alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
+    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+    """
+    if isinstance(ref, StructureRef):
+        return ref.aba
+    return _safe_str(ref)
+
+
+def _resolve_storage_key(
+    aba: Optional[str] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+) -> str:
+    # 1. aba explícita tem prioridade máxima
+    resolved_aba = _safe_str(aba)
+    if resolved_aba:
+        return resolved_aba
+
+    # 2. structure_id → resolver alias_legacy_aba via cache (FIX alteracao_66)
+    resolved_sid = _safe_str(structure_id)
+    if resolved_sid:
+        try:
+            sid_int = int(resolved_sid)
+            if not _ABA_CACHE_LOADED:
+                _load_aba_cache()
+            id_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+            alias = id_to_aba.get(sid_int)
+            if alias:
+                return alias  # "BOVA11" em vez de "structure:7"
+        except (ValueError, TypeError):
+            pass
+        return f"structure:{resolved_sid}"  # fallback sem alias
+
+    # 3. fallbacks por nome/ativo
+    resolved_structure_name = _safe_str(structure_name)
+    if resolved_structure_name:
+        return resolved_structure_name
+
+    resolved_underlying_asset = _safe_str(underlying_asset)
+    if resolved_underlying_asset:
+        return resolved_underlying_asset
+
+    return "unknown"
+
+
+def _merge_meta(
+    meta: Optional[Dict[str, Any]] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+    reference_date: Any = None,
+    input_meta: Optional[Dict[str, Any]] = None,
+    storage_key: Optional[str] = None,
+) -> Dict[str, Any]:
+    return {
+        **(meta or {}),
+        "structure_id":     structure_id,
+        "structure_name":   structure_name,
+        "underlying_asset": underlying_asset,
+        "reference_date":   reference_date,
+        "input_meta":       input_meta or {},
+        "storage_key":      storage_key,
+    }
+
+
+# ------------------------------------------------------------------
+# Init
+# ------------------------------------------------------------------
+
+def init_db():
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+
+
+# ------------------------------------------------------------------
+# Payoff
+# ------------------------------------------------------------------
+
+def save_payoff_curve(
+    ref: Any,
+    points: List[Union[Tuple[float, float], Dict[str, float]]],
+    spot_ref: Optional[float] = None,
+    meta: Optional[Dict[str, Any]] = None,
+    timestamp: Optional[str] = None,
+    structure_id: Any = None,
+) -> int:
+    """
+    alteracao_57: 'ref' aceita StructureRef, str ou None.
+    _unwrap_ref() extrai a string aba de forma segura.
+    """
+    ts           = timestamp or _now_iso()
+    storage_key  = _unwrap_ref(ref) or "unknown"
+    resolved_sid = (
+        int(structure_id)
+        if structure_id is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    norm_points: List[Tuple[float, float]] = []
+    for p in points or []:
+        if isinstance(p, (tuple, list)) and len(p) == 2:
+            norm_points.append((float(p[0]), float(p[1])))
+        elif isinstance(p, dict):
+            x = p.get("point_spot") or p.get("s_t")
+            y = p.get("point_pl")   or p.get("pl_venc")
+            if x is None or y is None:
+                continue
+            norm_points.append((float(x), float(y)))
+
+    effective_meta = {
+        **(meta or {}),
+        "storage_key":  storage_key,
+        "structure_id": resolved_sid,
+    }
+
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+        return insert_payoff_points(
+            conn=conn,
+            timestamp=ts,
+            aba=storage_key,
+            points=norm_points,
+            spot_ref=spot_ref,
+            meta=effective_meta,
+            structure_id=resolved_sid,
+        )
+
+
+def save_payoff_from_canonical_payload(
+    payoff: Dict[str, Any],
+    aba: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> int:
+    ts = timestamp or _now_iso()
+
+    storage_key = _resolve_storage_key(
+        aba=aba,
+        structure_id=payoff.get("structure_id"),
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+    )
+
+    sid_from_payload = payoff.get("structure_id")
+    resolved_sid = (
+        int(sid_from_payload)
+        if sid_from_payload is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    meta = _merge_meta(
+        meta=payoff.get("meta"),
+        structure_id=resolved_sid,
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+        reference_date=payoff.get("reference_date"),
+        input_meta=payoff.get("input_meta"),
+        storage_key=storage_key,
+    )
+
+    try:
+        sig = inspect.signature(save_payoff_curve)
+        accepts_structure_id = (
+            "structure_id" in sig.parameters
+            or any(
+                p.kind == inspect.Parameter.VAR_KEYWORD
+                for p in sig.parameters.values()
+            )
+        )
+    except (TypeError, ValueError):
+        accepts_structure_id = True
+
+    if accepts_structure_id:
+        return save_payoff_curve(
+            ref=storage_key,
+            points=payoff.get("points", []),
+            spot_ref=payoff.get("spot_ref"),
+            meta=meta,
+            timestamp=ts,
+            structure_id=resolved_sid,
+
+---- scripts/run_derived_pipeline.py ----
+#!/usr/bin/env python3
+import os
+import sys
+import argparse
+from pathlib import Path
+
+# --- bootstrap: garantir raiz do projeto no sys.path ANTES dos imports internos ---
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+# -----------------------------------------------------------------------------
+
+# Opcional: carregar .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+
+def validate_final_consistency() -> bool:
+    """Valida consistência dos snapshots após processamento."""
+    from db.config import connect_derived
+    from db.derived_repo import validate_snapshot_consistency
+    
+    conn = connect_derived()
+    try:
+        return validate_snapshot_consistency(conn)
+    finally:
+        conn.close()
+
+
+
+def _run_build_summaries(repo_root: str) -> int:
+    """
+    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+    (Implemente aqui quando necessário.)
+    """
+    _ = repo_root
+    return 0
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Run derived pipeline")
+    parser.add_argument(
+        "--no-cleanup",
+        action="store_true",
+        help="Não executar cleanup do derived.db antes de validar",
+    )
+    args = parser.parse_args(argv)
+
+    # Imports internos (mantidos aqui para respeitar sys.path/bootstrap)
+    from services.derived_service import cleanup_derived
+
+    if not args.no_cleanup:
+        cleanup_derived(days_to_keep=30)
+
+    # (Opcional) build summaries
+    rc = _run_build_summaries(str(PROJECT_ROOT))
+    if rc != 0:
+        return rc
+
+    # Validação final OBRIGATÓRIA
+    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+    if not validate_final_consistency():
+        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+        return 1
+
+    print("\n[OK] PIPELINE FINALIZADO COM SUCESSO!")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+5) Caminhos de banco configurados no projeto
+
+./ATT/checks/check_cleanup_residuals.py:78:    "scripts/repair_derived_db_consistency.py",
+./ATT/checks/check_cleanup_residuals.py:80:    "scripts/validate_derived_db.py",
+./ATT/checks/check_end_to_end.py:30:    ROOT_DIR / "dados" / "derived.db",
+./ATT/checks/check_end_to_end.py:35:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/checks/check_end_to_end.py:70:        conn = sqlite3.connect(str(path))
+./ATT/checks/check_structures.py:27:    ROOT_DIR / "dados" / "derived.db",
+./ATT/checks/check_structures.py:34:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/checks/check_structures.py:60:    conn = sqlite3.connect(str(path))
+./ATT/tests/conftest.py:24:DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
+./ATT/tests/conftest.py:27:print(f"[conftest] DB_PATH      : {DB_PATH}")
+./ATT/tests/conftest.py:28:print(f"[conftest] DB existe?   : {DB_PATH.exists()}")
+./ATT/tests/test_canonical_pricing_facade.py:138:    with sqlite3.connect(str(db_path)) as conn:
+./ATT/tests/test_legacy_structure_legs_importer.py:11:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer.py:54:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer.py:71:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:14:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:87:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:107:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:129:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_importer_integration.py:148:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_reader.py:114:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_reader.py:171:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_legacy_structure_legs_reader.py:235:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:120:    with sqlite3.connect(str(db_path)) as conn:
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:210:    with sqlite3.connect(str(db_path)) as conn:
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:290:    with sqlite3.connect(str(db_path)) as conn:
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:314:    with sqlite3.connect(str(db_path)) as conn:
+./ATT/tests/test_pricing_executions_repository.py:12:    conn = sqlite3.connect(str(db_path))
+./ATT/tests/test_robo_legs_repository.py:9:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_repository.py:47:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_repository.py:77:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_repository.py:101:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_repository.py:121:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_repository.py:151:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_status_repository.py:13:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_robo_legs_status_repository.py:46:    conn = sqlite3.connect(db_path)
+./ATT/tests/test_structure_editor_integration.py:401:        mw._db_path = "dados/derived.db"
+./ATT/tests/test_structure_editor_integration.py:406:        self.assertEqual(kwargs.get("db_path"), "dados/derived.db")
+./ATT/tests/test_system_snapshots_repository.py:89:    with sqlite3.connect(db_path) as conn:
+./ATT/tests/test_system_snapshots_repository.py:185:    with sqlite3.connect(db_path) as conn:
+./ATT/tests/test_system_snapshots_repository.py:212:    with sqlite3.connect(db_path) as conn:
+./ATT/tests/test_system_snapshots_schema.py:35:    with sqlite3.connect(db_path) as conn:
+./ATT/tests/test_system_snapshots_schema.py:52:    with sqlite3.connect(db_path) as conn:
+./ATT/tests/test_system_snapshots_schema.py:91:    with sqlite3.connect(db_path) as conn:
+./ATT/tests/test_ui_data_migration.py:10:DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
+./ATT/tests/test_ui_data_migration.py:16:    assert DB_PATH.exists(), (
+./ATT/tests/test_ui_data_migration.py:18:        f"  Esperado     : {DB_PATH}\n"
+./ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(derived_db_path=str(DB_PATH))
+./ATT/tests/test_ui_data_migration.py:56:    assert DB_PATH.exists(), f"Banco não encontrado: {DB_PATH}"
+./ATT/tests/test_ui_data_migration.py:61:        f"Pasta 'dados/' não encontrada em: {PROJECT_ROOT}"
+./bridge_ingest_csv.py:12:from db.config import APP_DB_PATH
+./bridge_ingest_csv.py:19:RAW_DB = APP_DB_PATH
+./bridge_ingest_csv.py:220:    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
+./create_payoff_summary_table.py:2:db = sqlite3.connect('dados/derived.db')
+./db/config.py:8:APP_DB_PATH     = Path(os.getenv("APP_DB_PATH",     str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+./db/config.py:9:DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/derived.db"))).resolve()
+./db/config.py:12:    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+./db/config.py:13:    return sqlite3.connect(str(APP_DB_PATH))
+./db/config.py:16:    DERIVED_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+./db/config.py:17:    return sqlite3.connect(str(DERIVED_DB_PATH))
+./db/derived_repo.py:215:    Repositório canônico para derived.db.
+./db/derived_repo.py:221:    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
+./db/derived_repo.py:222:        self._db_path = derived_db or db_path
+./db/derived_repo.py:230:        conn = sqlite3.connect(self._db_path)
+./db/init_db.py:14:    init_db("dados/app.db")
+./db/init_db.py:15:    print("OK: banco inicializado em dados/app.db")
+./db/migrations/add_structure_id_to_payoff_curve_points.py:8:    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/derived.db
+./db/migrations/add_structure_id_to_payoff_curve_points.py:85:    conn = sqlite3.connect(str(db_path))
+./db/migrations/add_structure_id_to_payoff_curve_points.py:127:    parser.add_argument("--db", default="dados/derived.db")
+./db/reader.py:17:    def __init__(self, db_path: str = "dados/derived.db"):
+./db/reader.py:22:        conn = sqlite3.connect(self.db_path)
+./db/sqlite.py:5:DEFAULT_DB_PATH = Path("data") / "app.db"
+./db/sqlite.py:7:def connect(db_path: str | Path = DEFAULT_DB_PATH):
+./db/sqlite.py:9:    conn = sqlite3.connect(db_path)
+./db/writer.py:15:    def __init__(self, db_path: str = "dados/derived.db"):
+./db/writer.py:24:        with sqlite3.connect(self.db_path) as conn:
+./db/writer.py:54:        with sqlite3.connect(self.db_path) as conn:
+./db/writer.py:124:        with sqlite3.connect(self.db_path) as conn:
+./db/writer.py:140:        with sqlite3.connect(self.db_path) as conn:
+./docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md:137:- `rtd_option_quotes` existe em `dados/app.db` e `dados/derived.db`.
+./docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md:140:- A comparação funcional entre `app.db` e `derived.db` retornou:
+./docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md:166:- `PricingExecutionAppService` instancia `CanonicalPricingFacade` usando `dados/app.db` como banco padrão.
+./docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:21:python scripts/validate_derived_db.py
+./docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:79:A auditoria em dados/app.db retornou:
+./docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:541:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+./docs/evolucoes de fases/baseline_v1a.md:7:*	SQLite: mantém a estrutura app.db (raw) + derived.db (payoff/decisões)
+./docs/evolucoes de fases/baseline_v1a.md:9:Excel RTD  CSV export  Python ingest  app.db (raw)  derivadores  derived.db
+./docs/evolucoes de fases/baseline_v1a.md:41:*	Output: tabelas derivadas no derived.db
+./docs/evolucoes de fases/baseline_v1a.md:62:3.2 Derived tables (derived.db) --  PRÓXIMA FASE
+./docs/evolucoes de fases/baseline_v1a.md:113:Excel  bridge/*.csv  app.db (8 tabelas rtd_*)  derived.db (próximo)
+./docs/evolucoes de fases/baseline_v2.md:5:| Tabela                    | AppDB (`app.db`) | DerivedDB (`derived.db`) | Observações                                            |
+./docs/evolucoes de fases/baseline_v2.md:12:| payoff_curve_summary      |                  |           ~             | Referência no código, mas não vista em derived.db      |
+./docs/evolucoes de fases/changelog.md:4:- Migração do diretório `data/`  `dados/` (bancos e referências no código)
+./docs/evolucoes de fases/DB_PATHS.md:4:- Raw DB: `dados/app.db`
+./docs/evolucoes de fases/DB_PATHS.md:5:- Derived DB: `dados/derived.db`
+./docs/evolucoes de fases/executed_v1.md:3:*	Você inspecionou o schema do dados/derived.db:
+./docs/evolucoes de fases/executed_v1.md:62:B) Validar o salvamento no derived.db (pipeline)
+./docs/evolucoes de fases/executed_v1.md:65:python -c "import sqlite3; c=sqlite3.connect('dados/derived.db'); cur=c.cursor(); cur.execute('select aba, count(*) from payoff_curve_points group by aba order by count(*) desc'); print(cur.fetchall()[:10]); c.close()"
+./docs/evolucoes de fases/executed_v1.md:81:### Sintomas- Pipeline falhava ao salvar curvas de payoff no `derived.db`- Possível KeyError/TypeError na persistência de pontos- Inconsistência entre formato esperado pela tabela `payoff_curve_points` e dados gerados
+./docs/evolucoes de fases/executed_v1.md:125:def get_app_db_connection():    """Conexão com app.db - resolve caminho para evitar erro de pasta"""    db_path = Path("dados/app.db").resolve()    return sqlite3.connect(str(db_path))
+./docs/evolucoes de fases/executed_v1.md:130:$ python -c "import sqlite3; c=sqlite3.connect('dados/app.db'); cur=c.cursor(); cur.execute('PRAGMA table_info(rtd_analise_robo_legs)'); print(cur.fetchall()); c.close()"
+./docs/evolucoes de fases/executed_v1.md:140:python -c "import sqlite3; c=sqlite3.connect('dados/derived.db'); cur=c.cursor(); cur.execute('select aba, count(*) from payoff_curve_points group by aba order by count(*) desc'); print(cur.fetchall()[:10]); c.close()"
+./docs/evolucoes de fases/executed_v1.md:168:2.	Validar dados em derived.db
+./docs/evolucoes de fases/executed_v1.md:181:- gerar curva de payoff no vencimento por aba (points compatíveis com derived.db)
+./docs/evolucoes de fases/executed_v1.md:211:- gerar curva de payoff no vencimento por aba (points compatíveis com derived.db)
+./docs/evolucoes de fases/executed_v1.md:260:- insere automaticamente uma linha em `rtd_consolidacoes` (na dados/app.db)
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:93:dados/app.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:141:dados/app.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:173:dados/app.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:297:dados/app.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:327:dados/derived.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:352:O sistema separa parcialmente dados operacionais em app.db e dados derivados em derived.db.
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:364:StructuresRepository -> dados/app.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:379:dados/derived.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:491:- persistência: dados/app.db
+./docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:506:- fontes consumidas: app.db e derived.db
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:101:dados/app.db
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:183:dados/derived.db
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:199:validate_derived_db.py
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:273:| `dados/app.db` | operacional | fonte principal para cadastro e estado operacional |
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:274:| `dados/derived.db` | derivado | base recalculável de resultados derivados |
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:289:| `validate_derived_db.py` | operacional de validação | manter como script autorizado |
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:308:O derived.db é derivado e recalculável.
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:120:bridge_ingest_csv.py:220:    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
+./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:253:bridge_ingest_csv.py é o principal ponto de acoplamento operacional entre arquivos CSV exportados pelo bridge e o banco dados/app.db.
+./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:121:É atualmente o principal acoplamento entre Excel/RTD/bridge e o banco dados/app.db.
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:60:## Auditoria de dados/derived.db
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:64:- dados/derived.db
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:82:- O banco derived.db concentra dados derivados, especialmente curva de payoff e decisões.
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:88:## Auditoria de dados/app.db
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:92:- dados/app.db
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:275:### Tabelas inspecionadas em dados/app.db
+./docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:286:### Tabelas inspecionadas em dados/derived.db
+./docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:17:rtd_option_quotes: ausente em dados/app.db
+./docs/evolucoes de fases/roteiro_v2.md:11:- Destino: `derived.db`
+./docs/evolucoes de fases/roteiro_v2.md:19:- Consome: `derived.db`
+./docs/validacoes/fase-15-validacao-integrada.md:43:scripts/repair_derived_db_consistency.py
+./docs/validacoes/fase-15-validacao-integrada.md:45:scripts/validate_derived_db.py
+./docs/validacoes/fase-15-validacao-integrada.md:101:- `dados/app.db` encontrado e populado;
+./docs/validacoes/fase-15-validacao-integrada.md:102:- `dados/derived.db` encontrado;
+./docs/validacoes/fase-15-validacao-integrada.md:103:- estruturas 44-48 presentes em `dados/app.db`;
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:101:| `dados/` | Bancos, backups e dados locais não versionados |
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:164:| `dados/app.db` | Sim | Não versionado |
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:165:| `dados/derived.db` | Sim | Não versionado |
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:172:| `scripts/validate_derived_db.py` | Sim | Versionado |
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:193:dados/
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:355:O diretório `dados/` existe fisicamente e está ignorado pelo Git.
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:360:dados/app.db
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:361:dados/derived.db
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:362:dados/pricing_executions.json
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:363:dados/RTD_LINKS.csv
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:364:dados/backups/
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:365:dados/migrations/004_pricing_executions_new_columns.sql
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:368:Conclusão sobre `dados/`:
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:372:- A migração local `dados/migrations/004_pricing_executions_new_columns.sql` deve ser avaliada futuramente para decidir se precisa ser promovida para uma área versionada.
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:389:8. Os bancos `dados/app.db` e `dados/derived.db` existem localmente e não são versionados.
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:406:4. Avaliar se `dados/migrations/004_pricing_executions_new_columns.sql` deve ser versionado.
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:412:7. Manter `dados/`, `_repo_audit/`, caches e logs fora do versionamento.
+./domain/payoff_features.py:14:def get_derived_db_connection() -> sqlite3.Connection:
+./domain/payoff_features.py:15:    db_path = Path("dados/derived.db").resolve()
+./domain/payoff_features.py:16:    return sqlite3.connect(str(db_path))
+./domain/payoff_features.py:108:    Chave canônica : structure_id + reference_date   upsert no derived.db.
+./domain/payoff_features.py:212:    conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+./infra/bootstrap_structures_schema.py:13:DB_PATH = Path("dados/app.db")
+./infra/bootstrap_structures_schema.py:20:def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
+./infra/bootstrap_structures_schema.py:25:    with sqlite3.connect(db_path) as conn:
+./infra/sqlite_conn.py:9:    conn = sqlite3.connect(db_path)
+./repositories/market_snapshot_repository.py:267:        conn = sqlite3.connect(str(self._db_path))
+./repositories/pricing_executions_repository.py:7:DB_PATH = Path("dados/app.db")
+./repositories/pricing_executions_repository.py:12:    def __init__(self, db_path: str | Path = DB_PATH):
+./repositories/pricing_executions_repository.py:21:        conn = sqlite3.connect(str(self._db_path))
+./repositories/robo_legs_repository.py:30:    app_db_path: str = "./dados/app.db"
+./repositories/robo_legs_status_repository.py:28:    app_db_path: str = "./dados/app.db"
+./repositories/rtd_option_quotes_repository.py:18:    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+./repositories/rtd_option_quotes_repository.py:22:        conn = sqlite3.connect(str(self.db_path))
+./repositories/structures_repository.py:171:    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+./repositories/structures_repository.py:182:        conn = sqlite3.connect(str(db_path))
+./repositories/structure_events_repository.py:171:    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+./repositories/structure_events_repository.py:182:        conn = sqlite3.connect(str(db_path))
+./repositories/system_snapshots_repository.py:9:from infra.bootstrap_structures_schema import DB_PATH, ensure_structures_schema
+./repositories/system_snapshots_repository.py:68:    def __init__(self, db_path: str | Path = DB_PATH) -> None:
+./repositories/system_snapshots_repository.py:73:        conn = sqlite3.connect(self.db_path)
+./scripts/check_rota_desenvolvimento.py:292:    with sqlite3.connect(str(db_path)) as conn:
+./scripts/check_rota_desenvolvimento.py:301:        with sqlite3.connect(str(db_path)) as conn:
+./scripts/check_rota_desenvolvimento.py:313:        DADOS_DIR / "derived.db",
+./scripts/check_rota_desenvolvimento.py:340:        print("Estruturas 44-48 em dados/app.db:")
+./scripts/check_rota_desenvolvimento.py:342:            with sqlite3.connect(str(app_db)) as conn:
+./scripts/check_rota_desenvolvimento.py:363:            with sqlite3.connect(str(app_db)) as conn:
+./scripts/check_rota_desenvolvimento.py:389:        "scripts/validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:393:        "validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:421:        "- Se derived.db validar e os smokes existirem/passarem, aí sim avaliar avanço para a próxima fase da rota.\n"
+./scripts/import_legacy_structure_legs.py:48:        default="./dados/app.db",
+./scripts/import_legacy_structure_legs.py:49:        help="Caminho do banco SQLite. Default: ./dados/app.db",
+./scripts/purge_derived_snapshots.py:34:        description="Remove snapshots derivados antigos/inválidos do derived.db"
+./scripts/purge_derived_snapshots.py:38:        default="dados/derived.db",
+./scripts/purge_derived_snapshots.py:39:        help="Caminho do derived.db. Default: dados/derived.db",
+./scripts/purge_derived_snapshots.py:86:    con = sqlite3.connect(str(db))
+./scripts/repair_derived_db_consistency.py:49:        description="Repara inconsistências de snapshots em dados/derived.db"
+./scripts/repair_derived_db_consistency.py:53:        default="dados/derived.db",
+./scripts/repair_derived_db_consistency.py:54:        help="Caminho do derived.db. Default: dados/derived.db",
+./scripts/repair_derived_db_consistency.py:105:    con = sqlite3.connect(str(db))
+./scripts/repair_derived_db_consistency.py:299:            print("[OK] derived.db consistente.")
+./scripts/repair_derived_db_consistency.py:302:        print("[WARN] derived.db ainda inconsistente.")
+./scripts/run_derived_pipeline.py:48:        help="Não executar cleanup do derived.db antes de validar",
+./scripts/validate_derived_db.py:3:Script para validar consistencia do banco derived.db
+./scripts/validate_derived_db.py:5:- Faz auto-discovery do caminho do derived.db
+./scripts/validate_derived_db.py:21:def _find_derived_db() -> Path | None:
+./scripts/validate_derived_db.py:23:    env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
+./scripts/validate_derived_db.py:31:        PROJECT_ROOT / "dados" / "derived.db",
+./scripts/validate_derived_db.py:32:        PROJECT_ROOT / "data" / "derived.db",
+./scripts/validate_derived_db.py:33:        PROJECT_ROOT / "derived.db",
+./scripts/validate_derived_db.py:34:        PROJECT_ROOT / "db" / "derived.db",
+./scripts/validate_derived_db.py:45:    db_path = _find_derived_db()
+./scripts/validate_derived_db.py:47:        print("[ERROR] derived.db nao encontrado.")
+./scripts/validate_derived_db.py:48:        print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
+./scripts/validate_derived_db.py:51:    print(f"[INFO] Usando derived.db em: {db_path}")
+./scripts/validate_derived_db.py:53:    conn = sqlite3.connect(str(db_path))
+./services/canonical_pricing_facade.py:39:_DEFAULT_DB = Path("dados/app.db")
+./services/canonical_pricing_facade.py:52:    with sqlite3.connect(str(db_path)) as conn:
+./services/canonical_pricing_facade.py:181:        with sqlite3.connect(str(db_path)) as conn:
+./services/canonical_pricing_facade.py:331:                                                             derived.db
+./services/canonical_pricing_facade.py:385:            #  5. Persiste (app.db + derived.db via port) 
+./services/derived_payoff_persistence.py:19:      3. Persistir pontos no derived.db via derived_service
+./services/payoff_persistence_port.py:9:    Implementações devem gravar os dados no derived.db após
+./services/pricing_execution_app_service.py:19:_DEFAULT_DB = Path("dados/app.db")
+./src/domain/refs/structure_ref.py:87:                conn = sqlite3.connect(db_path)
+./UI/components/details_panel.py:50:    def _derived_db_path(self) -> Path:
+./UI/components/details_panel.py:52:        Caminho do derived.db.
+./UI/components/details_panel.py:70:        return project_root / "dados" / "derived.db"
+./UI/components/details_panel.py:76:        Importante: não usa self._db_path porque _derived_db_path() já trata
+./UI/components/details_panel.py:77:        esse atributo como caminho do derived.db em testes/compatibilidade.
+./UI/components/details_panel.py:159:        # Não pode cair para derived.db quando o raw/app não existe.
+./UI/components/details_panel.py:175:            "_derived_db_path",
+./UI/components/details_panel.py:176:            "derived_db_path",
+./UI/components/details_panel.py:202:                or low_path.endswith("derived.db")
+./UI/components/details_panel.py:203:                or "derived.db" in low_path
+./UI/components/details_panel.py:218:                "_derived_db_path",
+./UI/components/details_panel.py:219:                "derived_db_path",
+./UI/components/details_panel.py:254:                    project_root / "derived.db",
+./UI/components/details_panel.py:257:                    project_root / "dados" / "derived.db",
+./UI/components/details_panel.py:419:                con = sqlite3.connect(str(db_path))
+./UI/components/details_panel.py:886:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:887:        con = sqlite3.connect(str(db_path))
+./UI/components/details_panel.py:926:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:927:        con = sqlite3.connect(str(db_path))
+./UI/components/details_panel.py:954:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:955:        con = sqlite3.connect(str(db_path))
+./UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+./UI/components/details_panel.py:1024:        """Recarrega somente a estrutura atual do derived.db e atualiza widgets."""
+./UI/components/structure_editor_dialog.py:66:        db_path: str = "dados/app.db",
+./UI/main_window.py:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+./UI/main_window.py:511:* Domain Layer  derived.db
+./UI/models/ui_data.py:9:from db.config import DERIVED_DB_PATH
+./UI/models/ui_data.py:50:    def __init__(self, derived_db_path: Optional[Path] = None):
+./UI/models/ui_data.py:51:        from db.config import DERIVED_DB_PATH
+./UI/models/ui_data.py:52:        self.derived_db_path = (
+./UI/models/ui_data.py:53:            Path(derived_db_path).resolve()
+./UI/models/ui_data.py:54:            if derived_db_path
+./UI/models/ui_data.py:55:            else Path(DERIVED_DB_PATH).resolve()
+./UI/models/ui_data.py:57:        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+./UI/models/ui_data.py:71:        if not self.derived_db_path.exists():
+./UI/models/ui_data.py:73:                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+./UI/models/ui_data.py:75:        conn = sqlite3.connect(str(self.derived_db_path))
+./UI/models/ui_data.py:650:            f"derived.db: OK\n"
+
+6) Inspecao detalhada do banco dados/derived.db antes de qualquer alteracao
+
+DB: C:\Users\eucal\projeto\dados\derived.db
+existe: True
+
+Objetos encontrados:
+index: idx_decisions_aba_ts
+index: idx_decisions_ts
+index: idx_rtd_option_quotes_codigo_opcao
+index: ix_payoff_structure_id
+index: sqlite_autoindex_rtd_option_quotes_1
+index: ux_decision_snapshot
+index: ux_payoff_snapshot
+table: payoff_curve_points
+table: rtd_option_quotes
+table: sqlite_sequence
+table: structure_decisions
+
+SQL dos objetos relacionados:
+
+-- index: idx_decisions_aba_ts
+CREATE INDEX idx_decisions_aba_ts
+ON structure_decisions (aba, timestamp)
+
+
+-- index: idx_decisions_ts
+CREATE INDEX idx_decisions_ts
+ON structure_decisions (timestamp)
+
+
+-- index: idx_rtd_option_quotes_codigo_opcao
+CREATE INDEX idx_rtd_option_quotes_codigo_opcao
+        ON rtd_option_quotes(codigo_opcao)
+    
+
+-- index: ix_payoff_structure_id
+CREATE INDEX ix_payoff_structure_id
+ON payoff_curve_points (structure_id, timestamp)
+
+
+-- index: sqlite_autoindex_rtd_option_quotes_1
+
+
+-- index: ux_decision_snapshot
+CREATE UNIQUE INDEX ux_decision_snapshot
+ON structure_decisions (timestamp, aba)
+
+
+-- index: ux_payoff_snapshot
+CREATE UNIQUE INDEX ux_payoff_snapshot
+ON payoff_curve_points (timestamp, aba, point_spot)
+
+
+-- table: payoff_curve_points
+CREATE TABLE payoff_curve_points (
+    timestamp    TEXT NOT NULL,
+    aba          TEXT NOT NULL,
+    structure_id INTEGER,
+    spot_ref     REAL,
+    point_spot   REAL NOT NULL,
+    point_pl     REAL NOT NULL,
+    meta_json    TEXT,
+    created_at   TEXT DEFAULT (datetime('now'))
+)
+
+-- table: rtd_option_quotes
+CREATE TABLE rtd_option_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    codigo_opcao TEXT NOT NULL,
+    ativo_base TEXT,
+
+    call_put TEXT,
+    strike REAL,
+    vencimento TEXT,
+
+    ultimo_preco REAL,
+    ultima_quantidade REAL,
+
+    bid REAL,
+    ask REAL,
+    volume REAL,
+
+    iv REAL,
+    delta REAL,
+    gamma REAL,
+    theta REAL,
+    vega REAL,
+
+    source TEXT NOT NULL DEFAULT 'rtd_links',
+    raw_json TEXT,
+
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(codigo_opcao)
+)
+
+-- table: structure_decisions
+CREATE TABLE structure_decisions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp     TEXT    NOT NULL,
+    aba           TEXT    NOT NULL,
+    decision      TEXT    NOT NULL,
+    level         INTEGER NOT NULL,
+    pl_atual      REAL,
+    pl_max        REAL,
+    pl_pct_of_max REAL,
+    dte_min       INTEGER,
+    why_json      TEXT,
+    spot_ref      REAL,
+    meta_json     TEXT,
+    created_at    TEXT    DEFAULT CURRENT_TIMESTAMP,
+    why           TEXT,
+    structure_id  INTEGER
+)
+
+7) Testes especificos de repository, api e editor de estruturas
+
+........................................................................ [ 40%]
+........................................................................ [ 80%]
+....................................                                     [100%]
+180 passed in 15.14s
+
+== Fim do diagnostico Fase 3B ==
