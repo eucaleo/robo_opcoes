@@ -483,3 +483,54 @@ git tag --list "fase-6*"
 
 - A diretriz provisoria de empacotamento dos artefatos Excel foi registrada sem alteracao funcional.
 - A Fase 7 segue preparada para revisao de sensibilidade dos artefatos versionados e definicao final de pacote de entrega.
+
+## Revisao de sensibilidade dos artefatos Excel versionados
+
+### Escopo
+
+- Revisao documental de sensibilidade dos arquivos Excel versionados na raiz.
+- Nenhum arquivo foi aberto para leitura de conteudo operacional.
+- Nenhum arquivo foi alterado, removido, criado, renomeado ou movido nesta etapa.
+- A revisao considera apenas presenca, versionamento, extensao, tamanho e risco operacional presumido.
+
+### Estado de referencia
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit base da revisao: b5797a9 docs: registra diretriz de empacotamento excel da fase 7
+
+### Artefatos Excel versionados avaliados
+
+- Arquivo: LISTA_RTD.xlsx
+  - Extensao: xlsx
+  - Tamanho em bytes: 14551
+  - Ultimo commit relacionado: 5b4c3bc chore: padroniza nome da lista rtd
+  - Risco presumido para entrega externa: medio
+  - Observacao sobre macro: baixo por extensao xlsx, sem validacao de conteudo
+  - Diretriz provisoria: revisar conteudo e necessidade operacional antes de empacotar.
+- Arquivo: OPERACOES_E_OPCOES.xlsm
+  - Extensao: xlsm
+  - Tamanho em bytes: 247837
+  - Ultimo commit relacionado: 0496b78 data: atualiza planilhas e arquivos bridge
+  - Risco presumido para entrega externa: alto
+  - Observacao sobre macro: possivel presenca de macros por extensao xlsm
+  - Diretriz provisoria: revisar conteudo e necessidade operacional antes de empacotar.
+
+### Criterios de sensibilidade adotados
+
+- Arquivos Excel podem conter dados reais, parametros operacionais, informacoes historicas ou formulas proprietarias.
+- Arquivos xlsm devem ser tratados como sensiveis ate revisao explicita, pois podem conter macros.
+- Arquivos xlsx tambem podem ser sensiveis mesmo sem macros, pois podem conter dados operacionais.
+- Tamanho, extensao e versionamento nao comprovam seguranca para distribuicao.
+- A ausencia de leitura de conteudo nesta etapa evita exposicao desnecessaria de dados.
+
+### Regras provisorias derivadas
+
+- Nao incluir artefatos Excel reais em pacote externo sem aprovacao explicita.
+- Preferir fixtures anonimizadas ou dados sinteticos quando a entrega exigir reprodutibilidade.
+- Se o fluxo real depender de workbook externo ausente, documentar como pre-requisito e nao como arquivo entregue automaticamente.
+- Se arquivo com macro for necessario, exigir revisao especifica de seguranca e finalidade operacional.
+
+### Conclusao da revisao
+
+- A revisao de sensibilidade dos artefatos Excel versionados foi registrada sem alteracao funcional.
+- A Fase 7 segue preparada para definicao final do pacote de entrega e lista de exclusoes ou pre-requisitos.
