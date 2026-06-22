@@ -52,6 +52,15 @@ class MainWindow:
         # Controle de recalc em andamento
         self._recalc_in_progress = False
 
+        # Controle de atualização automática da UI/RTD.
+        # Este ciclo apenas recarrega dados já persistidos.
+        # Não executa pipeline e não recalcula payoff.
+        self._auto_refresh_interval_ms = 30000
+        self._auto_refresh_enabled = True
+        self._auto_refresh_in_progress = False
+        self._auto_refresh_after_id = None
+        self._closing = False
+
         # Configurar layout principal
         self._setup_layout()
         self._setup_menus()
@@ -59,6 +68,9 @@ class MainWindow:
 
         # Carregar dados iniciais
         self.refresh_data()
+
+        # Iniciar atualização automática controlada.
+        self.start_auto_refresh()
 
     def _setup_layout(self):
         """Organiza layout em painéis."""
@@ -128,11 +140,11 @@ class MainWindow:
         # Menu Arquivo
         file_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Arquivo", menu=file_menu)
-        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+        file_menu.add_command(label="Recarregar Tela", command=self.refresh_data)
         file_menu.add_separator()
         file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
         file_menu.add_separator()
-        file_menu.add_command(label="Sair", command=self.root.quit)
+        file_menu.add_command(label="Sair", command=self.close)
 
         # Menu Ferramentas
         tools_menu = tk.Menu(menubar, tearoff=0)
@@ -150,7 +162,8 @@ class MainWindow:
     def _bind_events(self):
         """Vincula atalhos de teclado."""
         self.root.bind("<F5>", lambda e: self.refresh_data())
-        self.root.bind("<Control-q>", lambda e: self.root.quit())
+        self.root.bind("<Control-q>", lambda e: self.close())
+        self.root.protocol("WM_DELETE_WINDOW", self.close)
 
     # ------------------------------------------------------------------
     # Callbacks
@@ -268,7 +281,7 @@ class MainWindow:
         thread = threading.Thread(target=load_worker, daemon=True)
         thread.start()
 
-    def refresh_data(self):
+    def refresh_data(self, show_errors: bool = True):
         """Recarrega dados do banco.
         alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
         """
@@ -331,8 +344,88 @@ class MainWindow:
             )
 
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao carregar dados: {e}")
+            if show_errors:
+                messagebox.showerror("Erro", f"Erro ao carregar dados: {e}")
+            else:
+                print(f"[UI] Erro na atualização automática: {e}")
             self.status_bar.config(text="Erro ao carregar dados")
+
+    def close(self):
+        """Fecha a janela cancelando agendamentos automáticos pendentes."""
+        self._closing = True
+        self.stop_auto_refresh()
+        try:
+            self.root.quit()
+        except Exception:
+            pass
+
+    def start_auto_refresh(self):
+        """Inicia o ciclo de atualização automática da tela."""
+        self._auto_refresh_enabled = True
+        self._schedule_auto_refresh()
+
+    def stop_auto_refresh(self):
+        """Interrompe o ciclo de atualização automática da tela."""
+        self._auto_refresh_enabled = False
+        after_id = getattr(self, "_auto_refresh_after_id", None)
+        self._auto_refresh_after_id = None
+
+        if after_id is not None:
+            try:
+                self.root.after_cancel(after_id)
+            except Exception:
+                pass
+
+    def _schedule_auto_refresh(self):
+        """Agenda a próxima atualização automática, garantindo um único after."""
+        if (
+            not getattr(self, "_auto_refresh_enabled", False)
+            or getattr(self, "_closing", False)
+        ):
+            return
+
+        previous_after_id = getattr(self, "_auto_refresh_after_id", None)
+        if previous_after_id is not None:
+            try:
+                self.root.after_cancel(previous_after_id)
+            except Exception:
+                pass
+
+        self._auto_refresh_after_id = self.root.after(
+            self._auto_refresh_interval_ms,
+            self._auto_refresh_tick,
+        )
+
+    def _auto_refresh_tick(self):
+        """Executa uma atualização automática sem pipeline e sem recálculo."""
+        self._auto_refresh_after_id = None
+
+        if (
+            not getattr(self, "_auto_refresh_enabled", False)
+            or getattr(self, "_closing", False)
+        ):
+            return
+
+        if (
+            getattr(self, "_auto_refresh_in_progress", False)
+            or getattr(self, "_recalc_in_progress", False)
+        ):
+            self._schedule_auto_refresh()
+            return
+
+        self._auto_refresh_in_progress = True
+        try:
+            self.refresh_data(show_errors=False)
+            try:
+                self.status_bar.config(
+                    text=f"Dados atualizados automaticamente às {datetime.now():%H:%M:%S}"
+                )
+            except Exception:
+                pass
+        finally:
+            self._auto_refresh_in_progress = False
+            self._schedule_auto_refresh()
+
     def export_csv(self):
         """Exporta dados filtrados para CSV."""
         from tkinter import filedialog
