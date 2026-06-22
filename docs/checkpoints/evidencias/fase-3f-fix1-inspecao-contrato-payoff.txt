@@ -1,0 +1,614 @@
+============================================================
+FASE 3F FIX1 - INSPECAO CONTRATO PAYOFF
+Data:
+Sun Jun 21 21:57:16     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+8550c20
+============================================================
+
+== Status git ==
+?? docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md
+?? docs/checkpoints/evidencias/fase-3f-diagnostico-payoff-manual-canonico.txt
+?? docs/checkpoints/evidencias/fase-3f-fix1-inspecao-contrato-payoff.txt
+?? scripts/fase-3f-diagnostico-payoff-manual-canonico.sh
+?? scripts/fase-3f-fix1-inspecao-contrato-payoff.sh
+
+== Schema payoff_curve_points em dados/derived.db ==
+Banco: dados\derived.db
+
+Tabela: payoff_curve_points
+CREATE SQL:
+CREATE TABLE payoff_curve_points (
+    timestamp    TEXT NOT NULL,
+    aba          TEXT NOT NULL,
+    structure_id INTEGER,
+    spot_ref     REAL,
+    point_spot   REAL NOT NULL,
+    point_pl     REAL NOT NULL,
+    meta_json    TEXT,
+    created_at   TEXT DEFAULT (datetime('now'))
+)
+PRAGMA table_info:
+{'cid': 0, 'name': 'timestamp', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 1, 'name': 'aba', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 2, 'name': 'structure_id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 3, 'name': 'spot_ref', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 4, 'name': 'point_spot', 'type': 'REAL', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 5, 'name': 'point_pl', 'type': 'REAL', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 6, 'name': 'meta_json', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 7, 'name': 'created_at', 'type': 'TEXT', 'notnull': 0, 'dflt_value': "datetime('now')", 'pk': 0}
+Indices:
+{'seq': 0, 'name': 'ix_payoff_structure_id', 'unique': 0, 'origin': 'c', 'partial': 0}
+{'seq': 1, 'name': 'ux_payoff_snapshot', 'unique': 1, 'origin': 'c', 'partial': 0}
+Amostra geral:
+
+Tabela: structure_decisions
+CREATE SQL:
+CREATE TABLE structure_decisions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp     TEXT    NOT NULL,
+    aba           TEXT    NOT NULL,
+    decision      TEXT    NOT NULL,
+    level         INTEGER NOT NULL,
+    pl_atual      REAL,
+    pl_max        REAL,
+    pl_pct_of_max REAL,
+    dte_min       INTEGER,
+    why_json      TEXT,
+    spot_ref      REAL,
+    meta_json     TEXT,
+    created_at    TEXT    DEFAULT CURRENT_TIMESTAMP,
+    why           TEXT,
+    structure_id  INTEGER
+)
+PRAGMA table_info:
+{'cid': 0, 'name': 'id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 1}
+{'cid': 1, 'name': 'timestamp', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 2, 'name': 'aba', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 3, 'name': 'decision', 'type': 'TEXT', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 4, 'name': 'level', 'type': 'INTEGER', 'notnull': 1, 'dflt_value': None, 'pk': 0}
+{'cid': 5, 'name': 'pl_atual', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 6, 'name': 'pl_max', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 7, 'name': 'pl_pct_of_max', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 8, 'name': 'dte_min', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 9, 'name': 'why_json', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 10, 'name': 'spot_ref', 'type': 'REAL', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 11, 'name': 'meta_json', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 12, 'name': 'created_at', 'type': 'TEXT', 'notnull': 0, 'dflt_value': 'CURRENT_TIMESTAMP', 'pk': 0}
+{'cid': 13, 'name': 'why', 'type': 'TEXT', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+{'cid': 14, 'name': 'structure_id', 'type': 'INTEGER', 'notnull': 0, 'dflt_value': None, 'pk': 0}
+Indices:
+{'seq': 0, 'name': 'idx_decisions_ts', 'unique': 0, 'origin': 'c', 'partial': 0}
+{'seq': 1, 'name': 'idx_decisions_aba_ts', 'unique': 0, 'origin': 'c', 'partial': 0}
+{'seq': 2, 'name': 'ux_decision_snapshot', 'unique': 1, 'origin': 'c', 'partial': 0}
+Amostra geral:
+
+== Arquivo services/canonical_pricing_facade.py ==
+# services/canonical_pricing_facade.py
+"""
+alteracao_17 -- Fachada canônica corrigida.
+alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+           no PricingExecutionPersistenceService.
+alteracao_41 -- Corrige underlying_asset no pricing_payload.
+
+Correções alteracao_41:
+  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+      busca alias_legacy_aba E underlying_asset em uma única query.
+  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+      elimina uso de selection_result.aba como underlying_asset
+      (aba legada  ativo subjacente real).
+  C8: execute_pricing() passa underlying_asset para o payload builder.
+
+Correções anteriores mantidas:
+  C1: sel.select(aba=...) -- parâmetro correto
+  C2: alias_legacy_aba buscado via query antes de chamar o selector
+  C3: orquestração direta repo  selector  execute_payload()
+  C4: engine_result extraído do wrapper antes de passar ao persister
+  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+"""
+from __future__ import annotations
+
+
+import sqlite3
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from repositories.market_snapshot_repository import MarketSnapshotRepository
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
+from services.derived_payoff_persistence import DerivedPayoffPersistence
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+from services.pricing_execution_service import PricingExecutionService
+from services.pricing_input_service import PricingInputService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+
+def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+    """
+    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+
+    Raises ValueError se:
+      - estrutura não existir
+      - alias_legacy_aba for nulo (sem aba legada mapeada)
+    """
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+            (structure_id,),
+        ).fetchone()
+
+    if row is None:
+        raise ValueError(f"structure not found: {structure_id}")
+
+    aba = row["alias_legacy_aba"]
+    if not aba:
+        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+
+    underlying_asset = row["underlying_asset"]  # NOT NULL -- sempre presente
+
+    return aba, underlying_asset
+
+
+#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+
+
+
+def _to_float(value: Any, default: float = 0.0) -> float:
+    try:
+        if value is None or value == "":
+            return default
+
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return default
+
+            text = text.replace("R$", "").replace("$", "").strip()
+
+            # Remove espaços internos comuns em valores monetários.
+            text = text.replace(" ", "")
+
+            # Formatos comuns vindos de RTD/planilha:
+            #   BR: "1.234,56" -> "1234.56"
+            #   US: "1,234.56" -> "1234.56"
+            #   BR simples: "124,66" -> "124.66"
+            if "," in text and "." in text:
+                if text.rfind(",") > text.rfind("."):
+                    text = text.replace(".", "").replace(",", ".")
+                else:
+                    text = text.replace(",", "")
+            elif "," in text:
+                text = text.replace(",", ".")
+
+            return float(text)
+
+        return float(value)
+    except Exception:
+        return default
+
+
+def _normalize_expiration_date(value: Any) -> str | None:
+    if not value:
+        return None
+
+    text = str(value).strip()
+
+    formats = [
+        "%m/%d/%Y %H:%M",
+        "%m/%d/%Y %H:%M:%S",
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+    ]
+
+    for fmt in formats:
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            pass
+
+    return text
+
+
+def _pick(data: dict[str, Any], *names: str) -> Any:
+    for name in names:
+        value = data.get(name)
+        if value is not None:
+            return value
+    return None
+
+
+def _quote_ident(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+    """
+    Procura spot positivo no app.db.
+
+    Caso confirmado:
+      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+      spot observado = 124.66
+    """
+    if not underlying_asset:
+        return 0.0
+
+    symbol_candidates = {
+        "aba",
+        "ativo",
+        "asset",
+        "symbol",
+        "ticker",
+        "underlying_asset",
+        "codigo",
+        "papel",
+    }
+
+    price_candidates = {
+        "spot",
+        "spot_price",
+        "underlying_price",
+        "last_price",
+        "price",
+        "preco",
+        "preco_atual",
+        "valor",
+        "cotacao",
+        "ultimo",
+        "fechamento",
+        "close",
+    }
+
+    try:
+        with sqlite3.connect(str(db_path)) as conn:
+            tables = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+
+            for (table_name,) in tables:
+                columns_info = conn.execute(
+                    f"PRAGMA table_info({_quote_ident(table_name)})"
+                ).fetchall()
+
+                columns = [row[1] for row in columns_info]
+                lower_to_real = {col.lower(): col for col in columns}
+
+                symbol_cols = [
+                    lower_to_real[name]
+                    for name in symbol_candidates
+                    if name in lower_to_real
+                ]
+
+                price_cols = [
+                    lower_to_real[name]
+                    for name in price_candidates
+                    if name in lower_to_real
+                ]
+
+                if not symbol_cols or not price_cols:
+                    continue
+
+                for symbol_col in symbol_cols:
+                    for price_col in price_cols:
+                        query = (
+                            f"SELECT {_quote_ident(price_col)} "
+                            f"FROM {_quote_ident(table_name)} "
+                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+                            f"LIMIT 20"
+                        )
+
+                        try:
+                            rows = conn.execute(query, (underlying_asset,)).fetchall()
+                        except Exception:
+                            continue
+
+                        for row in rows:
+                            price = _to_float(row[0], 0.0)
+                            if price > 0:
+                                return price
+    except Exception:
+        return 0.0
+
+    return 0.0
+
+
+def _snapshot_result_to_payload(
+    selection_result: Any,
+    structure_id: int,
+    underlying_asset: str,
+    reference_date: str | None,
+    db_path: Path,
+) -> dict[str, Any]:
+    legs_data = []
+
+    for leg in selection_result.legs:
+        d = leg if isinstance(leg, dict) else vars(leg)
+
+        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+
+        raw_price = _pick(d, "premium", "price", "valor_executado")
+        raw_asset = _pick(d, "symbol", "asset", "ativo")
+        raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
+
+        side = _pick(d, "side", "position_side")
+        if not side:
+            side = "SHORT" if quantity < 0 else "LONG"
+
+        canonical_leg = {
+            # campos originais/compatíveis
+            "quantity":    quantity,
+            "price":       _to_float(raw_price, 0.0),
+
+== Busca arquivos de persistencia derivada/payoff ==
+ATT/tests/__pycache__/test_canonical_pricing_facade.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_execute_pricing_rtd_integration.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_execute_pricing_rtd_integration.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_manual_without_alias.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_manual_without_alias.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_db_path.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_price_resolution.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_price_resolution.cpython-313.pyc
+ATT/tests/__pycache__/test_decision.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_decision.cpython-313.pyc
+ATT/tests/__pycache__/test_derived_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_derived_service.cpython-313.pyc
+ATT/tests/__pycache__/test_payoff_canonical.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_payoff_canonical.cpython-313.pyc
+ATT/tests/__pycache__/test_payoff_chart.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_payoff_chart.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_engine_stub.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_engine_stub.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_app_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_app_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_controller.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_controller.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_orchestration_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_orchestration_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_persistence_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_persistence_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_price_source_persistence.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_query_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_query_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_executions_repository.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_executions_repository.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_input_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_input_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_payload_adapter.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_payload_adapter.cpython-313.pyc
+ATT/tests/__pycache__/test_rtd_legacy_canonical_pricing_input_guardrail.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_rtd_legacy_canonical_pricing_input_guardrail.cpython-313.pyc
+ATT/tests/test_canonical_pricing_facade.py
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py
+ATT/tests/test_decision.py
+ATT/tests/test_derived_service.py
+ATT/tests/test_payoff_canonical.py
+ATT/tests/test_payoff_chart.py
+ATT/tests/test_pricing_engine_stub.py
+ATT/tests/test_pricing_execution_app_service.py
+ATT/tests/test_pricing_execution_controller.py
+ATT/tests/test_pricing_execution_orchestration_service.py
+ATT/tests/test_pricing_execution_persistence_service.py
+ATT/tests/test_pricing_execution_query_service.py
+ATT/tests/test_pricing_execution_service.py
+ATT/tests/test_pricing_executions_repository.py
+ATT/tests/test_pricing_input_service.py
+ATT/tests/test_pricing_payload_adapter.py
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+UI/components/__pycache__/decisions_grid.cpython-313.pyc
+UI/components/__pycache__/payoff_chart.cpython-313.pyc
+UI/components/decisions_grid.py
+UI/components/payoff_chart.py
+domain/__pycache__/decision.cpython-313.pyc
+domain/__pycache__/payoff.cpython-313.pyc
+domain/__pycache__/payoff_features.cpython-313.pyc
+domain/decision.py
+domain/payoff.py
+domain/payoff_features.py
+repositories/__pycache__/pricing_executions_repository.cpython-313.pyc
+repositories/pricing_executions_repository.py
+services/__pycache__/canonical_pricing_facade.cpython-313.pyc
+services/__pycache__/derived_payoff_persistence.cpython-313.pyc
+services/__pycache__/derived_service.cpython-313.pyc
+services/__pycache__/payoff_persistence_port.cpython-313.pyc
+services/__pycache__/pricing_engine_stub.cpython-313.pyc
+services/__pycache__/pricing_execution_app_service.cpython-313.pyc
+services/__pycache__/pricing_execution_orchestration_service.cpython-313.pyc
+services/__pycache__/pricing_execution_persistence_service.cpython-313.pyc
+services/__pycache__/pricing_execution_query_service.cpython-313.pyc
+services/__pycache__/pricing_execution_service.cpython-313.pyc
+services/__pycache__/pricing_input_service.cpython-313.pyc
+services/__pycache__/pricing_payload_adapter.cpython-313.pyc
+services/canonical_pricing_facade.py
+services/canonical_pricing_facade.py.fase3e.bak
+services/canonical_pricing_facade.py.fase3e.fix2.bak
+services/derived_payoff_persistence.py
+services/derived_service.py
+services/payoff_persistence_port.py
+services/pricing_engine_stub.py
+services/pricing_execution_app_service.py
+services/pricing_execution_orchestration_service.py
+services/pricing_execution_persistence_service.py
+services/pricing_execution_query_service.py
+services/pricing_execution_service.py
+services/pricing_input_service.py
+services/pricing_payload_adapter.py
+
+== Referencias diretas a payoff_curve_points ==
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+services/derived_service.py:385:            FROM payoff_curve_points
+services/derived_service.py:412:              FROM payoff_curve_points
+UI/components/details_panel.py:411:            "payoff_curve_points",
+UI/components/details_panel.py:922:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:934:                FROM payoff_curve_points
+UI/components/details_panel.py:975:                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/main_window.py:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py.fase3e.bak:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py.fase3e.fix2.bak:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+
+== Referencias a execute_pricing ==
+services/canonical_pricing_facade.py:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
+services/canonical_pricing_facade.py:351:    def execute_pricing(
+services/canonical_pricing_facade.py.fase3e.bak:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
+services/canonical_pricing_facade.py.fase3e.bak:350:    def execute_pricing(
+services/canonical_pricing_facade.py.fase3e.fix2.bak:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
+services/canonical_pricing_facade.py.fase3e.fix2.bak:350:    def execute_pricing(
+services/pricing_execution_app_service.py:3:alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+services/pricing_execution_app_service.py:40:    def execute_pricing(
+services/pricing_execution_app_service.py:48:        response = self._facade.execute_pricing(
+UI/main_window.py:726:                result = facade.execute_pricing(sid)
+UI/main_window.py.fase3e.bak:726:                facade.execute_pricing(sid)
+UI/main_window.py.fase3e.fix2.bak:726:                facade.execute_pricing(sid)
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:88:    response = facade.execute_pricing(
+ATT/tests/test_pricing_execution_app_service.py:9:    def execute_pricing(self, structure_id: int, reference_date: str | None = None):
+ATT/tests/test_pricing_execution_app_service.py:57:def test_execute_pricing_returns_persisted_record_when_present():
+ATT/tests/test_pricing_execution_app_service.py:65:    result = service.execute_pricing(structure_id=10, reference_date="2026-05-16")
+ATT/tests/test_pricing_execution_app_service.py:70:def test_execute_pricing_returns_raw_response_when_persisted_record_is_missing():
+ATT/tests/test_pricing_execution_app_service.py:77:    result = service.execute_pricing(structure_id=11, reference_date="2026-05-16")
+ATT/tests/test_pricing_execution_app_service.py:81:def test_execute_pricing_rejects_invalid_structure_id():
+ATT/tests/test_pricing_execution_app_service.py:88:        service.execute_pricing(structure_id=0, reference_date="2026-05-16")
+ATT/tests/test_pricing_execution_app_service.py:95:def test_execute_pricing_rejects_invalid_reference_date():
+ATT/tests/test_pricing_execution_app_service.py:102:        service.execute_pricing(structure_id=10, reference_date="16-05-2026")
+ATT/tests/test_pricing_execution_app_service.py:109:def test_execute_pricing_accepts_none_reference_date():
+ATT/tests/test_pricing_execution_app_service.py:117:    result = service.execute_pricing(structure_id=10, reference_date=None)
+ATT/tests/test_pricing_execution_controller.py:10:        self.execute_pricing_response = {
+ATT/tests/test_pricing_execution_controller.py:25:        self.execute_pricing_exception = None
+ATT/tests/test_pricing_execution_controller.py:30:    def execute_pricing(self, structure_id: int, reference_date: str):
+ATT/tests/test_pricing_execution_controller.py:33:                "execute_pricing",
+ATT/tests/test_pricing_execution_controller.py:40:        if self.execute_pricing_exception:
+ATT/tests/test_pricing_execution_controller.py:41:            raise self.execute_pricing_exception
+ATT/tests/test_pricing_execution_controller.py:42:        return self.execute_pricing_response
+ATT/tests/test_pricing_execution_controller.py:129:            "execute_pricing",
+ATT/tests/test_pricing_execution_controller.py:141:    fake_service.execute_pricing_exception = ValueError("structure 999 not found")
+ATT/tests/test_pricing_execution_controller.py:160:    fake_service.execute_pricing_exception = ValueError(
+
+== Referencias a theoretical_value/premium_paid/max_profit/max_loss ==
+repositories/pricing_executions_repository.py:40:        theoretical_value: float | None = None,
+repositories/pricing_executions_repository.py:61:                    duration_ms, number_of_legs, total_quantity, theoretical_value,
+repositories/pricing_executions_repository.py:68:                    duration_ms, number_of_legs, total_quantity, theoretical_value,
+repositories/pricing_executions_repository.py:89:            "theoretical_value": theoretical_value,
+services/calculation_orchestrator.py:365:            payoff_result.get("pl_max") or payoff_result.get("max_profit") or 0.0
+services/derived_payoff_persistence.py:120:            theoretical_value = valuation.get("theoretical_value")
+services/derived_payoff_persistence.py:122:            pl_atual          = valuation.get("pl_atual") or theoretical_value
+services/derived_payoff_persistence.py:148:                    "theoretical_value": theoretical_value,
+services/pricing_engine_stub.py:30:                "theoretical_value": 0.0,
+services/pricing_engine_stub.py:31:                "premium_paid": 0.0,
+services/pricing_engine_stub.py:32:                "max_profit": None,
+services/pricing_engine_stub.py:33:                "max_loss": None,
+services/pricing_execution_persistence_service.py:44:        theoretical_value = valuation.get("theoretical_value")
+services/pricing_execution_persistence_service.py:55:            theoretical_value=theoretical_value,
+services/pricing_execution_query_service.py:100:            persisted_theoretical_value = execution.get("theoretical_value")
+services/pricing_execution_query_service.py:127:                "theoretical_value": (
+services/pricing_execution_query_service.py:128:                    persisted_theoretical_value
+services/pricing_execution_query_service.py:129:                    if persisted_theoretical_value is not None
+services/pricing_execution_query_service.py:130:                    else valuation.get("theoretical_value")
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:30:                    "theoretical_value": 0,
+ATT/tests/test_pricing_engine_stub.py:38:            "theoretical_value": 0.0,
+ATT/tests/test_pricing_engine_stub.py:39:            "premium_paid": 0.0,
+ATT/tests/test_pricing_engine_stub.py:40:            "max_profit": None,
+ATT/tests/test_pricing_engine_stub.py:41:            "max_loss": None,
+ATT/tests/test_pricing_executions_repository.py:26:            theoretical_value  REAL,
+ATT/tests/test_pricing_executions_repository.py:60:        theoretical_value=0.0,
+ATT/tests/test_pricing_executions_repository.py:72:    assert record["theoretical_value"] == 0.0
+ATT/tests/test_pricing_execution_persistence_service.py:20:        theoretical_value,
+ATT/tests/test_pricing_execution_persistence_service.py:32:                "theoretical_value": theoretical_value,
+ATT/tests/test_pricing_execution_persistence_service.py:61:                "theoretical_value": 321.45,
+ATT/tests/test_pricing_execution_persistence_service.py:82:            "theoretical_value": 321.45,
+ATT/tests/test_pricing_execution_persistence_service.py:127:            "theoretical_value": None,
+ATT/tests/test_pricing_execution_persistence_service.py:218:                "theoretical_value": 123.45,
+ATT/tests/test_pricing_execution_query_service.py:29:    theoretical_value=None,
+ATT/tests/test_pricing_execution_query_service.py:32:    nested_theoretical_value: float = 123.45,
+ATT/tests/test_pricing_execution_query_service.py:46:        "theoretical_value": theoretical_value,
+ATT/tests/test_pricing_execution_query_service.py:59:                    "theoretical_value": nested_theoretical_value,
+ATT/tests/test_pricing_execution_query_service.py:105:            theoretical_value=777.77,
+ATT/tests/test_pricing_execution_query_service.py:108:            nested_theoretical_value=123.45,
+ATT/tests/test_pricing_execution_query_service.py:120:    assert summaries[0]["theoretical_value"] == 777.77
+ATT/tests/test_pricing_execution_query_service.py:129:            theoretical_value=None,
+ATT/tests/test_pricing_execution_query_service.py:132:            nested_theoretical_value=456.78,
+ATT/tests/test_pricing_execution_query_service.py:144:    assert summaries[0]["theoretical_value"] == 456.78
+ATT/tests/test_pricing_execution_service.py:38:        "valuation": {"theoretical_value": 10.5},
+ATT/tests/test_system_snapshots_repository.py:119:        metrics_json={"theoretical_value": 2.5},
+ATT/tests/test_system_snapshots_repository.py:166:    assert snapshot["metrics_json"] == {"theoretical_value": 2.5}
+
+== Testes atuais relacionados a pricing/payoff/canonical ==
+ATT/tests/__pycache__/test_canonical_input_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_input_service.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_execute_pricing_rtd_integration.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_execute_pricing_rtd_integration.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_manual_without_alias.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_manual_without_alias.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_db_path.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_price_resolution.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_price_resolution.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_validators.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_validators.cpython-313.pyc
+ATT/tests/__pycache__/test_decision.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_decision.cpython-313.pyc
+ATT/tests/__pycache__/test_payoff_canonical.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_payoff_canonical.cpython-313.pyc
+ATT/tests/__pycache__/test_payoff_chart.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_payoff_chart.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_engine_stub.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_engine_stub.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_app_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_app_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_controller.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_controller.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_orchestration_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_orchestration_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_persistence_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_persistence_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_price_source_persistence.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_query_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_query_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_execution_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_execution_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_executions_repository.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_executions_repository.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_input_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_input_service.cpython-313.pyc
+ATT/tests/__pycache__/test_pricing_payload_adapter.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_pricing_payload_adapter.cpython-313.pyc
+ATT/tests/__pycache__/test_rtd_legacy_canonical_pricing_input_guardrail.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_rtd_legacy_canonical_pricing_input_guardrail.cpython-313.pyc
+ATT/tests/test_canonical_input_service.py
+ATT/tests/test_canonical_pricing_facade.py
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py
+ATT/tests/test_canonical_validators.py
+ATT/tests/test_decision.py
+ATT/tests/test_payoff_canonical.py
+ATT/tests/test_payoff_chart.py
+ATT/tests/test_pricing_engine_stub.py
+ATT/tests/test_pricing_execution_app_service.py
+ATT/tests/test_pricing_execution_controller.py
+ATT/tests/test_pricing_execution_orchestration_service.py
+ATT/tests/test_pricing_execution_persistence_service.py
+ATT/tests/test_pricing_execution_query_service.py
+ATT/tests/test_pricing_execution_service.py
+ATT/tests/test_pricing_executions_repository.py
+ATT/tests/test_pricing_input_service.py
+ATT/tests/test_pricing_payload_adapter.py
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+
+============================================================
+FIM INSPECAO CONTRATO PAYOFF
+============================================================

@@ -1,0 +1,1122 @@
+============================================================
+FASE 3F - DIAGNOSTICO PAYOFF ESTRUTURA MANUAL CANONICA
+Data:
+Sun Jun 21 21:55:33     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+8550c20
+============================================================
+
+== Status git antes do diagnostico ==
+?? docs/checkpoints/evidencias/fase-3f-diagnostico-payoff-manual-canonico.txt
+?? scripts/fase-3f-diagnostico-payoff-manual-canonico.sh
+
+== Busca por referencias a payoff_curve_points ==
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+services/derived_service.py:385:            FROM payoff_curve_points
+services/derived_service.py:412:              FROM payoff_curve_points
+UI/components/details_panel.py:411:            "payoff_curve_points",
+UI/components/details_panel.py:922:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:934:                FROM payoff_curve_points
+UI/components/details_panel.py:975:                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/main_window.py:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py.fase3e.bak:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py.fase3e.fix2.bak:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:39:    grep -RInE "structure_decisions|payoff_curve_points|manual|Manual|payoff|decision|decis|canonical|structure_id|Salvar|Aplicar Leg|must be numeric" . \
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:81:    "payoff_curve_points",
+scripts/fase-3c-diagnostico-appdb-ui-pricing-flow.sh:66:        "payoff_curve_points",
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:30:    grep -RInE "class CanonicalPricingFacade|def .*price|def .*pricing|def .*persist|save_payoff|save_decision|structure_decisions|payoff_curve_points|PricingExecution|Derived|derived" \
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:119:        "payoff_curve_points",
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:187:    (derived_db, ["payoff_curve_points", "structure_decisions"]),
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:294:    (derived_db, ["payoff_curve_points", "structure_decisions"]),
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:305:    (derived_db, "payoff_curve_points"),
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:26:  echo "== Busca por referencias a payoff_curve_points =="
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:27:  grep -RIn "payoff_curve_points" repositories services domain UI ATT scripts 2>/dev/null || true
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:110:        "payoff_curve_points",
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:216:        "payoff_curve_points",
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:284:Identificar por que a estrutura manual canonica structure_id=2 ainda nao gera pontos em payoff_curve_points.
+scripts/purge_derived_snapshots.py:12:    "payoff_curve_points",
+scripts/repair_derived_db_consistency.py:21:        LEFT JOIN payoff_curve_points p
+scripts/repair_derived_db_consistency.py:31:        FROM payoff_curve_points p
+scripts/repair_derived_db_consistency.py:122:            FROM payoff_curve_points
+scripts/repair_derived_db_consistency.py:223:                LEFT JOIN payoff_curve_points p
+scripts/repair_derived_db_consistency.py:255:                FROM payoff_curve_points p
+scripts/repair_derived_db_consistency.py:275:                        DELETE FROM payoff_curve_points
+scripts/repair_derived_db_consistency.py:279:                            WHERE d.aba = payoff_curve_points.aba
+scripts/repair_derived_db_consistency.py:280:                              AND d.timestamp = payoff_curve_points.timestamp
+scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+scripts/validate_derived_db.py:65:        points_count = safe_count("payoff_curve_points")
+scripts/validate_derived_db.py:71:            print("[WARN] Tabela payoff_curve_points nao acessivel (ou nao existe).")
+
+== Busca por referencias a structure_decisions ==
+repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+services/derived_service.py:437:                "PRAGMA table_info(structure_decisions)"
+services/derived_service.py:455:            FROM structure_decisions
+UI/components/details_panel.py:410:            "structure_decisions",
+UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+UI/components/details_panel.py:900:                FROM structure_decisions
+UI/components/details_panel.py:962:                FROM structure_decisions
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:39:    grep -RInE "structure_decisions|payoff_curve_points|manual|Manual|payoff|decision|decis|canonical|structure_id|Salvar|Aplicar Leg|must be numeric" . \
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:82:    "structure_decisions",
+scripts/fase-3c-diagnostico-appdb-ui-pricing-flow.sh:67:        "structure_decisions",
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:30:    grep -RInE "class CanonicalPricingFacade|def .*price|def .*pricing|def .*persist|save_payoff|save_decision|structure_decisions|payoff_curve_points|PricingExecution|Derived|derived" \
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:120:        "structure_decisions",
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:187:    (derived_db, ["payoff_curve_points", "structure_decisions"]),
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:294:    (derived_db, ["payoff_curve_points", "structure_decisions"]),
+scripts/fase-3d-diagnostico-facade-persistencia-derived.sh:306:    (derived_db, "structure_decisions"),
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:30:  echo "== Busca por referencias a structure_decisions =="
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:31:  grep -RIn "structure_decisions" repositories services domain UI ATT scripts 2>/dev/null || true
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:111:        "structure_decisions",
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:217:        "structure_decisions",
+scripts/purge_derived_snapshots.py:13:    "structure_decisions",
+scripts/repair_derived_db_consistency.py:20:        FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:32:        LEFT JOIN structure_decisions d
+scripts/repair_derived_db_consistency.py:133:            FROM structure_decisions
+scripts/repair_derived_db_consistency.py:199:                        UPDATE structure_decisions
+scripts/repair_derived_db_consistency.py:222:                FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:244:                        f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+scripts/repair_derived_db_consistency.py:256:                LEFT JOIN structure_decisions d
+scripts/repair_derived_db_consistency.py:278:                            FROM structure_decisions d
+scripts/validate_derived_db.py:66:        decisions_count = safe_count("structure_decisions")
+scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+
+== Busca por referencias a Payoff/payoff ==
+repositories/system_snapshots_repository.py:16:    "payoff_json",
+repositories/system_snapshots_repository.py:90:        payoff_json: dict[str, Any] | list[Any] | None = None,
+repositories/system_snapshots_repository.py:123:                    payoff_json,
+repositories/system_snapshots_repository.py:140:                    _to_json(payoff_json),
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+repositories/ui_data_table_candidates.py:21:    "rtd_payoff_points",
+repositories/ui_data_table_candidates.py:22:    "rtd_payoff_curva",
+repositories/ui_data_table_candidates.py:23:    "payoff_points",
+services/calculation_orchestrator.py:3:# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+services/calculation_orchestrator.py:20:from domain.payoff import compute_payoff_from_canonical_input
+services/calculation_orchestrator.py:111:def _request_to_payoff_dict(
+services/calculation_orchestrator.py:149:def run_payoff(
+services/calculation_orchestrator.py:156:    """Executa calculo de payoff a partir de um CalculationRequest."""
+services/calculation_orchestrator.py:157:    canonical = _request_to_payoff_dict(request, extra_meta=extra_meta)
+services/calculation_orchestrator.py:158:    return compute_payoff_from_canonical_input(
+services/calculation_orchestrator.py:168:    payoff: Optional[dict] = None,
+services/calculation_orchestrator.py:175:    if _pl_max is None and payoff:
+services/calculation_orchestrator.py:176:        _pl_max = float(payoff.get("pl_max") or 0.0)
+services/calculation_orchestrator.py:181:    if _pl_atual is None and payoff:
+services/calculation_orchestrator.py:182:        _pl_atual = float(payoff.get("pl_atual") or payoff.get("pl_now") or 0.0)
+services/calculation_orchestrator.py:195:    return compute_decision_from_contract(contract, payoff=payoff)
+services/calculation_orchestrator.py:205:    """alteracao_47: pipeline completo payoff + decision."""
+services/calculation_orchestrator.py:206:    payoff_result = run_payoff(
+services/calculation_orchestrator.py:213:    decision_result = run_decision(request, payoff=payoff_result)
+services/calculation_orchestrator.py:216:        "payoff":           payoff_result,
+services/calculation_orchestrator.py:233:    - Executar payoff e decisao sem acessar raw DB diretamente
+services/calculation_orchestrator.py:303:    def _request_to_payoff_dict(self, request: CalculationRequest) -> Dict[str, Any]:
+services/calculation_orchestrator.py:304:        """Converte CalculationRequest para o dict de payoff."""
+services/calculation_orchestrator.py:338:    # run_payoff / run_decision / run_full_pipeline
+services/calculation_orchestrator.py:341:    def run_payoff(
+services/calculation_orchestrator.py:348:        canonical = self._request_to_payoff_dict(request)
+services/calculation_orchestrator.py:349:        return compute_payoff_from_canonical_input(
+services/calculation_orchestrator.py:359:        payoff_result: Optional[Dict[str, Any]] = None,
+services/calculation_orchestrator.py:361:        if payoff_result is None:
+services/calculation_orchestrator.py:362:            payoff_result = self.run_payoff(request)
+services/calculation_orchestrator.py:365:            payoff_result.get("pl_max") or payoff_result.get("max_profit") or 0.0
+services/calculation_orchestrator.py:368:            payoff_result.get("pl_atual")
+services/calculation_orchestrator.py:369:            or payoff_result.get("current_pl")
+services/calculation_orchestrator.py:370:            or payoff_result.get("pl_now")
+services/calculation_orchestrator.py:374:            payoff_result.get("dte_min")
+services/calculation_orchestrator.py:384:        return compute_decision_from_contract(contract, payoff=payoff_result)
+services/calculation_orchestrator.py:393:        """Executa run_payoff -> run_decision em sequencia."""
+services/calculation_orchestrator.py:394:        payoff_result   = self.run_payoff(request, low_pct=low_pct, high_pct=high_pct, step_pct=step_pct)
+services/calculation_orchestrator.py:395:        decision_result = self.run_decision(request, payoff_result=payoff_result)
+services/calculation_orchestrator.py:398:            "payoff":           payoff_result,
+services/calculation_orchestrator.py:506:        Retorna dict com chaves: structure_id, payoff, decision.
+services/calculation_orchestrator.py:516:            "payoff":       pipeline_result["payoff"],
+services/canonical_input_service.py:199:        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:272:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py:331:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:347:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py.fase3e.bak:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py.fase3e.bak:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py.fase3e.bak:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py.fase3e.bak:271:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py.fase3e.bak:330:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py.fase3e.bak:346:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py.fase3e.fix2.bak:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py.fase3e.fix2.bak:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py.fase3e.fix2.bak:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py.fase3e.fix2.bak:271:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py.fase3e.fix2.bak:330:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py.fase3e.fix2.bak:346:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/derived_payoff_persistence.py:1:# services/derived_payoff_persistence.py
+services/derived_payoff_persistence.py:6:from domain.payoff import compute_payoff_from_canonical_input
+services/derived_payoff_persistence.py:7:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:12:class DerivedPayoffPersistence:
+services/derived_payoff_persistence.py:14:    Implementação concreta de PayoffPersistencePort.
+services/derived_payoff_persistence.py:18:      2. Calcular a curva de payoff via domain/payoff.py
+services/derived_payoff_persistence.py:24:    #  PayoffPersistencePort.persist()                                 #
+services/derived_payoff_persistence.py:33:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+services/derived_payoff_persistence.py:40:                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+services/derived_payoff_persistence.py:45:        # Timestamp único para payoff + decisão.
+services/derived_payoff_persistence.py:49:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:50:        if not payoff_saved:
+services/derived_payoff_persistence.py:52:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+services/derived_payoff_persistence.py:60:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+services/derived_payoff_persistence.py:66:    #  payoff                                                          #
+services/derived_payoff_persistence.py:69:    def _persist_payoff(
+services/derived_payoff_persistence.py:77:            payoff_result = compute_payoff_from_canonical_input(canonical_input)
+services/derived_payoff_persistence.py:79:            if not payoff_result.get("points"):
+services/derived_payoff_persistence.py:81:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+services/derived_payoff_persistence.py:86:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+services/derived_payoff_persistence.py:88:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+services/derived_payoff_persistence.py:89:                len(payoff_result["points"]),
+services/derived_payoff_persistence.py:96:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+services/derived_payoff_persistence.py:166:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+services/derived_payoff_persistence.py:173:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+services/derived_payoff_persistence.py:188:        Monta o canonical_input esperado por compute_payoff_from_canonical_input().
+services/derived_service.py:4:alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+services/derived_service.py:6:alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+services/derived_service.py:18:    cleanup_old_payoff_data,
+services/derived_service.py:20:    insert_payoff_points,
+services/derived_service.py:157:# Payoff
+services/derived_service.py:160:def save_payoff_curve(
+services/derived_service.py:199:        return insert_payoff_points(
+services/derived_service.py:210:def save_payoff_from_canonical_payload(
+services/derived_service.py:211:    payoff: Dict[str, Any],
+services/derived_service.py:219:        structure_id=payoff.get("structure_id"),
+services/derived_service.py:220:        structure_name=payoff.get("structure_name"),
+services/derived_service.py:221:        underlying_asset=payoff.get("underlying_asset"),
+services/derived_service.py:224:    sid_from_payload = payoff.get("structure_id")
+services/derived_service.py:232:        meta=payoff.get("meta"),
+services/derived_service.py:234:        structure_name=payoff.get("structure_name"),
+services/derived_service.py:235:        underlying_asset=payoff.get("underlying_asset"),
+services/derived_service.py:236:        reference_date=payoff.get("reference_date"),
+services/derived_service.py:237:        input_meta=payoff.get("input_meta"),
+services/derived_service.py:242:        sig = inspect.signature(save_payoff_curve)
+services/derived_service.py:254:        return save_payoff_curve(
+services/derived_service.py:256:            points=payoff.get("points", []),
+services/derived_service.py:257:            spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:263:    return save_payoff_curve(
+services/derived_service.py:265:        points=payoff.get("points", []),
+services/derived_service.py:266:        spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:371:        deleted_payoff = cleanup_old_payoff_data(conn, days_to_keep=days_to_keep)
+services/derived_service.py:373:        return {"payoff_deleted": deleted_payoff, "decisions_deleted": deleted_dec}
+services/derived_service.py:380:def get_all_payoff_curves():
+services/derived_service.py:385:            FROM payoff_curve_points
+services/derived_service.py:400:def get_payoff_by_structure_id(structure_id: int):
+services/derived_service.py:402:    alteracao_56/alteracao_65: único ponto de entrada canônico para leitura de payoff.
+services/derived_service.py:403:    get_payoff_by_aba() removida da interface pública (alteracao_65).
+services/derived_service.py:412:              FROM payoff_curve_points
+services/derived_service.py:523:# get_payoff_by_aba() removida da interface pública.
+services/derived_service.py:524:# get_payoff_by_structure_id() é o único ponto de entrada canônico.
+services/derived_service.py:529:    alteracao_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
+services/derived_service.py:530:    get_payoff_by_aba() ausente por decisao de design (alteracao_65): interface simplificada.
+services/derived_service.py:533:    # alteracao_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
+services/derived_service.py:534:    # Chamadores legados devem migrar para get_payoff_by_structure_id().
+services/derived_service.py:536:    def get_payoff_by_structure_id(self, structure_id: int):
+services/derived_service.py:537:        """Retorna pontos de payoff para a estrutura informada."""
+services/derived_service.py:538:        return get_payoff_by_structure_id(structure_id)
+services/derived_service.py:540:    def save_payoff_curve(self, *args, **kwargs):
+services/derived_service.py:541:        return save_payoff_curve(*args, **kwargs)
+services/payoff_persistence_port.py:1:# services/payoff_persistence_port.py
+services/payoff_persistence_port.py:5:class PayoffPersistencePort(Protocol):
+services/payoff_persistence_port.py:7:    Contrato de persistência derivada (payoff + decisão).
+services/pricing_execution_persistence_service.py:7:from services.payoff_persistence_port import PayoffPersistencePort
+services/pricing_execution_persistence_service.py:16:        payoff_persistence_port: PayoffPersistencePort | None = None,
+services/pricing_execution_persistence_service.py:22:        self._payoff_port = payoff_persistence_port
+services/pricing_execution_persistence_service.py:67:        #  alteracao_21 -- persistência derivada (payoff + decisão)           #
+services/pricing_execution_persistence_service.py:70:        if self._payoff_port is not None:
+services/pricing_execution_persistence_service.py:72:                self._payoff_port.persist(
+services/pricing_execution_persistence_service.py:78:                    "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",
+services/pricing_execution_persistence_service.py:124:                payoff_json=self._extract_result_field(inner, "payoff"),
+services/structure_analysis_service.py:6:from domain.decision import compute_decision_from_payoff
+services/structure_analysis_service.py:7:from domain.payoff import compute_payoff_from_canonical_input
+services/structure_analysis_service.py:61:        # 6. Calcula payoff
+services/structure_analysis_service.py:62:        payoff = compute_payoff_from_canonical_input(canonical_input)
+services/structure_analysis_service.py:64:        # 7. Valida payoff -- se inválido, retorna HOLD com erro estruturado
+services/structure_analysis_service.py:65:        if not payoff or not payoff.get("pl_max"):
+services/structure_analysis_service.py:67:                "error": "payoff is required",
+services/structure_analysis_service.py:69:                "reasons": ["invalid_payoff"],
+services/structure_analysis_service.py:91:                "payoff":   payoff,
+services/structure_analysis_service.py:96:        decision = compute_decision_from_payoff(
+services/structure_analysis_service.py:97:            payoff=payoff,
+services/structure_analysis_service.py:119:            "payoff":   payoff,
+domain/calculation_request.py:217:    Contrato canônico de entrada para qualquer cálculo de payoff/decisão.
+domain/calculation_request.py:220:    e o domínio (payoff, decision) recebe SOMENTE este objeto -- sem
+domain/decision.py:6:Funcoes canonicas: compute_decision_from_inputs, compute_decision_from_payoff,
+domain/decision.py:32:def _interp_payoff(points: List[Tuple[float, float]], spot: float) -> float:
+domain/decision.py:139:def compute_decision_from_payoff(
+domain/decision.py:140:    payoff: Dict[str, Any],
+domain/decision.py:147:    Decide a partir de um dict de payoff.
+domain/decision.py:148:    Payoff vazio ou inválido  HOLD com 'error' em why_json.
+domain/decision.py:150:    if not payoff:
+domain/decision.py:151:        why_dict = {"error": "payoff vazio ou invalido", "reason": "invalid_input"}
+domain/decision.py:162:    pl_atual = payoff.get("pl_atual") or payoff.get("pl_now") or 0.0
+domain/decision.py:163:    pl_max   = payoff.get("pl_max") or 0.0
+domain/decision.py:166:    points = payoff.get("points") or []
+domain/decision.py:167:    spot   = payoff.get("spot")
+domain/decision.py:169:        pl_atual = _interp_payoff(points, float(spot))
+domain/decision.py:195:    payoff: Optional[Dict[str, Any]] = None,
+domain/decision.py:201:    if payoff:
+domain/decision.py:202:        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+domain/payoff.py:27:def _compute_leg_payoff_at_expiration(leg: dict[str, Any], spot_at_expiration: float) -> float:
+domain/payoff.py:43:    payoff_unit = intrinsic - premium_value
+domain/payoff.py:46:        payoff_unit = -payoff_unit
+domain/payoff.py:48:    return payoff_unit * quantity * multiplier
+domain/payoff.py:51:def compute_payoff_curve_from_canonical_legs(
+domain/payoff.py:90:            pl_total += _compute_leg_payoff_at_expiration(
+domain/payoff.py:123:def compute_payoff_from_canonical_input(
+domain/payoff.py:157:    result = compute_payoff_curve_from_canonical_legs(
+domain/payoff_features.py:106:    Computa features da curva de payoff.
+domain/payoff_features.py:146:    INSERT INTO payoff_curve_summary (
+UI/components/details_panel.py:411:            "payoff_curve_points",
+UI/components/details_panel.py:920:    def _fetch_payoff_points_from_derived(self, structure_id):
+UI/components/details_panel.py:922:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:934:                FROM payoff_curve_points
+UI/components/details_panel.py:975:                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/components/details_panel.py:1029:        pts = self._fetch_payoff_points_from_derived(structure_id)
+UI/components/payoff_chart.py:1:# UI/components/payoff_chart.py
+UI/components/payoff_chart.py:8:from UI.debug_utils import payoff_debug, payoff_info
+UI/components/payoff_chart.py:55:class PayoffChart(ttk.Frame):
+UI/components/payoff_chart.py:144:        self.ax.set_title("Curva de Payoff")
+UI/components/payoff_chart.py:170:        payoff_points: List[Dict],
+UI/components/payoff_chart.py:178:        self._last_points = list(payoff_points) if payoff_points else []
+UI/components/payoff_chart.py:182:            payoff_points, decision_data, overlay_curve=self._fixed_curve
+UI/components/payoff_chart.py:187:        payoff_debug("FIX clicked -- id=", id(self))
+UI/components/payoff_chart.py:216:        payoff_debug("CLEAR comparison -- id=", id(self))
+UI/components/payoff_chart.py:258:        payoff_points: List[Dict],
+UI/components/payoff_chart.py:268:        if not payoff_points:
+UI/components/payoff_chart.py:269:            self.ax.set_title("Sem dados de payoff")
+UI/components/payoff_chart.py:281:        for p in payoff_points:
+UI/components/payoff_chart.py:290:            payoff_info("ERROR: não consegui extrair xs/ys de payoff_points.")
+UI/components/payoff_chart.py:291:            self.ax.set_title("Sem dados de payoff")
+UI/components/payoff_chart.py:297:        payoff_debug(
+UI/components/payoff_chart.py:300:        payoff_debug(
+UI/components/payoff_chart.py:305:        # Label da curva principal (B quando há overlay, senão "Payoff")
+UI/components/payoff_chart.py:314:            main_label = "Payoff"
+UI/components/payoff_chart.py:422:            title = f"Payoff -- {sid} [{dec}]"
+UI/components/payoff_chart.py:426:            title = "Curva de Payoff -- Comparação"
+UI/components/payoff_chart.py:428:            title = "Curva de Payoff"
+UI/components/payoff_chart.py:453:            p, ["point_pl", "pl", "y", "pnl", "payoff", "profit_loss", "pl_value"]
+UI/debug_utils.py:24:def payoff_debug(*args, **kwargs):
+UI/debug_utils.py:25:    """Log de payoff chart apenas se debug ativo"""
+UI/debug_utils.py:27:        print("[PayoffChart] DEBUG", *args, **kwargs)
+UI/debug_utils.py:29:def payoff_info(*args, **kwargs):
+UI/debug_utils.py:30:    """Log de payoff sempre"""
+UI/debug_utils.py:31:    print("[PayoffChart]", *args, **kwargs)
+UI/main_window.py:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+UI/main_window.py:8:from UI.components.payoff_chart import PayoffChart
+UI/main_window.py:40:        self._payoff_worker_id = 0
+UI/main_window.py:46:        self._loading_payoff = False
+UI/main_window.py:104:        # Aba 2: Gráfico de Payoff
+UI/main_window.py:106:        right_notebook.add(chart_frame, text="Curva de Payoff")
+UI/main_window.py:108:        self.payoff_chart = PayoffChart(chart_frame)
+UI/main_window.py:109:        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+UI/main_window.py:173:        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+UI/main_window.py:186:        # Carregar payoff em background -- apenas structure_id necessário
+UI/main_window.py:191:            self._start_payoff_load(structure_id, timestamp, decision_data)
+UI/main_window.py:193:            self.payoff_chart.clear()
+UI/main_window.py:194:            self.status_bar.config(text="Dados insuficientes para payoff")
+UI/main_window.py:196:    def _start_payoff_load(
+UI/main_window.py:202:        """Inicia carregamento de payoff em thread separada.
+UI/main_window.py:208:        self._payoff_worker_id += 1
+UI/main_window.py:209:        current_worker_id = self._payoff_worker_id
+UI/main_window.py:211:        if self._loading_payoff:
+UI/main_window.py:212:            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+UI/main_window.py:214:            self.status_bar.config(text="Carregando payoff...")
+UI/main_window.py:216:        self._loading_payoff = True
+UI/main_window.py:220:                points, info_dict = self.data_model.get_payoff_curve_info(
+UI/main_window.py:225:                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+UI/main_window.py:248:                if current_worker_id != self._payoff_worker_id:
+UI/main_window.py:253:                    self._finish_payoff_load,
+UI/main_window.py:260:                if current_worker_id == self._payoff_worker_id:
+UI/main_window.py:263:                        self._handle_payoff_error,
+UI/main_window.py:314:                        self._start_payoff_load(target_sid, target_ts, d)
+UI/main_window.py:325:                    self.payoff_chart.clear()
+UI/main_window.py:369:            self.payoff_chart.fix_current_curve()
+UI/main_window.py:506:Pipeline automático de payoff e decisões
+UI/main_window.py:518:    # Handlers de payoff (thread  main thread)
+UI/main_window.py:521:    def _finish_payoff_load(
+UI/main_window.py:529:        if worker_id != self._payoff_worker_id:
+UI/main_window.py:532:        self._loading_payoff = False
+UI/main_window.py:537:                overlays = self.payoff_chart.update_chart(points, decision_data)
+UI/main_window.py:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py:562:                self.payoff_chart.clear()
+UI/main_window.py:563:                self.status_bar.config(text="Sem dados de payoff para esta seleção")
+UI/main_window.py:565:            self._handle_payoff_error(str(e), worker_id)
+UI/main_window.py:567:    def _handle_payoff_error(self, error_msg: str, worker_id: int):
+UI/main_window.py:568:        if worker_id != self._payoff_worker_id:
+UI/main_window.py:570:        self._loading_payoff = False
+UI/main_window.py:573:            self.payoff_chart.clear()
+UI/main_window.py:576:        self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+UI/main_window.py:577:        print(f"[UI] Erro no payoff: {error_msg}")
+UI/main_window.py:699:        Recalcula pricing/payoff/decisão após criação ou edição manual.
+UI/main_window.py:718:        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+UI/main_window.py:734:                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+UI/main_window.py.fase3e.bak:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+UI/main_window.py.fase3e.bak:8:from UI.components.payoff_chart import PayoffChart
+UI/main_window.py.fase3e.bak:40:        self._payoff_worker_id = 0
+UI/main_window.py.fase3e.bak:46:        self._loading_payoff = False
+UI/main_window.py.fase3e.bak:104:        # Aba 2: Gráfico de Payoff
+UI/main_window.py.fase3e.bak:106:        right_notebook.add(chart_frame, text="Curva de Payoff")
+UI/main_window.py.fase3e.bak:108:        self.payoff_chart = PayoffChart(chart_frame)
+UI/main_window.py.fase3e.bak:109:        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+UI/main_window.py.fase3e.bak:173:        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+UI/main_window.py.fase3e.bak:186:        # Carregar payoff em background -- apenas structure_id necessário
+UI/main_window.py.fase3e.bak:191:            self._start_payoff_load(structure_id, timestamp, decision_data)
+UI/main_window.py.fase3e.bak:193:            self.payoff_chart.clear()
+UI/main_window.py.fase3e.bak:194:            self.status_bar.config(text="Dados insuficientes para payoff")
+UI/main_window.py.fase3e.bak:196:    def _start_payoff_load(
+UI/main_window.py.fase3e.bak:202:        """Inicia carregamento de payoff em thread separada.
+UI/main_window.py.fase3e.bak:208:        self._payoff_worker_id += 1
+UI/main_window.py.fase3e.bak:209:        current_worker_id = self._payoff_worker_id
+UI/main_window.py.fase3e.bak:211:        if self._loading_payoff:
+UI/main_window.py.fase3e.bak:212:            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+UI/main_window.py.fase3e.bak:214:            self.status_bar.config(text="Carregando payoff...")
+UI/main_window.py.fase3e.bak:216:        self._loading_payoff = True
+UI/main_window.py.fase3e.bak:220:                points, info_dict = self.data_model.get_payoff_curve_info(
+UI/main_window.py.fase3e.bak:225:                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+UI/main_window.py.fase3e.bak:248:                if current_worker_id != self._payoff_worker_id:
+UI/main_window.py.fase3e.bak:253:                    self._finish_payoff_load,
+UI/main_window.py.fase3e.bak:260:                if current_worker_id == self._payoff_worker_id:
+UI/main_window.py.fase3e.bak:263:                        self._handle_payoff_error,
+UI/main_window.py.fase3e.bak:314:                        self._start_payoff_load(target_sid, target_ts, d)
+UI/main_window.py.fase3e.bak:325:                    self.payoff_chart.clear()
+UI/main_window.py.fase3e.bak:369:            self.payoff_chart.fix_current_curve()
+UI/main_window.py.fase3e.bak:506:Pipeline automático de payoff e decisões
+UI/main_window.py.fase3e.bak:518:    # Handlers de payoff (thread  main thread)
+UI/main_window.py.fase3e.bak:521:    def _finish_payoff_load(
+UI/main_window.py.fase3e.bak:529:        if worker_id != self._payoff_worker_id:
+UI/main_window.py.fase3e.bak:532:        self._loading_payoff = False
+UI/main_window.py.fase3e.bak:537:                overlays = self.payoff_chart.update_chart(points, decision_data)
+UI/main_window.py.fase3e.bak:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py.fase3e.bak:562:                self.payoff_chart.clear()
+UI/main_window.py.fase3e.bak:563:                self.status_bar.config(text="Sem dados de payoff para esta seleção")
+UI/main_window.py.fase3e.bak:565:            self._handle_payoff_error(str(e), worker_id)
+UI/main_window.py.fase3e.bak:567:    def _handle_payoff_error(self, error_msg: str, worker_id: int):
+UI/main_window.py.fase3e.bak:568:        if worker_id != self._payoff_worker_id:
+UI/main_window.py.fase3e.bak:570:        self._loading_payoff = False
+UI/main_window.py.fase3e.bak:573:            self.payoff_chart.clear()
+UI/main_window.py.fase3e.bak:576:        self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+UI/main_window.py.fase3e.bak:577:        print(f"[UI] Erro no payoff: {error_msg}")
+UI/main_window.py.fase3e.bak:699:        Recalcula pricing/payoff/decisão após criação ou edição manual.
+UI/main_window.py.fase3e.bak:718:        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+UI/main_window.py.fase3e.bak:729:                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+UI/main_window.py.fase3e.fix2.bak:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+UI/main_window.py.fase3e.fix2.bak:8:from UI.components.payoff_chart import PayoffChart
+UI/main_window.py.fase3e.fix2.bak:40:        self._payoff_worker_id = 0
+UI/main_window.py.fase3e.fix2.bak:46:        self._loading_payoff = False
+UI/main_window.py.fase3e.fix2.bak:104:        # Aba 2: Gráfico de Payoff
+UI/main_window.py.fase3e.fix2.bak:106:        right_notebook.add(chart_frame, text="Curva de Payoff")
+UI/main_window.py.fase3e.fix2.bak:108:        self.payoff_chart = PayoffChart(chart_frame)
+UI/main_window.py.fase3e.fix2.bak:109:        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+UI/main_window.py.fase3e.fix2.bak:173:        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+UI/main_window.py.fase3e.fix2.bak:186:        # Carregar payoff em background -- apenas structure_id necessário
+UI/main_window.py.fase3e.fix2.bak:191:            self._start_payoff_load(structure_id, timestamp, decision_data)
+UI/main_window.py.fase3e.fix2.bak:193:            self.payoff_chart.clear()
+UI/main_window.py.fase3e.fix2.bak:194:            self.status_bar.config(text="Dados insuficientes para payoff")
+UI/main_window.py.fase3e.fix2.bak:196:    def _start_payoff_load(
+UI/main_window.py.fase3e.fix2.bak:202:        """Inicia carregamento de payoff em thread separada.
+UI/main_window.py.fase3e.fix2.bak:208:        self._payoff_worker_id += 1
+UI/main_window.py.fase3e.fix2.bak:209:        current_worker_id = self._payoff_worker_id
+UI/main_window.py.fase3e.fix2.bak:211:        if self._loading_payoff:
+UI/main_window.py.fase3e.fix2.bak:212:            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+UI/main_window.py.fase3e.fix2.bak:214:            self.status_bar.config(text="Carregando payoff...")
+UI/main_window.py.fase3e.fix2.bak:216:        self._loading_payoff = True
+UI/main_window.py.fase3e.fix2.bak:220:                points, info_dict = self.data_model.get_payoff_curve_info(
+UI/main_window.py.fase3e.fix2.bak:225:                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+UI/main_window.py.fase3e.fix2.bak:248:                if current_worker_id != self._payoff_worker_id:
+UI/main_window.py.fase3e.fix2.bak:253:                    self._finish_payoff_load,
+UI/main_window.py.fase3e.fix2.bak:260:                if current_worker_id == self._payoff_worker_id:
+UI/main_window.py.fase3e.fix2.bak:263:                        self._handle_payoff_error,
+UI/main_window.py.fase3e.fix2.bak:314:                        self._start_payoff_load(target_sid, target_ts, d)
+UI/main_window.py.fase3e.fix2.bak:325:                    self.payoff_chart.clear()
+UI/main_window.py.fase3e.fix2.bak:369:            self.payoff_chart.fix_current_curve()
+UI/main_window.py.fase3e.fix2.bak:506:Pipeline automático de payoff e decisões
+UI/main_window.py.fase3e.fix2.bak:518:    # Handlers de payoff (thread  main thread)
+UI/main_window.py.fase3e.fix2.bak:521:    def _finish_payoff_load(
+UI/main_window.py.fase3e.fix2.bak:529:        if worker_id != self._payoff_worker_id:
+UI/main_window.py.fase3e.fix2.bak:532:        self._loading_payoff = False
+UI/main_window.py.fase3e.fix2.bak:537:                overlays = self.payoff_chart.update_chart(points, decision_data)
+UI/main_window.py.fase3e.fix2.bak:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py.fase3e.fix2.bak:562:                self.payoff_chart.clear()
+UI/main_window.py.fase3e.fix2.bak:563:                self.status_bar.config(text="Sem dados de payoff para esta seleção")
+UI/main_window.py.fase3e.fix2.bak:565:            self._handle_payoff_error(str(e), worker_id)
+UI/main_window.py.fase3e.fix2.bak:567:    def _handle_payoff_error(self, error_msg: str, worker_id: int):
+UI/main_window.py.fase3e.fix2.bak:568:        if worker_id != self._payoff_worker_id:
+UI/main_window.py.fase3e.fix2.bak:570:        self._loading_payoff = False
+UI/main_window.py.fase3e.fix2.bak:573:            self.payoff_chart.clear()
+UI/main_window.py.fase3e.fix2.bak:576:        self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+UI/main_window.py.fase3e.fix2.bak:577:        print(f"[UI] Erro no payoff: {error_msg}")
+UI/main_window.py.fase3e.fix2.bak:699:        Recalcula pricing/payoff/decisão após criação ou edição manual.
+UI/main_window.py.fase3e.fix2.bak:718:        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+UI/main_window.py.fase3e.fix2.bak:729:                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+UI/models/ui_data.py:40:    "pl":        ["point_pl", "pl", "pl_value", "y", "payoff", "pl_venc"],
+UI/models/ui_data.py:61:        self._payoff_table: Optional[str] = None
+UI/models/ui_data.py:63:        self._payoff_cols: Dict[str, str] = {}
+UI/models/ui_data.py:66:        self._payoff_cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
+UI/models/ui_data.py:67:        self._payoff_cache_max = 128
+UI/models/ui_data.py:103:                self._payoff_table = t
+UI/models/ui_data.py:124:    def _build_payoff_colmap(self):
+UI/models/ui_data.py:125:        if not self._payoff_table:
+UI/models/ui_data.py:126:            self._payoff_cols = {}
+UI/models/ui_data.py:129:        cols = self._inspect_columns(self._payoff_table)
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:142:            print(f"[UI] Usando contrato canônico para {self._payoff_table}")
+UI/models/ui_data.py:145:            print(f"[UI] Usando aliases flexíveis para {self._payoff_table}")
+UI/models/ui_data.py:154:        self._payoff_cols = colmap
+UI/models/ui_data.py:156:        if ("spot" not in self._payoff_cols) or ("pl" not in self._payoff_cols):
+UI/models/ui_data.py:158:                f"Tabela {self._payoff_table} não apresenta colunas obrigatórias "
+UI/models/ui_data.py:159:                f"para payoff (point_spot/point_pl ou spot/pl)."
+UI/models/ui_data.py:163:        if "structure_id" not in self._payoff_cols:
+UI/models/ui_data.py:165:                f"[UI] AVISO: {self._payoff_table} nao tem coluna structure_id. "
+UI/models/ui_data.py:205:        self._build_payoff_colmap()
+UI/models/ui_data.py:401:    def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
+UI/models/ui_data.py:410:        if hasattr(self, "_payoff_cache") and cache_key in self._payoff_cache:
+UI/models/ui_data.py:411:            cached = self._payoff_cache[cache_key]
+UI/models/ui_data.py:417:        if not self._payoff_table:
+UI/models/ui_data.py:419:                "Tabela de payoff não encontrada. Esperadas: "
+UI/models/ui_data.py:424:        p = self._payoff_cols
+UI/models/ui_data.py:429:                f"Tabela {self._payoff_table} não possui colunas esperadas para payoff."
+UI/models/ui_data.py:439:            FROM {self._payoff_table}
+UI/models/ui_data.py:452:            FROM {self._payoff_table}
+UI/models/ui_data.py:466:            FROM {self._payoff_table}
+UI/models/ui_data.py:476:    def get_payoff_curve_info(
+UI/models/ui_data.py:487:        if not self._payoff_table:
+UI/models/ui_data.py:502:        p = self._payoff_cols
+UI/models/ui_data.py:516:                "source_table": self._payoff_table,
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+UI/models/ui_data.py:562:                        f"Tabela {self._payoff_table} não possui colunas esperadas."
+UI/models/ui_data.py:567:                    f"FROM {self._payoff_table} "
+UI/models/ui_data.py:576:                        f"SELECT {p['timestamp']} AS ts FROM {self._payoff_table} "
+UI/models/ui_data.py:639:        payoff_ok = bool(self._payoff_table)
+UI/models/ui_data.py:642:        p = self._payoff_cols
+UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+UI/models/ui_data.py:659:        self._payoff_cache = {}
+UI/models/ui_data.py:667:            return self._payoff_cache.get(key)
+UI/models/ui_data.py:673:            self._payoff_cache[key] = value
+UI/models/ui_data.py:674:            mx = getattr(self, "_payoff_cache_max", 0) or 0
+UI/models/ui_data.py:675:            if mx > 0 and len(self._payoff_cache) > mx:
+UI/models/ui_data.py:676:                self._payoff_cache.pop(next(iter(self._payoff_cache)))
+ATT/checks/check_cleanup_residuals.py:76:    "scripts/patch_derived_payoff_timestamp_consistency.sh",
+ATT/checks/check_end_to_end.py:21:    ROOT_DIR / "domain" / "payoff.py",
+ATT/checks/check_end_to_end.py:22:    ROOT_DIR / "domain" / "payoff_features.py",
+ATT/checks/check_end_to_end.py:36:    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+ATT/checks/check_structures.py:22:    ROOT_DIR / "domain" / "payoff.py",
+ATT/checks/check_structures.py:23:    ROOT_DIR / "domain" / "payoff_features.py",
+ATT/checks/check_structures.py:33:    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+ATT/tests/test_decision.py:1:from domain.decision import compute_decision_from_payoff
+ATT/tests/test_decision.py:4:def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
+ATT/tests/test_decision.py:6:    Garante que compute_decision_from_payoff funciona com payoff canônico
+ATT/tests/test_decision.py:9:    payoff = {
+ATT/tests/test_decision.py:17:    result = compute_decision_from_payoff(
+ATT/tests/test_decision.py:18:        payoff=payoff,
+ATT/tests/test_derived_service.py:86:def test_save_payoff_from_canonical_payload_should_use_resolved_storage_key(monkeypatch):
+ATT/tests/test_derived_service.py:89:    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+ATT/tests/test_derived_service.py:97:    monkeypatch.setattr(ds, "save_payoff_curve", fake_save_payoff_curve)
+ATT/tests/test_derived_service.py:110:    result = ds.save_payoff_from_canonical_payload(payload)
+ATT/tests/test_orchestrator_run_methods.py:2:Testes para os métodos run_payoff e run_decision
+ATT/tests/test_orchestrator_run_methods.py:16:    _request_to_payoff_dict,
+ATT/tests/test_orchestrator_run_methods.py:18:    run_payoff,
+ATT/tests/test_orchestrator_run_methods.py:64:# Testes: _request_to_payoff_dict
+ATT/tests/test_orchestrator_run_methods.py:67:class TestRequestToPayoffDict:
+ATT/tests/test_orchestrator_run_methods.py:71:        result = _request_to_payoff_dict(req)
+ATT/tests/test_orchestrator_run_methods.py:76:        s = _request_to_payoff_dict(req)["structure"]
+ATT/tests/test_orchestrator_run_methods.py:86:        legs = _request_to_payoff_dict(req)["structure"]["legs"]
+ATT/tests/test_orchestrator_run_methods.py:93:        m = _request_to_payoff_dict(req)["market"]
+ATT/tests/test_orchestrator_run_methods.py:100:        result = _request_to_payoff_dict(req, extra_meta=meta)
+ATT/tests/test_orchestrator_run_methods.py:105:        result = _request_to_payoff_dict(req)
+ATT/tests/test_orchestrator_run_methods.py:114:        result_legs = _request_to_payoff_dict(req)["structure"]["legs"]
+ATT/tests/test_orchestrator_run_methods.py:120:# Testes: run_payoff
+ATT/tests/test_orchestrator_run_methods.py:123:class TestRunPayoff:
+ATT/tests/test_orchestrator_run_methods.py:125:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:130:        result = run_payoff(req)
+ATT/tests/test_orchestrator_run_methods.py:138:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:143:        run_payoff(req, low_pct=0.8, high_pct=1.2, step_pct=0.005)
+ATT/tests/test_orchestrator_run_methods.py:150:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:155:        run_payoff(req, extra_meta={"tag": "ci"})
+ATT/tests/test_orchestrator_run_methods.py:160:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:166:        result = run_payoff(req)
+ATT/tests/test_orchestrator_run_methods.py:192:    def test_payoff_dict_repassado(self, mock_decide):
+ATT/tests/test_orchestrator_run_methods.py:195:        payoff = {"pl_max": 600.0, "points": [{"spot": 50, "pl": 0}]}
+ATT/tests/test_orchestrator_run_methods.py:197:        run_decision(req, payoff=payoff, pl_max=600.0, pl_atual=100.0)
+ATT/tests/test_orchestrator_run_methods.py:200:        assert kwargs["payoff"] == payoff
+ATT/tests/test_orchestrator_run_methods.py:239:class TestRunPayoffIntegration:
+ATT/tests/test_orchestrator_run_methods.py:241:    Chama run_payoff sem mock.
+ATT/tests/test_orchestrator_run_methods.py:245:    def test_sanidade_run_payoff_call_chain(self):
+ATT/tests/test_orchestrator_run_methods.py:246:        pytest.importorskip("domain.payoff")
+ATT/tests/test_orchestrator_run_methods.py:260:            result = run_payoff(req, low_pct=0.8, high_pct=1.2, step_pct=0.05)
+ATT/tests/test_orchestrator_run_methods.py:261:            assert isinstance(result, dict), "run_payoff deve retornar dict"
+ATT/tests/test_payoff_canonical.py:1:from domain.payoff import compute_payoff_from_canonical_input
+ATT/tests/test_payoff_canonical.py:4:def test_compute_payoff_from_canonical_input_should_preserve_canonical_metadata():
+ATT/tests/test_payoff_canonical.py:37:    result = compute_payoff_from_canonical_input(canonical_input)
+ATT/tests/test_payoff_chart.py:1:# C:/users/eucal/projeto/ATT/tests/test_payoff_chart.py
+ATT/tests/test_payoff_chart.py:3:Testes unitários para UI/components/payoff_chart.py
+ATT/tests/test_payoff_chart.py:9:  - PayoffChart.clear()
+ATT/tests/test_payoff_chart.py:10:  - PayoffChart.update_chart()
+ATT/tests/test_payoff_chart.py:11:  - PayoffChart.fix_current_curve() / clear_comparison()
+ATT/tests/test_payoff_chart.py:12:  - PayoffChart.get_last_overlays()
+ATT/tests/test_payoff_chart.py:51:from UI.components.payoff_chart import (  # noqa: E402
+ATT/tests/test_payoff_chart.py:52:    PayoffChart,
+ATT/tests/test_payoff_chart.py:60:# Fixture: instância de PayoffChart com Tk fake
+ATT/tests/test_payoff_chart.py:63:def _make_chart() -> PayoffChart:
+ATT/tests/test_payoff_chart.py:64:    """Cria PayoffChart com dependências Tk mockadas."""
+ATT/tests/test_payoff_chart.py:65:    with patch("UI.components.payoff_chart.FigureCanvasTkAgg"), \
+ATT/tests/test_payoff_chart.py:66:         patch("UI.components.payoff_chart.NavigationToolbar2Tk"), \
+ATT/tests/test_payoff_chart.py:67:         patch("UI.components.payoff_chart.Figure") as MockFig, \
+ATT/tests/test_payoff_chart.py:68:         patch("UI.components.payoff_chart.ttk.Frame.__init__", return_value=None), \
+ATT/tests/test_payoff_chart.py:69:         patch("UI.components.payoff_chart.ttk.Frame.pack",     return_value=None), \
+ATT/tests/test_payoff_chart.py:70:         patch("UI.components.payoff_chart.ttk.Frame.bind",     return_value=None):
+ATT/tests/test_payoff_chart.py:77:        chart = PayoffChart.__new__(PayoffChart)
+ATT/tests/test_payoff_chart.py:171:        return PayoffChart._find_breakevens(spots, pls)
+ATT/tests/test_payoff_chart.py:225:        return PayoffChart._interp_y_at_x(xs, ys, x)
+ATT/tests/test_payoff_chart.py:305:# Testes de PayoffChart (estado e lógica)
+ATT/tests/test_payoff_chart.py:308:class TestPayoffChartState(unittest.TestCase):
+ATT/tests/test_payoff_chart.py:422:class TestPayoffChartRobustness(unittest.TestCase):
+ATT/tests/test_payoff_chart.py:456:            PayoffChart._find_breakevens(list(range(10)), [100.0] * 10), []
+ATT/tests/test_payoff_chart.py:460:        self.assertEqual(PayoffChart._find_breakevens([100.0], [0.0]), [])
+ATT/tests/test_payoff_chart.py:463:        result = PayoffChart._interp_y_at_x([100.0, 100.0], [0.0, 500.0], 100.0)
+ATT/tests/test_pricing_execution_persistence_service.py:220:            "payoff": {
+ATT/tests/test_pricing_execution_persistence_service.py:258:    assert call["payoff_json"] == {
+ATT/tests/test_structure_analysis_service.py:124:    assert "payoff" in result
+ATT/tests/test_structure_analysis_service.py:134:    payoff = result["payoff"]
+ATT/tests/test_structure_analysis_service.py:135:    assert payoff is not None
+ATT/tests/test_structure_analysis_service.py:136:    assert payoff["pl_max"] == 10000.0
+ATT/tests/test_structure_analysis_service.py:137:    assert payoff["spot_ref"] == 198.35
+ATT/tests/test_structure_analysis_service.py:138:    assert "points" in payoff
+ATT/tests/test_structure_analysis_service.py:139:    assert len(payoff["points"]) > 0
+ATT/tests/test_structure_analysis_service.py:169:def test_structure_analysis_service_analyze_returns_structured_decision_for_invalid_payoff():
+ATT/tests/test_structure_analysis_service.py:179:    assert "payoff" in result
+ATT/tests/test_structure_analysis_service.py:184:    assert result["decision"]["why"]["error"] == "payoff is required"
+ATT/tests/test_structure_analysis_service.py:273:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:276:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:277:        payoff,
+ATT/tests/test_structure_analysis_service.py:283:        captured["payoff"] = payoff
+ATT/tests/test_structure_analysis_service.py:300:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:301:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:304:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:305:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:316:        "payoff": {"pl_max": 1.0, "spot_ref": 198.35, "points": []},
+ATT/tests/test_structure_analysis_service.py:336:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:339:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:340:        payoff,
+ATT/tests/test_structure_analysis_service.py:358:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:359:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:362:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:363:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:384:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:387:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:388:        payoff,
+ATT/tests/test_structure_analysis_service.py:407:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:408:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:411:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:412:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:504:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:507:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:508:        payoff,
+ATT/tests/test_structure_analysis_service.py:523:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:524:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:527:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:528:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:550:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:553:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:554:        payoff,
+ATT/tests/test_structure_analysis_service.py:569:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:570:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:573:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:574:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:597:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:600:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:601:        payoff,
+ATT/tests/test_structure_analysis_service.py:615:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:616:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:619:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:620:        fake_compute_decision_from_payoff,
+ATT/tests/test_system_snapshots_repository.py:120:        payoff_json={"max_gain": 1000},
+ATT/tests/test_system_snapshots_repository.py:167:    assert snapshot["payoff_json"] == {"max_gain": 1000}
+ATT/tests/test_system_snapshots_schema.py:68:        "payoff_json",
+ATT/tests/test_ui_data_migration.py:167:# Nível 4 -- get_payoff_curve_info()
+ATT/tests/test_ui_data_migration.py:170:def test_payoff_curve_info_retorna_dados(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:172:    pts, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+ATT/tests/test_ui_data_migration.py:173:    assert isinstance(pts, list), "Pontos do payoff devem ser uma lista"
+ATT/tests/test_ui_data_migration.py:174:    assert isinstance(info, dict), "info do payoff deve ser dict"
+ATT/tests/test_ui_data_migration.py:177:def test_payoff_curve_info_tem_structure_id(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:179:    _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+ATT/tests/test_ui_data_migration.py:180:    assert "structure_id" in info, "info do payoff deve conter 'structure_id'"
+ATT/tests/test_ui_data_migration.py:183:def test_payoff_curve_info_aba_continuidade(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:185:    _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+ATT/tests/test_ui_data_migration.py:186:    assert "aba" in info, "info do payoff deve ainda conter 'aba' (continuidade)"
+ATT/tests/test_ui_data_migration.py:192:def test_payoff_curve_info_pontos_validos(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:194:    pts, _ = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+
+== Busca por referencias a engine stub ==
+repositories/pricing_executions_repository.py:35:        execution_engine: str | None = None,
+repositories/pricing_executions_repository.py:60:                    execution_status, execution_engine, error_message,
+repositories/pricing_executions_repository.py:67:                    execution_status, execution_engine, error_message,
+repositories/pricing_executions_repository.py:84:            "execution_engine": execution_engine,
+services/calculation_orchestrator.py:22:from domain.position_side import to_pricing_engine_side
+services/calculation_orchestrator.py:34:        return to_pricing_engine_side(raw)
+services/canonical_input_service.py:413:                "structure_metrics_source": "internal_engine",
+services/canonical_pricing_facade.py:20:  C4: engine_result extraído do wrapper antes de passar ao persister
+services/canonical_pricing_facade.py:344:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py:424:            # 2. Executa engine
+services/canonical_pricing_facade.py:425:            execution_result = self._engine.execute_payload(
+services/canonical_pricing_facade.py:430:            engine_result = execution_result.get("result", execution_result)
+services/canonical_pricing_facade.py:437:                result=engine_result,
+services/canonical_pricing_facade.py:459:                    result={"engine": "stub", "status": "error", "error_message": error_message},
+services/canonical_pricing_facade.py.fase3e.bak:20:  C4: engine_result extraído do wrapper antes de passar ao persister
+services/canonical_pricing_facade.py.fase3e.bak:343:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py.fase3e.bak:375:            #  4. Executa engine 
+services/canonical_pricing_facade.py.fase3e.bak:376:            execution_result = self._engine.execute_payload(
+services/canonical_pricing_facade.py.fase3e.bak:381:            engine_result = execution_result.get("result", execution_result)
+services/canonical_pricing_facade.py.fase3e.bak:388:                result=engine_result,
+services/canonical_pricing_facade.py.fase3e.bak:410:                    result={"engine": "stub", "status": "error", "error_message": error_message},
+services/canonical_pricing_facade.py.fase3e.fix2.bak:20:  C4: engine_result extraído do wrapper antes de passar ao persister
+services/canonical_pricing_facade.py.fase3e.fix2.bak:343:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py.fase3e.fix2.bak:375:            #  4. Executa engine 
+services/canonical_pricing_facade.py.fase3e.fix2.bak:376:            execution_result = self._engine.execute_payload(
+services/canonical_pricing_facade.py.fase3e.fix2.bak:381:            engine_result = execution_result.get("result", execution_result)
+services/canonical_pricing_facade.py.fase3e.fix2.bak:388:                result=engine_result,
+services/canonical_pricing_facade.py.fase3e.fix2.bak:410:                    result={"engine": "stub", "status": "error", "error_message": error_message},
+services/derived_payoff_persistence.py:20:      4. Persistir decisão básica derivada do resultado do engine
+services/derived_payoff_persistence.py:145:                    "source":           "pricing_engine",
+services/derived_payoff_persistence.py:146:                    "engine":           inner.get("engine"),
+services/pricing_engine_stub.py:17:            "engine": "stub",
+services/pricing_execution_orchestration_service.py:64:                    "engine": "stub",
+services/pricing_execution_persistence_service.py:37:        execution_engine = inner.get("engine") if isinstance(inner, dict) else None
+services/pricing_execution_persistence_service.py:50:            execution_engine=execution_engine,
+services/pricing_execution_query_service.py:103:            engine_result = nested_result.get("result", nested_result)
+services/pricing_execution_query_service.py:104:            metrics = engine_result.get("metrics", {}) or {}
+services/pricing_execution_query_service.py:105:            valuation = engine_result.get("valuation", {}) or {}
+services/pricing_execution_query_service.py:113:                "execution_engine": execution.get("execution_engine"),
+services/pricing_execution_service.py:3:from services.pricing_engine_stub import PricingEngineStub
+services/pricing_execution_service.py:11:        pricing_engine: PricingEngineStub | None = None,
+services/pricing_execution_service.py:14:        self.pricing_engine = pricing_engine or PricingEngineStub()
+services/pricing_execution_service.py:31:        result = self.pricing_engine.run(pricing_payload)
+services/pricing_payload_adapter.py:3:from domain.position_side import to_pricing_engine_side
+services/pricing_payload_adapter.py:40:                "side": to_pricing_engine_side(leg["position_side"]),
+domain/calculation_request.py:20:from domain.position_side import to_pricing_engine_side
+domain/calculation_request.py:97:            position_side = to_pricing_engine_side(self.position_side)
+domain/payoff.py:4:from domain.position_side import to_pricing_engine_side
+domain/payoff.py:12:    return to_pricing_engine_side(value)
+domain/position_side.py:54:def to_pricing_engine_side(value: Any) -> str:
+domain/structure_metrics.py:4:from domain.position_side import to_pricing_engine_side
+domain/structure_metrics.py:155:        return to_pricing_engine_side(side)
+ATT/tests/test_canonical_input_service.py:281:        self.assertEqual(result["meta"]["structure_metrics_source"], "internal_engine")
+ATT/tests/test_canonical_input_service.py:313:        self.assertEqual(result["meta"]["structure_metrics_source"], "internal_engine")
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:27:                "engine": "fake",
+ATT/tests/test_payoff_chart.py:44:for _mod, _stub in _STUBS.items():
+ATT/tests/test_payoff_chart.py:45:    sys.modules.setdefault(_mod, _stub)
+ATT/tests/test_payoff_chart.py:50:# Importa DEPOIS dos stubs
+ATT/tests/test_position_side.py:3:from domain.position_side import normalize_position_side, to_pricing_engine_side
+ATT/tests/test_position_side.py:42:def test_to_pricing_engine_side_converts_to_long_short_only_at_technical_boundary(raw, expected):
+ATT/tests/test_position_side.py:43:    assert to_pricing_engine_side(raw) == expected
+ATT/tests/test_pricing_engine_stub.py:3:from services.pricing_engine_stub import PricingEngineStub
+ATT/tests/test_pricing_engine_stub.py:6:def test_run_returns_stub_result_with_metrics_and_valuation():
+ATT/tests/test_pricing_engine_stub.py:7:    engine = PricingEngineStub()
+ATT/tests/test_pricing_engine_stub.py:22:    result = engine.run(pricing_payload)
+ATT/tests/test_pricing_engine_stub.py:25:        "engine": "stub",
+ATT/tests/test_pricing_engine_stub.py:47:    engine = PricingEngineStub()
+ATT/tests/test_pricing_engine_stub.py:50:        engine.run({})
+ATT/tests/test_pricing_engine_stub.py:54:    engine = PricingEngineStub()
+ATT/tests/test_pricing_engine_stub.py:67:        engine.run(pricing_payload)
+ATT/tests/test_pricing_executions_repository.py:21:            execution_engine   TEXT,
+ATT/tests/test_pricing_executions_repository.py:47:            "engine": "stub",
+ATT/tests/test_pricing_executions_repository.py:56:        execution_engine="stub",
+ATT/tests/test_pricing_executions_repository.py:68:    assert record["execution_engine"] == "stub"
+ATT/tests/test_pricing_executions_repository.py:83:            "engine": "stub",
+ATT/tests/test_pricing_executions_repository.py:92:        execution_engine="stub",
+ATT/tests/test_pricing_execution_orchestration_service.py:38:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:15:        execution_engine,
+ATT/tests/test_pricing_execution_persistence_service.py:27:                "execution_engine": execution_engine,
+ATT/tests/test_pricing_execution_persistence_service.py:38:            "execution_engine": execution_engine,
+ATT/tests/test_pricing_execution_persistence_service.py:54:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:77:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:89:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:102:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:104:            "error_message": "engine internal error",
+ATT/tests/test_pricing_execution_persistence_service.py:122:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:134:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:147:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:149:            "error_message": "engine internal error",
+ATT/tests/test_pricing_execution_persistence_service.py:159:    assert repository.calls[0]["error_message"] == "engine internal error"
+ATT/tests/test_pricing_execution_persistence_service.py:211:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:286:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:299:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:323:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:336:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:360:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:371:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_query_service.py:24:    execution_engine: str = "stub-engine",
+ATT/tests/test_pricing_execution_query_service.py:40:        "execution_engine": execution_engine,
+ATT/tests/test_pricing_execution_service.py:29:def test_execute_builds_payload_and_runs_engine():
+ATT/tests/test_pricing_execution_service.py:35:    engine_result = {
+ATT/tests/test_pricing_execution_service.py:36:        "engine": "stub",
+ATT/tests/test_pricing_execution_service.py:43:    fake_engine = FakePricingEngine(engine_result)
+ATT/tests/test_pricing_execution_service.py:47:        pricing_engine=fake_engine,
+ATT/tests/test_pricing_execution_service.py:58:    assert fake_engine.calls == [pricing_payload]
+ATT/tests/test_pricing_execution_service.py:61:        "result": engine_result,
+ATT/tests/test_pricing_execution_service.py:65:def test_execute_payload_runs_engine_and_returns_wrapped_result():
+ATT/tests/test_pricing_execution_service.py:71:    engine_result = {
+ATT/tests/test_pricing_execution_service.py:72:        "engine": "stub",
+ATT/tests/test_pricing_execution_service.py:76:    fake_engine = FakePricingEngine(engine_result)
+ATT/tests/test_pricing_execution_service.py:80:        pricing_engine=fake_engine,
+ATT/tests/test_pricing_execution_service.py:85:    assert fake_engine.calls == [pricing_payload]
+ATT/tests/test_pricing_execution_service.py:88:        "result": engine_result,
+ATT/tests/test_structures_archive_wiring.py:198:    # Garante que tkinter nao seja chamado -- substitui por stubs antes do import
+ATT/tests/test_structures_archive_wiring.py:211:    stubs = {
+ATT/tests/test_structures_archive_wiring.py:216:    for name, stub in stubs.items():
+ATT/tests/test_structures_archive_wiring.py:218:        _sys.modules[name] = stub
+ATT/tests/test_structures_archive_wiring.py:229:        # Remove cache do modulo para recarregar com stubs
+ATT/tests/test_structures_archive_wiring.py:236:        panel._askyesno_stub = _fake_mb.askyesno
+ATT/tests/test_structures_archive_wiring.py:237:        panel._showerror_stub = _fake_mb.showerror
+ATT/tests/test_structures_archive_wiring.py:238:        panel._showwarning_stub = _fake_mb.showwarning
+ATT/tests/test_structures_archive_wiring.py:239:        panel._showinfo_stub = _fake_mb.showinfo
+ATT/tests/test_structures_archive_wiring.py:370:        self.panel._showwarning_stub.assert_called()
+ATT/tests/test_structures_archive_wiring.py:391:        self.panel._showinfo_stub.assert_called()
+ATT/tests/test_structures_archive_wiring.py:423:        stubs = {
+ATT/tests/test_structures_archive_wiring.py:429:        for k, v in stubs.items():
+ATT/tests/test_structures_archive_wiring.py:478:        stubs = {
+ATT/tests/test_structures_archive_wiring.py:484:        for k, v in stubs.items():
+ATT/tests/test_structure_editor_integration.py:21:def _inject_stubs():
+ATT/tests/test_structure_editor_integration.py:171:    # Matplotlib stubs (inalterado)
+ATT/tests/test_structure_editor_integration.py:214:    _mpl_stub = sys.modules["matplotlib"]
+ATT/tests/test_structure_editor_integration.py:215:    _mpl_stub.use             = MagicMock()
+ATT/tests/test_structure_editor_integration.py:216:    _mpl_stub.rcParams        = {}
+ATT/tests/test_structure_editor_integration.py:217:    _mpl_stub.rcParamsDefault = {}
+ATT/tests/test_structure_editor_integration.py:218:    _mpl_stub.get_backend     = MagicMock(return_value="TkAgg")
+ATT/tests/test_structure_editor_integration.py:219:    _mpl_stub.is_interactive  = MagicMock(return_value=False)
+ATT/tests/test_structure_editor_integration.py:246:_inject_stubs()
+ATT/tests/test_structure_editor_integration.py:261:    _inject_stubs()
+ATT/tests/test_structure_editor_integration.py:270:    _inject_stubs()
+
+== Inspecao dos bancos e tabelas relevantes ==
+
+-- Banco: dados\app.db --
+Tabelas:
+  - pricing_executions
+  - rtd_option_quotes
+  - sqlite_sequence
+  - structure_audit_log
+  - structure_events
+  - structure_leg_snapshots
+  - structure_legs
+  - structure_snapshots
+  - structures
+
+Tabelas relevantes:
+
+Tabela: structures
+Colunas: ['id', 'name', 'underlying_asset', 'alias_legacy_aba', 'status', 'notes', 'created_at', 'updated_at']
+Total linhas: 1
+Linhas structure_id=2: SEM_COLUNA_structure_id
+Amostra:
+{'id': 2, 'name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'alias_legacy_aba': None, 'status': 'active', 'notes': 'ESTRURA DERIVADA DE OUTRAS 2', 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00'}
+
+Tabela: structure_legs
+Colunas: ['id', 'structure_id', 'position_side', 'option_type', 'symbol', 'strike', 'expiration_date', 'quantity', 'premium', 'multiplier', 'leg_order', 'notes', 'created_at', 'updated_at']
+Total linhas: 4
+Linhas structure_id=2: 4
+Amostra:
+{'id': 6, 'structure_id': 2, 'position_side': 'COMPRADO', 'option_type': 'PUT', 'symbol': 'BOVAT158', 'strike': 158.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 1.51, 'multiplier': 1.0, 'leg_order': 4, 'notes': None, 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00'}
+{'id': 5, 'structure_id': 2, 'position_side': 'VENDIDO', 'option_type': 'PUT', 'symbol': 'BOVAG34', 'strike': 184.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 16.93, 'multiplier': 1.0, 'leg_order': 3, 'notes': None, 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00'}
+{'id': 4, 'structure_id': 2, 'position_side': 'VENDIDO', 'option_type': 'CALL', 'symbol': 'BOVAG34', 'strike': 157.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 10.44, 'multiplier': 1.0, 'leg_order': 2, 'notes': None, 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00'}
+{'id': 3, 'structure_id': 2, 'position_side': 'COMPRADO', 'option_type': 'CALL', 'symbol': 'BOVAH186', 'strike': 186.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 0.69, 'multiplier': 1.0, 'leg_order': 1, 'notes': None, 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00'}
+
+Tabela: pricing_executions
+Colunas: ['id', 'created_at', 'structure_id', 'underlying_asset', 'reference_date', 'execution_status', 'execution_engine', 'error_message', 'duration_ms', 'number_of_legs', 'total_quantity', 'theoretical_value', 'pricing_payload', 'result']
+Total linhas: 4
+Linhas structure_id=2: 2
+Amostra:
+{'id': 4, 'created_at': '2026-06-22T00:48:01.785862Z', 'structure_id': 2, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 13000, 'theoretical_value': 0.0, 'pricing_payload': '{"structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "spot_price": 198.35, "interest_rate": 0.1175, "volatility": 0.22, "legs": [{"side": "LONG", "instrument_type": "OPTION", "option_type": "CALL", "symbol": "BOVAH186", "strike": 186.0, "expiration_date": "2026-08-21", "quantity": 4000, "premium": 0.69, "multiplier": 1.0}, {"side": "SHORT", "instrument_type": "OPTION", "option_type": "CALL", "symbol": "BOVAG34", "strike": 157.0, "expiration_date": "2026-07-17", "quantity": 2500, "premium": 10.44, "multiplier": 1.0}, {"side": "SHORT", "instrument_type": "OPTION", "option_type": "PUT", "symbol": "BOVAG34", "strike": 184.0, "expiration_date": "2026-07-17", "quantity": 2500, "premium": 16.93, "multiplier": 1.0}, {"side": "LONG", "instrument_type": "OPTION", "option_type": "PUT", "symbol": "BOVAT158", "strike": 158.0, "expiration_date": "2026-08-21", "quantity": 4000, "premium": 1.51, "multiplier": 1.0}], "meta": {"snapshot_source": "canonical_manual_without_alias", "alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2"}}', 'result': '{"engine": "stub", "status": "ok", "structure_id": 2, "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "metrics": {"number_of_legs": 4, "total_quantity": 13000, "spot_price": 198.35, "interest_rate": 0.1175, "volatility": 0.22}, "valuation": {"theoretical_value": 0.0, "premium_paid": 0.0, "max_profit": null, "max_loss": null}}'}
+{'id': 3, 'created_at': '2026-06-22T00:44:38.811207Z', 'structure_id': 2, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 13000, 'theoretical_value': 0.0, 'pricing_payload': '{"structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "spot_price": 198.35, "interest_rate": 0.1175, "volatility": 0.22, "legs": [{"side": "LONG", "instrument_type": "OPTION", "option_type": "CALL", "symbol": "BOVAH186", "strike": 186.0, "expiration_date": "2026-08-21", "quantity": 4000, "premium": 0.69, "multiplier": 1.0}, {"side": "SHORT", "instrument_type": "OPTION", "option_type": "CALL", "symbol": "BOVAG34", "strike": 157.0, "expiration_date": "2026-07-17", "quantity": 2500, "premium": 10.44, "multiplier": 1.0}, {"side": "SHORT", "instrument_type": "OPTION", "option_type": "PUT", "symbol": "BOVAG34", "strike": 184.0, "expiration_date": "2026-07-17", "quantity": 2500, "premium": 16.93, "multiplier": 1.0}, {"side": "LONG", "instrument_type": "OPTION", "option_type": "PUT", "symbol": "BOVAT158", "strike": 158.0, "expiration_date": "2026-08-21", "quantity": 4000, "premium": 1.51, "multiplier": 1.0}], "meta": {"snapshot_source": "canonical_manual_without_alias", "alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2"}}', 'result': '{"engine": "stub", "status": "ok", "structure_id": 2, "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "metrics": {"number_of_legs": 4, "total_quantity": 13000, "spot_price": 198.35, "interest_rate": 0.1175, "volatility": 0.22}, "valuation": {"theoretical_value": 0.0, "premium_paid": 0.0, "max_profit": null, "max_loss": null}}'}
+
+Tabela: structure_snapshots
+Colunas: ['id', 'created_at', 'structure_id', 'pricing_execution_id', 'underlying_asset', 'reference_date', 'snapshot_source', 'structure_json', 'market_json', 'metrics_json', 'payoff_json', 'decision_json', 'alerts_json', 'operation_state_json']
+Total linhas: 2
+Linhas structure_id=2: 2
+Amostra:
+{'id': 2, 'created_at': '2026-06-22T00:48:01.802188+00:00', 'structure_id': 2, 'pricing_execution_id': 4, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'snapshot_source': 'system_pricing_execution', 'structure_json': '{"meta": {"alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2", "snapshot_source": "canonical_manual_without_alias"}, "reference_date": "2026-06-21", "structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11"}', 'market_json': '{"interest_rate": 0.1175, "spot_price": 198.35, "volatility": 0.22}', 'metrics_json': '{"interest_rate": 0.1175, "number_of_legs": 4, "spot_price": 198.35, "total_quantity": 13000, "volatility": 0.22}', 'payoff_json': None, 'decision_json': None, 'alerts_json': None, 'operation_state_json': '{"pricing_execution": {"created_at": "2026-06-22T00:48:01.785862Z", "duration_ms": 5, "error_message": null, "execution_engine": "stub", "execution_status": "ok", "id": 4, "number_of_legs": 4, "pricing_payload": {"interest_rate": 0.1175, "legs": [{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 0.69, "quantity": 4000, "side": "LONG", "strike": 186.0, "symbol": "BOVAH186"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 10.44, "quantity": 2500, "side": "SHORT", "strike": 157.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 16.93, "quantity": 2500, "side": "SHORT", "strike": 184.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 1.51, "quantity": 4000, "side": "LONG", "strike": 158.0, "symbol": "BOVAT158"}], "meta": {"alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2", "snapshot_source": "canonical_manual_without_alias"}, "reference_date": "2026-06-21", "spot_price": 198.35, "structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "volatility": 0.22}, "reference_date": "2026-06-21", "result": {"engine": "stub", "metrics": {"interest_rate": 0.1175, "number_of_legs": 4, "spot_price": 198.35, "total_quantity": 13000, "volatility": 0.22}, "reference_date": "2026-06-21", "status": "ok", "structure_id": 2, "underlying_asset": "BOVA11", "valuation": {"max_loss": null, "max_profit": null, "premium_paid": 0.0, "theoretical_value": 0.0}}, "structure_id": 2, "theoretical_value": 0.0, "total_quantity": 13000, "underlying_asset": "BOVA11"}, "pricing_payload": {"interest_rate": 0.1175, "legs": [{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 0.69, "quantity": 4000, "side": "LONG", "strike": 186.0, "symbol": "BOVAH186"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 10.44, "quantity": 2500, "side": "SHORT", "strike": 157.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 16.93, "quantity": 2500, "side": "SHORT", "strike": 184.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 1.51, "quantity": 4000, "side": "LONG", "strike": 158.0, "symbol": "BOVAT158"}], "meta": {"alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2", "snapshot_source": "canonical_manual_without_alias"}, "reference_date": "2026-06-21", "spot_price": 198.35, "structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "volatility": 0.22}, "result": {"engine": "stub", "metrics": {"interest_rate": 0.1175, "number_of_legs": 4, "spot_price": 198.35, "total_quantity": 13000, "volatility": 0.22}, "reference_date": "2026-06-21", "status": "ok", "structure_id": 2, "underlying_asset": "BOVA11", "valuation": {"max_loss": null, "max_profit": null, "premium_paid": 0.0, "theoretical_value": 0.0}}}'}
+{'id': 1, 'created_at': '2026-06-22T00:44:38.827518+00:00', 'structure_id': 2, 'pricing_execution_id': 3, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'snapshot_source': 'system_pricing_execution', 'structure_json': '{"meta": {"alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2", "snapshot_source": "canonical_manual_without_alias"}, "reference_date": "2026-06-21", "structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11"}', 'market_json': '{"interest_rate": 0.1175, "spot_price": 198.35, "volatility": 0.22}', 'metrics_json': '{"interest_rate": 0.1175, "number_of_legs": 4, "spot_price": 198.35, "total_quantity": 13000, "volatility": 0.22}', 'payoff_json': None, 'decision_json': None, 'alerts_json': None, 'operation_state_json': '{"pricing_execution": {"created_at": "2026-06-22T00:44:38.811207Z", "duration_ms": 5, "error_message": null, "execution_engine": "stub", "execution_status": "ok", "id": 3, "number_of_legs": 4, "pricing_payload": {"interest_rate": 0.1175, "legs": [{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 0.69, "quantity": 4000, "side": "LONG", "strike": 186.0, "symbol": "BOVAH186"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 10.44, "quantity": 2500, "side": "SHORT", "strike": 157.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 16.93, "quantity": 2500, "side": "SHORT", "strike": 184.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 1.51, "quantity": 4000, "side": "LONG", "strike": 158.0, "symbol": "BOVAT158"}], "meta": {"alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2", "snapshot_source": "canonical_manual_without_alias"}, "reference_date": "2026-06-21", "spot_price": 198.35, "structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "volatility": 0.22}, "reference_date": "2026-06-21", "result": {"engine": "stub", "metrics": {"interest_rate": 0.1175, "number_of_legs": 4, "spot_price": 198.35, "total_quantity": 13000, "volatility": 0.22}, "reference_date": "2026-06-21", "status": "ok", "structure_id": 2, "underlying_asset": "BOVA11", "valuation": {"max_loss": null, "max_profit": null, "premium_paid": 0.0, "theoretical_value": 0.0}}, "structure_id": 2, "theoretical_value": 0.0, "total_quantity": 13000, "underlying_asset": "BOVA11"}, "pricing_payload": {"interest_rate": 0.1175, "legs": [{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 0.69, "quantity": 4000, "side": "LONG", "strike": 186.0, "symbol": "BOVAH186"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 10.44, "quantity": 2500, "side": "SHORT", "strike": 157.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 16.93, "quantity": 2500, "side": "SHORT", "strike": 184.0, "symbol": "BOVAG34"}, {"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 1.51, "quantity": 4000, "side": "LONG", "strike": 158.0, "symbol": "BOVAT158"}], "meta": {"alias_legacy_aba": null, "fallback_reason": "alias_legacy_aba is null for structure_id=2", "snapshot_source": "canonical_manual_without_alias"}, "reference_date": "2026-06-21", "spot_price": 198.35, "structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "volatility": 0.22}, "result": {"engine": "stub", "metrics": {"interest_rate": 0.1175, "number_of_legs": 4, "spot_price": 198.35, "total_quantity": 13000, "volatility": 0.22}, "reference_date": "2026-06-21", "status": "ok", "structure_id": 2, "underlying_asset": "BOVA11", "valuation": {"max_loss": null, "max_profit": null, "premium_paid": 0.0, "theoretical_value": 0.0}}}'}
+
+Tabela: structure_leg_snapshots
+Colunas: ['id', 'snapshot_id', 'structure_id', 'leg_id', 'leg_order', 'position_side', 'option_type', 'symbol', 'strike', 'expiration_date', 'quantity', 'premium', 'multiplier', 'metrics_json', 'market_json', 'raw_json']
+Total linhas: 8
+Linhas structure_id=2: 8
+Amostra:
+{'id': 8, 'snapshot_id': 2, 'structure_id': 2, 'leg_id': None, 'leg_order': 4, 'position_side': None, 'option_type': 'PUT', 'symbol': 'BOVAT158', 'strike': 158.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 1.51, 'multiplier': 1.0, 'metrics_json': None, 'market_json': None, 'raw_json': '{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 1.51, "quantity": 4000, "side": "LONG", "strike": 158.0, "symbol": "BOVAT158"}'}
+{'id': 7, 'snapshot_id': 2, 'structure_id': 2, 'leg_id': None, 'leg_order': 3, 'position_side': None, 'option_type': 'PUT', 'symbol': 'BOVAG34', 'strike': 184.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 16.93, 'multiplier': 1.0, 'metrics_json': None, 'market_json': None, 'raw_json': '{"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 16.93, "quantity": 2500, "side": "SHORT", "strike": 184.0, "symbol": "BOVAG34"}'}
+{'id': 6, 'snapshot_id': 2, 'structure_id': 2, 'leg_id': None, 'leg_order': 2, 'position_side': None, 'option_type': 'CALL', 'symbol': 'BOVAG34', 'strike': 157.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 10.44, 'multiplier': 1.0, 'metrics_json': None, 'market_json': None, 'raw_json': '{"expiration_date": "2026-07-17", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 10.44, "quantity": 2500, "side": "SHORT", "strike": 157.0, "symbol": "BOVAG34"}'}
+{'id': 5, 'snapshot_id': 2, 'structure_id': 2, 'leg_id': None, 'leg_order': 1, 'position_side': None, 'option_type': 'CALL', 'symbol': 'BOVAH186', 'strike': 186.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 0.69, 'multiplier': 1.0, 'metrics_json': None, 'market_json': None, 'raw_json': '{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "CALL", "premium": 0.69, "quantity": 4000, "side": "LONG", "strike": 186.0, "symbol": "BOVAH186"}'}
+{'id': 4, 'snapshot_id': 1, 'structure_id': 2, 'leg_id': None, 'leg_order': 4, 'position_side': None, 'option_type': 'PUT', 'symbol': 'BOVAT158', 'strike': 158.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 1.51, 'multiplier': 1.0, 'metrics_json': None, 'market_json': None, 'raw_json': '{"expiration_date": "2026-08-21", "instrument_type": "OPTION", "multiplier": 1.0, "option_type": "PUT", "premium": 1.51, "quantity": 4000, "side": "LONG", "strike": 158.0, "symbol": "BOVAT158"}'}
+
+Tabela: rtd_option_quotes
+Colunas: ['id', 'codigo_opcao', 'ativo_base', 'call_put', 'strike', 'vencimento', 'ultimo_preco', 'ultima_quantidade', 'bid', 'ask', 'volume', 'iv', 'delta', 'gamma', 'theta', 'vega', 'source', 'raw_json', 'updated_at', 'created_at']
+Total linhas: 4
+Linhas structure_id=2: SEM_COLUNA_structure_id
+Amostra:
+{'id': 5, 'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'vencimento': '2026-07-17', 'ultimo_preco': 0.6, 'ultima_quantidade': 400.0, 'bid': 0.03, 'ask': 0.7, 'volume': 25040.8, 'iv': 0.0, 'delta': -0.1811, 'gamma': 0.0451, 'theta': -0.0288, 'vega': 4.4093, 'source': 'BTG_RTD_EXCEL', 'raw_json': '{"codigo_opcao": "PRIOS525", "ativo_base": "PRIO3", "call_put": "Put", "strike": "52,5", "vencimento": "46220,125", "ultimo_preco": "0,6", "ultima_quantidade": "400", "bid": "0,03", "ask": "0,7", "volume": "25040,8", "iv": "0", "delta": "-0,1811", "gamma": "0,0451", "theta": "-0,0288", "vega": "4,4093"}', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+{'id': 4, 'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'vencimento': '2026-08-21', 'ultimo_preco': 12.07, 'ultima_quantidade': 200.0, 'bid': 0.0, 'ask': 19.0, 'volume': 20119.5, 'iv': 0.0, 'delta': -0.8658, 'gamma': 0.0245, 'theta': 0.0142, 'vega': 5.2916, 'source': 'BTG_RTD_EXCEL', 'raw_json': '{"codigo_opcao": "PRIOT700", "ativo_base": "PRIO3", "call_put": "Put", "strike": "70", "vencimento": "46255,125", "ultimo_preco": "12,07", "ultima_quantidade": "200", "bid": "0", "ask": "19", "volume": "20119,5", "iv": "0", "delta": "-0,8658", "gamma": "0,0245", "theta": "0,0142", "vega": "5,2916"}', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+{'id': 3, 'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'vencimento': '2026-08-21', 'ultimo_preco': 7.43, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': 0.8147, 'gamma': 0.0317, 'theta': -0.0458, 'vega': 6.5386, 'source': 'BTG_RTD_EXCEL', 'raw_json': '{"codigo_opcao": "PRIOH515", "ativo_base": "PRIO3", "call_put": "Call", "strike": "51,5", "vencimento": "46255,125", "ultimo_preco": "7,43", "ultima_quantidade": "0", "bid": "0", "ask": "0", "volume": "0", "iv": "0", "delta": "0,8147", "gamma": "0,0317", "theta": "-0,0458", "vega": "6,5386"}', 'updated_at': '2026-06-17 22:11:23', 'created_at': '2026-06-17 16:08:36'}
+
+-- Banco: dados\derived.db --
+Tabelas:
+  - payoff_curve_points
+  - rtd_option_quotes
+  - sqlite_sequence
+  - structure_decisions
+
+Tabelas relevantes:
+
+Tabela: payoff_curve_points
+Colunas: ['timestamp', 'aba', 'structure_id', 'spot_ref', 'point_spot', 'point_pl', 'meta_json', 'created_at']
+Total linhas: 0
+Linhas structure_id=2: 0
+Amostra:
+
+Tabela: structure_decisions
+Colunas: ['id', 'timestamp', 'aba', 'decision', 'level', 'pl_atual', 'pl_max', 'pl_pct_of_max', 'dte_min', 'why_json', 'spot_ref', 'meta_json', 'created_at', 'why', 'structure_id']
+Total linhas: 0
+Linhas structure_id=2: 0
+Amostra:
+
+Tabela: rtd_option_quotes
+Colunas: ['id', 'codigo_opcao', 'ativo_base', 'call_put', 'strike', 'vencimento', 'ultimo_preco', 'ultima_quantidade', 'bid', 'ask', 'volume', 'iv', 'delta', 'gamma', 'theta', 'vega', 'source', 'raw_json', 'updated_at', 'created_at']
+Total linhas: 4
+Linhas structure_id=2: SEM_COLUNA_structure_id
+Amostra:
+{'id': 4, 'codigo_opcao': 'PRIOT700', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 70.0, 'vencimento': '2026-08-21', 'ultimo_preco': 12.07, 'ultima_quantidade': 200.0, 'bid': 0.0, 'ask': 19.0, 'volume': 20119.5, 'iv': 0.0, 'delta': -0.8658, 'gamma': 0.0245, 'theta': 0.0142, 'vega': 5.2916, 'source': 'BTG_RTD_EXCEL', 'raw_json': '{"codigo_opcao": "PRIOT700", "ativo_base": "PRIO3", "call_put": "Put", "strike": "70", "vencimento": "46255,125", "ultimo_preco": "12,07", "ultima_quantidade": "200", "bid": "0", "ask": "19", "volume": "20119,5", "iv": "0", "delta": "-0,8658", "gamma": "0,0245", "theta": "0,0142", "vega": "5,2916"}', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+{'id': 3, 'codigo_opcao': 'PRIOS525', 'ativo_base': 'PRIO3', 'call_put': 'PUT', 'strike': 52.5, 'vencimento': '2026-07-17', 'ultimo_preco': 0.6, 'ultima_quantidade': 400.0, 'bid': 0.03, 'ask': 0.7, 'volume': 25040.8, 'iv': 0.0, 'delta': -0.1811, 'gamma': 0.0451, 'theta': -0.0288, 'vega': 4.4093, 'source': 'BTG_RTD_EXCEL', 'raw_json': '{"codigo_opcao": "PRIOS525", "ativo_base": "PRIO3", "call_put": "Put", "strike": "52,5", "vencimento": "46220,125", "ultimo_preco": "0,6", "ultima_quantidade": "400", "bid": "0,03", "ask": "0,7", "volume": "25040,8", "iv": "0", "delta": "-0,1811", "gamma": "0,0451", "theta": "-0,0288", "vega": "4,4093"}', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+{'id': 2, 'codigo_opcao': 'PRIOH515', 'ativo_base': 'PRIO3', 'call_put': 'CALL', 'strike': 51.5, 'vencimento': '2026-08-21', 'ultimo_preco': 7.43, 'ultima_quantidade': 0.0, 'bid': 0.0, 'ask': 0.0, 'volume': 0.0, 'iv': 0.0, 'delta': 0.8147, 'gamma': 0.0317, 'theta': -0.0458, 'vega': 6.5386, 'source': 'BTG_RTD_EXCEL', 'raw_json': '{"codigo_opcao": "PRIOH515", "ativo_base": "PRIO3", "call_put": "Call", "strike": "51,5", "vencimento": "46255,125", "ultimo_preco": "7,43", "ultima_quantidade": "0", "bid": "0", "ask": "0", "volume": "0", "iv": "0", "delta": "0,8147", "gamma": "0,0317", "theta": "-0,0458", "vega": "6,5386"}', 'updated_at': '2026-06-18 08:47:20', 'created_at': '2026-06-18 08:47:20'}
+
+== Execucao CanonicalPricingFacade para structure_id=2 ==
+derived_payoff_persistence: payoff sem pontos para structure_id=2
+derived_payoff_persistence: decis�o n�o gravada porque payoff n�o foi salvo -- structure_id=2
+Tipo retorno: dict
+Chaves raiz: ['canonical_input', 'duration_ms', 'meta', 'persisted', 'pricing_payload', 'result', 'status']
+status: ok
+engine: None
+meta: {
+  "snapshot_source": "canonical_manual_without_alias",
+  "alias_legacy_aba": null,
+  "fallback_reason": "alias_legacy_aba is null for structure_id=2"
+}
+persisted: {
+  "record": {
+    "id": 5,
+    "created_at": "2026-06-22T00:55:36.426879Z",
+    "structure_id": 2,
+    "underlying_asset": "BOVA11",
+    "reference_date": "2026-06-21",
+    "execution_status": "ok",
+    "execution_engine": "stub",
+    "error_message": null,
+    "duration_ms": 5,
+    "number_of_legs": 4,
+    "total_quantity": 13000,
+    "theoretical_value": 0.0,
+    "pricing_payload": {
+      "structure_id": 2,
+      "structure_name": "SBSP+SMAL=BOVA",
+      "underlying_asset": "BOVA11",
+      "reference_date": "2026-06-21",
+      "spot_price": 198.35,
+      "interest_rate": 0.1175,
+      "volatility": 0.22,
+      "legs": [
+        {
+          "side": "LONG",
+          "instrument_type": "OPTION",
+          "option_type": "CALL",
+          "symbol": "BOVAH186",
+          "strike": 186.0,
+          "expiration_date": "2026-08-21",
+          "quantity": 4000,
+          "premium": 0.69,
+          "multiplier": 1.0
+        },
+        {
+          "side": "SHORT",
+          "instrument_type": "OPTION",
+          "option_type": "CALL",
+          "symbol": "BOVAG34",
+          "strike": 157.0,
+          "expiration_date": "2026-07-17",
+          "quantity": 2500,
+          "premium": 10.44,
+          "multiplier": 1.0
+        },
+        {
+          "side": "SHORT",
+          "instrument_type": "OPTION",
+          "option_type": "PUT",
+          "symbol": "BOVAG34",
+          "strike": 184.0,
+          "expiration_date": "2026-07-17",
+          "quantity": 2500,
+          "premium": 16.93,
+          "multiplier": 1.0
+        },
+        {
+          "side": "LONG",
+          "instrument_type": "OPTION",
+          "option_type": "PUT",
+          "symbol": "BOVAT158",
+          "strike": 158.0,
+          "expiration_date": "2026-08-21",
+          "quantity": 4000,
+          "premium": 1.51,
+          "multiplier": 1.0
+        }
+      ],
+      "meta": {
+        "snapshot_source": "canonical_manual_without_alias",
+        "alias_legacy_aba": null,
+        "fallback_reason": "alias_legacy_aba is null for structure_id=2"
+      }
+    },
+    "result": {
+      "engine": "stub",
+      "status": "ok",
+      "structure_id": 2,
+      "underlying_asset": "BOVA11",
+      "reference_date": "2026-06-21",
+      "metrics": {
+        "number_of_legs": 4,
+        "total_quantity": 13000,
+        "spot_price": 198.35,
+        "interest_rate": 0.1175,
+        "volatility": 0.22
+      },
+      "valuation": {
+        "theoretical_value": 0.0,
+        "premium_paid": 0.0,
+        "max_profit": null,
+        "max_loss": null
+      }
+    }
+  },
+  "snapshot_id": 3
+}
+payoff: None
+payoff_curve: None
+payoff_points: None
+curve: None
+points: None
+decisions: None
+decision_results: None
+result: dict chaves ['pricing_payload', 'result']
+{
+  "pricing_payload": {
+    "structure_id": 2,
+    "structure_name": "SBSP+SMAL=BOVA",
+    "underlying_asset": "BOVA11",
+    "reference_date": "2026-06-21",
+    "spot_price": 198.35,
+    "interest_rate": 0.1175,
+    "volatility": 0.22,
+    "legs": [
+      {
+        "side": "LONG",
+        "instrument_type": "OPTION",
+        "option_type": "CALL",
+        "symbol": "BOVAH186",
+        "strike": 186.0,
+        "expiration_date": "2026-08-21",
+        "quantity": 4000,
+        "premium": 0.69,
+        "multiplier": 1.0
+      },
+      {
+        "side": "SHORT",
+        "instrument_type": "OPTION",
+        "option_type": "CALL",
+        "symbol": "BOVAG34",
+        "strike": 157.0,
+        "expiration_date": "2026-07-17",
+        "quantity": 2500,
+        "premium": 10.44,
+        "multiplier": 1.0
+      },
+      {
+        "side": "SHORT",
+        "instrument_type": "OPTION",
+        "option_type": "PUT",
+        "symbol": "BOVAG34",
+        "strike": 184.0,
+        "expiration_date": "2026-07-17",
+        "quantity": 2500,
+        "premium": 16.93,
+        "multiplier": 1.0
+      },
+      {
+        "side": "LONG",
+        "instrument_type": "OPTION",
+        "option_type": "PUT",
+        "symbol": "BOVAT158",
+        "strike": 158.0,
+        "expiration_date": "2026-08-21",
+        "quantity": 4000,
+        "premium": 1.51,
+        "multiplier": 1.0
+      }
+    ],
+    "meta": {
+      "snapshot_source": "canonical_manual_without_alias",
+      "alias_legacy_aba": null,
+      "fallback_reason": "alias_legacy_aba is null for structure_id=2"
+    }
+  },
+  "result": {
+    "engine": "stub",
+    "status": "ok",
+    "structure_id": 2,
+    "underlying_asset": "BOVA11",
+    "reference_date": "2026-06-21",
+    "metrics": {
+      "number_of_legs": 4,
+      "total_quantity": 13000,
+      "spot_price": 198.35,
+      "interest_rate": 0.1175,
+      "volatility": 0.22
+    },
+    "valuation": {
+      "theoretical_value": 0.0,
+      "premium_paid": 0.0,
+      "max_profit": null,
+      "max_loss": null
+    }
+  }
+}
+pricing_result: None
+
+== Inspecao pos-execucao de payoff e decisoes ==
+
+-- Banco: dados\app.db --
+payoff_curve_points: NAO_EXISTE
+structure_decisions: NAO_EXISTE
+pricing_executions: linhas structure_id=2 = 3
+structure_snapshots: linhas structure_id=2 = 3
+structure_leg_snapshots: linhas structure_id=2 = 12
+
+-- Banco: dados\derived.db --
+payoff_curve_points: linhas structure_id=2 = 0
+structure_decisions: linhas structure_id=2 = 0
+pricing_executions: NAO_EXISTE
+structure_snapshots: NAO_EXISTE
+structure_leg_snapshots: NAO_EXISTE
+
+============================================================
+FIM DO DIAGNOSTICO FASE 3F
+============================================================
