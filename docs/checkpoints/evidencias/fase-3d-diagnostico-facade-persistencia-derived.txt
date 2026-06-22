@@ -1,0 +1,2284 @@
+== Fase 3D - Diagnostico facade, pricing e persistencia derived ==
+
+Data:
+Sun Jun 21 21:30:58     2026
+
+1) Branch e estado git
+
+fase-3a4-auto-pricing-manual-save
+?? docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt
+?? scripts/fase-3d-diagnostico-facade-persistencia-derived.sh
+6ba7a6e chore: diagnostica appdb ui e pricing flow fase 3c
+c5107e1 chore: diagnostica schema canonico de estruturas fase 3b
+3cb1319 chore: inicia diagnostico fase 3a cadastro payoff decisoes
+ec21c9e test: registra suite geral apos fechamento da fase 2b
+908d862 docs: fecha validacao da normalizacao numerica fase 2b
+93e9844 chore: adiciona script de fechamento fase 2b
+51e4f8e test: adiciona regressao para normalizacao de quantity
+b145981 chore: adiciona scripts de automacao fase 2b
+c14fe17 docs: registra análise da normalização numérica fase 2b
+07eabe5 docs: registra validação manual da fase 3a4
+
+2) Trecho _reprice_structure_after_save em UI/main_window.py
+
+            except Exception:
+                pass
+
+            if saved_structure_id is not None:
+                self._reprice_structure_after_save(int(saved_structure_id))
+
+
+    def _reprice_structure_after_save(self, structure_id: int) -> None:
+        """
+        Recalcula pricing/payoff/decisão após criação ou edição manual.
+
+        Usa thread para não congelar a UI.
+        Falhas não desfazem o cadastro da estrutura.
+        """
+
+        def _set_status(text: str) -> None:
+            try:
+                self.status_bar.config(text=text)
+            except Exception:
+                pass
+
+        def _post_status(text: str) -> None:
+            try:
+                self.root.after(0, lambda: _set_status(text))
+            except Exception:
+                _set_status(text)
+
+        sid = int(structure_id)
+        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+
+        def _worker() -> None:
+            try:
+                # Import lazy para evitar side-effects no import da UI/testes.
+                from services.canonical_pricing_facade import CanonicalPricingFacade
+
+                facade = CanonicalPricingFacade(db_path=self._db_path)
+                facade.execute_pricing(sid)
+
+                def _after_success() -> None:
+                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+                    try:
+                        self.refresh_data()
+                    except Exception:
+                        pass
+
+                try:
+                    self.root.after(0, _after_success)
+                except Exception:
+                    _after_success()
+
+            except Exception as exc:
+                _post_status(
+                    f"Estrutura {sid} salva, mas o recálculo automático falhou: {exc}"
+                )
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+
+    # ------------------------------------------------------------------
+    # Entry point
+    # ------------------------------------------------------------------
+
+    def run(self):
+        """Inicia a aplicação."""
+        self.root.mainloop()
+
+def main():
+    """Entry point da UI."""
+    app = MainWindow()
+    app.run()
+
+if __name__ == "__main__":
+    main()
+
+3) Ocorrencias CanonicalPricingFacade e persistencia payoff/decision
+
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:5:           no PricingExecutionPersistenceService.
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:36:from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+services/canonical_pricing_facade.py:37:from services.pricing_execution_service import PricingExecutionService
+services/canonical_pricing_facade.py:143:def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+services/canonical_pricing_facade.py:320:class CanonicalPricingFacade:
+services/canonical_pricing_facade.py:328:                                     PricingExecutionService.execute_payload()
+services/canonical_pricing_facade.py:329:                                             PricingExecutionPersistenceService.persist()
+services/canonical_pricing_facade.py:330:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:331:                                                             derived.db
+services/canonical_pricing_facade.py:337:        pricing_execution_service: PricingExecutionService | None = None,
+services/canonical_pricing_facade.py:338:        persistence_service: PricingExecutionPersistenceService | None = None,
+services/canonical_pricing_facade.py:343:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py:345:        self._persister = persistence_service or PricingExecutionPersistenceService(
+services/canonical_pricing_facade.py:346:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py:350:    def execute_pricing(
+services/canonical_pricing_facade.py:385:            #  5. Persiste (app.db + derived.db via port) 
+services/derived_payoff_persistence.py:1:# services/derived_payoff_persistence.py
+services/derived_payoff_persistence.py:7:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:12:class DerivedPayoffPersistence:
+services/derived_payoff_persistence.py:19:      3. Persistir pontos no derived.db via derived_service
+services/derived_payoff_persistence.py:27:    def persist(
+services/derived_payoff_persistence.py:33:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+services/derived_payoff_persistence.py:40:                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+services/derived_payoff_persistence.py:52:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+services/derived_payoff_persistence.py:60:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+services/derived_payoff_persistence.py:69:    def _persist_payoff(
+services/derived_payoff_persistence.py:81:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+services/derived_payoff_persistence.py:86:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+services/derived_payoff_persistence.py:88:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+services/derived_payoff_persistence.py:96:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+services/derived_payoff_persistence.py:105:    def _persist_decision(
+services/derived_payoff_persistence.py:158:            save_decision_from_canonical_payload(
+services/derived_payoff_persistence.py:166:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+services/derived_payoff_persistence.py:173:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+services/derived_service.py:2:# services/derived_service.py
+services/derived_service.py:15:from db.config import connect_app, connect_derived
+services/derived_service.py:16:from db.derived_repo import (
+services/derived_service.py:19:    ensure_derived_tables,
+services/derived_service.py:82:    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+services/derived_service.py:152:    with connect_derived() as conn:
+services/derived_service.py:153:        ensure_derived_tables(conn)
+services/derived_service.py:160:def save_payoff_curve(
+services/derived_service.py:197:    with connect_derived() as conn:
+services/derived_service.py:198:        ensure_derived_tables(conn)
+services/derived_service.py:210:def save_payoff_from_canonical_payload(
+services/derived_service.py:242:        sig = inspect.signature(save_payoff_curve)
+services/derived_service.py:254:        return save_payoff_curve(
+services/derived_service.py:263:    return save_payoff_curve(
+services/derived_service.py:273:def save_decision(
+services/derived_service.py:312:    with connect_derived() as conn:
+services/derived_service.py:313:        ensure_derived_tables(conn)
+services/derived_service.py:322:def save_decision_from_canonical_payload(
+services/derived_service.py:357:    return save_decision(
+services/derived_service.py:368:def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
+services/derived_service.py:369:    with connect_derived() as conn:
+services/derived_service.py:370:        ensure_derived_tables(conn)
+services/derived_service.py:381:    with connect_derived() as conn:
+services/derived_service.py:385:            FROM payoff_curve_points
+services/derived_service.py:407:    with connect_derived() as conn:
+services/derived_service.py:412:              FROM payoff_curve_points
+services/derived_service.py:430:    with connect_derived() as conn:
+services/derived_service.py:437:                "PRAGMA table_info(structure_decisions)"
+services/derived_service.py:455:            FROM structure_decisions
+services/derived_service.py:522:# alteracao_65 -- DerivedService: fachada orientada a objetos
+services/derived_service.py:527:class DerivedService:
+services/derived_service.py:528:    """Fachada OO sobre as funcoes standalone do derived_service.
+services/derived_service.py:540:    def save_payoff_curve(self, *args, **kwargs):
+services/derived_service.py:541:        return save_payoff_curve(*args, **kwargs)
+services/derived_service.py:543:    def save_decision(self, *args, **kwargs):
+services/derived_service.py:544:        return save_decision(*args, **kwargs)
+services/derived_service.py:546:    def cleanup_derived(self, days_to_keep: int = 30):
+services/derived_service.py:547:        return cleanup_derived(days_to_keep)
+services/payoff_persistence_port.py:9:    Implementações devem gravar os dados no derived.db após
+services/payoff_persistence_port.py:13:    def persist(
+services/pricing_engine_stub.py:5:    def run(self, pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services/pricing_execution_app_service.py:7:  - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+services/pricing_execution_app_service.py:17:from services.pricing_execution_query_service import PricingExecutionQueryService
+services/pricing_execution_app_service.py:22:class PricingExecutionAppService:
+services/pricing_execution_app_service.py:26:        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+services/pricing_execution_app_service.py:33:            pricing_execution_query_service or PricingExecutionQueryService()
+services/pricing_execution_app_service.py:40:    def execute_pricing(
+services/pricing_execution_orchestration_service.py:6:    PricingExecutionPersistenceService,
+services/pricing_execution_orchestration_service.py:8:from services.pricing_execution_service import PricingExecutionService
+services/pricing_execution_orchestration_service.py:12:class PricingExecutionOrchestrationService:
+services/pricing_execution_orchestration_service.py:16:        pricing_execution_service: PricingExecutionService | None = None,
+services/pricing_execution_orchestration_service.py:17:        pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
+services/pricing_execution_orchestration_service.py:20:        self.pricing_execution_service = pricing_execution_service or PricingExecutionService(
+services/pricing_execution_orchestration_service.py:25:            or PricingExecutionPersistenceService(
+services/pricing_execution_orchestration_service.py:30:    def execute_and_persist(
+services/pricing_execution_persistence_service.py:5:from repositories.pricing_executions_repository import PricingExecutionsRepository
+services/pricing_execution_persistence_service.py:12:class PricingExecutionPersistenceService:
+services/pricing_execution_persistence_service.py:15:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+services/pricing_execution_persistence_service.py:20:            pricing_executions_repository or PricingExecutionsRepository()
+services/pricing_execution_persistence_service.py:25:    def persist_execution(
+services/pricing_execution_persistence_service.py:141:    def _build_structure_json(pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services/pricing_execution_persistence_service.py:151:    def _build_market_json(pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services/pricing_execution_query_service.py:4:from repositories.pricing_executions_repository import PricingExecutionsRepository
+services/pricing_execution_query_service.py:7:class PricingExecutionQueryService:
+services/pricing_execution_query_service.py:10:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+services/pricing_execution_query_service.py:13:            pricing_executions_repository or PricingExecutionsRepository()
+services/pricing_execution_service.py:7:class PricingExecutionService:
+services/pricing_input_service.py:14:    def build_pricing_payload(
+services/pricing_input_service.py:26:    def build_pricing_payload_from_canonical_input(
+services/pricing_payload_adapter.py:18:def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
+services/structure_events_service.py:90:    def _validate_price(self, price: float | int | None) -> None:
+services/structure_input_mapper.py:28:def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+services/structure_input_mapper.py:80:    _enrich_bid_ask_derived_fields(mapped_leg)
+repositories/market_snapshot_repository.py:149:def _mid_price(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
+repositories/pricing_executions_repository.py:10:class PricingExecutionsRepository:
+repositories/ui_data_table_candidates.py:12:    "structure_decisions",
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+db/config.py:9:DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/derived.db"))).resolve()
+db/config.py:15:def connect_derived() -> sqlite3.Connection:
+db/derived_repo.py:1:# db/derived_repo.py
+db/derived_repo.py:4:Tabelas: payoff_curve_points, structure_decisions
+db/derived_repo.py:9:  - Encapsula lógica em classe DerivedRepo (resolve alteracao_26 / alteracao_30)
+db/derived_repo.py:74:# alteracao_36_A: adicionar structure_id ao DDL de payoff_curve_points
+db/derived_repo.py:77:CREATE TABLE IF NOT EXISTS payoff_curve_points (
+db/derived_repo.py:91:ON payoff_curve_points (timestamp, aba, point_spot)
+db/derived_repo.py:97:ON payoff_curve_points (structure_id, timestamp)
+db/derived_repo.py:101:CREATE TABLE IF NOT EXISTS structure_decisions (
+db/derived_repo.py:122:ON structure_decisions (timestamp, aba)
+db/derived_repo.py:127:ON structure_decisions (aba, timestamp)
+db/derived_repo.py:132:ON structure_decisions (timestamp)
+db/derived_repo.py:138:        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
+db/derived_repo.py:177:    # alteracao_36_A: migration incremental payoff_curve_points
+db/derived_repo.py:178:    existing_cols = _table_columns(conn, "payoff_curve_points")
+db/derived_repo.py:192:    # Índices de structure_decisions
+db/derived_repo.py:204:def ensure_derived_tables(conn: sqlite3.Connection) -> None:
+db/derived_repo.py:210:# DerivedRepo -- API canônica com gerenciamento próprio de conexão
+db/derived_repo.py:213:class DerivedRepo:
+db/derived_repo.py:215:    Repositório canônico para derived.db.
+db/derived_repo.py:221:    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
+db/derived_repo.py:222:        self._db_path = derived_db or db_path
+db/derived_repo.py:298:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:354:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:359:                INSERT INTO payoff_curve_points
+db/derived_repo.py:402:                INSERT OR REPLACE INTO payoff_curve_points
+db/derived_repo.py:448:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:453:                INSERT INTO payoff_curve_points
+db/derived_repo.py:474:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:500:                    FROM payoff_curve_points
+db/derived_repo.py:510:                    FROM payoff_curve_points
+db/derived_repo.py:521:                    FROM payoff_curve_points
+db/derived_repo.py:562:                f"SELECT * FROM structure_decisions {where} ORDER BY id DESC LIMIT ?",
+db/derived_repo.py:579:                FROM structure_decisions d
+db/derived_repo.py:580:                LEFT JOIN payoff_curve_points p
+db/derived_repo.py:588:                FROM payoff_curve_points p
+db/derived_repo.py:589:                LEFT JOIN structure_decisions d
+db/derived_repo.py:611:                f"DELETE FROM payoff_curve_points "
+db/derived_repo.py:623:                f"DELETE FROM structure_decisions "
+db/derived_repo.py:648:            {verb} INTO structure_decisions
+db/derived_repo.py:684:    ensure_derived_tables(conn)
+db/derived_repo.py:691:        "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:695:        INSERT INTO payoff_curve_points
+db/derived_repo.py:722:    ensure_derived_tables(conn)
+db/derived_repo.py:726:        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+db/derived_repo.py:732:        INSERT INTO structure_decisions
+db/derived_repo.py:761:    ensure_derived_tables(conn)
+db/derived_repo.py:778:    ensure_derived_tables(conn)
+db/derived_repo.py:785:        INSERT OR REPLACE INTO payoff_curve_points
+db/derived_repo.py:813:    ensure_derived_tables(conn)
+db/derived_repo.py:819:        INSERT OR REPLACE INTO structure_decisions
+db/derived_repo.py:846:    ensure_derived_tables(conn)
+db/derived_repo.py:852:            FROM payoff_curve_points
+db/derived_repo.py:859:            FROM payoff_curve_points
+db/derived_repo.py:867:            FROM payoff_curve_points
+db/derived_repo.py:876:    ensure_derived_tables(conn)
+db/derived_repo.py:880:        FROM structure_decisions d
+db/derived_repo.py:881:        LEFT JOIN payoff_curve_points p ON (d.aba = p.aba AND d.timestamp = p.timestamp)
+db/derived_repo.py:888:        FROM payoff_curve_points p
+db/derived_repo.py:889:        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+db/derived_repo.py:906:    ensure_derived_tables(conn)
+db/derived_repo.py:909:        DELETE FROM payoff_curve_points
+db/derived_repo.py:918:    ensure_derived_tables(conn)
+db/derived_repo.py:921:        DELETE FROM structure_decisions
+db/migrations/add_structure_id_to_payoff_curve_points.py:1:# db/migrations/add_structure_id_to_payoff_curve_points.py
+db/migrations/add_structure_id_to_payoff_curve_points.py:3:Migration: adiciona structure_id em payoff_curve_points
+db/migrations/add_structure_id_to_payoff_curve_points.py:4:e payoff_curve_summary, com backfill via structure_decisions.
+db/migrations/add_structure_id_to_payoff_curve_points.py:7:    python db/migrations/add_structure_id_to_payoff_curve_points.py
+db/migrations/add_structure_id_to_payoff_curve_points.py:8:    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/derived.db
+db/migrations/add_structure_id_to_payoff_curve_points.py:18:    #  payoff_curve_points 
+db/migrations/add_structure_id_to_payoff_curve_points.py:20:        "payoff_curve_points: verificar se structure_id já existe",
+db/migrations/add_structure_id_to_payoff_curve_points.py:24:        "payoff_curve_points: ADD COLUMN structure_id",
+db/migrations/add_structure_id_to_payoff_curve_points.py:25:        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER",
+db/migrations/add_structure_id_to_payoff_curve_points.py:28:        "payoff_curve_points: BACKFILL structure_id",
+db/migrations/add_structure_id_to_payoff_curve_points.py:30:        UPDATE payoff_curve_points
+db/migrations/add_structure_id_to_payoff_curve_points.py:33:            FROM structure_decisions d
+db/migrations/add_structure_id_to_payoff_curve_points.py:34:            WHERE d.aba       = payoff_curve_points.aba
+db/migrations/add_structure_id_to_payoff_curve_points.py:35:              AND d.timestamp = payoff_curve_points.timestamp
+db/migrations/add_structure_id_to_payoff_curve_points.py:41:        "payoff_curve_points: CREATE INDEX sid+ts",
+db/migrations/add_structure_id_to_payoff_curve_points.py:44:            ON payoff_curve_points (structure_id, timestamp)
+db/migrations/add_structure_id_to_payoff_curve_points.py:58:            FROM structure_decisions d
+db/migrations/add_structure_id_to_payoff_curve_points.py:106:        for table in ("payoff_curve_points", "payoff_curve_summary"):
+db/migrations/add_structure_id_to_payoff_curve_points.py:127:    parser.add_argument("--db", default="dados/derived.db")
+db/reader.py:17:    def __init__(self, db_path: str = "dados/derived.db"):
+db/reader.py:58:                    FROM payoff_curve_points
+db/reader.py:67:                    FROM payoff_curve_points
+db/reader.py:69:                        SELECT MAX(timestamp) FROM payoff_curve_points WHERE {ref.db_column()} = ?
+db/reader.py:99:            columns = self._get_table_columns(conn, "structure_decisions")
+db/reader.py:129:                FROM structure_decisions
+db/schema.py:7:CREATE TABLE IF NOT EXISTS payoff_curve_points (
+db/schema.py:19:ON payoff_curve_points(timestamp, aba);
+db/schema.py:22:ON payoff_curve_points(point_spot);
+db/schema.py:25:CREATE TABLE IF NOT EXISTS structure_decisions (
+db/schema.py:46:ON structure_decisions(timestamp, aba);
+db/schema.py:49:ON structure_decisions(decision);
+db/schema.py:52:ON structure_decisions(ratio);
+db/schema.py:110:def ensure_derived_tables(conn):
+db/writer.py:15:    def __init__(self, db_path: str = "dados/derived.db"):
+db/writer.py:27:    def save_payoff_points(self, 
+db/writer.py:72:                INSERT INTO payoff_curve_points 
+db/writer.py:91:        DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic()
+db/writer.py:97:            "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+db/writer.py:102:        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+db/writer.py:115:        conn = get_derived_connection()
+db/writer.py:129:                SELECT * FROM structure_decisions 
+db/writer.py:146:                FROM payoff_curve_points 
+domain/payoff_features.py:14:def get_derived_db_connection() -> sqlite3.Connection:
+domain/payoff_features.py:15:    db_path = Path("dados/derived.db").resolve()
+domain/payoff_features.py:108:    Chave canônica : structure_id + reference_date   upsert no derived.db.
+domain/payoff_features.py:212:    conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+domain/position_side.py:54:def to_pricing_engine_side(value: Any) -> str:
+domain/structure_metrics.py:178:def compute_realistic_price(leg: dict[str, Any]) -> float | None:
+UI/components/details_panel.py:50:    def _derived_db_path(self) -> Path:
+UI/components/details_panel.py:52:        Caminho do derived.db.
+UI/components/details_panel.py:70:        return project_root / "dados" / "derived.db"
+UI/components/details_panel.py:76:        Importante: não usa self._db_path porque _derived_db_path() já trata
+UI/components/details_panel.py:77:        esse atributo como caminho do derived.db em testes/compatibilidade.
+UI/components/details_panel.py:153:        derived_explicit = []
+UI/components/details_panel.py:159:        # Não pode cair para derived.db quando o raw/app não existe.
+UI/components/details_panel.py:175:            "_derived_db_path",
+UI/components/details_panel.py:176:            "derived_db_path",
+UI/components/details_panel.py:199:            is_derived = (
+UI/components/details_panel.py:200:                "derived" in low_name
+UI/components/details_panel.py:202:                or low_path.endswith("derived.db")
+UI/components/details_panel.py:203:                or "derived.db" in low_path
+UI/components/details_panel.py:206:            if is_derived:
+UI/components/details_panel.py:207:                derived_explicit.append(p)
+UI/components/details_panel.py:213:        elif derived_explicit:
+UI/components/details_panel.py:214:            candidates = derived_explicit
+UI/components/details_panel.py:218:                "_derived_db_path",
+UI/components/details_panel.py:219:                "derived_db_path",
+UI/components/details_panel.py:254:                    project_root / "derived.db",
+UI/components/details_panel.py:257:                    project_root / "dados" / "derived.db",
+UI/components/details_panel.py:410:            "structure_decisions",
+UI/components/details_panel.py:411:            "payoff_curve_points",
+UI/components/details_panel.py:878:    def _fetch_latest_decision_from_derived(
+UI/components/details_panel.py:882:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+UI/components/details_panel.py:886:        db_path = self._derived_db_path()
+UI/components/details_panel.py:900:                FROM structure_decisions
+UI/components/details_panel.py:920:    def _fetch_payoff_points_from_derived(self, structure_id):
+UI/components/details_panel.py:922:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:926:        db_path = self._derived_db_path()
+UI/components/details_panel.py:934:                FROM payoff_curve_points
+UI/components/details_panel.py:948:    def _fetch_audit_info_from_derived(self, structure_id) -> Dict[str, Any]:
+UI/components/details_panel.py:954:        db_path = self._derived_db_path()
+UI/components/details_panel.py:962:                FROM structure_decisions
+UI/components/details_panel.py:975:                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+UI/components/details_panel.py:980:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/components/details_panel.py:1023:    def _refresh_current_from_derived(self, structure_id):
+UI/components/details_panel.py:1024:        """Recarrega somente a estrutura atual do derived.db e atualiza widgets."""
+UI/components/details_panel.py:1025:        decision = self._fetch_latest_decision_from_derived(structure_id)
+UI/components/details_panel.py:1029:        pts = self._fetch_payoff_points_from_derived(structure_id)
+UI/components/details_panel.py:1039:        audit = self._fetch_audit_info_from_derived(structure_id)
+UI/main_window.py:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+UI/main_window.py:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+UI/main_window.py:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+UI/main_window.py:447:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+UI/main_window.py:449:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+UI/main_window.py:511:* Domain Layer  derived.db
+UI/main_window.py:555:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py:697:    def _reprice_structure_after_save(self, structure_id: int) -> None:
+UI/models/ui_data.py:3:# Toda conexao de leitura passa a ser por chamada (igual a _connect_derived_threadsafe)
+UI/models/ui_data.py:50:    def __init__(self, derived_db_path: Optional[Path] = None):
+UI/models/ui_data.py:52:        self.derived_db_path = (
+UI/models/ui_data.py:53:            Path(derived_db_path).resolve()
+UI/models/ui_data.py:54:            if derived_db_path
+UI/models/ui_data.py:57:        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+UI/models/ui_data.py:71:        if not self.derived_db_path.exists():
+UI/models/ui_data.py:73:                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+UI/models/ui_data.py:75:        conn = sqlite3.connect(str(self.derived_db_path))
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:507:        conn = self._connect_derived_threadsafe()
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+UI/models/ui_data.py:650:            f"derived.db: OK\n"
+UI/models/ui_data.py:661:    # _connect_derived_threadsafe agora e apenas alias de _connect
+UI/models/ui_data.py:662:    def _connect_derived_threadsafe(self) -> sqlite3.Connection:
+scripts/check_rota_desenvolvimento.py:313:        DADOS_DIR / "derived.db",
+scripts/check_rota_desenvolvimento.py:389:        "scripts/validate_derived_db.py",
+scripts/check_rota_desenvolvimento.py:392:        "run_derived_pipeline.py",
+scripts/check_rota_desenvolvimento.py:393:        "validate_derived_db.py",
+scripts/check_rota_desenvolvimento.py:421:        "- Se derived.db validar e os smokes existirem/passarem, aí sim avaliar avanço para a próxima fase da rota.\n"
+scripts/purge_derived_snapshots.py:12:    "payoff_curve_points",
+scripts/purge_derived_snapshots.py:13:    "structure_decisions",
+scripts/purge_derived_snapshots.py:34:        description="Remove snapshots derivados antigos/inválidos do derived.db"
+scripts/purge_derived_snapshots.py:38:        default="dados/derived.db",
+scripts/purge_derived_snapshots.py:39:        help="Caminho do derived.db. Default: dados/derived.db",
+scripts/repair_derived_db_consistency.py:20:        FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:21:        LEFT JOIN payoff_curve_points p
+scripts/repair_derived_db_consistency.py:31:        FROM payoff_curve_points p
+scripts/repair_derived_db_consistency.py:32:        LEFT JOIN structure_decisions d
+scripts/repair_derived_db_consistency.py:49:        description="Repara inconsistências de snapshots em dados/derived.db"
+scripts/repair_derived_db_consistency.py:53:        default="dados/derived.db",
+scripts/repair_derived_db_consistency.py:54:        help="Caminho do derived.db. Default: dados/derived.db",
+scripts/repair_derived_db_consistency.py:122:            FROM payoff_curve_points
+scripts/repair_derived_db_consistency.py:133:            FROM structure_decisions
+scripts/repair_derived_db_consistency.py:199:                        UPDATE structure_decisions
+scripts/repair_derived_db_consistency.py:222:                FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:223:                LEFT JOIN payoff_curve_points p
+scripts/repair_derived_db_consistency.py:244:                        f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+scripts/repair_derived_db_consistency.py:255:                FROM payoff_curve_points p
+scripts/repair_derived_db_consistency.py:256:                LEFT JOIN structure_decisions d
+scripts/repair_derived_db_consistency.py:275:                        DELETE FROM payoff_curve_points
+scripts/repair_derived_db_consistency.py:278:                            FROM structure_decisions d
+scripts/repair_derived_db_consistency.py:279:                            WHERE d.aba = payoff_curve_points.aba
+scripts/repair_derived_db_consistency.py:280:                              AND d.timestamp = payoff_curve_points.timestamp
+scripts/repair_derived_db_consistency.py:299:            print("[OK] derived.db consistente.")
+scripts/repair_derived_db_consistency.py:302:        print("[WARN] derived.db ainda inconsistente.")
+scripts/run_derived_pipeline.py:23:    from db.config import connect_derived
+scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+scripts/run_derived_pipeline.py:26:    conn = connect_derived()
+scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+scripts/run_derived_pipeline.py:44:    parser = argparse.ArgumentParser(description="Run derived pipeline")
+scripts/run_derived_pipeline.py:48:        help="Não executar cleanup do derived.db antes de validar",
+scripts/run_derived_pipeline.py:53:    from services.derived_service import cleanup_derived
+scripts/run_derived_pipeline.py:56:        cleanup_derived(days_to_keep=30)
+scripts/validate_derived_db.py:3:Script para validar consistencia do banco derived.db
+scripts/validate_derived_db.py:4:- Nao depende de get_derived_connection (que pode nao existir no seu layout)
+scripts/validate_derived_db.py:5:- Faz auto-discovery do caminho do derived.db
+scripts/validate_derived_db.py:18:from db.derived_repo import validate_snapshot_consistency
+scripts/validate_derived_db.py:21:def _find_derived_db() -> Path | None:
+scripts/validate_derived_db.py:31:        PROJECT_ROOT / "dados" / "derived.db",
+scripts/validate_derived_db.py:32:        PROJECT_ROOT / "data" / "derived.db",
+scripts/validate_derived_db.py:33:        PROJECT_ROOT / "derived.db",
+scripts/validate_derived_db.py:34:        PROJECT_ROOT / "db" / "derived.db",
+scripts/validate_derived_db.py:45:    db_path = _find_derived_db()
+scripts/validate_derived_db.py:47:        print("[ERROR] derived.db nao encontrado.")
+scripts/validate_derived_db.py:51:    print(f"[INFO] Usando derived.db em: {db_path}")
+scripts/validate_derived_db.py:65:        points_count = safe_count("payoff_curve_points")
+scripts/validate_derived_db.py:66:        decisions_count = safe_count("structure_decisions")
+scripts/validate_derived_db.py:71:            print("[WARN] Tabela payoff_curve_points nao acessivel (ou nao existe).")
+scripts/validate_derived_db.py:76:            print("[WARN] Tabela structure_decisions nao acessivel (ou nao existe).")
+ATT/tests/conftest.py:24:DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
+ATT/tests/test_derived_service.py:3:import services.derived_service as ds
+ATT/tests/test_derived_service.py:86:def test_save_payoff_from_canonical_payload_should_use_resolved_storage_key(monkeypatch):
+ATT/tests/test_derived_service.py:89:    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+ATT/tests/test_derived_service.py:97:    monkeypatch.setattr(ds, "save_payoff_curve", fake_save_payoff_curve)
+ATT/tests/test_derived_service.py:110:    result = ds.save_payoff_from_canonical_payload(payload)
+ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+ATT/tests/test_derived_service.py:128:    def fake_save_decision(ref, decision, timestamp=None):
+ATT/tests/test_derived_service.py:134:    monkeypatch.setattr(ds, "save_decision", fake_save_decision)
+ATT/tests/test_derived_service.py:141:    result = ds.save_decision_from_canonical_payload(
+ATT/tests/test_derived_service.py:159:def test_save_decision_preserva_structure_id_explicito_sem_alias(monkeypatch):
+ATT/tests/test_derived_service.py:160:    import services.derived_service as svc
+ATT/tests/test_derived_service.py:177:    monkeypatch.setattr(svc, "connect_derived", lambda: FakeConn())
+ATT/tests/test_derived_service.py:178:    monkeypatch.setattr(svc, "ensure_derived_tables", lambda conn: None)
+ATT/tests/test_derived_service.py:182:    result = svc.save_decision(
+ATT/tests/test_position_side.py:42:def test_to_pricing_engine_side_converts_to_long_short_only_at_technical_boundary(raw, expected):
+ATT/tests/test_pricing_engine_stub.py:46:def test_run_raises_when_pricing_payload_is_missing():
+ATT/tests/test_pricing_executions_repository.py:6:from repositories.pricing_executions_repository import PricingExecutionsRepository
+ATT/tests/test_pricing_executions_repository.py:9:def _make_repo(tmp_path) -> PricingExecutionsRepository:
+ATT/tests/test_pricing_executions_repository.py:33:    return PricingExecutionsRepository(db_path=str(db_path))
+ATT/tests/test_pricing_executions_repository.py:36:def test_save_execution_persists_record_with_payload_and_result(tmp_path):
+ATT/tests/test_pricing_executions_repository.py:78:def test_save_execution_accepts_none_pricing_payload(tmp_path):
+ATT/tests/test_pricing_executions_repository.py:115:def test_list_and_get_execution_return_persisted_records(tmp_path):
+ATT/tests/test_pricing_execution_app_service.py:1:from services.pricing_execution_app_service import PricingExecutionAppService
+ATT/tests/test_pricing_execution_app_service.py:9:    def execute_pricing(self, structure_id: int, reference_date: str | None = None):
+ATT/tests/test_pricing_execution_app_service.py:14:class FakePricingExecutionQueryService:
+ATT/tests/test_pricing_execution_app_service.py:51:    return PricingExecutionAppService(
+ATT/tests/test_pricing_execution_app_service.py:53:        pricing_execution_query_service=query_service or FakePricingExecutionQueryService(),
+ATT/tests/test_pricing_execution_app_service.py:57:def test_execute_pricing_returns_persisted_record_when_present():
+ATT/tests/test_pricing_execution_app_service.py:61:    service = PricingExecutionAppService(
+ATT/tests/test_pricing_execution_app_service.py:63:        pricing_execution_query_service=FakePricingExecutionQueryService(),
+ATT/tests/test_pricing_execution_app_service.py:70:def test_execute_pricing_returns_raw_response_when_persisted_record_is_missing():
+ATT/tests/test_pricing_execution_app_service.py:73:    service = PricingExecutionAppService(
+ATT/tests/test_pricing_execution_app_service.py:75:        pricing_execution_query_service=FakePricingExecutionQueryService(),
+ATT/tests/test_pricing_execution_app_service.py:81:def test_execute_pricing_rejects_invalid_structure_id():
+ATT/tests/test_pricing_execution_app_service.py:83:    service = PricingExecutionAppService(
+ATT/tests/test_pricing_execution_app_service.py:85:        pricing_execution_query_service=FakePricingExecutionQueryService(),
+ATT/tests/test_pricing_execution_app_service.py:95:def test_execute_pricing_rejects_invalid_reference_date():
+ATT/tests/test_pricing_execution_app_service.py:97:    service = PricingExecutionAppService(
+ATT/tests/test_pricing_execution_app_service.py:99:        pricing_execution_query_service=FakePricingExecutionQueryService(),
+ATT/tests/test_pricing_execution_app_service.py:109:def test_execute_pricing_accepts_none_reference_date():
+ATT/tests/test_pricing_execution_app_service.py:113:    service = PricingExecutionAppService(
+ATT/tests/test_pricing_execution_app_service.py:115:        pricing_execution_query_service=FakePricingExecutionQueryService(),
+ATT/tests/test_pricing_execution_app_service.py:123:    query_service = FakePricingExecutionQueryService()
+ATT/tests/test_pricing_execution_app_service.py:137:    query_service = FakePricingExecutionQueryService()
+ATT/tests/test_pricing_execution_app_service.py:151:    query_service = FakePricingExecutionQueryService()
+ATT/tests/test_pricing_execution_app_service.py:159:    query_service = FakePricingExecutionQueryService()
+ATT/tests/test_pricing_execution_controller.py:7:class FakePricingExecutionAppService:
+ATT/tests/test_pricing_execution_controller.py:30:    def execute_pricing(self, structure_id: int, reference_date: str):
+ATT/tests/test_pricing_execution_controller.py:100:    fake_service = FakePricingExecutionAppService()
+ATT/tests/test_pricing_execution_controller.py:111:def test_create_pricing_execution_returns_200_and_payload():
+ATT/tests/test_pricing_execution_controller.py:139:def test_create_pricing_execution_returns_404_when_value_error_contains_not_found():
+ATT/tests/test_pricing_execution_controller.py:158:def test_create_pricing_execution_returns_400_for_generic_value_error():
+ATT/tests/test_pricing_execution_controller.py:181:def test_list_pricing_executions_returns_paginated_response():
+ATT/tests/test_pricing_execution_controller.py:219:def test_list_pricing_executions_returns_400_on_service_value_error():
+ATT/tests/test_pricing_execution_controller.py:234:def test_get_latest_pricing_execution_returns_200():
+ATT/tests/test_pricing_execution_controller.py:264:def test_get_latest_pricing_execution_returns_404_when_no_summary_found():
+ATT/tests/test_pricing_execution_controller.py:279:def test_get_latest_pricing_execution_returns_400_for_generic_value_error():
+ATT/tests/test_pricing_execution_controller.py:299:def test_get_pricing_execution_returns_200():
+ATT/tests/test_pricing_execution_controller.py:313:def test_get_pricing_execution_returns_404_when_not_found():
+ATT/tests/test_pricing_execution_controller.py:326:def test_get_pricing_execution_returns_400_for_generic_value_error():
+ATT/tests/test_pricing_execution_orchestration_service.py:2:    PricingExecutionOrchestrationService,
+ATT/tests/test_pricing_execution_orchestration_service.py:7:    def build_pricing_payload(self, structure_id: int, reference_date: str | None = None):
+ATT/tests/test_pricing_execution_orchestration_service.py:15:class FakePricingExecutionService:
+ATT/tests/test_pricing_execution_orchestration_service.py:45:class FakePricingExecutionPersistenceService:
+ATT/tests/test_pricing_execution_orchestration_service.py:49:    def persist_execution(
+ATT/tests/test_pricing_execution_orchestration_service.py:71:def test_execute_and_persist_success():
+ATT/tests/test_pricing_execution_orchestration_service.py:72:    execution_service = FakePricingExecutionService(should_raise=False)
+ATT/tests/test_pricing_execution_orchestration_service.py:73:    persistence_service = FakePricingExecutionPersistenceService()
+ATT/tests/test_pricing_execution_orchestration_service.py:75:    service = PricingExecutionOrchestrationService(
+ATT/tests/test_pricing_execution_orchestration_service.py:104:def test_execute_and_persist_error():
+ATT/tests/test_pricing_execution_orchestration_service.py:105:    execution_service = FakePricingExecutionService(should_raise=True)
+ATT/tests/test_pricing_execution_orchestration_service.py:106:    persistence_service = FakePricingExecutionPersistenceService()
+ATT/tests/test_pricing_execution_orchestration_service.py:108:    service = PricingExecutionOrchestrationService(
+ATT/tests/test_pricing_execution_persistence_service.py:2:    PricingExecutionPersistenceService,
+ATT/tests/test_pricing_execution_persistence_service.py:6:class FakePricingExecutionsRepository:
+ATT/tests/test_pricing_execution_persistence_service.py:42:def test_persist_execution_extracts_fields_and_saves_record():
+ATT/tests/test_pricing_execution_persistence_service.py:43:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:44:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_persistence_service.py:94:def test_persist_execution_accepts_none_pricing_payload_and_explicit_error_message():
+ATT/tests/test_pricing_execution_persistence_service.py:95:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:96:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_persistence_service.py:139:def test_persist_execution_uses_result_error_message_when_explicit_error_not_provided():
+ATT/tests/test_pricing_execution_persistence_service.py:140:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:141:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_persistence_service.py:176:def test_persist_execution_creates_system_snapshot_for_successful_execution():
+ATT/tests/test_pricing_execution_persistence_service.py:177:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:180:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_persistence_service.py:273:def test_persist_execution_does_not_create_system_snapshot_without_pricing_payload():
+ATT/tests/test_pricing_execution_persistence_service.py:274:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:277:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_persistence_service.py:305:def test_persist_execution_does_not_create_system_snapshot_for_non_ok_status():
+ATT/tests/test_pricing_execution_persistence_service.py:306:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:309:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_persistence_service.py:342:def test_persist_execution_ignores_system_snapshot_failure():
+ATT/tests/test_pricing_execution_persistence_service.py:343:    repository = FakePricingExecutionsRepository()
+ATT/tests/test_pricing_execution_persistence_service.py:345:    service = PricingExecutionPersistenceService(
+ATT/tests/test_pricing_execution_query_service.py:1:from services.pricing_execution_query_service import PricingExecutionQueryService
+ATT/tests/test_pricing_execution_query_service.py:4:class FakePricingExecutionsRepository:
+ATT/tests/test_pricing_execution_query_service.py:68:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:69:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:79:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:80:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:90:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:91:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:99:def test_list_execution_summaries_uses_persisted_metrics_when_available():
+ATT/tests/test_pricing_execution_query_service.py:111:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:112:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:123:def test_list_execution_summaries_falls_back_to_nested_result_metrics_when_persisted_are_none():
+ATT/tests/test_pricing_execution_query_service.py:135:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:136:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:152:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:153:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:168:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:169:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:184:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:185:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:200:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:201:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:212:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:213:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:224:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:225:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:236:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:237:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:248:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:249:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:267:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:268:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:282:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:283:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:296:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:297:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:308:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:309:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:325:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:326:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:336:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:337:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:349:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:350:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_query_service.py:359:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:360:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:371:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:372:        pricing_executions_repository=FakePricingExecutionsRepository([])
+ATT/tests/test_pricing_execution_query_service.py:384:    service = PricingExecutionQueryService(
+ATT/tests/test_pricing_execution_query_service.py:385:        pricing_executions_repository=FakePricingExecutionsRepository(records)
+ATT/tests/test_pricing_execution_service.py:1:from services.pricing_execution_service import PricingExecutionService
+ATT/tests/test_pricing_execution_service.py:5:    def __init__(self, pricing_payload):
+ATT/tests/test_pricing_execution_service.py:9:    def build_pricing_payload(self, structure_id: int, reference_date: str | None = None):
+ATT/tests/test_pricing_execution_service.py:24:    def run(self, pricing_payload):
+ATT/tests/test_pricing_execution_service.py:45:    service = PricingExecutionService(
+ATT/tests/test_pricing_execution_service.py:78:    service = PricingExecutionService(
+ATT/tests/test_pricing_input_service.py:26:def test_build_pricing_payload_calls_canonical_input_service(monkeypatch):
+ATT/tests/test_pricing_input_service.py:45:    def fake_to_pricing_payload(value):
+ATT/tests/test_pricing_input_service.py:77:def test_build_pricing_payload_from_canonical_input_delegates_to_adapter(monkeypatch):
+ATT/tests/test_pricing_input_service.py:85:    def fake_to_pricing_payload(value):
+ATT/tests/test_pricing_input_service.py:102:def test_build_pricing_payload_passes_none_reference_date(monkeypatch):
+ATT/tests/test_pricing_input_service.py:110:    def fake_to_pricing_payload(value):
+ATT/tests/test_pricing_input_service.py:137:def test_build_pricing_payload_propagates_canonical_input_service_error(monkeypatch):
+ATT/tests/test_pricing_input_service.py:144:    def fake_to_pricing_payload(value):
+ATT/tests/test_pricing_input_service.py:167:def test_build_pricing_payload_from_canonical_input_propagates_adapter_error(monkeypatch):
+ATT/tests/test_pricing_input_service.py:173:    def fake_to_pricing_payload(value):
+ATT/tests/test_pricing_payload_adapter.py:7:    def test_should_not_include_alias_legacy_aba_in_pricing_payload(self):
+ATT/tests/test_pricing_payload_adapter.py:41:    def test_should_map_legs_to_pricing_shape(self):
+ATT/tests/test_pricing_payload_adapter.py:77:    def test_should_convert_position_side_to_pricing_technical_side(self):
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:51:def test_rtd_legacy_fallback_can_feed_pricing_payload_when_no_canonical_legs_exist():
+ATT/tests/test_structure_editor_integration.py:401:        mw._db_path = "dados/derived.db"
+ATT/tests/test_structure_editor_integration.py:406:        self.assertEqual(kwargs.get("db_path"), "dados/derived.db")
+ATT/tests/test_structure_events_repository.py:60:def test_create_event_persists_operational_event(events_repo, structures_repo):
+ATT/tests/test_structure_metrics.py:80:def test_compute_realistic_price_for_long_leg_uses_bid_first():
+ATT/tests/test_structure_metrics.py:91:def test_compute_realistic_price_for_short_leg_uses_ask_first():
+ATT/tests/test_system_snapshots_repository.py:85:def test_create_snapshot_persists_snapshot_and_legs(tmp_path: Path):
+ATT/tests/test_ui_data_migration.py:10:DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
+ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(derived_db_path=str(DB_PATH))
+
+4) Cabecalhos/trechos de arquivos principais
+
+
+---- services/canonical_pricing_facade.py ----
+# services/canonical_pricing_facade.py
+"""
+alteracao_17 -- Fachada canônica corrigida.
+alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+           no PricingExecutionPersistenceService.
+alteracao_41 -- Corrige underlying_asset no pricing_payload.
+
+Correções alteracao_41:
+  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+      busca alias_legacy_aba E underlying_asset em uma única query.
+  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+      elimina uso de selection_result.aba como underlying_asset
+      (aba legada  ativo subjacente real).
+  C8: execute_pricing() passa underlying_asset para o payload builder.
+
+Correções anteriores mantidas:
+  C1: sel.select(aba=...) -- parâmetro correto
+  C2: alias_legacy_aba buscado via query antes de chamar o selector
+  C3: orquestração direta repo  selector  execute_payload()
+  C4: engine_result extraído do wrapper antes de passar ao persister
+  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+"""
+from __future__ import annotations
+
+
+import sqlite3
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from repositories.market_snapshot_repository import MarketSnapshotRepository
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
+from services.derived_payoff_persistence import DerivedPayoffPersistence
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+from services.pricing_execution_service import PricingExecutionService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+
+def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+    """
+    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+
+    Raises ValueError se:
+      - estrutura não existir
+      - alias_legacy_aba for nulo (sem aba legada mapeada)
+    """
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+            (structure_id,),
+        ).fetchone()
+
+    if row is None:
+        raise ValueError(f"structure not found: {structure_id}")
+
+    aba = row["alias_legacy_aba"]
+    if not aba:
+        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+
+    underlying_asset = row["underlying_asset"]  # NOT NULL -- sempre presente
+
+    return aba, underlying_asset
+
+
+#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+
+
+
+def _to_float(value: Any, default: float = 0.0) -> float:
+    try:
+        if value is None or value == "":
+            return default
+
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return default
+
+            text = text.replace("R$", "").replace("$", "").strip()
+
+            # Remove espaços internos comuns em valores monetários.
+            text = text.replace(" ", "")
+
+            # Formatos comuns vindos de RTD/planilha:
+            #   BR: "1.234,56" -> "1234.56"
+            #   US: "1,234.56" -> "1234.56"
+            #   BR simples: "124,66" -> "124.66"
+            if "," in text and "." in text:
+                if text.rfind(",") > text.rfind("."):
+                    text = text.replace(".", "").replace(",", ".")
+                else:
+                    text = text.replace(",", "")
+            elif "," in text:
+                text = text.replace(",", ".")
+
+            return float(text)
+
+        return float(value)
+    except Exception:
+        return default
+
+
+def _normalize_expiration_date(value: Any) -> str | None:
+    if not value:
+        return None
+
+    text = str(value).strip()
+
+    formats = [
+        "%m/%d/%Y %H:%M",
+        "%m/%d/%Y %H:%M:%S",
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+    ]
+
+    for fmt in formats:
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            pass
+
+    return text
+
+
+def _pick(data: dict[str, Any], *names: str) -> Any:
+    for name in names:
+        value = data.get(name)
+        if value is not None:
+            return value
+    return None
+
+
+def _quote_ident(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+    """
+    Procura spot positivo no app.db.
+
+    Caso confirmado:
+      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+      spot observado = 124.66
+    """
+    if not underlying_asset:
+        return 0.0
+
+    symbol_candidates = {
+        "aba",
+        "ativo",
+        "asset",
+        "symbol",
+        "ticker",
+        "underlying_asset",
+        "codigo",
+        "papel",
+    }
+
+    price_candidates = {
+        "spot",
+        "spot_price",
+        "underlying_price",
+        "last_price",
+        "price",
+        "preco",
+        "preco_atual",
+        "valor",
+        "cotacao",
+        "ultimo",
+        "fechamento",
+        "close",
+    }
+
+    try:
+        with sqlite3.connect(str(db_path)) as conn:
+            tables = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type = 'table'"
+            ).fetchall()
+
+            for (table_name,) in tables:
+                columns_info = conn.execute(
+                    f"PRAGMA table_info({_quote_ident(table_name)})"
+                ).fetchall()
+
+                columns = [row[1] for row in columns_info]
+                lower_to_real = {col.lower(): col for col in columns}
+
+                symbol_cols = [
+                    lower_to_real[name]
+                    for name in symbol_candidates
+                    if name in lower_to_real
+                ]
+
+                price_cols = [
+                    lower_to_real[name]
+                    for name in price_candidates
+                    if name in lower_to_real
+                ]
+
+                if not symbol_cols or not price_cols:
+                    continue
+
+                for symbol_col in symbol_cols:
+                    for price_col in price_cols:
+                        query = (
+                            f"SELECT {_quote_ident(price_col)} "
+                            f"FROM {_quote_ident(table_name)} "
+                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+                            f"AND {_quote_ident(price_col)} IS NOT NULL "
+                            f"LIMIT 20"
+                        )
+
+                        try:
+                            rows = conn.execute(query, (underlying_asset,)).fetchall()
+                        except Exception:
+                            continue
+
+                        for row in rows:
+                            price = _to_float(row[0], 0.0)
+                            if price > 0:
+                                return price
+    except Exception:
+        return 0.0
+
+    return 0.0
+
+
+def _snapshot_result_to_payload(
+    selection_result: Any,
+    structure_id: int,
+    underlying_asset: str,
+    reference_date: str | None,
+    db_path: Path,
+) -> dict[str, Any]:
+    legs_data = []
+
+    for leg in selection_result.legs:
+        d = leg if isinstance(leg, dict) else vars(leg)
+
+        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+
+        raw_price = _pick(d, "premium", "price", "valor_executado")
+        raw_asset = _pick(d, "symbol", "asset", "ativo")
+        raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
+
+        side = _pick(d, "side", "position_side")
+        if not side:
+            side = "SHORT" if quantity < 0 else "LONG"
+
+        canonical_leg = {
+            # campos originais/compatíveis
+            "quantity":    quantity,
+            "price":       _to_float(raw_price, 0.0),
+            "asset":       raw_asset,
+
+---- services/derived_payoff_persistence.py ----
+# services/derived_payoff_persistence.py
+import logging
+from datetime import datetime, timezone
+from typing import Any
+
+from domain.payoff import compute_payoff_from_canonical_input
+from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+
+logger = logging.getLogger(__name__)
+
+
+class DerivedPayoffPersistence:
+    """
+    Implementação concreta de PayoffPersistencePort.
+
+    Responsabilidades:
+      1. Montar o canonical_input a partir do pricing_payload
+      2. Calcular a curva de payoff via domain/payoff.py
+      3. Persistir pontos no derived.db via derived_service
+      4. Persistir decisão básica derivada do resultado do engine
+    """
+
+    # -------------------------------------------------------------- #
+    #  PayoffPersistencePort.persist()                                 #
+    # -------------------------------------------------------------- #
+
+    def persist(
+        self,
+        pricing_payload: dict[str, Any] | None,
+        result: dict[str, Any],
+    ) -> None:
+        if not pricing_payload:
+            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+            return
+
+        inner = result.get("result", result) if isinstance(result, dict) else{}
+        status = inner.get("status", "")
+        if status not in ("success", "ok", "completed"):
+            logger.debug(
+                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+                status,
+            )
+            return
+
+        # Timestamp único para payoff + decisão.
+        # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+        snapshot_ts = datetime.now(timezone.utc).isoformat()
+
+        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+        if not payoff_saved:
+            logger.warning(
+                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+                pricing_payload.get("structure_id"),
+            )
+            return
+
+        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+        if not decision_saved:
+            logger.error(
+                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+                pricing_payload.get("structure_id"),
+                snapshot_ts,
+            )
+
+    # -------------------------------------------------------------- #
+    #  payoff                                                          #
+    # -------------------------------------------------------------- #
+
+    def _persist_payoff(
+        self,
+        pricing_payload: dict[str, Any],
+        result: dict[str, Any],
+        snapshot_ts: str,
+    ) -> bool:
+        try:
+            canonical_input = self._build_canonical_input(pricing_payload, result)
+            payoff_result = compute_payoff_from_canonical_input(canonical_input)
+
+            if not payoff_result.get("points"):
+                logger.warning(
+                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+                    pricing_payload.get("structure_id"),
+                )
+                return False
+
+            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+            logger.info(
+                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+                len(payoff_result["points"]),
+                pricing_payload.get("structure_id"),
+            )
+            return True
+
+        except Exception:
+            logger.exception(
+                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+                pricing_payload.get("structure_id"),
+            )
+            return False
+
+    # -------------------------------------------------------------- #
+    #  decisão                                                         #
+    # -------------------------------------------------------------- #
+
+    def _persist_decision(
+        self,
+        pricing_payload: dict[str, Any],
+        result: dict[str, Any],
+        snapshot_ts: str,
+    ) -> bool:
+        try:
+            if not isinstance(result, dict):
+                inner = {}
+            else:
+                inner = result.get("result") or result
+
+            valuation = inner.get("valuation") or {}
+            metrics   = inner.get("metrics")   or {}
+
+            theoretical_value = valuation.get("theoretical_value")
+            pl_max            = valuation.get("pl_max")
+            pl_atual          = valuation.get("pl_atual") or theoretical_value
+            dte_min           = metrics.get("dte_min")
+            spot_ref          = pricing_payload.get("spot_price")
+            
+            if spot_ref is None:
+                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
+
+            pl_pct_of_max = None
+            if pl_max and pl_atual is not None:
+                try:
+                    pl_pct_of_max = round(float(pl_atual) / float(pl_max), 6)
+                except (ZeroDivisionError, TypeError, ValueError):
+                    pass
+
+            decision_dict = {
+                "decision":      "HOLD",
+                "level":         0,
+                "pl_atual":      pl_atual,
+                "pl_max":        pl_max,
+                "pl_pct_of_max": pl_pct_of_max,
+                "dte_min":       dte_min,
+                "spot_ref":      spot_ref,
+                "why": {
+                    "source":           "pricing_engine",
+                    "engine":           inner.get("engine"),
+                    "execution_status": inner.get("status"),
+                    "theoretical_value": theoretical_value,
+                },
+                "meta": {
+                    "structure_id":    pricing_payload.get("structure_id"),
+                    "structure_name":  pricing_payload.get("structure_name"),
+                    "underlying_asset": pricing_payload.get("underlying_asset"),
+                    "reference_date":  pricing_payload.get("reference_date"),
+                },
+            }
+
+            save_decision_from_canonical_payload(
+                decision=decision_dict,
+                structure_id=pricing_payload.get("structure_id"),
+                structure_name=pricing_payload.get("structure_name"),
+                underlying_asset=pricing_payload.get("underlying_asset"),
+                timestamp=snapshot_ts,
+            )
+            logger.info(
+                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+                pricing_payload.get("structure_id"),
+            )
+            return True
+
+        except Exception:
+            logger.exception(
+                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+                pricing_payload.get("structure_id"),
+            )
+            return False
+
+    # -------------------------------------------------------------- #
+    #  helpers                                                         #
+    # -------------------------------------------------------------- #
+
+    @staticmethod
+    def _build_canonical_input(
+        pricing_payload: dict[str, Any],
+        result: dict[str, Any],
+    ) -> dict[str, Any]:
+        """
+        Monta o canonical_input esperado por compute_payoff_from_canonical_input().
+
+        Suporta dois formatos de pricing_payload:
+          A) já canônico: { structure: { legs, ... }, market: { spot_price, ... } }
+          B) flat:        { legs: [...], spot_price: ..., structure_id: ..., ... }
+        """
+        # Formato A -- já canônico
+        if "structure" in pricing_payload and "market" in pricing_payload:
+            return pricing_payload
+
+        # Formato B -- flat  montar canônico
+        structure_id   = pricing_payload.get("structure_id")
+        structure_name = pricing_payload.get("structure_name")
+        underlying     = pricing_payload.get("underlying_asset")
+        spot_price     = pricing_payload.get("spot_price") or 0.0
+        reference_date = pricing_payload.get("reference_date")
+        legs           = pricing_payload.get("legs") or []
+
+        return {
+            "structure": {
+                "structure_id":    structure_id,
+                "name":            structure_name,
+                "underlying_asset": underlying,
+                "legs":            legs,
+            },
+            "market": {
+                "spot_price":       spot_price,
+                "underlying_asset": underlying,
+                "reference_date":   reference_date,
+            },
+            "meta": {
+                "source": "pricing_execution_persistence",
+            },
+        }
+
+---- services/payoff_persistence_port.py ----
+# services/payoff_persistence_port.py
+from typing import Any, Protocol
+
+
+class PayoffPersistencePort(Protocol):
+    """
+    Contrato de persistência derivada (payoff + decisão).
+
+    Implementações devem gravar os dados no derived.db após
+    uma execução de pricing bem-sucedida.
+    """
+
+    def persist(
+        self,
+        pricing_payload: dict[str, Any] | None,
+        result: dict[str, Any],
+    ) -> None:
+        ...
+
+---- services/pricing_execution_app_service.py ----
+# services/pricing_execution_app_service.py
+"""
+alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+
+Alterações:
+  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+  - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+  - Todos os métodos de query (list, get, paginate, latest) inalterados
+  - Validações _validate_structure_id / _validate_reference_date mantidas
+"""
+
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from services.canonical_pricing_facade import CanonicalPricingFacade
+from services.pricing_execution_query_service import PricingExecutionQueryService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+class PricingExecutionAppService:
+    def __init__(
+        self,
+        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+        db_path: Path | str = _DEFAULT_DB,
+    ):
+        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+            db_path=db_path,
+        )
+        self.pricing_execution_query_service = (
+            pricing_execution_query_service or PricingExecutionQueryService()
+        )
+
+    # ------------------------------------------------------------------
+    # Execução
+    # ------------------------------------------------------------------
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        self._validate_structure_id(structure_id)
+        self._validate_reference_date(reference_date)
+
+        response = self._facade.execute_pricing(
+            structure_id=structure_id,
+            reference_date=reference_date,
+        )
+
+        # propaga erros como ValueError para manter contrato com callers existentes
+        if response.get("status") == "error":
+            raise ValueError(response.get("error_message", "pricing execution failed"))
+
+        persisted = response.get("persisted")
+        if isinstance(persisted, dict):
+            record = persisted.get("record")
+            if isinstance(record, dict):
+                return record
+
+        return response
+
+    # ------------------------------------------------------------------
+    # Queries -- inalteradas
+    # ------------------------------------------------------------------
+
+    def list_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+    ) -> list[dict[str, Any]]:
+        return self.pricing_execution_query_service.list_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+        )
+
+    def get_latest_execution_summary(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_latest_execution_summary(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+        )
+
+    def get_execution(self, execution_id: int) -> dict[str, Any]:
+        return self.pricing_execution_query_service.get_execution(execution_id)
+
+    def paginate_execution_summaries(
+        self,
+        structure_id: int | None = None,
+        underlying_asset: str | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+        descending: bool = True,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> dict[str, Any]:
+        return self.pricing_execution_query_service.paginate_execution_summaries(
+            structure_id=structure_id,
+            underlying_asset=underlying_asset,
+            status=status,
+            reference_date=reference_date,
+            descending=descending,
+            page=page,
+            page_size=page_size,
+        )
+
+    # ------------------------------------------------------------------
+    # Validações
+    # ------------------------------------------------------------------
+
+    def _validate_structure_id(self, structure_id: int) -> None:
+        if structure_id <= 0:
+            raise ValueError("structure_id must be greater than zero")
+
+    def _validate_reference_date(self, reference_date: str | None) -> None:
+        if reference_date is None:
+            return
+
+        try:
+            parsed = datetime.strptime(reference_date, "%Y-%m-%d")
+        except ValueError as exc:
+            raise ValueError("reference_date must be in YYYY-MM-DD format") from exc
+
+        if parsed.strftime("%Y-%m-%d") != reference_date:
+            raise ValueError("reference_date must be in YYYY-MM-DD format")
+
+---- services/pricing_execution_orchestration_service.py ----
+import time
+from typing import Any
+
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
+from services.pricing_execution_persistence_service import (
+    PricingExecutionPersistenceService,
+)
+from services.pricing_execution_service import PricingExecutionService
+from services.pricing_input_service import PricingInputService
+
+
+class PricingExecutionOrchestrationService:
+    def __init__(
+        self,
+        pricing_input_service: PricingInputService | None = None,
+        pricing_execution_service: PricingExecutionService | None = None,
+        pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
+    ):
+        self.pricing_input_service = pricing_input_service or PricingInputService()
+        self.pricing_execution_service = pricing_execution_service or PricingExecutionService(
+            pricing_input_service=self.pricing_input_service,
+        )
+        self.pricing_execution_persistence_service = (
+            pricing_execution_persistence_service
+            or PricingExecutionPersistenceService(
+                system_snapshots_repository=SystemSnapshotsRepository(),
+            )
+        )
+
+    def execute_and_persist(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        started_at = time.perf_counter()
+
+        try:
+            result = self.pricing_execution_service.execute(
+                structure_id=structure_id,
+                reference_date=reference_date,
+            )
+            duration_ms = int((time.perf_counter() - started_at) * 1000)
+
+            persisted = self.pricing_execution_persistence_service.persist_execution(
+                pricing_payload=result["pricing_payload"],
+                result=result,
+                duration_ms=duration_ms,
+                error_message=None,
+            )
+
+            return {
+                "pricing_payload": result["pricing_payload"],
+                "result": result,
+                "persisted": persisted,
+            }
+
+        except Exception as exc:
+            duration_ms = int((time.perf_counter() - started_at) * 1000)
+            error_message = str(exc)
+
+            result = {
+                "pricing_payload": None,
+                "result": {
+                    "engine": "stub",
+                    "status": "error",
+                    "error_message": error_message,
+                },
+            }
+
+            persisted = self.pricing_execution_persistence_service.persist_execution(
+                pricing_payload=None,
+                result=result,
+                duration_ms=duration_ms,
+                error_message=error_message,
+            )
+
+            return {
+                "pricing_payload": None,
+                "result": result,
+                "persisted": persisted,
+            }
+
+---- services/pricing_execution_persistence_service.py ----
+# services/pricing_execution_persistence_service.py
+import logging
+from typing import Any
+
+from repositories.pricing_executions_repository import PricingExecutionsRepository
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
+from services.payoff_persistence_port import PayoffPersistencePort
+
+logger = logging.getLogger(__name__)
+
+
+class PricingExecutionPersistenceService:
+    def __init__(
+        self,
+        pricing_executions_repository: PricingExecutionsRepository | None = None,
+        payoff_persistence_port: PayoffPersistencePort | None = None,
+        system_snapshots_repository: SystemSnapshotsRepository | None = None,
+    ):
+        self.pricing_executions_repository = (
+            pricing_executions_repository or PricingExecutionsRepository()
+        )
+        self._payoff_port = payoff_persistence_port
+        self._system_snapshots_repository = system_snapshots_repository
+
+    def persist_execution(
+        self,
+        pricing_payload: dict[str, Any] | None,
+        result: dict[str, Any],
+        duration_ms: int | None = None,
+        error_message: str | None = None,
+    ) -> dict[str, Any]:
+        # result pode chegar como wrapper {"result": {...}} ou já desempacotado
+        inner = result.get("result", result) if isinstance(result, dict) else result
+        metrics = inner.get("metrics", {}) if isinstance(inner, dict) else {}
+        valuation = inner.get("valuation", {}) if isinstance(inner, dict) else {}
+
+        execution_engine = inner.get("engine") if isinstance(inner, dict) else None
+        execution_status = inner.get("status") if isinstance(inner, dict) else None
+        persisted_error_message = error_message or (
+            inner.get("error_message") if isinstance(inner, dict) else None
+        )
+        number_of_legs = metrics.get("number_of_legs")
+        total_quantity = metrics.get("total_quantity")
+        theoretical_value = valuation.get("theoretical_value")
+
+        record = self.pricing_executions_repository.save_execution(
+            pricing_payload=pricing_payload,
+            result=result,
+            execution_status=execution_status,
+            execution_engine=execution_engine,
+            error_message=persisted_error_message,
+            duration_ms=duration_ms,
+            number_of_legs=number_of_legs,
+            total_quantity=total_quantity,
+            theoretical_value=theoretical_value,
+        )
+
+        snapshot_id = self._create_system_snapshot_if_applicable(
+            record=record,
+            pricing_payload=pricing_payload,
+            result=result,
+            inner=inner,
+            execution_status=execution_status,
+        )
+
+        # ------------------------------------------------------------------ #
+        #  alteracao_21 -- persistência derivada (payoff + decisão)           #
+        #  Fire-and-forget: falha aqui nunca derruba a execução principal.    #
+        # ------------------------------------------------------------------ #
+        if self._payoff_port is not None:
+            try:
+                self._payoff_port.persist(
+                    pricing_payload=pricing_payload,
+                    result=result,
+                )
+            except Exception:
+                logger.exception(
+                    "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",
+                    record.get("id"),
+                )
+
+        response = {
+            "record": record,
+        }
+
+        if snapshot_id is not None:
+            response["snapshot_id"] = snapshot_id
+
+        return response
+
+    def _create_system_snapshot_if_applicable(
+        self,
+        *,
+        record: dict[str, Any],
+        pricing_payload: dict[str, Any] | None,
+        result: dict[str, Any],
+        inner: Any,
+        execution_status: str | None,
+    ) -> int | None:
+        if self._system_snapshots_repository is None:
+            return None
+
+        if not pricing_payload:
+            return None
+
+        if execution_status != "ok":
+            return None
+
+        structure_id = pricing_payload.get("structure_id") or record.get("structure_id")
+        if not structure_id:
+            return None
+
+        try:
+            return self._system_snapshots_repository.create_snapshot(
+                structure_id=int(structure_id),
+                pricing_execution_id=record.get("id"),
+                underlying_asset=pricing_payload.get("underlying_asset"),
+                reference_date=pricing_payload.get("reference_date"),
+                snapshot_source="system_pricing_execution",
+                structure_json=self._build_structure_json(pricing_payload),
+                legs=pricing_payload.get("legs") or [],
+                market_json=self._build_market_json(pricing_payload),
+                metrics_json=self._extract_result_field(inner, "metrics"),
+                payoff_json=self._extract_result_field(inner, "payoff"),
+                decision_json=self._extract_result_field(inner, "decision"),
+                alerts_json=self._extract_result_field(inner, "alerts"),
+                operation_state_json={
+                    "pricing_execution": record,
+                    "pricing_payload": pricing_payload,
+                    "result": result,
+                },
+            )
+        except Exception:
+            logger.exception(
+                "system_snapshots_repository.create_snapshot() falhou -- execução id=%s não afetada",
+                record.get("id"),
+            )
+            return None
+
+    @staticmethod
+    def _build_structure_json(pricing_payload: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "structure_id": pricing_payload.get("structure_id"),
+            "structure_name": pricing_payload.get("structure_name"),
+            "underlying_asset": pricing_payload.get("underlying_asset"),
+            "reference_date": pricing_payload.get("reference_date"),
+            "meta": pricing_payload.get("meta"),
+        }
+
+    @staticmethod
+    def _build_market_json(pricing_payload: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "spot_price": pricing_payload.get("spot_price"),
+            "interest_rate": pricing_payload.get("interest_rate"),
+            "volatility": pricing_payload.get("volatility"),
+        }
+
+    @staticmethod
+    def _extract_result_field(inner: Any, field: str) -> Any:
+        if not isinstance(inner, dict):
+            return None
+
+        value = inner.get(field)
+        return value if value not in ({}, [], None) else None
+
+---- services/pricing_execution_service.py ----
+from typing import Any
+
+from services.pricing_engine_stub import PricingEngineStub
+from services.pricing_input_service import PricingInputService
+
+
+class PricingExecutionService:
+    def __init__(
+        self,
+        pricing_input_service: PricingInputService | None = None,
+        pricing_engine: PricingEngineStub | None = None,
+    ):
+        self.pricing_input_service = pricing_input_service or PricingInputService()
+        self.pricing_engine = pricing_engine or PricingEngineStub()
+
+    def execute(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        pricing_payload = self.pricing_input_service.build_pricing_payload(
+            structure_id=structure_id,
+            reference_date=reference_date,
+        )
+        return self.execute_payload(pricing_payload)
+
+    def execute_payload(
+        self,
+        pricing_payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        result = self.pricing_engine.run(pricing_payload)
+
+        return {
+            "pricing_payload": pricing_payload,
+            "result": result,
+        }
+
+---- db/derived_repo.py ----
+# db/derived_repo.py
+"""
+Repositório para operações com dados derivados (payoff e decisões).
+Tabelas: payoff_curve_points, structure_decisions
+
+Contrato canônico payoff: point_spot / point_pl (opção B).
+
+alteracao_33:
+  - Encapsula lógica em classe DerivedRepo (resolve alteracao_26 / alteracao_30)
+  - Gerenciamento de conexão interno com try/finally + conn.close() explícito
+  - Adiciona get_recent_decisions() (gap alteracao_26)
+  - Mantém funções avulsas como shims para compatibilidade com callers legados
+
+alteracao_55:
+  - Suporte a StructureRef como argumento aba em _extract_ts_aba e get_recent_decisions
+
+alteracao_56:
+  - fix: _MIGRATIONS removido (inexistente), _apply_schema reescrito sem IndentationError
+  - fix: _DDL_PAYOFF_IDX -> _DDL_PAYOFF_IDX_STRUCTURE
+  - fix: existing_payoff_cols -> existing_cols
+  - fix: 5 placeholders -> 6 nos INSERTs com structure_id
+"""
+from __future__ import annotations
+
+import json
+import sqlite3
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+# alteracao_55: StructureRef
+try:
+    from src.domain.refs.structure_ref import StructureRef as _StructureRef
+except ImportError:
+    _StructureRef = None  # type: ignore
+
+# Import canônico para type hints (usado nas assinaturas públicas)
+try:
+    from src.domain.refs.structure_ref import StructureRef
+except ImportError:
+    StructureRef = Any  # type: ignore
+
+PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
+
+# ---------------------------------------------------------------------------
+# alteracao_56: helper de compatibilidade StructureRef -> str
+# ---------------------------------------------------------------------------
+
+def _unwrap_aba(aba_or_ref) -> str:
+    """
+    alteracao_56: aceita str ou StructureRef no parâmetro 'aba'.
+    Extrai .aba como string canônica quando recebe StructureRef.
+    Compatibilidade retroativa: callers que passam str continuam funcionando.
+    """
+    if _StructureRef is not None and isinstance(aba_or_ref, _StructureRef):
+        resolved = aba_or_ref.aba
+        if resolved is None:
+            raise ValueError(
+                f"StructureRef.aba é None -- use StructureRef.from_aba() ou "
+                f"verifique o mapeamento. ref={aba_or_ref!r}"
+            )
+        return resolved
+    return aba_or_ref  # já é str (ou None, para wildcards)
+
+
+def _table_columns(conn: sqlite3.Connection, table_name: str) -> List[str]:
+    cur = conn.cursor()
+    cur.execute(f"PRAGMA table_info({table_name})")
+    return [row[1] for row in cur.fetchall()]
+
+
+# ---------------------------------------------------------------------------
+# DDL
+# ---------------------------------------------------------------------------
+# alteracao_36_A: adicionar structure_id ao DDL de payoff_curve_points
+
+_DDL_PAYOFF_CURVE_POINTS = """
+CREATE TABLE IF NOT EXISTS payoff_curve_points (
+    timestamp    TEXT NOT NULL,
+    aba          TEXT NOT NULL,
+    structure_id INTEGER,
+    spot_ref     REAL,
+    point_spot   REAL NOT NULL,
+    point_pl     REAL NOT NULL,
+    meta_json    TEXT,
+    created_at   TEXT DEFAULT (datetime('now'))
+)
+"""
+
+_DDL_PAYOFF_UNIQUE_IDX = """
+CREATE UNIQUE INDEX IF NOT EXISTS ux_payoff_snapshot
+ON payoff_curve_points (timestamp, aba, point_spot)
+"""
+
+# alteracao_36_B: index por structure_id para queries canônicas
+_DDL_PAYOFF_IDX_STRUCTURE = """
+CREATE INDEX IF NOT EXISTS ix_payoff_structure_id
+ON payoff_curve_points (structure_id, timestamp)
+"""
+
+_DDL_STRUCTURE_DECISIONS = """
+CREATE TABLE IF NOT EXISTS structure_decisions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp     TEXT    NOT NULL,
+    aba           TEXT    NOT NULL,
+    decision      TEXT    NOT NULL,
+    level         INTEGER NOT NULL,
+    pl_atual      REAL,
+    pl_max        REAL,
+    pl_pct_of_max REAL,
+    dte_min       INTEGER,
+    why_json      TEXT,
+    spot_ref      REAL,
+    meta_json     TEXT,
+    created_at    TEXT    DEFAULT CURRENT_TIMESTAMP,
+    why           TEXT,
+    structure_id  INTEGER
+)
+"""
+
+_DDL_DECISIONS_UNIQUE_IDX = """
+CREATE UNIQUE INDEX IF NOT EXISTS ux_decision_snapshot
+ON structure_decisions (timestamp, aba)
+"""
+
+_DDL_DECISIONS_IDX_ABA = """
+CREATE INDEX IF NOT EXISTS idx_decisions_aba_ts
+ON structure_decisions (aba, timestamp)
+"""
+
+_DDL_DECISIONS_IDX_TS = """
+CREATE INDEX IF NOT EXISTS idx_decisions_ts
+ON structure_decisions (timestamp)
+"""
+
+# alteracao_36_C: migration incremental (guard ALTER TABLE)
+_PAYOFF_MIGRATIONS: Dict[str, str] = {
+    "structure_id": (
+        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
+    ),
+}
+
+# ---------------------------------------------------------------------------
+# Helpers internos (nível módulo -- reutilizados pela classe e shims)
+# ---------------------------------------------------------------------------
+
+def _normalize_why_fields(
+    decision_dict: Dict[str, Any],
+) -> tuple[Any, Optional[str]]:
+    why_data = {
+        k: v for k, v in decision_dict.items()
+        if k not in {
+            "decision", "level", "pl_atual", "pl_max",
+            "pl_pct_of_max", "dte_min", "spot_ref", "meta",
+            "why", "why_json",
+        }
+    }
+
+    why = decision_dict.get("why")
+    if why is None and why_data:
+        why = why_data
+
+    why_json = decision_dict.get("why_json")
+    if why_json is None and why is not None:
+        why_json = why if isinstance(why, str) else json.dumps(why, ensure_ascii=False)
+
+    why_db = json.dumps(why, ensure_ascii=False) if (why is not None and not isinstance(why, str)) else why
+    return why_db, why_json
+
+
+def _apply_schema(conn: sqlite3.Connection) -> None:
+    """Cria tabelas, índices e aplica migrations. Idempotente."""
+    # Tabelas base
+    conn.execute(_DDL_PAYOFF_CURVE_POINTS)
+    conn.execute(_DDL_PAYOFF_UNIQUE_IDX)
+    conn.execute(_DDL_STRUCTURE_DECISIONS)
+
+    # alteracao_36_A: migration incremental payoff_curve_points
+    existing_cols = _table_columns(conn, "payoff_curve_points")
+    for col, sql in _PAYOFF_MIGRATIONS.items():
+        if col not in existing_cols:
+            try:
+                conn.execute(sql)
+            except sqlite3.OperationalError:
+                pass
+
+    # alteracao_36_B: index structure_id no payoff (após migration)
+    try:
+        conn.execute(_DDL_PAYOFF_IDX_STRUCTURE)
+    except sqlite3.OperationalError:
+        pass
+
+    # Índices de structure_decisions
+    conn.execute(_DDL_DECISIONS_UNIQUE_IDX)
+    conn.execute(_DDL_DECISIONS_IDX_ABA)
+    conn.execute(_DDL_DECISIONS_IDX_TS)
+
+    conn.commit()
+
+
+# ---------------------------------------------------------------------------
+# Alias público para callers legados
+# ---------------------------------------------------------------------------
+
+def ensure_derived_tables(conn: sqlite3.Connection) -> None:
+    """Shim de compatibilidade -- mantém callers legados funcionando."""
+    _apply_schema(conn)
+
+
+# ===========================================================================
+# DerivedRepo -- API canônica com gerenciamento próprio de conexão
+# ===========================================================================
+
+class DerivedRepo:
+    """
+    Repositório canônico para derived.db.
+    alteracao_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
+    alteracao_55: suporte a StructureRef como argumento aba.
+    alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
+    """
+
+    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
+        self._db_path = derived_db or db_path
+        self._bootstrap()
+
+    # ------------------------------------------------------------------
+    # Infraestrutura
+    # ------------------------------------------------------------------
+
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self._db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def _bootstrap(self) -> None:
+        conn = self._connect()
+        try:
+            _apply_schema(conn)
+        finally:
+            conn.close()
+
+    def _table_columns(self, table: str) -> List[str]:
+        """Alias privado -- requerido pelo smoke 70 e audit."""
+        conn = self._connect()
+        try:
+            return _table_columns(conn, table)
+        finally:
+            conn.close()
+
+    # Alias público para quem prefere sem underscore
+    table_columns = _table_columns
+
+    # ------------------------------------------------------------------
+    # Helpers internos de extração
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _extract_ts_aba(
+        decision_dict: Dict[str, Any],
+        timestamp: Optional[str] = None,
+        aba: Optional[str] = None,
+
+---- services/derived_service.py ----
+from __future__ import annotations
+# services/derived_service.py
+"""
+alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+alteracao_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
+alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+"""
+
+import inspect
+import json
+import sqlite3
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+from db.config import connect_app, connect_derived
+from db.derived_repo import (
+    cleanup_old_decisions,
+    cleanup_old_payoff_data,
+    ensure_derived_tables,
+    insert_payoff_points,
+    insert_structure_decision,
+)
+from src.domain.refs.structure_ref import StructureRef
+
+
+# ------------------------------------------------------------------
+# Cache modulo-level: aba -> structure_id
+# ------------------------------------------------------------------
+
+_ABA_TO_STRUCTURE_ID: Dict[str, int] = {}
+_ABA_CACHE_LOADED: bool = False
+
+
+def _load_aba_cache() -> None:
+    global _ABA_TO_STRUCTURE_ID, _ABA_CACHE_LOADED
+    try:
+        with connect_app() as conn:
+            cur = conn.execute("""
+                SELECT id, alias_legacy_aba
+                FROM structures
+                WHERE alias_legacy_aba IS NOT NULL
+                  AND alias_legacy_aba != ''
+            """)
+            _ABA_TO_STRUCTURE_ID = {row[1]: row[0] for row in cur.fetchall()}
+    except Exception:
+        _ABA_TO_STRUCTURE_ID = {}
+    finally:
+        _ABA_CACHE_LOADED = True
+
+
+def _resolve_structure_id(aba: Optional[str]) -> Optional[int]:
+    if not _ABA_CACHE_LOADED:
+        _load_aba_cache()
+    if not aba:
+        return None
+    return _ABA_TO_STRUCTURE_ID.get(aba)
+
+
+def invalidate_aba_cache() -> None:
+    global _ABA_CACHE_LOADED
+    _ABA_CACHE_LOADED = False
+
+
+# ------------------------------------------------------------------
+# Helpers internos
+# ------------------------------------------------------------------
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _safe_str(value: Any) -> Optional[str]:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
+def _unwrap_ref(ref: Any) -> Optional[str]:
+    """
+    alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
+    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+    """
+    if isinstance(ref, StructureRef):
+        return ref.aba
+    return _safe_str(ref)
+
+
+def _resolve_storage_key(
+    aba: Optional[str] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+) -> str:
+    # 1. aba explícita tem prioridade máxima
+    resolved_aba = _safe_str(aba)
+    if resolved_aba:
+        return resolved_aba
+
+    # 2. structure_id → resolver alias_legacy_aba via cache (FIX alteracao_66)
+    resolved_sid = _safe_str(structure_id)
+    if resolved_sid:
+        try:
+            sid_int = int(resolved_sid)
+            if not _ABA_CACHE_LOADED:
+                _load_aba_cache()
+            id_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+            alias = id_to_aba.get(sid_int)
+            if alias:
+                return alias  # "BOVA11" em vez de "structure:7"
+        except (ValueError, TypeError):
+            pass
+        return f"structure:{resolved_sid}"  # fallback sem alias
+
+    # 3. fallbacks por nome/ativo
+    resolved_structure_name = _safe_str(structure_name)
+    if resolved_structure_name:
+        return resolved_structure_name
+
+    resolved_underlying_asset = _safe_str(underlying_asset)
+    if resolved_underlying_asset:
+        return resolved_underlying_asset
+
+    return "unknown"
+
+
+def _merge_meta(
+    meta: Optional[Dict[str, Any]] = None,
+    structure_id: Any = None,
+    structure_name: Any = None,
+    underlying_asset: Any = None,
+    reference_date: Any = None,
+    input_meta: Optional[Dict[str, Any]] = None,
+    storage_key: Optional[str] = None,
+) -> Dict[str, Any]:
+    return {
+        **(meta or {}),
+        "structure_id":     structure_id,
+        "structure_name":   structure_name,
+        "underlying_asset": underlying_asset,
+        "reference_date":   reference_date,
+        "input_meta":       input_meta or {},
+        "storage_key":      storage_key,
+    }
+
+
+# ------------------------------------------------------------------
+# Init
+# ------------------------------------------------------------------
+
+def init_db():
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+
+
+# ------------------------------------------------------------------
+# Payoff
+# ------------------------------------------------------------------
+
+def save_payoff_curve(
+    ref: Any,
+    points: List[Union[Tuple[float, float], Dict[str, float]]],
+    spot_ref: Optional[float] = None,
+    meta: Optional[Dict[str, Any]] = None,
+    timestamp: Optional[str] = None,
+    structure_id: Any = None,
+) -> int:
+    """
+    alteracao_57: 'ref' aceita StructureRef, str ou None.
+    _unwrap_ref() extrai a string aba de forma segura.
+    """
+    ts           = timestamp or _now_iso()
+    storage_key  = _unwrap_ref(ref) or "unknown"
+    resolved_sid = (
+        int(structure_id)
+        if structure_id is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    norm_points: List[Tuple[float, float]] = []
+    for p in points or []:
+        if isinstance(p, (tuple, list)) and len(p) == 2:
+            norm_points.append((float(p[0]), float(p[1])))
+        elif isinstance(p, dict):
+            x = p.get("point_spot") or p.get("s_t")
+            y = p.get("point_pl")   or p.get("pl_venc")
+            if x is None or y is None:
+                continue
+            norm_points.append((float(x), float(y)))
+
+    effective_meta = {
+        **(meta or {}),
+        "storage_key":  storage_key,
+        "structure_id": resolved_sid,
+    }
+
+    with connect_derived() as conn:
+        ensure_derived_tables(conn)
+        return insert_payoff_points(
+            conn=conn,
+            timestamp=ts,
+            aba=storage_key,
+            points=norm_points,
+            spot_ref=spot_ref,
+            meta=effective_meta,
+            structure_id=resolved_sid,
+        )
+
+
+def save_payoff_from_canonical_payload(
+    payoff: Dict[str, Any],
+    aba: Optional[str] = None,
+    timestamp: Optional[str] = None,
+) -> int:
+    ts = timestamp or _now_iso()
+
+    storage_key = _resolve_storage_key(
+        aba=aba,
+        structure_id=payoff.get("structure_id"),
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+    )
+
+    sid_from_payload = payoff.get("structure_id")
+    resolved_sid = (
+        int(sid_from_payload)
+        if sid_from_payload is not None
+        else _resolve_structure_id(storage_key)
+    )
+
+    meta = _merge_meta(
+        meta=payoff.get("meta"),
+        structure_id=resolved_sid,
+        structure_name=payoff.get("structure_name"),
+        underlying_asset=payoff.get("underlying_asset"),
+        reference_date=payoff.get("reference_date"),
+        input_meta=payoff.get("input_meta"),
+        storage_key=storage_key,
+    )
+
+    try:
+        sig = inspect.signature(save_payoff_curve)
+        accepts_structure_id = (
+            "structure_id" in sig.parameters
+            or any(
+                p.kind == inspect.Parameter.VAR_KEYWORD
+                for p in sig.parameters.values()
+            )
+        )
+    except (TypeError, ValueError):
+        accepts_structure_id = True
+
+    if accepts_structure_id:
+        return save_payoff_curve(
+            ref=storage_key,
+            points=payoff.get("points", []),
+            spot_ref=payoff.get("spot_ref"),
+            meta=meta,
+            timestamp=ts,
+            structure_id=resolved_sid,
+
+5) Introspeccao Python da CanonicalPricingFacade
+
+Classe: <class 'services.canonical_pricing_facade.CanonicalPricingFacade'>
+Assinatura __init__: (db_path: 'Path | str' = WindowsPath('dados/app.db'), pricing_execution_service: 'PricingExecutionService | None' = None, persistence_service: 'PricingExecutionPersistenceService | None' = None) -> 'None'
+
+M�todos p�blicos:
+- execute_pricing(self, structure_id: 'int', reference_date: 'str | None' = None) -> 'dict[str, Any]'
+
+Fonte da classe CanonicalPricingFacade:
+class CanonicalPricingFacade:
+    """
+    Orquestra o pipeline can�nico ponta a ponta:
+
+        structure_id
+             alias_legacy_aba + underlying_asset  (query em structures)
+                     MarketSnapshotSelector.select(aba=...)
+                             pricing_payload  (underlying_asset = ativo real)
+                                     PricingExecutionService.execute_payload()
+                                             PricingExecutionPersistenceService.persist()
+                                                     DerivedPayoffPersistence.persist()
+                                                             derived.db
+    """
+
+    def __init__(
+        self,
+        db_path: Path | str = _DEFAULT_DB,
+        pricing_execution_service: PricingExecutionService | None = None,
+        persistence_service: PricingExecutionPersistenceService | None = None,
+    ) -> None:
+        self._db_path  = Path(db_path)
+        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+        self._selector = MarketSnapshotSelector(repository=self._repo)
+        self._engine   = pricing_execution_service or PricingExecutionService()
+
+        self._persister = persistence_service or PricingExecutionPersistenceService(
+            payoff_persistence_port=DerivedPayoffPersistence(),
+            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+        )
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        started_at = time.perf_counter()
+
+        try:
+            #  1. Resolve aba + underlying_asset 
+            aba, underlying_asset = _get_structure_info(   #  C6/C8
+                structure_id, self._db_path
+            )
+
+            #  2. Seleciona snapshot (manual > rtd) 
+            selection = self._selector.select(aba=aba)
+
+            #  3. Monta pricing_payload 
+            pricing_payload = _snapshot_result_to_payload(
+                selection_result=selection,
+                structure_id=structure_id,
+                underlying_asset=underlying_asset,          #  C7/C8
+                reference_date=reference_date,
+                db_path=self._db_path,
+            )
+
+            #  4. Executa engine 
+            execution_result = self._engine.execute_payload(
+                pricing_payload=pricing_payload,
+            )
+
+            #  C4: extrai dict interno do wrapper 
+            engine_result = execution_result.get("result", execution_result)
+
+            duration_ms = int((time.perf_counter() - started_at) * 1000)
+
+            #  5. Persiste (app.db + derived.db via port) 
+            persisted = self._persister.persist_execution(
+                pricing_payload=pricing_payload,
+                result=engine_result,
+                duration_ms=duration_ms,
+                error_message=None,
+            )
+
+            return {
+                "status":          "ok",
+                "canonical_input": pricing_payload,
+                "pricing_payload": pricing_payload,
+                "result":          execution_result,
+                "persisted":       persisted,
+                "meta":            pricing_payload["meta"],
+                "duration_ms":     duration_ms,
+            }
+
+        except Exception as exc:
+            duration_ms   = int((time.perf_counter() - started_at) * 1000)
+            error_message = str(exc)
+
+            try:
+                self._persister.persist_execution(
+                    pricing_payload=None,
+                    result={"engine": "stub", "status": "error", "error_message": error_message},
+                    duration_ms=duration_ms,
+                    error_message=error_message,
+                )
+            except Exception:
+                pass
+
+            return {
+                "status":          "error",
+                "canonical_input": None,
+                "pricing_payload": None,
+                "result":          None,
+                "persisted":       None,
+                "meta":            {},
+                "duration_ms":     duration_ms,
+                "error_message":   error_message,
+            }
+
+
+6) Estado antes da execucao controlada
+
+
+DB: dados/app.db
+existe: True
+structures: 1
+structure_legs: 4
+pricing_executions: 0
+structure_snapshots: 0
+structure_leg_snapshots: 0
+payoff_curve_points: indisponivel (no such table: payoff_curve_points)
+structure_decisions: indisponivel (no such table: structure_decisions)
+
+DB: dados/derived.db
+existe: True
+structures: indisponivel (no such table: structures)
+structure_legs: indisponivel (no such table: structure_legs)
+pricing_executions: indisponivel (no such table: pricing_executions)
+structure_snapshots: indisponivel (no such table: structure_snapshots)
+structure_leg_snapshots: indisponivel (no such table: structure_leg_snapshots)
+payoff_curve_points: 0
+structure_decisions: 0
+
+7) Execucao controlada em COPIAS dos bancos
+
+tmp_app: C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db
+tmp_derived: C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db
+RETURN_CODE: 0
+
+STDOUT:
+APP_DB_PATH runtime: C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db
+DERIVED_DB_PATH runtime: C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db
+
+Contagens antes:
+DB C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db
+pricing_executions 0
+structure_snapshots 0
+structure_leg_snapshots 0
+DB C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db
+payoff_curve_points 0
+structure_decisions 0
+
+structures: [{'id': 2, 'name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'alias_legacy_aba': None, 'status': 'active', 'notes': 'ESTRURA DERIVADA DE OUTRAS 2', 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00'}]
+candidate? 2 SBSP+SMAL=BOVA legs 4
+candidate_id: 2
+
+Facade instance: <services.canonical_pricing_facade.CanonicalPricingFacade object at 0x00000221547EDBE0>
+M�todos p�blicos da inst�ncia:
+- execute_pricing (structure_id: 'int', reference_date: 'str | None' = None) -> 'dict[str, Any]'
+
+Nenhum m�todo preferencial foi chamado. Verifique nomes acima.
+
+Contagens depois:
+DB C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db
+pricing_executions 0
+structure_snapshots 0
+structure_leg_snapshots 0
+DB C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db
+payoff_curve_points 0
+structure_decisions 0
+
+Amostras depois:
+
+TABLE C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db pricing_executions
+
+TABLE C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\app_fase3d.db structure_snapshots
+
+TABLE C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db payoff_curve_points
+
+TABLE C:\users\eucal\projeto\docs\checkpoints\evidencias\_fase3d_tmp\derived_fase3d.db structure_decisions
+
+
+STDERR:
+
+
+8) Testes focados facade/persistencia/derived
+
+.......................................                                  [100%]
+39 passed in 4.07s
+
+== Fim do diagnostico Fase 3D ==
