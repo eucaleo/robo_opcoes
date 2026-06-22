@@ -723,7 +723,12 @@ Baseline: executed_v1 + baseline_v1b"""
                 from services.canonical_pricing_facade import CanonicalPricingFacade
 
                 facade = CanonicalPricingFacade(db_path=self._db_path)
-                facade.execute_pricing(sid)
+                result = facade.execute_pricing(sid)
+
+                if isinstance(result, dict) and result.get("status") == "error":
+                    raise RuntimeError(
+                        result.get("error_message") or "Erro no recálculo automático"
+                    )
 
                 def _after_success() -> None:
                     _set_status(f"Estrutura {sid} salva e payoff recalculado.")

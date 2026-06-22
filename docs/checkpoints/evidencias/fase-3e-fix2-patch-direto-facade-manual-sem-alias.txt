@@ -1,0 +1,231 @@
+== Fase 3E fix2 - patch direto facade manual sem alias ==
+Sun Jun 21 21:43:21     2026
+
+Branch:
+fase-3a4-auto-pricing-manual-save
+
+Status inicial:
+?? docs/checkpoints/evidencias/fase-3e-diagnostico-alias-null-facade-manual.txt
+?? docs/checkpoints/evidencias/fase-3e-fix-facade-manual-sem-alias.txt
+?? docs/checkpoints/evidencias/fase-3e-fix2-patch-direto-facade-manual-sem-alias.txt
+?? scripts/fase-3e-diagnostico-alias-null-facade-manual.sh
+?? scripts/fase-3e-fix-facade-manual-sem-alias.sh
+?? scripts/fase-3e-fix2-patch-direto-facade-manual-sem-alias.sh
+
+Backup criado: services\canonical_pricing_facade.py.fase3e.fix2.bak
+Aplicando patch direto em services/canonical_pricing_facade.py
+Import PricingInputService adicionado via anchor.
+execute_pricing substituÌdo com fallback manual sem alias.
+Backup criado: UI\main_window.py.fase3e.fix2.bak
+UI ajustada para n„o mascarar status=error.
+Teste criado: ATT\tests\test_canonical_pricing_facade_manual_without_alias.py
+
+== Diff ==
+diff --git a/UI/main_window.py b/UI/main_window.py
+index 41df9c4..2149360 100644
+--- a/UI/main_window.py
++++ b/UI/main_window.py
+@@ -723,7 +723,12 @@ Baseline: executed_v1 + baseline_v1b"""
+                 from services.canonical_pricing_facade import CanonicalPricingFacade
+ 
+                 facade = CanonicalPricingFacade(db_path=self._db_path)
+-                facade.execute_pricing(sid)
++                result = facade.execute_pricing(sid)
++
++                if isinstance(result, dict) and result.get("status") == "error":
++                    raise RuntimeError(
++                        result.get("error_message") or "Erro no rec√°lculo autom√°tico"
++                    )
+ 
+                 def _after_success() -> None:
+                     _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+diff --git a/services/canonical_pricing_facade.py b/services/canonical_pricing_facade.py
+index 50b772f..e1341f0 100644
+--- a/services/canonical_pricing_facade.py
++++ b/services/canonical_pricing_facade.py
+@@ -35,6 +35,7 @@ from services.derived_payoff_persistence import DerivedPayoffPersistence
+ from services.market_snapshot_selector import MarketSnapshotSelector
+ from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+ from services.pricing_execution_service import PricingExecutionService
++from services.pricing_input_service import PricingInputService
+ 
+ _DEFAULT_DB = Path("dados/app.db")
+ 
+@@ -355,34 +356,82 @@ class CanonicalPricingFacade:
+         started_at = time.perf_counter()
+ 
+         try:
+-            #  1. Resolve aba + underlying_asset 
+-            aba, underlying_asset = _get_structure_info(   #  C6/C8
+-                structure_id, self._db_path
+-            )
++            # 1. Monta pricing_payload.
++            #
++            # Caminho A - legado/captura:
++            #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
++            #
++            # Caminho B - manual can√¥nico:
++            #   structures.alias_legacy_aba NULL -> PricingInputService.build_pricing_payload().
++            #
++            # O caminho B corrige estruturas cadastradas manualmente pela UI.
++            try:
++                aba, underlying_asset = _get_structure_info(
++                    structure_id,
++                    self._db_path,
++                )
+ 
+-            #  2. Seleciona snapshot (manual > rtd) 
+-            selection = self._selector.select(aba=aba)
++                selection = self._selector.select(aba=aba)
+ 
+-            #  3. Monta pricing_payload 
+-            pricing_payload = _snapshot_result_to_payload(
+-                selection_result=selection,
+-                structure_id=structure_id,
+-                underlying_asset=underlying_asset,          #  C7/C8
+-                reference_date=reference_date,
+-                db_path=self._db_path,
+-            )
++                pricing_payload = _snapshot_result_to_payload(
++                    selection_result=selection,
++                    structure_id=structure_id,
++                    underlying_asset=underlying_asset,
++                    reference_date=reference_date,
++                    db_path=self._db_path,
++                )
++
++            except ValueError as exc:
++                message = str(exc)
++
++                if "alias_legacy_aba is null" not in message:
++                    raise
++
++                try:
++                    pricing_input_service = PricingInputService(db_path=self._db_path)
++                except TypeError:
++                    pricing_input_service = PricingInputService()
++
++                try:
++                    pricing_payload = pricing_input_service.build_pricing_payload(
++                        structure_id=structure_id,
++                        reference_date=reference_date,
++                    )
++                except TypeError:
++                    pricing_payload = pricing_input_service.build_pricing_payload(
++                        structure_id=structure_id,
++                    )
++
++                if not isinstance(pricing_payload, dict):
++                    raise ValueError(
++                        "PricingInputService.build_pricing_payload() retornou payload inv√°lido"
++                    )
++
++                pricing_payload.setdefault("structure_id", structure_id)
++
++                if reference_date is not None:
++                    pricing_payload.setdefault("reference_date", reference_date)
++
++                meta = pricing_payload.get("meta")
++                if not isinstance(meta, dict):
++                    meta = {}
++                    pricing_payload["meta"] = meta
++
++                meta.setdefault("snapshot_source", "canonical_manual_without_alias")
++                meta.setdefault("alias_legacy_aba", None)
++                meta.setdefault("fallback_reason", message.strip())
+ 
+-            #  4. Executa engine 
++            # 2. Executa engine
+             execution_result = self._engine.execute_payload(
+                 pricing_payload=pricing_payload,
+             )
+ 
+-            #  C4: extrai dict interno do wrapper 
++            # C4: extrai dict interno do wrapper
+             engine_result = execution_result.get("result", execution_result)
+ 
+             duration_ms = int((time.perf_counter() - started_at) * 1000)
+ 
+-            #  5. Persiste (app.db + derived.db via port) 
++            # 3. Persiste app.db + derived.db via port
+             persisted = self._persister.persist_execution(
+                 pricing_payload=pricing_payload,
+                 result=engine_result,
+@@ -396,7 +445,7 @@ class CanonicalPricingFacade:
+                 "pricing_payload": pricing_payload,
+                 "result":          execution_result,
+                 "persisted":       persisted,
+-                "meta":            pricing_payload["meta"],
++                "meta":            pricing_payload.get("meta", {}),
+                 "duration_ms":     duration_ms,
+             }
+ 
+
+== Py compile ==
+py_compile OK
+
+== Pytest regressao ==
+F                                                                        [100%]
+================================== FAILURES ===================================
+_ test_facade_falls_back_to_pricing_input_service_when_alias_legacy_aba_is_null _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000268499742B0>
+tmp_path = WindowsPath('C:/Users/eucal/AppData/Local/Temp/pytest-of-eucal/pytest-498/test_facade_falls_back_to_pric0')
+
+    def test_facade_falls_back_to_pricing_input_service_when_alias_legacy_aba_is_null(monkeypatch, tmp_path):
+        def fake_get_structure_info(structure_id, db_path):
+            raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+    
+        monkeypatch.setattr(
+            facade_module,
+            "_get_structure_info",
+            fake_get_structure_info,
+        )
+    
+        monkeypatch.setattr(
+            facade_module,
+            "PricingInputService",
+            FakePricingInputService,
+        )
+    
+        persister = FakePersistenceService()
+    
+>       facade = facade_module.CanonicalPricingFacade(
+            db_path=tmp_path / "app.db",
+            pricing_execution_service=FakePricingExecutionService(),
+            persistence_service=persister,
+        )
+
+ATT\tests\test_canonical_pricing_facade_manual_without_alias.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+services\canonical_pricing_facade.py:342: in __init__
+    self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <repositories.market_snapshot_repository.MarketSnapshotRepository object at 0x0000026849897620>
+db_path = WindowsPath('C:/Users/eucal/AppData/Local/Temp/pytest-of-eucal/pytest-498/test_facade_falls_back_to_pric0/app.db')
+
+    def __init__(self, db_path: Path | str = _DEFAULT_DB) -> None:
+        self._db_path = Path(db_path)
+        if not self._db_path.exists():
+>           raise FileNotFoundError(f"Banco nao encontrado: {self._db_path}")
+E           FileNotFoundError: Banco nao encontrado: C:\Users\eucal\AppData\Local\Temp\pytest-of-eucal\pytest-498\test_facade_falls_back_to_pric0\app.db
+
+repositories\market_snapshot_repository.py:264: FileNotFoundError
+=========================== short test summary info ===========================
+FAILED ATT/tests/test_canonical_pricing_facade_manual_without_alias.py::test_facade_falls_back_to_pricing_input_service_when_alias_legacy_aba_is_null
+1 failed in 0.30s
+
+== Revalidacao pytest apos ajuste do teste ==
+Sun Jun 21 21:47:59     2026
+.                                                                        [100%]
+1 passed in 0.14s
+
+== Revalidacao execucao real structure_id=2 ==
+derived_payoff_persistence: payoff sem pontos para structure_id=2
+derived_payoff_persistence: decis„o n„o gravada porque payoff n„o foi salvo -- structure_id=2
+status: ok
+snapshot_source: canonical_manual_without_alias
+persisted: True
+snapshot_id: 2

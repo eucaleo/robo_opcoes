@@ -1,0 +1,27 @@
+== Fase 3E - fix facade manual sem alias legado ==
+
+Sun Jun 21 21:40:17     2026
+
+1) Estado inicial git
+fase-3a4-auto-pricing-manual-save
+?? docs/checkpoints/evidencias/fase-3e-diagnostico-alias-null-facade-manual.txt
+?? docs/checkpoints/evidencias/fase-3e-fix-facade-manual-sem-alias.txt
+?? scripts/fase-3e-diagnostico-alias-null-facade-manual.sh
+?? scripts/fase-3e-fix-facade-manual-sem-alias.sh
+6d36c1c chore: diagnostica facade e persistencia derived fase 3d
+6ba7a6e chore: diagnostica appdb ui e pricing flow fase 3c
+c5107e1 chore: diagnostica schema canonico de estruturas fase 3b
+3cb1319 chore: inicia diagnostico fase 3a cadastro payoff decisoes
+ec21c9e test: registra suite geral apos fechamento da fase 2b
+908d862 docs: fecha validacao da normalizacao numerica fase 2b
+93e9844 chore: adiciona script de fechamento fase 2b
+51e4f8e test: adiciona regressao para normalizacao de quantity
+
+2) Aplicando patches Python/textuais
+
+Backup criado: services\canonical_pricing_facade.py.fase3e.bak
+Backup criado: UI\main_window.py.fase3e.bak
+Import adicionado: PricingInputService
+Inicialização _pricing_input_service adicionada
+Método _build_pricing_payload_for_structure adicionado
+Bloco antigo de execute_pricing não encontrado para substituição
