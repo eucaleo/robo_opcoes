@@ -1,0 +1,64 @@
+# Snapshot depois de Atualizar Dados - Fase 1
+
+Data local: 2026-06-22T14:39:23
+Branch: reinicio-normalizacao-idioma-ptbr
+
+
+================================================================================
+Arquivo APP_DB
+================================================================================
+path: dados\app.db
+exists: True
+size_bytes: 200704
+mtime: 2026-06-22T10:46:40
+sha256: 800efeba91b397e91e38c0506f64e9f3742fdf7f88d8feff938b3c2737f01ccf
+
+================================================================================
+Arquivo DERIVED_DB
+================================================================================
+path: dados\derived.db
+exists: True
+size_bytes: 278528
+mtime: 2026-06-22T11:05:51
+sha256: 26f13f228ef6667a48ae1eaec8032be93a38def8cacb61965a74a7c191b72264
+
+================================================================================
+APP_DB - contagens
+================================================================================
+structures: 2
+structure_legs: 8
+rtd_option_quotes: 4
+pricing_executions: 7
+structure_events: 0
+
+================================================================================
+DERIVED_DB - contagens
+================================================================================
+structure_decisions: 3
+payoff_curve_points: 303
+rtd_option_quotes: 4
+
+================================================================================
+APP_DB - ultimas pricing_executions
+================================================================================
+{'id': 7, 'created_at': '2026-06-22T13:46:40.451149Z', 'structure_id': 3, 'underlying_asset': 'PRIO3', 'reference_date': '2026-06-22', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 4000, 'theoretical_value': 0.0}
+{'id': 6, 'created_at': '2026-06-22T01:08:58.487592Z', 'structure_id': 2, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 13000, 'theoretical_value': 0.0}
+{'id': 5, 'created_at': '2026-06-22T00:55:36.426879Z', 'structure_id': 2, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 13000, 'theoretical_value': 0.0}
+{'id': 4, 'created_at': '2026-06-22T00:48:01.785862Z', 'structure_id': 2, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 13000, 'theoretical_value': 0.0}
+{'id': 3, 'created_at': '2026-06-22T00:44:38.811207Z', 'structure_id': 2, 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'execution_status': 'ok', 'execution_engine': 'stub', 'error_message': None, 'duration_ms': 5, 'number_of_legs': 4, 'total_quantity': 13000, 'theoretical_value': 0.0}
+{'id': 2, 'created_at': '2026-06-22T00:40:32.840549Z', 'structure_id': None, 'underlying_asset': None, 'reference_date': None, 'execution_status': 'error', 'execution_engine': 'stub', 'error_message': 'alias_legacy_aba is null for structure_id=2', 'duration_ms': 0, 'number_of_legs': None, 'total_quantity': None, 'theoretical_value': None}
+{'id': 1, 'created_at': '2026-06-22T00:36:20.967549Z', 'structure_id': None, 'underlying_asset': None, 'reference_date': None, 'execution_status': 'error', 'execution_engine': 'stub', 'error_message': 'alias_legacy_aba is null for structure_id=2', 'duration_ms': 0, 'number_of_legs': None, 'total_quantity': None, 'theoretical_value': None}
+
+================================================================================
+DERIVED_DB - ultimas structure_decisions
+================================================================================
+{'id': 3, 'timestamp': '2026-06-22T13:46:40.493888+00:00', 'aba': 'structure:3', 'structure_id': 3, 'decision': 'HOLD', 'level': 0, 'pl_atual': 0.0, 'spot_ref': 66.84, 'why': '{"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}', 'meta_json': '{"structure_id": 3, "structure_name": "PRIO", "underlying_asset": "PRIO3", "reference_date": "2026-06-22", "storage_key": "structure:3"}', 'created_at': '2026-06-22T10:46:40.523168'}
+{'id': 2, 'timestamp': '2026-06-22T01:08:58.523780+00:00', 'aba': 'structure:2', 'structure_id': 2, 'decision': 'HOLD', 'level': 0, 'pl_atual': 0.0, 'spot_ref': 198.35, 'why': '{"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}', 'meta_json': '{"structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "storage_key": "structure:2"}', 'created_at': '2026-06-21T22:08:58.554224'}
+{'id': 1, 'timestamp': '2026-06-22T01:08:20.100326+00:00', 'aba': 'structure:2', 'structure_id': 2, 'decision': 'HOLD', 'level': 0, 'pl_atual': 0.0, 'spot_ref': 198.35, 'why': '{"source": "pricing_engine", "engine": "stub", "execution_status": "ok", "theoretical_value": 0.0}', 'meta_json': '{"structure_id": 2, "structure_name": "SBSP+SMAL=BOVA", "underlying_asset": "BOVA11", "reference_date": "2026-06-21", "storage_key": "structure:2"}', 'created_at': '2026-06-21T22:08:20.128530'}
+
+================================================================================
+DERIVED_DB - grupos payoff_curve_points
+================================================================================
+{'timestamp': '2026-06-22T13:46:40.493888+00:00', 'aba': 'structure:3', 'structure_id': 3, 'spot_ref': None, 'qtd_pontos': 101, 'min_point_spot': 33.42, 'max_point_spot': 100.26, 'min_point_pl': -15810.0, 'max_point_pl': -3810.0}
+{'timestamp': '2026-06-22T01:08:58.523780+00:00', 'aba': 'structure:2', 'structure_id': 2, 'spot_ref': None, 'qtd_pontos': 101, 'min_point_spot': 99.175, 'max_point_spot': 297.525, 'min_point_pl': -12201.5, 'max_point_pl': 154412.5}
+{'timestamp': '2026-06-22T01:08:20.100326+00:00', 'aba': 'structure:2', 'structure_id': 2, 'spot_ref': None, 'qtd_pontos': 101, 'min_point_spot': 99.175, 'max_point_spot': 297.525, 'min_point_pl': -12201.5, 'max_point_pl': 154412.5}

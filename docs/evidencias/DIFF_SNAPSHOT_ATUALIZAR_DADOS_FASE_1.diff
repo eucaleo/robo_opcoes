@@ -1,0 +1,13 @@
+diff --git a/docs/evidencias/SNAPSHOT_ANTES_ATUALIZAR_DADOS_FASE_1.txt b/docs/evidencias/SNAPSHOT_DEPOIS_ATUALIZAR_DADOS_FASE_1.txt
+index eb4a7bf..0616412 100644
+--- a/docs/evidencias/SNAPSHOT_ANTES_ATUALIZAR_DADOS_FASE_1.txt
++++ b/docs/evidencias/SNAPSHOT_DEPOIS_ATUALIZAR_DADOS_FASE_1.txt
+@@ -1,6 +1,6 @@
+-# Snapshot antes de Atualizar Dados - Fase 1
++# Snapshot depois de Atualizar Dados - Fase 1
+ 
+-Data local: 2026-06-22T14:38:01
++Data local: 2026-06-22T14:39:23
+ Branch: reinicio-normalizacao-idioma-ptbr
+ 
+ 
