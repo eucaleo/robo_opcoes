@@ -1,0 +1,1348 @@
+== Fase 3C - Diagnostico app.db, UI e fluxo pricing/payoff ==
+
+Data:
+Sun Jun 21 21:20:35     2026
+
+1) Branch e estado git
+
+fase-3a4-auto-pricing-manual-save
+?? docs/checkpoints/evidencias/fase-3c-diagnostico-appdb-ui-pricing-flow.txt
+?? scripts/fase-3c-diagnostico-appdb-ui-pricing-flow.sh
+c5107e1 chore: diagnostica schema canonico de estruturas fase 3b
+3cb1319 chore: inicia diagnostico fase 3a cadastro payoff decisoes
+ec21c9e test: registra suite geral apos fechamento da fase 2b
+908d862 docs: fecha validacao da normalizacao numerica fase 2b
+93e9844 chore: adiciona script de fechamento fase 2b
+51e4f8e test: adiciona regressao para normalizacao de quantity
+b145981 chore: adiciona scripts de automacao fase 2b
+c14fe17 docs: registra análise da normalização numérica fase 2b
+07eabe5 docs: registra validação manual da fase 3a4
+777cc9b docs: atualiza evolução completa da revisão funcional
+
+2) Inspecao de bancos app.db e derived.db
+
+
+================================================================================
+DB: C:\Users\eucal\projeto\dados\app.db
+existe: True
+
+Objetos:
+index: idx_audit_log_action
+index: idx_audit_log_changed_at
+index: idx_audit_log_structure_id
+index: idx_pricing_executions_created_at
+index: idx_pricing_executions_status
+index: idx_pricing_executions_structure_id
+index: idx_rtd_option_quotes_codigo_opcao
+index: idx_structure_leg_snapshots_leg_id
+index: idx_structure_leg_snapshots_snapshot_id
+index: idx_structure_leg_snapshots_structure_id
+index: idx_structure_legs_structure_id
+index: idx_structure_legs_structure_id_leg_order
+index: idx_structure_snapshots_created_at
+index: idx_structure_snapshots_pricing_execution_id
+index: idx_structure_snapshots_reference_date
+index: idx_structure_snapshots_structure_created
+index: idx_structure_snapshots_structure_id
+index: idx_structures_alias_legacy_aba
+index: idx_structures_underlying_asset
+index: sqlite_autoindex_rtd_option_quotes_1
+table: pricing_executions
+table: rtd_option_quotes
+table: sqlite_sequence
+table: structure_audit_log
+table: structure_leg_snapshots
+table: structure_legs
+table: structure_snapshots
+table: structures
+
+Contagens principais:
+structures: 1
+structure_legs: 4
+structure_events: indisponivel (no such table: structure_events)
+structure_audit_log: 2
+structure_snapshots: 0
+structure_leg_snapshots: 0
+pricing_executions: 0
+payoff_curve_points: indisponivel (no such table: payoff_curve_points)
+structure_decisions: indisponivel (no such table: structure_decisions)
+rtd_option_quotes: 4
+manual_analise_robo_legs: indisponivel (no such table: manual_analise_robo_legs)
+rtd_analise_robo_legs: indisponivel (no such table: rtd_analise_robo_legs)
+
+Schema relacionado:
+
+-- index: idx_audit_log_structure_id
+CREATE INDEX idx_audit_log_structure_id
+            ON structure_audit_log(structure_id)
+            
+
+-- index: idx_pricing_executions_created_at
+CREATE INDEX idx_pricing_executions_created_at
+            ON pricing_executions(created_at)
+            
+
+-- index: idx_pricing_executions_status
+CREATE INDEX idx_pricing_executions_status
+            ON pricing_executions(execution_status)
+            
+
+-- index: idx_pricing_executions_structure_id
+CREATE INDEX idx_pricing_executions_structure_id
+            ON pricing_executions(structure_id)
+            
+
+-- index: idx_rtd_option_quotes_codigo_opcao
+CREATE INDEX idx_rtd_option_quotes_codigo_opcao
+        ON rtd_option_quotes(codigo_opcao)
+    
+
+-- index: idx_structure_leg_snapshots_leg_id
+CREATE INDEX idx_structure_leg_snapshots_leg_id
+            ON structure_leg_snapshots(leg_id)
+            
+
+-- index: idx_structure_leg_snapshots_snapshot_id
+CREATE INDEX idx_structure_leg_snapshots_snapshot_id
+            ON structure_leg_snapshots(snapshot_id)
+            
+
+-- index: idx_structure_leg_snapshots_structure_id
+CREATE INDEX idx_structure_leg_snapshots_structure_id
+            ON structure_leg_snapshots(structure_id)
+            
+
+-- index: idx_structure_legs_structure_id
+CREATE INDEX idx_structure_legs_structure_id
+            ON structure_legs(structure_id)
+            
+
+-- index: idx_structure_legs_structure_id_leg_order
+CREATE INDEX idx_structure_legs_structure_id_leg_order
+            ON structure_legs(structure_id, leg_order)
+            
+
+-- index: idx_structure_snapshots_created_at
+CREATE INDEX idx_structure_snapshots_created_at
+            ON structure_snapshots(created_at)
+            
+
+-- index: idx_structure_snapshots_pricing_execution_id
+CREATE INDEX idx_structure_snapshots_pricing_execution_id
+            ON structure_snapshots(pricing_execution_id)
+            
+
+-- index: idx_structure_snapshots_reference_date
+CREATE INDEX idx_structure_snapshots_reference_date
+            ON structure_snapshots(reference_date)
+            
+
+-- index: idx_structure_snapshots_structure_created
+CREATE INDEX idx_structure_snapshots_structure_created
+            ON structure_snapshots(structure_id, created_at)
+            
+
+-- index: idx_structure_snapshots_structure_id
+CREATE INDEX idx_structure_snapshots_structure_id
+            ON structure_snapshots(structure_id)
+            
+
+-- index: idx_structures_alias_legacy_aba
+CREATE INDEX idx_structures_alias_legacy_aba
+            ON structures(alias_legacy_aba)
+            
+
+-- index: idx_structures_underlying_asset
+CREATE INDEX idx_structures_underlying_asset
+            ON structures(underlying_asset)
+            
+
+-- index: sqlite_autoindex_rtd_option_quotes_1
+None
+
+-- table: pricing_executions
+CREATE TABLE pricing_executions (
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at        TEXT    NOT NULL,
+                structure_id      INTEGER,
+                underlying_asset  TEXT,
+                reference_date    TEXT,
+                execution_status  TEXT,
+                execution_engine  TEXT,
+                error_message     TEXT,
+                duration_ms       INTEGER,
+                number_of_legs    INTEGER,
+                total_quantity    INTEGER,
+                theoretical_value REAL,
+                pricing_payload   TEXT,
+                result            TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+
+-- table: rtd_option_quotes
+CREATE TABLE rtd_option_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    codigo_opcao TEXT NOT NULL,
+    ativo_base TEXT,
+
+    call_put TEXT,
+    strike REAL,
+    vencimento TEXT,
+
+    ultimo_preco REAL,
+    ultima_quantidade REAL,
+
+    bid REAL,
+    ask REAL,
+    volume REAL,
+
+    iv REAL,
+    delta REAL,
+    gamma REAL,
+    theta REAL,
+    vega REAL,
+
+    source TEXT NOT NULL DEFAULT 'rtd_links',
+    raw_json TEXT,
+
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(codigo_opcao)
+)
+
+-- table: structure_audit_log
+CREATE TABLE structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+
+-- table: structure_leg_snapshots
+CREATE TABLE structure_leg_snapshots (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                snapshot_id      INTEGER NOT NULL,
+                structure_id     INTEGER NOT NULL,
+                leg_id           INTEGER,
+                leg_order        INTEGER,
+                position_side    TEXT,
+                option_type      TEXT,
+                symbol           TEXT,
+                strike           REAL,
+                expiration_date  TEXT,
+                quantity         INTEGER,
+                premium          REAL,
+                multiplier       REAL,
+                metrics_json     TEXT,
+                market_json      TEXT,
+                raw_json         TEXT,
+                FOREIGN KEY (snapshot_id) REFERENCES structure_snapshots(id) ON DELETE CASCADE,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+            )
+
+-- table: structure_legs
+CREATE TABLE structure_legs (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id    INTEGER NOT NULL,
+                position_side   TEXT    NOT NULL,
+                option_type     TEXT    NOT NULL,
+                symbol          TEXT,
+                strike          REAL    NOT NULL,
+                expiration_date TEXT    NOT NULL,
+                quantity        INTEGER NOT NULL,
+                premium         REAL,
+                multiplier      REAL    NOT NULL DEFAULT 1,
+                leg_order       INTEGER NOT NULL,
+                notes           TEXT,
+                created_at      TEXT    NOT NULL,
+                updated_at      TEXT    NOT NULL,
+                FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE
+            )
+
+-- table: structure_snapshots
+CREATE TABLE structure_snapshots (
+                id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at            TEXT    NOT NULL,
+                structure_id          INTEGER NOT NULL,
+                pricing_execution_id  INTEGER,
+                underlying_asset      TEXT,
+                reference_date        TEXT,
+                snapshot_source       TEXT    NOT NULL DEFAULT 'system',
+                structure_json        TEXT    NOT NULL,
+                market_json           TEXT,
+                metrics_json          TEXT,
+                payoff_json           TEXT,
+                decision_json         TEXT,
+                alerts_json           TEXT,
+                operation_state_json  TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (pricing_execution_id) REFERENCES pricing_executions(id)
+            )
+
+-- table: structures
+CREATE TABLE structures (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                name             TEXT    NOT NULL,
+                underlying_asset TEXT    NOT NULL,
+                alias_legacy_aba TEXT,
+                status           TEXT    NOT NULL DEFAULT 'active',
+                notes            TEXT,
+                created_at       TEXT    NOT NULL,
+                updated_at       TEXT    NOT NULL
+            )
+
+Amostra structures com contagem de legs:
+{'id': 2, 'name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'alias_legacy_aba': None, 'status': 'active', 'n_legs': 4}
+
+================================================================================
+DB: C:\Users\eucal\projeto\dados\derived.db
+existe: True
+
+Objetos:
+index: idx_decisions_aba_ts
+index: idx_decisions_ts
+index: idx_rtd_option_quotes_codigo_opcao
+index: ix_payoff_structure_id
+index: sqlite_autoindex_rtd_option_quotes_1
+index: ux_decision_snapshot
+index: ux_payoff_snapshot
+table: payoff_curve_points
+table: rtd_option_quotes
+table: sqlite_sequence
+table: structure_decisions
+
+Contagens principais:
+structures: indisponivel (no such table: structures)
+structure_legs: indisponivel (no such table: structure_legs)
+structure_events: indisponivel (no such table: structure_events)
+structure_audit_log: indisponivel (no such table: structure_audit_log)
+structure_snapshots: indisponivel (no such table: structure_snapshots)
+structure_leg_snapshots: indisponivel (no such table: structure_leg_snapshots)
+pricing_executions: indisponivel (no such table: pricing_executions)
+payoff_curve_points: 0
+structure_decisions: 0
+rtd_option_quotes: 4
+manual_analise_robo_legs: indisponivel (no such table: manual_analise_robo_legs)
+rtd_analise_robo_legs: indisponivel (no such table: rtd_analise_robo_legs)
+
+Schema relacionado:
+
+-- index: idx_decisions_aba_ts
+CREATE INDEX idx_decisions_aba_ts
+ON structure_decisions (aba, timestamp)
+
+
+-- index: idx_decisions_ts
+CREATE INDEX idx_decisions_ts
+ON structure_decisions (timestamp)
+
+
+-- index: idx_rtd_option_quotes_codigo_opcao
+CREATE INDEX idx_rtd_option_quotes_codigo_opcao
+        ON rtd_option_quotes(codigo_opcao)
+    
+
+-- index: ix_payoff_structure_id
+CREATE INDEX ix_payoff_structure_id
+ON payoff_curve_points (structure_id, timestamp)
+
+
+-- index: sqlite_autoindex_rtd_option_quotes_1
+None
+
+-- index: ux_decision_snapshot
+CREATE UNIQUE INDEX ux_decision_snapshot
+ON structure_decisions (timestamp, aba)
+
+
+-- index: ux_payoff_snapshot
+CREATE UNIQUE INDEX ux_payoff_snapshot
+ON payoff_curve_points (timestamp, aba, point_spot)
+
+
+-- table: payoff_curve_points
+CREATE TABLE payoff_curve_points (
+    timestamp    TEXT NOT NULL,
+    aba          TEXT NOT NULL,
+    structure_id INTEGER,
+    spot_ref     REAL,
+    point_spot   REAL NOT NULL,
+    point_pl     REAL NOT NULL,
+    meta_json    TEXT,
+    created_at   TEXT DEFAULT (datetime('now'))
+)
+
+-- table: rtd_option_quotes
+CREATE TABLE rtd_option_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    codigo_opcao TEXT NOT NULL,
+    ativo_base TEXT,
+
+    call_put TEXT,
+    strike REAL,
+    vencimento TEXT,
+
+    ultimo_preco REAL,
+    ultima_quantidade REAL,
+
+    bid REAL,
+    ask REAL,
+    volume REAL,
+
+    iv REAL,
+    delta REAL,
+    gamma REAL,
+    theta REAL,
+    vega REAL,
+
+    source TEXT NOT NULL DEFAULT 'rtd_links',
+    raw_json TEXT,
+
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE(codigo_opcao)
+)
+
+-- table: structure_decisions
+CREATE TABLE structure_decisions (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    timestamp     TEXT    NOT NULL,
+    aba           TEXT    NOT NULL,
+    decision      TEXT    NOT NULL,
+    level         INTEGER NOT NULL,
+    pl_atual      REAL,
+    pl_max        REAL,
+    pl_pct_of_max REAL,
+    dte_min       INTEGER,
+    why_json      TEXT,
+    spot_ref      REAL,
+    meta_json     TEXT,
+    created_at    TEXT    DEFAULT CURRENT_TIMESTAMP,
+    why           TEXT,
+    structure_id  INTEGER
+)
+
+Amostra structures com contagem de legs:
+indisponivel (no such table: structures)
+
+3) Trechos relevantes de UI/main_window.py
+
+5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+12:from UI.components.structures_list_panel import StructuresListPanel
+13:from UI.components.structure_editor_dialog import StructureEditorDialog
+37:        self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+99:            on_recalculate=self.recalculate_structure,
+100:            app_db_path=self._db_path,
+112:        self._setup_structures_tab(right_notebook)
+173:        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+186:        # Carregar payoff em background -- apenas structure_id necessário
+187:        structure_id = decision_data.get("structure_id")
+190:        if structure_id is not None:
+191:            self._start_payoff_load(structure_id, timestamp, decision_data)
+198:        structure_id,
+203:        alteracao_36: structure_id é a única chave obrigatória.
+206:            decision_data = {"structure_id": structure_id}
+221:                    structure_id, timestamp
+225:                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+273:        alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
+280:                self.filters_panel.update_structures(
+281:                    self.data_model.get_structures()
+298:                target_sid = d.get("structure_id")  # chave canônica
+301:                # Reselecionar na grid: structure_id é suficiente
+352:    def recalculate_structure(self, structure_id: str):
+354:        Recalcula a estrutura identificada por structure_id e atualiza a UI.
+360:                    text=f"Recalc já em andamento; ignorando ({structure_id})"
+376:        self.status_bar.config(text=f"Recalculando {structure_id}...")
+389:                        structure_id, ok=ok, message=msg
+417:                    0, lambda: finish(True, f"OK: {structure_id} recalculado")
+510:* Ingest Python  app.db
+511:* Domain Layer  derived.db
+608:    def _setup_structures_tab(self, notebook: ttk.Notebook):
+620:        self.structures_list = StructuresListPanel(
+622:            on_structure_selected=self._on_structure_selected,
+623:            on_request_edit=self._on_structure_edit_request,
+624:            db_path=self._db_path,
+626:        self.structures_list.pack(fill="both", expand=True)
+641:    def _on_structure_selected(self, structure: Optional[Dict]):
+647:        if structure is None:
+650:            legs = structure.get("legs", [])
+652:                f"ID         : {structure.get('id')}",
+653:                f"Nome       : {structure.get('name')}",
+654:                f"Ativo      : {structure.get('underlying_asset')}",
+655:                f"Aba legado : {structure.get('alias_legacy_aba') or '--'}",
+656:                f"Status     : {structure.get('status')}",
+657:                f"Criado em  : {str(structure.get('created_at', ''))[:19]}",
+658:                f"Atualizado : {str(structure.get('updated_at', ''))[:19]}",
+659:                f"Obs        : {structure.get('notes') or '--'}",
+675:    def _on_structure_edit_request(self, structure_id: Optional[int]):
+677:        dlg = StructureEditorDialog(
+679:            structure_id=structure_id,
+680:            db_path=self._db_path,                            # ← usa instância
+684:            saved_structure_id = getattr(dlg, "saved_structure_id", None) or structure_id
+686:            self.structures_list.load()
+693:            if saved_structure_id is not None:
+694:                self._reprice_structure_after_save(int(saved_structure_id))
+697:    def _reprice_structure_after_save(self, structure_id: int) -> None:
+717:        sid = int(structure_id)
+725:                facade = CanonicalPricingFacade(db_path=self._db_path)
+
+---- UI/main_window.py inicio ----
+# UI/main_window.py
+#!/usr/bin/env python3
+"""
+UI Principal - Sistema de Derivados
+Carrega dados de derived.db e app.db para exibir decisões e payoffs
+"""
+from UI.models.ui_data import UIDataModel
+from UI.components.payoff_chart import PayoffChart
+from UI.components.details_panel import DetailsPanel
+from UI.components.decisions_grid import DecisionsGrid
+from UI.components.filters_panel import FiltersPanel
+from UI.components.structures_list_panel import StructuresListPanel
+from UI.components.structure_editor_dialog import StructureEditorDialog
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional
+from UI.debug_utils import debug, info
+import tkinter as tk
+from tkinter import ttk, messagebox
+import matplotlib.pyplot as plt
+# FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import
+from pathlib import Path
+import threading
+import time
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+class MainWindow:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Sistema de Derivados - Análise de Decisões")
+        self.root.geometry("1400x900")
+
+        # Data model
+        self.data_model = UIDataModel()
+
+        # Caminho canônico ao banco operacional (alteracao_70/71)
+        self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+
+        # Threading control: evitar freeze da UI
+        self._payoff_worker_id = 0
+
+        # Loading animation
+        self._loading_animation_active = False
+        self._loading_animation_chars = ["", "", "", "", "", "", "", "", "", ""]
+        self._loading_animation_index = 0
+        self._loading_payoff = False
+        self._stop_loading_animation()
+
+        # Última decisão selecionada (preservada entre refreshes)
+        self.last_selected_decision: Optional[Dict] = None
+
+        # Controle de recalc em andamento
+        self._recalc_in_progress = False
+
+        # Configurar layout principal
+        self._setup_layout()
+        self._setup_menus()
+        self._bind_events()
+
+        # Carregar dados iniciais
+        self.refresh_data()
+
+    def _setup_layout(self):
+        """Organiza layout em painéis."""
+        main_paned = ttk.PanedWindow(self.root, orient="horizontal")
+        main_paned.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Painel esquerdo: filtros + grid
+        left_frame = ttk.Frame(main_paned)
+        main_paned.add(left_frame, weight=1)
+
+        # Painel direito: notebook com abas
+        right_frame = ttk.Frame(main_paned)
+        main_paned.add(right_frame, weight=2)
+
+        # === PAINEL ESQUERDO ===
+        self.filters_panel = FiltersPanel(
+            parent=left_frame,
+            on_filter_change=self.on_filter_change,
+        )
+        self.filters_panel.pack(fill="x", padx=5, pady=5)
+
+        self.decisions_grid = DecisionsGrid(
+            parent=left_frame,
+            on_selection_change=self.on_decision_selected,
+        )
+        self.decisions_grid.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # === PAINEL DIREITO ===
+        right_notebook = ttk.Notebook(right_frame)
+        right_notebook.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Aba 1: Detalhes da Decisão
+        details_frame = ttk.Frame(right_notebook)
+        right_notebook.add(details_frame, text="Detalhes da Decisão")
+
+        self.details_panel = DetailsPanel(
+            details_frame,
+            on_recalculate=self.recalculate_structure,
+            app_db_path=self._db_path,
+        )
+        self.details_panel.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Aba 2: Gráfico de Payoff
+        chart_frame = ttk.Frame(right_notebook)
+        right_notebook.add(chart_frame, text="Curva de Payoff")
+
+        self.payoff_chart = PayoffChart(chart_frame)
+        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+
+        # Aba 3: Estruturas (Fase 5 -- alteracao_10)
+        self._setup_structures_tab(right_notebook)
+
+        # Status bar
+        self.status_bar = ttk.Label(
+            self.root,
+            text="Pronto",
+            relief=tk.SUNKEN,
+            anchor="w",
+        )
+        self.status_bar.pack(side="bottom", fill="x")
+
+    def _setup_menus(self):
+        """Cria menu superior."""
+        menubar = tk.Menu(self.root)
+        self.root.config(menu=menubar)
+
+        # Menu Arquivo
+        file_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Arquivo", menu=file_menu)
+        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+        file_menu.add_separator()
+        file_menu.add_command(label="Sair", command=self.root.quit)
+
+        # Menu Ferramentas
+        tools_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Ferramentas", menu=tools_menu)
+        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+        tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+        tools_menu.add_separator()
+        tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+
+        # Menu Ajuda
+        help_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Ajuda", menu=help_menu)
+        help_menu.add_command(label="Sobre", command=self.show_about)
+
+    def _bind_events(self):
+        """Vincula atalhos de teclado."""
+        self.root.bind("<F5>", lambda e: self.refresh_data())
+        self.root.bind("<Control-q>", lambda e: self.root.quit())
+
+    # ------------------------------------------------------------------
+    # Callbacks
+    # ------------------------------------------------------------------
+
+    def on_filter_change(self, filters: Dict):
+        """Callback quando filtros mudam."""
+        self.status_bar.config(text="Aplicando filtros...")
+        try:
+            filtered_data = self.data_model.get_decisions(filters)
+            self.decisions_grid.update_data(filtered_data)
+            count = len(filtered_data)
+            self.status_bar.config(text=f"{count} decisões encontradas")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao aplicar filtros: {e}")
+            self.status_bar.config(text="Erro nos filtros")
+
+    def on_decision_selected(self, decision_data: Dict):
+        """Callback quando uma decisão é selecionada no grid.
+        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+        """
+        if not decision_data:
+            return
+
+        self.last_selected_decision = dict(decision_data)
+
+        # Atualizar painel de detalhes (síncrono, leve)
+
+---- UI/main_window.py area estruturas candidata 1 ----
+        # Atualizar painel de detalhes (síncrono, leve)
+        try:
+            self.details_panel.update_decision(decision_data)
+        except Exception as e:
+            print(f"[UI] Erro ao atualizar detalhes: {e}")
+
+        # Carregar payoff em background -- apenas structure_id necessário
+        structure_id = decision_data.get("structure_id")
+        timestamp = decision_data.get("timestamp")  # opcional
+
+        if structure_id is not None:
+            self._start_payoff_load(structure_id, timestamp, decision_data)
+        else:
+            self.payoff_chart.clear()
+            self.status_bar.config(text="Dados insuficientes para payoff")
+
+    def _start_payoff_load(
+        self,
+        structure_id,
+        timestamp=None,       # alteracao_36: opcional
+        decision_data=None,   # alteracao_36: opcional
+    ):
+        """Inicia carregamento de payoff em thread separada.
+        alteracao_36: structure_id é a única chave obrigatória.
+        """
+        if decision_data is None:
+            decision_data = {"structure_id": structure_id}
+
+        self._payoff_worker_id += 1
+        current_worker_id = self._payoff_worker_id
+
+        if self._loading_payoff:
+            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+        else:
+            self.status_bar.config(text="Carregando payoff...")
+
+        self._loading_payoff = True
+
+        def load_worker():
+            try:
+                points, info_dict = self.data_model.get_payoff_curve_info(
+                    structure_id, timestamp
+                )
+                try:
+                    debug(
+                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+                        f"-> n={len(points or [])} info={info_dict}"
+                    )
+                except Exception:
+                    pass
+
+                # Normalizar formato de pontos para o chart
+                norm = []
+                for p in points or []:
+                    if isinstance(p, dict):
+                        if "spot" in p and "pl" in p:
+                            norm.append({"spot": p["spot"], "pl": p["pl"]})
+                        elif "point_spot" in p and "point_pl" in p:
+                            norm.append({"spot": p["point_spot"], "pl": p["point_pl"]})
+                        else:
+                            spot = p.get("x") if "x" in p else p.get("s")
+                            pl = p.get("y") if "y" in p else p.get("p")
+                            if spot is not None and pl is not None:
+                                norm.append({"spot": spot, "pl": pl})
+                    elif isinstance(p, (list, tuple)) and len(p) >= 2:
+                        norm.append({"spot": p[0], "pl": p[1]})
+                points = norm
+
+                if current_worker_id != self._payoff_worker_id:
+                    return
+
+                self.root.after(
+                    0,
+                    self._finish_payoff_load,
+                    points,
+                    info_dict,
+                    decision_data,
+                    current_worker_id,
+                )
+            except Exception as e:
+                if current_worker_id == self._payoff_worker_id:
+                    self.root.after(
+                        0,
+                        self._handle_payoff_error,
+                        str(e),
+                        current_worker_id,
+                    )
+
+        thread = threading.Thread(target=load_worker, daemon=True)
+        thread.start()
+
+    def refresh_data(self):
+        """Recarrega dados do banco.
+        alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
+        """
+        self.status_bar.config(text="Carregando dados...")
+        try:
+            self.data_model.refresh()
+
+            try:
+                self.filters_panel.update_structures(
+                    self.data_model.get_structures()
+                )
+            except Exception:
+                pass
+
+            try:
+                self.filters_panel.reset_filters()
+            except Exception:
+                pass
+
+            decisions = self.data_model.get_decisions()
+            self.decisions_grid.update_data(decisions)
+
+            preserved = False
+            d = self.last_selected_decision
+
+            if d:
+                target_sid = d.get("structure_id")  # chave canônica
+                target_ts = d.get("timestamp")       # auxiliar
+
+                # Reselecionar na grid: structure_id é suficiente
+                if target_sid is not None:
+                    try:
+                        self.decisions_grid.select_by_key(target_sid, target_ts)
+                    except Exception:
+                        pass
+
+                    try:
+                        self.details_panel.update_decision(d)
+                    except Exception:
+                        pass
+
+                    try:
+                        self._start_payoff_load(target_sid, target_ts, d)
+                        preserved = True
+                    except Exception:
+                        preserved = False
+
+            if not preserved:
+                try:
+                    self.details_panel.clear()
+                except Exception:
+                    pass
+                try:
+                    self.payoff_chart.clear()
+                except Exception:
+                    pass
+
+            self.status_bar.config(
+                text=f"Dados atualizados - {len(decisions)} decisões"
+            )
+
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao carregar dados: {e}")
+            self.status_bar.config(text="Erro ao carregar dados")
+    def export_csv(self):
+        """Exporta dados filtrados para CSV."""
+        from tkinter import filedialog
+
+        filename = filedialog.asksaveasfilename(
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
+        if filename:
+            try:
+                current_data = self.decisions_grid.get_current_data()
+                self.data_model.export_to_csv(current_data, filename)
+                messagebox.showinfo("Sucesso", f"Dados exportados para {filename}")
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao exportar: {e}")
+
+    def recalculate_structure(self, structure_id: str):
+        """
+        Recalcula a estrutura identificada por structure_id e atualiza a UI.
+        alteracao_36: recalculate_aba() removida; este é o único entry point.
+        """
+        if self._recalc_in_progress:
+            try:
+                self.status_bar.config(
+                    text=f"Recalc já em andamento; ignorando ({structure_id})"
+                )
+            except Exception:
+                pass
+            return
+
+        self._recalc_in_progress = True
+
+        try:
+            self.payoff_chart.fix_current_curve()
+        except Exception:
+            pass
+
+        import subprocess
+        import sys
+
+        self.status_bar.config(text=f"Recalculando {structure_id}...")
+
+        def finish(ok: bool, msg: str):
+            self._recalc_in_progress = False
+            try:
+                self.status_bar.config(text=msg)
+            except Exception:
+                pass
+            try:
+                if hasattr(self, "details_panel") and hasattr(
+                    self.details_panel, "on_recalc_finished"
+                ):
+                    self.details_panel.on_recalc_finished(
+                        structure_id, ok=ok, message=msg
+                    )
+            except Exception as e:
+                print("[UI] Erro notificando details_panel fim recalc:", e)
+
+        def worker():
+            try:
+                project_root = Path(__file__).resolve().parents[1]
+                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+                if not script_path.exists():
+                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+
+                res = subprocess.run(
+                    [sys.executable, str(script_path)],
+                    cwd=str(project_root),
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+
+                if res.stdout:
+                    print("[UI] Recalc STDOUT:\n", res.stdout)
+                if res.stderr:
+                    print("[UI] Recalc STDERR:\n", res.stderr)
+
+                self.root.after(0, self.refresh_data)
+                self.root.after(
+                    0, lambda: finish(True, f"OK: {structure_id} recalculado")
+                )
+
+            except subprocess.TimeoutExpired:
+
+---- UI/main_window.py area estruturas candidata 2 ----
+            except subprocess.TimeoutExpired:
+                self.root.after(0, lambda: finish(False, "Timeout no recálculo"))
+            except subprocess.CalledProcessError as e:
+                if e.stdout:
+                    print("[UI] Recalc STDOUT:\n", e.stdout)
+                if e.stderr:
+                    print("[UI] Recalc STDERR:\n", e.stderr)
+                self.root.after(0, lambda: finish(False, "Falha no recálculo"))
+            except Exception as e:
+                print("[UI] Erro inesperado recalc:", e)
+                self.root.after(0, lambda: finish(False, "Erro no recálculo"))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def run_pipeline(self):
+        """Executa o pipeline de derivados."""
+        result = messagebox.askyesno(
+            "Executar Pipeline",
+            "Executar pipeline de derivados?\nIsso pode demorar alguns segundos.",
+        )
+        if not result:
+            return
+
+        self.status_bar.config(text="Executando pipeline...")
+
+        try:
+            project_root = Path(__file__).resolve().parents[1]
+            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+            if not script_path.exists():
+                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+
+            if not script_path.exists():
+                raise FileNotFoundError(
+                    f"Não achei o script do pipeline em: {script_path}"
+                )
+
+            import subprocess
+            import sys
+
+            res = subprocess.run(
+                [sys.executable, str(script_path)],
+                cwd=str(project_root),
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            if res.stdout:
+                print("[UI] Pipeline STDOUT:\n", res.stdout)
+            if res.stderr:
+                print("[UI] Pipeline STDERR:\n", res.stderr)
+
+            messagebox.showinfo("Sucesso", "Pipeline executado com sucesso!")
+            self.refresh_data()
+
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror(
+                "Erro",
+                "Pipeline falhou:\n\nSTDOUT:\n"
+                + (e.stdout or "")
+                + "\n\nSTDERR:\n"
+                + (e.stderr or ""),
+            )
+            self.status_bar.config(text="Pipeline falhou")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao executar pipeline: {e}")
+            self.status_bar.config(text="Erro ao executar pipeline")
+
+    def check_databases(self):
+        """Verifica status dos bancos de dados."""
+        try:
+            status = self.data_model.check_database_status()
+            messagebox.showinfo("Status dos Bancos", status)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao verificar bancos: {e}")
+
+    def clear_cache(self):
+        """Limpa cache interno."""
+        self.data_model.clear_cache()
+        messagebox.showinfo("Cache", "Cache limpo com sucesso")
+
+    def show_about(self):
+        """Mostra informações sobre o sistema."""
+        about_text = """Sistema de Derivados v1.0
+
+Desenvolvido para análise de estruturas de opções
+Pipeline automático de payoff e decisões
+
+Camadas:
+* Excel RTD  CSV Bridge
+* Ingest Python  app.db
+* Domain Layer  derived.db
+* UI Tkinter (esta interface)
+
+Baseline: executed_v1 + baseline_v1b"""
+        messagebox.showinfo("Sobre", about_text)
+
+    # ------------------------------------------------------------------
+    # Handlers de payoff (thread  main thread)
+    # ------------------------------------------------------------------
+
+    def _finish_payoff_load(
+        self,
+        points: List[Dict],
+        info_dict: Dict,
+        decision_data: Dict,
+        worker_id: int,
+    ):
+        """Executado na thread principal quando a curva chega do worker."""
+        if worker_id != self._payoff_worker_id:
+            return
+
+        self._loading_payoff = False
+        self._stop_loading_animation()
+
+        try:
+            if points:
+                overlays = self.payoff_chart.update_chart(points, decision_data)
+
+                try:
+                    self.details_panel.update_breakevens(
+                        overlays.get("breakevens"),
+                        overlays.get("pl_at_spot_ref"),
+                    )
+                except Exception:
+                    pass
+
+                try:
+                    self.details_panel.update_audit_info(info_dict or {})
+                except Exception:
+                    pass
+
+                used_ts = (info_dict or {}).get("used_timestamp") or decision_data.get(
+                    "timestamp"
+                )
+                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+                n = (info_dict or {}).get("count_points", len(points))
+                msg = f"{n} pontos ({src})"
+                if used_ts and used_ts != decision_data.get("timestamp"):
+                    msg += f" | ts usado: {used_ts}"
+                self.status_bar.config(text=msg)
+            else:
+                self.payoff_chart.clear()
+                self.status_bar.config(text="Sem dados de payoff para esta seleção")
+        except Exception as e:
+            self._handle_payoff_error(str(e), worker_id)
+
+    def _handle_payoff_error(self, error_msg: str, worker_id: int):
+        if worker_id != self._payoff_worker_id:
+            return
+        self._loading_payoff = False
+        self._stop_loading_animation()
+        try:
+            self.payoff_chart.clear()
+        except Exception:
+            pass
+        self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+        print(f"[UI] Erro no payoff: {error_msg}")
+        import traceback
+        traceback.print_exc()
+
+    # ------------------------------------------------------------------
+    # Loading animation
+    # ------------------------------------------------------------------
+
+    def _start_loading_animation(self, base_text: str):
+        self._loading_animation_active = True
+        self._loading_animation_index = 0
+
+        def animate():
+            if not self._loading_animation_active:
+                return
+            char = self._loading_animation_chars[self._loading_animation_index]
+            self.status_bar.config(text=f"{char} {base_text}")
+            self._loading_animation_index = (
+                self._loading_animation_index + 1
+            ) % len(self._loading_animation_chars)
+            self.root.after(100, animate)
+
+        animate()
+
+    def _stop_loading_animation(self):
+        self._loading_animation_active = False
+
+    # ------------------------------------------------------------------
+    # Aba Estruturas (Fase 5 -- alteracao_10)
+    # ------------------------------------------------------------------
+
+    def _setup_structures_tab(self, notebook: ttk.Notebook):
+        """Aba 'Estruturas' no notebook principal."""
+        outer = ttk.Frame(notebook)
+        notebook.add(outer, text=" Estruturas")
+
+        paned = ttk.PanedWindow(outer, orient="horizontal")
+        paned.pack(fill="both", expand=True, padx=4, pady=4)
+
+        # Painel esquerdo -- lista
+        list_frame = ttk.Frame(paned)
+        paned.add(list_frame, weight=1)
+
+        self.structures_list = StructuresListPanel(
+            list_frame,
+            on_structure_selected=self._on_structure_selected,
+            on_request_edit=self._on_structure_edit_request,
+            db_path=self._db_path,
+        )
+        self.structures_list.pack(fill="both", expand=True)
+
+        # Painel direito -- detalhes somente leitura
+        detail_frame = ttk.LabelFrame(paned, text="Detalhes", padding=8)
+        paned.add(detail_frame, weight=1)
+
+        self._struct_detail_text = tk.Text(
+            detail_frame,
+            state="disabled",
+            wrap="word",
+            font=("Consolas", 9),
+            background="#fafafa",
+        )
+        self._struct_detail_text.pack(fill="both", expand=True)
+
+    def _on_structure_selected(self, structure: Optional[Dict]):
+        """Exibe detalhes da estrutura selecionada no painel direito."""
+        txt = self._struct_detail_text
+        txt.config(state="normal")
+        txt.delete("1.0", "end")
+
+        if structure is None:
+            txt.insert("end", "Nenhuma estrutura selecionada.")
+        else:
+            legs = structure.get("legs", [])
+            lines = [
+                f"ID         : {structure.get('id')}",
+                f"Nome       : {structure.get('name')}",
+                f"Ativo      : {structure.get('underlying_asset')}",
+                f"Aba legado : {structure.get('alias_legacy_aba') or '--'}",
+                f"Status     : {structure.get('status')}",
+                f"Criado em  : {str(structure.get('created_at', ''))[:19]}",
+                f"Atualizado : {str(structure.get('updated_at', ''))[:19]}",
+                f"Obs        : {structure.get('notes') or '--'}",
+                "",
+                f" {len(legs)} Leg(s) ",
+            ]
+            for i, leg in enumerate(legs, 1):
+                lines += [
+                    f"  Leg {i}: {leg.get('position_side')} {leg.get('option_type')}",
+                    f"         Strike : {leg.get('strike')}  Venc: {leg.get('expiration_date')}",
+                    f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '--'}",
+                    f"         Prêmio : {leg.get('premium')}  Mult: {leg.get('multiplier')}",
+                    "",
+                ]
+            txt.insert("end", "\n".join(lines))
+
+        txt.config(state="disabled")
+
+    def _on_structure_edit_request(self, structure_id: Optional[int]):
+        """Abre dialog de criação (None) ou edição (int)."""
+        dlg = StructureEditorDialog(
+            self.root,
+            structure_id=structure_id,
+            db_path=self._db_path,                            # ← usa instância
+        )
+        self.root.wait_window(dlg)
+        if dlg.saved:
+            saved_structure_id = getattr(dlg, "saved_structure_id", None) or structure_id
+
+            self.structures_list.load()
+
+            try:
+                self.status_bar.config(text="Estrutura salva com sucesso.")
+            except Exception:
+                pass
+
+            if saved_structure_id is not None:
+                self._reprice_structure_after_save(int(saved_structure_id))
+
+
+    def _reprice_structure_after_save(self, structure_id: int) -> None:
+        """
+        Recalcula pricing/payoff/decisão após criação ou edição manual.
+
+
+4) Ocorrencias de passagem de db_path para componentes de estruturas
+
+UI/components/details_panel.py:11:    def __init__(self, parent, on_recalculate=None, app_db_path=None):
+UI/components/details_panel.py:14:        self._app_db_path = str(app_db_path) if app_db_path else None
+UI/components/details_panel.py:50:    def _derived_db_path(self) -> Path:
+UI/components/details_panel.py:55:        - se o painel tiver db_path/_db_path explícito, usa esse arquivo;
+UI/components/details_panel.py:59:        for attr in ("db_path", "_db_path", "database_path", "_database_path"):
+UI/components/details_panel.py:72:    def _operational_app_db_path(self) -> Path:
+UI/components/details_panel.py:76:        Importante: não usa self._db_path porque _derived_db_path() já trata
+UI/components/details_panel.py:79:        if self._app_db_path:
+UI/components/details_panel.py:80:            return Path(self._app_db_path)
+UI/components/details_panel.py:137:        def _looks_like_db_path(name, path):
+UI/components/details_panel.py:163:            "_raw_db_path",
+UI/components/details_panel.py:164:            "raw_db_path",
+UI/components/details_panel.py:165:            "_app_db_path",
+UI/components/details_panel.py:166:            "app_db_path",
+UI/components/details_panel.py:167:            "_db_path",
+UI/components/details_panel.py:175:            "_derived_db_path",
+UI/components/details_panel.py:176:            "derived_db_path",
+UI/components/details_panel.py:193:            if not _looks_like_db_path(name, p):
+UI/components/details_panel.py:218:                "_derived_db_path",
+UI/components/details_panel.py:219:                "derived_db_path",
+UI/components/details_panel.py:220:                "_raw_db_path",
+UI/components/details_panel.py:221:                "raw_db_path",
+UI/components/details_panel.py:222:                "_app_db_path",
+UI/components/details_panel.py:223:                "app_db_path",
+UI/components/details_panel.py:224:                "_db_path",
+UI/components/details_panel.py:241:                if p is not None and _looks_like_db_path(name, p):
+UI/components/details_panel.py:838:            app_db_path = self._operational_app_db_path()
+UI/components/details_panel.py:839:            structures_repo = StructuresRepository(app_db_path)
+UI/components/details_panel.py:840:            events_repo = StructureEventsRepository(app_db_path)
+UI/components/details_panel.py:886:        db_path = self._derived_db_path()
+UI/components/details_panel.py:926:        db_path = self._derived_db_path()
+UI/components/details_panel.py:954:        db_path = self._derived_db_path()
+UI/components/structures_list_panel.py:10:    StructuresListPanel(
+UI/components/structures_list_panel.py:46:class StructuresListPanel(ttk.Frame):
+UI/components/structures_list_panel.py:61:        self._db_path               = db_path
+UI/components/structure_editor_dialog.py:7:    dlg = StructureEditorDialog(
+UI/components/structure_editor_dialog.py:59:class StructureEditorDialog(tk.Toplevel):
+UI/components/structure_editor_dialog.py:73:        self._db_path      = db_path
+UI/main_window.py:37:        self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+UI/main_window.py:100:            app_db_path=self._db_path,
+UI/main_window.py:620:        self.structures_list = StructuresListPanel(
+UI/main_window.py:624:            db_path=self._db_path,
+UI/main_window.py:677:        dlg = StructureEditorDialog(
+UI/main_window.py:680:            db_path=self._db_path,                            # ← usa instância
+UI/main_window.py:725:                facade = CanonicalPricingFacade(db_path=self._db_path)
+UI/models/ui_data.py:50:    def __init__(self, derived_db_path: Optional[Path] = None):
+UI/models/ui_data.py:52:        self.derived_db_path = (
+UI/models/ui_data.py:53:            Path(derived_db_path).resolve()
+UI/models/ui_data.py:54:            if derived_db_path
+UI/models/ui_data.py:57:        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+UI/models/ui_data.py:71:        if not self.derived_db_path.exists():
+UI/models/ui_data.py:73:                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+UI/models/ui_data.py:75:        conn = sqlite3.connect(str(self.derived_db_path))
+services/canonical_pricing_facade.py:340:        self._db_path  = Path(db_path)
+services/canonical_pricing_facade.py:341:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+services/canonical_pricing_facade.py:347:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:360:                structure_id, self._db_path
+services/canonical_pricing_facade.py:372:                db_path=self._db_path,
+repositories/market_snapshot_repository.py:262:        self._db_path = Path(db_path)
+repositories/market_snapshot_repository.py:263:        if not self._db_path.exists():
+repositories/market_snapshot_repository.py:264:            raise FileNotFoundError(f"Banco nao encontrado: {self._db_path}")
+repositories/market_snapshot_repository.py:267:        conn = sqlite3.connect(str(self._db_path))
+repositories/pricing_executions_repository.py:13:        self._db_path = Path(db_path)
+repositories/pricing_executions_repository.py:14:        self._db_path.parent.mkdir(parents=True, exist_ok=True)
+repositories/pricing_executions_repository.py:21:        conn = sqlite3.connect(str(self._db_path))
+repositories/robo_legs_repository.py:30:    app_db_path: str = "./dados/app.db"
+repositories/robo_legs_repository.py:94:        with sqlite_conn(self.config.app_db_path) as conn:
+repositories/robo_legs_repository.py:106:        with sqlite_conn(self.config.app_db_path) as conn:
+repositories/robo_legs_repository.py:149:        with sqlite_conn(self.config.app_db_path) as conn:
+repositories/robo_legs_status_repository.py:28:    app_db_path: str = "./dados/app.db"
+repositories/robo_legs_status_repository.py:51:        with sqlite_conn(self.config.app_db_path) as conn:
+repositories/_aba_resolver_mixin.py:10:        self.config.app_db_path: str
+repositories/_aba_resolver_mixin.py:33:        - Em produção: a classe concreta deve ter self.config.app_db_path (str)
+repositories/_aba_resolver_mixin.py:41:        Implementação padrão usa sqlite_conn(self.config.app_db_path).
+repositories/_aba_resolver_mixin.py:45:        return sqlite_conn(self.config.app_db_path)
+ATT/tests/test_canonical_pricing_facade.py:50:        db_path=tmp_path / "app.db",
+ATT/tests/test_canonical_pricing_facade.py:84:        db_path=tmp_path / "app.db",
+ATT/tests/test_canonical_pricing_facade.py:127:        db_path=tmp_path / "app.db",
+ATT/tests/test_canonical_pricing_facade.py:166:            db_path=tmp_path / "app.db",
+ATT/tests/test_legacy_structure_legs_importer_integration.py:183:        RoboLegsRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_legacy_structure_legs_reader.py:200:        RoboLegsRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_legacy_structure_legs_reader.py:245:        RoboLegsRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_robo_legs_repository.py:61:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:86:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:110:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:140:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:165:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_status_repository.py:33:        RoboLegsStatusRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_robo_legs_status_repository.py:53:        RoboLegsStatusRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_structures_archive_wiring.py:4:    - structures_list_panel.py: self._db_path, _set_status, feedback em _cmd_archive
+ATT/tests/test_structures_archive_wiring.py:5:    - main_window.py: self._db_path no __init__, ausencia de hardcode
+ATT/tests/test_structures_archive_wiring.py:71:    def test_self_db_path_presente_no_painel(self):
+ATT/tests/test_structures_archive_wiring.py:72:        self.assertIn("self._db_path", _src(STRUCTURES_PANEL),
+ATT/tests/test_structures_archive_wiring.py:73:                      "self._db_path nao atribuido no painel")
+ATT/tests/test_structures_archive_wiring.py:121:    def test_self_db_path_preservado_em_main_window(self):
+ATT/tests/test_structures_archive_wiring.py:122:        self.assertIn("self._db_path", _src(MAIN_WINDOW),
+ATT/tests/test_structures_archive_wiring.py:123:                      "self._db_path ausente em main_window.py")
+ATT/tests/test_structures_archive_wiring.py:125:    def test_db_path_nao_hardcoded_em_main_window(self):
+ATT/tests/test_structures_archive_wiring.py:127:        Renomeado de test_db_path_nao_hardcoded_em_setup_structures_tab
+ATT/tests/test_structures_archive_wiring.py:133:        # O hardcode pode aparecer somente na definicao de self._db_path -- nao
+ATT/tests/test_structures_archive_wiring.py:144:    def test_db_path_self_db_path_passado_ao_panel(self):
+ATT/tests/test_structures_archive_wiring.py:145:        self.assertIn("db_path=self._db_path", _src(MAIN_WINDOW))
+ATT/tests/test_structures_archive_wiring.py:552:            panel = StructuresListPanel(
+ATT/tests/test_structures_archive_wiring.py:560:            self.assertTrue(hasattr(panel, "_db_path"))
+ATT/tests/test_structures_archive_wiring.py:585:            panel = StructuresListPanel(
+ATT/tests/test_structure_editor_dialog.py:144:        return StructureEditorDialog(
+ATT/tests/test_structure_editor_dialog.py:182:            StructureEditorDialog(
+ATT/tests/test_structure_editor_dialog.py:214:        return StructureEditorDialog(
+ATT/tests/test_structure_editor_dialog.py:326:        return StructureEditorDialog(
+ATT/tests/test_structure_editor_dialog.py:394:    def test_construtor_aceita_db_path(self):
+ATT/tests/test_structure_editor_integration.py:281:    dlg._db_path      = db_path
+ATT/tests/test_structure_editor_integration.py:309:    mw._db_path        = "fake.db"
+ATT/tests/test_structure_editor_integration.py:399:    def test_db_path_repassado_ao_dialog(self):
+ATT/tests/test_structure_editor_integration.py:401:        mw._db_path = "dados/derived.db"
+ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(derived_db_path=str(DB_PATH))
+
+5) Smoke somente leitura: repository e canonical/pricing input
+
+app_db existe: True - C:\Users\eucal\projeto\dados\app.db
+StructuresRepository.list_structures: 1 estruturas
+structure_id=2 name=SBSP+SMAL=BOVA n_legs=4
+candidate_id_com_legs: 2
+
+Tentando CanonicalInputService.build_structure_market_input...
+canonical OK
+structure: {'structure_id': 2, 'name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'legs': [{'position_side': 'COMPRADO', 'option_type': 'CALL', 'symbol': 'BOVAH186', 'strike': 186.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 0.69, 'multiplier': 1.0}, {'position_side': 'VENDIDO', 'option_type': 'CALL', 'symbol': 'BOVAG34', 'strike': 157.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 10.44, 'multiplier': 1.0}, {'position_side': 'VENDIDO', 'option_type': 'PUT', 'symbol': 'BOVAG34', 'strike': 184.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 16.93, 'multiplier': 1.0}, {'position_side': 'COMPRADO', 'option_type': 'PUT', 'symbol': 'BOVAT158', 'strike': 158.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 1.51, 'multiplier': 1.0}]}
+market: {'reference_date': '2026-06-21', 'underlying_asset': 'BOVA11', 'spot_price': 198.35, 'interest_rate': 0.1175, 'volatility': 0.22, 'dte_min': 26, 'pl_realista_total': None, 'delta_liq': None, 'gamma_liq': None, 'theta_liq': None, 'vega_liq': None, 'spread_medio': None, 'spread_pct_medio': None}
+meta: {'input_source': 'structure_market_input_assembler', 'structure_metrics_source': 'internal_engine', 'reference_date': '2026-06-21', 'legs_source': 'canonical', 'structure_events_enabled': True, 'structure_events_applied': 0, 'structure_events_ignored_cancelled': 0, 'structure_operational_closed': False, 'snapshot_source': 'provider_legacy'}
+
+Tentando PricingInputService.build_pricing_payload...
+pricing payload OK
+{'structure_id': 2, 'structure_name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'reference_date': '2026-06-21', 'spot_price': 198.35, 'interest_rate': 0.1175, 'volatility': 0.22, 'legs': [{'side': 'LONG', 'instrument_type': 'OPTION', 'option_type': 'CALL', 'symbol': 'BOVAH186', 'strike': 186.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 0.69, 'multiplier': 1.0}, {'side': 'SHORT', 'instrument_type': 'OPTION', 'option_type': 'CALL', 'symbol': 'BOVAG34', 'strike': 157.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 10.44, 'multiplier': 1.0}, {'side': 'SHORT', 'instrument_type': 'OPTION', 'option_type': 'PUT', 'symbol': 'BOVAG34', 'strike': 184.0, 'expiration_date': '2026-07-17', 'quantity': 2500, 'premium': 16.93, 'multiplier': 1.0}, {'side': 'LONG', 'instrument_type': 'OPTION', 'option_type': 'PUT', 'symbol': 'BOVAT158', 'strike': 158.0, 'expiration_date': '2026-08-21', 'quantity': 4000, 'premium': 1.51, 'multiplier': 1.0}]}
+
+6) Testes focados UI main_window, editor, repository, canonical e pricing input
+
+........................................................................ [ 61%]
+.............................................                            [100%]
+117 passed in 11.28s
+
+== Fim do diagnostico Fase 3C ==
