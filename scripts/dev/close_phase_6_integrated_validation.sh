@@ -1,3 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PHASE_FILE="docs/checkpoints/FASE_6_VALIDACAO_INTEGRADA_FINAL.md"
+
+echo "[INFO] Fechando checkpoint da Fase 6 em: ${PHASE_FILE}"
+
+cat > "${PHASE_FILE}" <<'MARKDOWN'
 # Fase 6 - Validacao integrada final
 
 ## Objetivo
@@ -157,3 +165,6 @@ O sistema confirma execucao operacional pela UI, persistencia em dados/derived.d
 ## Status
 
 Concluida.
+MARKDOWN
+
+echo "[OK] Checkpoint final criado: ${PHASE_FILE}"
