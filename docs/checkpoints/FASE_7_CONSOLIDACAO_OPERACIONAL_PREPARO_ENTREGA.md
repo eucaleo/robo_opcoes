@@ -72,3 +72,66 @@ git tag --list "fase-6*"
 - A Fase 7 iniciou com branch remota atualizada.
 - A Fase 6 possui tag final preservada.
 - O repositorio esta em estado limpo no inicio da consolidacao operacional.
+
+## Baseline tecnica operacional
+
+### Estado do repositorio
+
+- Branch atual: fase-3a4-auto-pricing-manual-save
+- Commit atual: 295e3bf docs: registra inventario operacional da fase 7
+- Arquivos versionados: 435
+- Status Git: limpo apos registro e commit da baseline
+
+### Estrutura principal identificada
+
+- .gitignore
+- .pytest_cache
+- ATT
+- LISTA_RTD.xlsx
+- OPERACOES_E_OPCOES.xlsm
+- UI
+- __pycache__
+- _resgate_db
+- _usage_audit
+- api
+- backups
+- bridge
+- bridge_ingest_csv.py
+- create_payoff_summary_table.py
+- dados
+- data
+- db
+- docs
+- domain
+- dto
+- find_structure.sh
+- infra
+- limpar_repositorio_seguro.sh
+- main.py
+- mapear_repositorio.sh
+- repositories
+- run_ui.py
+- scripts
+- services
+- src
+- utils
+- validate_db.py
+- validators
+
+### Arquivos de manifesto e configuracao encontrados
+
+- Nenhum manifesto conhecido encontrado ate profundidade 3
+
+### Scripts de desenvolvimento versionados
+
+- scripts/dev/close_phase_5f_ui_pipeline.sh
+- scripts/dev/close_phase_6_integrated_validation.sh
+- scripts/dev/open_phase_6_integrated_validation.sh
+- scripts/dev/open_phase_7_operational_consolidation.sh
+- scripts/dev/register_phase_7_operational_inventory.sh
+- scripts/dev/register_phase_7_technical_baseline.sh
+
+### Conclusao da baseline
+
+- A baseline tecnica foi registrada sem alteracao funcional.
+- O objetivo desta etapa e preparar a revisao operacional e a entrega controlada.
