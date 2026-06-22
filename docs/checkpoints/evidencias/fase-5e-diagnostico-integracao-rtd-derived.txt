@@ -1,0 +1,849 @@
+============================================================
+FASE 5E - DIAGNOSTICO INTEGRACAO RTD NO DERIVED PIPELINE
+Data:
+Mon Jun 22 09:02:50     2026
+Branch:
+fase-3a4-auto-pricing-manual-save
+Commit atual:
+a64a464
+============================================================
+
+== Status git ==
+?? docs/checkpoints/evidencias/fase-5e-diagnostico-integracao-rtd-derived.txt
+?? scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh
+
+== scripts/run_derived_pipeline.py ==
+#!/usr/bin/env python3
+import os
+import sys
+import argparse
+import json
+from pathlib import Path
+
+# --- bootstrap: garantir raiz do projeto no sys.path ANTES dos imports internos ---
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+# -----------------------------------------------------------------------------
+
+# Opcional: carregar .env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
+
+def validate_final_consistency() -> bool:
+    """Valida consistência dos snapshots após processamento."""
+    from db.config import connect_derived
+    from db.derived_repo import validate_snapshot_consistency
+    
+    conn = connect_derived()
+    try:
+        return validate_snapshot_consistency(conn)
+    finally:
+        conn.close()
+
+
+
+def _run_build_summaries(repo_root: str) -> int:
+    """
+    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+    (Implemente aqui quando necessário.)
+    """
+    _ = repo_root
+    return 0
+
+
+def _list_tables(conn):
+    """Lista tabelas do banco derived para resumo operacional."""
+    try:
+        rows = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+        ).fetchall()
+        return [row[0] for row in rows]
+    except Exception:
+        return []
+
+
+def _count_table(conn, table_name: str):
+    """Conta linhas de uma tabela, retornando None em caso de erro."""
+    try:
+        row = conn.execute(f'SELECT COUNT(*) FROM "{table_name}"').fetchone()
+        return int(row[0]) if row is not None else None
+    except Exception:
+        return None
+
+
+def _first_count(table_counts: dict, *candidate_names: str):
+    """Retorna a primeira contagem disponível entre nomes candidatos."""
+    for name in candidate_names:
+        if name in table_counts:
+            return table_counts.get(name)
+    return None
+
+
+def _collect_pipeline_summary() -> dict:
+    """
+    Coleta resumo operacional do derived.db após execução/validação.
+
+    Fase 4:
+    - Não altera regras de negócio.
+    - Não executa novo cálculo.
+    - Apenas lê contagens para feedback visual/rastreabilidade.
+    """
+    from db.config import connect_derived
+
+    conn = connect_derived()
+    try:
+        tables = _list_tables(conn)
+        table_counts = {
+            table: _count_table(conn, table)
+            for table in tables
+            if table != "sqlite_sequence"
+        }
+
+        return {
+            "structures": _first_count(
+                table_counts,
+                "structure_snapshots",
+                "structures",
+                "derived_structures",
+            ),
+            "decisions": _first_count(
+                table_counts,
+                "decision_snapshots",
+                "decisions",
+                "structure_decisions",
+                "derived_decisions",
+            ),
+            "payoff_points": _first_count(
+                table_counts,
+                "payoff_curve_points",
+                "payoff_points",
+                "derived_payoff_points",
+            ),
+            "payoff_summaries": _first_count(
+                table_counts,
+                "payoff_curve_summary",
+                "payoff_summaries",
+                "derived_payoff_summary",
+            ),
+            "pricing_executions": _first_count(
+                table_counts,
+                "pricing_executions",
+                "pricing_execution",
+            ),
+            "rtd_quotes_updated": 0,
+            "warnings": 0,
+            "errors": 0,
+            "table_counts": table_counts,
+        }
+    finally:
+        conn.close()
+
+
+def _display_summary_value(value):
+    """Formata valores do resumo operacional para stdout."""
+    return "n/d" if value is None else str(value)
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(description="Run derived pipeline")
+    parser.add_argument(
+        "--no-cleanup",
+        action="store_true",
+        help="Não executar cleanup do derived.db antes de validar",
+    )
+    args = parser.parse_args(argv)
+
+    # Imports internos (mantidos aqui para respeitar sys.path/bootstrap)
+    from services.derived_service import cleanup_derived
+
+    if not args.no_cleanup:
+        cleanup_derived(days_to_keep=30)
+
+    # (Opcional) build summaries
+    rc = _run_build_summaries(str(PROJECT_ROOT))
+    if rc != 0:
+        return rc
+
+    # Validação final OBRIGATÓRIA
+    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+    if not validate_final_consistency():
+        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+        return 1
+
+    summary = _collect_pipeline_summary()
+
+    print("\n[PIPELINE] Resumo operacional:")
+    print(f"  Estruturas: {_display_summary_value(summary.get('structures'))}")
+    print(f"  Decisões: {_display_summary_value(summary.get('decisions'))}")
+    print(f"  Pontos de payoff: {_display_summary_value(summary.get('payoff_points'))}")
+    print(f"  Resumos de payoff: {_display_summary_value(summary.get('payoff_summaries'))}")
+    print(f"  Execuções de pricing: {_display_summary_value(summary.get('pricing_executions'))}")
+    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+    print(f"  Avisos: {_display_summary_value(summary.get('warnings'))}")
+    print(f"  Erros: {_display_summary_value(summary.get('errors'))}")
+    print("[PIPELINE_SUMMARY_JSON] " + json.dumps(summary, ensure_ascii=False, sort_keys=True))
+
+    print("\n[OK] PIPELINE FINALIZADO COM SUCESSO!")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+== Ocorrencias de rtd_quotes_updated ==
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:460:[PIPELINE_SUMMARY_JSON] {"decisions": 2, "errors": 0, "payoff_points": 202, "payoff_summaries": null, "pricing_executions": null, "rtd_quotes_updated": 0, "structures": null, "table_counts": {"payoff_curve_points": 202, "rtd_option_quotes": 4, "structure_decisions": 2}, "warnings": 0}
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:497:[PIPELINE_SUMMARY_JSON] {"decisions": 2, "errors": 0, "payoff_points": 202, "payoff_summaries": null, "pricing_executions": null, "rtd_quotes_updated": 0, "structures": null, "table_counts": {"payoff_curve_points": 202, "rtd_option_quotes": 4, "structure_decisions": 2}, "warnings": 0}
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1183:            f"- Cotações RTD atualizadas: {self._format_pipeline_value(summary.get('rtd_quotes_updated'))}",
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1393:            "rtd_quotes_updated": 0,
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1441:    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+./docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt:653:scripts/run_derived_pipeline.py:171:    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+./docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt:685:UI/main_window.py:475:            f"- Cotações RTD atualizadas: {self._format_pipeline_value(summary.get('rtd_quotes_updated'))}",
+grep: input file ‘./docs/checkpoints/evidencias/fase-5e-diagnostico-integracao-rtd-derived.txt’ is also the output
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:30:  echo "== Ocorrencias de rtd_quotes_updated =="
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:31:  grep -R "rtd_quotes_updated" -n . \
+./scripts/run_derived_pipeline.py:123:            "rtd_quotes_updated": 0,
+./scripts/run_derived_pipeline.py:171:    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+./UI/main_window.py:475:            f"- Cotações RTD atualizadas: {self._format_pipeline_value(summary.get('rtd_quotes_updated'))}",
+
+== Ocorrencias de run_derived_pipeline ==
+./ATT/checks/check_cleanup_residuals.py:79:    "scripts/run_derived_pipeline.py",
+./ATT/checks/check_end_to_end.py:34:    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+./ATT/checks/check_structures.py:32:    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+./bridge_ingest_csv.py:20:DERIVED_PIPELINE = PROJECT_DIR / "Scripts" / "run_derived_pipeline.py"
+./bridge_ingest_csv.py:66:def run_derived_pipeline() -> int:
+./bridge_ingest_csv.py:253:            rc = run_derived_pipeline()
+./docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:156:O menu **Ferramentas > Executar Pipeline** executa `scripts/run_derived_pipeline.py`. Antes do ajuste, o retorno visual era genérico: "Pipeline executado com sucesso!".
+./docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:160:- `scripts/run_derived_pipeline.py` agora emite um resumo operacional em stdout.
+./docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:169:- `python -m py_compile UI/main_window.py scripts/run_derived_pipeline.py`
+./docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:170:- `python scripts/run_derived_pipeline.py --no-cleanup`
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:320:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:170:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2668:./scripts/run_derived_pipeline.py:43:def main(argv=None) -> int:
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2669:./scripts/run_derived_pipeline.py:64:    print("\n[PIPELINE] Validando consistência final dos snapshots...")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2670:./scripts/run_derived_pipeline.py:66:        print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2671:./scripts/run_derived_pipeline.py:69:    print("\n[OK] PIPELINE FINALIZADO COM SUCESSO!")
+./docs/checkpoints/evidencias/fase-2b-gitgrep-normalizacao-existente.txt:958:scripts/run_derived_pipeline.py:4:import argparse
+./docs/checkpoints/evidencias/fase-2b-gitgrep-normalizacao-existente.txt:959:scripts/run_derived_pipeline.py:44:    parser = argparse.ArgumentParser(description="Run derived pipeline")
+./docs/checkpoints/evidencias/fase-2b-gitgrep-normalizacao-existente.txt:960:scripts/run_derived_pipeline.py:45:    parser.add_argument(
+./docs/checkpoints/evidencias/fase-2b-gitgrep-normalizacao-existente.txt:961:scripts/run_derived_pipeline.py:50:    args = parser.parse_args(argv)
+./docs/checkpoints/evidencias/fase-3a-diagnostico-cadastro-payoff-decisoes.txt:99:scripts/run_derived_pipeline.py
+./docs/checkpoints/evidencias/fase-3a-gitgrep-payoff-curve-points.txt:165:docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:320:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3a-gitgrep-payoff-curve-points.txt:254:docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:170:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3a-gitgrep-payoff-curve-points.txt:414:scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3a-grep-payoff-curve-points.txt:150:./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:320:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3a-grep-payoff-curve-points.txt:239:./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:170:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3a-grep-payoff-curve-points.txt:431:./scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3a2-gitgrep-derived-persistence-callers.txt:162:scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+./docs/checkpoints/evidencias/fase-3a2-gitgrep-derived-persistence-callers.txt:163:scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3b-diagnostico-schema-canonico-estruturas.txt:2124:---- scripts/run_derived_pipeline.py ----
+./docs/checkpoints/evidencias/fase-3b-diagnostico-schema-canonico-estruturas.txt:2405:./scripts/run_derived_pipeline.py:48:        help="Não executar cleanup do derived.db antes de validar",
+./docs/checkpoints/evidencias/fase-3c-diagnostico-appdb-ui-pricing-flow.txt:899:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3c-diagnostico-appdb-ui-pricing-flow.txt:901:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3c-diagnostico-appdb-ui-pricing-flow.txt:952:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3c-diagnostico-appdb-ui-pricing-flow.txt:954:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:369:UI/main_window.py:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:370:UI/main_window.py:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:371:UI/main_window.py:447:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:372:UI/main_window.py:449:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:396:scripts/check_rota_desenvolvimento.py:392:        "run_derived_pipeline.py",
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:425:scripts/run_derived_pipeline.py:23:    from db.config import connect_derived
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:426:scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:427:scripts/run_derived_pipeline.py:26:    conn = connect_derived()
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:428:scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:429:scripts/run_derived_pipeline.py:44:    parser = argparse.ArgumentParser(description="Run derived pipeline")
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:430:scripts/run_derived_pipeline.py:48:        help="Não executar cleanup do derived.db antes de validar",
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:431:scripts/run_derived_pipeline.py:53:    from services.derived_service import cleanup_derived
+./docs/checkpoints/evidencias/fase-3d-diagnostico-facade-persistencia-derived.txt:432:scripts/run_derived_pipeline.py:56:        cleanup_derived(days_to_keep=30)
+./docs/checkpoints/evidencias/fase-3f-diagnostico-payoff-manual-canonico.txt:54:scripts/run_derived_pipeline.py:36:    Placeholder: Gera payoff_curve_summary a partir de payoff_curve_points.
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:47:== scripts/run_derived_pipeline.py pontos principais ==
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:252:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:254:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:302:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:304:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:347:== Trecho scripts/run_derived_pipeline.py 1-180 ==
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:437: M scripts/run_derived_pipeline.py
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:446:== Execução run_derived_pipeline.py --no-cleanup ==
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:468: scripts/run_derived_pipeline.py                    | 102 +++++++++++++++++++++
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:507: M scripts/run_derived_pipeline.py
+./docs/checkpoints/evidencias/fase-4-diagnostico-atualizar-dados-limpo.txt:517: scripts/run_derived_pipeline.py                    | 107 +++++++++++++++++++++
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:358:./docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:156:O menu **Ferramentas > Executar Pipeline** executa `scripts/run_derived_pipeline.py`. Antes do ajuste, o retorno visual era genérico: "Pipeline executado com sucesso!".
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:741:scripts/run_derived_pipeline.py:24:    from db.config import connect_derived
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:742:scripts/run_derived_pipeline.py:27:    conn = connect_derived()
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:743:scripts/run_derived_pipeline.py:48:            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:744:scripts/run_derived_pipeline.py:74:    Coleta resumo operacional do derived.db após execução/validação.
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:745:scripts/run_derived_pipeline.py:81:    from db.config import connect_derived
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:746:scripts/run_derived_pipeline.py:83:    conn = connect_derived()
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:747:scripts/run_derived_pipeline.py:89:            if table != "sqlite_sequence"
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:748:scripts/run_derived_pipeline.py:142:        help="Não executar cleanup do derived.db antes de validar",
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1105:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1107:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1144:        """Extrai o resumo JSON emitido por scripts/run_derived_pipeline.py."""
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1218:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1220:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt:1270:== Trecho scripts/run_derived_pipeline.py ==
+./docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt:653:scripts/run_derived_pipeline.py:171:    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+grep: input file ‘./docs/checkpoints/evidencias/fase-5e-diagnostico-integracao-rtd-derived.txt’ is also the output
+./docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:20:python scripts/run_derived_pipeline.py --no-cleanup
+./docs/evolucoes de fases/baseline_v2.md:25:  - evidência: linha 38 `scripts/run_derived_pipeline.py`
+./docs/evolucoes de fases/changelog.md:9:- `run_derived_pipeline.py` roda pipeline completo (abas/estruturas são dinâmicas)
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:198:run_derived_pipeline.py
+./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:288:| `run_derived_pipeline.py` | operacional de processamento | manter como script autorizado |
+./docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:332:- **scripts/run_derived_pipeline.py**
+./docs/evolucoes de fases/roteiro_v2.md:9:- Roda via: `scripts/run_derived_pipeline.py`
+./docs/evolucoes de fases/SQL_SURFACE_MAP_v2.md:5:| rtd_analise_robo        | SELECT            | domain/decision.py, domain/payoff.py, scripts/run_derived_pipeline.py |
+./docs/validacoes/fase-15-validacao-integrada.md:44:scripts/run_derived_pipeline.py
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md:171:| `scripts/run_derived_pipeline.py` | Sim | Versionado |
+./scripts/check_rota_desenvolvimento.py:392:        "run_derived_pipeline.py",
+./scripts/fase-3b-diagnostico-schema-canonico-estruturas.sh:55:        "scripts/run_derived_pipeline.py"
+./scripts/fase-4-diagnostico-atualizar-dados-limpo.sh:28:  echo "== scripts/run_derived_pipeline.py pontos principais =="
+./scripts/fase-4-diagnostico-atualizar-dados-limpo.sh:29:  grep -n "def main\|print\|run\|pipeline\|payoff\|decision\|summary\|count\|return" scripts/run_derived_pipeline.py || true
+./scripts/fase-4-diagnostico-atualizar-dados-limpo.sh:48:  echo "== Trecho scripts/run_derived_pipeline.py 1-180 =="
+./scripts/fase-4-diagnostico-atualizar-dados-limpo.sh:49:  sed -n '1,180p' scripts/run_derived_pipeline.py
+./scripts/fase-5-diagnostico-rtd.sh:136:  echo "== Trecho scripts/run_derived_pipeline.py =="
+./scripts/fase-5-diagnostico-rtd.sh:137:  sed -n '1,240p' scripts/run_derived_pipeline.py 2>/dev/null
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:22:  echo "== scripts/run_derived_pipeline.py =="
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:23:  if [ -f scripts/run_derived_pipeline.py ]; then
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:24:    sed -n '1,260p' scripts/run_derived_pipeline.py
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:26:    echo "ERRO: scripts/run_derived_pipeline.py nao encontrado"
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:40:  echo "== Ocorrencias de run_derived_pipeline =="
+./scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:41:  grep -R "run_derived_pipeline" -n . \
+./UI/main_window.py:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./UI/main_window.py:436:        """Extrai o resumo JSON emitido por scripts/run_derived_pipeline.py."""
+./UI/main_window.py:510:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py:512:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.bak:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.bak:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.bak:447:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.bak:449:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.fix2.bak:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.fix2.bak:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.fix2.bak:447:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py.fase3e.fix2.bak:449:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+
+== Ocorrencias de RTD na UI/controladores ==
+grep: app: No such file or directory
+ATT/tests/test_audit_rtd_option_quotes.py:12:    / "audit_rtd_option_quotes.py"
+ATT/tests/test_audit_rtd_option_quotes.py:18:        "audit_rtd_option_quotes_under_test",
+ATT/tests/test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_audit_rtd_option_quotes.py:50:                source TEXT NOT NULL DEFAULT 'rtd_links',
+ATT/tests/test_audit_rtd_option_quotes.py:75:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_audit_rtd_option_quotes.py:86:            VALUES (?, 'PETR4', 'CALL', 30.0, 1.0, 1.1, 'rtd_links', {updated_at_sql}, CURRENT_TIMESTAMP)
+ATT/tests/test_audit_rtd_option_quotes.py:111:    assert "table not found: rtd_option_quotes" in result["errors"]
+ATT/tests/test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_canonical_pricing_facade.py:13:        "source": "rtd",
+ATT/tests/test_canonical_pricing_facade.py:30:def test_snapshot_result_to_payload_normalizes_common_rtd_number_formats(
+ATT/tests/test_canonical_pricing_facade.py:72:                "source": "rtd_option_quotes",
+ATT/tests/test_canonical_pricing_facade.py:93:        "snapshot_source": "rtd",
+ATT/tests/test_canonical_pricing_facade.py:109:    assert leg["source"] == "rtd_option_quotes"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:11:SCRIPT_PATH = ROOT / "scripts" / "import_rtd_links_to_option_quotes.py"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:15:    "import_rtd_links_to_option_quotes",
+ATT/tests/test_import_rtd_links_to_option_quotes.py:24:def create_rtd_option_quotes_schema(db_path: Path) -> None:
+ATT/tests/test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_import_rtd_links_to_option_quotes.py:53:                source TEXT NOT NULL DEFAULT 'rtd_links',
+ATT/tests/test_import_rtd_links_to_option_quotes.py:68:def write_rtd_links_csv(path: Path, rows: list[list[str]]) -> None:
+ATT/tests/test_import_rtd_links_to_option_quotes.py:103:            FROM rtd_option_quotes
+ATT/tests/test_import_rtd_links_to_option_quotes.py:116:        return conn.execute("SELECT COUNT(*) FROM rtd_option_quotes").fetchone()[0]
+ATT/tests/test_import_rtd_links_to_option_quotes.py:144:    csv_path = tmp_path / "RTD_LINKS.csv"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:146:    write_rtd_links_csv(
+ATT/tests/test_import_rtd_links_to_option_quotes.py:176:    assert record["source"] == "rtd_links"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:183:    csv_path = tmp_path / "RTD_LINKS.csv"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:185:    create_rtd_option_quotes_schema(db_path)
+ATT/tests/test_import_rtd_links_to_option_quotes.py:187:    write_rtd_links_csv(
+ATT/tests/test_import_rtd_links_to_option_quotes.py:211:    csv_path = tmp_path / "RTD_LINKS.csv"
+ATT/tests/test_import_rtd_links_to_option_quotes.py:213:    create_rtd_option_quotes_schema(db_path)
+ATT/tests/test_import_rtd_links_to_option_quotes.py:215:    write_rtd_links_csv(
+ATT/tests/test_import_rtd_links_to_option_quotes.py:235:    write_rtd_links_csv(
+ATT/tests/test_import_rtd_links_to_option_quotes.py:264:    assert option["source"] == "rtd_links"
+ATT/tests/test_legacy_structure_legs_importer_integration.py:65:        CREATE TABLE rtd_analise_robo_legs (
+ATT/tests/test_legacy_structure_legs_importer_integration.py:128:def _insert_legacy_rtd_leg(db_path):
+ATT/tests/test_legacy_structure_legs_importer_integration.py:132:        INSERT INTO rtd_analise_robo_legs (
+ATT/tests/test_legacy_structure_legs_importer_integration.py:139:            190.0, 1000, 'rtdleg190', '2026-06-20', 0.55
+ATT/tests/test_legacy_structure_legs_importer_integration.py:175:    # Insere RTD e MANUAL no mesmo timestamp.
+ATT/tests/test_legacy_structure_legs_importer_integration.py:177:    _insert_legacy_rtd_leg(db_path)
+ATT/tests/test_legacy_structure_legs_importer_integration.py:226:    # Garante que a leg antiga foi substituida e que RTD nao foi usado
+ATT/tests/test_legacy_structure_legs_importer_integration.py:229:    assert imported_leg["symbol"] != "RTDLEG190"
+ATT/tests/test_legacy_structure_legs_reader.py:142:        CREATE TABLE rtd_analise_robo_legs (
+ATT/tests/test_legacy_structure_legs_reader.py:160:def test_read_by_structure_id_integrates_structure_alias_with_rtd_legs(tmp_path):
+ATT/tests/test_legacy_structure_legs_reader.py:180:        INSERT INTO rtd_analise_robo_legs
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:8:def _create_rtd_legs_table(conn):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:11:        CREATE TABLE rtd_analise_robo_legs (
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:37:def _create_rtd_option_quotes_table(conn):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:40:        CREATE TABLE rtd_option_quotes (
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:65:def _insert_base_rtd_leg(conn):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:68:        INSERT INTO rtd_analise_robo_legs (
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:117:def test_get_rtd_option_quote_legs_enriches_base_rtd_leg_with_quote_cache(tmp_path):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:121:        _create_rtd_legs_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:122:        _create_rtd_option_quotes_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:123:        _insert_base_rtd_leg(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:127:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:166:                "rtd_option_quotes",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:176:    legs = repo.get_rtd_option_quote_legs("BOVA11")
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:182:    # Identidade/composição vêm da leg estrutural RTD.
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:190:    # Cotação/greeks vêm do cache centralizado rtd_option_quotes.
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:191:    assert leg.source == "rtd_option_quotes"
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:207:def test_get_rtd_option_quote_legs_returns_empty_list_when_cache_table_is_missing(tmp_path):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:211:        _create_rtd_legs_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:212:        _insert_base_rtd_leg(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:217:    assert repo.get_rtd_option_quote_legs("BOVA11") == []
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:220:def _insert_rtd_option_quote(
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:240:        INSERT INTO rtd_option_quotes (
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:279:            "rtd_option_quotes",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:287:def test_get_rtd_option_quote_legs_ignores_orphan_quote_without_structural_leg(tmp_path):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:291:        _create_rtd_legs_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:292:        _create_rtd_option_quotes_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:294:        _insert_rtd_option_quote(
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:308:    assert repo.get_rtd_option_quote_legs("BOVA11") == []
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:311:def test_get_rtd_option_quote_legs_uses_latest_quote_when_cache_has_duplicates(tmp_path):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:315:        _create_rtd_legs_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:316:        _create_rtd_option_quotes_table(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:317:        _insert_base_rtd_leg(conn)
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:319:        _insert_rtd_option_quote(
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:334:        _insert_rtd_option_quote(
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:353:    legs = repo.get_rtd_option_quote_legs("BOVA11")
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:359:    assert leg.source == "rtd_option_quotes"
+ATT/tests/test_market_snapshot_selector.py:16:    def __init__(self, *, manual=None, rtd_option_quotes=None, rtd=None):
+ATT/tests/test_market_snapshot_selector.py:18:        self.rtd_option_quotes = rtd_option_quotes or []
+ATT/tests/test_market_snapshot_selector.py:19:        self.rtd = rtd or []
+ATT/tests/test_market_snapshot_selector.py:24:    def get_rtd_option_quote_legs(self, ref):
+ATT/tests/test_market_snapshot_selector.py:25:        return self.rtd_option_quotes
+ATT/tests/test_market_snapshot_selector.py:27:    def get_rtd_legs(self, ref):
+ATT/tests/test_market_snapshot_selector.py:28:        return self.rtd
+ATT/tests/test_market_snapshot_selector.py:31:def test_selector_prioritizes_rtd_option_quotes_over_legacy_rtd_when_no_manual_exists():
+ATT/tests/test_market_snapshot_selector.py:32:    legacy_rtd_leg = _leg("BOVAE195", "rtd", 1.10)
+ATT/tests/test_market_snapshot_selector.py:33:    quote_leg = _leg("BOVAE195", "rtd_option_quotes", 1.23)
+ATT/tests/test_market_snapshot_selector.py:37:            rtd=[legacy_rtd_leg],
+ATT/tests/test_market_snapshot_selector.py:38:            rtd_option_quotes=[quote_leg],
+ATT/tests/test_market_snapshot_selector.py:45:    assert result.source == "rtd_option_quotes"
+ATT/tests/test_market_snapshot_selector.py:50:def test_selector_keeps_manual_leg_ahead_of_rtd_option_quotes():
+ATT/tests/test_market_snapshot_selector.py:52:    quote_leg = _leg("BOVAE195", "rtd_option_quotes", 1.23)
+ATT/tests/test_market_snapshot_selector.py:53:    legacy_rtd_leg = _leg("BOVAE195", "rtd", 1.10)
+ATT/tests/test_market_snapshot_selector.py:58:            rtd_option_quotes=[quote_leg],
+ATT/tests/test_market_snapshot_selector.py:59:            rtd=[legacy_rtd_leg],
+ATT/tests/test_robo_legs_repository.py:25:        CREATE TABLE rtd_analise_robo_legs (
+ATT/tests/test_robo_legs_repository.py:42:def test_get_legs_prefers_manual_over_rtd(tmp_path):
+ATT/tests/test_robo_legs_repository.py:54:        INSERT INTO rtd_analise_robo_legs
+ATT/tests/test_robo_legs_repository.py:72:def test_get_legs_falls_back_to_rtd_when_manual_empty(tmp_path):
+ATT/tests/test_robo_legs_repository.py:79:        INSERT INTO rtd_analise_robo_legs
+ATT/tests/test_robo_legs_repository.py:116:def test_list_timestamps_prefers_manual_then_rtd(tmp_path):
+ATT/tests/test_robo_legs_repository.py:133:        INSERT INTO rtd_analise_robo_legs
+ATT/tests/test_robo_legs_repository.py:158:        INSERT INTO rtd_analise_robo_legs
+ATT/tests/test_robo_legs_status_repository.py:9:def test_latest_timestamps_returns_parsed_manual_and_rtd(tmp_path):
+ATT/tests/test_robo_legs_status_repository.py:15:    conn.execute("CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)")
+ATT/tests/test_robo_legs_status_repository.py:26:        "INSERT INTO rtd_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+ATT/tests/test_robo_legs_status_repository.py:36:    manual_latest, rtd_latest = repo.latest_timestamps("TESTE")
+ATT/tests/test_robo_legs_status_repository.py:39:    assert rtd_latest == datetime(2026, 5, 19, 10, 30, 0)
+ATT/tests/test_robo_legs_status_repository.py:48:    conn.execute("CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)")
+ATT/tests/test_robo_legs_status_repository.py:56:    manual_latest, rtd_latest = repo.latest_timestamps("INEXISTENTE")
+ATT/tests/test_robo_legs_status_repository.py:59:    assert rtd_latest is None
+ATT/tests/test_robo_legs_status_service.py:14:    def __init__(self, manual_latest=None, rtd_latest=None):
+ATT/tests/test_robo_legs_status_service.py:16:        self._rtd_latest = rtd_latest
+ATT/tests/test_robo_legs_status_service.py:21:        return self._manual_latest, self._rtd_latest
+ATT/tests/test_robo_legs_status_service.py:31:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=None),
+ATT/tests/test_robo_legs_status_service.py:43:    assert result.rtd_latest_ts is None
+ATT/tests/test_robo_legs_status_service.py:50:    rtd_latest = datetime(2026, 5, 19, 10, 1, 0)
+ATT/tests/test_robo_legs_status_service.py:54:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=rtd_latest),
+ATT/tests/test_robo_legs_status_service.py:63:    assert result.rtd_latest_ts == rtd_latest
+ATT/tests/test_robo_legs_status_service.py:68:def test_status_uses_rtd_when_manual_missing():
+ATT/tests/test_robo_legs_status_service.py:69:    rtd_latest = datetime(2026, 5, 19, 10, 0, 0)
+ATT/tests/test_robo_legs_status_service.py:73:        status_repo=DummyStatusRepo(manual_latest=None, rtd_latest=rtd_latest),
+ATT/tests/test_robo_legs_status_service.py:79:    assert result.chosen_fonte == FonteType.RTD
+ATT/tests/test_robo_legs_status_service.py:80:    assert result.chosen_ts == rtd_latest
+ATT/tests/test_robo_legs_status_service.py:82:    assert result.rtd_latest_ts == rtd_latest
+ATT/tests/test_robo_legs_status_service.py:92:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+ATT/tests/test_robo_legs_status_service.py:108:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+ATT/tests/test_robo_legs_status_service.py:123:        status_repo=DummyStatusRepo(manual_latest=manual_latest, rtd_latest=None),
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:46:                "source": "rtd_option_quotes",
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:51:def test_rtd_legacy_fallback_can_feed_pricing_payload_when_no_canonical_legs_exist():
+ATT/tests/test_rtd_option_quotes_repository_contract.py:6:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+ATT/tests/test_rtd_option_quotes_repository_contract.py:13:            CREATE TABLE rtd_option_quotes (
+ATT/tests/test_rtd_option_quotes_repository_contract.py:46:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_rtd_option_quotes_repository_contract.py:85:                "rtd_option_quotes",
+ATT/tests/test_rtd_option_quotes_repository_contract.py:102:    assert quote["source"] == "rtd_option_quotes"
+ATT/tests/test_rtd_option_quotes_repository_contract.py:122:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_rtd_option_quotes_repository_contract.py:142:                "rtd_option_quotes",
+ATT/tests/test_rtd_option_quotes_repository_contract.py:177:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_rtd_option_quotes_repository_contract.py:188:            VALUES (?, ?, ?, ?, ?, ?, 'rtd_option_quotes', '2026-06-18 10:00:00', '2026-06-18 09:59:00')
+ATT/tests/test_rtd_option_quotes_repository_contract.py:213:            INSERT INTO rtd_option_quotes (
+ATT/tests/test_rtd_option_quotes_repository_contract.py:224:            VALUES (?, ?, ?, ?, ?, ?, 'rtd_option_quotes', '2026-06-18 10:00:00', '2026-06-18 09:59:00')
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:11:    / "run_rtd_option_quotes_pipeline.py"
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:17:        "run_rtd_option_quotes_pipeline_under_test",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:30:        csv_path="dados/RTD_LINKS.csv",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:35:    assert command[1].endswith("import_rtd_option_quotes_wide_csv.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:37:    assert "dados/RTD_LINKS.csv" in command
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:47:        csv_path="dados/RTD_LINKS.csv",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:64:    assert command[1].endswith("audit_rtd_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:98:        csv_path="dados/RTD_LINKS.csv",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:104:    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:118:        csv_path="dados/RTD_LINKS.csv",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:124:    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:125:    assert calls[1][1].endswith("audit_rtd_option_quotes.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:139:        csv_path="dados/RTD_LINKS.csv",
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:146:    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:156:        if command[1].endswith("import_rtd_option_quotes_wide_csv.py"):
+ATT/tests/test_run_rtd_option_quotes_pipeline.py:163:        csv_path="dados/RTD_LINKS.csv",
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:3:from services.structure_leg_rtd_enrichment_service import (
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:18:def test_enrich_leg_from_symbol_uses_rtd_quote_and_returns_canonical_leg():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:108:def test_enrich_leg_raises_value_error_when_rtd_quote_is_not_found():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:123:def test_enrich_leg_raises_value_error_when_rtd_quote_has_missing_required_fields():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:137:    with pytest.raises(ValueError, match="missing required RTD field"):
+infra/bootstrap_rtd_option_quotes_schema.py:8:TABLE_NAME = "rtd_option_quotes"
+infra/bootstrap_rtd_option_quotes_schema.py:35:CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+infra/bootstrap_rtd_option_quotes_schema.py:58:    source TEXT NOT NULL DEFAULT 'rtd_links',
+infra/bootstrap_rtd_option_quotes_schema.py:89:def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
+infra/bootstrap_rtd_option_quotes_schema.py:102:                "Tabela rtd_option_quotes existe, mas está sem colunas obrigatórias: "
+infra/bootstrap_rtd_option_quotes_schema.py:108:        description="Cria/valida o schema vazio de rtd_option_quotes em banco SQLite."
+infra/bootstrap_rtd_option_quotes_schema.py:120:    print("Bootstrap rtd_option_quotes")
+infra/bootstrap_rtd_option_quotes_schema.py:145:    print("[OK] Schema rtd_option_quotes disponível.")
+scripts/audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+scripts/audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+scripts/audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+scripts/audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+scripts/audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+scripts/audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+scripts/build_rtd_symbols.py:81:def collect_from_rtd_option_quotes(cur):
+scripts/build_rtd_symbols.py:82:    if not table_exists(cur, "rtd_option_quotes"):
+scripts/build_rtd_symbols.py:87:        FROM rtd_option_quotes
+scripts/build_rtd_symbols.py:129:            quote_symbols = collect_from_rtd_option_quotes(cur)
+scripts/build_rtd_symbols.py:130:            sources.append(("rtd_option_quotes", quote_symbols))
+scripts/create_rtd_option_quotes_sheet.py:27:RTD = 'RTD("btg_pro_rtd","","{topic}",$A{row})'
+scripts/create_rtd_option_quotes_sheet.py:31:    return "=" + RTD.format(topic=topic, row=row)
+scripts/create_rtd_option_quotes_sheet.py:40:        description="Cria/atualiza aba RTD_OPTION_QUOTES tabular em LISTA_RTD.xlsm."
+scripts/create_rtd_option_quotes_sheet.py:42:    parser.add_argument("--workbook", default="LISTA_RTD.xlsm")
+scripts/create_rtd_option_quotes_sheet.py:48:    parser.add_argument("--sheet", default="RTD_OPTION_QUOTES")
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:32:        | grep -Ei 'structure|estrutura|payoff|decision|decis|pipeline|rtd|repository|service|dialog|editor|manual|leg' \
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:72:    if any(term in low for term in ["structure", "estrutura", "leg", "payoff", "decision", "decis", "rtd", "quote"]):
+scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh:83:    "rtd_option_quotes",
+scripts/fase-3b-diagnostico-schema-canonico-estruturas.sh:108:    if any(term in name for term in ["structure", "leg", "payoff", "decision", "rtd", "quote"]):
+scripts/fase-3c-diagnostico-appdb-ui-pricing-flow.sh:68:        "rtd_option_quotes",
+scripts/fase-3c-diagnostico-appdb-ui-pricing-flow.sh:70:        "rtd_analise_robo_legs",
+scripts/fase-3c-diagnostico-appdb-ui-pricing-flow.sh:82:        if any(t in low for t in ["structure", "leg", "pricing", "payoff", "decision", "rtd", "manual"]):
+scripts/fase-3e-fix-facade-manual-sem-alias.sh:103:             usa MarketSnapshotSelector manual > rtd.
+scripts/fase-3e-fix-facade-manual-sem-alias.sh:173:            #  2. Seleciona snapshot (manual > rtd)
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:112:        "rtd_option_quotes",
+scripts/fase-3f-diagnostico-payoff-manual-canonico.sh:263:- Excel apenas como ponte RTD.
+scripts/fase-4-diagnostico-atualizar-dados-limpo.sh:25:  grep -n "Atualizar Dados\|Executar Pipeline\|def refresh_data\|def run_pipeline\|Pipeline executado\|status_bar.config" UI/main_window.py || true
+scripts/fase-5-diagnostico-rtd.sh:4:OUT="docs/checkpoints/evidencias/fase-5-diagnostico-rtd.txt"
+scripts/fase-5-diagnostico-rtd.sh:8:  echo "FASE 5 - DIAGNOSTICO RTD"
+scripts/fase-5-diagnostico-rtd.sh:22:  echo "== Busca por RTD no projeto =="
+scripts/fase-5-diagnostico-rtd.sh:24:    -E "RTD|rtd|rtd_option_quotes|option_quotes|quotes" . 2>/dev/null | head -300
+scripts/fase-5-diagnostico-rtd.sh:27:  echo "== Busca por handlers Atualizar Dados / Pipeline =="
+scripts/fase-5-diagnostico-rtd.sh:29:    -E "Atualizar Dados|refresh_data|run_pipeline|Executar Pipeline" UI scripts services db repositories domain . 2>/dev/null | head -300
+scripts/fase-5-diagnostico-rtd.sh:34:    -E "connect_raw|connect_derived|sqlite|derived.db|raw.db|rtd_option_quotes" db repositories services scripts UI 2>/dev/null | head -300
+scripts/fase-5-diagnostico-rtd.sh:37:  echo "== Arquivos candidatos RTD =="
+scripts/fase-5-diagnostico-rtd.sh:39:    \( -iname '*rtd*' -o -iname '*quote*' -o -iname '*market*' \) \
+scripts/fase-5-diagnostico-rtd.sh:62:        for target in ["rtd_option_quotes", "payoff_curve_points", "structure_decisions"]:
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:4:OUT="docs/checkpoints/evidencias/fase-5b-diagnostico-rtd-cadeia-real.txt"
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:8:  echo "FASE 5B - DIAGNOSTICO RTD CADEIA REAL E HISTORICO"
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:22:  echo "== Arquivos rastreados relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:23:  git ls-files | grep -Ei "rtd|quote|market|snapshot" | sort
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:26:  echo "== Arquivos atuais em scripts relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:28:    \( -iname '*rtd*' -o -iname '*quote*' -o -iname '*market*' -o -iname '*snapshot*' \) \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:33:  echo "== Arquivos atuais em infra relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:35:    \( -iname '*rtd*' -o -iname '*quote*' -o -iname '*market*' -o -iname '*snapshot*' \) \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:40:  echo "== Arquivos atuais em repositories/services relacionados a RTD/quotes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:42:    \( -iname '*rtd*' -o -iname '*quote*' -o -iname '*market*' -o -iname '*snapshot*' \) \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:47:  echo "== Historico Git de scripts RTD conhecidos =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:49:    scripts/run_rtd_option_quotes_pipeline.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:50:    scripts/import_rtd_links_to_option_quotes.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:51:    scripts/import_rtd_option_quotes_wide_csv.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:52:    scripts/build_rtd_symbols.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:53:    scripts/run_rtd_refresh_full.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:54:    scripts/audit_rtd_option_quotes.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:55:    scripts/refresh_rtd_option_quotes_excel.ps1 \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:56:    infra/bootstrap_rtd_option_quotes_schema.py
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:64:  echo "== Alteracoes historicas por nome contendo RTD em scripts/infra =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:65:  git log --all --name-status -- scripts infra | grep -Ei "commit |rtd|quote|market" | head -500
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:68:  echo "== Conteudo atual dos scripts RTD existentes =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:70:    scripts/run_rtd_option_quotes_pipeline.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:71:    scripts/import_rtd_links_to_option_quotes.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:72:    scripts/import_rtd_option_quotes_wide_csv.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:73:    scripts/build_rtd_symbols.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:74:    scripts/run_rtd_refresh_full.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:75:    scripts/audit_rtd_option_quotes.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:76:    infra/bootstrap_rtd_option_quotes_schema.py
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:90:  echo "== Testes vigentes relacionados ao pipeline/import/audit RTD =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:92:    ATT/tests/test_run_rtd_option_quotes_pipeline.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:93:    ATT/tests/test_import_rtd_links_to_option_quotes.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:94:    ATT/tests/test_audit_rtd_option_quotes.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:95:    ATT/tests/test_rtd_option_quotes_repository_contract.py \
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:96:    ATT/tests/test_structure_leg_rtd_enrichment_service.py
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:110:  echo "== Schema e contagem rtd_option_quotes em app.db e derived.db =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:127:            "SELECT name FROM sqlite_master WHERE type='table' AND name='rtd_option_quotes'"
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:129:        print(f"rtd_option_quotes existe: {bool(exists)}")
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:133:        count = con.execute("SELECT COUNT(*) AS c FROM rtd_option_quotes").fetchone()["c"]
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:137:        for col in con.execute("PRAGMA table_info(rtd_option_quotes)").fetchall():
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:144:            FROM rtd_option_quotes
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:158:  echo "== Arquivos de dados RTD atuais =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:159:  ls -la dados | grep -Ei "rtd|quote|lista" || true
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:162:  echo "== Primeiras linhas dados/RTD_LINKS.csv se existir =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:163:  if [ -f dados/RTD_LINKS.csv ]; then
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:166:p = Path("dados/RTD_LINKS.csv")
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:174:    echo "dados/RTD_LINKS.csv ausente"
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:178:  echo "== Busca por PowerShell/Excel/COM/RTD nos arquivos atuais =="
+scripts/fase-5b-diagnostico-rtd-cadeia-real.sh:180:    -E "Excel.Application|Workbooks|RefreshAll|RTD|LISTA_RTD|RTD_LINKS|win32com|powershell|Start-Process" \
+scripts/fase-5c-restaurar-rtd-historico.sh:4:OUT="docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt"
+scripts/fase-5c-restaurar-rtd-historico.sh:8:  "infra/bootstrap_rtd_option_quotes_schema.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:9:  "scripts/audit_rtd_option_quotes.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:10:  "scripts/build_rtd_symbols.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:11:  "scripts/create_rtd_option_quotes_sheet.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:12:  "scripts/import_lista_rtd_excel_to_option_quotes.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:13:  "scripts/import_rtd_links_to_option_quotes.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:14:  "scripts/import_rtd_option_quotes_wide_csv.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:15:  "scripts/mapear_automacao_opcoes_rtd.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:16:  "scripts/refresh_rtd_option_quotes_excel.ps1"
+scripts/fase-5c-restaurar-rtd-historico.sh:17:  "scripts/run_lista_rtd_option_quotes_pipeline.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:18:  "scripts/run_rtd_option_quotes_pipeline.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:19:  "scripts/run_rtd_refresh_full.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:20:  "scripts/seed_current_rtd_option_quotes.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:21:  "ATT/tests/test_audit_rtd_option_quotes.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:22:  "ATT/tests/test_import_rtd_links_to_option_quotes.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:23:  "ATT/tests/test_run_rtd_option_quotes_pipeline.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:24:  "ATT/tests/test_rtd_option_quotes_repository_contract.py"
+scripts/fase-5c-restaurar-rtd-historico.sh:29:  echo "FASE 5C - RESTAURACAO RTD HISTORICO"
+scripts/fase-5c-restaurar-rtd-historico.sh:60:  echo "== Arquivos RTD restaurados =="
+scripts/fase-5c-restaurar-rtd-historico.sh:70:    infra/bootstrap_rtd_option_quotes_schema.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:71:    scripts/audit_rtd_option_quotes.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:72:    scripts/build_rtd_symbols.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:73:    scripts/import_rtd_option_quotes_wide_csv.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:74:    scripts/run_rtd_option_quotes_pipeline.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:75:    scripts/run_rtd_refresh_full.py
+scripts/fase-5c-restaurar-rtd-historico.sh:86:  echo "== PowerShell RTD restaurado se existir =="
+scripts/fase-5c-restaurar-rtd-historico.sh:87:  if [ -f scripts/refresh_rtd_option_quotes_excel.ps1 ]; then
+scripts/fase-5c-restaurar-rtd-historico.sh:88:    sed -n '1,220p' scripts/refresh_rtd_option_quotes_excel.ps1
+scripts/fase-5c-restaurar-rtd-historico.sh:94:  echo "== Py compile dos arquivos Python RTD restaurados =="
+scripts/fase-5c-restaurar-rtd-historico.sh:110:    echo "Nenhum arquivo Python RTD restaurado para compilar"
+scripts/fase-5c-restaurar-rtd-historico.sh:114:  echo "== Testes RTD restaurados disponíveis =="
+scripts/fase-5c-restaurar-rtd-historico.sh:116:    ATT/tests/test_audit_rtd_option_quotes.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:117:    ATT/tests/test_import_rtd_links_to_option_quotes.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:118:    ATT/tests/test_run_rtd_option_quotes_pipeline.py \
+scripts/fase-5c-restaurar-rtd-historico.sh:119:    ATT/tests/test_rtd_option_quotes_repository_contract.py
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:4:OUT="docs/checkpoints/evidencias/fase-5d-validacao-rtd-restaurado-operacional.txt"
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:8:  echo "FASE 5D - VALIDACAO OPERACIONAL RTD RESTAURADO"
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:23:  if [ -f dados/RTD_LINKS.csv ]; then
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:24:    ls -l dados/RTD_LINKS.csv
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:27:    sed -n '1,10p' dados/RTD_LINKS.csv
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:29:    echo "ERRO: dados/RTD_LINKS.csv ausente"
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:34:  if [ -f dados/rtd_symbols.txt ]; then
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:35:    ls -l dados/rtd_symbols.txt
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:37:    cat dados/rtd_symbols.txt
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:39:    echo "dados/rtd_symbols.txt ausente"
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:44:  python scripts/audit_rtd_option_quotes.py --db dados/app.db --max-age-minutes 0
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:48:  python scripts/audit_rtd_option_quotes.py --db dados/derived.db --max-age-minutes 0
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:52:  python scripts/import_rtd_option_quotes_wide_csv.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:53:    --csv dados/RTD_LINKS.csv \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:59:  python scripts/import_rtd_option_quotes_wide_csv.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:60:    --csv dados/RTD_LINKS.csv \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:65:  echo "== Pipeline RTD restaurado - app.db =="
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:66:  python scripts/run_rtd_option_quotes_pipeline.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:67:    --csv dados/RTD_LINKS.csv \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:72:  echo "== Pipeline RTD restaurado - derived.db =="
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:73:  python scripts/run_rtd_option_quotes_pipeline.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:74:    --csv dados/RTD_LINKS.csv \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:80:  python scripts/audit_rtd_option_quotes.py --db dados/app.db --max-age-minutes 0
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:84:  python scripts/audit_rtd_option_quotes.py --db dados/derived.db --max-age-minutes 0
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:108:              AND name='rtd_option_quotes'
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:111:        print("rtd_option_quotes existe:", bool(exists))
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:122:            FROM rtd_option_quotes
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:140:            FROM rtd_option_quotes
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:152:  echo "== Testes RTD restaurados novamente =="
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:154:    ATT/tests/test_audit_rtd_option_quotes.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:155:    ATT/tests/test_import_rtd_links_to_option_quotes.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:156:    ATT/tests/test_run_rtd_option_quotes_pipeline.py \
+scripts/fase-5d-validar-rtd-restaurado-operacional.sh:157:    ATT/tests/test_rtd_option_quotes_repository_contract.py
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:4:OUT="docs/checkpoints/evidencias/fase-5e-diagnostico-integracao-rtd-derived.txt"
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:8:  echo "FASE 5E - DIAGNOSTICO INTEGRACAO RTD NO DERIVED PIPELINE"
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:30:  echo "== Ocorrencias de rtd_quotes_updated =="
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:31:  grep -R "rtd_quotes_updated" -n . \
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:50:  echo "== Ocorrencias de RTD na UI/controladores =="
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:51:  grep -R "RTD\\|rtd\\|Atualizar Dados\\|Executar Pipeline" -n \
+scripts/fase-5e-diagnosticar-integracao-rtd-derived.sh:62:  find ATT/tests -type f | grep -Ei "derived|pipeline|orchestrator|refresh|rtd" | sort
+scripts/import_legacy_structure_legs.py:28:            "Importa pernas legadas manual/rtd para structure_legs "
+scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+scripts/import_lista_rtd_excel_to_option_quotes.py:5:    LISTA_RTD.xlsm aberto no Excel
+scripts/import_lista_rtd_excel_to_option_quotes.py:6:        -> aba RTD_OPTION_QUOTES ou RTD_PROBE_OPTIONS
+scripts/import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:10:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db
+scripts/import_lista_rtd_excel_to_option_quotes.py:11:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --dry-run
+scripts/import_lista_rtd_excel_to_option_quotes.py:12:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --json
+scripts/import_lista_rtd_excel_to_option_quotes.py:27:DEFAULT_WORKBOOK = "LISTA_RTD.xlsm"
+scripts/import_lista_rtd_excel_to_option_quotes.py:28:DEFAULT_SHEETS = ["RTD_OPTION_QUOTES", "RTD_PROBE_OPTIONS", "RTD-BTG LISTA"]
+scripts/import_lista_rtd_excel_to_option_quotes.py:220:    - aguarda RTD atualizar;
+scripts/import_lista_rtd_excel_to_option_quotes.py:342:        "Nenhuma aba RTD encontrada. "
+scripts/import_lista_rtd_excel_to_option_quotes.py:427:    columns = get_table_columns(conn, "rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:430:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+scripts/import_lista_rtd_excel_to_option_quotes.py:436:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+scripts/import_lista_rtd_excel_to_option_quotes.py:458:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+scripts/import_lista_rtd_excel_to_option_quotes.py:495:            "source": "lista_rtd_excel",
+scripts/import_lista_rtd_excel_to_option_quotes.py:502:            UPDATE rtd_option_quotes
+scripts/import_lista_rtd_excel_to_option_quotes.py:534:            INSERT INTO rtd_option_quotes (
+scripts/import_lista_rtd_excel_to_option_quotes.py:588:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+scripts/import_lista_rtd_excel_to_option_quotes.py:600:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+scripts/import_lista_rtd_excel_to_option_quotes.py:607:            "Nome da aba. Se omitido, tenta RTD_OPTION_QUOTES "
+scripts/import_lista_rtd_excel_to_option_quotes.py:608:            "e depois RTD_PROBE_OPTIONS."
+scripts/import_lista_rtd_excel_to_option_quotes.py:694:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_lista_rtd_excel_to_option_quotes.py:704:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+scripts/import_rtd_links_to_option_quotes.py:14:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/import_rtd_links_to_option_quotes.py:15:python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db --dry-run
+scripts/import_rtd_links_to_option_quotes.py:212:        "source": "rtd_links",
+scripts/import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+scripts/import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+scripts/import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+scripts/import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+scripts/import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+scripts/import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+scripts/import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+scripts/import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+scripts/import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+scripts/import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+scripts/import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+scripts/import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+scripts/import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+scripts/import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+scripts/import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+scripts/import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+scripts/import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+scripts/import_rtd_links_to_option_quotes.py:391:        default="dados/RTD_LINKS.csv",
+scripts/import_rtd_links_to_option_quotes.py:392:        help="Caminho do CSV RTD_LINKS.csv",
+scripts/import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+scripts/import_rtd_option_quotes_wide_csv.py:14:from infra.bootstrap_rtd_option_quotes_schema import ensure_rtd_option_quotes_schema
+scripts/import_rtd_option_quotes_wide_csv.py:196:                "source": "BTG_RTD_EXCEL",
+scripts/import_rtd_option_quotes_wide_csv.py:207:        CREATE INDEX IF NOT EXISTS idx_rtd_option_quotes_codigo_opcao
+scripts/import_rtd_option_quotes_wide_csv.py:208:        ON rtd_option_quotes(codigo_opcao)
+scripts/import_rtd_option_quotes_wide_csv.py:226:    ensure_rtd_option_quotes_schema(db_path)
+scripts/import_rtd_option_quotes_wide_csv.py:237:                "SELECT id, created_at FROM rtd_option_quotes WHERE codigo_opcao = ? ORDER BY id DESC LIMIT 1",
+scripts/import_rtd_option_quotes_wide_csv.py:251:                    UPDATE rtd_option_quotes
+scripts/import_rtd_option_quotes_wide_csv.py:299:                    INSERT INTO rtd_option_quotes (
+scripts/import_rtd_option_quotes_wide_csv.py:369:        print("Importação RTD wide CSV")
+scripts/mapear_automacao_opcoes_rtd.py:11:OUT_MD = ROOT / "docs" / "mapeamento_automacao_opcoes_rtd.md"
+scripts/mapear_automacao_opcoes_rtd.py:12:OUT_JSON = ROOT / "docs" / "mapeamento_automacao_opcoes_rtd.json"
+scripts/mapear_automacao_opcoes_rtd.py:58:    "rtd": ["rtd", "rtd_links", "option_quotes"],
+scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+scripts/mapear_automacao_opcoes_rtd.py:75:    "dados/RTD_LINKS.csv": "Prioritário para auditoria do contrato RTD/Excel.",
+scripts/mapear_automacao_opcoes_rtd.py:211:        "# Mapeamento automação opções RTD — ROTA_MESTRE_2 Fase 1",
+scripts/mapear_automacao_opcoes_rtd.py:217:        "Mapeamento amplo de RTD, Excel, bridge, opções, persistência, serviços e UI.",
+scripts/refresh_rtd_option_quotes_excel.ps1:2:    [string]$WorkbookPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "LISTA_RTD.xlsm"),
+scripts/refresh_rtd_option_quotes_excel.ps1:3:    [string]$SymbolsPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "dados\rtd_symbols.txt"),
+scripts/refresh_rtd_option_quotes_excel.ps1:4:    [string]$CsvPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "dados\RTD_LINKS.csv"),
+scripts/refresh_rtd_option_quotes_excel.ps1:61:    $sheetName = "RTD_OPTION_QUOTES"
+scripts/refresh_rtd_option_quotes_excel.ps1:125:            $formula = '=RTD("btg_pro_rtd";"";"' + $field + '";$A' + $row + ')'
+scripts/refresh_rtd_option_quotes_excel.ps1:137:    Write-Host "Aba RTD_OPTION_QUOTES preenchida. Linhas:" $symbols.Count
+scripts/refresh_rtd_option_quotes_excel.ps1:138:    Write-Host "Recalculando Excel/RTD..."
+scripts/refresh_rtd_option_quotes_excel.ps1:150:    # Copia somente a aba RTD_OPTION_QUOTES para novo workbook e salva como CSV UTF-8.
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:2:    [string]$WorkbookPath = "C:\Users\eucal\projeto\LISTA_RTD.xlsm",
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:3:    [string]$SymbolsPath = "C:\Users\eucal\projeto\dados\rtd_symbols.txt",
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:4:    [string]$CsvPath = "C:\Users\eucal\projeto\dados\RTD_LINKS.csv",
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:54:    $sheetName = "RTD_OPTION_QUOTES"
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:118:            $formula = '=RTD("btg_pro_rtd";"";"' + $field + '";$A' + $row + ')'
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:130:    Write-Host "Aba RTD_OPTION_QUOTES preenchida. Linhas:" $symbols.Count
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:131:    Write-Host "Recalculando Excel/RTD..."
+scripts/refresh_rtd_option_quotes_excel.ps1.bak:143:    # Copia somente a aba RTD_OPTION_QUOTES para novo workbook e salva como CSV UTF-8.
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:5:    [string]$WorkbookPath = "C:\Users\eucal\projeto\LISTA_RTD.xlsm",
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:6:    [string]$SymbolsPath = "C:\Users\eucal\projeto\dados\rtd_symbols.txt",
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:7:    [string]$CsvPath = "C:\Users\eucal\projeto\dados\RTD_LINKS.csv",
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:60:    $sheetName = "RTD_OPTION_QUOTES"
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:124:            $formula = '=RTD("btg_pro_rtd";"";"' + $field + '";$A' + $row + ')'
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:136:    Write-Host "Aba RTD_OPTION_QUOTES preenchida. Linhas:" $symbols.Count
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:137:    Write-Host "Recalculando Excel/RTD..."
+scripts/refresh_rtd_option_quotes_excel.ps1.fix-param.bak:149:    # Copia somente a aba RTD_OPTION_QUOTES para novo workbook e salva como CSV UTF-8.
+scripts/run_derived_pipeline.py:123:            "rtd_quotes_updated": 0,
+scripts/run_derived_pipeline.py:171:    print(f"  Cotações RTD atualizadas: {_display_summary_value(summary.get('rtd_quotes_updated'))}")
+scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+scripts/run_lista_rtd_option_quotes_pipeline.py:6:    1. scripts/import_lista_rtd_excel_to_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:25:IMPORT_SCRIPT = Path("scripts/import_lista_rtd_excel_to_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+scripts/run_lista_rtd_option_quotes_pipeline.py:71:        default="LISTA_RTD.xlsm",
+scripts/run_lista_rtd_option_quotes_pipeline.py:72:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+scripts/run_lista_rtd_option_quotes_pipeline.py:79:            "Aba RTD. Se omitida, o importador tenta RTD_OPTION_QUOTES "
+scripts/run_lista_rtd_option_quotes_pipeline.py:80:            "e depois RTD_PROBE_OPTIONS."
+scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+scripts/run_rtd_option_quotes_pipeline.py:3:Executa o pipeline operacional de cotações RTD de opções.
+scripts/run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+scripts/run_rtd_option_quotes_pipeline.py:28:IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_option_quotes_wide_csv.py"
+scripts/run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+scripts/run_rtd_option_quotes_pipeline.py:89:    csv_path: str = "dados/RTD_LINKS.csv",
+scripts/run_rtd_option_quotes_pipeline.py:96:    print("Pipeline RTD option quotes")
+scripts/run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+scripts/run_rtd_option_quotes_pipeline.py:146:        default="dados/RTD_LINKS.csv",
+scripts/run_rtd_option_quotes_pipeline.py:147:        help="Caminho do CSV RTD_LINKS.csv. Padrão: dados/RTD_LINKS.csv",
+scripts/run_rtd_refresh_full.py:43:            FROM rtd_option_quotes
+scripts/run_rtd_refresh_full.py:76:        description="Pipeline completo: gerar símbolos RTD, atualizar Excel/CSV e importar cotações no SQLite."
+scripts/run_rtd_refresh_full.py:80:    parser.add_argument("--symbols", default="dados/rtd_symbols.txt")
+scripts/run_rtd_refresh_full.py:81:    parser.add_argument("--csv", default="dados/RTD_LINKS.csv")
+scripts/run_rtd_refresh_full.py:82:    parser.add_argument("--workbook", default="LISTA_RTD.xlsm")
+scripts/run_rtd_refresh_full.py:99:    build_script = Path("scripts/build_rtd_symbols.py")
+scripts/run_rtd_refresh_full.py:100:    import_script = Path("scripts/import_rtd_option_quotes_wide_csv.py")
+scripts/run_rtd_refresh_full.py:101:    ps1_script = Path("scripts/refresh_rtd_option_quotes_excel.ps1")
+scripts/run_rtd_refresh_full.py:103:    print("=== RTD Refresh Full ===")
+scripts/run_rtd_refresh_full.py:195:        print("- Cadastre uma estrutura pelo sistema ou rode sem --strict para usar fallback de rtd_option_quotes.")
+scripts/run_rtd_refresh_full.py:205:        print("Pipeline interrompido: nenhum símbolo para consultar no RTD.")
+scripts/run_rtd_refresh_full.py:241:            print("Pipeline interrompido no refresh Excel/RTD.")
+scripts/run_rtd_refresh_full.py:245:        print("Refresh Excel/RTD pulado por --skip-excel.")
+scripts/run_rtd_refresh_full.py:271:    print("OK: pipeline RTD finalizado.")
+scripts/seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+scripts/seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+scripts/seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+scripts/seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+scripts/seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+scripts/seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+scripts/seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+scripts/seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+scripts/seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+scripts/seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+scripts/seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+
+== Testes relacionados a derived pipeline/orquestracao ==
+ATT/tests/__pycache__/test_audit_rtd_option_quotes.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_audit_rtd_option_quotes.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_execute_pricing_rtd_integration.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_execute_pricing_rtd_integration.cpython-313.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_db_path.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_price_resolution.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_canonical_pricing_facade_rtd_price_resolution.cpython-313.pyc
+ATT/tests/__pycache__/test_derived_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_derived_service.cpython-313.pyc
+ATT/tests/__pycache__/test_fase_11_rtd_integrated_flow.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_import_rtd_links_to_option_quotes.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_import_rtd_links_to_option_quotes.cpython-313.pyc
+ATT/tests/__pycache__/test_market_snapshot_repository_rtd_option_quotes.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_market_snapshot_repository_rtd_option_quotes.cpython-313.pyc
+ATT/tests/__pycache__/test_orchestrator_run_methods.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_orchestrator_run_methods.cpython-313.pyc
+ATT/tests/__pycache__/test_rtd_legacy_canonical_pricing_input_guardrail.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_rtd_legacy_canonical_pricing_input_guardrail.cpython-313.pyc
+ATT/tests/__pycache__/test_rtd_option_quotes_repository_contract.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_rtd_option_quotes_repository_contract.cpython-313.pyc
+ATT/tests/__pycache__/test_run_rtd_option_quotes_pipeline.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_run_rtd_option_quotes_pipeline.cpython-313.pyc
+ATT/tests/__pycache__/test_structure_leg_rtd_enrichment_service.cpython-313-pytest-9.0.3.pyc
+ATT/tests/__pycache__/test_structure_leg_rtd_enrichment_service.cpython-313.pyc
+ATT/tests/test_audit_rtd_option_quotes.py
+ATT/tests/test_derived_service.py
+ATT/tests/test_import_rtd_links_to_option_quotes.py
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py
+ATT/tests/test_orchestrator_run_methods.py
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py
+ATT/tests/test_rtd_option_quotes_repository_contract.py
+ATT/tests/test_run_rtd_option_quotes_pipeline.py
+ATT/tests/test_structure_leg_rtd_enrichment_service.py
+
+============================================================
+FIM FASE 5E DIAGNOSTICO
+============================================================
