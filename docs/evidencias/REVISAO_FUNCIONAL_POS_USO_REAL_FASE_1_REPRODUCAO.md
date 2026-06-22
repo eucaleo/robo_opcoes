@@ -471,3 +471,157 @@ Pendente.
 Commit de fechamento:
 
 Pendente.
+
+## 21. Localização inicial executada
+
+Data:
+
+2026-06-22
+
+Comando executado:
+
+grep -RIn "Atualizar Dados\|recalculo\|recálculo\|snapshot não mudou\|snapshot nao mudou\|strike must be numeric\|structure_decisions\|payoff_curve_points\|rtd_option_quotes\|alias\|aba" UI services repositories domain api ATT/tests 2>/dev/null
+
+Resultado resumido:
+
+A busca localizou pontos candidatos para a reprodução controlada e futura correção dos problemas descritos no documento.
+
+### Mensagem técnica em inglês
+
+Arquivo:
+
+repositories/structures_repository.py
+
+Ocorrência:
+
+raise ValueError("strike must be numeric")
+
+Relação com o documento:
+
+Confirma ponto candidato para a Fase 2, pois o documento cita erro de validação numérica em inglês e falha com vírgula decimal.
+
+### Snapshot e recálculo
+
+Arquivo:
+
+UI/components/details_panel.py
+
+Ocorrência:
+
+Mensagem visível:
+
+Snapshot não mudou; recálculo desnecessário
+
+Relação com o documento:
+
+Confirma ponto candidato para a Fase 7, pois o documento cita que estrutura nova retorna recálculo desnecessário.
+
+### Botão Atualizar Dados
+
+Arquivo:
+
+UI/main_window.py
+
+Ocorrência:
+
+Menu com comando Atualizar Dados apontando para refresh_data.
+
+Relação com o documento:
+
+Confirma ponto candidato para a Fase 5, pois o documento pede feedback detalhado do pipeline.
+
+### Aba ou alias visível ao usuário
+
+Arquivos:
+
+UI/components/structures_list_panel.py
+UI/components/structure_editor_dialog.py
+UI/main_window.py
+
+Ocorrências:
+
+Coluna Aba/Alias.
+Campo Aba / Alias.
+Texto Aba legado.
+
+Relação com o documento:
+
+Confirma ponto candidato para a Fase 12, pois o documento pede remover chamada obsoleta de aba ou alias se o sistema não usa mais abas.
+
+### Compatibilidade interna com aba
+
+Arquivos:
+
+UI/models/ui_data.py
+UI/components/decisions_grid.py
+services/derived_service.py
+repositories/_aba_resolver_mixin.py
+repositories/robo_legs_repository.py
+repositories/market_snapshot_repository.py
+
+Observação:
+
+Há uso interno e legado de aba, alias_legacy_aba e filtros compatíveis.
+
+Relação com o documento:
+
+A remoção futura não pode ser feita sem separar conceito visível ao usuário de compatibilidade interna ainda necessária.
+
+### Payoff e decisões
+
+Arquivos:
+
+UI/components/details_panel.py
+UI/models/ui_data.py
+services/derived_service.py
+
+Ocorrências:
+
+Consultas e referências a structure_decisions e payoff_curve_points.
+
+Relação com o documento:
+
+Confirma pontos candidatos para reprodução dos problemas de payoff e decisões nas Fases 1 e 4.
+
+### RTD
+
+Arquivos:
+
+services/market_snapshot_selector.py
+repositories/rtd_option_quotes_repository.py
+repositories/market_snapshot_repository.py
+services/structure_leg_rtd_enrichment_service.py
+
+Ocorrências:
+
+Uso de rtd_option_quotes como fonte de cotação.
+
+Relação com o documento:
+
+Confirma pontos candidatos para reprodução do problema de atualização RTD na Fase 6.
+
+### Arquivos de backup localizados
+
+Arquivos:
+
+UI/main_window.py.fase3e.bak
+UI/main_window.py.fase3e.fix2.bak
+services/canonical_pricing_facade.py.fase3e.bak
+services/canonical_pricing_facade.py.fase3e.fix2.bak
+
+Observação:
+
+Arquivos de backup foram encontrados pela busca. Nesta fase serão tratados apenas como ruído técnico localizado. Nenhuma remoção será feita durante a reprodução controlada.
+
+## 22. Conclusão parcial da localização
+
+A localização inicial confirma que os problemas do documento possuem pontos candidatos no código atual.
+
+Status:
+
+Localização inicial concluída.
+
+Próximo passo:
+
+Inventariar banco de dados, registrar estado inicial e executar reprodução manual controlada.
+

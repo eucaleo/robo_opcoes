@@ -70,3 +70,67 @@ Pendente.
 Pendência restante:
 
 Executar a reprodução controlada dos problemas em sistema funcionando.
+
+### Entrada 002 — Localização inicial dos pontos candidatos
+
+Data:
+
+2026-06-22
+
+Branch usada:
+
+reinicio-normalizacao-idioma-ptbr
+
+Commit base da fase:
+
+4625a67
+
+Problema testado:
+
+Localização inicial dos pontos candidatos relacionados aos problemas descritos na revisão funcional pós uso real.
+
+Evidência observada:
+
+Foram localizadas referências a Atualizar Dados, recálculo, snapshot, strike must be numeric, structure_decisions, payoff_curve_points, rtd_option_quotes, aba e alias.
+
+Arquivos analisados:
+
+UI/components/decisions_grid.py
+UI/components/details_panel.py
+UI/components/payoff_chart.py
+UI/components/structures_list_panel.py
+UI/components/structure_editor_dialog.py
+UI/main_window.py
+UI/models/ui_data.py
+services/canonical_input_service.py
+services/canonical_pricing_facade.py
+services/derived_service.py
+services/market_snapshot_selector.py
+services/structure_leg_rtd_enrichment_service.py
+repositories/structures_repository.py
+repositories/market_snapshot_repository.py
+repositories/rtd_option_quotes_repository.py
+repositories/_aba_resolver_mixin.py
+domain/payoff_features.py
+ATT/tests
+
+Alteração feita:
+
+Apenas documentação da localização inicial.
+
+Teste executado:
+
+Busca textual no projeto.
+
+Resultado:
+
+Pontos candidatos localizados. Nenhuma alteração funcional realizada.
+
+Commit gerado:
+
+Pendente.
+
+Pendência restante:
+
+Inventariar banco de dados e executar reprodução controlada em sistema funcionando.
+
