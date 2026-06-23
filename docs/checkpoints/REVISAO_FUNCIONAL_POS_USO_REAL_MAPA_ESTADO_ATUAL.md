@@ -70,7 +70,7 @@ Esses arquivos podem ser usados apenas como evidencias auxiliares, desde que ref
 | Marco 1 | Auditoria viva | Concluido | Auditoria oficial existe |
 | Marco 2 | Plano operacional | Concluido | Plano de execucao existe |
 | Fase 1 | Reproducao controlada | Concluida documentalmente | Evidencia oficial existe |
-| Fase 2 | Normalizacao numerica | Sem checkpoint oficial | Necessita reconciliacao |
+| Fase 2 | Normalizacao numerica | REVISAO_FUNCIONAL_POS_USO_REAL_FASE_2_NORMALIZACAO_NUMERICA.md | Concluida por reconciliacao documental |
 | Fase 3 | Cadastro assistido de estrutura | Sem checkpoint oficial | Necessita reconciliacao |
 | Fase 4 | Payoff e decisoes | Sem checkpoint oficial | Necessita reconciliacao |
 | Fase 5 | Atualizar dados e pipeline | Sem checkpoint oficial | Necessita reconciliacao |
