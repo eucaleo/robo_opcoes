@@ -35,6 +35,8 @@ from tkinter import ttk, messagebox
 from typing import Optional
 
 from repositories.structures_repository import StructuresRepository
+from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
 from domain.position_side import normalize_position_side
 
 
@@ -66,6 +68,7 @@ class StructureEditorDialog(tk.Toplevel):
         db_path: str = "dados/app.db",
         *,
         _repo=None,                          # <-- injecao de dependencia (testes)
+        _leg_enrichment_service=None,        # <-- injecao opcional para testes
     ):
         super().__init__(parent)
 
@@ -80,6 +83,8 @@ class StructureEditorDialog(tk.Toplevel):
             self._repo = _repo
         else:
             self._repo = StructuresRepository(db_path)
+
+        self._leg_enrichment_service = _leg_enrichment_service
 
         # Variaveis de formulario -- inicializadas ANTES de _build_ui
         # para que _load_existing() possa fazer .set() mesmo se chamado
@@ -229,10 +234,21 @@ class StructureEditorDialog(tk.Toplevel):
             ttk.Label(r2, text=label + ":").pack(side="left")
             ttk.Entry(r2, textvariable=var, width=10).pack(side="left", padx=(0, 8))
 
-        # Botao aplicar
-        ttk.Button(form, text="[v] Aplicar Leg", command=self._cmd_apply_leg).pack(
-            anchor="e", pady=(4, 0)
-        )
+        # Botoes da leg
+        btns = ttk.Frame(form)
+        btns.pack(fill="x", pady=(4, 0))
+
+        ttk.Button(
+            btns,
+            text="Auto preencher por simbolo",
+            command=self._cmd_enrich_current_leg,
+        ).pack(side="right", padx=(4, 0))
+
+        ttk.Button(
+            btns,
+            text="[v] Aplicar Leg",
+            command=self._cmd_apply_leg,
+        ).pack(side="right")
 
     # ------------------------------------------------------------------
     # Carregar estrutura existente
@@ -364,6 +380,132 @@ class StructureEditorDialog(tk.Toplevel):
         self._refresh_leg_tree()
         self._leg_tree.selection_set(str(new_idx))
 
+
+    def _get_leg_enrichment_service(self):
+        """Cria/lê o service de enriquecimento por símbolo sob demanda."""
+        service = getattr(self, "_leg_enrichment_service", None)
+
+        # Em testes headless via object.__new__, pode existir atributo de classe
+        # ou mock incompatível. Só reutiliza se parecer um service válido.
+        if service is not None and hasattr(service, "enrich"):
+            return service
+
+        repo = RtdOptionQuotesRepository(getattr(self, "_db_path", "dados/app.db"))
+        service = StructureLegRtdEnrichmentService(repo)
+        self._leg_enrichment_service = service
+        return service
+
+    @staticmethod
+    def _leg_has_manual_required_fields(leg_data: dict) -> bool:
+        """Compatibilidade: permite leg manual completa mesmo sem cotacao RTD."""
+        return all(
+            str(leg_data.get(key) or "").strip()
+            for key in ("option_type", "strike", "expiration_date")
+        )
+
+    def _enrich_leg_data_from_symbol(
+        self,
+        leg_data: dict,
+        *,
+        require_quote: bool,
+    ) -> dict:
+        """Enriquece uma leg por symbol/codigo_opcao quando informado.
+
+        require_quote=True:
+            usado no botao/aplicar leg; symbol invalido bloqueia.
+
+        require_quote=False:
+            usado no save/build payload; se a leg manual ja esta completa,
+            preserva compatibilidade e nao acessa RTD.
+        """
+        symbol = str(leg_data.get("symbol") or leg_data.get("codigo_opcao") or "").strip()
+        if not symbol:
+            return leg_data
+
+        # Compatibilidade com testes e com fluxo manual completo:
+        # _build_legs_payload historicamente era uma rotina pura, sem I/O.
+        if not require_quote and self._leg_has_manual_required_fields(leg_data):
+            return leg_data
+
+        try:
+            enriched = self._get_leg_enrichment_service().enrich(leg_data)
+        except Exception:
+            if not require_quote and self._leg_has_manual_required_fields(leg_data):
+                return leg_data
+            raise
+
+        merged = dict(leg_data)
+        merged.update(enriched)
+        return merged
+
+    def _sync_underlying_from_enriched_leg(self, enriched: dict) -> None:
+        """Preenche/valida o ativo objeto da estrutura a partir da opção."""
+        underlying = str(enriched.get("underlying_asset") or "").strip().upper()
+        if not underlying:
+            return
+
+        current = self._f_underlying.get().strip().upper()
+        if current and current != underlying:
+            raise ValueError(
+                "Ativo objeto divergente do símbolo informado: "
+                f"estrutura={current}, detectado={underlying}, "
+                f"symbol={enriched.get('symbol')}"
+            )
+
+        if not current:
+            self._f_underlying.set(underlying)
+
+    def _current_leg_form_data(self, idx: int | None = None) -> dict:
+        return {
+            "position_side":   normalize_position_side(self._lf_side.get()),
+            "option_type":     self._lf_type.get(),
+            "strike":          self._lf_strike.get(),
+            "expiration_date": self._lf_expiry.get(),
+            "quantity":        self._lf_qty.get(),
+            "premium":         self._lf_premium.get() or None,
+            "multiplier":      self._lf_mult.get() or 1,
+            "leg_order":       (idx + 1) if idx is not None else 1,
+            "symbol":          self._lf_symbol.get() or None,
+            "notes":           None,
+        }
+
+    def _apply_enriched_leg_to_form(self, enriched: dict) -> None:
+        """Reflete dados detectados no formulario visual da leg."""
+        if enriched.get("option_type"):
+            self._lf_type.set(str(enriched["option_type"]).upper())
+        if enriched.get("strike") is not None:
+            self._lf_strike.set(str(enriched["strike"]))
+        if enriched.get("expiration_date"):
+            self._lf_expiry.set(str(enriched["expiration_date"]))
+        if enriched.get("multiplier") is not None:
+            self._lf_mult.set(str(enriched["multiplier"]))
+        if enriched.get("symbol"):
+            self._lf_symbol.set(str(enriched["symbol"]).upper())
+
+    def _cmd_enrich_current_leg(self):
+        """Botao: auto preenche leg usando symbol/codigo_opcao."""
+        idx = self._selected_leg_index()
+        if idx is None:
+            messagebox.showwarning(
+                "Auto preencher",
+                "Selecione uma leg na lista primeiro.",
+                parent=self,
+            )
+            return
+
+        try:
+            leg_data = self._current_leg_form_data(idx)
+            enriched = self._enrich_leg_data_from_symbol(
+                leg_data,
+                require_quote=True,
+            )
+            self._sync_underlying_from_enriched_leg(enriched)
+            self._apply_enriched_leg_to_form(enriched)
+            self._legs_rows[idx] = enriched
+            self._refresh_leg_tree()
+        except ValueError as exc:
+            messagebox.showerror("Auto preencher", str(exc), parent=self)
+
     def _cmd_apply_leg(self):
         """Aplica os valores do formulario na leg selecionada."""
         idx = self._selected_leg_index()
@@ -373,19 +515,24 @@ class StructureEditorDialog(tk.Toplevel):
             )
             return
 
-        self._legs_rows[idx] = {
-            "position_side":   normalize_position_side(self._lf_side.get()),
-            "option_type":     self._lf_type.get(),
-            "strike":          self._lf_strike.get(),
-            "expiration_date": self._lf_expiry.get(),
-            "quantity":        self._lf_qty.get(),
-            "premium":         self._lf_premium.get() or None,
-            "multiplier":      self._lf_mult.get() or 1,
-            "leg_order":       idx + 1,
-            "symbol":          self._lf_symbol.get() or None,
-            "notes":           None,
-        }
-        self._refresh_leg_tree()
+        try:
+            leg_data = self._current_leg_form_data(idx)
+
+            # Fase 3: se houver simbolo, tenta reconhecer a opcao e preencher
+            # ativo, tipo, strike, vencimento e multiplicador.
+            if leg_data.get("symbol"):
+                leg_data = self._enrich_leg_data_from_symbol(
+                    leg_data,
+                    require_quote=True,
+                )
+                self._sync_underlying_from_enriched_leg(leg_data)
+                self._apply_enriched_leg_to_form(leg_data)
+
+            self._legs_rows[idx] = leg_data
+            self._refresh_leg_tree()
+
+        except ValueError as exc:
+            messagebox.showerror("Erro de Validacao", str(exc), parent=self)
 
     # ------------------------------------------------------------------
     # Logica de payload (pura -- testavel sem display)
@@ -450,6 +597,14 @@ class StructureEditorDialog(tk.Toplevel):
         for index, leg in enumerate(self._legs_rows, start=1):
             row = dict(leg)
 
+            try:
+                row = self._enrich_leg_data_from_symbol(
+                    row,
+                    require_quote=False,
+                )
+            except ValueError as exc:
+                raise ValueError(f"Leg {index}: {exc}") from exc
+
             row["position_side"] = _normalize_position_side(
                 row.get("position_side", "COMPRADO")
             )
@@ -482,6 +637,31 @@ class StructureEditorDialog(tk.Toplevel):
         if not name:
             messagebox.showwarning("Salvar", "O campo 'Nome' e obrigatorio.", parent=self)
             return
+
+        try:
+            legs_payload = self._build_legs_payload()
+        except ValueError as exc:
+            messagebox.showerror("Erro de Validacao", str(exc), parent=self)
+            return
+
+        if not underlying:
+            detected_assets = sorted({
+                str(leg.get("underlying_asset") or "").strip().upper()
+                for leg in legs_payload
+                if str(leg.get("underlying_asset") or "").strip()
+            })
+            if len(detected_assets) == 1:
+                underlying = detected_assets[0]
+                self._f_underlying.set(underlying)
+            elif len(detected_assets) > 1:
+                messagebox.showwarning(
+                    "Salvar",
+                    "As legs possuem ativos objeto diferentes: "
+                    + ", ".join(detected_assets),
+                    parent=self,
+                )
+                return
+
         if not underlying:
             messagebox.showwarning("Salvar", "O campo 'Ativo' e obrigatorio.", parent=self)
             return
@@ -495,8 +675,6 @@ class StructureEditorDialog(tk.Toplevel):
         }
 
         try:
-            legs_payload = self._build_legs_payload()
-
             if self._structure_id is None:
                 # --- Modo criacao ---
                 sid = self._repo.create_structure_with_legs(

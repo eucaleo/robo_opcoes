@@ -1,11 +1,10 @@
 """Service de enriquecimento de legs de estruturas via RTD.
 
-Objetivo da Fase 9:
+Objetivo:
 - receber entrada minima baseada em simbolo/codigo da opcao;
 - consultar rtd_option_quotes por codigo_opcao;
-- devolver payload canonico de leg para o repository de structures.
-
-Este service nao persiste dados e nao contem regra de UI.
+- devolver payload canonico de leg para o repository de structures;
+- validar divergencia entre tipo informado e tipo detectado.
 """
 
 from __future__ import annotations
@@ -29,17 +28,11 @@ class StructureLegRtdEnrichmentService:
         - position_side;
         - quantity.
 
-        Campos opcionais preservados/normalizados:
-        - premium;
-        - multiplier;
-        - leg_order;
-        - notes.
-
         Campos enriquecidos via RTD:
+        - underlying_asset;
         - option_type;
         - strike;
-        - expiration_date;
-        - underlying_asset.
+        - expiration_date.
         """
 
         symbol = self._normalize_symbol(
@@ -57,19 +50,26 @@ class StructureLegRtdEnrichmentService:
             required=("ativo_base", "call_put", "strike", "vencimento"),
         )
 
-        position_side = normalize_position_side(leg_data.get("position_side"))
-        option_type = self._normalize_required_text(
-            quote.get("call_put"),
-            "call_put",
-        )
+        detected_option_type = self._normalize_option_type(quote.get("call_put"))
+
+        informed_option_type_raw = leg_data.get("option_type")
+        if informed_option_type_raw not in (None, ""):
+            informed_option_type = self._normalize_option_type(informed_option_type_raw)
+            if informed_option_type != detected_option_type:
+                raise ValueError(
+                    "option_type divergente do símbolo informado: "
+                    f"informado={informed_option_type}, "
+                    f"detectado={detected_option_type}, "
+                    f"symbol={symbol}"
+                )
 
         return {
             "symbol": symbol,
-            "position_side": position_side,
-            "option_type": option_type,
+            "position_side": normalize_position_side(leg_data.get("position_side")),
+            "option_type": detected_option_type,
             "strike": self._to_float(quote.get("strike"), "strike"),
             "expiration_date": str(quote.get("vencimento")).strip(),
-            "quantity": self._to_float(leg_data.get("quantity"), "quantity"),
+            "quantity": self._to_float(leg_data.get("quantity", 1), "quantity"),
             "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
             "multiplier": self._to_float(
                 leg_data.get("multiplier", 100.0),
@@ -98,19 +98,50 @@ class StructureLegRtdEnrichmentService:
             raise ValueError(f"{field_name} is required")
         return normalized
 
+    @classmethod
+    def _normalize_option_type(cls, value: Any) -> str:
+        text = cls._normalize_required_text(value, "option_type")
+        mapping = {
+            "C": "CALL",
+            "CALL": "CALL",
+            "COMPRA": "CALL",
+            "P": "PUT",
+            "PUT": "PUT",
+            "VENDA": "PUT",
+        }
+        normalized = mapping.get(text)
+        if normalized is None:
+            raise ValueError(f"invalid option_type/call_put: {value!r}")
+        return normalized
+
     @staticmethod
     def _to_float(value: Any, field_name: str) -> float:
+        if value is None or str(value).strip() == "":
+            raise ValueError(f"{field_name} is required")
+
+        text = str(value).strip()
+        if "," in text and "." in text:
+            text = text.replace(".", "").replace(",", ".")
+        else:
+            text = text.replace(",", ".")
+
         try:
-            return float(value)
+            return float(text)
         except (TypeError, ValueError) as exc:
             raise ValueError(f"{field_name} must be numeric") from exc
 
-    @staticmethod
-    def _to_int(value: Any, field_name: str) -> int:
-        try:
-            return int(value)
-        except (TypeError, ValueError) as exc:
-            raise ValueError(f"{field_name} must be integer") from exc
+    @classmethod
+    def _to_optional_float(cls, value: Any, field_name: str) -> float | None:
+        if value is None or str(value).strip() == "":
+            return None
+        return cls._to_float(value, field_name)
+
+    @classmethod
+    def _to_int(cls, value: Any, field_name: str) -> int:
+        number = cls._to_float(value, field_name)
+        if int(number) != number:
+            raise ValueError(f"{field_name} must be integer")
+        return int(number)
 
     @staticmethod
     def _ensure_required_quote_fields(
