@@ -445,12 +445,26 @@ class MainWindow:
     def recalculate_structure(self, structure_id: str):
         """
         Recalcula a estrutura identificada por structure_id e atualiza a UI.
-        alteracao_36: recalculate_aba() removida; este é o único entry point.
+
+        Importante:
+        - Este botão NÃO executa o pipeline completo.
+        - Ele recalcula somente a estrutura selecionada via CanonicalPricingFacade.
         """
         if self._recalc_in_progress:
             try:
                 self.status_bar.config(
                     text=f"Recalc já em andamento; ignorando ({structure_id})"
+                )
+            except Exception:
+                pass
+            return
+
+        try:
+            sid = int(structure_id)
+        except (TypeError, ValueError):
+            try:
+                self.status_bar.config(
+                    text=f"structure_id inválido para recálculo: {structure_id}"
                 )
             except Exception:
                 pass
@@ -463,64 +477,83 @@ class MainWindow:
         except Exception:
             pass
 
-        import subprocess
-        import sys
-
-        self.status_bar.config(text=f"Recalculando {structure_id}...")
+        try:
+            self.status_bar.config(text=f"Recalculando estrutura {sid}...")
+        except Exception:
+            pass
 
         def finish(ok: bool, msg: str):
             self._recalc_in_progress = False
+
             try:
                 self.status_bar.config(text=msg)
             except Exception:
                 pass
+
             try:
                 if hasattr(self, "details_panel") and hasattr(
                     self.details_panel, "on_recalc_finished"
                 ):
                     self.details_panel.on_recalc_finished(
-                        structure_id, ok=ok, message=msg
+                        str(sid), ok=ok, message=msg
                     )
             except Exception as e:
                 print("[UI] Erro notificando details_panel fim recalc:", e)
 
+        def clear_ui_cache():
+            try:
+                if hasattr(self, "data_model") and hasattr(self.data_model, "clear_cache"):
+                    self.data_model.clear_cache()
+            except Exception as e:
+                print("[UI] Erro limpando cache após recalc:", e)
+
         def worker():
             try:
-                project_root = Path(__file__).resolve().parents[1]
-                script_path = project_root / "scripts" / "run_derived_pipeline.py"
-                if not script_path.exists():
-                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+                from services.canonical_pricing_facade import CanonicalPricingFacade
 
-                res = subprocess.run(
-                    [sys.executable, str(script_path)],
-                    cwd=str(project_root),
-                    check=True,
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                )
+                facade = CanonicalPricingFacade(db_path=self._db_path)
+                result = facade.execute_pricing(sid)
 
-                if res.stdout:
-                    print("[UI] Recalc STDOUT:\n", res.stdout)
-                if res.stderr:
-                    print("[UI] Recalc STDERR:\n", res.stderr)
+                print(f"[UI] Recalc structure_id={sid} result:", result)
 
+                if not isinstance(result, dict):
+                    raise RuntimeError(f"Resposta inválida do pricing facade: {result!r}")
+
+                ok_statuses = {"success", "ok", "completed"}
+
+                top_status = result.get("status")
+                if top_status is not None and str(top_status).lower() not in ok_statuses:
+                    msg = (
+                        result.get("error_message")
+                        or result.get("message")
+                        or f"Falha no recálculo da estrutura {sid}: status={top_status}"
+                    )
+                    raise RuntimeError(msg)
+
+                inner = result.get("result")
+                if isinstance(inner, dict):
+                    inner_status = inner.get("status")
+                    if inner_status is not None and str(inner_status).lower() not in ok_statuses:
+                        msg = (
+                            inner.get("error_message")
+                            or inner.get("message")
+                            or f"Falha no recálculo da estrutura {sid}: status={inner_status}"
+                        )
+                        raise RuntimeError(msg)
+
+                self.root.after(0, clear_ui_cache)
                 self.root.after(0, self.refresh_data)
                 self.root.after(
-                    0, lambda: finish(True, f"OK: {structure_id} recalculado")
+                    0,
+                    lambda: finish(True, f"OK: estrutura {sid} recalculada"),
                 )
 
-            except subprocess.TimeoutExpired:
-                self.root.after(0, lambda: finish(False, "Timeout no recálculo"))
-            except subprocess.CalledProcessError as e:
-                if e.stdout:
-                    print("[UI] Recalc STDOUT:\n", e.stdout)
-                if e.stderr:
-                    print("[UI] Recalc STDERR:\n", e.stderr)
-                self.root.after(0, lambda: finish(False, "Falha no recálculo"))
             except Exception as e:
                 print("[UI] Erro inesperado recalc:", e)
-                self.root.after(0, lambda: finish(False, "Erro no recálculo"))
+                self.root.after(
+                    0,
+                    lambda: finish(False, f"Erro no recálculo da estrutura {sid}: {e}"),
+                )
 
         threading.Thread(target=worker, daemon=True).start()
 

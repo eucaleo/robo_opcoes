@@ -1067,14 +1067,9 @@ class DetailsPanel(ttk.LabelFrame):
             )
             return
 
+        # Botão manual: deve recalcular sempre que o usuário clicar.
+        # A assinatura é mantida apenas para diagnóstico/estado, não para bloquear.
         sig = self._compute_recalc_signature(structure_id)
-        if self._last_recalc_signature == sig and sig[1] is not None:
-            self._set_recalc_ui_state(
-                False,
-                msg="Snapshot não mudou; recálculo desnecessário",
-                color="gray",
-            )
-            return
 
         if callable(getattr(self, "_on_recalculate_cb", None)):
             self._set_recalc_ui_state(

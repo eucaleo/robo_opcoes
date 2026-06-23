@@ -1,20 +1,19 @@
 == Diagnóstico: recalc/pipeline em inicialização e refresh ==
-Tue Jun 23 10:25:47     2026
+Tue Jun 23 10:49:14     2026
 
 == Branch e últimos commits ==
 reinicio-normalizacao-idioma-ptbr
+82a6b06 docs: atualiza auditoria com commit da restauracao documental
+2b593ed docs: restaura rota e plano da revisao funcional pos uso real
+b48423e chore: ignora backups locais de desenvolvimento
+5dc0c91 docs: diagnostica disparos de recalc e pipeline na ui
 749468c ui: adiciona recarregamento automatico controlado rtd
 caa90f9 docs: registra trechos da main window para atualizacao automatica
 d21d241 docs: limpa levantamento de pontos para atualizacao automatica rtd
 83de941 docs: levanta pontos de codigo para atualizacao automatica rtd
-f1d180d docs: registra decisao de atualizacao automatica baseada no rtd
-3426113 docs: ajusta conclusao sobre atualizacao automatica na fase 1
-620d5d6 docs: registra snapshot antes de atualizar dados na fase 1
-cd8ebbe docs: registra reproducao funcional de atualizar dados na fase 1
 
 == Status ==
-?? docs/checkpoints/evidencias/fase-diagnostico-recalc-pipeline-inicializacao.txt
-?? scripts/fase-diagnostico-recalc-pipeline-inicializacao.sh
+ M docs/checkpoints/evidencias/fase-diagnostico-recalc-pipeline-inicializacao.txt
 
 == Busca por chamadas de pipeline/recalc ==
 UI/components/details_panel.py:11:    def __init__(self, parent, on_recalculate=None, app_db_path=None):
@@ -37,41 +36,9 @@ UI/main_window.py:857:    def _reprice_structure_after_save(self, structure_id: 
 UI/main_window.py:883:                from services.canonical_pricing_facade import CanonicalPricingFacade
 UI/main_window.py:885:                facade = CanonicalPricingFacade(db_path=self._db_path)
 UI/main_window.py:886:                result = facade.execute_pricing(sid)
-UI/main_window.py.fase3e.bak:99:            on_recalculate=self.recalculate_structure,
-UI/main_window.py.fase3e.bak:140:        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
-UI/main_window.py.fase3e.bak:352:    def recalculate_structure(self, structure_id: str):
-UI/main_window.py.fase3e.bak:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.bak:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.bak:434:    def run_pipeline(self):
-UI/main_window.py.fase3e.bak:447:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.bak:449:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.bak:694:                self._reprice_structure_after_save(int(saved_structure_id))
-UI/main_window.py.fase3e.bak:697:    def _reprice_structure_after_save(self, structure_id: int) -> None:
-UI/main_window.py.fase3e.bak:723:                from services.canonical_pricing_facade import CanonicalPricingFacade
-UI/main_window.py.fase3e.bak:725:                facade = CanonicalPricingFacade(db_path=self._db_path)
-UI/main_window.py.fase3e.bak:726:                facade.execute_pricing(sid)
-UI/main_window.py.fase3e.fix2.bak:99:            on_recalculate=self.recalculate_structure,
-UI/main_window.py.fase3e.fix2.bak:140:        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
-UI/main_window.py.fase3e.fix2.bak:352:    def recalculate_structure(self, structure_id: str):
-UI/main_window.py.fase3e.fix2.bak:397:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.fix2.bak:399:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.fix2.bak:434:    def run_pipeline(self):
-UI/main_window.py.fase3e.fix2.bak:447:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.fix2.bak:449:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
-UI/main_window.py.fase3e.fix2.bak:694:                self._reprice_structure_after_save(int(saved_structure_id))
-UI/main_window.py.fase3e.fix2.bak:697:    def _reprice_structure_after_save(self, structure_id: int) -> None:
-UI/main_window.py.fase3e.fix2.bak:723:                from services.canonical_pricing_facade import CanonicalPricingFacade
-UI/main_window.py.fase3e.fix2.bak:725:                facade = CanonicalPricingFacade(db_path=self._db_path)
-UI/main_window.py.fase3e.fix2.bak:726:                facade.execute_pricing(sid)
 services/canonical_pricing_facade.py:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
 services/canonical_pricing_facade.py:321:class CanonicalPricingFacade:
 services/canonical_pricing_facade.py:351:    def execute_pricing(
-services/canonical_pricing_facade.py.fase3e.bak:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
-services/canonical_pricing_facade.py.fase3e.bak:320:class CanonicalPricingFacade:
-services/canonical_pricing_facade.py.fase3e.bak:350:    def execute_pricing(
-services/canonical_pricing_facade.py.fase3e.fix2.bak:14:  C8: execute_pricing() passa underlying_asset para o payload builder.
-services/canonical_pricing_facade.py.fase3e.fix2.bak:320:class CanonicalPricingFacade:
-services/canonical_pricing_facade.py.fase3e.fix2.bak:350:    def execute_pricing(
 services/pricing_execution_app_service.py:3:alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
 services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
 services/pricing_execution_app_service.py:16:from services.canonical_pricing_facade import CanonicalPricingFacade

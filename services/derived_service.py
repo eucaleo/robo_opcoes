@@ -400,10 +400,14 @@ def get_all_payoff_curves():
 def get_payoff_by_structure_id(structure_id: int):
     """
     alteracao_56/alteracao_65: único ponto de entrada canônico para leitura de payoff.
-    get_payoff_by_aba() removida da interface pública (alteracao_65).
+
+    Retorna somente a curva mais recente da estrutura.
+    Importante: payoff_curve_points mantém histórico por timestamp.
+    Sem filtrar MAX(timestamp), a UI pode misturar curvas antigas e novas.
     """
     ref = StructureRef.from_id(structure_id)
     col, val = ref.db_pair()
+
     with connect_derived() as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -411,9 +415,14 @@ def get_payoff_by_structure_id(structure_id: int):
             SELECT timestamp, point_spot, point_pl, meta_json
               FROM payoff_curve_points
              WHERE {col} = ?
+               AND timestamp = (
+                    SELECT MAX(timestamp)
+                      FROM payoff_curve_points
+                     WHERE {col} = ?
+               )
              ORDER BY point_spot
             """,
-            (val,),
+            (val, val),
         )
         return [
             {
@@ -424,6 +433,7 @@ def get_payoff_by_structure_id(structure_id: int):
             }
             for row in cursor.fetchall()
         ]
+
 
 
 def get_recent_decisions():
