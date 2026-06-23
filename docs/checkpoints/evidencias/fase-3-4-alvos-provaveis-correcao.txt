@@ -1,0 +1,789 @@
+# Alvos provaveis para correcao de codigo - Fases 3 e 4
+
+Data: Tue Jun 23 19:47:19     2026
+Branch: reinicio-normalizacao-idioma-ptbr
+HEAD: 545f4e6
+
+## Status git
+?? docs/checkpoints/evidencias/fase-3-4-alvos-provaveis-correcao.txt
+?? docs/checkpoints/evidencias/fase-3-correcao-codigo-inventario.txt
+?? docs/checkpoints/evidencias/fase-4-correcao-codigo-inventario.txt
+?? tools/
+
+## Alvos Fase 3 - services
+calculation_orchestrator.py
+canonical_input_service.py
+canonical_pricing_facade.py
+derived_payoff_persistence.py
+derived_service.py
+legacy_structure_legs_importer.py
+legacy_structure_legs_reader.py
+payoff_pricing_engine.py
+pricing_execution_app_service.py
+pricing_execution_orchestration_service.py
+pricing_execution_persistence_service.py
+pricing_execution_query_service.py
+pricing_execution_service.py
+pricing_input_service.py
+pricing_payload_adapter.py
+structure_analysis_service.py
+structure_events_service.py
+structure_input_mapper.py
+structure_leg_rtd_enrichment_service.py
+structure_market_input_assembler.py
+
+## Alvos Fase 3 - tests
+test_audit_rtd_option_quotes.py
+test_canonical_input_service.py
+test_canonical_pricing_facade.py
+test_canonical_pricing_facade_manual_without_alias.py
+test_canonical_validators.py
+test_derived_service.py
+test_import_rtd_links_to_option_quotes.py
+test_legacy_structure_legs_importer.py
+test_legacy_structure_legs_importer_integration.py
+test_legacy_structure_legs_reader.py
+test_market_snapshot_repository_rtd_option_quotes.py
+test_orchestrator_run_methods.py
+test_payoff_canonical.py
+test_payoff_pricing_engine.py
+test_pricing_execution_app_service.py
+test_pricing_execution_controller.py
+test_pricing_execution_orchestration_service.py
+test_pricing_execution_persistence_service.py
+test_pricing_execution_query_service.py
+test_pricing_execution_service.py
+test_pricing_executions_repository.py
+test_pricing_input_service.py
+test_pricing_payload_adapter.py
+test_rtd_legacy_canonical_pricing_input_guardrail.py
+test_rtd_option_quotes_repository_contract.py
+test_run_derived_pipeline_rtd_integration.py
+test_run_rtd_option_quotes_pipeline.py
+test_structure_analysis_service.py
+test_structure_editor_dialog.py
+test_structure_editor_integration.py
+test_structure_events_api.py
+test_structure_events_effective_state.py
+test_structure_events_repository.py
+test_structure_events_service.py
+test_structure_input_mapper.py
+test_structure_leg_rtd_enrichment_service.py
+test_structure_market_input_assembler.py
+test_structure_metrics.py
+test_structures_api.py
+test_structures_archive_wiring.py
+test_structures_legs_endpoints.py
+test_structures_repository.py
+
+## Alvos Fase 4 - domain
+decision.py
+payoff.py
+payoff_features.py
+structure_metrics.py
+
+## Alvos Fase 4 - services
+canonical_pricing_facade.py
+derived_payoff_persistence.py
+derived_service.py
+market_snapshot_provider.py
+market_snapshot_selector.py
+payoff_persistence_port.py
+payoff_pricing_engine.py
+pricing_execution_app_service.py
+pricing_execution_orchestration_service.py
+pricing_execution_persistence_service.py
+pricing_execution_query_service.py
+pricing_execution_service.py
+pricing_input_service.py
+pricing_payload_adapter.py
+structure_analysis_service.py
+
+## Alvos Fase 4 - UI
+UI/components/decisions_grid.py
+UI/components/details_panel.py
+UI/components/payoff_chart.py
+UI/components/__pycache__/decisions_grid.cpython-313.pyc
+UI/components/__pycache__/details_panel.cpython-313.pyc
+UI/components/__pycache__/payoff_chart.cpython-313.pyc
+UI/main_window.py
+UI/models/ui_data.py
+UI/models/__pycache__/ui_data.cpython-313.pyc
+UI/__pycache__/main_window.cpython-313.pyc
+
+## Pontos com alias/aba que precisam de classificacao: legado tolerado x bug
+ATT/tests/test_audit_rtd_option_quotes.py:92:def test_audit_reports_error_when_database_does_not_exist(tmp_path: Path):
+ATT/tests/test_audit_rtd_option_quotes.py:95:    result = module.audit_database(tmp_path / "missing.db")
+ATT/tests/test_audit_rtd_option_quotes.py:98:    assert "database file not found" in result["errors"]
+ATT/tests/test_audit_rtd_option_quotes.py:108:    result = module.audit_database(db_path)
+ATT/tests/test_audit_rtd_option_quotes.py:122:    result = module.audit_database(db_path, max_age_minutes=0)
+ATT/tests/test_audit_rtd_option_quotes.py:137:    result = module.audit_database(db_path, max_age_minutes=0)
+ATT/tests/test_audit_rtd_option_quotes.py:157:    result = module.audit_database(db_path, max_age_minutes=0)
+ATT/tests/test_audit_rtd_option_quotes.py:172:    result = module.audit_database(db_path, max_age_minutes=0)
+ATT/tests/test_audit_rtd_option_quotes.py:186:    result = module.audit_database(db_path, max_age_minutes=30)
+ATT/tests/test_canonical_input_service.py:36:    def list_timestamps(self, aba):
+ATT/tests/test_canonical_input_service.py:46:    def status(self, aba, requested_timestamp):
+ATT/tests/test_canonical_input_service.py:51:    def get_legs(self, aba, timestamp, validate=False):
+ATT/tests/test_canonical_input_service.py:73:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_canonical_input_service.py:108:        self.assertNotIn("alias_legacy_aba", result["structure"])
+ATT/tests/test_canonical_input_service.py:115:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_canonical_input_service.py:147:        self.assertEqual(result["meta"]["legacy_aba"], "BOVA11")
+ATT/tests/test_canonical_input_service.py:148:        self.assertEqual(result["meta"]["legacy_key_source"], "alias_legacy_aba")
+ATT/tests/test_canonical_input_service.py:151:        self.assertNotIn("alias_legacy_aba", result["structure"])
+ATT/tests/test_canonical_input_service.py:158:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_canonical_input_service.py:180:        self.assertNotIn("alias_legacy_aba", result["structure"])
+ATT/tests/test_canonical_input_service.py:188:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_canonical_input_service.py:218:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_canonical_input_service.py:288:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_canonical_pricing_facade.py:14:        "aba": "ABA_LEGADA_NAO_E_UNDERLYING",
+ATT/tests/test_canonical_pricing_facade.py:61:def test_snapshot_result_to_payload_uses_explicit_underlying_asset_not_legacy_aba(tmp_path):
+ATT/tests/test_canonical_pricing_facade.py:63:        aba="SMAL11_ABA_LEGADA",
+ATT/tests/test_canonical_pricing_facade.py:94:        "snapshot_aba": "SMAL11_ABA_LEGADA",
+ATT/tests/test_canonical_pricing_facade.py:135:def test_snapshot_result_to_payload_uses_spot_fallback_from_database(tmp_path):
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:61:def test_facade_falls_back_to_pricing_input_service_when_alias_legacy_aba_is_null(monkeypatch, tmp_path):
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:63:        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:97:    assert response["pricing_payload"]["meta"]["alias_legacy_aba"] is None
+ATT/tests/test_canonical_pricing_facade_manual_without_alias.py:98:    assert "alias_legacy_aba is null" in response["pricing_payload"]["meta"]["fallback_reason"]
+ATT/tests/test_canonical_validators.py:4:def test_validate_canonical_input_should_not_require_alias_legacy_aba():
+ATT/tests/test_contracts.py:4:def test_canonical_structure_market_input_from_dict_and_to_dict_without_alias_legacy_aba():
+ATT/tests/test_contracts.py:44:    assert "alias_legacy_aba" not in result["structure"]
+ATT/tests/test_decision.py:4:def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
+ATT/tests/test_decision.py:7:    que não carrega alias_legacy_aba -- substitui o teste de contract com dict.
+ATT/tests/test_derived_service.py:13:def test_resolve_storage_key_should_prefer_aba_when_present():
+ATT/tests/test_derived_service.py:15:        aba="BOVA11",
+ATT/tests/test_derived_service.py:26:        aba=None,
+ATT/tests/test_derived_service.py:37:        aba=None,
+ATT/tests/test_derived_service.py:48:        aba=None,
+ATT/tests/test_derived_service.py:59:        aba=None,
+ATT/tests/test_derived_service.py:90:        captured["aba"] = ref
+ATT/tests/test_derived_service.py:113:    assert captured["aba"] == "structure:99"
+ATT/tests/test_derived_service.py:129:        captured["aba"] = ref
+ATT/tests/test_derived_service.py:146:        aba=None,
+ATT/tests/test_derived_service.py:150:    assert captured["aba"] == "structure:321"
+ATT/tests/test_derived_service.py:171:    def fake_insert_structure_decision(conn, timestamp, aba, decision_dict):
+ATT/tests/test_derived_service.py:173:        captured["aba"] = aba
+ATT/tests/test_derived_service.py:193:    assert captured["aba"] == "structure:7"
+ATT/tests/test_legacy_robo_legs_fallback.py:14:    def status(self, aba, requested_timestamp):
+ATT/tests/test_legacy_robo_legs_fallback.py:17:    def get_legs(self, aba, timestamp):
+ATT/tests/test_legacy_robo_legs_fallback.py:21:def test_resolve_legacy_aba_prefers_alias():
+ATT/tests/test_legacy_robo_legs_fallback.py:24:    aba, key_source, reason = svc._resolve_legacy_aba({
+ATT/tests/test_legacy_robo_legs_fallback.py:25:        "alias_legacy_aba": "ABA_CANON",
+ATT/tests/test_legacy_robo_legs_fallback.py:29:    assert aba == "ABA_CANON"
+ATT/tests/test_legacy_robo_legs_fallback.py:30:    assert key_source == "alias_legacy_aba"
+ATT/tests/test_legacy_robo_legs_fallback.py:34:def test_resolve_legacy_aba_blocks_name_when_disabled():
+ATT/tests/test_legacy_robo_legs_fallback.py:37:    aba, key_source, reason = svc._resolve_legacy_aba({
+ATT/tests/test_legacy_robo_legs_fallback.py:38:        "alias_legacy_aba": None,
+ATT/tests/test_legacy_robo_legs_fallback.py:42:    assert aba is None
+ATT/tests/test_legacy_robo_legs_fallback.py:47:def test_resolve_legacy_aba_uses_name_when_enabled():
+ATT/tests/test_legacy_robo_legs_fallback.py:50:    aba, key_source, reason = svc._resolve_legacy_aba({
+ATT/tests/test_legacy_robo_legs_fallback.py:51:        "alias_legacy_aba": None,
+ATT/tests/test_legacy_robo_legs_fallback.py:55:    assert aba == "Nome Estrutura"
+ATT/tests/test_legacy_robo_legs_fallback.py:64:        structure={"alias_legacy_aba": None, "name": None},
+ATT/tests/test_legacy_robo_legs_fallback.py:70:    assert meta["legacy_aba"] is None
+ATT/tests/test_legacy_robo_legs_fallback.py:78:        structure={"alias_legacy_aba": "ABA1", "name": "Nome"},
+ATT/tests/test_legacy_robo_legs_fallback.py:83:    assert meta["legacy_aba"] == "ABA1"
+ATT/tests/test_legacy_robo_legs_fallback.py:105:        structure={"alias_legacy_aba": "ABA1", "name": "Nome"},
+ATT/tests/test_legacy_robo_legs_fallback.py:116:    assert meta["legacy_aba"] == "ABA1"
+ATT/tests/test_legacy_robo_legs_fallback.py:117:    assert meta["legacy_key_source"] == "alias_legacy_aba"
+ATT/tests/test_legacy_structure_legs_importer.py:18:            alias_legacy_aba TEXT,
+ATT/tests/test_legacy_structure_legs_importer.py:57:            id, name, underlying_asset, alias_legacy_aba,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:21:            alias_legacy_aba TEXT,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:52:            aba TEXT,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:67:            aba TEXT,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:91:            id, name, underlying_asset, alias_legacy_aba,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:133:            id, aba, timestamp, cv, call_put,
+ATT/tests/test_legacy_structure_legs_importer_integration.py:152:            id, aba, timestamp, cv, call_put,
+ATT/tests/test_legacy_structure_legs_reader.py:121:            alias_legacy_aba TEXT,
+ATT/tests/test_legacy_structure_legs_reader.py:129:            aba TEXT,
+ATT/tests/test_legacy_structure_legs_reader.py:144:            aba TEXT,
+ATT/tests/test_legacy_structure_legs_reader.py:175:        (id, name, underlying_asset, alias_legacy_aba, status)
+ATT/tests/test_legacy_structure_legs_reader.py:181:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_legacy_structure_legs_reader.py:238:        (id, name, underlying_asset, alias_legacy_aba, status)
+ATT/tests/test_legacy_structure_legs_reader.py:251:        match=r"structure_id=123 sem alias_legacy_aba em structures",
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:13:            aba TEXT,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:70:            aba,
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:183:    assert leg.aba == "BOVA11"
+ATT/tests/test_market_snapshot_selector.py:42:    result = selector.select(aba="BOVA11")
+ATT/tests/test_market_snapshot_selector.py:44:    assert result.aba == "BOVA11"
+ATT/tests/test_market_snapshot_selector.py:63:    result = selector.select(aba="BOVA11")
+ATT/tests/test_market_snapshot_selector.py:65:    assert result.aba == "BOVA11"
+ATT/tests/test_payoff_chart.py:395:        dd  = {"structure_id": "strangle_X", "aba": "old_aba", "decision": "BUY"}
+ATT/tests/test_payoff_chart.py:400:    def test_title_fallback_to_aba(self):
+ATT/tests/test_payoff_chart.py:402:        dd  = {"aba": "straddle_Y", "decision": "SELL"}
+ATT/tests/test_pricing_payload_adapter.py:7:    def test_should_not_include_alias_legacy_aba_in_pricing_payload(self):
+ATT/tests/test_pricing_payload_adapter.py:13:                "alias_legacy_aba": "BOVA11",
+ATT/tests/test_pricing_payload_adapter.py:39:        self.assertNotIn("alias_legacy_aba", payload)
+ATT/tests/test_robo_legs_repository.py:13:            aba TEXT,
+ATT/tests/test_robo_legs_repository.py:27:            aba TEXT,
+ATT/tests/test_robo_legs_repository.py:50:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:55:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:66:    assert legs[0].aba == "AB1"
+ATT/tests/test_robo_legs_repository.py:80:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:104:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:124:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:129:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:134:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:154:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_repository.py:159:        (id, aba, timestamp, cv, call_put, strike, quant, ativo, vencimento, preco)
+ATT/tests/test_robo_legs_service.py:13:    def get_legs(self, aba, timestamp):
+ATT/tests/test_robo_legs_service.py:19:        aba="BOVA11",
+ATT/tests/test_robo_legs_service.py:52:        aba="BOVA11",
+ATT/tests/test_robo_legs_service.py:65:    with pytest.raises(ValueError, match=r"Legs inválidas: invalid_cv field=cv aba=BOVA11"):
+ATT/tests/test_robo_legs_status_repository.py:14:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+ATT/tests/test_robo_legs_status_repository.py:15:    conn.execute("CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)")
+ATT/tests/test_robo_legs_status_repository.py:18:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+ATT/tests/test_robo_legs_status_repository.py:22:        "INSERT INTO manual_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+ATT/tests/test_robo_legs_status_repository.py:26:        "INSERT INTO rtd_analise_robo_legs (aba, timestamp) VALUES (?, ?)",
+ATT/tests/test_robo_legs_status_repository.py:47:    conn.execute("CREATE TABLE manual_analise_robo_legs (aba TEXT, timestamp TEXT)")
+ATT/tests/test_robo_legs_status_repository.py:48:    conn.execute("CREATE TABLE rtd_analise_robo_legs (aba TEXT, timestamp TEXT)")
+ATT/tests/test_robo_legs_status_service.py:17:        self.last_aba = None
+ATT/tests/test_robo_legs_status_service.py:19:    def latest_timestamps(self, aba: str):
+ATT/tests/test_robo_legs_status_service.py:20:        self.last_aba = aba
+ATT/tests/test_robo_legs_status_service.py:38:    assert result.aba == "TESTE"
+ATT/tests/test_robo_legs_status_service.py:45:    assert result.reason == "no_data_for_aba"
+ATT/tests/test_robo_legs_status_service.py:58:    result = service.status("ABAX", requested, ttl_seconds=120)
+ATT/tests/test_robo_legs_status_service.py:77:    result = service.status("ABAY", requested, ttl_seconds=120)
+ATT/tests/test_robo_legs_status_service.py:96:    result = service.status("ABAZ", requested, ttl_seconds=60)
+ATT/tests/test_robo_legs_status_service.py:112:    result = service.status("ABAF", requested, ttl_seconds=60)
+ATT/tests/test_robo_legs_status_service.py:128:    result = service.status("ABAD", requested)
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:32:    def status(self, aba, requested_timestamp):
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:35:    def get_legs(self, aba, timestamp):
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:56:        "alias_legacy_aba": "BOVA11",
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:75:    assert canonical_input["meta"]["legacy_aba"] == "BOVA11"
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:76:    assert canonical_input["meta"]["legacy_key_source"] == "alias_legacy_aba"
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:77:    assert "alias_legacy_aba" not in canonical_input["structure"]
+ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:98:    assert "alias_legacy_aba" not in pricing_payload
+ATT/tests/test_structure_analysis_service.py:31:                "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structure_analysis_service.py:65:                "legacy_aba": "BOVA11",
+ATT/tests/test_structure_analysis_service.py:92:                "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structure_analysis_service.py:105:                "legacy_aba": "BOVA11",
+ATT/tests/test_structure_analysis_service.py:445:                "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structure_analysis_service.py:491:                "legacy_aba": "BOVA11",
+ATT/tests/test_structure_editor_dialog.py:154:            "alias_legacy_aba": "BOVA11", "status": "active",
+ATT/tests/test_structure_editor_dialog.py:172:            "alias_legacy_aba": None, "status": "active", "notes": None,
+ATT/tests/test_structure_editor_dialog.py:239:        self.assertEqual(structure_arg["alias_legacy_aba"], "PRIO3")
+ATT/tests/test_structure_editor_dialog.py:323:            "alias_legacy_aba": None, "status": "active", "notes": None,
+ATT/tests/test_structure_events_api.py:14:    "alias_legacy_aba": None,
+ATT/tests/test_structure_events_repository.py:31:        "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structure_input_mapper.py:4:def test_to_structure_input_should_not_expose_alias_legacy_aba():
+ATT/tests/test_structure_input_mapper.py:9:        "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structure_input_mapper.py:29:    assert "alias_legacy_aba" not in result
+ATT/tests/test_structure_market_input_assembler.py:12:            "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structures_api.py:9:  - TestCreateStructure  : alias_legacy_aba + notes opcionais; status_code correto
+ATT/tests/test_structures_api.py:33:    "alias_legacy_aba": "PETR4_TRAVA",
+ATT/tests/test_structures_api.py:159:        assert "alias_legacy_aba" in payload
+ATT/tests/test_structures_api.py:167:            "alias_legacy_aba": "PETR4_TRAVA",
+ATT/tests/test_structures_api.py:171:        assert payload["alias_legacy_aba"] == "PETR4_TRAVA"
+ATT/tests/test_structures_api.py:423:    def test_atualiza_alias_legacy_aba(self, client):
+ATT/tests/test_structures_api.py:425:        tc.patch("/structures/1", json={"alias_legacy_aba": "NOVO_ALIAS"})
+ATT/tests/test_structures_api.py:427:        assert args[1]["alias_legacy_aba"] == "NOVO_ALIAS"
+ATT/tests/test_structures_api.py:571:    def test_detail_alias_legacy_aba_presente(self, client):
+ATT/tests/test_structures_api.py:574:        assert resp.json()["alias_legacy_aba"] == "PETR4_TRAVA"
+ATT/tests/test_structures_archive_wiring.py:538:                " alias_legacy_aba TEXT, status TEXT DEFAULT 'active', "
+ATT/tests/test_structures_archive_wiring.py:575:                " alias_legacy_aba TEXT, status TEXT DEFAULT 'active', "
+ATT/tests/test_structures_legs_endpoints.py:45:    "alias_legacy_aba":  None,
+ATT/tests/test_structures_repository.py:18:        "alias_legacy_aba": "BOVA11",
+ATT/tests/test_structures_repository.py:146:    assert structure["alias_legacy_aba"] == "BOVA11"
+ATT/tests/test_system_snapshots_repository.py:18:            alias_legacy_aba,
+ATT/tests/test_ui_data_migration.py:66:# Nível 1 -- get_structures / get_abas
+ATT/tests/test_ui_data_migration.py:77:def test_get_abas_alias_de_get_structures(model, structures):
+ATT/tests/test_ui_data_migration.py:78:    assert hasattr(model, "get_abas"), "get_abas() deve existir para continuidade operacional"
+ATT/tests/test_ui_data_migration.py:79:    assert callable(model.get_abas), "get_abas() deve ser callable"
+ATT/tests/test_ui_data_migration.py:80:    assert model.get_abas() == structures, (
+ATT/tests/test_ui_data_migration.py:81:        "get_abas() deve retornar o mesmo que get_structures()"
+ATT/tests/test_ui_data_migration.py:98:def test_decisions_tem_aba(decisions):
+ATT/tests/test_ui_data_migration.py:100:        assert "aba" in d, f"Campo 'aba' desapareceu do dict: {d}"
+ATT/tests/test_ui_data_migration.py:103:def test_structure_id_igual_a_aba(decisions):
+ATT/tests/test_ui_data_migration.py:105:    migração structure_id: structure_id (int) e aba (ticker str) sao campos distintos.
+ATT/tests/test_ui_data_migration.py:106:    Verificamos que structure_id e int positivo e aba e str nao-vazia.
+ATT/tests/test_ui_data_migration.py:115:        assert isinstance(d["aba"], str) and d["aba"].strip(), (
+ATT/tests/test_ui_data_migration.py:116:            f"aba deve ser str nao-vazia: {d['aba']!r}"
+ATT/tests/test_ui_data_migration.py:146:def test_filtro_por_aba_continuidade(model, decisions):
+ATT/tests/test_ui_data_migration.py:148:    migração structure_id: filtro por 'aba' usa ticker (ex: 'SBSP3'), nao id numerico.
+ATT/tests/test_ui_data_migration.py:149:    Verificamos que filtrar por aba de uma decisao real retorna >= 1 resultado
+ATT/tests/test_ui_data_migration.py:150:    e que todos os resultados tem a aba correspondente.
+ATT/tests/test_ui_data_migration.py:153:        pytest.skip("Sem decisoes para testar filtro por aba")
+ATT/tests/test_ui_data_migration.py:154:    aba_real = decisions[0]["aba"]        # ex: 'SBSP3'
+ATT/tests/test_ui_data_migration.py:155:    filtered_aba = model.get_decisions(filters={"aba": aba_real})
+ATT/tests/test_ui_data_migration.py:156:    assert isinstance(filtered_aba, list), "Filtro aba deve retornar lista"
+ATT/tests/test_ui_data_migration.py:157:    assert len(filtered_aba) >= 1, (
+ATT/tests/test_ui_data_migration.py:158:        f"Filtro aba='{aba_real}' retornou vazio"
+ATT/tests/test_ui_data_migration.py:160:    for d in filtered_aba:
+ATT/tests/test_ui_data_migration.py:161:        assert d["aba"] == aba_real, (
+ATT/tests/test_ui_data_migration.py:162:            f"Decisao com aba errada: esperado '{aba_real}', recebido '{d['aba']}'"
+ATT/tests/test_ui_data_migration.py:183:def test_payoff_curve_info_aba_continuidade(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:186:    assert "aba" in info, "info do payoff deve ainda conter 'aba' (continuidade)"
+ATT/tests/test_ui_data_migration.py:187:    assert info["aba"] == d0["structure_id"], (
+ATT/tests/test_ui_data_migration.py:188:        f"info['aba']='{info['aba']}' != structure_id='{d0['structure_id']}'"
+UI/components/decisions_grid.py:109:            # Exibe structure_id; fallback para aba (compat)
+UI/components/decisions_grid.py:111:                decision.get("structure_id") or decision.get("aba") or "N/A"
+UI/components/decisions_grid.py:197:        Aceita tanto 'structure_id' quanto 'aba' nos dicts (compat).
+UI/components/decisions_grid.py:204:            row_sid = row.get("structure_id") or row.get("aba")
+UI/components/details_panel.py:59:        for attr in ("db_path", "_db_path", "database_path", "_database_path"):
+UI/components/details_panel.py:147:                or "database" in low_name
+UI/components/details_panel.py:169:            "_database_path",
+UI/components/details_panel.py:170:            "database_path",
+UI/components/details_panel.py:226:                "_database_path",
+UI/components/details_panel.py:227:                "database_path",
+UI/components/details_panel.py:646:        # alteracao_36: structure_id é autoritativo; aba removido
+UI/components/details_panel.py:883:        Legado aba removido.
+UI/components/details_panel.py:923:        Legado aba removido.
+UI/components/details_panel.py:951:        Legado aba removido.
+UI/components/payoff_chart.py:310:                or decision_data.get("aba", "")
+UI/components/payoff_chart.py:419:                or decision_data.get("aba", "")
+UI/components/structure_editor_dialog.py:119:            ("Aba / Alias",    self._f_alias,      "entry", None),
+UI/components/structure_editor_dialog.py:259:        self._f_alias.set(data.get("alias_legacy_aba") or "")
+UI/components/structure_editor_dialog.py:492:            "alias_legacy_aba": self._f_alias.get().strip() or None,
+UI/components/structures_list_panel.py:40:    "alias":            ("Aba/Alias", 110, "w"),
+UI/components/structures_list_panel.py:47:    """Painel esquerdo da aba Estruturas."""
+UI/components/structures_list_panel.py:182:                or term in (r.get("alias_legacy_aba") or "").lower()
+UI/components/structures_list_panel.py:197:                    row.get("alias_legacy_aba") or "--",
+UI/components/structures_list_panel.py:287:                "alias_legacy_aba": src.get("alias_legacy_aba"),
+UI/main_window.py:84:        # Painel direito: notebook com abas
+UI/main_window.py:105:        # Aba 1: Detalhes da Decisão
+UI/main_window.py:116:        # Aba 2: Gráfico de Payoff
+UI/main_window.py:123:        # Aba 3: Estruturas (Fase 5 -- alteracao_10)
+UI/main_window.py:153:        tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+UI/main_window.py:681:    def check_databases(self):
+UI/main_window.py:684:            status = self.data_model.check_database_status()
+UI/main_window.py:798:    # Aba Estruturas (Fase 5 -- alteracao_10)
+UI/main_window.py:802:        """Aba 'Estruturas' no notebook principal."""
+UI/main_window.py:848:                f"Aba legado : {structure.get('alias_legacy_aba') or '--'}",
+UI/models/ui_data.py:23:    "aba":           ["aba", "sheet", "tab"],                       # mantido para compat
+UI/models/ui_data.py:171:    #   Prioriza structure_id; cai em aba se structure_id não mapeado.
+UI/models/ui_data.py:176:        Branch aba removido -- schemas sem structure_id nao sao mais suportados.
+UI/models/ui_data.py:243:    def get_abas(self) -> list:
+UI/models/ui_data.py:244:        """Alias readonly de get_structure_ids() -- compat UI (alteracao_34:filtro_aba)."""
+UI/models/ui_data.py:271:        # patch_3a: deriva aba <-> structure_id quando coluna física ausente
+UI/models/ui_data.py:274:            "timestamp", "structure_id", "aba", "decision", "level",
+UI/models/ui_data.py:280:            elif alias == "aba":
+UI/models/ui_data.py:283:                    select_parts.append(f"CAST({sid_src} AS TEXT) AS aba")
+UI/models/ui_data.py:285:                    select_parts.append("NULL AS aba")
+UI/models/ui_data.py:287:                aba_src = c.get("aba")
+UI/models/ui_data.py:288:                if aba_src:
+UI/models/ui_data.py:290:                        f"CASE WHEN CAST({aba_src} AS TEXT) GLOB '[0-9]*' "
+UI/models/ui_data.py:291:                        f"THEN CAST({aba_src} AS INTEGER) ELSE NULL END AS structure_id"
+UI/models/ui_data.py:331:            aba_filter = filters.get("aba")
+UI/models/ui_data.py:332:            if aba_filter is not None:
+UI/models/ui_data.py:333:                where.append("t.aba = ?")
+UI/models/ui_data.py:334:                params.append(str(aba_filter))
+UI/models/ui_data.py:351:                t.timestamp, t.structure_id, t.aba, t.decision, t.level,
+UI/models/ui_data.py:370:            if item.get("structure_id") is None and item.get("aba") is not None:
+UI/models/ui_data.py:372:                    item["structure_id"] = int(item["aba"])
+UI/models/ui_data.py:376:            if item.get("aba") is None and item.get("structure_id") is not None:
+UI/models/ui_data.py:377:                item["aba"] = str(item["structure_id"])
+UI/models/ui_data.py:481:        Fallback para aba mantido para compatibilidade.
+UI/models/ui_data.py:512:                "aba": structure_id,   #  patch_3a: aba espelha structure_id (compat)
+UI/models/ui_data.py:603:                "timestamp", "structure_id", "aba", "decision", "level",
+UI/models/ui_data.py:622:    def check_database_status(self) -> str:
+domain/calculation_request.py:143:    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+domain/calculation_request.py:150:    alias_legacy_aba: Optional[str] = None
+domain/market_snapshot.py:29:    aba             : str
+domain/market_snapshot.py:61:      aba, spot, num_pernas, dte_min, pl_realista_total,
+domain/market_snapshot.py:70:    aba                : str
+domain/market_snapshot.py:101:            f"aba={self.aba!r}, "
+domain/payoff_features.py:8:Patch 24: chave de upsert migrada de (timestamp, aba)
+domain/payoff_features.py:10:          aba e timestamp mantidos como colunas opcionais de rastreabilidade.
+domain/payoff_features.py:102:    aba: Optional[str] = None,
+domain/payoff_features.py:109:    timestamp + aba                rastreabilidade opcional (legado RTD).
+domain/payoff_features.py:130:        "aba":               aba,
+domain/payoff_features.py:148:        timestamp, aba,
+domain/payoff_features.py:156:        :timestamp, :aba,
+domain/payoff_features.py:165:        aba                = excluded.aba,
+domain/payoff_features.py:187:    Patch 24: substituída chave legada (timestamp, aba)
+domain/payoff_features.py:189:              As colunas aba e timestamp permanecem na tabela como
+domain/payoff_features.py:222:                "aba":               features.get("aba"),
+repositories/_aba_resolver_mixin.py:1:# repositories/_aba_resolver_mixin.py
+repositories/_aba_resolver_mixin.py:3:AbaResolverMixin
+repositories/_aba_resolver_mixin.py:6:structure_id -> alias_legacy_aba via tabela structures (app.db).
+repositories/_aba_resolver_mixin.py:28:class AbaResolverMixin:
+repositories/_aba_resolver_mixin.py:30:    Fornece _resolve_aba_from_structure_id() de forma centralizada.
+repositories/_aba_resolver_mixin.py:47:    def _resolve_aba_from_structure_id(
+repositories/_aba_resolver_mixin.py:52:        Resolve structure_id -> alias_legacy_aba via tabela structures.
+repositories/_aba_resolver_mixin.py:55:            str   -- alias_legacy_aba quando encontrado e não-vazio
+repositories/_aba_resolver_mixin.py:63:                "_resolve_aba_from_structure_id: structure_id=None, retornando None"
+repositories/_aba_resolver_mixin.py:68:            SELECT alias_legacy_aba
+repositories/_aba_resolver_mixin.py:71:               AND alias_legacy_aba IS NOT NULL
+repositories/_aba_resolver_mixin.py:72:               AND alias_legacy_aba != ''
+repositories/_aba_resolver_mixin.py:79:            result = row["alias_legacy_aba"] if row else None
+repositories/_aba_resolver_mixin.py:83:                    "_resolve_aba_from_structure_id: structure_id=%s "
+repositories/_aba_resolver_mixin.py:84:                    "sem alias_legacy_aba em structures",
+repositories/_aba_resolver_mixin.py:91:                "_resolve_aba_from_structure_id falhou para structure_id=%s",
+repositories/market_snapshot_repository.py:35:        aba,
+repositories/market_snapshot_repository.py:55:    WHERE aba = ?
+repositories/market_snapshot_repository.py:62:        aba,
+repositories/market_snapshot_repository.py:84:    WHERE aba = ?
+repositories/market_snapshot_repository.py:90:        aba,
+repositories/market_snapshot_repository.py:103:    WHERE aba = ?
+repositories/market_snapshot_repository.py:111:def _ref_to_aba(ref: StructureRef | str) -> str:
+repositories/market_snapshot_repository.py:112:    """Aceita StructureRef ou str e devolve a string da aba."""
+repositories/market_snapshot_repository.py:114:        if ref.aba:
+repositories/market_snapshot_repository.py:115:            return str(ref.aba)
+repositories/market_snapshot_repository.py:116:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+repositories/market_snapshot_repository.py:166:        aba=row["aba"],
+repositories/market_snapshot_repository.py:217:        aba=base_leg.aba,
+repositories/market_snapshot_repository.py:254:      get_rtd_legs(aba)                -> lista de LegMarketSnapshot source=RTD
+repositories/market_snapshot_repository.py:255:      get_rtd_option_quote_legs(aba)   -> lista enriquecida source=rtd_option_quotes
+repositories/market_snapshot_repository.py:256:      get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+repositories/market_snapshot_repository.py:257:      get_rtd_summary(aba)             -> dict com cabecalho RTD ou None
+repositories/market_snapshot_repository.py:258:      get_structure(aba)               -> StructureMarketSnapshot completo
+repositories/market_snapshot_repository.py:274:        aba = _ref_to_aba(ref)
+repositories/market_snapshot_repository.py:276:            rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
+repositories/market_snapshot_repository.py:350:        aba = _ref_to_aba(ref)
+repositories/market_snapshot_repository.py:352:            row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
+repositories/market_snapshot_repository.py:360:        aba = _ref_to_aba(ref)
+repositories/market_snapshot_repository.py:362:            rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
+repositories/market_snapshot_repository.py:372:        aba = _ref_to_aba(ref)
+repositories/market_snapshot_repository.py:389:            aba=aba,
+repositories/robo_legs_repository.py:4:alteracao_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
+repositories/robo_legs_repository.py:16:from repositories._aba_resolver_mixin import AbaResolverMixin
+repositories/robo_legs_repository.py:21:def _to_aba(ref) -> str:
+repositories/robo_legs_repository.py:22:    """Aceita StructureRef ou str e devolve a string da aba."""
+repositories/robo_legs_repository.py:25:    return ref.aba  # StructureRef.aba (alteracao_53)
+repositories/robo_legs_repository.py:33:class RoboLegsRepository(AbaResolverMixin):
+repositories/robo_legs_repository.py:35:    Leitura canônica por (aba, timestamp) com regra:
+repositories/robo_legs_repository.py:46:    alteracao_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
+repositories/robo_legs_repository.py:55:        Retorna legs para uma aba e um timestamp exatos.
+repositories/robo_legs_repository.py:59:        aba = _to_aba(ref)
+repositories/robo_legs_repository.py:65:            aba=aba,
+repositories/robo_legs_repository.py:74:            aba=aba,
+repositories/robo_legs_repository.py:81:        aba = _to_aba(ref)
+repositories/robo_legs_repository.py:89:            WHERE aba = ?
+repositories/robo_legs_repository.py:95:            cur = conn.execute(sql, (aba, *ts_candidates))
+repositories/robo_legs_repository.py:103:        """Lista timestamps disponíveis para a aba."""
+repositories/robo_legs_repository.py:104:        aba = _to_aba(ref)
+repositories/robo_legs_repository.py:110:                    SELECT timestamp FROM manual_analise_robo_legs WHERE aba = ?
+repositories/robo_legs_repository.py:112:                    SELECT timestamp FROM rtd_analise_robo_legs WHERE aba = ?
+repositories/robo_legs_repository.py:115:                    (aba, aba),
+repositories/robo_legs_repository.py:121:                "WHERE aba = ? ORDER BY timestamp",
+repositories/robo_legs_repository.py:122:                (aba,),
+repositories/robo_legs_repository.py:129:                "WHERE aba = ? ORDER BY timestamp",
+repositories/robo_legs_repository.py:130:                (aba,),
+repositories/robo_legs_repository.py:137:        aba: str,
+repositories/robo_legs_repository.py:145:            WHERE aba = ?
+repositories/robo_legs_repository.py:150:            rows = conn.execute(sql, (aba, *ts_candidates)).fetchall()
+repositories/robo_legs_repository.py:167:        aba       = pick("aba")
+repositories/robo_legs_repository.py:186:            aba=str(aba).strip(),
+repositories/robo_legs_repository.py:232:    # alteracao_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
+repositories/robo_legs_repository.py:241:        Ponto de entrada canônico: recebe structure_id, resolve para aba,
+repositories/robo_legs_repository.py:245:        aba = self._resolve_aba_from_structure_id(structure_id)
+repositories/robo_legs_repository.py:246:        if aba is None:
+repositories/robo_legs_repository.py:248:                f"structure_id={structure_id} sem alias_legacy_aba em structures"
+repositories/robo_legs_repository.py:251:        ref = StructureRef(aba=aba, structure_id=structure_id)
+repositories/robo_legs_repository.py:260:        aba = self._resolve_aba_from_structure_id(structure_id)
+repositories/robo_legs_repository.py:261:        if aba is None:
+repositories/robo_legs_repository.py:264:            ref=StructureRef(aba=aba, structure_id=structure_id),
+repositories/robo_legs_repository.py:274:        aba = self._resolve_aba_from_structure_id(structure_id)
+repositories/robo_legs_repository.py:275:        if aba is None:
+repositories/robo_legs_repository.py:277:                f"structure_id={structure_id} sem alias_legacy_aba em structures"
+repositories/robo_legs_repository.py:280:            ref=StructureRef(aba=aba, structure_id=structure_id),
+repositories/robo_legs_status_repository.py:4:alteracao_62 -- _resolve_aba_from_structure_id movido para AbaResolverMixin
+repositories/robo_legs_status_repository.py:14:from repositories._aba_resolver_mixin import AbaResolverMixin
+repositories/robo_legs_status_repository.py:19:def _to_aba(ref) -> str:
+repositories/robo_legs_status_repository.py:20:    """Aceita StructureRef ou str e devolve a string da aba."""
+repositories/robo_legs_status_repository.py:23:    return ref.aba
+repositories/robo_legs_status_repository.py:31:class RoboLegsStatusRepository(AbaResolverMixin):
+repositories/robo_legs_status_repository.py:35:    alteracao_62: herda AbaResolverMixin -- _resolve_aba_from_structure_id
+repositories/robo_legs_status_repository.py:47:        Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
+repositories/robo_legs_status_repository.py:50:        aba = _to_aba(ref)
+repositories/robo_legs_status_repository.py:53:                "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
+repositories/robo_legs_status_repository.py:54:                (aba,),
+repositories/robo_legs_status_repository.py:57:                "SELECT MAX(timestamp) AS ts FROM rtd_analise_robo_legs WHERE aba = ?",
+repositories/robo_legs_status_repository.py:58:                (aba,),
+repositories/robo_legs_status_repository.py:67:    # alteracao_62: _resolve_aba_from_structure_id herdado de AbaResolverMixin#
+repositories/robo_legs_status_repository.py:78:        aba = self._resolve_aba_from_structure_id(structure_id)
+repositories/robo_legs_status_repository.py:79:        if aba is None:
+repositories/robo_legs_status_repository.py:82:            ref=StructureRef(aba=aba, structure_id=structure_id),
+repositories/rtd_option_quotes_repository.py:14:    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
+repositories/structures_repository.py:63:    alias_legacy_aba = data.get("alias_legacy_aba")
+repositories/structures_repository.py:76:    if alias_legacy_aba is not None:
+repositories/structures_repository.py:77:        alias_legacy_aba = str(alias_legacy_aba).strip() or None
+repositories/structures_repository.py:85:        "alias_legacy_aba": alias_legacy_aba,
+repositories/structures_repository.py:315:                    name, underlying_asset, alias_legacy_aba,
+repositories/structures_repository.py:321:                    payload["alias_legacy_aba"], payload["status"],
+repositories/structures_repository.py:369:                    name, underlying_asset, alias_legacy_aba,
+repositories/structures_repository.py:376:                    payload["alias_legacy_aba"],
+repositories/structures_repository.py:452:            SELECT id, name, underlying_asset, alias_legacy_aba,
+repositories/structures_repository.py:476:                SELECT id, name, underlying_asset, alias_legacy_aba,
+repositories/structures_repository.py:507:            "alias_legacy_aba": data.get("alias_legacy_aba", current["alias_legacy_aba"]),
+repositories/structures_repository.py:519:                SET name=?, underlying_asset=?, alias_legacy_aba=?,
+repositories/structures_repository.py:525:                    payload["alias_legacy_aba"], payload["status"],
+repositories/structures_repository.py:713:                SELECT id, name, underlying_asset, alias_legacy_aba,
+repositories/structures_repository.py:716:                WHERE alias_legacy_aba = ? AND status = 'active'
+services/calculation_orchestrator.py:90:        alias_legacy_aba=structure_row.get("alias_legacy_aba"),
+services/calculation_orchestrator.py:282:            alias_legacy_aba=structure_dict.get("alias_legacy_aba"),
+services/calculation_orchestrator.py:467:            "alias_legacy_aba": structure.get("alias_legacy_aba"),
+services/canonical_input_service.py:19:    "aba":                str | None,
+services/canonical_input_service.py:102:            "alias_legacy_aba":  self._clean_text(structure.get("alias_legacy_aba")),
+services/canonical_input_service.py:150:        Se o selector estiver injetado E alias_legacy_aba existir, substitui as
+services/canonical_input_service.py:154:        aba              = structure.get("alias_legacy_aba")
+services/canonical_input_service.py:163:        if self.market_snapshot_selector is not None and aba:
+services/canonical_input_service.py:164:            ref = StructureRef.from_aba(aba)
+services/canonical_input_service.py:176:            "aba":  aba,
+services/canonical_input_service.py:201:        aba_str = ref.aba
+services/canonical_input_service.py:202:        result = self.market_snapshot_selector.select(aba_str)
+services/canonical_input_service.py:207:                "aba":              leg.aba,
+services/canonical_input_service.py:243:            "snapshot_aba":     aba_str,
+services/canonical_input_service.py:268:        legacy_aba: str | None = None,
+services/canonical_input_service.py:274:        if legacy_aba        is not None: meta["legacy_aba"]        = legacy_aba
+services/canonical_input_service.py:324:                    "legacy_aba":        fallback_meta.get("legacy_aba"),
+services/canonical_pricing_facade.py:9:  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+services/canonical_pricing_facade.py:10:      busca alias_legacy_aba E underlying_asset em uma única query.
+services/canonical_pricing_facade.py:12:      elimina uso de selection_result.aba como underlying_asset
+services/canonical_pricing_facade.py:13:      (aba legada  ativo subjacente real).
+services/canonical_pricing_facade.py:17:  C1: sel.select(aba=...) -- parâmetro correto
+services/canonical_pricing_facade.py:18:  C2: alias_legacy_aba buscado via query antes de chamar o selector
+services/canonical_pricing_facade.py:43:#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+services/canonical_pricing_facade.py:47:    Retorna (alias_legacy_aba, underlying_asset) para a estrutura.
+services/canonical_pricing_facade.py:51:      - alias_legacy_aba for nulo (sem aba legada mapeada)
+services/canonical_pricing_facade.py:56:            "SELECT alias_legacy_aba, underlying_asset FROM structures WHERE id = ?",
+services/canonical_pricing_facade.py:63:    aba = row["alias_legacy_aba"]
+services/canonical_pricing_facade.py:64:    if not aba:
+services/canonical_pricing_facade.py:65:        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+services/canonical_pricing_facade.py:69:    return aba, underlying_asset
+services/canonical_pricing_facade.py:72:#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+services/canonical_pricing_facade.py:156:        "aba",
+services/canonical_pricing_facade.py:314:            "snapshot_aba":     selection_result.aba,
+services/canonical_pricing_facade.py:326:             alias_legacy_aba + underlying_asset  (query em structures)
+services/canonical_pricing_facade.py:327:                     MarketSnapshotSelector.select(aba=...)
+services/canonical_pricing_facade.py:362:            #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
+services/canonical_pricing_facade.py:365:            #   structures.alias_legacy_aba NULL -> PricingInputService.build_pricing_payload().
+services/canonical_pricing_facade.py:369:                aba, underlying_asset = _get_structure_info(
+services/canonical_pricing_facade.py:374:                selection = self._selector.select(aba=aba)
+services/canonical_pricing_facade.py:387:                if "alias_legacy_aba is null" not in message:
+services/canonical_pricing_facade.py:421:                meta.setdefault("alias_legacy_aba", None)
+services/derived_service.py:5:alteracao_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
+services/derived_service.py:6:alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+services/derived_service.py:27:# Cache modulo-level: aba -> structure_id
+services/derived_service.py:30:_ABA_TO_STRUCTURE_ID: Dict[str, int] = {}
+services/derived_service.py:31:_ABA_CACHE_LOADED: bool = False
+services/derived_service.py:34:def _load_aba_cache() -> None:
+services/derived_service.py:35:    global _ABA_TO_STRUCTURE_ID, _ABA_CACHE_LOADED
+services/derived_service.py:39:                SELECT id, alias_legacy_aba
+services/derived_service.py:41:                WHERE alias_legacy_aba IS NOT NULL
+services/derived_service.py:42:                  AND alias_legacy_aba != ''
+services/derived_service.py:44:            _ABA_TO_STRUCTURE_ID = {row[1]: row[0] for row in cur.fetchall()}
+services/derived_service.py:46:        _ABA_TO_STRUCTURE_ID = {}
+services/derived_service.py:48:        _ABA_CACHE_LOADED = True
+services/derived_service.py:51:def _resolve_structure_id(aba: Optional[str]) -> Optional[int]:
+services/derived_service.py:52:    if not _ABA_CACHE_LOADED:
+services/derived_service.py:53:        _load_aba_cache()
+services/derived_service.py:54:    if not aba:
+services/derived_service.py:56:    return _ABA_TO_STRUCTURE_ID.get(aba)
+services/derived_service.py:59:def invalidate_aba_cache() -> None:
+services/derived_service.py:60:    global _ABA_CACHE_LOADED
+services/derived_service.py:61:    _ABA_CACHE_LOADED = False
+services/derived_service.py:81:    alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
+services/derived_service.py:82:    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+services/derived_service.py:85:        return ref.aba
+services/derived_service.py:90:    aba: Optional[str] = None,
+services/derived_service.py:95:    # 1. aba explícita tem prioridade máxima
+services/derived_service.py:96:    resolved_aba = _safe_str(aba)
+services/derived_service.py:97:    if resolved_aba:
+services/derived_service.py:98:        return resolved_aba
+services/derived_service.py:100:    # 2. structure_id → resolver alias_legacy_aba via cache (FIX alteracao_66)
+services/derived_service.py:105:            if not _ABA_CACHE_LOADED:
+services/derived_service.py:106:                _load_aba_cache()
+services/derived_service.py:107:            id_to_aba = {v: k for k, v in _ABA_TO_STRUCTURE_ID.items()}
+services/derived_service.py:108:            alias = id_to_aba.get(sid_int)
+services/derived_service.py:170:    _unwrap_ref() extrai a string aba de forma segura.
+services/derived_service.py:202:            aba=storage_key,
+services/derived_service.py:212:    aba: Optional[str] = None,
+services/derived_service.py:218:        aba=aba,
+services/derived_service.py:317:            aba=storage_key,
+services/derived_service.py:327:    aba: Optional[str] = None,
+services/derived_service.py:333:        aba=aba,
+services/derived_service.py:384:            SELECT timestamp, aba, point_spot, point_pl, meta_json
+services/derived_service.py:391:                "aba":        row[1],
+services/derived_service.py:452:            "timestamp", "aba", "decision", "level",
+services/derived_service.py:511:# alteracao_59 -- format_report + snapshot_aba (surface canônica)
+services/derived_service.py:515:    """Formata relatório de auditoria de surface ABA em texto legível."""
+services/derived_service.py:518:        aba_str = getattr(e, "aba_str", str(getattr(e, "structure_id", "")))
+services/derived_service.py:521:        lines.append(f"{sid} | {ref} | {aba_str}")
+services/derived_service.py:525:def snapshot_aba(ref: "StructureRef") -> str:
+services/derived_service.py:526:    """Retorna aba_str canônico a partir de um StructureRef."""
+services/derived_service.py:527:    aba_str = ref.aba if hasattr(ref, "aba") and ref.aba else str(ref.structure_id)
+services/derived_service.py:528:    return aba_str
+services/derived_service.py:533:# get_payoff_by_aba() removida da interface pública.
+services/derived_service.py:539:    alteracao_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
+services/derived_service.py:540:    get_payoff_by_aba() ausente por decisao de design (alteracao_65): interface simplificada.
+services/derived_service.py:543:    # alteracao_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
+services/legacy_robo_legs_fallback.py:21:        legacy_aba, key_source, fallback_reason = self._resolve_legacy_aba(structure)
+services/legacy_robo_legs_fallback.py:23:        if not legacy_aba:
+services/legacy_robo_legs_fallback.py:27:                "legacy_aba": None,
+services/legacy_robo_legs_fallback.py:36:                "legacy_aba": legacy_aba,
+services/legacy_robo_legs_fallback.py:42:            aba=legacy_aba,
+services/legacy_robo_legs_fallback.py:50:                "legacy_aba": legacy_aba,
+services/legacy_robo_legs_fallback.py:56:            aba=legacy_aba,
+services/legacy_robo_legs_fallback.py:64:                "legacy_aba": legacy_aba,
+services/legacy_robo_legs_fallback.py:79:                "legacy_aba": legacy_aba,
+services/legacy_robo_legs_fallback.py:87:            "legacy_aba": legacy_aba,
+services/legacy_robo_legs_fallback.py:92:    def _resolve_legacy_aba(
+services/legacy_robo_legs_fallback.py:96:        alias_legacy_aba = self._clean_text(structure.get("alias_legacy_aba"))
+services/legacy_robo_legs_fallback.py:97:        if alias_legacy_aba:
+services/legacy_robo_legs_fallback.py:98:            return alias_legacy_aba, "alias_legacy_aba", None
+services/legacy_robo_legs_fallback.py:111:        aba: str,
+services/legacy_robo_legs_fallback.py:129:                    return method(aba=aba, reference_date=reference_date)
+services/legacy_robo_legs_fallback.py:132:                        return method(aba, reference_date)
+services/legacy_robo_legs_fallback.py:147:                    status = method(aba=aba, requested_timestamp=reference_date)
+services/legacy_robo_legs_fallback.py:150:                        status = method(aba, reference_date)
+services/legacy_robo_legs_fallback.py:170:        aba: str,
+services/legacy_robo_legs_fallback.py:187:                    result = method(aba=aba, timestamp=reference_timestamp)
+services/legacy_robo_legs_fallback.py:190:                        result = method(aba, reference_timestamp)
+services/legacy_structure_legs_reader.py:15:      - resolver alias_legacy_aba via RoboLegsRepository;
+services/legacy_structure_legs_reader.py:21:      structures.alias_legacy_aba -> *_analise_robo_legs.aba
+services/market_snapshot_selector.py:5:Para cada aba:
+services/market_snapshot_selector.py:22:def _ref_to_aba(ref: StructureRef | str) -> str:
+services/market_snapshot_selector.py:23:    """Aceita StructureRef ou str e devolve a string da aba."""
+services/market_snapshot_selector.py:25:        if ref.aba:
+services/market_snapshot_selector.py:26:            return str(ref.aba)
+services/market_snapshot_selector.py:27:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+services/market_snapshot_selector.py:33:    """Resultado da seleção de snapshots para uma aba."""
+services/market_snapshot_selector.py:35:    aba: str
+services/market_snapshot_selector.py:57:        aba: str | None = None,
+services/market_snapshot_selector.py:65:          - select(aba="SMAL11")
+services/market_snapshot_selector.py:68:        if ref is None and aba is None:
+services/market_snapshot_selector.py:69:            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+services/market_snapshot_selector.py:71:        effective_ref: StructureRef | str = ref if ref is not None else aba
+services/market_snapshot_selector.py:72:        aba_str = _ref_to_aba(effective_ref)
+services/market_snapshot_selector.py:132:            aba=aba_str,
+services/robo_legs_service.py:7:  - get_legs(): parametro renomeado para ref: StructureRef; aba extraida de ref
+services/robo_legs_service.py:9:  get_legs(aba, timestamp).
+services/robo_legs_service.py:39:        Aceita StructureRef ou string de aba. Primeiro tenta a API nova
+services/robo_legs_service.py:41:        get_legs(aba, timestamp).
+services/robo_legs_service.py:43:        aba = ref.aba if isinstance(ref, StructureRef) else str(ref)
+services/robo_legs_service.py:50:            legs = self.repo.get_legs(aba, timestamp)
+services/robo_legs_service.py:57:                    f"Legs inválidas: {first.code} field={first.field} aba={aba}"
+services/robo_legs_status_service.py:5:patch_compat -- compatibilidade com status_repo.latest_timestamps(aba)
+services/robo_legs_status_service.py:60:            aba = ref
+services/robo_legs_status_service.py:62:            aba = getattr(ref, "aba", None) or str(ref)
+services/robo_legs_status_service.py:69:            manual_latest, rtd_latest = self.status_repo.latest_timestamps(aba)
+services/robo_legs_status_service.py:79:                aba=aba,
+services/robo_legs_status_service.py:87:                reason="no_data_for_aba",
+services/robo_legs_status_service.py:100:            aba=aba,
+
+## Pontos com possivel comportamento incompleto
+ATT/tests/conftest.py:37:    #  Aceita qualquer metodo via __getattr__ retornando um callable noop  #
+ATT/tests/conftest.py:43:        # metodos comuns explícitos
+ATT/tests/conftest.py:106:        #  CATCH-ALL: qualquer outro metodo desconhecido retorna noop      #
+ATT/tests/test_orchestrator_run_methods.py:2:Testes para os métodos run_payoff e run_decision
+ATT/tests/test_payoff_chart.py:33:# Stub de módulos que exigem display ou infra real
+ATT/tests/test_payoff_chart.py:35:_STUBS = {
+ATT/tests/test_payoff_chart.py:44:for _mod, _stub in _STUBS.items():
+ATT/tests/test_payoff_chart.py:45:    sys.modules.setdefault(_mod, _stub)
+ATT/tests/test_payoff_chart.py:50:# Importa DEPOIS dos stubs
+ATT/tests/test_pricing_execution_orchestration_service.py:38:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:54:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:77:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:89:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:102:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:122:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:134:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:147:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:211:            "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:286:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:299:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:323:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:336:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:360:                "engine": "stub",
+ATT/tests/test_pricing_execution_persistence_service.py:371:            "execution_engine": "stub",
+ATT/tests/test_pricing_execution_query_service.py:24:    execution_engine: str = "stub-engine",
+ATT/tests/test_pricing_execution_service.py:36:        "engine": "stub",
+ATT/tests/test_pricing_execution_service.py:72:        "engine": "stub",
+ATT/tests/test_pricing_executions_repository.py:47:            "engine": "stub",
+ATT/tests/test_pricing_executions_repository.py:56:        execution_engine="stub",
+ATT/tests/test_pricing_executions_repository.py:68:    assert record["execution_engine"] == "stub"
+ATT/tests/test_pricing_executions_repository.py:83:            "engine": "stub",
+ATT/tests/test_pricing_executions_repository.py:92:        execution_engine="stub",
+ATT/tests/test_structure_editor_dialog.py:37:    Mocka metodos modais herdados de tk.Toplevel.
+ATT/tests/test_structure_editor_dialog.py:388:        for metodo in ("_cmd_save", "_load_existing", "_build_legs_payload", "_build_ui"):
+ATT/tests/test_structure_editor_dialog.py:390:                hasattr(StructureEditorDialog, metodo),
+ATT/tests/test_structure_editor_dialog.py:391:                f"{metodo} ausente em StructureEditorDialog"
+ATT/tests/test_structure_editor_integration.py:18:# Stubs de tkinter + matplotlib
+ATT/tests/test_structure_editor_integration.py:21:def _inject_stubs():
+ATT/tests/test_structure_editor_integration.py:101:        """Stub genérico para widgets Tk — absorve pack/grid/bind/etc."""
+ATT/tests/test_structure_editor_integration.py:123:        Stub de tk.Toplevel.
+ATT/tests/test_structure_editor_integration.py:171:    # Matplotlib stubs (inalterado)
+ATT/tests/test_structure_editor_integration.py:214:    _mpl_stub = sys.modules["matplotlib"]
+ATT/tests/test_structure_editor_integration.py:215:    _mpl_stub.use             = MagicMock()
+ATT/tests/test_structure_editor_integration.py:216:    _mpl_stub.rcParams        = {}
+ATT/tests/test_structure_editor_integration.py:217:    _mpl_stub.rcParamsDefault = {}
+ATT/tests/test_structure_editor_integration.py:218:    _mpl_stub.get_backend     = MagicMock(return_value="TkAgg")
+ATT/tests/test_structure_editor_integration.py:219:    _mpl_stub.is_interactive  = MagicMock(return_value=False)
+ATT/tests/test_structure_editor_integration.py:246:_inject_stubs()
+ATT/tests/test_structure_editor_integration.py:261:    _inject_stubs()
+ATT/tests/test_structure_editor_integration.py:270:    _inject_stubs()
+ATT/tests/test_structure_editor_integration.py:356:    def test_main_window_tem_metodo_on_structure_edit_request(self):
+ATT/tests/test_structures_archive_wiring.py:7:Todos os testes que dependem de Tkinter real estao marcados com
+ATT/tests/test_structures_archive_wiring.py:54:    def test_metodo_on_archive_request_existe(self):
+ATT/tests/test_structures_archive_wiring.py:55:        # _cmd_archive é o método de arquivo no painel
+ATT/tests/test_structures_archive_wiring.py:58:    def test_metodo_set_status_existe(self):
+ATT/tests/test_structures_archive_wiring.py:62:    def test_metodo_load_existe(self):
+ATT/tests/test_structures_archive_wiring.py:182:    Apenas os atributos e metodos usados em _cmd_archive sao simulados.
+ATT/tests/test_structures_archive_wiring.py:195:    # Importa o metodo real e vincula ao objeto fake
+ATT/tests/test_structures_archive_wiring.py:198:    # Garante que tkinter nao seja chamado -- substitui por stubs antes do import
+ATT/tests/test_structures_archive_wiring.py:211:    stubs = {
+ATT/tests/test_structures_archive_wiring.py:216:    for name, stub in stubs.items():
+ATT/tests/test_structures_archive_wiring.py:218:        _sys.modules[name] = stub
+ATT/tests/test_structures_archive_wiring.py:220:    # Stub para StructuresRepository
+ATT/tests/test_structures_archive_wiring.py:229:        # Remove cache do modulo para recarregar com stubs
+ATT/tests/test_structures_archive_wiring.py:236:        panel._askyesno_stub = _fake_mb.askyesno
+ATT/tests/test_structures_archive_wiring.py:237:        panel._showerror_stub = _fake_mb.showerror
+ATT/tests/test_structures_archive_wiring.py:238:        panel._showwarning_stub = _fake_mb.showwarning
+ATT/tests/test_structures_archive_wiring.py:239:        panel._showinfo_stub = _fake_mb.showinfo
+ATT/tests/test_structures_archive_wiring.py:370:        self.panel._showwarning_stub.assert_called()
+ATT/tests/test_structures_archive_wiring.py:391:        self.panel._showinfo_stub.assert_called()
+ATT/tests/test_structures_archive_wiring.py:411:        # Importa e vincula o metodo real
+ATT/tests/test_structures_archive_wiring.py:423:        stubs = {
+ATT/tests/test_structures_archive_wiring.py:429:        for k, v in stubs.items():
+ATT/tests/test_structures_archive_wiring.py:478:        stubs = {
+ATT/tests/test_structures_archive_wiring.py:484:        for k, v in stubs.items():
+ATT/tests/test_ui_data_migration.py:150:    e que todos os resultados tem a aba correspondente.
+UI/components/details_panel.py:821:        A UI atualmente não usa HTTP. Por isso este método usa diretamente
+UI/components/filters_panel.py:152:        """Atualiza lista de estruturas no combo (novo método)."""
+UI/components/structure_editor_dialog.py:25:    _cmd_save()     metodo que executa a logica de salvar
+UI/components/structure_editor_dialog.py:28:    _build_ui()     constroi todos os widgets
+UI/components/structures_list_panel.py:311:        alteracao_72: _on_archive_request e alias publico para este metodo.
+UI/models/ui_data.py:59:        # alteracao_36_E: self._conn REMOVIDO -- cada metodo abre sua propria conexao
+UI/models/ui_data.py:238:        """alteracao_34: metodo canonico. Substitui get_structures()."""
+domain/market_snapshot.py:60:    Atributos do cabeçalho (todos opcionais -- podem vir de RTD ou manual):
+repositories/_aba_resolver_mixin.py:16:    alteracao_40 -- método criado em robo_legs_repository e robo_legs_status_repository
+repositories/market_snapshot_repository.py:253:    Metodos:
+repositories/market_snapshot_repository.py:299:        placeholders = ", ".join("?" for _ in ativos)
+repositories/market_snapshot_repository.py:322:            WHERE UPPER(codigo_opcao) IN ({placeholders})
+repositories/pricing_executions_repository.py:235:                    "Passe cur.description ao chamar este método."
+repositories/robo_legs_repository.py:3:alteracao_40 -- métodos canônicos por structure_id adicionados
+repositories/robo_legs_repository.py:85:        placeholders = ",".join("?" for _ in ts_candidates)
+repositories/robo_legs_repository.py:90:              AND timestamp IN ({placeholders})
+repositories/robo_legs_repository.py:141:        placeholders = ",".join("?" for _ in ts_candidates)
+repositories/robo_legs_repository.py:146:              AND timestamp IN ({placeholders})
+repositories/robo_legs_repository.py:231:    # alteracao_40: métodos canônicos por structure_id                        #
+repositories/robo_legs_status_repository.py:3:alteracao_40 -- método canônico por structure_id adicionado
+repositories/robo_legs_status_repository.py:66:    # alteracao_40: método canônico por structure_id                          #
+repositories/structures_repository.py:10:          _log_action() interno; atomico na mesma transacao do metodo.
+repositories/structures_repository.py:276:        Deve ser chamado ANTES do conn.commit() do metodo pai para garantir
+services/canonical_input_service.py:198:        Serialização cobre todos os campos de LegMarketSnapshot para que
+services/market_snapshot_selector.py:105:        todos_ativos = sorted(
+services/market_snapshot_selector.py:114:        for ativo in todos_ativos:
+services/payoff_pricing_engine.py:12:    - substituir o motor stub no fluxo real;
+services/pricing_execution_app_service.py:8:  - Todos os métodos de query (list, get, paginate, latest) inalterados
+services/structure_analysis_service.py:95:        # 8. Computa decisão -- passa TODOS os parâmetros como keyword
+
+## Testes focalizados recomendados para ciclo vermelho-verde
+
+Fase 3:
+python -m pytest \
+  ATT/tests/test_structure_leg_rtd_enrichment_service.py \
+  ATT/tests/test_structure_input_mapper.py \
+  ATT/tests/test_canonical_pricing_facade_manual_without_alias.py \
+  ATT/tests/test_derived_service.py \
+  ATT/tests/test_pricing_execution_persistence_service.py \
+  ATT/tests/test_structure_analysis_service.py \
+  -q
+
+Fase 4:
+python -m pytest ATT/tests -k "payoff or decision or decisao or decisoes" -q
+
+Sanidade:
+python -m compileall repositories services domain UI ATT/tests
+
