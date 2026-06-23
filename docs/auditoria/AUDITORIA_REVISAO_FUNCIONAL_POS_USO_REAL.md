@@ -134,3 +134,23 @@ Pendência restante:
 
 Inventariar banco de dados e executar reprodução controlada em sistema funcionando.
 
+
+## Registro de auditoria - 2026-06-23 - Restauracao documental da rota
+
+Data da execucao: 2026-06-23
+Branch usada: reinicio-normalizacao-idioma-ptbr
+Commit base: b48423e
+Problema testado: ausencia dos documentos Marco 0 e Marco 2 da nova rota funcional pos uso real
+Evidencia observada: arquivo de auditoria existente, arquivo da rota ausente e plano de execucao ausente
+Arquivos analisados:
+  - docs/rotas/NOVA_ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+  - docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+  - docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_PLANO_EXECUCAO.md
+Alteracao feita: recriados os documentos da rota e do plano operacional conforme documento base da revisao funcional pos uso real
+Teste executado:
+  - ls docs/rotas/NOVA_ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+  - ls docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+  - ls docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_PLANO_EXECUCAO.md
+Resultado: pendente de validacao Git
+Commit gerado: pendente
+Pendencia restante: validar diff, commitar restauracao documental e somente depois avancar para nova fase funcional
