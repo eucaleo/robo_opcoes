@@ -9,7 +9,7 @@ class PayoffPricingEngine:
     Motor financeiro inicial baseado na curva de payoff canônica.
 
     Objetivo:
-    - substituir o PricingEngineStub no fluxo real;
+    - substituir o motor stub no fluxo real;
     - manter o contrato de saída esperado por PricingExecutionService;
     - gerar métricas financeiras não nulas quando houver dados suficientes;
     - não depender ainda de Black-Scholes.
