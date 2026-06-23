@@ -94,3 +94,7 @@ ATT/checks/__pycache__/
 ATT/checks/**/__pycache__/
 ATT/checks/**/*.pyc
 ATT/checks/**/*.pyo
+# Backups locais de desenvolvimento
+*.bak
+*.fix*.bak
+*.fase*.bak
