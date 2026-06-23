@@ -152,5 +152,5 @@ Teste executado:
   - ls docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md
   - ls docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_PLANO_EXECUCAO.md
 Resultado: pendente de validacao Git
-Commit gerado: pendente
-Pendencia restante: validar diff, commitar restauracao documental e somente depois avancar para nova fase funcional
+Commit gerado: 2b593ed
+Pendencia restante: avancar para investigacao funcional de recalculo, snapshot e metricas financeiras
