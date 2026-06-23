@@ -456,7 +456,7 @@ class CanonicalPricingFacade:
             try:
                 self._persister.persist_execution(
                     pricing_payload=None,
-                    result={"engine": "stub", "status": "error", "error_message": error_message},
+                    result={"engine": "payoff_pricing_engine", "status": "error", "error_message": error_message},
                     duration_ms=duration_ms,
                     error_message=error_message,
                 )

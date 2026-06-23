@@ -1,6 +1,6 @@
 from typing import Any
 
-from services.pricing_engine_stub import PricingEngineStub
+from services.payoff_pricing_engine import PayoffPricingEngine
 from services.pricing_input_service import PricingInputService
 
 
@@ -8,10 +8,10 @@ class PricingExecutionService:
     def __init__(
         self,
         pricing_input_service: PricingInputService | None = None,
-        pricing_engine: PricingEngineStub | None = None,
+        pricing_engine: PayoffPricingEngine | None = None,
     ):
         self.pricing_input_service = pricing_input_service or PricingInputService()
-        self.pricing_engine = pricing_engine or PricingEngineStub()
+        self.pricing_engine = pricing_engine or PayoffPricingEngine()
 
     def execute(
         self,

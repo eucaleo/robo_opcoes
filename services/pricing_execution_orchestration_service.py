@@ -61,7 +61,7 @@ class PricingExecutionOrchestrationService:
             result = {
                 "pricing_payload": None,
                 "result": {
-                    "engine": "stub",
+                    "engine": "payoff_pricing_engine",
                     "status": "error",
                     "error_message": error_message,
                 },
