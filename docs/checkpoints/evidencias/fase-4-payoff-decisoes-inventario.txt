@@ -1,0 +1,311 @@
+# Inventario Fase 4 - Payoff e decisoes
+
+## Arquivos localizados
+./ATT/tests/test_decision.py
+./ATT/tests/test_payoff_canonical.py
+./ATT/tests/test_payoff_chart.py
+./ATT/tests/test_payoff_pricing_engine.py
+./ATT/tests/test_structure_analysis_service.py
+./create_payoff_summary_table.py
+./db/migrations/add_structure_id_to_payoff_curve_points.py
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt
+./docs/checkpoints/evidencias/fase-1-mapa-decisoes-runtime-codigo-atual.txt
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt
+./docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt
+./docs/checkpoints/evidencias/fase-3a-diagnostico-cadastro-payoff-decisoes.txt
+./docs/checkpoints/evidencias/fase-3a-find-arquivos-estrutura-payoff-decisoes.txt
+./docs/checkpoints/evidencias/fase-3a-gitgrep-payoff-curve-points.txt
+./docs/checkpoints/evidencias/fase-3a-gitgrep-structure-decisions.txt
+./docs/checkpoints/evidencias/fase-3a-gitls-arquivos-estrutura-payoff-decisoes.txt
+./docs/checkpoints/evidencias/fase-3a-grep-decisoes.txt
+./docs/checkpoints/evidencias/fase-3a-grep-geracao-payoff.txt
+./docs/checkpoints/evidencias/fase-3a-grep-payoff-curve-points.txt
+./docs/checkpoints/evidencias/fase-3a-grep-structure-decisions.txt
+./docs/checkpoints/evidencias/fase-3a-src-domain-decision.txt
+./docs/checkpoints/evidencias/fase-3a-src-domain-payoff.txt
+./docs/checkpoints/evidencias/fase-3a-src-structure-analysis-service-parte-1.txt
+./docs/checkpoints/evidencias/fase-3a-src-structure-analysis-service-parte-2.txt
+./docs/checkpoints/evidencias/fase-3a-test-payoff-canonical.txt
+./docs/checkpoints/evidencias/fase-3a-test-structure-analysis-service-parte-1.txt
+./docs/checkpoints/evidencias/fase-3a-test-structure-analysis-service-parte-2.txt
+./docs/checkpoints/evidencias/fase-3a2-gitgrep-structure-analysis-callers.txt
+./docs/checkpoints/evidencias/fase-3a2-src-derived-payoff-persistence.txt
+./docs/checkpoints/evidencias/fase-3a2-src-domain-payoff.txt
+./docs/checkpoints/evidencias/fase-3a2-src-payoff-persistence-port.txt
+./docs/checkpoints/evidencias/fase-3f-diagnostico-payoff-manual-canonico.txt
+./docs/checkpoints/evidencias/fase-3f-fix1-diagnostico-compute-payoff-v2.txt
+./docs/checkpoints/evidencias/fase-3f-fix1-diagnostico-compute-payoff.txt
+./docs/checkpoints/evidencias/fase-3f-fix1-inspecao-contrato-payoff.txt
+./docs/checkpoints/evidencias/fase-4-payoff-decisoes-inventario.txt
+./docs/checkpoints/evidencias/fase-6-11-decisao-ajuste-enquadramento-documento-existente.txt
+./docs/checkpoints/evidencias/fase-6-11-decisao-final-testes-rtd-historicos.txt
+./docs/decisoes/DECISAO_ATUALIZACAO_AUTOMATICA_RTD.md
+./docs/evolucoes de fases/EVOLUCAO_PRICING_PAYOFF.md
+./domain/decision.py
+./domain/payoff.py
+./domain/payoff_features.py
+./scripts/fase-3a-diagnostico-cadastro-payoff-decisoes.sh
+./scripts/fase-3f-diagnostico-payoff-manual-canonico.sh
+./scripts/fase-3f-fix1-diagnostico-compute-payoff-v2.sh
+./scripts/fase-3f-fix1-diagnostico-compute-payoff.sh
+./scripts/fase-3f-fix1-inspecao-contrato-payoff.sh
+./scripts/patch_derived_payoff_timestamp_consistency.sh
+./services/derived_payoff_persistence.py
+./services/payoff_persistence_port.py
+./services/payoff_pricing_engine.py
+./services/structure_analysis_service.py
+./UI/components/decisions_grid.py
+./UI/components/payoff_chart.py
+
+## Referencias relevantes
+docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md:94:Foram localizadas referências a Atualizar Dados, recálculo, snapshot, strike must be numeric, structure_decisions, payoff_curve_points, rtd_option_quotes, aba e alias.
+docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md:98:UI/components/decisions_grid.py
+docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md:100:UI/components/payoff_chart.py
+docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md:114:domain/payoff_features.py
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:37:          - "## Decisao"
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:67:          decisao: >
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:99:    - caminho: docs/checkpoints/evidencias/fase-6-11-decisao-ajuste-enquadramento-documento-existente.txt
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:102:        titulo: Decisao de ajuste de enquadramento no documento existente da Fase 6.11
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:109:        decisao:
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:138:    - docs/checkpoints/decisoes/fase-6-11-decisao-prosseguir-guardrail.md
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:144:      existente, acompanhado apenas de evidencia objetiva da decisao.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:16:## Fase 3F - Diagnostico payoff estrutura manual canonica
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:25:Identificar por que a estrutura manual canonica structure_id=2 ainda nao gera pontos em payoff_curve_points.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:28:docs/checkpoints/evidencias/fase-3f-diagnostico-payoff-manual-canonico.txt
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:34:## Fase 3F Fix1 - Inspecao contrato payoff
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:43:Inspecionar schema de payoff_curve_points, codigo da CanonicalPricingFacade e referencias existentes antes de implementar geracao de payoff canonico.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:46:docs/checkpoints/evidencias/fase-3f-fix1-inspecao-contrato-payoff.txt
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:49:Inspecao executada. Proxima etapa: implementar geracao e persistencia de pontos de payoff para estrutura manual canonica.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:52:## Fase 3F Fix1 - Diagnostico compute payoff
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:61:Executar isoladamente PricingInputService, DerivedPayoffPersistence._build_canonical_input(),
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:62:compute_payoff_from_canonical_input() e DerivedPayoffPersistence.persist() para identificar
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:63:onde a geração/persistência do payoff falha.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:66:docs/checkpoints/evidencias/fase-3f-fix1-diagnostico-compute-payoff.txt
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:69:Diagnostico executado. Proxima etapa: patch corretivo no contrato de payoff.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:72:## Fase 3F Fix1 - Diagnostico compute payoff V2
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:85:docs/checkpoints/evidencias/fase-3f-fix1-diagnostico-compute-payoff-v2.txt
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:88:Diagnostico V2 executado. Proxima etapa: patch corretivo no contrato de payoff, se necessario.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:91:## Fase 3F Fix1 - Diagnostico compute payoff V2
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:104:docs/checkpoints/evidencias/fase-3f-fix1-diagnostico-compute-payoff-v2.txt
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:107:Diagnostico V2 executado. Proxima etapa: patch corretivo no contrato de payoff, se necessario.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:119:Normalização das legs em services/derived_payoff_persistence.py para preencher
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:120:position_side a partir de side antes de chamar domain.compute_payoff_from_canonical_input().
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:123:O payoff canônico validava structure.legs[n].position_side como obrigatório, enquanto
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:130:Patch aplicado e validado por diagnóstico de geração/persistência de payoff.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:161:- O resumo inclui contagens disponíveis no `derived.db`, como decisões e pontos de payoff.
+docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md:176:- Status bar com decisões, pontos de payoff e erros.
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:9:3. Cálculo e persistência de payoff.
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:27:    fase-1-mapa-decisoes-codigo-atual.txt
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:28:    fase-1-mapa-decisoes-runtime-codigo-atual.txt
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:29:    fase-1-mapa-payoff-codigo-atual.txt
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:30:    fase-1-mapa-payoff-runtime-codigo-atual.txt
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:39:    fase-1-trechos-payoff-decisoes-runtime.txt
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:76:    DecisionsGrid.update_data(...)
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:79:    DetailsPanel.update_decision(...)
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:84:    e persistir payoff e decisões.
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:140:## 3. Fluxo de payoff
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:145:    domain/payoff.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:147:    services/derived_payoff_persistence.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:150:    UI/components/payoff_chart.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:154:    run_payoff()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:155:    compute_payoff_from_canonical_input()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:156:    compute_payoff_curve_from_canonical_legs()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:157:    save_payoff_from_canonical_payload()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:158:    DerivedRepo.write_payoff_snapshot_atomic()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:159:    DerivedRepo.insert_payoff_points()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:167:    services/calculation_orchestrator.py::run_payoff()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:170:    domain/payoff.py::compute_payoff_from_canonical_input()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:173:    services/derived_service.py / services/derived_payoff_persistence.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:179:    payoff_curve_points
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:182:    UIDataModel / PayoffChart
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:186:    payoff_curve_points
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:203:    domain/decision.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:205:    services/derived_payoff_persistence.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:208:    UI/components/decisions_grid.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:213:    run_decision()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:214:    compute_decision_from_contract()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:215:    compute_decision_from_payoff()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:216:    compute_decision_from_inputs()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:217:    save_decision_from_canonical_payload()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:218:    DerivedRepo.write_decision_snapshot_atomic()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:219:    DerivedRepo.insert_structure_decision()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:224:    Payoff / canonical input
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:227:    services/calculation_orchestrator.py::run_decision()
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:230:    domain/decision.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:233:    services/derived_service.py / services/derived_payoff_persistence.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:239:    structure_decisions
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:242:    UIDataModel / DecisionsGrid / DetailsPanel
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:246:    structure_decisions
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:325:### H2 — Tela não reflete payoff/decisão atualizados
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:361:    UI/components/decisions_grid.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:363:    UI/components/payoff_chart.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:365:### Payoff/decisão/persistência
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:368:    domain/payoff.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:369:    domain/decision.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:371:    services/derived_payoff_persistence.py
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:389:2. Payoff e decisão convergem em db/derived_repo.py,
+docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md:390:   usando payoff_curve_points e structure_decisions.
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:16:133:    def on_decision_selected(self, decision_data: Dict):
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:24:275:    def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:31:126:            self.decisions_grid.update_data(filtered_data)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:32:144:            self.details_panel.update_decision(decision_data)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:36:187:            self.decisions_grid.update_data(decisions)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:37:204:                        self.details_panel.update_decision(d)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:42:ARQUIVO: docs/checkpoints/evidencias/fase-1-trechos-payoff-decisoes-runtime.txt
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:47:263:### domain/payoff.py linhas 1-180
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:48:440:### domain/decision.py linhas 1-220
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:50:877:### services/derived_payoff_persistence.py linhas 1-220
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:57:112:def _request_to_payoff_dict(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:58:150:def run_payoff(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:59:167:def run_decision(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:68:290:def _compute_leg_payoff_at_expiration(leg: dict[str, Any], spot_at_expiration: float) -> float:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:69:314:def compute_payoff_curve_from_canonical_legs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:70:386:def compute_payoff_from_canonical_input(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:71:472:def _interp_payoff(points: List[Tuple[float, float]], spot: float) -> float:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:73:508:def compute_decision_from_inputs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:74:579:def compute_decision_from_payoff(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:75:633:def compute_decision_from_contract(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:85:815:def save_payoff_curve(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:86:865:def save_payoff_from_canonical_payload(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:87:889:class DerivedPayoffPersistence:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:89:946:    def _persist_payoff(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:90:982:    def _persist_decision(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:101:1312:    def write_decision_snapshot_atomic(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:102:1337:    def insert_structure_decision(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:103:1362:    def write_payoff_snapshot_atomic(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:104:1412:    def insert_payoff_points(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:108:4:# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:109:5:# alteracao_47: run_full_pipeline, multiplier fix (1.0), run_decision auto-extract
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:111:21:from domain.payoff import compute_payoff_from_canonical_input
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:112:22:from domain.decision import compute_decision_from_contract
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:115:150:def run_payoff(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:116:159:    return compute_payoff_from_canonical_input(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:117:167:def run_decision(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:118:196:    return compute_decision_from_contract(contract, payoff=payoff)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:120:207:    payoff_result = run_payoff(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:121:214:    decision_result = run_decision(request, payoff=payoff_result)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:127:314:def compute_payoff_curve_from_canonical_legs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:128:386:def compute_payoff_from_canonical_input(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:129:420:    result = compute_payoff_curve_from_canonical_legs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:130:446:Funcoes canonicas: compute_decision_from_inputs, compute_decision_from_payoff,
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:131:447:compute_decision_from_contract.
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:132:508:def compute_decision_from_inputs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:133:579:def compute_decision_from_payoff(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:134:623:    return compute_decision_from_inputs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:135:633:def compute_decision_from_contract(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:136:642:        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:137:649:    return compute_decision_from_inputs(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:138:661:alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:139:675:    insert_payoff_points,
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:140:676:    insert_structure_decision,
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:141:815:def save_payoff_curve(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:142:854:        return insert_payoff_points(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:143:865:def save_payoff_from_canonical_payload(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:144:883:from domain.payoff import compute_payoff_from_canonical_input
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:145:884:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:146:926:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:147:927:        if not payoff_saved:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:148:934:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:149:935:        if not decision_saved:
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:150:954:            payoff_result = compute_payoff_from_canonical_input(canonical_input)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:151:963:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:152:1035:            save_decision_from_canonical_payload(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:153:1065:        Monta o canonical_input esperado por compute_payoff_from_canonical_input().
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:154:1104:# alteracao_36_A: adicionar structure_id ao DDL de payoff_curve_points
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:155:1107:CREATE TABLE IF NOT EXISTS payoff_curve_points (
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:156:1121:ON payoff_curve_points (timestamp, aba, point_spot)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:157:1127:ON payoff_curve_points (structure_id, timestamp)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:158:1131:CREATE TABLE IF NOT EXISTS structure_decisions (
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:159:1152:ON structure_decisions (timestamp, aba)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:160:1157:ON structure_decisions (aba, timestamp)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:161:1162:ON structure_decisions (timestamp)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:162:1168:        "ALTER TABLE payoff_curve_points ADD COLUMN structure_id INTEGER"
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:163:1207:    # alteracao_36_A: migration incremental payoff_curve_points
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:164:1208:    existing_cols = _table_columns(conn, "payoff_curve_points")
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:165:1222:    # Índices de structure_decisions
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:166:1312:    def write_decision_snapshot_atomic(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:167:1328:                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:168:1331:            rowid = self._insert_decision(cur, ts, ab, decision_dict)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:169:1337:    def insert_structure_decision(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:170:1352:            rowid = self._insert_decision(cur, ts, ab, decision_dict, replace=True)
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:171:1362:    def write_payoff_snapshot_atomic(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:172:1384:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:173:1389:                INSERT INTO payoff_curve_points
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:174:1412:    def insert_payoff_points(
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:175:1432:                INSERT OR REPLACE INTO payoff_curve_points
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:176:1478:                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+docs/checkpoints/evidencias/fase-1-indice-trechos-runtime.txt:177:1483:                INSERT INTO payoff_curve_points
+docs/checkpoints/evidencias/fase-1-mapa-atualizar-dados-codigo-atual.txt:8:./UI/components/decisions_grid.py:100:    def update_data(self, decisions: List[Dict]):
+docs/checkpoints/evidencias/fase-1-mapa-atualizar-dados-codigo-atual.txt:22:./UI/main_window.py:164:            self.decisions_grid.update_data(filtered_data)
+docs/checkpoints/evidencias/fase-1-mapa-atualizar-dados-codigo-atual.txt:27:./UI/main_window.py:292:            self.decisions_grid.update_data(decisions)
+docs/checkpoints/evidencias/fase-1-mapa-atualizar-dados-runtime-codigo-atual.txt:3:./UI/components/decisions_grid.py:100:    def update_data(self, decisions: List[Dict]):
+docs/checkpoints/evidencias/fase-1-mapa-atualizar-dados-runtime-codigo-atual.txt:17:./UI/main_window.py:164:            self.decisions_grid.update_data(filtered_data)
+docs/checkpoints/evidencias/fase-1-mapa-atualizar-dados-runtime-codigo-atual.txt:22:./UI/main_window.py:292:            self.decisions_grid.update_data(decisions)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:1:./ATT/tests/test_decision.py:1:from domain.decision import compute_decision_from_payoff
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:2:./ATT/tests/test_decision.py:4:def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:3:./ATT/tests/test_decision.py:6:    Garante que compute_decision_from_payoff funciona com payoff canônico
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:4:./ATT/tests/test_decision.py:17:    result = compute_decision_from_payoff(
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:5:./ATT/tests/test_decision.py:22:    assert "decision" in result
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:6:./ATT/tests/test_decision.py:24:    assert result["decision"] in ("HOLD", "WATCH", "PREPARE", "PREPARE_ROLL", "CLOSE_REOPEN", "CLOSE")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:7:./ATT/tests/test_decision.py:26:    # com dte_min=12 > dte_gate=7 não há gate, decisão depende do ratio
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:8:./ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:9:./ATT/tests/test_derived_service.py:128:    def fake_save_decision(ref, decision, timestamp=None):
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:10:./ATT/tests/test_derived_service.py:130:        captured["decision"] = decision
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:11:./ATT/tests/test_derived_service.py:134:    monkeypatch.setattr(ds, "save_decision", fake_save_decision)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:12:./ATT/tests/test_derived_service.py:141:    result = ds.save_decision_from_canonical_payload(
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:13:./ATT/tests/test_derived_service.py:142:        decision=payload,
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:14:./ATT/tests/test_derived_service.py:151:    assert captured["decision"]["meta"]["origin"] == "test"
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:15:./ATT/tests/test_derived_service.py:152:    assert captured["decision"]["meta"]["structure_id"] == 321
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:16:./ATT/tests/test_derived_service.py:153:    assert captured["decision"]["meta"]["structure_name"] == "Fence"
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:17:./ATT/tests/test_derived_service.py:154:    assert captured["decision"]["meta"]["underlying_asset"] == "VALE3"
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:18:./ATT/tests/test_derived_service.py:155:    assert captured["decision"]["meta"]["storage_key"] == "structure:321"
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:19:./ATT/tests/test_orchestrator_run_methods.py:2:Testes para os métodos run_payoff e run_decision
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:20:./ATT/tests/test_orchestrator_run_methods.py:17:    run_decision,
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:21:./ATT/tests/test_orchestrator_run_methods.py:172:# Testes: run_decision
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:22:./ATT/tests/test_orchestrator_run_methods.py:175:class TestRunDecision:
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:23:./ATT/tests/test_orchestrator_run_methods.py:177:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:24:./ATT/tests/test_orchestrator_run_methods.py:179:        mock_decide.return_value = {"decision": "hold", "score": 0.7}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:25:./ATT/tests/test_orchestrator_run_methods.py:182:        result = run_decision(req, pl_atual=200.0, pl_max=500.0, dte_min=10)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:26:./ATT/tests/test_orchestrator_run_methods.py:189:        assert result == {"decision": "hold", "score": 0.7}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:27:./ATT/tests/test_orchestrator_run_methods.py:191:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:28:./ATT/tests/test_orchestrator_run_methods.py:197:        run_decision(req, payoff=payoff, pl_max=600.0, pl_atual=100.0)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:29:./ATT/tests/test_orchestrator_run_methods.py:202:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:30:./ATT/tests/test_orchestrator_run_methods.py:207:        run_decision(req)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:31:./ATT/tests/test_orchestrator_run_methods.py:214:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:32:./ATT/tests/test_orchestrator_run_methods.py:219:        run_decision(req, pl_max=300.0)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:33:./ATT/tests/test_orchestrator_run_methods.py:224:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:34:./ATT/tests/test_orchestrator_run_methods.py:226:        expected = {"decision": "close", "reason": "dte_gate"}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:35:./ATT/tests/test_orchestrator_run_methods.py:230:        result = run_decision(req, pl_max=100.0, pl_atual=80.0, dte_min=2)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:36:./ATT/tests/test_payoff_chart.py:85:        chart._last_decision_data  = {}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:37:./ATT/tests/test_payoff_chart.py:332:    def test_update_chart_saves_decision_data(self):
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:38:./ATT/tests/test_payoff_chart.py:334:        dd  = {"structure_id": "collar_1", "decision": "BUY", "spot_ref": 100.0}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:39:./ATT/tests/test_payoff_chart.py:335:        self.chart.update_chart(pts, decision_data=dd)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:40:./ATT/tests/test_payoff_chart.py:336:        self.assertEqual(self.chart._last_decision_data["structure_id"], "collar_1")
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:41:./ATT/tests/test_payoff_chart.py:352:        result = self.chart.update_chart(pts, decision_data={"spot_ref": 100.0})
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:42:./ATT/tests/test_payoff_chart.py:357:        result = self.chart.update_chart(_linear_points(), decision_data={})
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:43:./ATT/tests/test_payoff_chart.py:395:        dd  = {"structure_id": "strangle_X", "aba": "old_aba", "decision": "BUY"}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:44:./ATT/tests/test_payoff_chart.py:396:        self.chart.update_chart(pts, decision_data=dd)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:45:./ATT/tests/test_payoff_chart.py:402:        dd  = {"aba": "straddle_Y", "decision": "SELL"}
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:46:./ATT/tests/test_payoff_chart.py:403:        self.chart.update_chart(pts, decision_data=dd)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:47:./ATT/tests/test_payoff_chart.py:427:    def test_update_chart_none_decision_data(self):
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:48:./ATT/tests/test_payoff_chart.py:428:        result = self.chart.update_chart(_linear_points(), decision_data=None)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:49:./ATT/tests/test_pricing_execution_persistence_service.py:223:            "decision": {
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:50:./ATT/tests/test_pricing_execution_persistence_service.py:261:    assert call["decision_json"] == {
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:51:./ATT/tests/test_structure_analysis_service.py:125:    assert "decision" in result
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:52:./ATT/tests/test_structure_analysis_service.py:141:    decision = result["decision"]
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:53:./ATT/tests/test_structure_analysis_service.py:142:    assert decision is not None
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:54:./ATT/tests/test_structure_analysis_service.py:143:    assert decision["decision"] == "HOLD"
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:55:./ATT/tests/test_structure_analysis_service.py:144:    assert decision["dte_min"] == 0
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:56:./ATT/tests/test_structure_analysis_service.py:145:    assert "why" in decision
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:57:./ATT/tests/test_structure_analysis_service.py:146:    assert "why_json" in decision
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:58:./ATT/tests/test_structure_analysis_service.py:147:    assert isinstance(decision["why"], dict)
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:59:./ATT/tests/test_structure_analysis_service.py:148:    assert "reasons" in decision["why"]
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:60:./ATT/tests/test_structure_analysis_service.py:149:    assert "alternatives" in decision["why"]
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:61:./ATT/tests/test_structure_analysis_service.py:166:    assert result["decision"]["dte_min"] == 9
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:62:./ATT/tests/test_structure_analysis_service.py:169:def test_structure_analysis_service_analyze_returns_structured_decision_for_invalid_payoff():
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:63:./ATT/tests/test_structure_analysis_service.py:180:    assert "decision" in result
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:64:./ATT/tests/test_structure_analysis_service.py:181:    assert result["decision"] is not None
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:65:./ATT/tests/test_structure_analysis_service.py:182:    assert result["decision"]["decision"] == "HOLD"
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:66:./ATT/tests/test_structure_analysis_service.py:183:    assert result["decision"]["level"] == 0
+docs/checkpoints/evidencias/fase-1-mapa-decisoes-codigo-atual.txt:67:./ATT/tests/test_structure_analysis_service.py:184:    assert result["decision"]["why"]["error"] == "payoff is required"
