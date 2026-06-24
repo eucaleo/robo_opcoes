@@ -83,10 +83,13 @@ class DerivedPayoffPersistence:
                 )
                 return False
 
-            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+            inserted = save_payoff_from_canonical_payload(
+                payoff_result,
+                timestamp=snapshot_ts,
+            )
             logger.info(
                 "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
-                len(payoff_result["points"]),
+                inserted,
                 pricing_payload.get("structure_id"),
             )
             return True

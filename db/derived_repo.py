@@ -365,8 +365,18 @@ class DerivedRepo:
                 if isinstance(p, (tuple, list)) and len(p) == 2:
                     x, y = float(p[0]), float(p[1])
                 elif isinstance(p, dict):
-                    x = p.get("point_spot", p.get("s_t"))
-                    y = p.get("point_pl",   p.get("pl_venc"))
+                    x = p.get("point_spot")
+                    if x is None:
+                        x = p.get("s_t")
+                    if x is None:
+                        x = p.get("spot")
+
+                    y = p.get("point_pl")
+                    if y is None:
+                        y = p.get("pl_venc")
+                    if y is None:
+                        y = p.get("pl")
+
                     if x is None or y is None:
                         continue
                     x, y = float(x), float(y)
@@ -408,8 +418,18 @@ class DerivedRepo:
                 if isinstance(p, (tuple, list)) and len(p) == 2:
                     x, y = float(p[0]), float(p[1])
                 elif isinstance(p, dict):
-                    x = p.get("point_spot", p.get("s_t"))
-                    y = p.get("point_pl",   p.get("pl_venc"))
+                    x = p.get("point_spot")
+                    if x is None:
+                        x = p.get("s_t")
+                    if x is None:
+                        x = p.get("spot")
+
+                    y = p.get("point_pl")
+                    if y is None:
+                        y = p.get("pl_venc")
+                    if y is None:
+                        y = p.get("pl")
+
                     if x is None or y is None:
                         continue
                     x, y = float(x), float(y)
@@ -459,8 +479,18 @@ class DerivedRepo:
                 if isinstance(p, (tuple, list)) and len(p) == 2:
                     x, y = float(p[0]), float(p[1])
                 elif isinstance(p, dict):
-                    x = p.get("point_spot", p.get("s_t"))
-                    y = p.get("point_pl",   p.get("pl_venc"))
+                    x = p.get("point_spot")
+                    if x is None:
+                        x = p.get("s_t")
+                    if x is None:
+                        x = p.get("spot")
+
+                    y = p.get("point_pl")
+                    if y is None:
+                        y = p.get("pl_venc")
+                    if y is None:
+                        y = p.get("pl")
+
                     if x is None or y is None:
                         continue
                     x, y = float(x), float(y)
