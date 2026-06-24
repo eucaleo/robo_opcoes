@@ -1,0 +1,318 @@
+./ATT/checks/check_api_routes.py:6:    import win32com.client
+./ATT/checks/check_api_routes.py:8:    win32com = None
+./ATT/checks/check_api_routes.py:35:        if win32com is None:
+./ATT/checks/check_api_routes.py:41:        excel = win32com.client.Dispatch("Excel.Application")
+./ATT/tests/test_audit_rtd_option_quotes.py:12:    / "audit_rtd_option_quotes.py"
+./ATT/tests/test_audit_rtd_option_quotes.py:18:        "audit_rtd_option_quotes_under_test",
+./ATT/tests/test_audit_rtd_option_quotes.py:33:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_audit_rtd_option_quotes.py:75:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_audit_rtd_option_quotes.py:111:    assert "table not found: rtd_option_quotes" in result["errors"]
+./ATT/tests/test_audit_rtd_option_quotes.py:151:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_canonical_input_service.py:204:        enriched, meta = service._enrich_structure_with_legs(
+./ATT/tests/test_canonical_input_service.py:209:        self.assertEqual(enriched["legs"], [])
+./ATT/tests/test_canonical_input_service.py:213:    def test_should_enrich_market_with_internal_structure_metrics(self):
+./ATT/tests/test_canonical_pricing_facade.py:72:                "source": "rtd_option_quotes",
+./ATT/tests/test_canonical_pricing_facade.py:109:    assert leg["source"] == "rtd_option_quotes"
+./ATT/tests/test_derived_service.py:68:def test_merge_meta_should_enrich_with_canonical_identity():
+./ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:24:def create_rtd_option_quotes_schema(db_path: Path) -> None:
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:30:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:103:            FROM rtd_option_quotes
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:116:        return conn.execute("SELECT COUNT(*) FROM rtd_option_quotes").fetchone()[0]
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:185:    create_rtd_option_quotes_schema(db_path)
+./ATT/tests/test_import_rtd_links_to_option_quotes.py:213:    create_rtd_option_quotes_schema(db_path)
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:37:def _create_rtd_option_quotes_table(conn):
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:40:        CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:117:def test_get_rtd_option_quote_legs_enriches_base_rtd_leg_with_quote_cache(tmp_path):
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:122:        _create_rtd_option_quotes_table(conn)
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:127:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:166:                "rtd_option_quotes",
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:190:    # Cotação/greeks vêm do cache centralizado rtd_option_quotes.
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:191:    assert leg.source == "rtd_option_quotes"
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:240:        INSERT INTO rtd_option_quotes (
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:279:            "rtd_option_quotes",
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:292:        _create_rtd_option_quotes_table(conn)
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:316:        _create_rtd_option_quotes_table(conn)
+./ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:359:    assert leg.source == "rtd_option_quotes"
+./ATT/tests/test_market_snapshot_selector.py:16:    def __init__(self, *, manual=None, rtd_option_quotes=None, rtd=None):
+./ATT/tests/test_market_snapshot_selector.py:18:        self.rtd_option_quotes = rtd_option_quotes or []
+./ATT/tests/test_market_snapshot_selector.py:25:        return self.rtd_option_quotes
+./ATT/tests/test_market_snapshot_selector.py:31:def test_selector_prioritizes_rtd_option_quotes_over_legacy_rtd_when_no_manual_exists():
+./ATT/tests/test_market_snapshot_selector.py:33:    quote_leg = _leg("BOVAE195", "rtd_option_quotes", 1.23)
+./ATT/tests/test_market_snapshot_selector.py:38:            rtd_option_quotes=[quote_leg],
+./ATT/tests/test_market_snapshot_selector.py:45:    assert result.source == "rtd_option_quotes"
+./ATT/tests/test_market_snapshot_selector.py:50:def test_selector_keeps_manual_leg_ahead_of_rtd_option_quotes():
+./ATT/tests/test_market_snapshot_selector.py:52:    quote_leg = _leg("BOVAE195", "rtd_option_quotes", 1.23)
+./ATT/tests/test_market_snapshot_selector.py:58:            rtd_option_quotes=[quote_leg],
+./ATT/tests/test_rtd_legacy_canonical_pricing_input_guardrail.py:46:                "source": "rtd_option_quotes",
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:6:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:13:            CREATE TABLE rtd_option_quotes (
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:39:def test_get_by_codigo_returns_quote_dict_when_codigo_exists(tmp_path):
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:46:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:85:                "rtd_option_quotes",
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:94:    quote = repository.get_by_codigo("PETRA123")
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:102:    assert quote["source"] == "rtd_option_quotes"
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:106:def test_get_by_codigo_returns_none_when_codigo_does_not_exist(tmp_path):
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:112:    assert repository.get_by_codigo("INEXISTENTE") is None
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:115:def test_get_by_codigo_uses_exact_codigo_match(tmp_path):
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:122:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:142:                "rtd_option_quotes",
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:150:    assert repository.get_by_codigo("petra123") is None
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:151:    assert repository.get_by_codigo("PETRA123") is not None
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:154:def test_get_by_codigo_propagates_sqlite_error_when_table_is_missing(tmp_path):
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:161:        repository.get_by_codigo("PETRA123")
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:177:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:188:            VALUES (?, ?, ?, ?, ?, ?, 'rtd_option_quotes', '2026-06-18 10:00:00', '2026-06-18 09:59:00')
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:213:            INSERT INTO rtd_option_quotes (
+./ATT/tests/test_rtd_option_quotes_repository_contract.py:224:            VALUES (?, ?, ?, ?, ?, ?, 'rtd_option_quotes', '2026-06-18 10:00:00', '2026-06-18 09:59:00')
+./ATT/tests/test_run_derived_pipeline_rtd_integration.py:50:def test_run_rtd_option_quotes_import_uses_csv_pipeline_without_excel_or_powershell(
+./ATT/tests/test_run_derived_pipeline_rtd_integration.py:61:    (scripts_dir / "run_rtd_option_quotes_pipeline.py").write_text(
+./ATT/tests/test_run_derived_pipeline_rtd_integration.py:89:    result = module._run_rtd_option_quotes_import(
+./ATT/tests/test_run_derived_pipeline_rtd_integration.py:104:    assert command[1].endswith("run_rtd_option_quotes_pipeline.py")
+./ATT/tests/test_run_derived_pipeline_rtd_integration.py:112:    assert "refresh_rtd_option_quotes_excel" not in command_text
+./ATT/tests/test_run_derived_pipeline_rtd_integration.py:113:    assert "lista_rtd.xlsm" not in command_text
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:11:    / "run_rtd_option_quotes_pipeline.py"
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:17:        "run_rtd_option_quotes_pipeline_under_test",
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:35:    assert command[1].endswith("import_rtd_option_quotes_wide_csv.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:64:    assert command[1].endswith("audit_rtd_option_quotes.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:104:    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:124:    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:125:    assert calls[1][1].endswith("audit_rtd_option_quotes.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:146:    assert calls[0][1].endswith("import_rtd_option_quotes_wide_csv.py")
+./ATT/tests/test_run_rtd_option_quotes_pipeline.py:156:        if command[1].endswith("import_rtd_option_quotes_wide_csv.py"):
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:3:from services.structure_leg_rtd_enrichment_service import (
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:13:    def get_by_codigo(self, codigo_opcao):
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:18:def test_enrich_leg_from_symbol_uses_rtd_quote_and_returns_canonical_leg():
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:32:    leg = service.enrich(
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:59:def test_enrich_leg_accepts_codigo_opcao_as_symbol_alias():
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:73:    leg = service.enrich(
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:94:def test_enrich_leg_raises_value_error_when_symbol_is_missing():
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:100:        service.enrich(
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:108:def test_enrich_leg_raises_value_error_when_rtd_quote_is_not_found():
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:113:    with pytest.raises(ValueError, match="option quote not found"):
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:114:        service.enrich(
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:123:def test_enrich_leg_raises_value_error_when_rtd_quote_has_missing_required_fields():
+./ATT/tests/test_structure_leg_rtd_enrichment_service.py:138:        service.enrich(
+./infra/bootstrap_rtd_option_quotes_schema.py:8:TABLE_NAME = "rtd_option_quotes"
+./infra/bootstrap_rtd_option_quotes_schema.py:35:CREATE TABLE IF NOT EXISTS rtd_option_quotes (
+./infra/bootstrap_rtd_option_quotes_schema.py:89:def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
+./infra/bootstrap_rtd_option_quotes_schema.py:102:                "Tabela rtd_option_quotes existe, mas está sem colunas obrigatórias: "
+./infra/bootstrap_rtd_option_quotes_schema.py:108:        description="Cria/valida o schema vazio de rtd_option_quotes em banco SQLite."
+./infra/bootstrap_rtd_option_quotes_schema.py:120:    print("Bootstrap rtd_option_quotes")
+./infra/bootstrap_rtd_option_quotes_schema.py:145:    print("[OK] Schema rtd_option_quotes disponível.")
+./repositories/market_snapshot_repository.py:6:(rtd_option_quotes) e manuais (manual_analise_robo_legs), normaliza os campos
+./repositories/market_snapshot_repository.py:28:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+./repositories/market_snapshot_repository.py:196:    Converte uma cotação de rtd_option_quotes em LegMarketSnapshot mantendo
+./repositories/market_snapshot_repository.py:199:    A tabela rtd_option_quotes é cache de cotação. Ela não define composição
+./repositories/market_snapshot_repository.py:255:      get_rtd_option_quote_legs(aba)   -> lista enriquecida source=rtd_option_quotes
+./repositories/market_snapshot_repository.py:281:        Retorna legs RTD enriquecidas com rtd_option_quotes.
+./repositories/market_snapshot_repository.py:284:        dessa composição, se houver cotação em rtd_option_quotes.codigo_opcao,
+./repositories/market_snapshot_repository.py:321:            FROM rtd_option_quotes
+./repositories/market_snapshot_repository.py:330:            # Banco sem tabela rtd_option_quotes: mantém compatibilidade com
+./repositories/market_snapshot_repository.py:340:        enriched: list[LegMarketSnapshot] = []
+./repositories/market_snapshot_repository.py:345:                enriched.append(_row_to_rtd_option_quote_leg(base_leg, quote_row))
+./repositories/market_snapshot_repository.py:347:        return enriched
+./repositories/rtd_option_quotes_repository.py:1:# repositories/rtd_option_quotes_repository.py
+./repositories/rtd_option_quotes_repository.py:3:Repositorio para consulta de cotações de opções em rtd_option_quotes.
+./repositories/rtd_option_quotes_repository.py:6:- get_by_codigo usa match EXATO de codigo_opcao, sem upper no WHERE;
+./repositories/rtd_option_quotes_repository.py:28:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+./repositories/rtd_option_quotes_repository.py:35:            FROM rtd_option_quotes
+./repositories/rtd_option_quotes_repository.py:55:            FROM rtd_option_quotes
+./repositories/rtd_option_quotes_repository.py:68:            FROM rtd_option_quotes
+./scripts/audit_rtd_option_quotes.py:3:Audita a tabela rtd_option_quotes em um banco SQLite.
+./scripts/audit_rtd_option_quotes.py:7:    python scripts/audit_rtd_option_quotes.py --db dados/app.db
+./scripts/audit_rtd_option_quotes.py:8:    python scripts/audit_rtd_option_quotes.py --db dados/app.db --json
+./scripts/audit_rtd_option_quotes.py:23:TABLE_NAME = "rtd_option_quotes"
+./scripts/audit_rtd_option_quotes.py:218:    print("Auditoria rtd_option_quotes")
+./scripts/audit_rtd_option_quotes.py:254:        description="Audita a tabela rtd_option_quotes em um banco SQLite."
+./scripts/build_rtd_symbols.py:81:def collect_from_rtd_option_quotes(cur):
+./scripts/build_rtd_symbols.py:82:    if not table_exists(cur, "rtd_option_quotes"):
+./scripts/build_rtd_symbols.py:87:        FROM rtd_option_quotes
+./scripts/build_rtd_symbols.py:129:            quote_symbols = collect_from_rtd_option_quotes(cur)
+./scripts/build_rtd_symbols.py:130:            sources.append(("rtd_option_quotes", quote_symbols))
+./scripts/import_lista_rtd_excel_to_option_quotes.py:2:Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+./scripts/import_lista_rtd_excel_to_option_quotes.py:7:        -> tabela rtd_option_quotes
+./scripts/import_lista_rtd_excel_to_option_quotes.py:10:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db
+./scripts/import_lista_rtd_excel_to_option_quotes.py:11:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --dry-run
+./scripts/import_lista_rtd_excel_to_option_quotes.py:12:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --json
+./scripts/import_lista_rtd_excel_to_option_quotes.py:230:        import win32com.client
+./scripts/import_lista_rtd_excel_to_option_quotes.py:246:        excel = win32com.client.DispatchEx("Excel.Application")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:427:    columns = get_table_columns(conn, "rtd_option_quotes")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:430:        raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:436:            "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+./scripts/import_lista_rtd_excel_to_option_quotes.py:458:                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+./scripts/import_lista_rtd_excel_to_option_quotes.py:495:            "source": "lista_rtd_excel",
+./scripts/import_lista_rtd_excel_to_option_quotes.py:502:            UPDATE rtd_option_quotes
+./scripts/import_lista_rtd_excel_to_option_quotes.py:534:            INSERT INTO rtd_option_quotes (
+./scripts/import_lista_rtd_excel_to_option_quotes.py:588:        description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+./scripts/import_lista_rtd_excel_to_option_quotes.py:694:            print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/import_lista_rtd_excel_to_option_quotes.py:704:        print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/import_rtd_links_to_option_quotes.py:3:Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+./scripts/import_rtd_links_to_option_quotes.py:307:        FROM rtd_option_quotes
+./scripts/import_rtd_links_to_option_quotes.py:323:        "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+./scripts/import_rtd_links_to_option_quotes.py:324:        "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+./scripts/import_rtd_links_to_option_quotes.py:325:        "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+./scripts/import_rtd_links_to_option_quotes.py:326:        "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+./scripts/import_rtd_links_to_option_quotes.py:327:        "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+./scripts/import_rtd_links_to_option_quotes.py:328:        "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+./scripts/import_rtd_links_to_option_quotes.py:329:        "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+./scripts/import_rtd_links_to_option_quotes.py:330:        "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+./scripts/import_rtd_links_to_option_quotes.py:331:        "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+./scripts/import_rtd_links_to_option_quotes.py:332:        "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+./scripts/import_rtd_links_to_option_quotes.py:333:        "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+./scripts/import_rtd_links_to_option_quotes.py:334:        "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+./scripts/import_rtd_links_to_option_quotes.py:335:        "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+./scripts/import_rtd_links_to_option_quotes.py:336:        "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+./scripts/import_rtd_links_to_option_quotes.py:343:        INSERT INTO rtd_option_quotes ({columns_sql})
+./scripts/import_rtd_links_to_option_quotes.py:386:        description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+./scripts/import_rtd_links_to_option_quotes.py:419:    print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+./scripts/import_rtd_option_quotes_wide_csv.py:14:from infra.bootstrap_rtd_option_quotes_schema import ensure_rtd_option_quotes_schema
+./scripts/import_rtd_option_quotes_wide_csv.py:196:                "source": "BTG_RTD_EXCEL",
+./scripts/import_rtd_option_quotes_wide_csv.py:207:        CREATE INDEX IF NOT EXISTS idx_rtd_option_quotes_codigo_opcao
+./scripts/import_rtd_option_quotes_wide_csv.py:208:        ON rtd_option_quotes(codigo_opcao)
+./scripts/import_rtd_option_quotes_wide_csv.py:226:    ensure_rtd_option_quotes_schema(db_path)
+./scripts/import_rtd_option_quotes_wide_csv.py:237:                "SELECT id, created_at FROM rtd_option_quotes WHERE codigo_opcao = ? ORDER BY id DESC LIMIT 1",
+./scripts/import_rtd_option_quotes_wide_csv.py:251:                    UPDATE rtd_option_quotes
+./scripts/import_rtd_option_quotes_wide_csv.py:299:                    INSERT INTO rtd_option_quotes (
+./scripts/mapear_automacao_opcoes_rtd.py:69:    "repositories/rtd_option_quotes_repository.py": "Prioritário para auditoria de persistência RTD.",
+./scripts/run_derived_pipeline.py:67:def _run_rtd_option_quotes_import(
+./scripts/run_derived_pipeline.py:78:    - Delega importação + auditoria para scripts/run_rtd_option_quotes_pipeline.py.
+./scripts/run_derived_pipeline.py:81:    pipeline_script = repo_root / "scripts" / "run_rtd_option_quotes_pipeline.py"
+./scripts/run_derived_pipeline.py:260:        help="Não importar dados/RTD_LINKS.csv para rtd_option_quotes no derived.db",
+./scripts/run_derived_pipeline.py:295:        rtd_result = _run_rtd_option_quotes_import(
+./scripts/run_lista_rtd_option_quotes_pipeline.py:3:Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+./scripts/run_lista_rtd_option_quotes_pipeline.py:6:    1. scripts/import_lista_rtd_excel_to_option_quotes.py
+./scripts/run_lista_rtd_option_quotes_pipeline.py:7:    2. scripts/audit_rtd_option_quotes.py
+./scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+./scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+./scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+./scripts/run_lista_rtd_option_quotes_pipeline.py:25:IMPORT_SCRIPT = Path("scripts/import_lista_rtd_excel_to_option_quotes.py")
+./scripts/run_lista_rtd_option_quotes_pipeline.py:26:AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+./scripts/run_lista_rtd_option_quotes_pipeline.py:60:        description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+./scripts/run_lista_rtd_option_quotes_pipeline.py:148:            print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/run_lista_rtd_option_quotes_pipeline.py:210:        print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+./scripts/run_rtd_option_quotes_pipeline.py:7:    dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+./scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+./scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+./scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+./scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+./scripts/run_rtd_option_quotes_pipeline.py:28:IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_option_quotes_wide_csv.py"
+./scripts/run_rtd_option_quotes_pipeline.py:29:AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+./scripts/run_rtd_option_quotes_pipeline.py:142:        description="Executa importação e auditoria de rtd_option_quotes."
+./scripts/run_rtd_refresh_full.py:43:            FROM rtd_option_quotes
+./scripts/run_rtd_refresh_full.py:100:    import_script = Path("scripts/import_rtd_option_quotes_wide_csv.py")
+./scripts/run_rtd_refresh_full.py:101:    ps1_script = Path("scripts/refresh_rtd_option_quotes_excel.ps1")
+./scripts/run_rtd_refresh_full.py:195:        print("- Cadastre uma estrutura pelo sistema ou rode sem --strict para usar fallback de rtd_option_quotes.")
+./scripts/seed_current_rtd_option_quotes.py:3:Limpa e popula rtd_option_quotes com dados manuais atuais das estruturas
+./scripts/seed_current_rtd_option_quotes.py:8:    python scripts/seed_current_rtd_option_quotes.py
+./scripts/seed_current_rtd_option_quotes.py:9:    python scripts/seed_current_rtd_option_quotes.py --db dados/app.db
+./scripts/seed_current_rtd_option_quotes.py:13:- O script limpa somente a tabela rtd_option_quotes.
+./scripts/seed_current_rtd_option_quotes.py:136:        if not table_exists(connection, "rtd_option_quotes"):
+./scripts/seed_current_rtd_option_quotes.py:137:            raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+./scripts/seed_current_rtd_option_quotes.py:140:            "SELECT COUNT(*) FROM rtd_option_quotes"
+./scripts/seed_current_rtd_option_quotes.py:143:        connection.execute("DELETE FROM rtd_option_quotes")
+./scripts/seed_current_rtd_option_quotes.py:146:            INSERT INTO rtd_option_quotes (
+./scripts/seed_current_rtd_option_quotes.py:224:            "SELECT COUNT(*) FROM rtd_option_quotes"
+./scripts/seed_current_rtd_option_quotes.py:229:    print("Seed rtd_option_quotes concluído.")
+./scripts/seed_current_rtd_option_quotes.py:240:        description="Limpa e popula rtd_option_quotes com dados atuais de SMAL e PRIO."
+./scripts/verificar_andamento_rota.py:353:        if "rtd_option_quotes" in table_names:
+./scripts/verificar_andamento_rota.py:358:                FROM rtd_option_quotes
+./scripts/verificar_andamento_rota.py:361:            print(f"total_rtd_option_quotes={rows[0]['total']}")
+./services/canonical_input_service.py:112:        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
+./services/canonical_input_service.py:117:        enriched_structure, events_meta = self._apply_structure_events(
+./services/canonical_input_service.py:118:            structure=enriched_structure,
+./services/canonical_input_service.py:121:        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+./services/canonical_input_service.py:122:        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
+./services/canonical_input_service.py:130:                **enrichment_meta,
+./services/canonical_input_service.py:291:    def _enrich_structure_with_legs(
+./services/canonical_input_service.py:382:    def _enrich_assembled_with_structure_metrics(
+./services/derived_service.py:302:    enriched_decision = {
+./services/derived_service.py:318:            decision_dict=enriched_decision,
+./services/derived_service.py:345:    enriched_decision = {
+./services/derived_service.py:359:        decision=enriched_decision,
+./services/market_snapshot_selector.py:3:Política de precedência de snapshots: manual > rtd_option_quotes > rtd.
+./services/market_snapshot_selector.py:7:  - Caso contrário, se existir cotação em rtd_option_quotes para a leg RTD, usa rtd_option_quotes
+./services/market_snapshot_selector.py:19:RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
+./services/market_snapshot_selector.py:47:    Aplica a política manual > rtd_option_quotes > rtd para selecionar o snapshot canônico.
+./services/structure_input_mapper.py:28:def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+./services/structure_input_mapper.py:80:    _enrich_bid_ask_derived_fields(mapped_leg)
+./services/structure_leg_rtd_enrichment_service.py:5:- consultar rtd_option_quotes por codigo_opcao;
+./services/structure_leg_rtd_enrichment_service.py:18:    """Enriquece uma leg de estrutura usando dados de rtd_option_quotes."""
+./services/structure_leg_rtd_enrichment_service.py:20:    def __init__(self, rtd_option_quotes_repository: Any) -> None:
+./services/structure_leg_rtd_enrichment_service.py:21:        self._repo = rtd_option_quotes_repository
+./services/structure_leg_rtd_enrichment_service.py:23:    def enrich(self, leg_data: dict[str, Any]) -> dict[str, Any]:
+./services/structure_leg_rtd_enrichment_service.py:42:            raise ValueError("symbol is required for RTD leg enrichment")
+./services/structure_leg_rtd_enrichment_service.py:44:        quote = self._repo.get_by_codigo(symbol)
+./services/structure_leg_rtd_enrichment_service.py:46:            raise ValueError(f"option quote not found for symbol: {symbol}")
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:6:output_path = "docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md"
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:31:    "autopreench",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:35:    "enrich",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:38:    "rtd_option_quotes",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:39:    "get_by_codigo",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:41:    "insert into rtd_option_quotes",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:42:    "win32com",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:44:    "Excel.Application",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:45:    "BTG_RTD",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:46:    "lista_rtd",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:47:    "option quote not found",
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:110:    f.write("# Diagnostico do fluxo de autopreenchimento RTD\n\n")
+./tools/revisao_funcional/diagnostico_fluxo_autopreenchimento_rtd.py:112:    f.write("Objetivo: localizar se o botao de autopreenchimento busca apenas cache local ou dispara atualizacao RTD sob demanda.\n\n")
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:33:    if "rtd_option_quotes" not in table_names:
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:35:        print("ERRO: tabela rtd_option_quotes nao existe neste banco")
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:39:    print("=== Schema rtd_option_quotes ===")
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:40:    schema = con.execute("PRAGMA table_info(rtd_option_quotes)").fetchall()
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:49:    total = con.execute("SELECT COUNT(*) AS total FROM rtd_option_quotes").fetchone()["total"]
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:51:    print("Total rtd_option_quotes:", total)
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:55:    rows = con.execute("SELECT rowid, * FROM rtd_option_quotes LIMIT 50").fetchall()
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:61:        print("ERRO: coluna codigo_opcao nao existe na tabela rtd_option_quotes")
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:67:        "SELECT rowid, * FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 20",
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:79:        FROM rtd_option_quotes
+./tools/revisao_funcional/diagnostico_rtd_option_quote.py:95:        FROM rtd_option_quotes
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:56:    if "rtd_option_quotes" not in table_names:
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:57:        print("ERRO: tabela rtd_option_quotes nao existe")
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:61:        "SELECT COUNT(*) AS total FROM rtd_option_quotes WHERE codigo_opcao = ?",
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:68:        "DELETE FROM rtd_option_quotes WHERE codigo_opcao = ?",
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:74:        INSERT INTO rtd_option_quotes (
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:141:        "SELECT rowid, * FROM rtd_option_quotes WHERE codigo_opcao = ?",
+./tools/revisao_funcional/inserir_quote_teste_petrs424.py:153:    print("Agora abra o sistema e teste o botao de autopreenchimento com:", symbol)
+./tools/revisao_funcional/localizar_option_quote_sqlite.py:77:        if "rtd_option_quotes" in table_names:
+./tools/revisao_funcional/localizar_option_quote_sqlite.py:80:                    "SELECT COUNT(*) AS total FROM rtd_option_quotes"
+./tools/revisao_funcional/localizar_option_quote_sqlite.py:82:                print("Total rtd_option_quotes:", total)
+./tools/revisao_funcional/localizar_option_quote_sqlite.py:85:                    "SELECT rowid, * FROM rtd_option_quotes LIMIT 20"
+./tools/revisao_funcional/localizar_option_quote_sqlite.py:88:                print("Amostra rtd_option_quotes:")
+./tools/revisao_funcional/localizar_option_quote_sqlite.py:92:                print("Erro lendo rtd_option_quotes:", repr(exc))
+./UI/components/structure_editor_dialog.py:38:from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+./UI/components/structure_editor_dialog.py:39:from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+./UI/components/structure_editor_dialog.py:71:        _leg_enrichment_service=None,        # <-- injecao opcional para testes
+./UI/components/structure_editor_dialog.py:87:        self._leg_enrichment_service = _leg_enrichment_service
+./UI/components/structure_editor_dialog.py:244:            command=self._cmd_enrich_current_leg,
+./UI/components/structure_editor_dialog.py:384:    def _get_leg_enrichment_service(self):
+./UI/components/structure_editor_dialog.py:386:        service = getattr(self, "_leg_enrichment_service", None)
+./UI/components/structure_editor_dialog.py:390:        if service is not None and hasattr(service, "enrich"):
+./UI/components/structure_editor_dialog.py:395:        self._leg_enrichment_service = service
+./UI/components/structure_editor_dialog.py:406:    def _enrich_leg_data_from_symbol(
+./UI/components/structure_editor_dialog.py:431:            enriched = self._get_leg_enrichment_service().enrich(leg_data)
+./UI/components/structure_editor_dialog.py:438:        merged.update(enriched)
+./UI/components/structure_editor_dialog.py:441:    def _sync_underlying_from_enriched_leg(self, enriched: dict) -> None:
+./UI/components/structure_editor_dialog.py:443:        underlying = str(enriched.get("underlying_asset") or "").strip().upper()
+./UI/components/structure_editor_dialog.py:452:                f"symbol={enriched.get('symbol')}"
+./UI/components/structure_editor_dialog.py:472:    def _apply_enriched_leg_to_form(self, enriched: dict) -> None:
+./UI/components/structure_editor_dialog.py:474:        if enriched.get("option_type"):
+./UI/components/structure_editor_dialog.py:475:            self._lf_type.set(str(enriched["option_type"]).upper())
+./UI/components/structure_editor_dialog.py:476:        if enriched.get("strike") is not None:
+./UI/components/structure_editor_dialog.py:477:            self._lf_strike.set(str(enriched["strike"]))
+./UI/components/structure_editor_dialog.py:478:        if enriched.get("expiration_date"):
+./UI/components/structure_editor_dialog.py:479:            self._lf_expiry.set(str(enriched["expiration_date"]))
+./UI/components/structure_editor_dialog.py:480:        if enriched.get("multiplier") is not None:
+./UI/components/structure_editor_dialog.py:481:            self._lf_mult.set(str(enriched["multiplier"]))
+./UI/components/structure_editor_dialog.py:482:        if enriched.get("symbol"):
+./UI/components/structure_editor_dialog.py:483:            self._lf_symbol.set(str(enriched["symbol"]).upper())
+./UI/components/structure_editor_dialog.py:485:    def _cmd_enrich_current_leg(self):
+./UI/components/structure_editor_dialog.py:498:            enriched = self._enrich_leg_data_from_symbol(
+./UI/components/structure_editor_dialog.py:502:            self._sync_underlying_from_enriched_leg(enriched)
+./UI/components/structure_editor_dialog.py:503:            self._apply_enriched_leg_to_form(enriched)
+./UI/components/structure_editor_dialog.py:504:            self._legs_rows[idx] = enriched
+./UI/components/structure_editor_dialog.py:524:                leg_data = self._enrich_leg_data_from_symbol(
+./UI/components/structure_editor_dialog.py:528:                self._sync_underlying_from_enriched_leg(leg_data)
+./UI/components/structure_editor_dialog.py:529:                self._apply_enriched_leg_to_form(leg_data)
+./UI/components/structure_editor_dialog.py:601:                row = self._enrich_leg_data_from_symbol(

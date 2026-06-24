@@ -1,0 +1,2947 @@
+DIAGNOSTICO FOCADO RTD AUTOPREENCHIMENTO
+Objetivo: localizar fluxo atual e ponto de acoplamento para atualizar RTD sob demanda.
+
+====================================================================================================
+ARQUIVO: services/structure_leg_rtd_enrichment_service.py
+====================================================================================================
+
+--- linhas 1 a 58 ---
+    1: """Service de enriquecimento de legs de estruturas via RTD.
+    2: 
+    3: Objetivo:
+    4: - receber entrada minima baseada em simbolo/codigo da opcao;
+    5: - consultar rtd_option_quotes por codigo_opcao;
+    6: - devolver payload canonico de leg para o repository de structures;
+    7: - validar divergencia entre tipo informado e tipo detectado.
+    8: """
+    9: 
+   10: from __future__ import annotations
+   11: 
+   12: from typing import Any
+   13: 
+   14: from domain.position_side import normalize_position_side
+   15: 
+   16: 
+   17: class StructureLegRtdEnrichmentService:
+   18:     """Enriquece uma leg de estrutura usando dados de rtd_option_quotes."""
+   19: 
+   20:     def __init__(self, rtd_option_quotes_repository: Any) -> None:
+   21:         self._repo = rtd_option_quotes_repository
+   22: 
+   23:     def enrich(self, leg_data: dict[str, Any]) -> dict[str, Any]:
+   24:         """Retorna uma leg canonica enriquecida a partir do simbolo da opcao.
+   25: 
+   26:         Entrada minima esperada:
+   27:         - symbol ou codigo_opcao;
+   28:         - position_side;
+   29:         - quantity.
+   30: 
+   31:         Campos enriquecidos via RTD:
+   32:         - underlying_asset;
+   33:         - option_type;
+   34:         - strike;
+   35:         - expiration_date.
+   36:         """
+   37: 
+   38:         symbol = self._normalize_symbol(
+   39:             leg_data.get("symbol") or leg_data.get("codigo_opcao")
+   40:         )
+   41:         if not symbol:
+   42:             raise ValueError("symbol is required for RTD leg enrichment")
+   43: 
+   44:         quote = self._repo.get_by_codigo(symbol)
+   45:         if quote is None:
+   46:             raise ValueError(f"option quote not found for symbol: {symbol}")
+   47: 
+   48:         self._ensure_required_quote_fields(
+   49:             quote,
+   50:             required=("ativo_base", "call_put", "strike", "vencimento"),
+   51:         )
+   52: 
+   53:         detected_option_type = self._normalize_option_type(quote.get("call_put"))
+   54: 
+   55:         informed_option_type_raw = leg_data.get("option_type")
+   56:         if informed_option_type_raw not in (None, ""):
+   57:             informed_option_type = self._normalize_option_type(informed_option_type_raw)
+   58:             if informed_option_type != detected_option_type:
+
+--- linhas 79 a 154 ---
+   79:             "notes": leg_data.get("notes"),
+   80:             "underlying_asset": self._normalize_required_text(
+   81:                 quote.get("ativo_base"),
+   82:                 "ativo_base",
+   83:             ),
+   84:         }
+   85: 
+   86:     @staticmethod
+   87:     def _normalize_symbol(value: Any) -> str:
+   88:         if value is None:
+   89:             return ""
+   90:         return str(value).strip().upper()
+   91: 
+   92:     @staticmethod
+   93:     def _normalize_required_text(value: Any, field_name: str) -> str:
+   94:         if value is None:
+   95:             raise ValueError(f"{field_name} is required")
+   96:         normalized = str(value).strip().upper()
+   97:         if not normalized:
+   98:             raise ValueError(f"{field_name} is required")
+   99:         return normalized
+  100: 
+  101:     @classmethod
+  102:     def _normalize_option_type(cls, value: Any) -> str:
+  103:         text = cls._normalize_required_text(value, "option_type")
+  104:         mapping = {
+  105:             "C": "CALL",
+  106:             "CALL": "CALL",
+  107:             "COMPRA": "CALL",
+  108:             "P": "PUT",
+  109:             "PUT": "PUT",
+  110:             "VENDA": "PUT",
+  111:         }
+  112:         normalized = mapping.get(text)
+  113:         if normalized is None:
+  114:             raise ValueError(f"invalid option_type/call_put: {value!r}")
+  115:         return normalized
+  116: 
+  117:     @staticmethod
+  118:     def _to_float(value: Any, field_name: str) -> float:
+  119:         if value is None or str(value).strip() == "":
+  120:             raise ValueError(f"{field_name} is required")
+  121: 
+  122:         text = str(value).strip()
+  123:         if "," in text and "." in text:
+  124:             text = text.replace(".", "").replace(",", ".")
+  125:         else:
+  126:             text = text.replace(",", ".")
+  127: 
+  128:         try:
+  129:             return float(text)
+  130:         except (TypeError, ValueError) as exc:
+  131:             raise ValueError(f"{field_name} must be numeric") from exc
+  132: 
+  133:     @classmethod
+  134:     def _to_optional_float(cls, value: Any, field_name: str) -> float | None:
+  135:         if value is None or str(value).strip() == "":
+  136:             return None
+  137:         return cls._to_float(value, field_name)
+  138: 
+  139:     @classmethod
+  140:     def _to_int(cls, value: Any, field_name: str) -> int:
+  141:         number = cls._to_float(value, field_name)
+  142:         if int(number) != number:
+  143:             raise ValueError(f"{field_name} must be integer")
+  144:         return int(number)
+  145: 
+  146:     @staticmethod
+  147:     def _ensure_required_quote_fields(
+  148:         quote: dict[str, Any],
+  149:         required: tuple[str, ...],
+  150:     ) -> None:
+  151:         for field in required:
+  152:             value = quote.get(field)
+  153:             if value is None or str(value).strip() == "":
+  154:                 raise ValueError(f"missing required RTD field: {field}")
+
+====================================================================================================
+ARQUIVO: repositories/rtd_option_quotes_repository.py
+====================================================================================================
+
+--- linhas 1 a 75 ---
+    1: # repositories/rtd_option_quotes_repository.py
+    2: """
+    3: Repositorio para consulta de cotações de opções em rtd_option_quotes.
+    4: 
+    5: Contrato:
+    6: - get_by_codigo usa match EXATO de codigo_opcao, sem upper no WHERE;
+    7: - erros sqlite3.OperationalError propagam;
+    8: - retorna dicts;
+    9: - expõe list_by_ativo_base e list_all.
+   10: """
+   11: 
+   12: from __future__ import annotations
+   13: 
+   14: import sqlite3
+   15: from pathlib import Path
+   16: from typing import Any
+   17: 
+   18: 
+   19: class RtdOptionQuotesRepository:
+   20:     def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+   21:         self.db_path = str(db_path)
+   22: 
+   23:     def _connect(self) -> sqlite3.Connection:
+   24:         conn = sqlite3.connect(self.db_path)
+   25:         conn.row_factory = sqlite3.Row
+   26:         return conn
+   27: 
+   28:     def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+   29:         codigo = str(codigo_opcao or "").strip()
+   30:         if not codigo:
+   31:             return None
+   32: 
+   33:         sql = """
+   34:             SELECT *
+   35:             FROM rtd_option_quotes
+   36:             WHERE codigo_opcao = ?
+   37:             ORDER BY
+   38:                 COALESCE(updated_at, created_at, '') DESC,
+   39:                 rowid DESC
+   40:             LIMIT 1
+   41:         """
+   42: 
+   43:         with self._connect() as conn:
+   44:             row = conn.execute(sql, (codigo,)).fetchone()
+   45: 
+   46:         return dict(row) if row is not None else None
+   47: 
+   48:     def list_by_ativo_base(self, ativo_base: str) -> list[dict[str, Any]]:
+   49:         ativo = str(ativo_base or "").strip()
+   50:         if not ativo:
+   51:             return []
+   52: 
+   53:         sql = """
+   54:             SELECT *
+   55:             FROM rtd_option_quotes
+   56:             WHERE ativo_base = ?
+   57:             ORDER BY vencimento ASC, strike ASC, codigo_opcao ASC
+   58:         """
+   59: 
+   60:         with self._connect() as conn:
+   61:             rows = conn.execute(sql, (ativo,)).fetchall()
+   62: 
+   63:         return [dict(row) for row in rows]
+   64: 
+   65:     def list_all(self) -> list[dict[str, Any]]:
+   66:         sql = """
+   67:             SELECT *
+   68:             FROM rtd_option_quotes
+   69:             ORDER BY ativo_base ASC, vencimento ASC, strike ASC, codigo_opcao ASC
+   70:         """
+   71: 
+   72:         with self._connect() as conn:
+   73:             rows = conn.execute(sql).fetchall()
+   74: 
+   75:         return [dict(row) for row in rows]
+
+====================================================================================================
+ARQUIVO: UI/components/structure_editor_dialog.py
+====================================================================================================
+
+--- linhas 30 a 99 ---
+   30: """
+   31: from __future__ import annotations
+   32: 
+   33: import tkinter as tk
+   34: from tkinter import ttk, messagebox
+   35: from typing import Optional
+   36: 
+   37: from repositories.structures_repository import StructuresRepository
+   38: from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+   39: from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+   40: from domain.position_side import normalize_position_side
+   41: 
+   42: 
+   43: def _parse_decimal(value, field_name: str) -> float:
+   44:     if value is None:
+   45:         raise ValueError(f"{field_name} is required")
+   46: 
+   47:     if isinstance(value, str):
+   48:         value = value.strip()
+   49:         if not value:
+   50:             raise ValueError(f"{field_name} is required")
+   51: 
+   52:         if "," in value:
+   53:             value = value.replace(".", "").replace(",", ".")
+   54: 
+   55:     try:
+   56:         return float(value)
+   57:     except Exception as exc:
+   58:         raise ValueError(f"{field_name} must be numeric") from exc
+   59: 
+   60: 
+   61: class StructureEditorDialog(tk.Toplevel):
+   62:     """Dialog modal de criacao / edicao de estrutura."""
+   63: 
+   64:     def __init__(
+   65:         self,
+   66:         parent: tk.Widget,
+   67:         structure_id: Optional[int] = None,
+   68:         db_path: str = "dados/app.db",
+   69:         *,
+   70:         _repo=None,                          # <-- injecao de dependencia (testes)
+   71:         _leg_enrichment_service=None,        # <-- injecao opcional para testes
+   72:     ):
+   73:         super().__init__(parent)
+   74: 
+   75:         self._structure_id = structure_id
+   76:         self._db_path      = db_path
+   77:         self.saved         = False
+   78:         self.saved_structure_id = None
+   79:         self._legs_rows: list[dict] = []
+   80: 
+   81:         # Injeta repositorio mockado em testes, ou cria o real em producao
+   82:         if _repo is not None:
+   83:             self._repo = _repo
+   84:         else:
+   85:             self._repo = StructuresRepository(db_path)
+   86: 
+   87:         self._leg_enrichment_service = _leg_enrichment_service
+   88: 
+   89:         # Variaveis de formulario -- inicializadas ANTES de _build_ui
+   90:         # para que _load_existing() possa fazer .set() mesmo se chamado
+   91:         # antes do mainloop (cenario de teste headless via object.__new__)
+   92:         self._f_name       = tk.StringVar()
+   93:         self._f_underlying = tk.StringVar()
+   94:         self._f_alias      = tk.StringVar()
+   95:         self._f_status     = tk.StringVar(value="active")
+   96:         self._f_notes      = tk.StringVar()
+   97: 
+   98:         self._build_ui()
+   99: 
+
+--- linhas 105 a 125 ---
+  105:         self.grab_set()
+  106:         self.resizable(True, True)
+  107:         self.minsize(640, 480)
+  108: 
+  109:     # ------------------------------------------------------------------
+  110:     # Construcao da UI
+  111:     # ------------------------------------------------------------------
+  112: 
+  113:     def _build_ui(self):
+  114:         title = "Nova Estrutura" if self._structure_id is None else "Editar Estrutura"
+  115:         self.title(title)
+  116: 
+  117:         # === Cabecalho ===
+  118:         hdr = ttk.LabelFrame(self, text="Dados Gerais", padding=8)
+  119:         hdr.pack(fill="x", padx=8, pady=(8, 4))
+  120: 
+  121:         fields = [
+  122:             ("Nome *",         self._f_name,       "entry", None),
+  123:             ("Ativo *",        self._f_underlying, "entry", None),
+  124:             ("Aba / Alias",    self._f_alias,      "entry", None),
+  125:             ("Status",         self._f_status,     "combo", ["active", "archived"]),
+
+--- linhas 183 a 203 ---
+  183: 
+  184:         # === Botoes de acao ===
+  185:         btn_bar = ttk.Frame(self)
+  186:         btn_bar.pack(fill="x", padx=8, pady=8)
+  187: 
+  188:         ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
+  189:         ttk.Button(btn_bar, text="[SAVE] Salvar", command=self._cmd_save).pack(side="right", padx=4)
+  190: 
+  191:     def _build_leg_form(self, parent: tk.Widget):
+  192:         """Formulario colapsavel para editar / adicionar uma leg."""
+  193:         form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
+  194:         form.pack(fill="x", pady=(6, 0))
+  195: 
+  196:         self._lf_side    = tk.StringVar(value="COMPRADO")
+  197:         self._lf_type    = tk.StringVar(value="CALL")
+  198:         self._lf_strike  = tk.StringVar()
+  199:         self._lf_expiry  = tk.StringVar()
+  200:         self._lf_qty     = tk.StringVar(value="1")
+  201:         self._lf_premium = tk.StringVar()
+  202:         self._lf_mult    = tk.StringVar(value="1")
+  203:         self._lf_symbol  = tk.StringVar()
+
+--- linhas 235 a 269 ---
+  235:             ttk.Entry(r2, textvariable=var, width=10).pack(side="left", padx=(0, 8))
+  236: 
+  237:         # Botoes da leg
+  238:         btns = ttk.Frame(form)
+  239:         btns.pack(fill="x", pady=(4, 0))
+  240: 
+  241:         ttk.Button(
+  242:             btns,
+  243:             text="Auto preencher por simbolo",
+  244:             command=self._cmd_enrich_current_leg,
+  245:         ).pack(side="right", padx=(4, 0))
+  246: 
+  247:         ttk.Button(
+  248:             btns,
+  249:             text="[v] Aplicar Leg",
+  250:             command=self._cmd_apply_leg,
+  251:         ).pack(side="right")
+  252: 
+  253:     # ------------------------------------------------------------------
+  254:     # Carregar estrutura existente
+  255:     # ------------------------------------------------------------------
+  256: 
+  257:     def _load_existing(self):
+  258:         """
+  259:         Carrega campos e legs de uma estrutura existente via repositorio.
+  260:         Usa self._structure_id (nao recebe argumento -- compativel com testes
+  261:         que chamam dlg._load_existing() sem parametros).
+  262:         """
+  263:         data = self._repo.get_structure(self._structure_id)
+  264:         if data is None:
+  265:             messagebox.showerror(
+  266:                 "Erro",
+  267:                 f"Estrutura {self._structure_id} nao encontrada.",
+  268:                 parent=self,
+  269:             )
+
+--- linhas 278 a 341 ---
+  278: 
+  279:         self._legs_rows = list(data.get("legs", []))
+  280:         self._refresh_leg_tree()
+  281: 
+  282:     # ------------------------------------------------------------------
+  283:     # Renderizacao da leg tree
+  284:     # ------------------------------------------------------------------
+  285: 
+  286:     def _refresh_leg_tree(self):
+  287:         self._leg_tree.delete(*self._leg_tree.get_children())
+  288:         for i, leg in enumerate(self._legs_rows, 1):
+  289:             self._leg_tree.insert("", "end", iid=str(i - 1), values=(
+  290:                 i,
+  291:                 leg.get("position_side", ""),
+  292:                 leg.get("option_type", ""),
+  293:                 leg.get("strike", ""),
+  294:                 leg.get("expiration_date", ""),
+  295:                 leg.get("quantity", ""),
+  296:                 leg.get("premium") or "",
+  297:                 leg.get("multiplier", 1),
+  298:                 leg.get("symbol") or "",
+  299:             ))
+  300: 
+  301:     def _selected_leg_index(self) -> Optional[int]:
+  302:         sel = self._leg_tree.selection()
+  303:         if not sel:
+  304:             return None
+  305:         try:
+  306:             return int(sel[0])
+  307:         except (ValueError, TypeError):
+  308:             return None
+  309: 
+  310:     # ------------------------------------------------------------------
+  311:     # Callbacks de legs
+  312:     # ------------------------------------------------------------------
+  313: 
+  314:     def _on_leg_double_click(self, _event=None):
+  315:         """Popula o formulario com a leg duplo-clicada."""
+  316:         idx = self._selected_leg_index()
+  317:         if idx is None:
+  318:             return
+  319:         leg = self._legs_rows[idx]
+  320:         self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
+  321:         self._lf_type.set(leg.get("option_type", "CALL"))
+  322:         self._lf_strike.set(str(leg.get("strike", "")))
+  323:         self._lf_expiry.set(str(leg.get("expiration_date", "")))
+  324:         self._lf_qty.set(str(leg.get("quantity", "1")))
+  325:         self._lf_premium.set(str(leg.get("premium") or ""))
+  326:         self._lf_mult.set(str(leg.get("multiplier", 1)))
+  327:         self._lf_symbol.set(str(leg.get("symbol") or ""))
+  328: 
+  329:     def _cmd_add_leg(self):
+  330:         """Adiciona uma leg nova em branco e seleciona para edicao."""
+  331:         new_leg = {
+  332:             "position_side":   "COMPRADO",
+  333:             "option_type":     "CALL",
+  334:             "strike":          "",
+  335:             "expiration_date": "",
+  336:             "quantity":        1,
+  337:             "premium":         None,
+  338:             "multiplier":      1.0,
+  339:             "leg_order":       len(self._legs_rows) + 1,
+  340:             "symbol":          None,
+  341:             "notes":           None,
+
+--- linhas 345 a 418 ---
+  345:         new_iid = str(len(self._legs_rows) - 1)
+  346:         self._leg_tree.selection_set(new_iid)
+  347:         self._on_leg_double_click()
+  348: 
+  349:     # ------------------------------------------------------------------
+  350:     # _add_leg_row: alias publico exigido pelos checks estaticos do alteracao_69
+  351:     # Delega para _cmd_add_leg mantendo compatibilidade total.
+  352:     # ------------------------------------------------------------------
+  353:     def _add_leg_row(self):
+  354:         """
+  355:         Alias publico de _cmd_add_leg().
+  356:         Exigido por test_classe_presente (alteracao_69) que verifica:
+  357:             hasattr(StructureEditorDialog, '_add_leg_row')
+  358:         """
+  359:         self._cmd_add_leg()
+  360: 
+  361:     def _cmd_remove_leg(self):
+  362:         idx = self._selected_leg_index()
+  363:         if idx is None:
+  364:             messagebox.showwarning("Remover Leg", "Selecione uma leg primeiro.", parent=self)
+  365:             return
+  366:         self._legs_rows.pop(idx)
+  367:         self._refresh_leg_tree()
+  368: 
+  369:     def _cmd_move_leg(self, direction: int):
+  370:         idx = self._selected_leg_index()
+  371:         if idx is None:
+  372:             return
+  373:         new_idx = idx + direction
+  374:         if new_idx < 0 or new_idx >= len(self._legs_rows):
+  375:             return
+  376:         self._legs_rows[idx], self._legs_rows[new_idx] = (
+  377:             self._legs_rows[new_idx],
+  378:             self._legs_rows[idx],
+  379:         )
+  380:         self._refresh_leg_tree()
+  381:         self._leg_tree.selection_set(str(new_idx))
+  382: 
+  383: 
+  384:     def _get_leg_enrichment_service(self):
+  385:         """Cria/lê o service de enriquecimento por símbolo sob demanda."""
+  386:         service = getattr(self, "_leg_enrichment_service", None)
+  387: 
+  388:         # Em testes headless via object.__new__, pode existir atributo de classe
+  389:         # ou mock incompatível. Só reutiliza se parecer um service válido.
+  390:         if service is not None and hasattr(service, "enrich"):
+  391:             return service
+  392: 
+  393:         repo = RtdOptionQuotesRepository(getattr(self, "_db_path", "dados/app.db"))
+  394:         service = StructureLegRtdEnrichmentService(repo)
+  395:         self._leg_enrichment_service = service
+  396:         return service
+  397: 
+  398:     @staticmethod
+  399:     def _leg_has_manual_required_fields(leg_data: dict) -> bool:
+  400:         """Compatibilidade: permite leg manual completa mesmo sem cotacao RTD."""
+  401:         return all(
+  402:             str(leg_data.get(key) or "").strip()
+  403:             for key in ("option_type", "strike", "expiration_date")
+  404:         )
+  405: 
+  406:     def _enrich_leg_data_from_symbol(
+  407:         self,
+  408:         leg_data: dict,
+  409:         *,
+  410:         require_quote: bool,
+  411:     ) -> dict:
+  412:         """Enriquece uma leg por symbol/codigo_opcao quando informado.
+  413: 
+  414:         require_quote=True:
+  415:             usado no botao/aplicar leg; symbol invalido bloqueia.
+  416: 
+  417:         require_quote=False:
+  418:             usado no save/build payload; se a leg manual ja esta completa,
+
+--- linhas 423 a 613 ---
+  423:             return leg_data
+  424: 
+  425:         # Compatibilidade com testes e com fluxo manual completo:
+  426:         # _build_legs_payload historicamente era uma rotina pura, sem I/O.
+  427:         if not require_quote and self._leg_has_manual_required_fields(leg_data):
+  428:             return leg_data
+  429: 
+  430:         try:
+  431:             enriched = self._get_leg_enrichment_service().enrich(leg_data)
+  432:         except Exception:
+  433:             if not require_quote and self._leg_has_manual_required_fields(leg_data):
+  434:                 return leg_data
+  435:             raise
+  436: 
+  437:         merged = dict(leg_data)
+  438:         merged.update(enriched)
+  439:         return merged
+  440: 
+  441:     def _sync_underlying_from_enriched_leg(self, enriched: dict) -> None:
+  442:         """Preenche/valida o ativo objeto da estrutura a partir da opção."""
+  443:         underlying = str(enriched.get("underlying_asset") or "").strip().upper()
+  444:         if not underlying:
+  445:             return
+  446: 
+  447:         current = self._f_underlying.get().strip().upper()
+  448:         if current and current != underlying:
+  449:             raise ValueError(
+  450:                 "Ativo objeto divergente do símbolo informado: "
+  451:                 f"estrutura={current}, detectado={underlying}, "
+  452:                 f"symbol={enriched.get('symbol')}"
+  453:             )
+  454: 
+  455:         if not current:
+  456:             self._f_underlying.set(underlying)
+  457: 
+  458:     def _current_leg_form_data(self, idx: int | None = None) -> dict:
+  459:         return {
+  460:             "position_side":   normalize_position_side(self._lf_side.get()),
+  461:             "option_type":     self._lf_type.get(),
+  462:             "strike":          self._lf_strike.get(),
+  463:             "expiration_date": self._lf_expiry.get(),
+  464:             "quantity":        self._lf_qty.get(),
+  465:             "premium":         self._lf_premium.get() or None,
+  466:             "multiplier":      self._lf_mult.get() or 1,
+  467:             "leg_order":       (idx + 1) if idx is not None else 1,
+  468:             "symbol":          self._lf_symbol.get() or None,
+  469:             "notes":           None,
+  470:         }
+  471: 
+  472:     def _apply_enriched_leg_to_form(self, enriched: dict) -> None:
+  473:         """Reflete dados detectados no formulario visual da leg."""
+  474:         if enriched.get("option_type"):
+  475:             self._lf_type.set(str(enriched["option_type"]).upper())
+  476:         if enriched.get("strike") is not None:
+  477:             self._lf_strike.set(str(enriched["strike"]))
+  478:         if enriched.get("expiration_date"):
+  479:             self._lf_expiry.set(str(enriched["expiration_date"]))
+  480:         if enriched.get("multiplier") is not None:
+  481:             self._lf_mult.set(str(enriched["multiplier"]))
+  482:         if enriched.get("symbol"):
+  483:             self._lf_symbol.set(str(enriched["symbol"]).upper())
+  484: 
+  485:     def _cmd_enrich_current_leg(self):
+  486:         """Botao: auto preenche leg usando symbol/codigo_opcao."""
+  487:         idx = self._selected_leg_index()
+  488:         if idx is None:
+  489:             messagebox.showwarning(
+  490:                 "Auto preencher",
+  491:                 "Selecione uma leg na lista primeiro.",
+  492:                 parent=self,
+  493:             )
+  494:             return
+  495: 
+  496:         try:
+  497:             leg_data = self._current_leg_form_data(idx)
+  498:             enriched = self._enrich_leg_data_from_symbol(
+  499:                 leg_data,
+  500:                 require_quote=True,
+  501:             )
+  502:             self._sync_underlying_from_enriched_leg(enriched)
+  503:             self._apply_enriched_leg_to_form(enriched)
+  504:             self._legs_rows[idx] = enriched
+  505:             self._refresh_leg_tree()
+  506:         except ValueError as exc:
+  507:             messagebox.showerror("Auto preencher", str(exc), parent=self)
+  508: 
+  509:     def _cmd_apply_leg(self):
+  510:         """Aplica os valores do formulario na leg selecionada."""
+  511:         idx = self._selected_leg_index()
+  512:         if idx is None:
+  513:             messagebox.showwarning(
+  514:                 "Aplicar Leg", "Selecione uma leg na lista primeiro.", parent=self
+  515:             )
+  516:             return
+  517: 
+  518:         try:
+  519:             leg_data = self._current_leg_form_data(idx)
+  520: 
+  521:             # Fase 3: se houver simbolo, tenta reconhecer a opcao e preencher
+  522:             # ativo, tipo, strike, vencimento e multiplicador.
+  523:             if leg_data.get("symbol"):
+  524:                 leg_data = self._enrich_leg_data_from_symbol(
+  525:                     leg_data,
+  526:                     require_quote=True,
+  527:                 )
+  528:                 self._sync_underlying_from_enriched_leg(leg_data)
+  529:                 self._apply_enriched_leg_to_form(leg_data)
+  530: 
+  531:             self._legs_rows[idx] = leg_data
+  532:             self._refresh_leg_tree()
+  533: 
+  534:         except ValueError as exc:
+  535:             messagebox.showerror("Erro de Validacao", str(exc), parent=self)
+  536: 
+  537:     # ------------------------------------------------------------------
+  538:     # Logica de payload (pura -- testavel sem display)
+  539:     # ------------------------------------------------------------------
+  540: 
+  541: 
+  542:     def _build_legs_payload(self) -> list[dict]:
+  543:         """
+  544:         Constrói lista de legs com leg_order sequencial a partir de 1.
+  545: 
+  546:         Regras:
+  547:         - Não modifica self._legs_rows.
+  548:         - Normaliza position_side legado: LONG/SHORT -> COMPRADO/VENDIDO.
+  549:         - Aceita decimal pt-BR com vírgula em strike, premium e multiplier.
+  550:         - Mantém premium None quando vazio.
+  551:         """
+  552: 
+  553:         def _parse_decimal(value, field_name: str) -> float:
+  554:             if value is None or value == "":
+  555:                 raise ValueError(f"{field_name} is required")
+  556: 
+  557:             if isinstance(value, (int, float)):
+  558:                 return float(value)
+  559: 
+  560:             text = str(value).strip()
+  561:             if not text:
+  562:                 raise ValueError(f"{field_name} is required")
+  563: 
+  564:             # Suporta "100,50" e também "1.234,56".
+  565:             if "," in text and "." in text:
+  566:                 text = text.replace(".", "").replace(",", ".")
+  567:             else:
+  568:                 text = text.replace(",", ".")
+  569: 
+  570:             try:
+  571:                 return float(text)
+  572:             except ValueError as exc:
+  573:                 raise ValueError(f"{field_name} must be numeric") from exc
+  574: 
+  575:         def _parse_int(value, field_name: str) -> int:
+  576:             number = _parse_decimal(value, field_name)
+  577:             if int(number) != number:
+  578:                 raise ValueError(f"{field_name} must be integer")
+  579:             return int(number)
+  580: 
+  581:         def _normalize_position_side(value) -> str:
+  582:             text = str(value or "").strip().upper()
+  583:             mapping = {
+  584:                 "LONG": "COMPRADO",
+  585:                 "BUY": "COMPRADO",
+  586:                 "BOUGHT": "COMPRADO",
+  587:                 "COMPRADO": "COMPRADO",
+  588:                 "SHORT": "VENDIDO",
+  589:                 "SELL": "VENDIDO",
+  590:                 "SOLD": "VENDIDO",
+  591:                 "VENDIDO": "VENDIDO",
+  592:             }
+  593:             return mapping.get(text, text)
+  594: 
+  595:         payload = []
+  596: 
+  597:         for index, leg in enumerate(self._legs_rows, start=1):
+  598:             row = dict(leg)
+  599: 
+  600:             try:
+  601:                 row = self._enrich_leg_data_from_symbol(
+  602:                     row,
+  603:                     require_quote=False,
+  604:                 )
+  605:             except ValueError as exc:
+  606:                 raise ValueError(f"Leg {index}: {exc}") from exc
+  607: 
+  608:             row["position_side"] = _normalize_position_side(
+  609:                 row.get("position_side", "COMPRADO")
+  610:             )
+  611:             row["strike"] = _parse_decimal(row.get("strike"), "strike")
+  612:             row["quantity"] = _parse_int(row.get("quantity", 1), "quantity")
+  613: 
+
+--- linhas 625 a 645 ---
+  625:                 else _parse_decimal(multiplier_raw, "multiplier")
+  626:             )
+  627: 
+  628:             row["leg_order"] = index
+  629:             payload.append(row)
+  630: 
+  631:         return payload
+  632: 
+  633:     def _cmd_save(self):
+  634:         name       = self._f_name.get().strip()
+  635:         underlying = self._f_underlying.get().strip()
+  636: 
+  637:         if not name:
+  638:             messagebox.showwarning("Salvar", "O campo 'Nome' e obrigatorio.", parent=self)
+  639:             return
+  640: 
+  641:         try:
+  642:             legs_payload = self._build_legs_payload()
+  643:         except ValueError as exc:
+  644:             messagebox.showerror("Erro de Validacao", str(exc), parent=self)
+  645:             return
+
+====================================================================================================
+ARQUIVO: UI/main_window.py
+====================================================================================================
+
+--- linhas 19 a 40 ---
+   19: import matplotlib.pyplot as plt
+   20: # FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import
+   21: from pathlib import Path
+   22: import threading
+   23: import time
+   24: 
+   25: PROJECT_ROOT = Path(__file__).resolve().parents[1]
+   26: 
+   27: class MainWindow:
+   28:     def __init__(self):
+   29:         self.root = tk.Tk()
+   30:         self.root.title("Sistema de Derivados - Análise de Decisões")
+   31:         self.root.geometry("1400x900")
+   32: 
+   33:         # Data model
+   34:         self.data_model = UIDataModel()
+   35: 
+   36:         # Caminho canônico ao banco operacional (alteracao_70/71)
+   37:         self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+   38: 
+   39:         # Threading control: evitar freeze da UI
+   40:         self._payoff_worker_id = 0
+
+--- linhas 67 a 87 ---
+   67:         self._bind_events()
+   68: 
+   69:         # Carregar dados iniciais
+   70:         self.refresh_data()
+   71: 
+   72:         # Iniciar atualização automática controlada.
+   73:         self.start_auto_refresh()
+   74: 
+   75:     def _setup_layout(self):
+   76:         """Organiza layout em painéis."""
+   77:         main_paned = ttk.PanedWindow(self.root, orient="horizontal")
+   78:         main_paned.pack(fill="both", expand=True, padx=5, pady=5)
+   79: 
+   80:         # Painel esquerdo: filtros + grid
+   81:         left_frame = ttk.Frame(main_paned)
+   82:         main_paned.add(left_frame, weight=1)
+   83: 
+   84:         # Painel direito: notebook com abas
+   85:         right_frame = ttk.Frame(main_paned)
+   86:         main_paned.add(right_frame, weight=2)
+   87: 
+
+--- linhas 127 a 147 ---
+  127:         self.status_bar = ttk.Label(
+  128:             self.root,
+  129:             text="Pronto",
+  130:             relief=tk.SUNKEN,
+  131:             anchor="w",
+  132:         )
+  133:         self.status_bar.pack(side="bottom", fill="x")
+  134: 
+  135:     def _setup_menus(self):
+  136:         """Cria menu superior."""
+  137:         menubar = tk.Menu(self.root)
+  138:         self.root.config(menu=menubar)
+  139: 
+  140:         # Menu Arquivo
+  141:         file_menu = tk.Menu(menubar, tearoff=0)
+  142:         menubar.add_cascade(label="Arquivo", menu=file_menu)
+  143:         file_menu.add_command(label="Recarregar Tela", command=self.refresh_data)
+  144:         file_menu.add_separator()
+  145:         file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+  146:         file_menu.add_separator()
+  147:         file_menu.add_command(label="Sair", command=self.close)
+
+--- linhas 154 a 196 ---
+  154:         tools_menu.add_separator()
+  155:         tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+  156: 
+  157:         # Menu Ajuda
+  158:         help_menu = tk.Menu(menubar, tearoff=0)
+  159:         menubar.add_cascade(label="Ajuda", menu=help_menu)
+  160:         help_menu.add_command(label="Sobre", command=self.show_about)
+  161: 
+  162:     def _bind_events(self):
+  163:         """Vincula atalhos de teclado."""
+  164:         self.root.bind("<F5>", lambda e: self.refresh_data())
+  165:         self.root.bind("<Control-q>", lambda e: self.close())
+  166:         self.root.protocol("WM_DELETE_WINDOW", self.close)
+  167: 
+  168:     # ------------------------------------------------------------------
+  169:     # Callbacks
+  170:     # ------------------------------------------------------------------
+  171: 
+  172:     def on_filter_change(self, filters: Dict):
+  173:         """Callback quando filtros mudam."""
+  174:         self.status_bar.config(text="Aplicando filtros...")
+  175:         try:
+  176:             filtered_data = self.data_model.get_decisions(filters)
+  177:             self.decisions_grid.update_data(filtered_data)
+  178:             count = len(filtered_data)
+  179:             self.status_bar.config(text=f"{count} decisões encontradas")
+  180:         except Exception as e:
+  181:             messagebox.showerror("Erro", f"Erro ao aplicar filtros: {e}")
+  182:             self.status_bar.config(text="Erro nos filtros")
+  183: 
+  184:     def on_decision_selected(self, decision_data: Dict):
+  185:         """Callback quando uma decisão é selecionada no grid.
+  186:         alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+  187:         """
+  188:         if not decision_data:
+  189:             return
+  190: 
+  191:         self.last_selected_decision = dict(decision_data)
+  192: 
+  193:         # Atualizar painel de detalhes (síncrono, leve)
+  194:         try:
+  195:             self.details_panel.update_decision(decision_data)
+  196:         except Exception as e:
+
+--- linhas 201 a 243 ---
+  201:         timestamp = decision_data.get("timestamp")  # opcional
+  202: 
+  203:         if structure_id is not None:
+  204:             self._start_payoff_load(structure_id, timestamp, decision_data)
+  205:         else:
+  206:             self.payoff_chart.clear()
+  207:             self.status_bar.config(text="Dados insuficientes para payoff")
+  208: 
+  209:     def _start_payoff_load(
+  210:         self,
+  211:         structure_id,
+  212:         timestamp=None,       # alteracao_36: opcional
+  213:         decision_data=None,   # alteracao_36: opcional
+  214:     ):
+  215:         """Inicia carregamento de payoff em thread separada.
+  216:         alteracao_36: structure_id é a única chave obrigatória.
+  217:         """
+  218:         if decision_data is None:
+  219:             decision_data = {"structure_id": structure_id}
+  220: 
+  221:         self._payoff_worker_id += 1
+  222:         current_worker_id = self._payoff_worker_id
+  223: 
+  224:         if self._loading_payoff:
+  225:             self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+  226:         else:
+  227:             self.status_bar.config(text="Carregando payoff...")
+  228: 
+  229:         self._loading_payoff = True
+  230: 
+  231:         def load_worker():
+  232:             try:
+  233:                 points, info_dict = self.data_model.get_payoff_curve_info(
+  234:                     structure_id, timestamp
+  235:                 )
+  236:                 try:
+  237:                     debug(
+  238:                         f"payoff structure_id={structure_id} ts_req={timestamp} "
+  239:                         f"-> n={len(points or [])} info={info_dict}"
+  240:                     )
+  241:                 except Exception:
+  242:                     pass
+  243: 
+
+--- linhas 276 a 296 ---
+  276:                         self._handle_payoff_error,
+  277:                         str(e),
+  278:                         current_worker_id,
+  279:                     )
+  280: 
+  281:         thread = threading.Thread(target=load_worker, daemon=True)
+  282:         thread.start()
+  283: 
+  284:     def refresh_data(self, show_errors: bool = True):
+  285:         """Recarrega dados do banco.
+  286:         alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
+  287:         """
+  288:         self.status_bar.config(text="Carregando dados...")
+  289:         try:
+  290:             self.data_model.refresh()
+  291: 
+  292:             try:
+  293:                 self.filters_panel.update_structures(
+  294:                     self.data_model.get_structures()
+  295:                 )
+  296:             except Exception:
+
+--- linhas 345 a 411 ---
+  345: 
+  346:         except Exception as e:
+  347:             if show_errors:
+  348:                 messagebox.showerror("Erro", f"Erro ao carregar dados: {e}")
+  349:             else:
+  350:                 print(f"[UI] Erro na atualização automática: {e}")
+  351:             self.status_bar.config(text="Erro ao carregar dados")
+  352: 
+  353:     def close(self):
+  354:         """Fecha a janela cancelando agendamentos automáticos pendentes."""
+  355:         self._closing = True
+  356:         self.stop_auto_refresh()
+  357:         try:
+  358:             self.root.quit()
+  359:         except Exception:
+  360:             pass
+  361: 
+  362:     def start_auto_refresh(self):
+  363:         """Inicia o ciclo de atualização automática da tela."""
+  364:         self._auto_refresh_enabled = True
+  365:         self._schedule_auto_refresh()
+  366: 
+  367:     def stop_auto_refresh(self):
+  368:         """Interrompe o ciclo de atualização automática da tela."""
+  369:         self._auto_refresh_enabled = False
+  370:         after_id = getattr(self, "_auto_refresh_after_id", None)
+  371:         self._auto_refresh_after_id = None
+  372: 
+  373:         if after_id is not None:
+  374:             try:
+  375:                 self.root.after_cancel(after_id)
+  376:             except Exception:
+  377:                 pass
+  378: 
+  379:     def _schedule_auto_refresh(self):
+  380:         """Agenda a próxima atualização automática, garantindo um único after."""
+  381:         if (
+  382:             not getattr(self, "_auto_refresh_enabled", False)
+  383:             or getattr(self, "_closing", False)
+  384:         ):
+  385:             return
+  386: 
+  387:         previous_after_id = getattr(self, "_auto_refresh_after_id", None)
+  388:         if previous_after_id is not None:
+  389:             try:
+  390:                 self.root.after_cancel(previous_after_id)
+  391:             except Exception:
+  392:                 pass
+  393: 
+  394:         self._auto_refresh_after_id = self.root.after(
+  395:             self._auto_refresh_interval_ms,
+  396:             self._auto_refresh_tick,
+  397:         )
+  398: 
+  399:     def _auto_refresh_tick(self):
+  400:         """Executa uma atualização automática sem pipeline e sem recálculo."""
+  401:         self._auto_refresh_after_id = None
+  402: 
+  403:         if (
+  404:             not getattr(self, "_auto_refresh_enabled", False)
+  405:             or getattr(self, "_closing", False)
+  406:         ):
+  407:             return
+  408: 
+  409:         if (
+  410:             getattr(self, "_auto_refresh_in_progress", False)
+  411:             or getattr(self, "_recalc_in_progress", False)
+
+--- linhas 421 a 457 ---
+  421:                     text=f"Dados atualizados automaticamente às {datetime.now():%H:%M:%S}"
+  422:                 )
+  423:             except Exception:
+  424:                 pass
+  425:         finally:
+  426:             self._auto_refresh_in_progress = False
+  427:             self._schedule_auto_refresh()
+  428: 
+  429:     def export_csv(self):
+  430:         """Exporta dados filtrados para CSV."""
+  431:         from tkinter import filedialog
+  432: 
+  433:         filename = filedialog.asksaveasfilename(
+  434:             defaultextension=".csv",
+  435:             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+  436:         )
+  437:         if filename:
+  438:             try:
+  439:                 current_data = self.decisions_grid.get_current_data()
+  440:                 self.data_model.export_to_csv(current_data, filename)
+  441:                 messagebox.showinfo("Sucesso", f"Dados exportados para {filename}")
+  442:             except Exception as e:
+  443:                 messagebox.showerror("Erro", f"Erro ao exportar: {e}")
+  444: 
+  445:     def recalculate_structure(self, structure_id: str):
+  446:         """
+  447:         Recalcula a estrutura identificada por structure_id e atualiza a UI.
+  448: 
+  449:         Importante:
+  450:         - Este botão NÃO executa o pipeline completo.
+  451:         - Ele recalcula somente a estrutura selecionada via CanonicalPricingFacade.
+  452:         """
+  453:         if self._recalc_in_progress:
+  454:             try:
+  455:                 self.status_bar.config(
+  456:                     text=f"Recalc já em andamento; ignorando ({structure_id})"
+  457:                 )
+
+--- linhas 477 a 522 ---
+  477:         except Exception:
+  478:             pass
+  479: 
+  480:         try:
+  481:             self.status_bar.config(text=f"Recalculando estrutura {sid}...")
+  482:         except Exception:
+  483:             pass
+  484: 
+  485:         def finish(ok: bool, msg: str):
+  486:             self._recalc_in_progress = False
+  487: 
+  488:             try:
+  489:                 self.status_bar.config(text=msg)
+  490:             except Exception:
+  491:                 pass
+  492: 
+  493:             try:
+  494:                 if hasattr(self, "details_panel") and hasattr(
+  495:                     self.details_panel, "on_recalc_finished"
+  496:                 ):
+  497:                     self.details_panel.on_recalc_finished(
+  498:                         str(sid), ok=ok, message=msg
+  499:                     )
+  500:             except Exception as e:
+  501:                 print("[UI] Erro notificando details_panel fim recalc:", e)
+  502: 
+  503:         def clear_ui_cache():
+  504:             try:
+  505:                 if hasattr(self, "data_model") and hasattr(self.data_model, "clear_cache"):
+  506:                     self.data_model.clear_cache()
+  507:             except Exception as e:
+  508:                 print("[UI] Erro limpando cache após recalc:", e)
+  509: 
+  510:         def worker():
+  511:             try:
+  512:                 from services.canonical_pricing_facade import CanonicalPricingFacade
+  513: 
+  514:                 facade = CanonicalPricingFacade(db_path=self._db_path)
+  515:                 result = facade.execute_pricing(sid)
+  516: 
+  517:                 print(f"[UI] Recalc structure_id={sid} result:", result)
+  518: 
+  519:                 if not isinstance(result, dict):
+  520:                     raise RuntimeError(f"Resposta inválida do pricing facade: {result!r}")
+  521: 
+  522:                 ok_statuses = {"success", "ok", "completed"}
+
+--- linhas 553 a 594 ---
+  553:                 self.root.after(
+  554:                     0,
+  555:                     lambda: finish(False, f"Erro no recálculo da estrutura {sid}: {e}"),
+  556:                 )
+  557: 
+  558:         threading.Thread(target=worker, daemon=True).start()
+  559: 
+  560: 
+  561:     def _extract_pipeline_summary(self, stdout: str) -> Dict:
+  562:         """Extrai o resumo JSON emitido por scripts/run_derived_pipeline.py."""
+  563:         import json
+  564: 
+  565:         marker = "[PIPELINE_SUMMARY_JSON]"
+  566:         for line in reversed((stdout or "").splitlines()):
+  567:             if marker in line:
+  568:                 payload = line.split(marker, 1)[1].strip()
+  569:                 try:
+  570:                     data = json.loads(payload)
+  571:                     return data if isinstance(data, dict) else {}
+  572:                 except Exception:
+  573:                     return {}
+  574:         return {}
+  575: 
+  576:     def _format_pipeline_value(self, value):
+  577:         """Formata valores do resumo operacional para exibição."""
+  578:         if value is None:
+  579:             return "n/d"
+  580:         return str(value)
+  581: 
+  582:     def _build_pipeline_feedback_message(self, stdout: str) -> str:
+  583:         """Monta mensagem amigável para o usuário após executar pipeline."""
+  584:         summary = self._extract_pipeline_summary(stdout)
+  585: 
+  586:         if not summary:
+  587:             return (
+  588:                 "Pipeline executado com sucesso.\n\n"
+  589:                 "Resumo operacional não disponível no stdout do pipeline."
+  590:             )
+  591: 
+  592:         lines = [
+  593:             "Pipeline executado com sucesso.",
+  594:             "",
+
+--- linhas 599 a 726 ---
+  599:             f"- Resumos de payoff: {self._format_pipeline_value(summary.get('payoff_summaries'))}",
+  600:             f"- Execuções de pricing: {self._format_pipeline_value(summary.get('pricing_executions'))}",
+  601:             f"- Cotações RTD atualizadas: {self._format_pipeline_value(summary.get('rtd_quotes_updated'))}",
+  602:             f"- Avisos: {self._format_pipeline_value(summary.get('warnings'))}",
+  603:             f"- Erros: {self._format_pipeline_value(summary.get('errors'))}",
+  604:         ]
+  605:         return "\n".join(lines)
+  606: 
+  607:     def _build_pipeline_status_message(self, stdout: str) -> str:
+  608:         """Monta texto curto para status bar após pipeline."""
+  609:         summary = self._extract_pipeline_summary(stdout)
+  610:         if not summary:
+  611:             return "Pipeline executado com sucesso"
+  612: 
+  613:         decisions = self._format_pipeline_value(summary.get("decisions"))
+  614:         payoff_points = self._format_pipeline_value(summary.get("payoff_points"))
+  615:         errors = self._format_pipeline_value(summary.get("errors"))
+  616: 
+  617:         return (
+  618:             f"Pipeline OK: decisões={decisions}; "
+  619:             f"pontos_payoff={payoff_points}; erros={errors}"
+  620:         )
+  621: 
+  622: 
+  623:     def run_pipeline(self):
+  624:         """Executa o pipeline de derivados."""
+  625:         result = messagebox.askyesno(
+  626:             "Executar Pipeline",
+  627:             "Executar pipeline de derivados?\nIsso pode demorar alguns segundos.",
+  628:         )
+  629:         if not result:
+  630:             return
+  631: 
+  632:         self.status_bar.config(text="Executando pipeline...")
+  633: 
+  634:         try:
+  635:             project_root = Path(__file__).resolve().parents[1]
+  636:             script_path = project_root / "scripts" / "run_derived_pipeline.py"
+  637:             if not script_path.exists():
+  638:                 script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+  639: 
+  640:             if not script_path.exists():
+  641:                 raise FileNotFoundError(
+  642:                     f"Não achei o script do pipeline em: {script_path}"
+  643:                 )
+  644: 
+  645:             import subprocess
+  646:             import sys
+  647: 
+  648:             res = subprocess.run(
+  649:                 [sys.executable, str(script_path)],
+  650:                 cwd=str(project_root),
+  651:                 check=True,
+  652:                 capture_output=True,
+  653:                 text=True,
+  654:             )
+  655: 
+  656:             if res.stdout:
+  657:                 print("[UI] Pipeline STDOUT:\n", res.stdout)
+  658:             if res.stderr:
+  659:                 print("[UI] Pipeline STDERR:\n", res.stderr)
+  660: 
+  661:             feedback = self._build_pipeline_feedback_message(res.stdout or "")
+  662:             status_msg = self._build_pipeline_status_message(res.stdout or "")
+  663: 
+  664:             messagebox.showinfo("Sucesso", feedback)
+  665:             self.refresh_data()
+  666:             self.status_bar.config(text=status_msg)
+  667: 
+  668:         except subprocess.CalledProcessError as e:
+  669:             messagebox.showerror(
+  670:                 "Erro",
+  671:                 "Pipeline falhou:\n\nSTDOUT:\n"
+  672:                 + (e.stdout or "")
+  673:                 + "\n\nSTDERR:\n"
+  674:                 + (e.stderr or ""),
+  675:             )
+  676:             self.status_bar.config(text="Pipeline falhou")
+  677:         except Exception as e:
+  678:             messagebox.showerror("Erro", f"Erro ao executar pipeline: {e}")
+  679:             self.status_bar.config(text="Erro ao executar pipeline")
+  680: 
+  681:     def check_databases(self):
+  682:         """Verifica status dos bancos de dados."""
+  683:         try:
+  684:             status = self.data_model.check_database_status()
+  685:             messagebox.showinfo("Status dos Bancos", status)
+  686:         except Exception as e:
+  687:             messagebox.showerror("Erro", f"Erro ao verificar bancos: {e}")
+  688: 
+  689:     def clear_cache(self):
+  690:         """Limpa cache interno."""
+  691:         self.data_model.clear_cache()
+  692:         messagebox.showinfo("Cache", "Cache limpo com sucesso")
+  693: 
+  694:     def show_about(self):
+  695:         """Mostra informações sobre o sistema."""
+  696:         about_text = """Sistema de Derivados v1.0
+  697: 
+  698: Desenvolvido para análise de estruturas de opções
+  699: Pipeline automático de payoff e decisões
+  700: 
+  701: Camadas:
+  702: * Excel RTD  CSV Bridge
+  703: * Ingest Python  app.db
+  704: * Domain Layer  derived.db
+  705: * UI Tkinter (esta interface)
+  706: 
+  707: Baseline: executed_v1 + baseline_v1b"""
+  708:         messagebox.showinfo("Sobre", about_text)
+  709: 
+  710:     # ------------------------------------------------------------------
+  711:     # Handlers de payoff (thread  main thread)
+  712:     # ------------------------------------------------------------------
+  713: 
+  714:     def _finish_payoff_load(
+  715:         self,
+  716:         points: List[Dict],
+  717:         info_dict: Dict,
+  718:         decision_data: Dict,
+  719:         worker_id: int,
+  720:     ):
+  721:         """Executado na thread principal quando a curva chega do worker."""
+  722:         if worker_id != self._payoff_worker_id:
+  723:             return
+  724: 
+  725:         self._loading_payoff = False
+  726:         self._stop_loading_animation()
+
+--- linhas 752 a 813 ---
+  752:                     msg += f" | ts usado: {used_ts}"
+  753:                 self.status_bar.config(text=msg)
+  754:             else:
+  755:                 self.payoff_chart.clear()
+  756:                 self.status_bar.config(text="Sem dados de payoff para esta seleção")
+  757:         except Exception as e:
+  758:             self._handle_payoff_error(str(e), worker_id)
+  759: 
+  760:     def _handle_payoff_error(self, error_msg: str, worker_id: int):
+  761:         if worker_id != self._payoff_worker_id:
+  762:             return
+  763:         self._loading_payoff = False
+  764:         self._stop_loading_animation()
+  765:         try:
+  766:             self.payoff_chart.clear()
+  767:         except Exception:
+  768:             pass
+  769:         self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+  770:         print(f"[UI] Erro no payoff: {error_msg}")
+  771:         import traceback
+  772:         traceback.print_exc()
+  773: 
+  774:     # ------------------------------------------------------------------
+  775:     # Loading animation
+  776:     # ------------------------------------------------------------------
+  777: 
+  778:     def _start_loading_animation(self, base_text: str):
+  779:         self._loading_animation_active = True
+  780:         self._loading_animation_index = 0
+  781: 
+  782:         def animate():
+  783:             if not self._loading_animation_active:
+  784:                 return
+  785:             char = self._loading_animation_chars[self._loading_animation_index]
+  786:             self.status_bar.config(text=f"{char} {base_text}")
+  787:             self._loading_animation_index = (
+  788:                 self._loading_animation_index + 1
+  789:             ) % len(self._loading_animation_chars)
+  790:             self.root.after(100, animate)
+  791: 
+  792:         animate()
+  793: 
+  794:     def _stop_loading_animation(self):
+  795:         self._loading_animation_active = False
+  796: 
+  797:     # ------------------------------------------------------------------
+  798:     # Aba Estruturas (Fase 5 -- alteracao_10)
+  799:     # ------------------------------------------------------------------
+  800: 
+  801:     def _setup_structures_tab(self, notebook: ttk.Notebook):
+  802:         """Aba 'Estruturas' no notebook principal."""
+  803:         outer = ttk.Frame(notebook)
+  804:         notebook.add(outer, text=" Estruturas")
+  805: 
+  806:         paned = ttk.PanedWindow(outer, orient="horizontal")
+  807:         paned.pack(fill="both", expand=True, padx=4, pady=4)
+  808: 
+  809:         # Painel esquerdo -- lista
+  810:         list_frame = ttk.Frame(paned)
+  811:         paned.add(list_frame, weight=1)
+  812: 
+  813:         self.structures_list = StructuresListPanel(
+
+--- linhas 826 a 846 ---
+  826:             detail_frame,
+  827:             state="disabled",
+  828:             wrap="word",
+  829:             font=("Consolas", 9),
+  830:             background="#fafafa",
+  831:         )
+  832:         self._struct_detail_text.pack(fill="both", expand=True)
+  833: 
+  834:     def _on_structure_selected(self, structure: Optional[Dict]):
+  835:         """Exibe detalhes da estrutura selecionada no painel direito."""
+  836:         txt = self._struct_detail_text
+  837:         txt.config(state="normal")
+  838:         txt.delete("1.0", "end")
+  839: 
+  840:         if structure is None:
+  841:             txt.insert("end", "Nenhuma estrutura selecionada.")
+  842:         else:
+  843:             legs = structure.get("legs", [])
+  844:             lines = [
+  845:                 f"ID         : {structure.get('id')}",
+  846:                 f"Nome       : {structure.get('name')}",
+
+--- linhas 860 a 938 ---
+  860:                     f"         Qtde   : {leg.get('quantity')}  Símbolo: {leg.get('symbol') or '--'}",
+  861:                     f"         Prêmio : {leg.get('premium')}  Mult: {leg.get('multiplier')}",
+  862:                     "",
+  863:                 ]
+  864:             txt.insert("end", "\n".join(lines))
+  865: 
+  866:         txt.config(state="disabled")
+  867: 
+  868:     def _on_structure_edit_request(self, structure_id: Optional[int]):
+  869:         """Abre dialog de criação (None) ou edição (int)."""
+  870:         dlg = StructureEditorDialog(
+  871:             self.root,
+  872:             structure_id=structure_id,
+  873:             db_path=self._db_path,                            # ← usa instância
+  874:         )
+  875:         self.root.wait_window(dlg)
+  876:         if dlg.saved:
+  877:             saved_structure_id = getattr(dlg, "saved_structure_id", None) or structure_id
+  878: 
+  879:             self.structures_list.load()
+  880: 
+  881:             try:
+  882:                 self.status_bar.config(text="Estrutura salva com sucesso.")
+  883:             except Exception:
+  884:                 pass
+  885: 
+  886:             if saved_structure_id is not None:
+  887:                 self._reprice_structure_after_save(int(saved_structure_id))
+  888: 
+  889: 
+  890:     def _reprice_structure_after_save(self, structure_id: int) -> None:
+  891:         """
+  892:         Recalcula pricing/payoff/decisão após criação ou edição manual.
+  893: 
+  894:         Usa thread para não congelar a UI.
+  895:         Falhas não desfazem o cadastro da estrutura.
+  896:         """
+  897: 
+  898:         def _set_status(text: str) -> None:
+  899:             try:
+  900:                 self.status_bar.config(text=text)
+  901:             except Exception:
+  902:                 pass
+  903: 
+  904:         def _post_status(text: str) -> None:
+  905:             try:
+  906:                 self.root.after(0, lambda: _set_status(text))
+  907:             except Exception:
+  908:                 _set_status(text)
+  909: 
+  910:         sid = int(structure_id)
+  911:         _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+  912: 
+  913:         def _worker() -> None:
+  914:             try:
+  915:                 # Import lazy para evitar side-effects no import da UI/testes.
+  916:                 from services.canonical_pricing_facade import CanonicalPricingFacade
+  917: 
+  918:                 facade = CanonicalPricingFacade(db_path=self._db_path)
+  919:                 result = facade.execute_pricing(sid)
+  920: 
+  921:                 if isinstance(result, dict) and result.get("status") == "error":
+  922:                     raise RuntimeError(
+  923:                         result.get("error_message") or "Erro no recálculo automático"
+  924:                     )
+  925: 
+  926:                 def _after_success() -> None:
+  927:                     _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+  928:                     try:
+  929:                         self.refresh_data()
+  930:                     except Exception:
+  931:                         pass
+  932: 
+  933:                 try:
+  934:                     self.root.after(0, _after_success)
+  935:                 except Exception:
+  936:                     _after_success()
+  937: 
+  938:             except Exception as exc:
+
+--- linhas 942 a 960 ---
+  942: 
+  943:         threading.Thread(target=_worker, daemon=True).start()
+  944: 
+  945: 
+  946:     # ------------------------------------------------------------------
+  947:     # Entry point
+  948:     # ------------------------------------------------------------------
+  949: 
+  950:     def run(self):
+  951:         """Inicia a aplicação."""
+  952:         self.root.mainloop()
+  953: 
+  954: def main():
+  955:     """Entry point da UI."""
+  956:     app = MainWindow()
+  957:     app.run()
+  958: 
+  959: if __name__ == "__main__":
+  960:     main()
+
+====================================================================================================
+ARQUIVO: scripts/import_lista_rtd_excel_to_option_quotes.py
+====================================================================================================
+
+--- linhas 1 a 40 ---
+    1: """
+    2: Importa cotações RTD de opções do LISTA_RTD.xlsm para rtd_option_quotes.
+    3: 
+    4: Fluxo esperado:
+    5:     LISTA_RTD.xlsm aberto no Excel
+    6:         -> aba RTD_OPTION_QUOTES ou RTD_PROBE_OPTIONS
+    7:         -> tabela rtd_option_quotes
+    8: 
+    9: Uso:
+   10:     python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db
+   11:     python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --dry-run
+   12:     python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --json
+   13: """
+   14: 
+   15: from __future__ import annotations
+   16: 
+   17: import argparse
+   18: import datetime as dt
+   19: import json
+   20: import sqlite3
+   21: import sys
+   22: import time
+   23: from pathlib import Path
+   24: from typing import Any
+   25: 
+   26: 
+   27: DEFAULT_WORKBOOK = "LISTA_RTD.xlsm"
+   28: DEFAULT_SHEETS = ["RTD_OPTION_QUOTES", "RTD_PROBE_OPTIONS", "RTD-BTG LISTA"]
+   29: 
+   30: REQUIRED_DB_COLUMNS = [
+   31:     "codigo_opcao",
+   32:     "ativo_base",
+   33:     "call_put",
+   34:     "strike",
+   35:     "vencimento",
+   36:     "ultimo_preco",
+   37:     "ultima_quantidade",
+   38:     "bid",
+   39:     "ask",
+   40:     "volume",
+
+--- linhas 101 a 136 ---
+  101:     "gamma": "gamma",
+  102:     "theta": "theta",
+  103:     "vega": "vega",
+  104: 
+  105:     "status": "status",
+  106: }
+  107: 
+  108: 
+  109: def normalize_header(value: Any) -> str:
+  110:     text = "" if value is None else str(value)
+  111:     text = text.strip().lower()
+  112:     text = text.replace(" ", "_")
+  113:     text = text.replace("-", "_")
+  114:     text = text.replace(".", "_")
+  115:     text = text.replace("/", "_")
+  116:     text = text.replace("%", "pct")
+  117: 
+  118:     while "__" in text:
+  119:         text = text.replace("__", "_")
+  120: 
+  121:     return HEADER_ALIASES.get(text, text)
+  122: 
+  123: 
+  124: def excel_serial_to_date(value: Any) -> str | None:
+  125:     if value is None or value == "":
+  126:         return None
+  127: 
+  128:     if isinstance(value, dt.datetime):
+  129:         return value.date().isoformat()
+  130: 
+  131:     if isinstance(value, dt.date):
+  132:         return value.isoformat()
+  133: 
+  134:     try:
+  135:         number = float(value)
+  136:     except Exception:
+
+--- linhas 149 a 169 ---
+  149:     if number <= 0:
+  150:         return None
+  151: 
+  152:     base = dt.datetime(1899, 12, 30)
+  153:     converted = base + dt.timedelta(days=number)
+  154:     return converted.date().isoformat()
+  155: 
+  156: 
+  157: def to_float(value: Any) -> float | None:
+  158:     if value is None or value == "":
+  159:         return None
+  160: 
+  161:     if isinstance(value, bool):
+  162:         return float(value)
+  163: 
+  164:     if isinstance(value, (int, float)):
+  165:         return float(value)
+  166: 
+  167:     text = str(value).strip()
+  168:     if not text:
+  169:         return None
+
+--- linhas 179 a 263 ---
+  179:         text = text.replace(",", ".")
+  180: 
+  181:     try:
+  182:         return float(text)
+  183:     except ValueError:
+  184:         return None
+  185: 
+  186: 
+  187: def normalize_call_put(value: Any) -> str | None:
+  188:     if value is None:
+  189:         return None
+  190: 
+  191:     text = str(value).strip().upper()
+  192: 
+  193:     if not text:
+  194:         return None
+  195: 
+  196:     if text in {"C", "CALL", "COMPRA"}:
+  197:         return "CALL"
+  198: 
+  199:     if text in {"P", "PUT", "VENDA"}:
+  200:         return "PUT"
+  201: 
+  202:     return text
+  203: 
+  204: 
+  205: def clean_text(value: Any) -> str | None:
+  206:     if value is None:
+  207:         return None
+  208: 
+  209:     text = str(value).strip()
+  210:     return text if text else None
+  211: 
+  212: 
+  213: def connect_excel(workbook_path: Path, visible: bool, wait_seconds: int):
+  214:     """
+  215:     Abre uma instância isolada do Excel apenas para esta importação.
+  216: 
+  217:     Regra operacional:
+  218:     - não reaproveita Excel já aberto;
+  219:     - abre o workbook;
+  220:     - aguarda RTD atualizar;
+  221:     - registra cleanup para fechar workbook e encerrar Excel ao sair do processo.
+  222: 
+  223:     Observação:
+  224:     - excel_found retorna False por desenho, pois não buscamos instância ativa.
+  225:     """
+  226:     import atexit
+  227: 
+  228:     try:
+  229:         import pythoncom
+  230:         import win32com.client
+  231:     except ImportError as exc:
+  232:         raise RuntimeError(
+  233:             "Dependência ausente: pywin32. Instale com: pip install pywin32"
+  234:         ) from exc
+  235: 
+  236:     workbook = None
+  237:     excel = None
+  238:     cleaned = False
+  239: 
+  240:     try:
+  241:         try:
+  242:             pythoncom.CoInitialize()
+  243:         except Exception:
+  244:             pass
+  245: 
+  246:         excel = win32com.client.DispatchEx("Excel.Application")
+  247:         excel.Visible = visible
+  248:         excel.DisplayAlerts = False
+  249:         excel.AskToUpdateLinks = False
+  250: 
+  251:         def cleanup_excel():
+  252:             nonlocal cleaned, workbook, excel
+  253: 
+  254:             if cleaned:
+  255:                 return
+  256: 
+  257:             cleaned = True
+  258: 
+  259:             try:
+  260:                 if workbook is not None:
+  261:                     workbook.Close(SaveChanges=False)
+  262:             except Exception:
+  263:                 pass
+
+--- linhas 317 a 360 ---
+  317:         try:
+  318:             pythoncom.CoUninitialize()
+  319:         except Exception:
+  320:             pass
+  321: 
+  322:         raise
+  323: 
+  324: 
+  325: def find_sheet(workbook: Any, preferred_sheet: str | None) -> Any:
+  326:     candidates = [preferred_sheet] if preferred_sheet else DEFAULT_SHEETS
+  327: 
+  328:     for sheet_name in candidates:
+  329:         if not sheet_name:
+  330:             continue
+  331: 
+  332:         try:
+  333:             return workbook.Worksheets(sheet_name)
+  334:         except Exception:
+  335:             pass
+  336: 
+  337:     available = []
+  338:     for ws in workbook.Worksheets:
+  339:         available.append(ws.Name)
+  340: 
+  341:     raise RuntimeError(
+  342:         "Nenhuma aba RTD encontrada. "
+  343:         f"Tentadas: {candidates}. "
+  344:         f"Disponíveis: {available}"
+  345:     )
+  346: 
+  347: 
+  348: def read_sheet_records(worksheet: Any) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+  349:     used = worksheet.UsedRange
+  350:     row_count = int(used.Rows.Count)
+  351:     col_count = int(used.Columns.Count)
+  352: 
+  353:     if row_count < 2 or col_count < 2:
+  354:         return [], {
+  355:             "sheet": worksheet.Name,
+  356:             "rows_used": row_count,
+  357:             "cols_used": col_count,
+  358:             "headers": [],
+  359:         }
+  360: 
+
+--- linhas 413 a 470 ---
+  413:         "rows_used": row_count,
+  414:         "cols_used": col_count,
+  415:         "headers": headers,
+  416:     }
+  417: 
+  418:     return records, metadata
+  419: 
+  420: 
+  421: def get_table_columns(conn: sqlite3.Connection, table: str) -> set[str]:
+  422:     rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+  423:     return {row[1] for row in rows}
+  424: 
+  425: 
+  426: def validate_database(conn: sqlite3.Connection) -> None:
+  427:     columns = get_table_columns(conn, "rtd_option_quotes")
+  428: 
+  429:     if not columns:
+  430:         raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+  431: 
+  432:     missing = [col for col in REQUIRED_DB_COLUMNS if col not in columns]
+  433: 
+  434:     if missing:
+  435:         raise RuntimeError(
+  436:             "Tabela rtd_option_quotes está sem colunas obrigatórias: "
+  437:             + ", ".join(missing)
+  438:         )
+  439: 
+  440: 
+  441: def upsert_records(
+  442:     conn: sqlite3.Connection,
+  443:     records: list[dict[str, Any]],
+  444:     dry_run: bool,
+  445: ) -> dict[str, int]:
+  446:     now = dt.datetime.now().replace(microsecond=0).isoformat(sep=" ")
+  447: 
+  448:     stats = {
+  449:         "read": len(records),
+  450:         "inserted": 0,
+  451:         "updated": 0,
+  452:         "skipped": 0,
+  453:     }
+  454: 
+  455:     if dry_run:
+  456:         for record in records:
+  457:             existing = conn.execute(
+  458:                 "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? LIMIT 1",
+  459:                 (record["codigo_opcao"],),
+  460:             ).fetchone()
+  461: 
+  462:             if existing:
+  463:                 stats["updated"] += 1
+  464:             else:
+  465:                 stats["inserted"] += 1
+  466: 
+  467:         return stats
+  468: 
+  469:     for record in records:
+  470:         codigo = record["codigo_opcao"]
+
+--- linhas 494 a 514 ---
+  494:             "vega": record.get("vega"),
+  495:             "source": "lista_rtd_excel",
+  496:             "raw_json": raw_json,
+  497:             "updated_at": now,
+  498:         }
+  499: 
+  500:         cursor = conn.execute(
+  501:             """
+  502:             UPDATE rtd_option_quotes
+  503:                SET ativo_base = :ativo_base,
+  504:                    call_put = :call_put,
+  505:                    strike = :strike,
+  506:                    vencimento = :vencimento,
+  507:                    ultimo_preco = :ultimo_preco,
+  508:                    ultima_quantidade = :ultima_quantidade,
+  509:                    bid = :bid,
+  510:                    ask = :ask,
+  511:                    volume = :volume,
+  512:                    iv = :iv,
+  513:                    delta = :delta,
+  514:                    gamma = :gamma,
+
+--- linhas 526 a 546 ---
+  526:             stats["updated"] += 1
+  527:             continue
+  528: 
+  529:         params_insert = dict(params_update)
+  530:         params_insert["created_at"] = now
+  531: 
+  532:         conn.execute(
+  533:             """
+  534:             INSERT INTO rtd_option_quotes (
+  535:                 codigo_opcao,
+  536:                 ativo_base,
+  537:                 call_put,
+  538:                 strike,
+  539:                 vencimento,
+  540:                 ultimo_preco,
+  541:                 ultima_quantidade,
+  542:                 bid,
+  543:                 ask,
+  544:                 volume,
+  545:                 iv,
+  546:                 delta,
+
+--- linhas 578 a 652 ---
+  578:         )
+  579: 
+  580:         stats["inserted"] += 1
+  581: 
+  582:     conn.commit()
+  583:     return stats
+  584: 
+  585: 
+  586: def build_argument_parser() -> argparse.ArgumentParser:
+  587:     parser = argparse.ArgumentParser(
+  588:         description="Importa LISTA_RTD.xlsm para rtd_option_quotes"
+  589:     )
+  590: 
+  591:     parser.add_argument(
+  592:         "--db",
+  593:         default="dados/app.db",
+  594:         help="Caminho do SQLite. Padrão: dados/app.db",
+  595:     )
+  596: 
+  597:     parser.add_argument(
+  598:         "--workbook",
+  599:         default=DEFAULT_WORKBOOK,
+  600:         help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+  601:     )
+  602: 
+  603:     parser.add_argument(
+  604:         "--sheet",
+  605:         default=None,
+  606:         help=(
+  607:             "Nome da aba. Se omitido, tenta RTD_OPTION_QUOTES "
+  608:             "e depois RTD_PROBE_OPTIONS."
+  609:         ),
+  610:     )
+  611: 
+  612:     parser.add_argument(
+  613:         "--wait-seconds",
+  614:         type=int,
+  615:         default=5,
+  616:         help="Tempo de espera após abrir o workbook. Padrão: 5",
+  617:     )
+  618: 
+  619:     parser.add_argument(
+  620:         "--visible",
+  621:         action="store_true",
+  622:         help="Deixa o Excel visível.",
+  623:     )
+  624: 
+  625:     parser.add_argument(
+  626:         "--dry-run",
+  627:         action="store_true",
+  628:         help="Lê e valida, mas não grava no banco.",
+  629:     )
+  630: 
+  631:     parser.add_argument(
+  632:         "--json",
+  633:         action="store_true",
+  634:         help="Imprime resultado em JSON.",
+  635:     )
+  636: 
+  637:     return parser
+  638: 
+  639: 
+  640: def main(argv: list[str] | None = None) -> int:
+  641:     parser = build_argument_parser()
+  642:     args = parser.parse_args(argv)
+  643: 
+  644:     db_path = Path(args.db)
+  645:     workbook_path = Path(args.workbook).resolve()
+  646: 
+  647:     result: dict[str, Any] = {
+  648:         "status": "ok",
+  649:         "db": str(db_path),
+  650:         "workbook": str(workbook_path),
+  651:         "sheet": args.sheet,
+  652:         "dry_run": bool(args.dry_run),
+
+--- linhas 686 a 716 ---
+  686: 
+  687:     except Exception as exc:
+  688:         result["status"] = "error"
+  689:         result["errors"].append(f"{type(exc).__name__}: {exc}")
+  690: 
+  691:         if args.json:
+  692:             print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+  693:         else:
+  694:             print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+  695:             print("Status: error")
+  696:             for error in result["errors"]:
+  697:                 print("-", error)
+  698: 
+  699:         return 1
+  700: 
+  701:     if args.json:
+  702:         print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+  703:     else:
+  704:         print("Importação LISTA_RTD.xlsm -> rtd_option_quotes")
+  705:         print(f"Workbook: {result['workbook']}")
+  706:         print(f"Aba: {result['sheet']}")
+  707:         print(f"DB: {result['db']}")
+  708:         print(f"Dry-run: {'sim' if args.dry_run else 'não'}")
+  709:         print("Status: ok")
+  710:         print()
+  711:         print("Métricas:")
+  712:         for key, value in result["stats"].items():
+  713:             print(f"- {key}: {value}")
+  714: 
+  715:     return 0
+  716: 
+
+====================================================================================================
+ARQUIVO: scripts/run_lista_rtd_option_quotes_pipeline.py
+====================================================================================================
+
+--- linhas 1 a 42 ---
+    1: #!/usr/bin/env python
+    2: """
+    3: Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+    4: 
+    5: Executa:
+    6:     1. scripts/import_lista_rtd_excel_to_option_quotes.py
+    7:     2. scripts/audit_rtd_option_quotes.py
+    8: 
+    9: Uso:
+   10:     python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+   11:     python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+   12:     python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+   13: """
+   14: 
+   15: from __future__ import annotations
+   16: 
+   17: import argparse
+   18: import json
+   19: import subprocess
+   20: import sys
+   21: from pathlib import Path
+   22: from typing import Any
+   23: 
+   24: 
+   25: IMPORT_SCRIPT = Path("scripts/import_lista_rtd_excel_to_option_quotes.py")
+   26: AUDIT_SCRIPT = Path("scripts/audit_rtd_option_quotes.py")
+   27: 
+   28: 
+   29: def run_command(command: list[str]) -> dict[str, Any]:
+   30:     completed = subprocess.run(
+   31:         command,
+   32:         text=True,
+   33:         capture_output=True,
+   34:         check=False,
+   35:     )
+   36: 
+   37:     parsed_json: Any = None
+   38: 
+   39:     stdout = completed.stdout.strip()
+   40:     stderr = completed.stderr.strip()
+   41: 
+   42:     if stdout:
+
+--- linhas 50 a 131 ---
+   50:         "returncode": completed.returncode,
+   51:         "stdout": stdout,
+   52:         "stderr": stderr,
+   53:         "json": parsed_json,
+   54:         "ok": completed.returncode == 0,
+   55:     }
+   56: 
+   57: 
+   58: def build_parser() -> argparse.ArgumentParser:
+   59:     parser = argparse.ArgumentParser(
+   60:         description="Executa pipeline LISTA_RTD.xlsm -> rtd_option_quotes."
+   61:     )
+   62: 
+   63:     parser.add_argument(
+   64:         "--db",
+   65:         default="dados/app.db",
+   66:         help="Caminho do banco SQLite. Padrão: dados/app.db",
+   67:     )
+   68: 
+   69:     parser.add_argument(
+   70:         "--workbook",
+   71:         default="LISTA_RTD.xlsm",
+   72:         help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+   73:     )
+   74: 
+   75:     parser.add_argument(
+   76:         "--sheet",
+   77:         default=None,
+   78:         help=(
+   79:             "Aba RTD. Se omitida, o importador tenta RTD_OPTION_QUOTES "
+   80:             "e depois RTD_PROBE_OPTIONS."
+   81:         ),
+   82:     )
+   83: 
+   84:     parser.add_argument(
+   85:         "--wait-seconds",
+   86:         type=int,
+   87:         default=5,
+   88:         help="Espera após abrir o workbook. Padrão: 5.",
+   89:     )
+   90: 
+   91:     parser.add_argument(
+   92:         "--max-age-minutes",
+   93:         type=int,
+   94:         default=30,
+   95:         help="Idade máxima permitida para updated_at na auditoria. Padrão: 30.",
+   96:     )
+   97: 
+   98:     parser.add_argument(
+   99:         "--visible",
+  100:         action="store_true",
+  101:         help="Deixa o Excel visível durante a importação.",
+  102:     )
+  103: 
+  104:     parser.add_argument(
+  105:         "--dry-run",
+  106:         action="store_true",
+  107:         help="Executa a importação em dry-run e não roda auditoria final.",
+  108:     )
+  109: 
+  110:     parser.add_argument(
+  111:         "--json",
+  112:         action="store_true",
+  113:         help="Imprime resultado consolidado em JSON.",
+  114:     )
+  115: 
+  116:     return parser
+  117: 
+  118: 
+  119: def main(argv: list[str] | None = None) -> int:
+  120:     parser = build_parser()
+  121:     args = parser.parse_args(argv)
+  122: 
+  123:     result: dict[str, Any] = {
+  124:         "status": "ok",
+  125:         "db": args.db,
+  126:         "workbook": args.workbook,
+  127:         "sheet": args.sheet,
+  128:         "dry_run": bool(args.dry_run),
+  129:         "steps": {
+  130:             "import": None,
+  131:             "audit": None,
+
+--- linhas 140 a 160 ---
+  140:     if not AUDIT_SCRIPT.exists():
+  141:         result["status"] = "error"
+  142:         result["errors"].append(f"script not found: {AUDIT_SCRIPT}")
+  143: 
+  144:     if result["errors"]:
+  145:         if args.json:
+  146:             print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+  147:         else:
+  148:             print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+  149:             print("Status: error")
+  150:             for error in result["errors"]:
+  151:                 print(f"- {error}")
+  152:         return 1
+  153: 
+  154:     import_command = [
+  155:         sys.executable,
+  156:         str(IMPORT_SCRIPT),
+  157:         "--db",
+  158:         args.db,
+  159:         "--workbook",
+  160:         args.workbook,
+
+--- linhas 202 a 222 ---
+  202:         result["steps"]["audit"] = {
+  203:             "skipped": True,
+  204:             "reason": "dry-run mode",
+  205:         }
+  206: 
+  207:     if args.json:
+  208:         print(json.dumps(result, indent=2, ensure_ascii=False, default=str))
+  209:     else:
+  210:         print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+  211:         print(f"Status: {result['status']}")
+  212:         print(f"DB: {args.db}")
+  213:         print(f"Workbook: {args.workbook}")
+  214:         print(f"Aba: {args.sheet or '(auto)'}")
+  215:         print(f"Dry-run: {'sim' if args.dry_run else 'não'}")
+  216:         print("")
+  217: 
+  218:         import_json = import_result.get("json") or {}
+  219:         import_stats = import_json.get("stats") or {}
+  220: 
+  221:         print("Importação:")
+  222:         print(f"- returncode: {import_result['returncode']}")
+
+====================================================================================================
+ARQUIVO: scripts/run_rtd_option_quotes_pipeline.py
+====================================================================================================
+
+--- linhas 1 a 64 ---
+    1: #!/usr/bin/env python
+    2: """
+    3: Executa o pipeline operacional de cotações RTD de opções.
+    4: 
+    5: Fluxo:
+    6: 
+    7:     dados/RTD_LINKS.csv -> rtd_option_quotes -> auditoria
+    8: 
+    9: Uso típico:
+   10: 
+   11:     python scripts/run_rtd_option_quotes_pipeline.py
+   12:     python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+   13:     python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+   14:     python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+   15: """
+   16: 
+   17: from __future__ import annotations
+   18: 
+   19: import argparse
+   20: import subprocess
+   21: import sys
+   22: from pathlib import Path
+   23: 
+   24: 
+   25: REPO_ROOT = Path(__file__).resolve().parents[1]
+   26: SCRIPTS_DIR = Path(__file__).resolve().parent
+   27: 
+   28: IMPORT_SCRIPT = SCRIPTS_DIR / "import_rtd_option_quotes_wide_csv.py"
+   29: AUDIT_SCRIPT = SCRIPTS_DIR / "audit_rtd_option_quotes.py"
+   30: 
+   31: 
+   32: def build_import_command(
+   33:     csv_path: str,
+   34:     db_path: str,
+   35:     dry_run: bool = False,
+   36: ) -> list[str]:
+   37:     command = [
+   38:         sys.executable,
+   39:         str(IMPORT_SCRIPT),
+   40:         "--csv",
+   41:         csv_path,
+   42:         "--db",
+   43:         db_path,
+   44:     ]
+   45: 
+   46:     if dry_run:
+   47:         command.append("--dry-run")
+   48: 
+   49:     return command
+   50: 
+   51: 
+   52: def build_audit_command(
+   53:     db_path: str,
+   54:     max_age_minutes: int = 30,
+   55:     json_output: bool = False,
+   56:     fail_on_warn: bool = False,
+   57: ) -> list[str]:
+   58:     command = [
+   59:         sys.executable,
+   60:         str(AUDIT_SCRIPT),
+   61:         "--db",
+   62:         db_path,
+   63:         "--max-age-minutes",
+   64:         str(int(max_age_minutes)),
+
+--- linhas 68 a 100 ---
+   68:         command.append("--json")
+   69: 
+   70:     if fail_on_warn:
+   71:         command.append("--fail-on-warn")
+   72: 
+   73:     return command
+   74: 
+   75: 
+   76: def run_command(command: list[str]) -> int:
+   77:     completed = subprocess.run(command, cwd=REPO_ROOT)
+   78:     return int(completed.returncode)
+   79: 
+   80: 
+   81: def print_command(title: str, command: list[str]) -> None:
+   82:     print("")
+   83:     print(title)
+   84:     print("-" * len(title))
+   85:     print(" ".join(command))
+   86: 
+   87: 
+   88: def run_pipeline(
+   89:     csv_path: str = "dados/RTD_LINKS.csv",
+   90:     db_path: str = "dados/app.db",
+   91:     dry_run: bool = False,
+   92:     max_age_minutes: int = 30,
+   93:     json_audit: bool = False,
+   94:     fail_on_warn: bool = False,
+   95: ) -> int:
+   96:     print("Pipeline RTD option quotes")
+   97:     print(f"CSV: {csv_path}")
+   98:     print(f"DB: {db_path}")
+   99:     print(f"Dry-run: {dry_run}")
+  100: 
+
+--- linhas 132 a 190 ---
+  132:         print(f"Pipeline concluído com alerta/erro operacional. Auditor retornou código {audit_code}.")
+  133:         return audit_code
+  134: 
+  135:     print("")
+  136:     print("Pipeline concluído com sucesso.")
+  137:     return 0
+  138: 
+  139: 
+  140: def build_parser() -> argparse.ArgumentParser:
+  141:     parser = argparse.ArgumentParser(
+  142:         description="Executa importação e auditoria de rtd_option_quotes."
+  143:     )
+  144:     parser.add_argument(
+  145:         "--csv",
+  146:         default="dados/RTD_LINKS.csv",
+  147:         help="Caminho do CSV RTD_LINKS.csv. Padrão: dados/RTD_LINKS.csv",
+  148:     )
+  149:     parser.add_argument(
+  150:         "--db",
+  151:         default="dados/app.db",
+  152:         help="Caminho do banco SQLite. Padrão: dados/app.db",
+  153:     )
+  154:     parser.add_argument(
+  155:         "--dry-run",
+  156:         action="store_true",
+  157:         help="Executa somente validação/normalização do importador, sem gravar e sem auditar.",
+  158:     )
+  159:     parser.add_argument(
+  160:         "--max-age-minutes",
+  161:         type=int,
+  162:         default=30,
+  163:         help="Idade máxima esperada para updated_at na auditoria. Use 0 para desabilitar.",
+  164:     )
+  165:     parser.add_argument(
+  166:         "--json-audit",
+  167:         action="store_true",
+  168:         help="Executa a auditoria com saída JSON.",
+  169:     )
+  170:     parser.add_argument(
+  171:         "--fail-on-warn",
+  172:         action="store_true",
+  173:         help="Faz o pipeline retornar falha quando a auditoria retornar warn.",
+  174:     )
+  175:     return parser
+  176: 
+  177: 
+  178: def main(argv: list[str] | None = None) -> int:
+  179:     parser = build_parser()
+  180:     args = parser.parse_args(argv)
+  181: 
+  182:     return run_pipeline(
+  183:         csv_path=args.csv,
+  184:         db_path=args.db,
+  185:         dry_run=args.dry_run,
+  186:         max_age_minutes=args.max_age_minutes,
+  187:         json_audit=args.json_audit,
+  188:         fail_on_warn=args.fail_on_warn,
+  189:     )
+  190: 
+
+====================================================================================================
+ARQUIVO: scripts/run_rtd_refresh_full.py
+====================================================================================================
+
+--- linhas 1 a 113 ---
+    1: import argparse
+    2: import json
+    3: import sqlite3
+    4: import subprocess
+    5: import sys
+    6: from pathlib import Path
+    7: 
+    8: 
+    9: def run_cmd(cmd, cwd=None, capture=False):
+   10:     print("")
+   11:     print(">>>", " ".join(str(x) for x in cmd))
+   12: 
+   13:     if capture:
+   14:         result = subprocess.run(
+   15:             cmd,
+   16:             cwd=cwd,
+   17:             text=True,
+   18:             capture_output=True,
+   19:             encoding="utf-8",
+   20:             errors="replace",
+   21:         )
+   22: 
+   23:         if result.stdout:
+   24:             print(result.stdout, end="" if result.stdout.endswith("\n") else "\n")
+   25: 
+   26:         if result.stderr:
+   27:             print(result.stderr, end="" if result.stderr.endswith("\n") else "\n", file=sys.stderr)
+   28: 
+   29:         return result
+   30: 
+   31:     return subprocess.run(cmd, cwd=cwd)
+   32: 
+   33: 
+   34: def count_quotes(db_path):
+   35:     con = sqlite3.connect(db_path)
+   36:     cur = con.cursor()
+   37: 
+   38:     try:
+   39:         row = cur.execute("""
+   40:             SELECT
+   41:                 COUNT(*),
+   42:                 MAX(updated_at)
+   43:             FROM rtd_option_quotes
+   44:         """).fetchone()
+   45: 
+   46:         return {
+   47:             "count": row[0] if row else 0,
+   48:             "max_updated_at": row[1] if row else None,
+   49:         }
+   50:     except sqlite3.Error:
+   51:         return {
+   52:             "count": None,
+   53:             "max_updated_at": None,
+   54:         }
+   55:     finally:
+   56:         con.close()
+   57: 
+   58: 
+   59: def count_symbols_file(path):
+   60:     p = Path(path)
+   61: 
+   62:     if not p.exists():
+   63:         return 0, []
+   64: 
+   65:     symbols = [
+   66:         line.strip()
+   67:         for line in p.read_text(encoding="utf-8", errors="replace").splitlines()
+   68:         if line.strip()
+   69:     ]
+   70: 
+   71:     return len(symbols), symbols
+   72: 
+   73: 
+   74: def main():
+   75:     parser = argparse.ArgumentParser(
+   76:         description="Pipeline completo: gerar símbolos RTD, atualizar Excel/CSV e importar cotações no SQLite."
+   77:     )
+   78: 
+   79:     parser.add_argument("--db", default="dados/app.db")
+   80:     parser.add_argument("--symbols", default="dados/rtd_symbols.txt")
+   81:     parser.add_argument("--csv", default="dados/RTD_LINKS.csv")
+   82:     parser.add_argument("--workbook", default="LISTA_RTD.xlsm")
+   83:     parser.add_argument("--wait-seconds", type=int, default=25)
+   84:     parser.add_argument("--visible", action="store_true", default=True)
+   85:     parser.add_argument("--hidden", action="store_true")
+   86:     parser.add_argument("--strict", action="store_true", help="Usa somente structure_legs como fonte de símbolos.")
+   87:     parser.add_argument("--skip-excel", action="store_true", help="Pula o refresh do Excel e importa o CSV existente.")
+   88:     parser.add_argument("--allow-empty", action="store_true", help="Permite lista vazia de símbolos.")
+   89:     parser.add_argument("--dry-run", action="store_true", help="Mostra o que faria, sem executar.")
+   90:     args = parser.parse_args()
+   91: 
+   92:     root = Path.cwd()
+   93: 
+   94:     db_path = Path(args.db)
+   95:     symbols_path = Path(args.symbols)
+   96:     csv_path = Path(args.csv)
+   97:     workbook_path = Path(args.workbook)
+   98: 
+   99:     build_script = Path("scripts/build_rtd_symbols.py")
+  100:     import_script = Path("scripts/import_rtd_option_quotes_wide_csv.py")
+  101:     ps1_script = Path("scripts/refresh_rtd_option_quotes_excel.ps1")
+  102: 
+  103:     print("=== RTD Refresh Full ===")
+  104:     print(f"Root: {root}")
+  105:     print(f"DB: {db_path}")
+  106:     print(f"Symbols: {symbols_path}")
+  107:     print(f"CSV: {csv_path}")
+  108:     print(f"Workbook: {workbook_path}")
+  109:     print(f"Modo strict: {'SIM' if args.strict else 'NÃO'}")
+  110:     print(f"Skip Excel: {'SIM' if args.skip_excel else 'NÃO'}")
+  111: 
+  112:     required = [build_script, import_script]
+  113: 
+
+--- linhas 187 a 207 ---
+  187:     result = run_cmd(build_cmd)
+  188: 
+  189:     if result.returncode != 0:
+  190:         print("")
+  191:         print("Pipeline interrompido na geração de símbolos.")
+  192:         print("")
+  193:         print("Observação:")
+  194:         print("- Em modo --strict, isso é esperado se não houver registros em structure_legs.")
+  195:         print("- Cadastre uma estrutura pelo sistema ou rode sem --strict para usar fallback de rtd_option_quotes.")
+  196:         return result.returncode
+  197: 
+  198:     symbol_count, symbols = count_symbols_file(symbols_path)
+  199: 
+  200:     print("")
+  201:     print(f"Símbolos no arquivo: {symbol_count}")
+  202: 
+  203:     if symbol_count == 0 and not args.allow_empty:
+  204:         print("")
+  205:         print("Pipeline interrompido: nenhum símbolo para consultar no RTD.")
+  206:         return 2
+  207: 
+
+====================================================================================================
+ARQUIVO: scripts/import_rtd_option_quotes_wide_csv.py
+====================================================================================================
+
+--- linhas 1 a 26 ---
+    1: import argparse
+    2: import csv
+    3: import json
+    4: import sqlite3
+    5: import sys
+    6: from datetime import datetime, timedelta
+    7: from pathlib import Path
+    8: 
+    9: 
+   10: PROJECT_ROOT = Path(__file__).resolve().parents[1]
+   11: if str(PROJECT_ROOT) not in sys.path:
+   12:     sys.path.insert(0, str(PROJECT_ROOT))
+   13: 
+   14: from infra.bootstrap_rtd_option_quotes_schema import ensure_rtd_option_quotes_schema
+   15: 
+   16: 
+   17: NUMERIC_COLUMNS = {
+   18:     "strike",
+   19:     "ultimo_preco",
+   20:     "ultima_quantidade",
+   21:     "bid",
+   22:     "ask",
+   23:     "volume",
+   24:     "iv",
+   25:     "delta",
+   26:     "gamma",
+
+--- linhas 43 a 67 ---
+   43:     "iv",
+   44:     "delta",
+   45:     "gamma",
+   46:     "theta",
+   47:     "vega",
+   48: ]
+   49: 
+   50: 
+   51: def now_text():
+   52:     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+   53: 
+   54: 
+   55: def parse_number(value):
+   56:     if value is None:
+   57:         return None
+   58: 
+   59:     text = str(value).strip()
+   60: 
+   61:     if text == "":
+   62:         return None
+   63: 
+   64:     invalids = {
+   65:         "#N/D",
+   66:         "#N/A",
+   67:         "#VALOR!",
+
+--- linhas 87 a 107 ---
+   87:         text = text.replace(".", "").replace(",", ".")
+   88: 
+   89:     try:
+   90:         return float(text)
+   91:     except ValueError:
+   92:         return None
+   93: 
+   94: 
+   95: def parse_excel_date(value):
+   96:     if value is None:
+   97:         return None
+   98: 
+   99:     text = str(value).strip()
+  100: 
+  101:     if text == "":
+  102:         return None
+  103: 
+  104:     # Já veio como data textual.
+  105:     for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d/%m/%y"):
+  106:         try:
+  107:             return datetime.strptime(text, fmt).strftime("%Y-%m-%d")
+
+--- linhas 114 a 170 ---
+  114:         return None
+  115: 
+  116:     # Excel usa 1899-12-30 como base para compatibilidade histórica.
+  117:     days = int(serial)
+  118:     dt = datetime(1899, 12, 30) + timedelta(days=days)
+  119:     return dt.strftime("%Y-%m-%d")
+  120: 
+  121: 
+  122: def normalize_call_put(value):
+  123:     text = "" if value is None else str(value).strip().upper()
+  124: 
+  125:     if text in {"C", "CALL", "COMPRA"}:
+  126:         return "CALL"
+  127: 
+  128:     if text in {"P", "PUT", "VENDA"}:
+  129:         return "PUT"
+  130: 
+  131:     return text or None
+  132: 
+  133: 
+  134: def clean_text(value):
+  135:     if value is None:
+  136:         return None
+  137: 
+  138:     text = str(value).strip()
+  139: 
+  140:     if text == "":
+  141:         return None
+  142: 
+  143:     return text
+  144: 
+  145: 
+  146: def detect_dialect(csv_path):
+  147:     sample = Path(csv_path).read_text(encoding="utf-8-sig", errors="replace")[:4096]
+  148: 
+  149:     try:
+  150:         return csv.Sniffer().sniff(sample, delimiters=";,")
+  151:     except csv.Error:
+  152:         class Dialect(csv.excel):
+  153:             delimiter = ";"
+  154: 
+  155:         return Dialect
+  156: 
+  157: 
+  158: def load_csv(csv_path):
+  159:     dialect = detect_dialect(csv_path)
+  160:     rows = []
+  161: 
+  162:     with open(csv_path, "r", encoding="utf-8-sig", newline="") as f:
+  163:         reader = csv.DictReader(f, dialect=dialect)
+  164: 
+  165:         if not reader.fieldnames:
+  166:             raise ValueError("CSV sem cabeçalho.")
+  167: 
+  168:         fieldnames = [c.strip() for c in reader.fieldnames]
+  169:         missing = [c for c in EXPECTED_COLUMNS if c not in fieldnames]
+  170: 
+
+--- linhas 197 a 263 ---
+  197:                 "raw_json": json.dumps(raw, ensure_ascii=False),
+  198:             }
+  199: 
+  200:             rows.append(record)
+  201: 
+  202:     return rows
+  203: 
+  204: 
+  205: def ensure_index(con):
+  206:     con.execute("""
+  207:         CREATE INDEX IF NOT EXISTS idx_rtd_option_quotes_codigo_opcao
+  208:         ON rtd_option_quotes(codigo_opcao)
+  209:     """)
+  210: 
+  211: 
+  212: def import_rows(db_path, rows, dry_run=False):
+  213:     updated_at = now_text()
+  214: 
+  215:     stats = {
+  216:         "input_rows": len(rows),
+  217:         "inserted": 0,
+  218:         "updated": 0,
+  219:         "skipped": 0,
+  220:         "updated_at": updated_at,
+  221:     }
+  222: 
+  223:     if dry_run:
+  224:         return stats
+  225: 
+  226:     ensure_rtd_option_quotes_schema(db_path)
+  227: 
+  228:     con = sqlite3.connect(db_path)
+  229: 
+  230:     try:
+  231:         ensure_index(con)
+  232: 
+  233:         for rec in rows:
+  234:             codigo = rec["codigo_opcao"]
+  235: 
+  236:             existing = con.execute(
+  237:                 "SELECT id, created_at FROM rtd_option_quotes WHERE codigo_opcao = ? ORDER BY id DESC LIMIT 1",
+  238:                 (codigo,),
+  239:             ).fetchone()
+  240: 
+  241:             payload = {
+  242:                 **rec,
+  243:                 "updated_at": updated_at,
+  244:             }
+  245: 
+  246:             if existing:
+  247:                 row_id, created_at = existing
+  248: 
+  249:                 con.execute(
+  250:                     """
+  251:                     UPDATE rtd_option_quotes
+  252:                     SET
+  253:                         ativo_base = ?,
+  254:                         call_put = ?,
+  255:                         strike = ?,
+  256:                         vencimento = ?,
+  257:                         ultimo_preco = ?,
+  258:                         ultima_quantidade = ?,
+  259:                         bid = ?,
+  260:                         ask = ?,
+  261:                         volume = ?,
+  262:                         iv = ?,
+  263:                         delta = ?,
+
+--- linhas 291 a 311 ---
+  291:                     ),
+  292:                 )
+  293: 
+  294:                 stats["updated"] += 1
+  295: 
+  296:             else:
+  297:                 con.execute(
+  298:                     """
+  299:                     INSERT INTO rtd_option_quotes (
+  300:                         codigo_opcao,
+  301:                         ativo_base,
+  302:                         call_put,
+  303:                         strike,
+  304:                         vencimento,
+  305:                         ultimo_preco,
+  306:                         ultima_quantidade,
+  307:                         bid,
+  308:                         ask,
+  309:                         volume,
+  310:                         iv,
+  311:                         delta,
+
+--- linhas 347 a 372 ---
+  347:         con.commit()
+  348: 
+  349:     finally:
+  350:         con.close()
+  351: 
+  352:     return stats
+  353: 
+  354: 
+  355: def main():
+  356:     parser = argparse.ArgumentParser()
+  357:     parser.add_argument("--csv", required=True)
+  358:     parser.add_argument("--db", required=True)
+  359:     parser.add_argument("--dry-run", action="store_true")
+  360:     parser.add_argument("--json", action="store_true")
+  361:     args = parser.parse_args()
+  362: 
+  363:     rows = load_csv(args.csv)
+  364:     stats = import_rows(args.db, rows, dry_run=args.dry_run)
+  365: 
+  366:     if args.json:
+  367:         print(json.dumps(stats, ensure_ascii=False, indent=2))
+  368:     else:
+  369:         print("Importação RTD wide CSV")
+  370:         print("-----------------------")
+  371:         for k, v in stats.items():
+  372:             print(f"{k}: {v}")
+
+====================================================================================================
+ARQUIVO: scripts/import_rtd_links_to_option_quotes.py
+====================================================================================================
+
+--- linhas 1 a 32 ---
+    1: #!/usr/bin/env python3
+    2: """
+    3: Importa dados verticais de dados/RTD_LINKS.csv para rtd_option_quotes.
+    4: 
+    5: Formato esperado do CSV:
+    6: 
+    7: codigo_opcao,ativo_base,campo,valor,atualizado_em
+    8: PETRA123,PETR4,call_put,CALL,2026-06-06 17:50:00
+    9: PETRA123,PETR4,strike,32.50,2026-06-06 17:50:00
+   10: PETRA123,PETR4,bid,1.20,2026-06-06 17:50:00
+   11: 
+   12: Uso:
+   13: 
+   14: python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db
+   15: python scripts/import_rtd_links_to_option_quotes.py --csv dados/RTD_LINKS.csv --db dados/app.db --dry-run
+   16: """
+   17: 
+   18: from __future__ import annotations
+   19: 
+   20: import argparse
+   21: import csv
+   22: import json
+   23: import re
+   24: import sqlite3
+   25: from dataclasses import dataclass
+   26: from datetime import datetime
+   27: from pathlib import Path
+   28: from typing import Any
+   29: 
+   30: 
+   31: REQUIRED_COLUMNS = {
+   32:     "codigo_opcao",
+
+--- linhas 75 a 104 ---
+   75:     "vega",
+   76:     "source",
+   77:     "raw_json",
+   78:     "updated_at",
+   79: ]
+   80: 
+   81: 
+   82: @dataclass
+   83: class ImportStats:
+   84:     rows_read: int = 0
+   85:     rows_ignored: int = 0
+   86:     options_normalized: int = 0
+   87:     inserted: int = 0
+   88:     updated: int = 0
+   89:     dry_run: bool = False
+   90: 
+   91: 
+   92: def parse_br_number(value: Any) -> float | None:
+   93:     """
+   94:     Converte números em formatos comuns BR/US para float.
+   95: 
+   96:     Exemplos:
+   97:     - "1.234,56" -> 1234.56
+   98:     - "1,23" -> 1.23
+   99:     - "32.50" -> 32.5
+  100:     - "10000" -> 10000.0
+  101:     - "" -> None
+  102:     """
+  103:     if value is None:
+  104:         return None
+
+--- linhas 145 a 207 ---
+  145:             text = "".join(parts[:-1]) + "." + parts[-1]
+  146: 
+  147:     try:
+  148:         return float(text)
+  149:     except ValueError as exc:
+  150:         raise ValueError(f"número inválido: {value!r}") from exc
+  151: 
+  152: 
+  153: def normalize_call_put(value: Any) -> str | None:
+  154:     if value is None:
+  155:         return None
+  156: 
+  157:     text = str(value).strip().upper()
+  158: 
+  159:     if not text:
+  160:         return None
+  161: 
+  162:     aliases = {
+  163:         "C": "CALL",
+  164:         "CALL": "CALL",
+  165:         "COMPRA": "CALL",
+  166:         "P": "PUT",
+  167:         "PUT": "PUT",
+  168:         "VENDA": "PUT",
+  169:     }
+  170: 
+  171:     return aliases.get(text, text)
+  172: 
+  173: 
+  174: def detect_dialect(csv_path: Path) -> csv.Dialect:
+  175:     sample = csv_path.read_text(encoding="utf-8-sig", errors="replace")[:4096]
+  176: 
+  177:     try:
+  178:         return csv.Sniffer().sniff(sample, delimiters=",;")
+  179:     except csv.Error:
+  180:         return csv.excel
+  181: 
+  182: 
+  183: def validate_columns(fieldnames: list[str] | None) -> None:
+  184:     if not fieldnames:
+  185:         raise ValueError("CSV sem cabeçalho")
+  186: 
+  187:     normalized = {name.strip() for name in fieldnames}
+  188:     missing = REQUIRED_COLUMNS - normalized
+  189: 
+  190:     if missing:
+  191:         missing_text = ", ".join(sorted(missing))
+  192:         raise ValueError(f"CSV sem colunas obrigatórias: {missing_text}")
+  193: 
+  194: 
+  195: def empty_record(codigo_opcao: str) -> dict[str, Any]:
+  196:     record: dict[str, Any] = {
+  197:         "codigo_opcao": codigo_opcao,
+  198:         "ativo_base": None,
+  199:         "call_put": None,
+  200:         "strike": None,
+  201:         "vencimento": None,
+  202:         "ultimo_preco": None,
+  203:         "ultima_quantidade": None,
+  204:         "bid": None,
+  205:         "ask": None,
+  206:         "volume": None,
+  207:         "iv": None,
+
+--- linhas 212 a 232 ---
+  212:         "source": "rtd_links",
+  213:         "raw_json": None,
+  214:         "updated_at": None,
+  215:         "_raw_rows": [],
+  216:     }
+  217:     return record
+  218: 
+  219: 
+  220: def load_and_normalize(csv_path: str | Path) -> tuple[list[dict[str, Any]], ImportStats]:
+  221:     path = Path(csv_path)
+  222:     stats = ImportStats()
+  223: 
+  224:     if not path.exists():
+  225:         raise FileNotFoundError(f"CSV não encontrado: {path}")
+  226: 
+  227:     dialect = detect_dialect(path)
+  228:     grouped: dict[str, dict[str, Any]] = {}
+  229: 
+  230:     with path.open(newline="", encoding="utf-8-sig") as f:
+  231:         reader = csv.DictReader(f, dialect=dialect)
+  232:         validate_columns(reader.fieldnames)
+
+--- linhas 292 a 369 ---
+  292: 
+  293:         records.append(record)
+  294: 
+  295:     stats.options_normalized = len(records)
+  296: 
+  297:     return records, stats
+  298: 
+  299: 
+  300: def existing_codes(conn: sqlite3.Connection, codes: list[str]) -> set[str]:
+  301:     if not codes:
+  302:         return set()
+  303: 
+  304:     placeholders = ",".join(["?"] * len(codes))
+  305:     sql = f"""
+  306:         SELECT codigo_opcao
+  307:         FROM rtd_option_quotes
+  308:         WHERE codigo_opcao IN ({placeholders})
+  309:     """
+  310: 
+  311:     return {row[0] for row in conn.execute(sql, codes).fetchall()}
+  312: 
+  313: 
+  314: def upsert_records(
+  315:     conn: sqlite3.Connection,
+  316:     records: list[dict[str, Any]],
+  317: ) -> None:
+  318:     placeholders = ", ".join(["?"] * len(UPSERT_COLUMNS))
+  319:     columns_sql = ", ".join(UPSERT_COLUMNS)
+  320: 
+  321:     # COALESCE evita apagar dado existente quando campo não veio no CSV.
+  322:     update_assignments = [
+  323:         "ativo_base = COALESCE(excluded.ativo_base, rtd_option_quotes.ativo_base)",
+  324:         "call_put = COALESCE(excluded.call_put, rtd_option_quotes.call_put)",
+  325:         "strike = COALESCE(excluded.strike, rtd_option_quotes.strike)",
+  326:         "vencimento = COALESCE(excluded.vencimento, rtd_option_quotes.vencimento)",
+  327:         "ultimo_preco = COALESCE(excluded.ultimo_preco, rtd_option_quotes.ultimo_preco)",
+  328:         "ultima_quantidade = COALESCE(excluded.ultima_quantidade, rtd_option_quotes.ultima_quantidade)",
+  329:         "bid = COALESCE(excluded.bid, rtd_option_quotes.bid)",
+  330:         "ask = COALESCE(excluded.ask, rtd_option_quotes.ask)",
+  331:         "volume = COALESCE(excluded.volume, rtd_option_quotes.volume)",
+  332:         "iv = COALESCE(excluded.iv, rtd_option_quotes.iv)",
+  333:         "delta = COALESCE(excluded.delta, rtd_option_quotes.delta)",
+  334:         "gamma = COALESCE(excluded.gamma, rtd_option_quotes.gamma)",
+  335:         "theta = COALESCE(excluded.theta, rtd_option_quotes.theta)",
+  336:         "vega = COALESCE(excluded.vega, rtd_option_quotes.vega)",
+  337:         "source = excluded.source",
+  338:         "raw_json = excluded.raw_json",
+  339:         "updated_at = excluded.updated_at",
+  340:     ]
+  341: 
+  342:     sql = f"""
+  343:         INSERT INTO rtd_option_quotes ({columns_sql})
+  344:         VALUES ({placeholders})
+  345:         ON CONFLICT(codigo_opcao) DO UPDATE SET
+  346:             {", ".join(update_assignments)}
+  347:     """
+  348: 
+  349:     values = [
+  350:         tuple(record.get(column) for column in UPSERT_COLUMNS)
+  351:         for record in records
+  352:     ]
+  353: 
+  354:     conn.executemany(sql, values)
+  355: 
+  356: 
+  357: def import_csv_to_db(
+  358:     csv_path: str | Path,
+  359:     db_path: str | Path,
+  360:     dry_run: bool = False,
+  361: ) -> ImportStats:
+  362:     records, stats = load_and_normalize(csv_path)
+  363:     stats.dry_run = dry_run
+  364: 
+  365:     conn = sqlite3.connect(str(db_path))
+  366: 
+  367:     try:
+  368:         codes = [record["codigo_opcao"] for record in records]
+  369:         already_existing = existing_codes(conn, codes)
+
+--- linhas 376 a 431 ---
+  376:             conn.commit()
+  377: 
+  378:     finally:
+  379:         conn.close()
+  380: 
+  381:     return stats
+  382: 
+  383: 
+  384: def build_parser() -> argparse.ArgumentParser:
+  385:     parser = argparse.ArgumentParser(
+  386:         description="Importa dados/RTD_LINKS.csv para rtd_option_quotes"
+  387:     )
+  388: 
+  389:     parser.add_argument(
+  390:         "--csv",
+  391:         default="dados/RTD_LINKS.csv",
+  392:         help="Caminho do CSV RTD_LINKS.csv",
+  393:     )
+  394: 
+  395:     parser.add_argument(
+  396:         "--db",
+  397:         default="dados/app.db",
+  398:         help="Caminho do banco SQLite",
+  399:     )
+  400: 
+  401:     parser.add_argument(
+  402:         "--dry-run",
+  403:         action="store_true",
+  404:         help="Valida e normaliza sem gravar no banco",
+  405:     )
+  406: 
+  407:     return parser
+  408: 
+  409: 
+  410: def main() -> int:
+  411:     args = build_parser().parse_args()
+  412: 
+  413:     stats = import_csv_to_db(
+  414:         csv_path=args.csv,
+  415:         db_path=args.db,
+  416:         dry_run=args.dry_run,
+  417:     )
+  418: 
+  419:     print("Importação RTD_LINKS.csv -> rtd_option_quotes")
+  420:     print(f"CSV: {args.csv}")
+  421:     print(f"DB: {args.db}")
+  422:     print(f"Dry-run: {'sim' if stats.dry_run else 'não'}")
+  423:     print(f"Registros lidos: {stats.rows_read}")
+  424:     print(f"Opções normalizadas: {stats.options_normalized}")
+  425:     print(f"Inseridos estimados: {stats.inserted}")
+  426:     print(f"Atualizados estimados: {stats.updated}")
+  427:     print(f"Registros ignorados: {stats.rows_ignored}")
+  428: 
+  429:     if stats.dry_run:
+  430:         print("Nenhuma alteração foi gravada no banco.")
+  431: 

@@ -1,0 +1,34 @@
+UI/components/structure_editor_dialog.py:39:from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+UI/components/structure_editor_dialog.py:243:            text="Auto preencher por simbolo",
+UI/components/structure_editor_dialog.py:394:        service = StructureLegRtdEnrichmentService(repo)
+UI/components/structure_editor_dialog.py:486:        """Botao: auto preenche leg usando symbol/codigo_opcao."""
+UI/components/structure_editor_dialog.py:490:                "Auto preencher",
+UI/components/structure_editor_dialog.py:507:            messagebox.showerror("Auto preencher", str(exc), parent=self)
+UI/components/structure_editor_dialog.py:521:            # Fase 3: se houver simbolo, tenta reconhecer a opcao e preencher
+services/canonical_pricing_facade.py:362:            #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
+services/market_snapshot_selector.py:27:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+services/structure_leg_rtd_enrichment_service.py:17:class StructureLegRtdEnrichmentService:
+services/structure_leg_rtd_enrichment_service.py:44:        quote = self._repo.get_by_codigo(symbol)
+services/structure_leg_rtd_enrichment_service.py:46:            raise ValueError(f"option quote not found for symbol: {symbol}")
+repositories/market_snapshot_repository.py:116:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+repositories/rtd_option_quotes_repository.py:6:- get_by_codigo usa match EXATO de codigo_opcao, sem upper no WHERE;
+repositories/rtd_option_quotes_repository.py:28:    def get_by_codigo(self, codigo_opcao: str) -> dict[str, Any] | None:
+scripts/import_lista_rtd_excel_to_option_quotes.py:10:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db
+scripts/import_lista_rtd_excel_to_option_quotes.py:11:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --dry-run
+scripts/import_lista_rtd_excel_to_option_quotes.py:12:    python scripts/import_lista_rtd_excel_to_option_quotes.py --db dados/app.db --json
+scripts/import_lista_rtd_excel_to_option_quotes.py:230:        import win32com.client
+scripts/import_lista_rtd_excel_to_option_quotes.py:246:        excel = win32com.client.DispatchEx("Excel.Application")
+scripts/run_derived_pipeline.py:67:def _run_rtd_option_quotes_import(
+scripts/run_derived_pipeline.py:78:    - Delega importação + auditoria para scripts/run_rtd_option_quotes_pipeline.py.
+scripts/run_derived_pipeline.py:81:    pipeline_script = repo_root / "scripts" / "run_rtd_option_quotes_pipeline.py"
+scripts/run_derived_pipeline.py:295:        rtd_result = _run_rtd_option_quotes_import(
+scripts/run_lista_rtd_option_quotes_pipeline.py:6:    1. scripts/import_lista_rtd_excel_to_option_quotes.py
+scripts/run_lista_rtd_option_quotes_pipeline.py:10:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS
+scripts/run_lista_rtd_option_quotes_pipeline.py:11:    python scripts/run_lista_rtd_option_quotes_pipeline.py --db dados/app.db --sheet RTD_PROBE_OPTIONS --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:12:    python scripts/run_lista_rtd_option_quotes_pipeline.py --dry-run --json
+scripts/run_lista_rtd_option_quotes_pipeline.py:25:IMPORT_SCRIPT = Path("scripts/import_lista_rtd_excel_to_option_quotes.py")
+scripts/run_rtd_option_quotes_pipeline.py:11:    python scripts/run_rtd_option_quotes_pipeline.py
+scripts/run_rtd_option_quotes_pipeline.py:12:    python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/app.db
+scripts/run_rtd_option_quotes_pipeline.py:13:    python scripts/run_rtd_option_quotes_pipeline.py --dry-run
+scripts/run_rtd_option_quotes_pipeline.py:14:    python scripts/run_rtd_option_quotes_pipeline.py --fail-on-warn
+scripts/seed_current_rtd_option_quotes.py:15:- updated_at e created_at são preenchidos com o timestamp atual.
