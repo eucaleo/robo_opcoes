@@ -253,7 +253,7 @@ Suite completa aprovada:
 
 ## Commit gerado
 
-Pendente no momento desta entrada. Deve ser preenchido apos o commit da Fase 3.
+HASH_DO_COMMIT
 
 ## Pendencia restante
 
