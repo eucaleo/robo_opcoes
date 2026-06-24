@@ -1,0 +1,50 @@
+== Fase 4 - Diagnostico minimo payoff/decisao ==
+Wed Jun 24 15:49:57     2026
+
+== Base usada ==
+BASE=ff0810a
+HEAD=ff0810a
+BRANCH=reinicio-normalizacao-idioma-ptbr
+
+== Git status curto ==
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_4_ALTERACOES_ULTIMOS_3_DIAS.txt
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_4_DIAGNOSTICO_PAYOFF_DECISOES.txt
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_4_MINIMO_PAYOFF_DECISAO.txt
+?? scripts/fase-4-diagnostico-alteracoes-ultimos-2-dias.sh
+?? scripts/fase-4-diagnostico-alteracoes-ultimos-3-dias.sh
+?? scripts/fase-4-diagnostico-minimo-payoff-decisao.sh
+?? scripts/fase-4-diagnostico-payoff-decisoes-focado.sh
+
+== Commits desde a base, sem docs/evidencias ==
+
+== Quantidade de arquivos alterados desde a base ==
+TOTAL_ALTERADOS=0
+TOTAL_CODIGO=0
+TOTAL_CORE_PAYOFF_DECISAO=0
+
+== Arquivos de codigo alterados por pasta ==
+
+== Arquivos centrais alterados ==
+
+== Diff estatistico somente dos arquivos centrais ==
+Nenhum arquivo central alterado.
+
+== Linhas alteradas relevantes nos arquivos centrais ==
+Nenhum arquivo central alterado.
+
+== Banco - consistencia por structure_id ==
+APP_DB=dados/app.db
+DERIVED_DB=dados/derived.db
+COUNT app.structures=2
+COUNT app.structure_legs=8
+COUNT app.pricing_executions=16
+COUNT der.payoff_curve_points=1010
+COUNT der.structure_decisions=10
+
+== Estruturas app e derivados correspondentes ==
+STRUCTURE_CHECK id=3 info={'id': 3, 'created_at': '2026-06-22T13:46:39.650335+00:00', 'updated_at': '2026-06-22T13:46:39.650335+00:00', 'name': 'PRIO', 'underlying_asset': 'PRIO3', 'status': 'active'} legs=4 exec_total=4 exec_success=4 exec_error=0 exec_last=2026-06-23T14:48:14.540137Z payoff_points=404 payoff_last=2026-06-23T14:48:14.575566+00:00 decisions=4 decision_last=2026-06-23T14:48:14.575566+00:00
+STRUCTURE_CHECK id=2 info={'id': 2, 'created_at': '2026-06-20T00:18:13.473337+00:00', 'updated_at': '2026-06-20T00:18:13.473337+00:00', 'name': 'SBSP+SMAL=BOVA', 'underlying_asset': 'BOVA11', 'status': 'active'} legs=4 exec_total=9 exec_success=9 exec_error=0 exec_last=2026-06-23T18:20:28.591352Z payoff_points=606 payoff_last=2026-06-23T14:50:12.768254+00:00 decisions=6 decision_last=2026-06-23T14:50:12.768254+00:00
+
+== Possiveis derivados orfaos ==
+ORFAO_PAYOFF=0
+ORFAO_DECISION=0
