@@ -430,13 +430,92 @@ class StructureEditorDialog(tk.Toplevel):
         try:
             enriched = self._get_leg_enrichment_service().enrich(leg_data)
         except Exception:
-            if not require_quote and self._leg_has_manual_required_fields(leg_data):
-                return leg_data
-            raise
+            if require_quote:
+                self._refresh_rtd_quote_for_symbol(symbol)
+                enriched = self._get_leg_enrichment_service().enrich(leg_data)
+            else:
+                if not require_quote and self._leg_has_manual_required_fields(leg_data):
+                    return leg_data
+                raise
 
         merged = dict(leg_data)
         merged.update(enriched)
         return merged
+
+
+    def _refresh_rtd_quote_for_symbol(self, symbol: str) -> None:
+        """Atualiza uma opção avulsa no RTD/Excel e importa para o cache local."""
+        import subprocess
+        import sys
+        from pathlib import Path
+
+        symbol = str(symbol or "").strip().upper()
+
+        if not symbol:
+            return
+
+        project_root = Path(__file__).resolve().parents[2]
+
+        script = project_root / "scripts" / "refresh_rtd_symbol_to_option_quotes_fallback.py"
+        workbook_path = project_root / "LISTA_RTD.xlsm"
+
+        db_candidate = (
+            getattr(self, "_db_path", None)
+            or getattr(self, "db_path", None)
+            or project_root / "dados" / "app.db"
+        )
+
+        db_path = Path(db_candidate)
+
+        if not db_path.is_absolute():
+            db_path = project_root / db_path
+
+        if not script.exists():
+            raise ValueError(f"Script de refresh RTD não encontrado: {script}")
+
+        if not workbook_path.exists():
+            raise ValueError(f"Workbook RTD não encontrado: {workbook_path}")
+
+        cmd = [
+            sys.executable,
+            str(script),
+            "--symbol",
+            symbol,
+            "--db",
+            str(db_path),
+            "--workbook",
+            str(workbook_path),
+            "--wait-seconds",
+            "10",
+            "--json",
+        ]
+
+        completed = subprocess.run(
+            cmd,
+            cwd=str(project_root),
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=45,
+            check=False,
+        )
+
+        if completed.returncode != 0:
+            detail = "\n".join(
+                part
+                for part in [completed.stdout.strip(), completed.stderr.strip()]
+                if part
+            )
+
+            if len(detail) > 2500:
+                detail = detail[-2500:]
+
+            raise ValueError(
+                "Não foi possível atualizar a cotação RTD para "
+                f"{symbol}.\n\n{detail}"
+            )
+
 
     def _sync_underlying_from_enriched_leg(self, enriched: dict) -> None:
         """Preenche/valida o ativo objeto da estrutura a partir da opção."""
