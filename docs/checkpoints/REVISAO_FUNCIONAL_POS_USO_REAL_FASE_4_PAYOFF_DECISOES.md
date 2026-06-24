@@ -1,10 +1,13 @@
-# Revisao funcional pos uso real - Fase 4 - Payoff e decisoes para estrutura manual
+# REVISAO FUNCIONAL POS USO REAL
+# FASE 4 - INTEGRACAO DA ESTRUTURA MANUAL COM PAYOFF E DECISOES
 
-## Objetivo
+## 1. Objetivo
 
-Garantir que uma estrutura criada manualmente ou por cadastro assistido seja funcional no pipeline de payoff e decisoes.
+Garantir que estrutura criada manualmente ou por cadastro assistido nao seja apenas visual, mas funcional.
 
-## Problemas tratados
+A estrutura valida deve participar do fluxo de payoff e decisoes.
+
+## 2. Problemas tratados
 
 - Estrutura aparece na tela, mas nao gera payoff.
 - Estrutura aparece na tela, mas nao participa de decisoes.
@@ -12,7 +15,7 @@ Garantir que uma estrutura criada manualmente ou por cadastro assistido seja fun
 - payoff_curve_points nao recebe dados.
 - Pipeline pode ignorar estruturas manuais.
 
-## Pontos investigados
+## 3. Pontos a investigar
 
 - Tabela principal de estruturas.
 - Tabela de legs.
@@ -24,7 +27,7 @@ Garantir que uma estrutura criada manualmente ou por cadastro assistido seja fun
 - Status active.
 - Motivo de rejeicao no pipeline.
 
-## Criterios de aceite
+## 4. Criterios de aceite
 
 - Estrutura manual valida gera curva de payoff.
 - Estrutura manual valida gera decisoes.
@@ -33,14 +36,30 @@ Garantir que uma estrutura criada manualmente ou por cadastro assistido seja fun
 - Sistema mostra motivo claro quando faltar dado.
 - Logs indicam estruturas lidas, processadas, ignoradas e rejeitadas.
 
-## Evidencias
+## 5. Buscas realizadas
 
-A preencher apos implementacao e validacao.
+A preencher com os comandos e resultados das buscas antes das alteracoes.
 
-## Resultado
+## 6. Arquivos analisados
+
+A preencher apos investigacao.
+
+## 7. Diagnostico inicial
+
+A preencher apos reproducao e leitura do fluxo.
+
+## 8. Alteracoes realizadas
 
 Pendente.
 
-## Commit
+## 9. Testes executados
+
+Pendente.
+
+## 10. Resultado
+
+Pendente.
+
+## 11. Commit
 
 Pendente.

@@ -272,3 +272,51 @@ Permanecem para fases futuras:
 - Fase 12: remocao ou justificativa de aba ou alias.
 - Fase 13: validacao integrada.
 - Fase 14: fechamento documental.
+
+---
+
+# Entrada de auditoria - Fase 4 - Integracao da estrutura manual com payoff e decisoes
+
+## Data da execucao
+
+24/06/2026
+
+## Branch usada
+
+reinicio-normalizacao-idioma-ptbr
+
+## Commit base
+
+A identificar com git rev-parse HEAD.
+
+## Problema testado
+
+Estrutura criada manualmente ou por cadastro assistido precisa gerar payoff e decisoes, nao apenas aparecer visualmente na tela.
+
+## Evidencia observada
+
+Pendente de investigacao controlada.
+
+## Arquivos analisados
+
+Pendente.
+
+## Alteracao feita
+
+Nenhuma alteracao funcional ainda. Fase iniciada com working tree limpo e material RTD preservado em stash para Fase 6.
+
+## Teste executado
+
+Pendente.
+
+## Resultado
+
+Pendente.
+
+## Commit gerado
+
+Pendente.
+
+## Pendencia restante
+
+Investigar pipeline de payoff e decisoes, filtros de estrutura, persistencia em payoff_curve_points e structure_decisions, e motivos de rejeicao.
