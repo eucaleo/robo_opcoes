@@ -154,3 +154,121 @@ Teste executado:
 Resultado: pendente de validacao Git
 Commit gerado: 2b593ed
 Pendencia restante: avancar para investigacao funcional de recalculo, snapshot e metricas financeiras
+
+---
+
+# Entrada de auditoria — Fase 3 — Cadastro assistido de estrutura
+
+## Data da execucao
+
+23/06/2026
+
+## Branch usada
+
+reinicio-normalizacao-idioma-ptbr
+
+## Commit base
+
+A identificar no momento do commit com git rev-parse HEAD.
+
+## Problema testado
+
+Cadastro assistido de leg de estrutura usando simbolo de opcao reconhecido no RTD ou cache.
+
+Problemas especificos tratados:
+
+- Leg nova nascia com option_type CALL por padrao.
+- Simbolo PUT podia gerar erro de divergencia contra CALL indevido.
+- Premium vazio enviado pela interface podia gerar erro premium is required.
+- Premium enriquecido nao era refletido no formulario visual.
+
+## Evidencia observada antes da correcao
+
+O fluxo de cadastro assistido podia apresentar divergencia indevida de tipo quando o usuario informava uma opcao PUT e a leg nova carregava CALL por padrao.
+
+Tambem foi identificado que premium vazio enviado como nulo pela interface chegava ao servico de enriquecimento e podia ser tratado como campo obrigatorio ausente.
+
+## Arquivos analisados
+
+- UI/components/structure_editor_dialog.py
+- services/structure_leg_rtd_enrichment_service.py
+
+## Buscas realizadas
+
+Foram executadas buscas para localizar defaults de option_type, validadores e pontos de conversao de premium.
+
+Buscas principais:
+
+    grep -n "self._lf_type\|option_type.*CALL\|option_type" UI/components/structure_editor_dialog.py
+
+    grep -RIn "premium is required\|premium is requered\|premium.*required\|premium.*obrig" . --exclude-dir=.git --exclude-dir=__pycache__ --exclude="*.bak*"
+
+    grep -RIn "_parse_decimal(.*premium\|premium.*_parse_decimal\|field_name.*premium" UI services repositories database models scripts --exclude-dir=.git --exclude-dir=__pycache__ --exclude="*.bak*"
+
+## Alteracao feita
+
+### Interface
+
+A leg nova deixou de inicializar com CALL como tipo padrao.
+
+A interface passou a aceitar option_type vazio em nova leg para permitir que o servico detecte o tipo real pelo simbolo da opcao.
+
+A interface tambem passou a refletir o campo premium retornado pelo enriquecimento.
+
+### Servico de enriquecimento RTD
+
+O premium passou a ser resolvido pela seguinte prioridade:
+
+- Premium informado manualmente.
+- ultimo_preco vindo do RTD ou cache.
+- 0.0 como fallback compativel.
+
+A validacao de divergencia entre tipo informado e tipo detectado foi preservada.
+
+## Teste executado
+
+Compilacao dos arquivos alterados:
+
+    python -m py_compile UI/components/structure_editor_dialog.py services/structure_leg_rtd_enrichment_service.py
+
+Teste isolado do enriquecimento com PETRS424:
+
+    Resultado esperado: option_type PUT, premium 2.05, underlying_asset PETR4.
+
+Suite completa:
+
+    pytest
+
+## Resultado
+
+Compilacao sem erros.
+
+Teste isolado aprovado:
+
+    OK: enrich PETRS424 => PUT e premium 2.05
+
+Suite completa aprovada:
+
+    669 passed, 2 skipped in 37.62s
+
+## Commit gerado
+
+Pendente no momento desta entrada. Deve ser preenchido apos o commit da Fase 3.
+
+## Pendencia restante
+
+Nenhuma pendencia funcional aberta para a Fase 3.
+
+Permanecem para fases futuras:
+
+- Fase 4: integracao da estrutura manual com payoff e decisoes.
+- Fase 5: botao Atualizar Dados e resumo do pipeline.
+- Fase 6: execucao RTD.
+- Fase 7: recalculo, snapshot e metricas financeiras.
+- Fase 8: duplicidade da estrutura numero 2.
+- Fase 9: normalizacao ampla para Portugues Brasil.
+- Fase 10: comentario do grafico de payoff.
+- Fase 11: visibilidade e atualizacao instantanea.
+- Fase 12: remocao ou justificativa de aba ou alias.
+- Fase 13: validacao integrada.
+- Fase 14: fechamento documental.

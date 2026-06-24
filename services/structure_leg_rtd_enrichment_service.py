@@ -70,7 +70,7 @@ class StructureLegRtdEnrichmentService:
             "strike": self._to_float(quote.get("strike"), "strike"),
             "expiration_date": str(quote.get("vencimento")).strip(),
             "quantity": self._to_float(leg_data.get("quantity", 1), "quantity"),
-            "premium": self._to_float(leg_data.get("premium", 0.0), "premium"),
+            "premium": self._resolve_premium(leg_data, quote),
             "multiplier": self._to_float(
                 leg_data.get("multiplier", 100.0),
                 "multiplier",
@@ -113,6 +113,27 @@ class StructureLegRtdEnrichmentService:
         if normalized is None:
             raise ValueError(f"invalid option_type/call_put: {value!r}")
         return normalized
+
+    @classmethod
+    def _resolve_premium(cls, leg_data: dict[str, Any], quote: dict[str, Any]) -> float:
+        """Resolve o prêmio da leg.
+
+        Prioridade:
+        1. premium informado manualmente na leg;
+        2. ultimo_preco vindo do RTD/cache;
+        3. zero, para preservar compatibilidade quando não houver preço.
+        """
+        premium = leg_data.get("premium")
+
+        if premium is not None and str(premium).strip() != "":
+            return cls._to_float(premium, "premium")
+
+        quote_premium = quote.get("ultimo_preco")
+
+        if quote_premium is not None and str(quote_premium).strip() != "":
+            return cls._to_float(quote_premium, "ultimo_preco")
+
+        return 0.0
 
     @staticmethod
     def _to_float(value: Any, field_name: str) -> float:

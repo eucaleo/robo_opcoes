@@ -194,7 +194,7 @@ class StructureEditorDialog(tk.Toplevel):
         form.pack(fill="x", pady=(6, 0))
 
         self._lf_side    = tk.StringVar(value="COMPRADO")
-        self._lf_type    = tk.StringVar(value="CALL")
+        self._lf_type    = tk.StringVar(value="")
         self._lf_strike  = tk.StringVar()
         self._lf_expiry  = tk.StringVar()
         self._lf_qty     = tk.StringVar(value="1")
@@ -318,7 +318,7 @@ class StructureEditorDialog(tk.Toplevel):
             return
         leg = self._legs_rows[idx]
         self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
-        self._lf_type.set(leg.get("option_type", "CALL"))
+        self._lf_type.set(leg.get("option_type", ""))
         self._lf_strike.set(str(leg.get("strike", "")))
         self._lf_expiry.set(str(leg.get("expiration_date", "")))
         self._lf_qty.set(str(leg.get("quantity", "1")))
@@ -330,7 +330,7 @@ class StructureEditorDialog(tk.Toplevel):
         """Adiciona uma leg nova em branco e seleciona para edicao."""
         new_leg = {
             "position_side":   "COMPRADO",
-            "option_type":     "CALL",
+            "option_type":     "",
             "strike":          "",
             "expiration_date": "",
             "quantity":        1,
@@ -556,6 +556,8 @@ class StructureEditorDialog(tk.Toplevel):
             self._lf_strike.set(str(enriched["strike"]))
         if enriched.get("expiration_date"):
             self._lf_expiry.set(str(enriched["expiration_date"]))
+        if enriched.get("premium") is not None:
+            self._lf_premium.set(str(enriched["premium"]))
         if enriched.get("multiplier") is not None:
             self._lf_mult.set(str(enriched["multiplier"]))
         if enriched.get("symbol"):
