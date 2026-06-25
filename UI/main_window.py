@@ -309,22 +309,38 @@ class MainWindow:
 
             if d:
                 target_sid = d.get("structure_id")  # chave canônica
-                target_ts = d.get("timestamp")       # auxiliar
+                target_ts = d.get("timestamp")       # auxiliar legado
 
-                # Reselecionar na grid: structure_id é suficiente
+                # Após refresh, não reaplicar o dict antigo no painel.
+                # A seleção é preservada por structure_id, mas os widgets devem
+                # receber a decisão recém-carregada do data_model.
+                fresh_decision = None
+                if target_sid is not None:
+                    for item in decisions:
+                        if str(item.get("structure_id")) == str(target_sid):
+                            fresh_decision = item
+                            break
+
+                if fresh_decision is None:
+                    fresh_decision = d
+
+                fresh_ts = fresh_decision.get("timestamp", target_ts)
+
+                # Reselecionar na grid usando a versão fresca quando disponível.
                 if target_sid is not None:
                     try:
-                        self.decisions_grid.select_by_key(target_sid, target_ts)
+                        self.decisions_grid.select_by_key(target_sid, fresh_ts)
                     except Exception:
                         pass
 
                     try:
-                        self.details_panel.update_decision(d)
+                        self.last_selected_decision = dict(fresh_decision)
+                        self.details_panel.update_decision(fresh_decision)
                     except Exception:
                         pass
 
                     try:
-                        self._start_payoff_load(target_sid, target_ts, d)
+                        self._start_payoff_load(target_sid, fresh_ts, fresh_decision)
                         preserved = True
                     except Exception:
                         preserved = False
