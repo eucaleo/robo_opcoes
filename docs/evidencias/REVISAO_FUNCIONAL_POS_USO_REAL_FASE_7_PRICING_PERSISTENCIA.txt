@@ -1,0 +1,468 @@
+EVIDENCIA — FASE 7 — PRICING, PERSISTENCIA E CONSULTA
+Data: 2026-06-25
+
+=== STATUS ===
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_PRICING_PERSISTENCIA.txt
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_UI_METRICAS.txt
+
+=== CANONICAL PRICING FACADE ===
+services/canonical_pricing_facade.py:5:           no PricingExecutionPersistenceService.
+services/canonical_pricing_facade.py:11:  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+services/canonical_pricing_facade.py:20:  C4: engine_result extraído do wrapper antes de passar ao persister
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:32:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/canonical_pricing_facade.py:33:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:35:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_pricing_facade.py:36:from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+services/canonical_pricing_facade.py:37:from services.pricing_execution_service import PricingExecutionService
+services/canonical_pricing_facade.py:235:def _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:272:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py:301:            "Não persistir execução OK com spot_price <= 0."
+services/canonical_pricing_facade.py:313:            "snapshot_source":  str(selection_result.source),
+services/canonical_pricing_facade.py:314:            "snapshot_aba":     selection_result.aba,
+services/canonical_pricing_facade.py:329:                                     PricingExecutionService.execute_payload()
+services/canonical_pricing_facade.py:330:                                             PricingExecutionPersistenceService.persist()
+services/canonical_pricing_facade.py:331:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:338:        pricing_execution_service: PricingExecutionService | None = None,
+services/canonical_pricing_facade.py:339:        persistence_service: PricingExecutionPersistenceService | None = None,
+services/canonical_pricing_facade.py:344:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py:346:        self._persister = persistence_service or PricingExecutionPersistenceService(
+services/canonical_pricing_facade.py:347:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py:348:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:351:    def execute_pricing(
+services/canonical_pricing_facade.py:376:                pricing_payload = _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:420:                meta.setdefault("snapshot_source", "canonical_manual_without_alias")
+services/canonical_pricing_facade.py:435:            persisted = self._persister.persist_execution(
+services/canonical_pricing_facade.py:447:                "persisted":       persisted,
+services/canonical_pricing_facade.py:457:                self._persister.persist_execution(
+services/canonical_pricing_facade.py:459:                    result={"engine": "payoff_pricing_engine", "status": "error", "error_message": error_message},
+services/canonical_pricing_facade.py:471:                "persisted":       None,
+
+=== services/canonical_pricing_facade.py — bloco 351-471 ===
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        started_at = time.perf_counter()
+
+        try:
+            # 1. Monta pricing_payload.
+            #
+            # Caminho A - legado/captura:
+            #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
+            #
+            # Caminho B - manual canônico:
+            #   structures.alias_legacy_aba NULL -> PricingInputService.build_pricing_payload().
+            #
+            # O caminho B corrige estruturas cadastradas manualmente pela UI.
+            try:
+                aba, underlying_asset = _get_structure_info(
+                    structure_id,
+                    self._db_path,
+                )
+
+                selection = self._selector.select(aba=aba)
+
+                pricing_payload = _snapshot_result_to_payload(
+                    selection_result=selection,
+                    structure_id=structure_id,
+                    underlying_asset=underlying_asset,
+                    reference_date=reference_date,
+                    db_path=self._db_path,
+                )
+
+            except ValueError as exc:
+                message = str(exc)
+
+                if "alias_legacy_aba is null" not in message:
+                    raise
+
+                try:
+                    pricing_input_service = PricingInputService(db_path=self._db_path)
+                except TypeError:
+                    pricing_input_service = PricingInputService()
+
+                try:
+                    pricing_payload = pricing_input_service.build_pricing_payload(
+                        structure_id=structure_id,
+                        reference_date=reference_date,
+                    )
+                except TypeError:
+                    pricing_payload = pricing_input_service.build_pricing_payload(
+                        structure_id=structure_id,
+                    )
+
+                if not isinstance(pricing_payload, dict):
+                    raise ValueError(
+                        "PricingInputService.build_pricing_payload() retornou payload inválido"
+                    )
+
+                pricing_payload.setdefault("structure_id", structure_id)
+
+                if reference_date is not None:
+                    pricing_payload.setdefault("reference_date", reference_date)
+
+                meta = pricing_payload.get("meta")
+                if not isinstance(meta, dict):
+                    meta = {}
+                    pricing_payload["meta"] = meta
+
+                meta.setdefault("snapshot_source", "canonical_manual_without_alias")
+                meta.setdefault("alias_legacy_aba", None)
+                meta.setdefault("fallback_reason", message.strip())
+
+            # 2. Executa engine
+            execution_result = self._engine.execute_payload(
+                pricing_payload=pricing_payload,
+            )
+
+            # C4: extrai dict interno do wrapper
+            engine_result = execution_result.get("result", execution_result)
+
+            duration_ms = int((time.perf_counter() - started_at) * 1000)
+
+            # 3. Persiste app.db + derived.db via port
+            persisted = self._persister.persist_execution(
+                pricing_payload=pricing_payload,
+                result=engine_result,
+                duration_ms=duration_ms,
+                error_message=None,
+            )
+
+            return {
+                "status":          "ok",
+                "canonical_input": pricing_payload,
+                "pricing_payload": pricing_payload,
+                "result":          execution_result,
+                "persisted":       persisted,
+                "meta":            pricing_payload.get("meta", {}),
+                "duration_ms":     duration_ms,
+            }
+
+        except Exception as exc:
+            duration_ms   = int((time.perf_counter() - started_at) * 1000)
+            error_message = str(exc)
+
+            try:
+                self._persister.persist_execution(
+                    pricing_payload=None,
+                    result={"engine": "payoff_pricing_engine", "status": "error", "error_message": error_message},
+                    duration_ms=duration_ms,
+                    error_message=error_message,
+                )
+            except Exception:
+                pass
+
+            return {
+                "status":          "error",
+                "canonical_input": None,
+                "pricing_payload": None,
+                "result":          None,
+                "persisted":       None,
+
+=== PERSISTENCIA DE EXECUCAO ===
+repositories/system_snapshots_repository.py:15:    "metrics_json",
+repositories/system_snapshots_repository.py:23:    "metrics_json",
+repositories/system_snapshots_repository.py:78:    def create_snapshot(
+repositories/system_snapshots_repository.py:89:        metrics_json: dict[str, Any] | list[Any] | None = None,
+repositories/system_snapshots_repository.py:122:                    metrics_json,
+repositories/system_snapshots_repository.py:139:                    _to_json(metrics_json),
+repositories/system_snapshots_repository.py:147:            snapshot_id = int(cur.lastrowid)
+repositories/system_snapshots_repository.py:152:                    snapshot_id=snapshot_id,
+repositories/system_snapshots_repository.py:158:            return snapshot_id
+repositories/system_snapshots_repository.py:164:        snapshot_id: int,
+repositories/system_snapshots_repository.py:172:                snapshot_id,
+repositories/system_snapshots_repository.py:184:                metrics_json,
+repositories/system_snapshots_repository.py:191:                snapshot_id,
+repositories/system_snapshots_repository.py:203:                _to_json(leg.get("metrics_json")),
+repositories/system_snapshots_repository.py:209:    def get_snapshot(self, snapshot_id: int) -> dict[str, Any] | None:
+repositories/system_snapshots_repository.py:219:                (snapshot_id,),
+repositories/system_snapshots_repository.py:231:                WHERE snapshot_id = ?
+repositories/system_snapshots_repository.py:234:                (snapshot_id,),
+services/calculation_orchestrator.py:98:        snapshot_id=snapshot_row.get("snapshot_id") or snapshot_row.get("id"),
+services/calculation_orchestrator.py:287:            snapshot_id=market_snapshot_dict.get("snapshot_id"),
+services/calculation_orchestrator.py:486:            "snapshot_id":        snapshot.get("id"),
+services/canonical_pricing_facade.py:33:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/canonical_pricing_facade.py:348:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:435:            persisted = self._persister.persist_execution(
+services/canonical_pricing_facade.py:457:                self._persister.persist_execution(
+services/derived_payoff_persistence.py:27:    def persist(
+services/payoff_persistence_port.py:13:    def persist(
+services/pricing_execution_orchestration_service.py:4:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_orchestration_service.py:26:                system_snapshots_repository=SystemSnapshotsRepository(),
+services/pricing_execution_orchestration_service.py:44:            persisted = self.pricing_execution_persistence_service.persist_execution(
+services/pricing_execution_orchestration_service.py:70:            persisted = self.pricing_execution_persistence_service.persist_execution(
+services/pricing_execution_persistence_service.py:6:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_persistence_service.py:12:class PricingExecutionPersistenceService:
+services/pricing_execution_persistence_service.py:17:        system_snapshots_repository: SystemSnapshotsRepository | None = None,
+services/pricing_execution_persistence_service.py:23:        self._system_snapshots_repository = system_snapshots_repository
+services/pricing_execution_persistence_service.py:25:    def persist_execution(
+services/pricing_execution_persistence_service.py:58:        snapshot_id = self._create_system_snapshot_if_applicable(
+services/pricing_execution_persistence_service.py:86:        if snapshot_id is not None:
+services/pricing_execution_persistence_service.py:87:            response["snapshot_id"] = snapshot_id
+services/pricing_execution_persistence_service.py:91:    def _create_system_snapshot_if_applicable(
+services/pricing_execution_persistence_service.py:100:        if self._system_snapshots_repository is None:
+services/pricing_execution_persistence_service.py:114:            return self._system_snapshots_repository.create_snapshot(
+services/pricing_execution_persistence_service.py:123:                metrics_json=self._extract_result_field(inner, "metrics"),
+services/pricing_execution_persistence_service.py:135:                "system_snapshots_repository.create_snapshot() falhou -- execução id=%s não afetada",
+
+=== CONSULTA DE EXECUCOES E SUMARIOS ===
+repositories/market_snapshot_repository.py:257:      get_rtd_summary(aba)             -> dict com cabecalho RTD ou None
+repositories/market_snapshot_repository.py:349:    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+repositories/market_snapshot_repository.py:376:            summary = self.get_rtd_summary(ref)
+repositories/market_snapshot_repository.py:379:            summary = None
+repositories/market_snapshot_repository.py:383:                _parse_br_float(summary[key])
+repositories/market_snapshot_repository.py:384:                if summary and summary.get(key) is not None
+repositories/market_snapshot_repository.py:402:            alertas_v2=summary.get("alertas_v2") if summary else None,
+repositories/pricing_executions_repository.py:116:    def list_executions(
+repositories/system_snapshots_repository.py:15:    "metrics_json",
+repositories/system_snapshots_repository.py:23:    "metrics_json",
+repositories/system_snapshots_repository.py:89:        metrics_json: dict[str, Any] | list[Any] | None = None,
+repositories/system_snapshots_repository.py:122:                    metrics_json,
+repositories/system_snapshots_repository.py:139:                    _to_json(metrics_json),
+repositories/system_snapshots_repository.py:184:                metrics_json,
+repositories/system_snapshots_repository.py:203:                _to_json(leg.get("metrics_json")),
+services/pricing_execution_app_service.py:69:    def list_execution_summaries(
+services/pricing_execution_app_service.py:77:        return self.pricing_execution_query_service.list_execution_summaries(
+services/pricing_execution_app_service.py:85:    def get_latest_execution_summary(
+services/pricing_execution_app_service.py:92:        return self.pricing_execution_query_service.get_latest_execution_summary(
+services/pricing_execution_app_service.py:102:    def paginate_execution_summaries(
+services/pricing_execution_app_service.py:112:        return self.pricing_execution_query_service.paginate_execution_summaries(
+services/pricing_execution_persistence_service.py:123:                metrics_json=self._extract_result_field(inner, "metrics"),
+services/pricing_execution_query_service.py:7:class PricingExecutionQueryService:
+services/pricing_execution_query_service.py:16:    def _validate_summary_filters(
+services/pricing_execution_query_service.py:43:    def list_executions(self) -> list[dict[str, Any]]:
+services/pricing_execution_query_service.py:44:        return self.pricing_executions_repository.list_executions()
+services/pricing_execution_query_service.py:46:    def _load_executions_for_summary(
+services/pricing_execution_query_service.py:55:        - fakes antigos dos testes aceitam list_executions() sem kwargs.
+services/pricing_execution_query_service.py:58:            executions = self.pricing_executions_repository.list_executions(
+services/pricing_execution_query_service.py:68:            executions = self.pricing_executions_repository.list_executions()
+services/pricing_execution_query_service.py:75:    def list_execution_summaries(
+services/pricing_execution_query_service.py:83:        self._validate_summary_filters(
+services/pricing_execution_query_service.py:90:        executions = self._load_executions_for_summary(
+services/pricing_execution_query_service.py:96:        summaries = []
+services/pricing_execution_query_service.py:104:            metrics = engine_result.get("metrics", {}) or {}
+services/pricing_execution_query_service.py:107:            summary = {
+services/pricing_execution_query_service.py:134:            if structure_id is not None and summary["structure_id"] != structure_id:
+services/pricing_execution_query_service.py:138:                if str(summary["underlying_asset"]).upper() != underlying_asset.upper():
+services/pricing_execution_query_service.py:141:            if status is not None and summary["execution_status"] != status:
+services/pricing_execution_query_service.py:144:            if reference_date is not None and summary["reference_date"] != reference_date:
+services/pricing_execution_query_service.py:147:            summaries.append(summary)
+services/pricing_execution_query_service.py:149:        summaries.sort(key=lambda item: item["id"], reverse=descending)
+services/pricing_execution_query_service.py:150:        return summaries
+services/pricing_execution_query_service.py:152:    def paginate_execution_summaries(
+services/pricing_execution_query_service.py:162:        self._validate_summary_filters(
+services/pricing_execution_query_service.py:175:        summaries = self.list_execution_summaries(
+services/pricing_execution_query_service.py:183:        total_items = len(summaries)
+services/pricing_execution_query_service.py:190:        items = summaries[start:end]
+services/pricing_execution_query_service.py:200:    def get_latest_execution_summary(
+services/pricing_execution_query_service.py:207:        self._validate_summary_filters(
+services/pricing_execution_query_service.py:214:        summaries = self.list_execution_summaries(
+services/pricing_execution_query_service.py:222:        if not summaries:
+services/pricing_execution_query_service.py:223:            raise ValueError("no pricing execution summaries found")
+services/pricing_execution_query_service.py:225:        return summaries[0]
+
+=== STRUCTURE METRICS EM SERVICES ===
+services/calculation_orchestrator.py:96:        spot_price=float(snapshot_row["spot_price"]),
+services/calculation_orchestrator.py:139:            "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:171:    dte_min: Optional[int] = None,
+services/calculation_orchestrator.py:173:    """alteracao_47: extrai pl_max/pl_atual/dte_min automaticamente."""
+services/calculation_orchestrator.py:186:    _dte_min = dte_min
+services/calculation_orchestrator.py:187:    if _dte_min is None:
+services/calculation_orchestrator.py:188:        _dte_min = getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:193:        dte_min=_dte_min,
+services/calculation_orchestrator.py:290:            spot_price=float(market_snapshot_dict.get("spot_price", 0.0)),
+services/calculation_orchestrator.py:328:                "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:373:        _dte_min = (
+services/calculation_orchestrator.py:374:            payoff_result.get("dte_min")
+services/calculation_orchestrator.py:375:            or getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:382:            dte_min=_dte_min,
+services/calculation_orchestrator.py:489:            "spot_price":         snapshot.get("spot_price", 0.0),
+services/canonical_input_service.py:2:from domain.structure_metrics import compute_structure_metrics_from_canonical_input
+services/canonical_input_service.py:7:  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+services/canonical_input_service.py:15:    "spot_price":         float | None,
+services/canonical_input_service.py:149:        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+services/canonical_input_service.py:174:            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+services/canonical_input_service.py:393:        structure_metrics = compute_structure_metrics_from_canonical_input(assembled)
+services/canonical_input_service.py:402:                "dte_min": structure_metrics.get("dte_min"),
+services/canonical_input_service.py:403:                "pl_realista_total": structure_metrics.get("pl_realista_total"),
+services/canonical_input_service.py:404:                "delta_liq": structure_metrics.get("delta_liq"),
+services/canonical_input_service.py:405:                "gamma_liq": structure_metrics.get("gamma_liq"),
+services/canonical_input_service.py:406:                "theta_liq": structure_metrics.get("theta_liq"),
+services/canonical_input_service.py:407:                "vega_liq": structure_metrics.get("vega_liq"),
+services/canonical_pricing_facade.py:144:def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+services/canonical_pricing_facade.py:146:    Procura spot positivo no app.db.
+services/canonical_pricing_facade.py:149:      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
+services/canonical_pricing_facade.py:150:      spot observado = 124.66
+services/canonical_pricing_facade.py:167:        "spot",
+services/canonical_pricing_facade.py:168:        "spot_price",
+services/canonical_pricing_facade.py:283:    spot = (
+services/canonical_pricing_facade.py:284:        getattr(selection_result, "spot_price", None)
+services/canonical_pricing_facade.py:285:        or getattr(selection_result, "spot", None)
+services/canonical_pricing_facade.py:290:    spot_price = _to_float(spot, 0.0)
+services/canonical_pricing_facade.py:292:    if spot_price <= 0:
+services/canonical_pricing_facade.py:293:        spot_price = _lookup_spot_price(
+services/canonical_pricing_facade.py:298:    if spot_price <= 0:
+services/canonical_pricing_facade.py:300:            f"spot_price inválido ou ausente para underlying_asset={underlying_asset}. "
+services/canonical_pricing_facade.py:301:            "Não persistir execução OK com spot_price <= 0."
+services/canonical_pricing_facade.py:308:        "spot_price":       spot_price,
+services/derived_payoff_persistence.py:126:            dte_min           = metrics.get("dte_min")
+services/derived_payoff_persistence.py:127:            spot_ref          = pricing_payload.get("spot_price")
+services/derived_payoff_persistence.py:129:            if spot_ref is None:
+services/derived_payoff_persistence.py:130:                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
+services/derived_payoff_persistence.py:145:                "dte_min":       dte_min,
+services/derived_payoff_persistence.py:146:                "spot_ref":      spot_ref,
+services/derived_payoff_persistence.py:313:          A) já canônico: { structure: { legs, ... }, market: { spot_price, ... } }
+services/derived_payoff_persistence.py:314:          B) flat:        { legs: [...], spot_price: ..., structure_id: ..., ... }
+services/derived_payoff_persistence.py:327:        spot_price     = pricing_payload.get("spot_price") or 0.0
+services/derived_payoff_persistence.py:347:                "spot_price":       spot_price,
+services/derived_service.py:163:    spot_ref: Optional[float] = None,
+services/derived_service.py:185:            x = p.get("point_spot")
+services/derived_service.py:189:                x = p.get("spot")
+services/derived_service.py:214:            spot_ref=spot_ref,
+services/derived_service.py:267:            spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:276:        spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:394:            SELECT timestamp, aba, point_spot, point_pl, meta_json
+services/derived_service.py:396:            ORDER BY timestamp DESC, point_spot
+services/derived_service.py:402:                "point_spot": row[2],
+services/derived_service.py:425:            SELECT timestamp, point_spot, point_pl, meta_json
+services/derived_service.py:433:             ORDER BY point_spot
+services/derived_service.py:440:                "point_spot": row[1],
+services/derived_service.py:463:            "pl_atual", "pl_max", "pl_pct_of_max", "dte_min",
+services/derived_service.py:464:            "spot_ref", "meta_json", "created_at",
+services/market_snapshot_provider.py:7:        "spot_price": 198.35,
+services/market_snapshot_provider.py:12:        "spot_price": 124.66,
+services/market_snapshot_provider.py:17:        "spot_price": 168.67,
+services/market_snapshot_provider.py:22:        "spot_price": 66.84,
+services/market_snapshot_provider.py:27:        "spot_price": 87.37,
+services/market_snapshot_provider.py:32:        "spot_price": 37.42,
+services/market_snapshot_provider.py:37:        "spot_price": 61.80,
+services/market_snapshot_provider.py:67:            "spot_price": float(market["spot_price"]),
+services/payoff_pricing_engine.py:28:        spot_price = float(pricing_payload.get("spot_price") or 0.0)
+services/payoff_pricing_engine.py:29:        if spot_price <= 0:
+services/payoff_pricing_engine.py:30:            raise ValueError("pricing_payload.spot_price is required")
+services/payoff_pricing_engine.py:42:            spot_ref=spot_price,
+services/payoff_pricing_engine.py:50:        pl_atual = self._compute_pl_at_spot(
+services/payoff_pricing_engine.py:52:            spot_price=spot_price,
+services/payoff_pricing_engine.py:69:                "spot_price": spot_price,
+services/payoff_pricing_engine.py:129:    def _intrinsic_value(option_type: str, strike: float, spot: float) -> float:
+services/payoff_pricing_engine.py:131:            return max(spot - strike, 0.0)
+services/payoff_pricing_engine.py:133:            return max(strike - spot, 0.0)
+services/payoff_pricing_engine.py:136:    def _compute_pl_at_spot(
+services/payoff_pricing_engine.py:139:        spot_price: float,
+services/payoff_pricing_engine.py:147:                spot=spot_price,
+services/pricing_execution_persistence_service.py:153:            "spot_price": pricing_payload.get("spot_price"),
+services/pricing_payload_adapter.py:57:        "spot_price": float(market["spot_price"]),
+services/structure_analysis_service.py:9:    compute_dte_min_from_canonical_input,
+services/structure_analysis_service.py:10:    compute_structure_metrics_from_canonical_input,
+services/structure_analysis_service.py:22:        dte_min: Optional[int] = None,
+services/structure_analysis_service.py:35:        structure_metrics = compute_structure_metrics_from_canonical_input(canonical_input)
+services/structure_analysis_service.py:39:        # Mantemos compute_dte_min_from_canonical_input como fonte explícita do
+services/structure_analysis_service.py:40:        # dte_min_inferred para compatibilidade com testes e integrações já
+services/structure_analysis_service.py:41:        # existentes. O motor novo também calcula dte_min, mas nesta etapa ele é
+services/structure_analysis_service.py:43:        dte_min_inferred = compute_dte_min_from_canonical_input(canonical_input)
+services/structure_analysis_service.py:46:        if dte_min is not None:
+services/structure_analysis_service.py:47:            dte_min_effective = dte_min
+services/structure_analysis_service.py:48:        elif dte_min_inferred is not None:
+services/structure_analysis_service.py:49:            dte_min_effective = dte_min_inferred
+services/structure_analysis_service.py:51:            dte_min_effective = 0
+services/structure_analysis_service.py:77:                "dte_min":       dte_min_effective,
+services/structure_analysis_service.py:85:                    "dte_min_inferred":             dte_min_inferred,
+services/structure_analysis_service.py:86:                    "dte_min_effective":            dte_min_effective,
+services/structure_analysis_service.py:98:            dte_min=dte_min_effective,
+services/structure_analysis_service.py:104:        # 9. Injeta dte_min no retorno (esperado pelos testes)
+services/structure_analysis_service.py:105:        decision["dte_min"] = dte_min_effective
+services/structure_analysis_service.py:113:                "dte_min_inferred":             dte_min_inferred,
+services/structure_analysis_service.py:114:                "dte_min_effective":            dte_min_effective,
+services/structure_market_input_assembler.py:30:            "spot_price": market_snapshot["spot_price"],
+
+=== STRUCTURE METRICS EM DOMAIN, SE EXISTIR ===
+domain/calculation_request.py:177:    spot_price         : preço spot positivo
+domain/calculation_request.py:183:    spot_price:         float
+domain/calculation_request.py:195:            self, "spot_price",
+domain/calculation_request.py:196:            _require_positive(self.spot_price, "spot_price")
+domain/canonical_validators.py:32:    if market.get("spot_price") is None:
+domain/canonical_validators.py:33:        errors.append("market.spot_price is required")
+domain/contracts.py:29:    spot_price: float
+domain/contracts.py:78:            spot_price=float(market_raw.get("spot_price")),
+domain/contracts.py:119:                "spot_price": self.market.spot_price,
+domain/decision.py:32:def _interp_payoff(points: List[Tuple[float, float]], spot: float) -> float:
+domain/decision.py:33:    """Interpola P&L no spot dado a partir dos pontos da curva."""
+domain/decision.py:38:    if spot <= xs[0]:
+domain/decision.py:40:    if spot >= xs[-1]:
+domain/decision.py:43:        if xs[i] <= spot <= xs[i + 1]:
+domain/decision.py:44:            t = (spot - xs[i]) / (xs[i + 1] - xs[i])
+domain/decision.py:71:    dte_min: Optional[int] = None,
+domain/decision.py:86:    # [OK] Gate só dispara se dte_min foi fornecido E é > 0
+domain/decision.py:87:    #    dte_min=0 significa "expirado/sem DTE real" -- não aciona gate
+domain/decision.py:88:    if dte_min is not None and dte_min > 0 and dte_min <= dte_gate:
+domain/decision.py:92:        extra: Dict[str, Any] = {"dte_min": dte_min, "dte_gate": dte_gate}
+domain/decision.py:141:    dte_min: Optional[int] = None,
+domain/decision.py:165:    # Interpolação via points + spot, se disponíveis
+domain/decision.py:167:    spot   = payoff.get("spot")
+domain/decision.py:168:    if points and spot is not None and pl_atual == 0.0:
+domain/decision.py:169:        pl_atual = _interp_payoff(points, float(spot))
+domain/decision.py:186:        dte_min=dte_min,
+domain/decision.py:199:    dte_min = getattr(contract, "dte_min", None)
+domain/decision.py:202:        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+domain/decision.py:212:        dte_min=dte_min,
+domain/market_snapshot.py:61:      aba, spot, num_pernas, dte_min, pl_realista_total,
+domain/market_snapshot.py:62:      delta_liq, gamma_liq, theta_liq, vega_liq,
+domain/market_snapshot.py:75:    spot               : Optional[float] = None
+domain/market_snapshot.py:77:    dte_min            : Optional[int]   = None
+domain/market_snapshot.py:78:    pl_realista_total  : Optional[float] = None
+domain/market_snapshot.py:79:    delta_liq          : Optional[float] = None
+domain/market_snapshot.py:80:    gamma_liq          : Optional[float] = None
+domain/market_snapshot.py:81:    theta_liq          : Optional[float] = None
+domain/market_snapshot.py:82:    vega_liq           : Optional[float] = None
+domain/market_snapshot.py:96:        return self.spot is not None
+domain/market_snapshot.py:103:            f"spot={self.spot}, "
+domain/payoff.py:19:def _intrinsic_value(option_type: str, strike: float, spot_at_expiration: float) -> float:
+domain/payoff.py:21:        return max(spot_at_expiration - strike, 0.0)
+domain/payoff.py:23:        return max(strike - spot_at_expiration, 0.0)
+domain/payoff.py:27:def _compute_leg_payoff_at_expiration(leg: dict[str, Any], spot_at_expiration: float) -> float:
+domain/payoff.py:40:        spot_at_expiration=spot_at_expiration,
+domain/payoff.py:53:    spot_ref: float,
+domain/payoff.py:63:            "spot_ref": _round_money(spot_ref, 6),
+domain/payoff.py:75:    s_min = float(spot_ref) * float(low_pct)
+domain/payoff.py:76:    s_max = float(spot_ref) * float(high_pct)
+domain/payoff.py:77:    step = float(spot_ref) * float(step_pct)
+domain/payoff.py:92:                spot_at_expiration=s_t,
+domain/payoff.py:110:        "spot_ref": _round_money(spot_ref, 6),
+domain/payoff.py:139:            "spot_ref": float(market.get("spot_price") or 0.0),
+domain/payoff.py:155:    spot_ref = float(market.get("spot_price") or 0.0)
+domain/payoff.py:159:        spot_ref=spot_ref,
+domain/payoff_features.py:40:def _find_breakevens(points: List[Tuple[float, float]], eps: float = 1e-12) -> List[float]:
+domain/payoff_features.py:70:    bes = _find_breakevens(pts)
+domain/payoff_features.py:98:    spot_ref: Optional[float] = None,
+domain/payoff_features.py:119:    pl_at_spot_ref = None
+domain/payoff_features.py:120:    if spot_ref is not None:
+domain/payoff_features.py:121:        pl_at_spot_ref = _interp_y_at_x(pts, float(spot_ref))
+domain/payoff_features.py:123:    bes = _find_breakevens(pts)
+domain/payoff_features.py:131:        "spot_ref":          float(spot_ref) if spot_ref is not None else None,
+domain/payoff_features.py:135:        "pl_at_spot_ref":    float(pl_at_spot_ref) if pl_at_spot_ref is not None else None,
+domain/payoff_features.py:136:        "breakevens":        bes,
+domain/payoff_features.py:149:        spot_ref, points_count,
+domain/payoff_features.py:150:        pl_min, pl_max, pl_at_spot_ref,
+domain/payoff_features.py:151:        breakevens_json, be_count,
+domain/payoff_features.py:157:        :spot_ref, :points_count,
+domain/payoff_features.py:158:        :pl_min, :pl_max, :pl_at_spot_ref,
+domain/payoff_features.py:159:        :breakevens_json, :be_count,
+domain/payoff_features.py:166:        spot_ref           = excluded.spot_ref,
+domain/payoff_features.py:170:        pl_at_spot_ref     = excluded.pl_at_spot_ref,
+domain/payoff_features.py:171:        breakevens_json    = excluded.breakevens_json,
+domain/payoff_features.py:223:                "spot_ref":          features.get("spot_ref"),
+domain/payoff_features.py:227:                "pl_at_spot_ref":    features.get("pl_at_spot_ref"),
+domain/payoff_features.py:228:                "breakevens_json":   json.dumps(features.get("breakevens", [])),
+domain/structure_metrics.py:83:def compute_dte_min_from_canonical_input(canonical_input: dict[str, Any]) -> int | None:
+domain/structure_metrics.py:301:def compute_structure_metrics(
+domain/structure_metrics.py:332:        "pl_realista_total": sum(valid_pl_values) if valid_pl_values else None,
+domain/structure_metrics.py:333:        "delta_liq": sum(valid_delta_values) if valid_delta_values else None,
+domain/structure_metrics.py:334:        "gamma_liq": sum(valid_gamma_values) if valid_gamma_values else None,
+domain/structure_metrics.py:335:        "theta_liq": sum(valid_theta_values) if valid_theta_values else None,
+domain/structure_metrics.py:336:        "vega_liq": sum(valid_vega_values) if valid_vega_values else None,
+domain/structure_metrics.py:339:        "dte_min": min(dte_values) if dte_values else None,
+domain/structure_metrics.py:343:def compute_structure_metrics_from_canonical_input(
+domain/structure_metrics.py:352:    return compute_structure_metrics(legs, reference_date=reference_date)
