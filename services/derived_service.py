@@ -9,7 +9,7 @@ alteracao_65           -- get_payoff_by_aba() removida da interface pública (st
 import inspect
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from db.config import connect_app, connect_derived
@@ -21,6 +21,7 @@ from db.derived_repo import (
     insert_structure_decision,
 )
 from src.domain.refs.structure_ref import StructureRef
+from services.market_time import now_b3_iso
 
 
 # ------------------------------------------------------------------
@@ -66,7 +67,7 @@ def invalidate_aba_cache() -> None:
 # ------------------------------------------------------------------
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return now_b3_iso()
 
 
 def _safe_str(value: Any) -> Optional[str]:

@@ -1,0 +1,100 @@
+EVIDENCIA — FASE 7 — PADRONIZACAO HORARIO BRASILIA B3
+Data: 2026-06-25
+
+=== OBJETIVO ===
+Padronizar timestamps operacionais de pricing/payoff/decisao para America/Sao_Paulo, horario oficial de Brasilia/B3.
+
+=== STATUS ===
+ M repositories/pricing_executions_repository.py
+ M services/derived_payoff_persistence.py
+ M services/derived_service.py
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_HORARIO_BRASILIA_B3.txt
+?? services/market_time.py
+
+=== DIFF ===
+diff --git a/repositories/pricing_executions_repository.py b/repositories/pricing_executions_repository.py
+index db90aa1..dca2392 100644
+--- a/repositories/pricing_executions_repository.py
++++ b/repositories/pricing_executions_repository.py
+@@ -1,8 +1,9 @@
+ import json
+ import sqlite3
+-from datetime import UTC, datetime
++from datetime import datetime
+ from pathlib import Path
+ from typing import Any, Optional
++from services.market_time import now_b3_iso
+ 
+ DB_PATH = Path("dados/app.db")
+ 
+@@ -42,7 +43,7 @@ class PricingExecutionsRepository:
+         if not result:
+             raise ValueError("result is required")
+ 
+-        created_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
++        created_at = now_b3_iso()
+         structure_id = pricing_payload.get("structure_id") if pricing_payload else None
+         underlying_asset = pricing_payload.get("underlying_asset") if pricing_payload else None
+         reference_date = pricing_payload.get("reference_date") if pricing_payload else None
+diff --git a/services/derived_payoff_persistence.py b/services/derived_payoff_persistence.py
+index 1febb9c..7af5b03 100644
+--- a/services/derived_payoff_persistence.py
++++ b/services/derived_payoff_persistence.py
+@@ -1,10 +1,10 @@
+ # services/derived_payoff_persistence.py
+ import logging
+-from datetime import datetime, timezone
+ from typing import Any
+ 
+ from domain.payoff import compute_payoff_from_canonical_input
+ from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
++from services.market_time import now_b3_iso
+ 
+ logger = logging.getLogger(__name__)
+ 
+@@ -44,7 +44,7 @@ class DerivedPayoffPersistence:
+ 
+         # Timestamp único para payoff + decisão.
+         # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
+-        snapshot_ts = datetime.now(timezone.utc).isoformat()
++        snapshot_ts = now_b3_iso()
+ 
+         payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+         if not payoff_saved:
+diff --git a/services/derived_service.py b/services/derived_service.py
+index 6a8dd45..c94e755 100644
+--- a/services/derived_service.py
++++ b/services/derived_service.py
+@@ -9,7 +9,7 @@ alteracao_65           -- get_payoff_by_aba() removida da interface pública (st
+ import inspect
+ import json
+ import sqlite3
+-from datetime import datetime, timezone
++from datetime import datetime
+ from typing import Any, Dict, List, Optional, Tuple, Union
+ 
+ from db.config import connect_app, connect_derived
+@@ -21,6 +21,7 @@ from db.derived_repo import (
+     insert_structure_decision,
+ )
+ from src.domain.refs.structure_ref import StructureRef
++from services.market_time import now_b3_iso
+ 
+ 
+ # ------------------------------------------------------------------
+@@ -66,7 +67,7 @@ def invalidate_aba_cache() -> None:
+ # ------------------------------------------------------------------
+ 
+ def _now_iso() -> str:
+-    return datetime.now(timezone.utc).isoformat()
++    return now_b3_iso()
+ 
+ 
+ def _safe_str(value: Any) -> Optional[str]:
+
+=== VALIDACAO HORARIO ===
+B3 ISO : 2026-06-25T18:39:12.879201-03:00
+B3 TEXT: 2026-06-25 18:39:12
+
+=== PYCHECK ===
+py_compile OK

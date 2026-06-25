@@ -1,8 +1,9 @@
 import json
 import sqlite3
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
+from services.market_time import now_b3_iso
 
 DB_PATH = Path("dados/app.db")
 
@@ -42,7 +43,7 @@ class PricingExecutionsRepository:
         if not result:
             raise ValueError("result is required")
 
-        created_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
+        created_at = now_b3_iso()
         structure_id = pricing_payload.get("structure_id") if pricing_payload else None
         underlying_asset = pricing_payload.get("underlying_asset") if pricing_payload else None
         reference_date = pricing_payload.get("reference_date") if pricing_payload else None

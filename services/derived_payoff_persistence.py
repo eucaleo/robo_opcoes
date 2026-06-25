@@ -1,10 +1,10 @@
 # services/derived_payoff_persistence.py
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 from domain.payoff import compute_payoff_from_canonical_input
 from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+from services.market_time import now_b3_iso
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class DerivedPayoffPersistence:
 
         # Timestamp único para payoff + decisão.
         # Evita snapshots inconsistentes por diferença de milissegundos entre gravações.
-        snapshot_ts = datetime.now(timezone.utc).isoformat()
+        snapshot_ts = now_b3_iso()
 
         payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
         if not payoff_saved:
