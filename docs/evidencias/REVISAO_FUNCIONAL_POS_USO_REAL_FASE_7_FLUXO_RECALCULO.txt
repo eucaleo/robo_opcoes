@@ -1,0 +1,491 @@
+EVIDENCIA FOCADA — FASE 7 — FLUXO DE RECALCULO, SNAPSHOT E METRICAS
+Data: 2026-06-25
+
+Branch:
+reinicio-normalizacao-idioma-ptbr
+
+Commit atual:
+f3b96a0 Inicia revisão da fase 7 recalculo metricas
+
+=== STATUS DO REPOSITORIO ===
+?? docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_FLUXO_RECALCULO.txt
+
+=== DEFINICOES PRINCIPAIS ENCONTRADAS ===
+UI/components/details_panel.py:443:    def _compute_recalc_signature(self, structure_id):
+UI/components/details_panel.py:495:        # Métricas Financeiras
+UI/components/details_panel.py:496:        metrics_frame = ttk.LabelFrame(self, text="Métricas Financeiras", padding=5)
+UI/components/details_panel.py:734:    def on_recalc_finished(self, structure_id, ok: bool, message: str = ""):
+UI/components/details_panel.py:1046:    def _on_recalculate_click(self):
+UI/main_window.py:445:    def recalculate_structure(self, structure_id: str):
+services/payoff_pricing_engine.py:14:    - gerar métricas financeiras não nulas quando houver dados suficientes;
+
+=== UI/main_window.py — recalculate_structure ===
+    def recalculate_structure(self, structure_id: str):
+        """
+        Recalcula a estrutura identificada por structure_id e atualiza a UI.
+
+        Importante:
+        - Este botão NÃO executa o pipeline completo.
+        - Ele recalcula somente a estrutura selecionada via CanonicalPricingFacade.
+        """
+        if self._recalc_in_progress:
+            try:
+                self.status_bar.config(
+                    text=f"Recalc já em andamento; ignorando ({structure_id})"
+                )
+            except Exception:
+                pass
+            return
+
+        try:
+            sid = int(structure_id)
+        except (TypeError, ValueError):
+            try:
+                self.status_bar.config(
+                    text=f"structure_id inválido para recálculo: {structure_id}"
+                )
+            except Exception:
+                pass
+            return
+
+        self._recalc_in_progress = True
+
+        try:
+            self.payoff_chart.fix_current_curve()
+        except Exception:
+            pass
+
+        try:
+            self.status_bar.config(text=f"Recalculando estrutura {sid}...")
+        except Exception:
+            pass
+
+        def finish(ok: bool, msg: str):
+            self._recalc_in_progress = False
+
+            try:
+                self.status_bar.config(text=msg)
+            except Exception:
+                pass
+
+            try:
+                if hasattr(self, "details_panel") and hasattr(
+                    self.details_panel, "on_recalc_finished"
+                ):
+                    self.details_panel.on_recalc_finished(
+                        str(sid), ok=ok, message=msg
+                    )
+            except Exception as e:
+                print("[UI] Erro notificando details_panel fim recalc:", e)
+
+        def clear_ui_cache():
+            try:
+                if hasattr(self, "data_model") and hasattr(self.data_model, "clear_cache"):
+                    self.data_model.clear_cache()
+            except Exception as e:
+                print("[UI] Erro limpando cache após recalc:", e)
+
+        def worker():
+            try:
+                from services.canonical_pricing_facade import CanonicalPricingFacade
+
+                facade = CanonicalPricingFacade(db_path=self._db_path)
+                result = facade.execute_pricing(sid)
+
+                print(f"[UI] Recalc structure_id={sid} result:", result)
+
+                if not isinstance(result, dict):
+                    raise RuntimeError(f"Resposta inválida do pricing facade: {result!r}")
+
+                ok_statuses = {"success", "ok", "completed"}
+
+                top_status = result.get("status")
+                if top_status is not None and str(top_status).lower() not in ok_statuses:
+                    msg = (
+                        result.get("error_message")
+                        or result.get("message")
+                        or f"Falha no recálculo da estrutura {sid}: status={top_status}"
+                    )
+                    raise RuntimeError(msg)
+
+                inner = result.get("result")
+                if isinstance(inner, dict):
+                    inner_status = inner.get("status")
+                    if inner_status is not None and str(inner_status).lower() not in ok_statuses:
+                        msg = (
+                            inner.get("error_message")
+                            or inner.get("message")
+                            or f"Falha no recálculo da estrutura {sid}: status={inner_status}"
+                        )
+                        raise RuntimeError(msg)
+
+                self.root.after(0, clear_ui_cache)
+                self.root.after(0, self.refresh_data)
+                self.root.after(
+                    0,
+                    lambda: finish(True, f"OK: estrutura {sid} recalculada"),
+                )
+
+            except Exception as e:
+                print("[UI] Erro inesperado recalc:", e)
+                self.root.after(
+                    0,
+                    lambda: finish(False, f"Erro no recálculo da estrutura {sid}: {e}"),
+                )
+
+        threading.Thread(target=worker, daemon=True).start()
+
+
+
+=== UI/main_window.py — recalculo automatico apos salvar estrutura ===
+
+            try:
+                self.status_bar.config(text="Estrutura salva com sucesso.")
+            except Exception:
+                pass
+
+            if saved_structure_id is not None:
+                self._reprice_structure_after_save(int(saved_structure_id))
+
+
+    def _reprice_structure_after_save(self, structure_id: int) -> None:
+        """
+        Recalcula pricing/payoff/decisão após criação ou edição manual.
+
+        Usa thread para não congelar a UI.
+        Falhas não desfazem o cadastro da estrutura.
+        """
+
+        def _set_status(text: str) -> None:
+            try:
+                self.status_bar.config(text=text)
+            except Exception:
+                pass
+
+        def _post_status(text: str) -> None:
+            try:
+                self.root.after(0, lambda: _set_status(text))
+            except Exception:
+                _set_status(text)
+
+        sid = int(structure_id)
+        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+
+        def _worker() -> None:
+            try:
+                # Import lazy para evitar side-effects no import da UI/testes.
+                from services.canonical_pricing_facade import CanonicalPricingFacade
+
+                facade = CanonicalPricingFacade(db_path=self._db_path)
+                result = facade.execute_pricing(sid)
+
+                if isinstance(result, dict) and result.get("status") == "error":
+                    raise RuntimeError(
+                        result.get("error_message") or "Erro no recálculo automático"
+                    )
+
+                def _after_success() -> None:
+                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+                    try:
+                        self.refresh_data()
+                    except Exception:
+                        pass
+
+                try:
+                    self.root.after(0, _after_success)
+                except Exception:
+                    _after_success()
+
+            except Exception as exc:
+                _post_status(
+                    f"Estrutura {sid} salva, mas o recálculo automático falhou: {exc}"
+                )
+
+        threading.Thread(target=_worker, daemon=True).start()
+
+
+
+=== UI/components/details_panel.py — assinatura e metricas ===
+    def _compute_recalc_signature(self, structure_id):
+        return (
+            structure_id,
+            self._get_latest_snapshot_timestamp_for_structure(structure_id),
+        )
+
+    # ------------------------------------------------------------------
+    # Widgets
+    # ------------------------------------------------------------------
+
+    def _setup_widgets(self):
+        self.grid_rowconfigure(3, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+
+        # Informações Básicas
+        basic_frame = ttk.LabelFrame(self, text="Informações Básicas", padding=5)
+        basic_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 5))
+        basic_frame.grid_columnconfigure(1, weight=1)
+        basic_frame.grid_columnconfigure(3, weight=1)
+
+        ttk.Label(basic_frame, text="Timestamp:").grid(
+            row=0, column=0, sticky="w", padx=(0, 5)
+        )
+        self.timestamp_label = ttk.Label(
+            basic_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.timestamp_label.grid(row=0, column=1, sticky="ew", padx=(0, 10))
+
+        ttk.Label(basic_frame, text="Estrutura:").grid(
+            row=0, column=2, sticky="w", padx=(0, 5)
+        )
+        self.structure_label = ttk.Label(
+            basic_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.structure_label.grid(row=0, column=3, sticky="ew")
+
+        ttk.Label(basic_frame, text="Decisão:").grid(
+            row=1, column=0, sticky="w", padx=(0, 5)
+        )
+        self.decision_label = ttk.Label(
+            basic_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.decision_label.grid(row=1, column=1, sticky="ew", padx=(0, 10))
+
+        ttk.Label(basic_frame, text="Nível:").grid(
+            row=1, column=2, sticky="w", padx=(0, 5)
+        )
+        self.level_label = ttk.Label(
+            basic_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.level_label.grid(row=1, column=3, sticky="ew")
+
+        # Métricas Financeiras
+        metrics_frame = ttk.LabelFrame(self, text="Métricas Financeiras", padding=5)
+        metrics_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
+        metrics_frame.grid_columnconfigure(1, weight=1)
+        metrics_frame.grid_columnconfigure(3, weight=1)
+
+        ttk.Label(metrics_frame, text="PL Atual:").grid(
+            row=0, column=0, sticky="w", padx=(0, 5)
+        )
+        self.pl_atual_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.pl_atual_label.grid(row=0, column=1, sticky="ew", padx=(0, 10))
+
+        ttk.Label(metrics_frame, text="PL Máximo:").grid(
+            row=0, column=2, sticky="w", padx=(0, 5)
+        )
+        self.pl_max_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.pl_max_label.grid(row=0, column=3, sticky="ew")
+
+        ttk.Label(metrics_frame, text="Ratio:").grid(
+            row=1, column=0, sticky="w", padx=(0, 5)
+        )
+        self.ratio_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.ratio_label.grid(row=1, column=1, sticky="ew", padx=(0, 10))
+
+        ttk.Label(metrics_frame, text="DTE Mín:").grid(
+            row=1, column=2, sticky="w", padx=(0, 5)
+        )
+        self.dte_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.dte_label.grid(row=1, column=3, sticky="ew")
+
+        ttk.Label(metrics_frame, text="Spot Ref:").grid(
+            row=2, column=0, sticky="w", padx=(0, 5)
+        )
+        self.spot_ref_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.spot_ref_label.grid(row=2, column=1, sticky="ew", padx=(0, 10))
+
+        ttk.Label(metrics_frame, text="Breakevens:").grid(
+            row=2, column=2, sticky="w", padx=(0, 5)
+        )
+        self.breakevens_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.breakevens_label.grid(row=2, column=3, sticky="ew")
+
+        # Estado Operacional
+        operational_frame = ttk.LabelFrame(self, text="Estado Operacional", padding=5)
+        operational_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=5)
+        operational_frame.grid_columnconfigure(1, weight=1)
+        operational_frame.grid_columnconfigure(3, weight=1)
+
+        ttk.Label(operational_frame, text="Eventos aplicados:").grid(
+            row=0, column=0, sticky="w", padx=(0, 5)
+        )
+        self.operational_events_applied_label = ttk.Label(
+            operational_frame, text="N/A", background="white", relief="sunken"
+        )
+
+=== UI/components/details_panel.py — fim do recalc ===
+    def on_recalc_finished(self, structure_id, ok: bool, message: str = ""):
+        """Chamado pelo MainWindow ao finalizar o subprocess do pipeline."""
+        try:
+            if ok:
+                self._last_recalc_signature = self._compute_recalc_signature(
+                    structure_id
+                )
+                self._set_recalc_ui_state(
+                    False,
+                    msg=message or f"OK: {structure_id} recalculado",
+                    color="green",
+                )
+            else:
+                self._set_recalc_ui_state(
+                    False,
+                    msg=message or "Falha no recálculo",
+                    color="red",
+                )
+        except Exception:
+            self._recalc_in_progress = False
+
+
+=== UI/components/details_panel.py — clique no recalc ===
+    # Recalc click
+    # ------------------------------------------------------------------
+
+    def _on_recalculate_click(self):
+        decision = self._current_decision
+        if not decision:
+            self.lbl_recalc_status.config(
+                text="Nenhuma decisão selecionada", foreground="red"
+            )
+            return
+
+        # alteracao_36: structure_id é único identificador
+        structure_id = decision.get("structure_id")
+        if not structure_id:
+            self.lbl_recalc_status.config(
+                text="Estrutura não identificada", foreground="red"
+            )
+            return
+
+        if getattr(self, "_recalc_in_progress", False):
+            self._set_recalc_ui_state(
+                True,
+                msg=f"Recalc já em andamento ({structure_id})",
+                color="orange",
+            )
+            return
+
+        # Botão manual: deve recalcular sempre que o usuário clicar.
+        # A assinatura é mantida apenas para diagnóstico/estado, não para bloquear.
+        sig = self._compute_recalc_signature(structure_id)
+
+        if callable(getattr(self, "_on_recalculate_cb", None)):
+            self._set_recalc_ui_state(
+                True,
+                msg=f"Recalculando {structure_id}...",
+                color="blue",
+            )
+            try:
+                self._on_recalculate_cb(structure_id)
+                self._last_recalc_signature = sig
+            except Exception as e:
+                self._set_recalc_ui_state(
+                    False, msg="Erro ao iniciar recálculo", color="red"
+                )
+                print(f"[UI] Erro delegando recalc: {e}")
+            return
+
+        self.lbl_recalc_status.config(
+            text="Recalc indisponível: callback não configurado",
+            foreground="red",
+        )
+
+=== services/calculation_orchestrator.py — trechos de recalculo ===
+services/calculation_orchestrator.py:16:    MarketSnapshotInput,
+services/calculation_orchestrator.py:53:    snapshot_row: dict,
+services/calculation_orchestrator.py:93:    snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:94:        snapshot_timestamp=str(snapshot_row["snapshot_timestamp"]),
+services/calculation_orchestrator.py:95:        underlying_asset=str(snapshot_row["underlying_asset"]),
+services/calculation_orchestrator.py:96:        spot_price=float(snapshot_row["spot_price"]),
+services/calculation_orchestrator.py:97:        source=str(snapshot_row.get("source", "rtd")),
+services/calculation_orchestrator.py:98:        snapshot_id=snapshot_row.get("snapshot_id") or snapshot_row.get("id"),
+services/calculation_orchestrator.py:99:        option_quotes=snapshot_row.get("option_quotes"),
+services/calculation_orchestrator.py:100:        greeks=snapshot_row.get("greeks"),
+services/calculation_orchestrator.py:101:        volatility_context=snapshot_row.get("volatility_context"),
+services/calculation_orchestrator.py:104:    return CalculationRequest(structure=structure, market_snapshot=snapshot)
+services/calculation_orchestrator.py:139:            "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:140:            "underlying_asset": request.market_snapshot.underlying_asset,
+services/calculation_orchestrator.py:141:            "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+services/calculation_orchestrator.py:142:            "option_quotes":    getattr(request.market_snapshot, "option_quotes",      {}),
+services/calculation_orchestrator.py:143:            "greeks":           getattr(request.market_snapshot, "greeks",             {}),
+services/calculation_orchestrator.py:188:        _dte_min = getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:242:        market_snapshot_repository=None,
+services/calculation_orchestrator.py:245:        self._snapshot_repo   = market_snapshot_repository
+services/calculation_orchestrator.py:254:        market_snapshot_dict: Dict[str, Any],
+services/calculation_orchestrator.py:286:        snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:287:            snapshot_id=market_snapshot_dict.get("snapshot_id"),
+services/calculation_orchestrator.py:288:            snapshot_timestamp=str(market_snapshot_dict.get("snapshot_timestamp", "")),
+services/calculation_orchestrator.py:289:            underlying_asset=str(market_snapshot_dict.get("underlying_asset", "")),
+services/calculation_orchestrator.py:290:            spot_price=float(market_snapshot_dict.get("spot_price", 0.0)),
+services/calculation_orchestrator.py:291:            source=str(market_snapshot_dict.get("source", "rtd")),
+services/calculation_orchestrator.py:292:            option_quotes=market_snapshot_dict.get("option_quotes"),
+services/calculation_orchestrator.py:293:            greeks=market_snapshot_dict.get("greeks"),
+services/calculation_orchestrator.py:294:            volatility_context=market_snapshot_dict.get("volatility_context"),
+services/calculation_orchestrator.py:297:        return CalculationRequest(structure=structure, market_snapshot=snapshot)
+services/calculation_orchestrator.py:328:                "spot_price":       request.market_snapshot.spot_price,
+services/calculation_orchestrator.py:329:                "underlying_asset": request.market_snapshot.underlying_asset,
+services/calculation_orchestrator.py:330:                "reference_date":   getattr(request.market_snapshot, "snapshot_timestamp", None),
+services/calculation_orchestrator.py:331:                "option_quotes":    getattr(request.market_snapshot, "option_quotes", {}),
+services/calculation_orchestrator.py:332:                "greeks":           getattr(request.market_snapshot, "greeks",        {}),
+services/calculation_orchestrator.py:375:            or getattr(request.market_snapshot, "dte_min", None)
+services/calculation_orchestrator.py:411:        snapshot_timestamp: Optional[str] = None,
+services/calculation_orchestrator.py:419:            ValueError  : se snapshot nao encontrado
+services/calculation_orchestrator.py:426:        if self._snapshot_repo is None:
+services/calculation_orchestrator.py:428:                "MarketSnapshotRepository nao foi injetado no orquestrador. "
+services/calculation_orchestrator.py:429:                "Passe market_snapshot_repository= no construtor."
+services/calculation_orchestrator.py:440:                f"Estrutura arquivada nao pode ser recalculada: "
+services/calculation_orchestrator.py:450:        # 2. Busca snapshot
+services/calculation_orchestrator.py:452:        snapshot = self._snapshot_repo.get_snapshot(
+services/calculation_orchestrator.py:454:            timestamp=snapshot_timestamp,
+services/calculation_orchestrator.py:456:        if snapshot is None:
+services/calculation_orchestrator.py:458:                f"Snapshot nao encontrado para underlying_asset='{underlying}' "
+services/calculation_orchestrator.py:459:                f"timestamp={snapshot_timestamp!r}"
+services/calculation_orchestrator.py:485:        market_snapshot_dict = {
+services/calculation_orchestrator.py:486:            "snapshot_id":        snapshot.get("id"),
+services/calculation_orchestrator.py:487:            "snapshot_timestamp": snapshot.get("snapshot_timestamp", ""),
+services/calculation_orchestrator.py:488:            "underlying_asset":   snapshot.get("underlying_asset", underlying),
+services/calculation_orchestrator.py:489:            "spot_price":         snapshot.get("spot_price", 0.0),
+services/calculation_orchestrator.py:490:            "source":             snapshot.get("source", "rtd"),
+services/calculation_orchestrator.py:491:            "option_quotes":      snapshot.get("option_quotes"),
+services/calculation_orchestrator.py:492:            "greeks":             snapshot.get("greeks"),
+services/calculation_orchestrator.py:493:            "volatility_context": snapshot.get("volatility_context"),
+services/calculation_orchestrator.py:496:        return self.build_calculation_request(structure_dict, market_snapshot_dict)
+services/calculation_orchestrator.py:501:        snapshot_timestamp: Optional[str] = None,
+services/calculation_orchestrator.py:504:        Pipeline completo resolvendo estrutura e snapshot pelos repositorios.
+services/calculation_orchestrator.py:510:            snapshot_timestamp=snapshot_timestamp,
+
+=== services/canonical_pricing_facade.py — snapshot e payload ===
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:11:  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:32:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/canonical_pricing_facade.py:33:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:35:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_pricing_facade.py:235:def _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:272:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py:313:            "snapshot_source":  str(selection_result.source),
+services/canonical_pricing_facade.py:314:            "snapshot_aba":     selection_result.aba,
+services/canonical_pricing_facade.py:327:                     MarketSnapshotSelector.select(aba=...)
+services/canonical_pricing_facade.py:331:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:342:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+services/canonical_pricing_facade.py:343:        self._selector = MarketSnapshotSelector(repository=self._repo)
+services/canonical_pricing_facade.py:347:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py:348:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:362:            #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
+services/canonical_pricing_facade.py:376:                pricing_payload = _snapshot_result_to_payload(
+services/canonical_pricing_facade.py:420:                meta.setdefault("snapshot_source", "canonical_manual_without_alias")
+services/canonical_pricing_facade.py:459:                    result={"engine": "payoff_pricing_engine", "status": "error", "error_message": error_message},
+
+=== repositories e services relacionados a snapshots ===
