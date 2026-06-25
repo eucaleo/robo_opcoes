@@ -163,6 +163,55 @@ def _validate_leg(leg: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _normalized_leg_symbol(symbol: Any) -> str:
+    return str(symbol or "").strip().upper()
+
+
+def _validate_no_duplicate_leg_symbols(legs: list[dict[str, Any]]) -> None:
+    seen: dict[str, int] = {}
+
+    for index, leg in enumerate(legs, start=1):
+        symbol = _normalized_leg_symbol(leg.get("symbol"))
+        if not symbol:
+            continue
+
+        previous_index = seen.get(symbol)
+        if previous_index is not None:
+            raise ValueError(
+                f"Opcao duplicada nesta estrutura: {symbol}. "
+                f"Ja existe na leg {previous_index} e foi repetida na leg {index}."
+            )
+
+        seen[symbol] = index
+
+
+def _ensure_symbol_not_exists_in_structure(
+    conn,
+    structure_id: int,
+    symbol: Any,
+) -> None:
+    normalized = _normalized_leg_symbol(symbol)
+    if not normalized:
+        return
+
+    row = conn.execute(
+        """
+        SELECT id
+        FROM structure_legs
+        WHERE structure_id = ?
+          AND UPPER(TRIM(symbol)) = ?
+        LIMIT 1
+        """,
+        (structure_id, normalized),
+    ).fetchone()
+
+    if row is not None:
+        raise ValueError(
+            f"Opcao duplicada nesta estrutura: {normalized}. "
+            "Esta opcao ja existe em outra leg da mesma estrutura."
+        )
+
+
 # ---------------------------------------------------------------------------
 # Repositório
 # ---------------------------------------------------------------------------
@@ -591,6 +640,12 @@ class StructuresRepository:
         try:
             self._ensure_structure_exists(conn, structure_id)
 
+            _ensure_symbol_not_exists_in_structure(
+                conn,
+                structure_id,
+                leg["symbol"],
+            )
+
             cursor = conn.execute(
                 """
                 INSERT INTO structure_legs (
@@ -633,6 +688,7 @@ class StructuresRepository:
         self, structure_id: int, legs: list[dict[str, Any]]
     ) -> None:
         validated_legs = [_validate_leg(leg) for leg in legs]
+        _validate_no_duplicate_leg_symbols(validated_legs)
         now = _utc_now_iso()
 
         conn = self._connect()

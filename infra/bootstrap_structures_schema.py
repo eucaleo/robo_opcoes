@@ -207,6 +207,13 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        conn.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_structure_legs_structure_symbol_norm
+            ON structure_legs(structure_id, UPPER(TRIM(symbol)))
+            """
+        )
+
         # ------------------------------------------------------------------ #
         # Indices -- pricing_executions                                        #
         # ------------------------------------------------------------------ #

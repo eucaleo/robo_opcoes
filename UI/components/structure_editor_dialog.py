@@ -307,6 +307,63 @@ class StructureEditorDialog(tk.Toplevel):
         except (ValueError, TypeError):
             return None
 
+    def _set_editing_leg_index(self, idx: int | None) -> None:
+        """Define qual leg esta sendo editada no formulario."""
+        if idx is None:
+            self._editing_leg_index = None
+            return
+
+        if idx < 0 or idx >= len(self._legs_rows):
+            self._editing_leg_index = None
+            return
+
+        self._editing_leg_index = idx
+
+    def _get_editing_leg_index(self) -> Optional[int]:
+        """Retorna a leg em edicao, independente da selecao atual da tree."""
+        idx = getattr(self, "_editing_leg_index", None)
+
+        if idx is None:
+            return None
+
+        try:
+            idx = int(idx)
+        except (TypeError, ValueError):
+            self._editing_leg_index = None
+            return None
+
+        if idx < 0 or idx >= len(self._legs_rows):
+            self._editing_leg_index = None
+            return None
+
+        return idx
+
+    def _assert_no_duplicate_symbol_for_leg(
+        self,
+        symbol: str | None,
+        current_idx: int,
+    ) -> None:
+        """
+        Impede simbolo duplicado dentro da mesma estrutura.
+
+        Permite o mesmo simbolo em outra estrutura, pois aqui a validacao
+        e apenas na lista de legs da estrutura atual.
+        """
+        normalized = str(symbol or "").strip().upper()
+        if not normalized:
+            return
+
+        for idx, leg in enumerate(self._legs_rows):
+            if idx == current_idx:
+                continue
+
+            other = str(leg.get("symbol") or "").strip().upper()
+            if other == normalized:
+                raise ValueError(
+                    f"Opcao duplicada nesta estrutura: {normalized}. "
+                    f"Ja existe na leg {idx + 1}."
+                )
+
     # ------------------------------------------------------------------
     # Callbacks de legs
     # ------------------------------------------------------------------
@@ -316,6 +373,8 @@ class StructureEditorDialog(tk.Toplevel):
         idx = self._selected_leg_index()
         if idx is None:
             return
+
+        self._set_editing_leg_index(idx)
         leg = self._legs_rows[idx]
         self._lf_side.set(normalize_position_side(leg.get("position_side", "COMPRADO")))
         self._lf_type.set(leg.get("option_type", ""))
@@ -364,6 +423,7 @@ class StructureEditorDialog(tk.Toplevel):
             messagebox.showwarning("Remover Leg", "Selecione uma leg primeiro.", parent=self)
             return
         self._legs_rows.pop(idx)
+        self._set_editing_leg_index(None)
         self._refresh_leg_tree()
 
     def _cmd_move_leg(self, direction: int):
@@ -377,6 +437,13 @@ class StructureEditorDialog(tk.Toplevel):
             self._legs_rows[new_idx],
             self._legs_rows[idx],
         )
+
+        editing_idx = self._get_editing_leg_index()
+        if editing_idx == idx:
+            self._set_editing_leg_index(new_idx)
+        elif editing_idx == new_idx:
+            self._set_editing_leg_index(idx)
+
         self._refresh_leg_tree()
         self._leg_tree.selection_set(str(new_idx))
 
@@ -565,11 +632,11 @@ class StructureEditorDialog(tk.Toplevel):
 
     def _cmd_enrich_current_leg(self):
         """Botao: auto preenche leg usando symbol/codigo_opcao."""
-        idx = self._selected_leg_index()
+        idx = self._get_editing_leg_index()
         if idx is None:
             messagebox.showwarning(
                 "Auto preencher",
-                "Selecione uma leg na lista primeiro.",
+                "De duplo clique em uma leg para edita-la antes de auto preencher.",
                 parent=self,
             )
             return
@@ -582,17 +649,23 @@ class StructureEditorDialog(tk.Toplevel):
             )
             self._sync_underlying_from_enriched_leg(enriched)
             self._apply_enriched_leg_to_form(enriched)
+            self._assert_no_duplicate_symbol_for_leg(
+                enriched.get("symbol"),
+                idx,
+            )
             self._legs_rows[idx] = enriched
             self._refresh_leg_tree()
         except ValueError as exc:
             messagebox.showerror("Auto preencher", str(exc), parent=self)
 
     def _cmd_apply_leg(self):
-        """Aplica os valores do formulario na leg selecionada."""
-        idx = self._selected_leg_index()
+        """Aplica os valores do formulario na leg em edicao."""
+        idx = self._get_editing_leg_index()
         if idx is None:
             messagebox.showwarning(
-                "Aplicar Leg", "Selecione uma leg na lista primeiro.", parent=self
+                "Aplicar Leg",
+                "De duplo clique em uma leg para edita-la antes de aplicar.",
+                parent=self,
             )
             return
 
@@ -608,6 +681,11 @@ class StructureEditorDialog(tk.Toplevel):
                 )
                 self._sync_underlying_from_enriched_leg(leg_data)
                 self._apply_enriched_leg_to_form(leg_data)
+
+            self._assert_no_duplicate_symbol_for_leg(
+                leg_data.get("symbol"),
+                idx,
+            )
 
             self._legs_rows[idx] = leg_data
             self._refresh_leg_tree()
@@ -674,6 +752,7 @@ class StructureEditorDialog(tk.Toplevel):
             return mapping.get(text, text)
 
         payload = []
+        seen_symbols: dict[str, int] = {}
 
         for index, leg in enumerate(self._legs_rows, start=1):
             row = dict(leg)
@@ -707,6 +786,17 @@ class StructureEditorDialog(tk.Toplevel):
             )
 
             row["leg_order"] = index
+
+            symbol_norm = str(row.get("symbol") or "").strip().upper()
+            if symbol_norm:
+                previous_index = seen_symbols.get(symbol_norm)
+                if previous_index is not None:
+                    raise ValueError(
+                        f"Opcao duplicada nesta estrutura: {symbol_norm}. "
+                        f"Ja existe na leg {previous_index} e foi repetida na leg {index}."
+                    )
+                seen_symbols[symbol_norm] = index
+
             payload.append(row)
 
         return payload
