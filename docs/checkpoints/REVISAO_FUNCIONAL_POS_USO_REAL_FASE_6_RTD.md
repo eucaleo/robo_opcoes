@@ -1152,3 +1152,26 @@ A importação RTD baseada no arquivo dados/RTD_LINKS.csv está operacional.
 A tabela rtd_option_quotes recebeu atualização de 4 registros no banco dados/derived.db e a auditoria confirmou ausência de duplicidade, ausência de códigos vazios e ausência de registros vencidos dentro da janela de 30 minutos.
 
 Esta evidência confirma persistência e leitura do cache RTD. Ainda resta confirmar se a atualização ao vivo via Excel/RTD será validada nesta fase ou documentada como limitação operacional do ambiente.
+
+## Teste de refresh real Excel/RTD
+
+### Comando executado
+
+python scripts/run_rtd_refresh_full.py --db dados/derived.db --symbols dados/rtd_symbols.txt --csv dados/RTD_LINKS.csv --workbook LISTA_RTD.xlsm --wait-seconds 45 --visible
+
+### Auditoria posterior
+
+python scripts/audit_rtd_option_quotes.py --db dados/derived.db --max-age-minutes 30
+
+### Resultado observado
+
+- Pipeline completo RTD executado.
+- Workbook usado: LISTA_RTD.xlsm.
+- CSV gerado/usado: dados/RTD_LINKS.csv.
+- Banco usado: dados/derived.db.
+- Tabela auditada: rtd_option_quotes.
+- Status da auditoria: ok.
+
+### Conclusão
+
+A Fase 6 confirma que o fluxo RTD está operacional no ambiente testado, incluindo refresh Excel/RTD, geração/uso do CSV, persistência em rtd_option_quotes e auditoria sem registros vencidos ou inconsistentes.
