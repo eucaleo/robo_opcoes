@@ -320,3 +320,58 @@ Pendente.
 ## Pendencia restante
 
 Investigar pipeline de payoff e decisoes, filtros de estrutura, persistencia em payoff_curve_points e structure_decisions, e motivos de rejeicao.
+
+---
+
+# Registro de Auditoria — Fase 4 — Payoff e Decisões
+
+## Data
+
+24/06/2026
+
+## Status
+
+Concluída.
+
+---
+
+## Branch
+
+    reinicio-normalizacao-idioma-ptbr
+
+---
+
+## Objetivo auditado
+
+Validar se estruturas criadas manualmente estão corretamente integradas ao fluxo funcional do sistema, especialmente nos pontos de:
+
+- geração de payoff;
+- geração de pontos em payoff_curve_points;
+- participação no fluxo de decisões;
+- geração ou justificativa em structure_decisions;
+- rastreabilidade de rejeições ou ausência de dados;
+- normalização correta dos pontos de payoff.
+
+---
+
+## Resultado da auditoria
+
+A auditoria da Fase 4 considera a etapa aprovada.
+
+Não foram identificados bloqueios para avanço à Fase 5.
+
+---
+
+## Decisão
+
+A Fase 4 está oficialmente encerrada.
+
+A próxima etapa da rota será:
+
+    Fase 5 — Atualizar Dados e Resumo do Pipeline
+
+---
+
+## Commit documental sugerido
+
+    docs: fecha fase 4 payoff e decisoes

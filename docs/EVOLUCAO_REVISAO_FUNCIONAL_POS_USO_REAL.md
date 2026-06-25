@@ -223,3 +223,167 @@ A Fase 3 pode ser considerada tecnicamente encaminhada pelos testes automatizado
 | Botão atualizar dados | Pendente |
 | RTD | Pendente |
 | Horário | Pendente |
+REVISÃO FUNCIONAL PÓS-USO REAL — FASE 4 — PAYOFF E DECISÕES
+Status
+Concluída.
+
+A Fase 4 está encerrada funcional e documentalmente, permitindo o avanço para a Fase 5.
+
+Objetivo da fase
+Validar se as estruturas criadas manualmente deixam de ser apenas registros visuais e passam a participar corretamente dos fluxos funcionais do sistema, principalmente:
+
+geração de curva de payoff;
+gravação de pontos em payoff_curve_points;
+participação no fluxo de decisões;
+gravação ou justificativa em structure_decisions;
+rastreabilidade de estruturas processadas, ignoradas ou rejeitadas.
+Contexto
+Esta fase faz parte da rota:
+
+NOVA_ROTA_REVISAO_FUNCIONAL_POS_USO_REAL
+A revisão foi motivada por comportamento observado durante uso real do sistema, no qual uma estrutura poderia aparecer na interface, mas ainda havia risco de:
+
+não gerar payoff;
+não gerar decisão;
+não ser considerada pelo pipeline;
+ser rejeitada silenciosamente;
+possuir legs cadastradas, mas sem dados suficientes para processamento;
+apresentar inconsistência de normalização nos pontos de payoff.
+Escopo validado
+Foram revisados os seguintes pontos:
+
+estrutura principal cadastrada manualmente;
+legs vinculadas à estrutura;
+relação entre structure_id e registros derivados;
+geração de payoff;
+gravação de pontos em payoff_curve_points;
+integração com fluxo de decisões;
+gravação ou justificativa em structure_decisions;
+normalização de posição comprada e vendida;
+normalização de pontos de payoff, especialmente spot e pl;
+critérios para processamento, rejeição ou ignorar estruturas;
+presença de diagnóstico para rastrear o comportamento do pipeline.
+Diagnóstico realizado
+Durante a Fase 4 foi incluído diagnóstico específico para rastrear o caminho funcional entre:
+
+estrutura manual;
+legs;
+pipeline derivado;
+curva de payoff;
+pontos de payoff;
+decisões;
+registros ou justificativas finais.
+Commit relacionado:
+
+
+
+f9972c2 Adiciona diagnostico fase 4 payoff decisao
+Também foi aplicada correção específica na normalização dos pontos de payoff, garantindo maior consistência entre os campos de spot e pl.
+
+Commit relacionado:
+
+
+
+c131cb6 Corrige normalizacao de pontos payoff spot pl
+Resultado funcional
+Após as validações realizadas, foi confirmado que:
+
+estruturas manuais válidas geram curva de payoff;
+estruturas manuais válidas participam do fluxo de decisões;
+pontos de payoff são gravados ou o motivo de ausência fica rastreável;
+decisões são gravadas ou o motivo de ausência fica rastreável;
+a normalização de pontos de payoff foi corrigida;
+o diagnóstico permite identificar estruturas processadas, ignoradas ou rejeitadas;
+a branch permaneceu limpa e sincronizada após o ciclo;
+os testes automatizados foram executados com sucesso.
+Evidências de validação
+Resultado informado no encerramento da fase:
+
+
+
+669 testes aprovados
+2 testes pulados
+Aplicação iniciada sem erro
+Working tree limpa
+Branch sincronizada com o remoto
+Branch utilizada:
+
+
+
+reinicio-normalizacao-idioma-ptbr
+Critérios de aceite
+
+
+
+Critério	Resultado
+Estrutura manual válida gera curva de payoff	Atendido
+Estrutura manual válida participa do fluxo de decisões	Atendido
+payoff_curve_points recebe pontos ou ausência fica rastreável	Atendido
+structure_decisions recebe registros ou ausência fica rastreável	Atendido
+Pipeline não ignora silenciosamente estruturas manuais válidas	Atendido dentro do escopo da fase
+Normalização de pontos de payoff está coerente	Atendido
+Diagnóstico permite entender processamento, rejeição ou ausência	Atendido
+Testes automatizados permanecem aprovados	Atendido
+Aplicação inicia sem erro	Atendido
+Branch limpa e sincronizada	Atendido
+Decisão
+A Fase 4 está concluída.
+
+A estrutura manual válida passa a ser considerada funcionalmente integrada ao fluxo de payoff e decisões.
+
+Não há bloqueio conhecido para avanço à próxima etapa.
+
+Pendências transferidas para a Fase 5
+A próxima fase deverá tratar o botão Atualizar Dados e o resumo do pipeline.
+
+Pontos transferidos:
+
+identificar o handler real do botão Atualizar Dados;
+verificar quais pipelines são acionados;
+informar estruturas lidas;
+informar estruturas processadas;
+informar estruturas ignoradas;
+informar decisões geradas;
+informar pontos de payoff gerados;
+informar cotações RTD atualizadas;
+diferenciar sucesso real de execução sem dados novos;
+evitar mensagem genérica de sucesso quando todos os contadores forem zero;
+melhorar feedback visual ao usuário;
+atualizar a tela após execução bem-sucedida;
+registrar avisos e erros de forma rastreável.
+Conclusão
+A Fase 4 cumpriu seu objetivo.
+
+O sistema agora possui validação funcional e rastreabilidade suficientes para confirmar que estruturas manuais válidas participam dos fluxos de payoff e decisões.
+
+Status final:
+
+
+
+Concluída e liberada para Fase 5.
+---
+
+## Fase 4 — Payoff e Decisões — Concluída
+
+A Fase 4 foi encerrada funcional e documentalmente.
+
+Foram validados:
+
+- geração de payoff para estruturas manuais válidas;
+- participação no fluxo de decisões;
+- gravação ou rastreabilidade de pontos de payoff;
+- gravação ou rastreabilidade de decisões;
+- correção de normalização de pontos de payoff;
+- diagnóstico para identificar estruturas processadas, ignoradas ou rejeitadas.
+
+Evidências finais:
+
+    669 testes aprovados
+    2 testes pulados
+    Aplicação iniciada sem erro
+    Working tree limpa
+    Branch sincronizada com origin
+
+Próxima fase:
+
+    Fase 5 — Atualizar Dados e Resumo do Pipeline
