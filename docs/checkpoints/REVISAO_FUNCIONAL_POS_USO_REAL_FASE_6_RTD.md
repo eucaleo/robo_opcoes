@@ -1089,3 +1089,66 @@ Binary file ATT/tests/__pycache__/test_structure_leg_rtd_enrichment_service.cpyt
 
 A Fase 5 demonstrou que o pipeline chama a rotina RTD e persiste atualizações em rtd_option_quotes.
 A Fase 6 deve confirmar se isso é suficiente para considerar o RTD operacional ou se há dependência externa ainda não coberta.
+
+## Teste direto da rotina RTD
+
+### Comando
+
+python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/derived.db
+
+### Auditoria
+
+python scripts/audit_rtd_option_quotes.py --db dados/derived.db --max-age-minutes 30
+
+### Resultado observado
+
+- Preencher com o resultado do terminal.
+
+## Conclusão parcial
+
+- Se a auditoria retornar ok, a persistência RTD está validada.
+- Se não retornar dados novos, registrar se houve limitação externa, ausência de RTD real ou problema de coleta.
+
+## Teste direto da rotina RTD via CSV
+
+### Comando executado
+
+python scripts/run_rtd_option_quotes_pipeline.py --csv dados/RTD_LINKS.csv --db dados/derived.db
+
+### Resultado observado
+
+- Pipeline RTD option quotes executado.
+- CSV usado: dados/RTD_LINKS.csv.
+- Banco usado: dados/derived.db.
+- input_rows: 4.
+- inserted: 0.
+- updated: 4.
+- skipped: 0.
+- Status da auditoria: ok.
+- row_count: 4.
+- distinct_codigo_count: 4.
+- duplicate_codigo_count: 0.
+- missing_codigo_count: 0.
+- stale_rows: 0.
+- max_age_minutes: 30.
+
+### Auditoria direta executada
+
+python scripts/audit_rtd_option_quotes.py --db dados/derived.db --max-age-minutes 30
+
+### Resultado da auditoria direta
+
+- Status: ok.
+- row_count: 4.
+- distinct_codigo_count: 4.
+- duplicate_codigo_count: 0.
+- missing_codigo_count: 0.
+- stale_rows: 0.
+
+## Conclusão parcial
+
+A importação RTD baseada no arquivo dados/RTD_LINKS.csv está operacional.
+
+A tabela rtd_option_quotes recebeu atualização de 4 registros no banco dados/derived.db e a auditoria confirmou ausência de duplicidade, ausência de códigos vazios e ausência de registros vencidos dentro da janela de 30 minutos.
+
+Esta evidência confirma persistência e leitura do cache RTD. Ainda resta confirmar se a atualização ao vivo via Excel/RTD será validada nesta fase ou documentada como limitação operacional do ambiente.
