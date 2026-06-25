@@ -375,3 +375,11 @@ A próxima etapa da rota será:
 ## Commit documental sugerido
 
     docs: fecha fase 4 payoff e decisoes
+
+### Observação arquitetural pós-validação RTD
+
+Durante a validação da Fase 6, o RTD foi confirmado como operacional de ponta a ponta. Porém, a geração de símbolos indicou que a fonte atual foi rtd_option_quotes, com structure_legs e structure_leg_snapshots sem registros disponíveis no banco testado.
+
+Isso confirma a operacionalidade do cache RTD, mas evidencia que a fonte canônica de símbolos ativos ainda precisa ser consolidada para produção. O fluxo produtivo deve preferencialmente gerar símbolos a partir de estruturas/pernas ativas e não a partir da própria tabela rtd_option_quotes, evitando perpetuação de códigos antigos após encerramento de operações.
+
+Pendência recomendada: validar/corrigir build_rtd_symbols.py para uso produtivo com fonte canônica de operações ativas e limpeza de símbolos/cotações RTD não mais ativos.
