@@ -149,7 +149,7 @@ class MainWindow:
         # Menu Ferramentas
         tools_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="Ferramentas", menu=tools_menu)
-        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+        tools_menu.add_command(label="Atualizar Dados", command=self.run_pipeline)
         tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
         tools_menu.add_separator()
         tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
@@ -621,15 +621,15 @@ class MainWindow:
 
 
     def run_pipeline(self):
-        """Executa o pipeline de derivados."""
+        """Atualiza os dados executando o pipeline de derivados."""
         result = messagebox.askyesno(
-            "Executar Pipeline",
-            "Executar pipeline de derivados?\nIsso pode demorar alguns segundos.",
+            "Atualizar Dados",
+            "Atualizar dados executando o pipeline de derivados?\nIsso pode demorar alguns segundos.",
         )
         if not result:
             return
 
-        self.status_bar.config(text="Executando pipeline...")
+        self.status_bar.config(text="Atualizando dados via pipeline...")
 
         try:
             project_root = Path(__file__).resolve().parents[1]
@@ -661,7 +661,7 @@ class MainWindow:
             feedback = self._build_pipeline_feedback_message(res.stdout or "")
             status_msg = self._build_pipeline_status_message(res.stdout or "")
 
-            messagebox.showinfo("Sucesso", feedback)
+            messagebox.showinfo("Atualização concluída", feedback)
             self.refresh_data()
             self.status_bar.config(text=status_msg)
 
@@ -673,10 +673,10 @@ class MainWindow:
                 + "\n\nSTDERR:\n"
                 + (e.stderr or ""),
             )
-            self.status_bar.config(text="Pipeline falhou")
+            self.status_bar.config(text="Atualização de dados falhou")
         except Exception as e:
-            messagebox.showerror("Erro", f"Erro ao executar pipeline: {e}")
-            self.status_bar.config(text="Erro ao executar pipeline")
+            messagebox.showerror("Erro", f"Erro ao atualizar dados: {e}")
+            self.status_bar.config(text="Erro ao atualizar dados")
 
     def check_databases(self):
         """Verifica status dos bancos de dados."""
