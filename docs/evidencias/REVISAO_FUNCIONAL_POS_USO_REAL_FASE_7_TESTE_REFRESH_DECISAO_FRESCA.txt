@@ -1,0 +1,39 @@
+EVIDENCIA — FASE 7 — TESTE MANUAL REFRESH COM DECISAO FRESCA
+Data: 2026-06-25
+
+=== OBJETIVO ===
+Validar que, após recálculo manual e refresh da UI, o painel de detalhes deixa de reaplicar a decisão antiga e passa a exibir a decisão recém-carregada do data_model.
+
+=== ALTERACAO VALIDADA ===
+Arquivo: UI/main_window.py
+
+O método refresh_data() agora:
+- preserva a seleção por structure_id;
+- busca a decisão fresca em decisions após data_model.refresh();
+- atualiza last_selected_decision com a versão fresca;
+- atualiza details_panel com fresh_decision;
+- carrega payoff usando fresh_decision e fresh_ts.
+
+=== ROTEIRO EXECUTADO ===
+1. Aplicação aberta.
+2. Estrutura selecionada na grid.
+3. Métricas observadas no painel de detalhes.
+4. Recálculo manual executado.
+5. Mensagem de sucesso observada.
+6. Painel de detalhes verificado após refresh.
+7. F5 executado para novo refresh manual.
+8. Painel verificado novamente.
+
+=== RESULTADO ===
+Preencher manualmente:
+- PASSOU: sim/nao
+- structure_id testado:
+- PL Atual antes:
+- PL Atual depois:
+- PL Máximo antes:
+- PL Máximo depois:
+- Ratio antes:
+- Ratio depois:
+- DTE Mín:
+- Spot Ref:
+- Observações:
