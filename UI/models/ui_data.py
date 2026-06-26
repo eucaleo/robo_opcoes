@@ -353,7 +353,7 @@ class UIDataModel:
                 t.pl_atual, t.pl_max, t.spot_ref
             FROM {subq}
             {where_sql}
-            ORDER BY t.timestamp DESC
+            ORDER BY datetime(t.timestamp) DESC
         """
 
         # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
@@ -539,7 +539,7 @@ class UIDataModel:
                 if not rows:
                     row_ts = conn.execute(
                         f"SELECT timestamp FROM payoff_curve_points "
-                        f"WHERE {filter_col} = ? ORDER BY timestamp DESC LIMIT 1",
+                        f"WHERE {filter_col} = ? ORDER BY datetime(timestamp) DESC LIMIT 1",
                         (filter_val,),
                     ).fetchone()
                     if row_ts and row_ts["timestamp"]:
