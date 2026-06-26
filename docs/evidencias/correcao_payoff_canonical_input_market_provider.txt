@@ -1,0 +1,61 @@
+                **enrichment_meta,
+                **events_meta,
+                **snapshot_meta,
+            },
+        }
+
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Resolução de snapshot — alteracao_25: duas responsabilidades separadas
+    # ──────────────────────────────────────────────────────────────────────────
+
+    def _resolve_snapshot(
+        self,
+        structure: dict[str, Any],
+        reference_date: str | None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        """
+        Monta o snapshot dict completo exigido pelo assembler.
+
+        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+        Se o selector estiver injetado E alias_legacy_aba existir, substitui as
+        legs pelo resultado do selector (manual > rtd).
+        """
+        underlying_asset = structure["underlying_asset"]
+        aba              = structure.get("alias_legacy_aba")
+
+        # 1. Spot, taxa, vol — sempre via provider
+        base_snapshot = self.market_snapshot_provider.get_snapshot(
+            underlying_asset,
+            reference_date=reference_date,
+        )
+
+        # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
+        if self.market_snapshot_selector is not None and aba:
+            ref = StructureRef.from_aba(aba)
+            legs_list, legs_meta = self._resolve_legs_via_selector(ref)
+            snapshot_source = legs_meta["snapshot_source"]
+        else:
+            legs_list  = base_snapshot.get("legs", [])
+            legs_meta  = {}
+            snapshot_source = "provider_legacy"
+
+        # 3. Monta contrato completo para o assembler
+        snapshot = {
+            **base_snapshot,            # reference_date, underlying_asset, spot_price,
+                                        # interest_rate, volatility (e qualquer extra)
+            "aba":  aba,
+            "legs": legs_list,
+        }
+
+        meta = {
+            "snapshot_source":  snapshot_source,
+            **legs_meta,
+        }
+
+        return snapshot, meta
+
+    # ──────────────────────────────────────────────────────────────────────────
+    # Legs via selector (manual > rtd)
+    # ──────────────────────────────────────────────────────────────────────────
+

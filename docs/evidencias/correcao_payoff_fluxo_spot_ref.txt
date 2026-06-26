@@ -1,0 +1,192 @@
+### domain/payoff.py
+    market = canonical_input.get("market") or {}
+    input_meta = canonical_input.get("meta") or {}
+
+    errors = validate_canonical_input(canonical_input)
+    if errors:
+        return {
+            "points": [],
+            "pl_max": 0.0,
+            "pl_min": 0.0,
+            "spot_ref": float(market.get("spot_price") or 0.0),
+            "meta": {
+                "input_type": "canonical_legs",
+                "validation_errors": errors,
+            },
+            "structure_id": structure.get("structure_id"),
+            "structure_name": structure.get("name"),
+            "underlying_asset": (
+                market.get("underlying_asset")
+                or structure.get("underlying_asset")
+            ),
+            "reference_date": market.get("reference_date") or input_meta.get("reference_date"),
+            "input_meta": input_meta,
+        }
+
+    legs = structure.get("legs") or []
+    spot_ref = float(market.get("spot_price") or 0.0)
+
+    result = compute_payoff_curve_from_canonical_legs(
+        legs=legs,
+        spot_ref=spot_ref,
+        low_pct=low_pct,
+        high_pct=high_pct,
+        step_pct=step_pct,
+    )
+
+    return {
+        **result,
+        "structure_id": structure.get("structure_id"),
+        "structure_name": structure.get("name"),
+        "underlying_asset": (
+            market.get("underlying_asset")
+            or structure.get("underlying_asset")
+        ),
+        "reference_date": market.get("reference_date") or input_meta.get("reference_date"),
+        "input_meta": input_meta,
+    }
+
+### services/payoff_pricing_engine.py
+from typing import Any
+
+from domain.payoff import compute_payoff_curve_from_canonical_legs
+from domain.position_side import to_pricing_engine_side
+
+
+class PayoffPricingEngine:
+    """
+    Motor financeiro inicial baseado na curva de payoff canônica.
+
+    Objetivo:
+    - substituir o motor stub no fluxo real;
+    - manter o contrato de saída esperado por PricingExecutionService;
+    - gerar métricas financeiras não nulas quando houver dados suficientes;
+    - não depender ainda de Black-Scholes.
+    """
+
+    engine_name = "payoff_pricing_engine"
+
+    def run(self, pricing_payload: dict[str, Any]) -> dict[str, Any]:
+        if not pricing_payload:
+            raise ValueError("pricing_payload is required")
+
+        legs = pricing_payload.get("legs") or []
+        if not legs:
+            raise ValueError("pricing_payload.legs is required")
+
+        spot_price = float(pricing_payload.get("spot_price") or 0.0)
+        if spot_price <= 0:
+            raise ValueError("pricing_payload.spot_price is required")
+
+        normalized_legs = [self._normalize_leg(leg) for leg in legs]
+
+        total_quantity = sum(
+            int(float(leg.get("quantity") or 0))
+            for leg in normalized_legs
+        )
+        number_of_legs = len(normalized_legs)
+
+        payoff = compute_payoff_curve_from_canonical_legs(
+            legs=normalized_legs,
+            spot_ref=spot_price,
+            low_pct=0.5,
+            high_pct=1.5,
+            step_pct=0.01,
+        )
+
+        pl_max = payoff.get("pl_max")
+        pl_min = payoff.get("pl_min")
+        pl_atual = self._compute_pl_at_spot(
+            legs=normalized_legs,
+            spot_price=spot_price,
+        )
+
+        premium_paid = self._compute_net_premium_paid(normalized_legs)
+
+        max_profit = pl_max
+        max_loss = pl_min
+
+        return {
+            "engine": self.engine_name,
+            "status": "ok",
+            "structure_id": pricing_payload.get("structure_id"),
+            "underlying_asset": pricing_payload.get("underlying_asset"),
+            "reference_date": pricing_payload.get("reference_date"),
+            "metrics": {
+                "number_of_legs": number_of_legs,
+                "total_quantity": total_quantity,
+                "spot_price": spot_price,
+                "interest_rate": float(pricing_payload.get("interest_rate") or 0.0),
+                "volatility": float(pricing_payload.get("volatility") or 0.0),
+                "payoff_points": len(payoff.get("points") or []),
+                "pl_max": pl_max,
+                "pl_min": pl_min,
+                "pl_atual": pl_atual,
+            },
+            "valuation": {
+                "theoretical_value": pl_atual,
+                "premium_paid": premium_paid,
+                "max_profit": max_profit,
+                "max_loss": max_loss,
+                "pl_max": pl_max,
+                "pl_min": pl_min,
+                "pl_atual": pl_atual,
+                "method": "expiration_payoff_grid",
+            },
+            "payoff": payoff,
+        }
+
+    @staticmethod
+
+### services/derived_payoff_persistence.py
+            valuation = inner.get("valuation") or {}
+            metrics   = inner.get("metrics")   or {}
+
+            theoretical_value = valuation.get("theoretical_value")
+            pl_max            = valuation.get("pl_max")
+            pl_atual          = valuation.get("pl_atual") or theoretical_value
+            dte_min           = metrics.get("dte_min")
+            spot_ref          = pricing_payload.get("spot_price")
+            
+            if spot_ref is None:
+                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
+
+            pl_pct_of_max = None
+            if pl_max and pl_atual is not None:
+                try:
+                    pl_pct_of_max = round(float(pl_atual) / float(pl_max), 6)
+                except (ZeroDivisionError, TypeError, ValueError):
+                    pass
+
+            decision_dict = {
+                "decision":      "HOLD",
+                "level":         0,
+                "pl_atual":      pl_atual,
+                "pl_max":        pl_max,
+                "pl_pct_of_max": pl_pct_of_max,
+                "dte_min":       dte_min,
+                "spot_ref":      spot_ref,
+                "why": {
+                    "source":           "pricing_engine",
+                    "engine":           inner.get("engine"),
+                    "execution_status": inner.get("status"),
+                    "theoretical_value": theoretical_value,
+                },
+                "meta": {
+                    "structure_id":    pricing_payload.get("structure_id"),
+                    "structure_name":  pricing_payload.get("structure_name"),
+                    "underlying_asset": pricing_payload.get("underlying_asset"),
+                    "reference_date":  pricing_payload.get("reference_date"),
+                },
+            }
+
+            save_decision_from_canonical_payload(
+                decision=decision_dict,
+                structure_id=pricing_payload.get("structure_id"),
+                structure_name=pricing_payload.get("structure_name"),
+                underlying_asset=pricing_payload.get("underlying_asset"),
+                timestamp=snapshot_ts,
+            )
+            logger.info(
+                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+                pricing_payload.get("structure_id"),
