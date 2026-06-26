@@ -159,15 +159,23 @@ class CanonicalInputService:
             reference_date=reference_date,
         )
 
+        market_snapshot_source = (
+            base_snapshot.get("market_snapshot_source")
+            or base_snapshot.get("snapshot_source")
+            or "market_provider"
+        )
+        market_is_static_fallback = bool(base_snapshot.get("is_static_fallback"))
+        market_is_current = base_snapshot.get("is_current_market")
+
         # 2. Legs — via selector se disponível, senão mantém o que o provider trouxe
         if self.market_snapshot_selector is not None and aba:
             ref = StructureRef.from_aba(aba)
             legs_list, legs_meta = self._resolve_legs_via_selector(ref)
-            snapshot_source = legs_meta["snapshot_source"]
+            legs_snapshot_source = legs_meta.get("snapshot_source", "selector")
         else:
             legs_list  = base_snapshot.get("legs", [])
             legs_meta  = {}
-            snapshot_source = "provider_legacy"
+            legs_snapshot_source = "provider_legacy"
 
         # 3. Monta contrato completo para o assembler
         snapshot = {
@@ -178,8 +186,12 @@ class CanonicalInputService:
         }
 
         meta = {
-            "snapshot_source":  snapshot_source,
             **legs_meta,
+            "snapshot_source":          market_snapshot_source,
+            "market_snapshot_source":   market_snapshot_source,
+            "market_is_static_fallback": market_is_static_fallback,
+            "market_is_current":        market_is_current,
+            "legs_snapshot_source":     legs_snapshot_source,
         }
 
         return snapshot, meta

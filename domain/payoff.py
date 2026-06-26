@@ -120,6 +120,36 @@ def compute_payoff_curve_from_canonical_legs(
     }
 
 
+def _is_static_market_snapshot(canonical_input: dict[str, Any]) -> bool:
+    market = canonical_input.get("market") or {}
+    meta = canonical_input.get("meta") or {}
+    input_meta = canonical_input.get("input_meta") or {}
+
+    source = str(
+        market.get("market_snapshot_source")
+        or market.get("snapshot_source")
+        or meta.get("market_snapshot_source")
+        or meta.get("snapshot_source")
+        or input_meta.get("market_snapshot_source")
+        or input_meta.get("snapshot_source")
+        or ""
+    ).strip().lower()
+
+    explicit_static_flag = any(
+        bool(value)
+        for value in [
+            market.get("is_static_fallback"),
+            market.get("market_is_static_fallback"),
+            meta.get("is_static_fallback"),
+            meta.get("market_is_static_fallback"),
+            input_meta.get("is_static_fallback"),
+            input_meta.get("market_is_static_fallback"),
+        ]
+    )
+
+    return explicit_static_flag or source == "static_fallback"
+
+
 def compute_payoff_from_canonical_input(
     canonical_input: dict[str, Any],
     low_pct: float = 0.5,
@@ -129,6 +159,33 @@ def compute_payoff_from_canonical_input(
     structure = canonical_input.get("structure") or {}
     market = canonical_input.get("market") or {}
     input_meta = canonical_input.get("meta") or {}
+
+    if _is_static_market_snapshot(canonical_input):
+        return {
+            "points": [],
+            "pl_max": 0.0,
+            "pl_min": 0.0,
+            "spot_ref": float(market.get("spot_price") or 0.0),
+            "meta": {
+                "input_type": "canonical_legs",
+                "validation_errors": [
+                    "market.spot_price veio de static_fallback; informe snapshot real/atual"
+                ],
+                "market_snapshot_source": (
+                    market.get("market_snapshot_source")
+                    or market.get("snapshot_source")
+                ),
+                "is_static_fallback": True,
+            },
+            "structure_id": structure.get("structure_id"),
+            "structure_name": structure.get("name"),
+            "underlying_asset": (
+                market.get("underlying_asset")
+                or structure.get("underlying_asset")
+            ),
+            "reference_date": market.get("reference_date") or input_meta.get("reference_date"),
+            "input_meta": input_meta,
+        }
 
     errors = validate_canonical_input(canonical_input)
     if errors:

@@ -28,6 +28,12 @@ def assemble_structure_market_input(
             "reference_date": market_snapshot["reference_date"],
             "underlying_asset": market_snapshot["underlying_asset"],
             "spot_price": market_snapshot["spot_price"],
+            "market_snapshot_source": (
+                market_snapshot.get("market_snapshot_source")
+                or market_snapshot.get("snapshot_source")
+            ),
+            "is_static_fallback": bool(market_snapshot.get("is_static_fallback")),
+            "is_current_market": market_snapshot.get("is_current_market"),
             "interest_rate": market_snapshot["interest_rate"],
             "volatility": market_snapshot["volatility"],
         },

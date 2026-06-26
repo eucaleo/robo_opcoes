@@ -55,6 +55,12 @@ def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
         "underlying_asset": _clean_upper_text(structure["underlying_asset"]),
         "reference_date": _clean_text(market["reference_date"]),
         "spot_price": float(market["spot_price"]),
+        "market_snapshot_source": (
+            market.get("market_snapshot_source")
+            or market.get("snapshot_source")
+        ),
+        "is_static_fallback": bool(market.get("is_static_fallback")),
+        "is_current_market": market.get("is_current_market"),
         "interest_rate": float(market["interest_rate"]),
         "volatility": float(market["volatility"]),
         "legs": pricing_legs,

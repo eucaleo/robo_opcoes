@@ -29,6 +29,12 @@ class PayoffPricingEngine:
         if spot_price <= 0:
             raise ValueError("pricing_payload.spot_price is required")
 
+        if self._is_static_market_snapshot(pricing_payload):
+            raise ValueError(
+                "pricing_payload.spot_price veio de static_fallback; "
+                "informe um snapshot real/atual antes de calcular PL atual"
+            )
+
         normalized_legs = [self._normalize_leg(leg) for leg in legs]
 
         total_quantity = sum(
@@ -86,6 +92,35 @@ class PayoffPricingEngine:
             },
             "payoff": payoff,
         }
+
+    @staticmethod
+    def _is_static_market_snapshot(pricing_payload: dict[str, Any]) -> bool:
+        meta = pricing_payload.get("meta") or {}
+        input_meta = pricing_payload.get("input_meta") or {}
+
+        source = str(
+            pricing_payload.get("market_snapshot_source")
+            or pricing_payload.get("snapshot_source")
+            or meta.get("market_snapshot_source")
+            or meta.get("snapshot_source")
+            or input_meta.get("market_snapshot_source")
+            or input_meta.get("snapshot_source")
+            or ""
+        ).strip().lower()
+
+        explicit_static_flag = any(
+            bool(value)
+            for value in [
+                pricing_payload.get("is_static_fallback"),
+                pricing_payload.get("market_is_static_fallback"),
+                meta.get("is_static_fallback"),
+                meta.get("market_is_static_fallback"),
+                input_meta.get("is_static_fallback"),
+                input_meta.get("market_is_static_fallback"),
+            ]
+        )
+
+        return explicit_static_flag or source == "static_fallback"
 
     @staticmethod
     def _normalize_leg(leg: dict[str, Any]) -> dict[str, Any]:
