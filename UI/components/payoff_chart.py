@@ -222,7 +222,7 @@ class PayoffChart(ttk.Frame):
         """Exporta o gráfico atual para PNG."""
         file_path = filedialog.asksaveasfilename(
             defaultextension=".png",
-            filetypes=[("PNG", "*.png"), ("All files", "*.*")],
+            filetypes=[("PNG", "*.png"), ("Todos os arquivos", "*.*")],
             title="Exportar gráfico como PNG",
         )
         if not file_path:

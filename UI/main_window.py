@@ -448,7 +448,7 @@ class MainWindow:
 
         filename = filedialog.asksaveasfilename(
             defaultextension=".csv",
-            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+            filetypes=[("Arquivos CSV", "*.csv"), ("Todos os arquivos", "*.*")],
         )
         if filename:
             try:

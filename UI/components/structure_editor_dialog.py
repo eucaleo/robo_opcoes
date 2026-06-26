@@ -42,12 +42,12 @@ from domain.position_side import normalize_position_side
 
 def _parse_decimal(value, field_name: str) -> float:
     if value is None:
-        raise ValueError(f"{field_name} is required")
+        raise ValueError(f"{field_name} é obrigatório")
 
     if isinstance(value, str):
         value = value.strip()
         if not value:
-            raise ValueError(f"{field_name} is required")
+            raise ValueError(f"{field_name} é obrigatório")
 
         if "," in value:
             value = value.replace(".", "").replace(",", ".")
@@ -55,7 +55,7 @@ def _parse_decimal(value, field_name: str) -> float:
     try:
         return float(value)
     except Exception as exc:
-        raise ValueError(f"{field_name} must be numeric") from exc
+        raise ValueError(f"{field_name} deve ser numérico") from exc
 
 
 class StructureEditorDialog(tk.Toplevel):
@@ -541,7 +541,7 @@ class StructureEditorDialog(tk.Toplevel):
             raise ValueError(f"Script de refresh RTD não encontrado: {script}")
 
         if not workbook_path.exists():
-            raise ValueError(f"Workbook RTD não encontrado: {workbook_path}")
+            raise ValueError(f"Planilha RTD não encontrada: {workbook_path}")
 
         cmd = [
             sys.executable,
@@ -711,14 +711,14 @@ class StructureEditorDialog(tk.Toplevel):
 
         def _parse_decimal(value, field_name: str) -> float:
             if value is None or value == "":
-                raise ValueError(f"{field_name} is required")
+                raise ValueError(f"{field_name} é obrigatório")
 
             if isinstance(value, (int, float)):
                 return float(value)
 
             text = str(value).strip()
             if not text:
-                raise ValueError(f"{field_name} is required")
+                raise ValueError(f"{field_name} é obrigatório")
 
             # Suporta "100,50" e também "1.234,56".
             if "," in text and "." in text:
@@ -729,12 +729,12 @@ class StructureEditorDialog(tk.Toplevel):
             try:
                 return float(text)
             except ValueError as exc:
-                raise ValueError(f"{field_name} must be numeric") from exc
+                raise ValueError(f"{field_name} deve ser numérico") from exc
 
         def _parse_int(value, field_name: str) -> int:
             number = _parse_decimal(value, field_name)
             if int(number) != number:
-                raise ValueError(f"{field_name} must be integer")
+                raise ValueError(f"{field_name} deve ser inteiro")
             return int(number)
 
         def _normalize_position_side(value) -> str:
