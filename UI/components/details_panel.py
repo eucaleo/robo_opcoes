@@ -43,6 +43,14 @@ class DetailsPanel(ttk.LabelFrame):
         except Exception:
             pass
 
+    def set_update_status(self, message: str, color: str = "gray"):
+        """Atualiza o indicador visual de atualização dos dados exibidos."""
+        try:
+            if hasattr(self, "lbl_update_status") and self.lbl_update_status:
+                self.lbl_update_status.config(text=message or "", foreground=color)
+        except Exception:
+            pass
+
     # ------------------------------------------------------------------
     # Caminhos de DB
     # ------------------------------------------------------------------
@@ -634,6 +642,22 @@ class DetailsPanel(ttk.LabelFrame):
             actions_frame, text="", foreground="gray"
         )
         self.lbl_recalc_status.pack(side="left")
+
+        update_status_frame = ttk.Frame(audit_frame)
+        update_status_frame.grid(
+            row=2, column=0, columnspan=4, sticky="ew", pady=(6, 0)
+        )
+        update_status_frame.grid_columnconfigure(1, weight=1)
+
+        ttk.Label(update_status_frame, text="Atualização visual:").grid(
+            row=0, column=0, sticky="w", padx=(0, 5)
+        )
+        self.lbl_update_status = ttk.Label(
+            update_status_frame,
+            text="Aguardando atualização",
+            foreground="gray",
+        )
+        self.lbl_update_status.grid(row=0, column=1, sticky="ew")
 
     # ------------------------------------------------------------------
     # API pública

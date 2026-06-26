@@ -61,13 +61,17 @@ class MainWindow:
         self._auto_refresh_after_id = None
         self._closing = False
 
+        # Assinatura da última atualização visual exibida.
+        # Usada apenas para informar se houve mudança aparente na tela.
+        self._last_visual_update_signature = None
+
         # Configurar layout principal
         self._setup_layout()
         self._setup_menus()
         self._bind_events()
 
         # Carregar dados iniciais
-        self.refresh_data()
+        self.refresh_data(source="inicial")
 
         # Iniciar atualização automática controlada.
         self.start_auto_refresh()
@@ -281,11 +285,48 @@ class MainWindow:
         thread = threading.Thread(target=load_worker, daemon=True)
         thread.start()
 
-    def refresh_data(self, show_errors: bool = True):
+    def _set_details_update_status(self, message: str, color: str = "gray"):
+        """Atualiza, quando disponível, o indicador visual no painel de detalhes."""
+        try:
+            if hasattr(self, "details_panel") and hasattr(
+                self.details_panel, "set_update_status"
+            ):
+                self.details_panel.set_update_status(message, color=color)
+        except Exception:
+            pass
+
+    def _build_visual_update_signature(self, decisions: List[Dict]):
+        """
+        Cria uma assinatura leve dos dados visíveis.
+
+        Não altera regra de negócio; serve apenas para informar se o refresh
+        trouxe mudança aparente para a tela.
+        """
+        signature = []
+        for item in decisions or []:
+            signature.append(
+                (
+                    str(item.get("structure_id", "")),
+                    str(item.get("timestamp", "")),
+                    str(item.get("decision", "")),
+                    str(item.get("level", "")),
+                    str(item.get("pl_atual", "")),
+                    str(item.get("pl_max", "")),
+                    str(item.get("pl_pct_of_max", "")),
+                )
+            )
+        return tuple(signature)
+
+    def refresh_data(self, show_errors: bool = True, source: str = "manual"):
         """Recarrega dados do banco.
         alteracao_36: preserva seleção usando structure_id como chave -- timestamp é auxiliar.
         """
+        source_label = source or "manual"
         self.status_bar.config(text="Carregando dados...")
+        self._set_details_update_status(
+            f"Atualização {source_label} iniciada às {datetime.now():%H:%M:%S}",
+            color="blue",
+        )
         try:
             self.data_model.refresh()
 
@@ -303,6 +344,17 @@ class MainWindow:
 
             decisions = self.data_model.get_decisions()
             self.decisions_grid.update_data(decisions)
+
+            previous_signature = self._last_visual_update_signature
+            current_signature = self._build_visual_update_signature(decisions)
+            self._last_visual_update_signature = current_signature
+
+            if previous_signature is None:
+                visual_change_status = "dados carregados"
+            elif previous_signature == current_signature:
+                visual_change_status = "sem mudança aparente"
+            else:
+                visual_change_status = "com mudanças visíveis"
 
             preserved = False
             d = self.last_selected_decision
@@ -355,6 +407,14 @@ class MainWindow:
                 except Exception:
                     pass
 
+            self._set_details_update_status(
+                (
+                    f"Atualização {source_label} concluída às {datetime.now():%H:%M:%S} "
+                    f"— {len(decisions)} decisões — {visual_change_status}"
+                ),
+                color="green",
+            )
+
             self.status_bar.config(
                 text=f"Dados atualizados - {len(decisions)} decisões"
             )
@@ -365,6 +425,10 @@ class MainWindow:
             else:
                 print(f"[UI] Erro na atualização automática: {e}")
             self.status_bar.config(text="Erro ao carregar dados")
+            self._set_details_update_status(
+                f"Erro na atualização {source_label} às {datetime.now():%H:%M:%S}",
+                color="red",
+            )
 
     def close(self):
         """Fecha a janela cancelando agendamentos automáticos pendentes."""
@@ -431,7 +495,7 @@ class MainWindow:
 
         self._auto_refresh_in_progress = True
         try:
-            self.refresh_data(show_errors=False)
+            self.refresh_data(show_errors=False, source="automática")
             try:
                 self.status_bar.config(
                     text=f"Dados atualizados automaticamente às {datetime.now():%H:%M:%S}"
@@ -493,6 +557,11 @@ class MainWindow:
         except Exception:
             pass
 
+        self._set_details_update_status(
+            f"Recálculo da estrutura {sid} iniciado às {datetime.now():%H:%M:%S}",
+            color="blue",
+        )
+
         try:
             self.status_bar.config(text=f"Recalculando estrutura {sid}...")
         except Exception:
@@ -505,6 +574,15 @@ class MainWindow:
                 self.status_bar.config(text=msg)
             except Exception:
                 pass
+
+            self._set_details_update_status(
+                (
+                    f"Recálculo concluído às {datetime.now():%H:%M:%S}: {msg}"
+                    if ok
+                    else f"Erro no recálculo às {datetime.now():%H:%M:%S}: {msg}"
+                ),
+                color="green" if ok else "red",
+            )
 
             try:
                 if hasattr(self, "details_panel") and hasattr(
@@ -558,7 +636,7 @@ class MainWindow:
                         raise RuntimeError(msg)
 
                 self.root.after(0, clear_ui_cache)
-                self.root.after(0, self.refresh_data)
+                self.root.after(0, lambda: self.refresh_data(source="recálculo"))
                 self.root.after(
                     0,
                     lambda: finish(True, f"OK: estrutura {sid} recalculada"),
@@ -646,6 +724,10 @@ class MainWindow:
             return
 
         self.status_bar.config(text="Atualizando dados via pipeline...")
+        self._set_details_update_status(
+            f"Pipeline iniciado às {datetime.now():%H:%M:%S}",
+            color="blue",
+        )
 
         try:
             project_root = Path(__file__).resolve().parents[1]
@@ -678,8 +760,12 @@ class MainWindow:
             status_msg = self._build_pipeline_status_message(res.stdout or "")
 
             messagebox.showinfo("Atualização concluída", feedback)
-            self.refresh_data()
+            self.refresh_data(source="pipeline")
             self.status_bar.config(text=status_msg)
+            self._set_details_update_status(
+                f"Pipeline concluído às {datetime.now():%H:%M:%S}",
+                color="green",
+            )
 
         except subprocess.CalledProcessError as e:
             messagebox.showerror(
@@ -690,9 +776,17 @@ class MainWindow:
                 + (e.stderr or ""),
             )
             self.status_bar.config(text="Atualização de dados falhou")
+            self._set_details_update_status(
+                f"Pipeline falhou às {datetime.now():%H:%M:%S}",
+                color="red",
+            )
         except Exception as e:
             messagebox.showerror("Erro", f"Erro ao atualizar dados: {e}")
             self.status_bar.config(text="Erro ao atualizar dados")
+            self._set_details_update_status(
+                f"Erro ao atualizar dados às {datetime.now():%H:%M:%S}",
+                color="red",
+            )
 
     def check_databases(self):
         """Verifica status dos bancos de dados."""

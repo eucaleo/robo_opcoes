@@ -607,3 +607,144 @@ Pendente.
 ## Pendência restante
 
 Executar busca, alterar componente de payoff, testar e commitar.
+
+---
+
+# Fase 11 — Visibilidade da estrutura implantada e atualização instantânea
+
+## Registro inicial da fase
+
+Data da execução: 2026-06-26
+
+Branch usada: reinicio-normalizacao-idioma-ptbr
+
+Commit base: 6acef42
+
+Problema testado:
+
+- estrutura implantada precisa apresentar atualização visual mais clara;
+- usuário precisa saber quando atualização começa e termina;
+- usuário precisa saber se houve mudança, erro ou ausência de dados novos;
+- tela precisa refletir melhor o estado após RTD, recálculo e pipeline.
+
+Evidência observada:
+
+- busca inicial localizou pontos de atualização principalmente em UI/main_window.py e UI/components/details_panel.py;
+- botão Atualizar Dados está ligado ao pipeline em UI/main_window.py;
+- recálculo e mensagens relacionadas aparecem em UI/main_window.py e UI/components/details_panel.py;
+- RTD aparece em UI/components/structure_editor_dialog.py, services e repositories relacionados a rtd_option_quotes;
+- árvore estava limpa antes do início documental;
+- testes automatizados passaram antes de alteração funcional;
+- compilação passou antes de alteração funcional.
+
+Arquivos analisados inicialmente:
+
+- UI/main_window.py
+- UI/components/details_panel.py
+- UI/components/structure_editor_dialog.py
+- services/calculation_orchestrator.py
+- services/canonical_pricing_facade.py
+- services/market_snapshot_selector.py
+- repositories/market_snapshot_repository.py
+- repositories/rtd_option_quotes_repository.py
+- repositories/system_snapshots_repository.py
+- ATT/tests
+
+Alteração feita nesta etapa:
+
+- criado checkpoint documental da Fase 11;
+- registrada abertura da fase na auditoria viva;
+- nenhuma alteração funcional realizada nesta etapa.
+
+Teste executado antes da alteração funcional:
+
+- python -m pytest ATT/tests -q
+- python -m compileall repositories services domain ATT/tests UI
+
+Resultado:
+
+- 669 passed;
+- 2 skipped;
+- 6 subtests passed;
+- compilação sem erro.
+
+Commit gerado:
+
+- pendente nesta etapa.
+
+Pendência restante:
+
+- inspecionar os trechos de UI;
+- implementar melhoria visual mínima e rastreável;
+- testar novamente;
+- atualizar documentação com evidência final;
+- gerar commit funcional da Fase 11.
+
+## Evidência final da Fase 11 - visibilidade de atualização da estrutura
+
+Data da validação: 2026-06-26
+
+Branch: reinicio-normalizacao-idioma-ptbr
+
+Commit de trabalho antes do fechamento: 420e912
+
+### Arquivos funcionais alterados
+
+- UI/main_window.py
+- UI/components/details_panel.py
+
+### Implementação realizada
+
+Foi adicionada visibilidade explícita do ciclo de atualização da estrutura na UI, sem alterar regra de negócio, pipeline, pricing ou modelo de dados.
+
+A alteração inclui:
+
+- indicador visual no painel de detalhes: Atualização visual;
+- método público DetailsPanel.set_update_status(...);
+- mensagens de início e fim para:
+  - carregamento inicial;
+  - atualização manual;
+  - atualização automática;
+  - execução de pipeline;
+  - recálculo de estrutura;
+- assinatura leve dos dados visíveis para indicar:
+  - dados carregados;
+  - sem mudança aparente;
+  - com mudanças visíveis;
+- preservação da seleção existente por structure_id;
+- manutenção da compatibilidade das chamadas legadas de refresh_data() via parâmetro default source="manual".
+
+### Validação executada
+
+Comandos executados:
+
+    python -m py_compile UI/main_window.py UI/components/details_panel.py
+    python -m pytest ATT/tests -q
+    python -m compileall repositories services domain ATT/tests UI
+    grep -R "refresh_data(" -n UI ATT/tests | head -50
+
+Resultados:
+
+    python -m py_compile UI/main_window.py UI/components/details_panel.py
+    OK sem saída
+
+    python -m pytest ATT/tests -q
+    669 passed, 2 skipped, 6 subtests passed in 40.61s
+
+    python -m compileall repositories services domain ATT/tests UI
+    OK
+
+    grep -R "refresh_data(" -n UI ATT/tests | head -50
+    UI/main_window.py:74:        self.refresh_data(source="inicial")
+    UI/main_window.py:168:        self.root.bind("<F5>", lambda e: self.refresh_data())
+    UI/main_window.py:320:    def refresh_data(self, show_errors: bool = True, source: str = "manual")
+    UI/main_window.py:498:            self.refresh_data(show_errors=False, source="automática")
+    UI/main_window.py:639:                self.root.after(0, lambda: self.refresh_data(source="recálculo"))
+    UI/main_window.py:763:            self.refresh_data(source="pipeline")
+    UI/main_window.py:1146:                        self.refresh_data()
+
+### Conclusão
+
+A Fase 11 foi implementada com escopo controlado e validação automatizada completa.
+
+A UI agora informa claramente ao usuário quando os dados visíveis foram atualizados, quando não houve mudança aparente e quando pipeline ou recálculo estão em andamento ou foram concluídos.
