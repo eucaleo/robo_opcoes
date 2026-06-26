@@ -64,6 +64,9 @@ class PayoffChart(ttk.Frame):
         self._last_pl_at_spot_ref: Optional[float] = None
         self._last_points: List[Dict] = []
         self._last_decision_data: Dict = {}
+        self._last_payoff_comment: str = "Sem dados de payoff para interpretação."
+        self._comment_var: Optional[tk.StringVar] = None
+        self._comment_label = None
         # Comparação: overlay de curvas {"points": [...], "label": "...", "color": "..."}
         self._fixed_curve: Optional[Dict] = None
         self._build_canvas()
@@ -92,6 +95,20 @@ class PayoffChart(ttk.Frame):
         )
         self.btn_clear_comparison.pack(side="right", padx=(0, 6))
 
+        # Comentário interpretativo do payoff
+        comment_frame = ttk.LabelFrame(self, text="Comentário do payoff")
+        comment_frame.pack(fill="x", side="bottom", pady=(6, 0))
+
+        self._comment_var = tk.StringVar(value=self._last_payoff_comment)
+        self._comment_label = ttk.Label(
+            comment_frame,
+            textvariable=self._comment_var,
+            justify="left",
+            anchor="w",
+            wraplength=900,
+        )
+        self._comment_label.pack(fill="x", padx=6, pady=4)
+
         # Figure / canvas matplotlib
         self.fig = Figure(figsize=(5, 4), dpi=100)
         self.ax = self.fig.add_subplot(111)
@@ -118,6 +135,11 @@ class PayoffChart(ttk.Frame):
             return
         if w <= 50 or h <= 50:
             return
+        try:
+            if self._comment_label is not None:
+                self._comment_label.configure(wraplength=max(300, w - 40))
+        except Exception:
+            pass
         try:
             if hasattr(self, "toolbar"):
                 self.toolbar.update()
@@ -162,6 +184,7 @@ class PayoffChart(ttk.Frame):
         self._last_pl_at_spot_ref = None
         self._last_points = []
         self._last_decision_data = {}
+        self._set_payoff_comment("Sem dados de payoff para interpretação.")
         self._reset_axes()
         self._safe_draw_idle()
 
@@ -238,6 +261,7 @@ class PayoffChart(ttk.Frame):
         return {
             "breakevens": list(self._last_breakevens),
             "pl_at_spot_ref": self._last_pl_at_spot_ref,
+            "payoff_comment": self._last_payoff_comment,
         }
 
     # ------------------------------------------------------------------
@@ -270,6 +294,10 @@ class PayoffChart(ttk.Frame):
             self._safe_draw_idle()
             self._last_breakevens = []
             self._last_pl_at_spot_ref = None
+            self._set_payoff_comment(
+                "Não há dados de payoff suficientes para interpretar ganho, perda, "
+                "ponto de equilíbrio ou situação atual."
+            )
             return self.get_last_overlays()
 
         # ------------------------------------------------------------------
@@ -292,6 +320,10 @@ class PayoffChart(ttk.Frame):
             self._safe_draw_idle()
             self._last_breakevens = []
             self._last_pl_at_spot_ref = None
+            self._set_payoff_comment(
+                "Os pontos de payoff foram encontrados, mas não foi possível "
+                "extrair valores numéricos válidos para gerar a interpretação."
+            )
             return self.get_last_overlays()
 
         payoff_debug(
@@ -411,6 +443,19 @@ class PayoffChart(ttk.Frame):
             )
 
         # ------------------------------------------------------------------
+        # Comentário interpretativo
+        # ------------------------------------------------------------------
+        self._set_payoff_comment(
+            self._build_payoff_comment(
+                xs=xs,
+                ys=ys,
+                breakevens=bks,
+                spot_ref=spot_ref,
+                pl_ref=self._last_pl_at_spot_ref,
+            )
+        )
+
+        # ------------------------------------------------------------------
         # Título
         # ------------------------------------------------------------------
         if decision_data:
@@ -431,6 +476,258 @@ class PayoffChart(ttk.Frame):
         self.ax.legend(loc="best")
         self._safe_draw_idle()
         return self.get_last_overlays()
+
+    # ------------------------------------------------------------------
+    # Comentário interpretativo
+    # ------------------------------------------------------------------
+
+    def _set_payoff_comment(self, text: str):
+        """Atualiza o comentário interpretativo exibido junto ao gráfico."""
+        comment = text or "Sem dados de payoff para interpretação."
+        self._last_payoff_comment = comment
+        try:
+            if self._comment_var is not None:
+                self._comment_var.set(comment)
+        except Exception:
+            pass
+
+    def _build_payoff_comment(
+        self,
+        xs: List[float],
+        ys: List[float],
+        breakevens: List[float],
+        spot_ref: Optional[float],
+        pl_ref: Optional[float],
+    ) -> str:
+        """Monta comentário textual em Português Brasil com base na curva calculada."""
+        if not xs or not ys or len(xs) != len(ys):
+            return (
+                "Não há dados de payoff suficientes para interpretar ganho, perda, "
+                "ponto de equilíbrio ou situação atual."
+            )
+
+        try:
+            pairs = sorted((float(x), float(y)) for x, y in zip(xs, ys))
+        except Exception:
+            return (
+                "Os dados de payoff não estão em formato numérico válido para "
+                "gerar interpretação."
+            )
+
+        if not pairs:
+            return (
+                "Não há pontos válidos de payoff para interpretar a posição."
+            )
+
+        ordered_xs = [p[0] for p in pairs]
+        ordered_ys = [p[1] for p in pairs]
+
+        min_idx = min(range(len(ordered_ys)), key=lambda i: ordered_ys[i])
+        max_idx = max(range(len(ordered_ys)), key=lambda i: ordered_ys[i])
+
+        min_spot = ordered_xs[min_idx]
+        min_pl = ordered_ys[min_idx]
+        max_spot = ordered_xs[max_idx]
+        max_pl = ordered_ys[max_idx]
+
+        ganho = self._describe_pl_regions(ordered_xs, ordered_ys, positive=True)
+        perda = self._describe_pl_regions(ordered_xs, ordered_ys, positive=False)
+
+        if breakevens:
+            pontos_equilibrio = ", ".join(_fmt_number_br(x, 2) for x in breakevens)
+            equilibrio_txt = f"Ponto ou faixa de equilíbrio: {pontos_equilibrio}."
+        else:
+            equilibrio_txt = (
+                "Ponto de equilíbrio: não identificado na faixa calculada."
+            )
+
+        if max_pl > 0:
+            melhor_txt = (
+                "Melhor região observada para ganho: próxima de "
+                f"{_fmt_number_br(max_spot, 2)}, com PL estimado de "
+                f"{_fmt_currency_br(max_pl, 2)}."
+            )
+        else:
+            melhor_txt = (
+                "Melhor região observada: a curva não mostra ganho positivo "
+                "na faixa calculada; o melhor ponto reduz a perda para "
+                f"{_fmt_currency_br(max_pl, 2)} próximo de "
+                f"{_fmt_number_br(max_spot, 2)}."
+            )
+
+        if min_pl < 0:
+            pior_txt = (
+                "Pior região observada: próxima de "
+                f"{_fmt_number_br(min_spot, 2)}, com PL estimado de "
+                f"{_fmt_currency_br(min_pl, 2)}."
+            )
+        else:
+            pior_txt = (
+                "Pior região observada: a curva não mostra perda negativa "
+                "na faixa calculada; o menor PL observado é "
+                f"{_fmt_currency_br(min_pl, 2)} próximo de "
+                f"{_fmt_number_br(min_spot, 2)}."
+            )
+
+        situacao_txt = self._describe_spot_ref_status(spot_ref, pl_ref)
+
+        return (
+            f"Região de ganho: {ganho}. "
+            f"Região de perda: {perda}. "
+            f"{melhor_txt} "
+            f"{pior_txt} "
+            f"{equilibrio_txt} "
+            f"{situacao_txt} "
+            "Comentário baseado apenas na curva calculada pelo sistema, sem promessa "
+            "de resultado financeiro."
+        )
+
+    def _describe_spot_ref_status(
+        self,
+        spot_ref: Optional[float],
+        pl_ref: Optional[float],
+    ) -> str:
+        """Descreve a situação atual em relação ao preço de referência."""
+        if spot_ref is None:
+            return (
+                "Situação atual: preço de referência não informado para esta curva."
+            )
+
+        if pl_ref is None:
+            return (
+                "Situação atual: o preço de referência "
+                f"{_fmt_number_br(spot_ref, 2)} está fora da faixa calculada "
+                "ou não pôde ser interpolado."
+            )
+
+        if pl_ref > 0:
+            status = "em região de ganho"
+        elif pl_ref < 0:
+            status = "em região de perda"
+        else:
+            status = "próxima do equilíbrio"
+
+        return (
+            "Situação atual: no preço de referência "
+            f"{_fmt_number_br(spot_ref, 2)}, o PL estimado é "
+            f"{_fmt_currency_br(pl_ref, 2)}, indicando posição {status}."
+        )
+
+    @classmethod
+    def _describe_pl_regions(
+        cls,
+        xs: List[float],
+        ys: List[float],
+        positive: bool,
+    ) -> str:
+        """Descreve faixas aproximadas de ganho ou perda na curva calculada."""
+        if not xs or not ys or len(xs) != len(ys):
+            return "não identificada por falta de dados"
+
+        try:
+            pairs = sorted((float(x), float(y)) for x, y in zip(xs, ys))
+        except Exception:
+            return "não identificada por dados inválidos"
+
+        if len(pairs) == 1:
+            x, y = pairs[0]
+            if positive and y > 0:
+                return f"no ponto calculado {_fmt_number_br(x, 2)}"
+            if not positive and y < 0:
+                return f"no ponto calculado {_fmt_number_br(x, 2)}"
+            return "não identificada na faixa calculada"
+
+        ordered_xs = [p[0] for p in pairs]
+        ordered_ys = [p[1] for p in pairs]
+        breakevens = cls._find_breakevens(ordered_xs, ordered_ys)
+
+        intervals: List[Tuple[float, float]] = []
+        tol = 1e-9
+
+        for i in range(len(ordered_xs) - 1):
+            x0 = ordered_xs[i]
+            x1 = ordered_xs[i + 1]
+
+            if x0 == x1:
+                continue
+
+            low = min(x0, x1)
+            high = max(x0, x1)
+
+            cuts = [low]
+            for bk in breakevens:
+                if low < bk < high:
+                    cuts.append(bk)
+            cuts.append(high)
+            cuts = sorted(cuts)
+
+            for j in range(len(cuts) - 1):
+                a = cuts[j]
+                b = cuts[j + 1]
+                if abs(a - b) <= tol:
+                    continue
+
+                mid = (a + b) / 2
+                y_mid = cls._interp_y_at_x(ordered_xs, ordered_ys, mid)
+                if y_mid is None:
+                    continue
+
+                if positive and y_mid > tol:
+                    intervals.append((a, b))
+                elif not positive and y_mid < -tol:
+                    intervals.append((a, b))
+
+        if not intervals:
+            isolated = []
+            for x, y in pairs:
+                if positive and y > tol:
+                    isolated.append(x)
+                elif not positive and y < -tol:
+                    isolated.append(x)
+
+            if isolated:
+                if len(isolated) == 1:
+                    return f"próxima de {_fmt_number_br(isolated[0], 2)}"
+                return (
+                    "entre aproximadamente "
+                    f"{_fmt_number_br(min(isolated), 2)} e "
+                    f"{_fmt_number_br(max(isolated), 2)}"
+                )
+
+            return "não identificada na faixa calculada"
+
+        merged: List[Tuple[float, float]] = []
+        for a, b in sorted(intervals):
+            if not merged:
+                merged.append((a, b))
+                continue
+
+            last_a, last_b = merged[-1]
+            if abs(a - last_b) <= 1e-7 or a <= last_b:
+                merged[-1] = (last_a, max(last_b, b))
+            else:
+                merged.append((a, b))
+
+        full_low = min(ordered_xs)
+        full_high = max(ordered_xs)
+        if (
+            len(merged) == 1
+            and abs(merged[0][0] - full_low) <= 1e-7
+            and abs(merged[0][1] - full_high) <= 1e-7
+        ):
+            return (
+                "em toda a faixa calculada "
+                f"({_fmt_number_br(full_low, 2)} até {_fmt_number_br(full_high, 2)})"
+            )
+
+        parts = [
+            f"{_fmt_number_br(a, 2)} até {_fmt_number_br(b, 2)}"
+            for a, b in merged[:3]
+        ]
+        if len(merged) > 3:
+            parts.append("outras faixas calculadas")
+
+        return "aproximadamente de " + "; ".join(parts)
 
     # ------------------------------------------------------------------
     # Utilitários de extração e interpolação
