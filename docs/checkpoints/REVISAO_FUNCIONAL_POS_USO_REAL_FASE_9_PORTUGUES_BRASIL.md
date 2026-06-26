@@ -66,3 +66,24 @@ A Fase 8 foi encerrada no commit 7027499.
 
 A Fase 9 inicia com foco exclusivo em normalização de Português do Brasil.
 
+
+## Baseline técnica inicial
+
+Após a abertura da Fase 9, foi executado `pytest`.
+
+Resultado observado:
+
+- 671 testes coletados;
+- 666 testes passaram;
+- 3 testes falharam;
+- 2 testes foram ignorados.
+
+As falhas observadas foram registradas em:
+
+- docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_9_BASELINE_PYTEST.txt
+
+Classificação:
+
+As falhas são consideradas fora do escopo direto da Fase 9 de Português Brasil, pois tratam de contrato de timestamp e guardrail arquitetural sobre importação direta de sqlite3 na UI.
+
+A Fase 9 seguirá limitada a textos de interface, mensagens controladas e documentação viva.

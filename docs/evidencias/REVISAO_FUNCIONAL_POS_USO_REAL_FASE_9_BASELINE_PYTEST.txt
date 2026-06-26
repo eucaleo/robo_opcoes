@@ -1,0 +1,48 @@
+REVISAO FUNCIONAL POS USO REAL - FASE 9 - BASELINE PYTEST
+
+Comando executado:
+
+pytest
+
+Resultado observado:
+
+- 671 testes coletados
+- 666 passed
+- 3 failed
+- 2 skipped
+
+Falhas observadas:
+
+1. ATT/tests/test_pricing_executions_repository.py::test_save_execution_persists_record_with_payload_and_result
+
+Motivo:
+O teste espera que record["created_at"] termine com "Z", mas o valor retornado está timezone-aware em horário de Brasília, por exemplo:
+
+2026-06-26T10:23:27.491581-03:00
+
+Classificação:
+Falha relacionada a contrato de timestamp em teste/repositório. Fora do escopo direto da Fase 9 de Português Brasil.
+
+2. ATT/tests/test_structure_editor_integration.py::TestStructureEditorIntegrationStaticChecks::test_main_window_nao_importa_sqlite3_diretamente
+
+Motivo:
+O teste detectou import sqlite3 direto em UI/main_window.py.
+
+Classificação:
+Falha arquitetural/guardrail de camada UI. Fora do escopo direto da Fase 9 de Português Brasil.
+
+3. ATT/tests/test_structures_archive_wiring.py::TestStructuresArchiveWiringMainWindow::test_sqlite3_nao_importado_em_main_window
+
+Motivo:
+O teste detectou a string "import sqlite3" em UI/main_window.py.
+
+Classificação:
+Falha arquitetural/guardrail de camada UI. Fora do escopo direto da Fase 9 de Português Brasil.
+
+Conclusão:
+
+A abertura documental da Fase 9 não alterou código de execução, testes ou lógica funcional.
+
+As falhas acima devem ser tratadas em fase técnica específica ou em correção isolada posterior, sem misturar com a normalização de idioma.
+
+A Fase 9 pode prosseguir desde que alterações sejam limitadas a textos de interface, mensagens controladas e documentação viva.

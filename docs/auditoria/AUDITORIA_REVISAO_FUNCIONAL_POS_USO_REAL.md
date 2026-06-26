@@ -535,3 +535,27 @@ Checkpoint inicial:
 
 - docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_9_PORTUGUES_BRASIL.md
 
+
+### Baseline técnica inicial da Fase 9
+
+Durante a abertura da Fase 9 foi executado `pytest`.
+
+Resultado:
+
+- 671 testes coletados;
+- 666 passaram;
+- 3 falharam;
+- 2 foram ignorados.
+
+As falhas foram classificadas como fora do escopo direto da Fase 9 de Português Brasil:
+
+- contrato de timestamp esperando sufixo `Z`;
+- guardrails que proíbem importação direta de `sqlite3` em `UI/main_window.py`.
+
+Evidência:
+
+- docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_9_BASELINE_PYTEST.txt
+
+Decisão operacional:
+
+A Fase 9 prossegue apenas com normalização textual segura, sem corrigir essas falhas neste momento para evitar mistura de escopos.
