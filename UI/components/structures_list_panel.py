@@ -16,7 +16,7 @@ Contrato com main_window.py:
 
 Atributos publicos esperados pelos testes de integracao:
     _tree           ttk.Treeview
-    _status_var     tk.StringVar  ("active" | "all")
+    _status_var     tk.StringVar  ("active" | "all") -- valor interno do filtro
     load()          recarrega a lista do banco
 """
 from __future__ import annotations
@@ -38,8 +38,22 @@ _HEADERS = {
     "name":             ("Nome",      220, "w"),
     "underlying_asset": ("Ativo",     80,  "center"),
     "alias":            ("Aba/Alias", 110, "w"),
-    "status":           ("Status",    70,  "center"),
-    "legs":             ("Legs",      45,  "center"),
+    "status":           ("Status",    80,  "center"),
+    "legs":             ("Pernas",    55,  "center"),
+}
+
+_STATUS_FILTER_TO_LABEL = {
+    "active": "Ativas",
+    "all": "Todas",
+}
+
+_STATUS_FILTER_LABEL_TO_VALUE = {
+    label: value for value, label in _STATUS_FILTER_TO_LABEL.items()
+}
+
+_STATUS_VALUE_TO_LABEL = {
+    "active": "Ativa",
+    "archived": "Arquivada",
 }
 
 
@@ -80,15 +94,16 @@ class StructuresListPanel(ttk.Frame):
         ttk.Label(toolbar, text="Status:").pack(side="left")
 
         self._status_var = tk.StringVar(value="active")
+        self._status_display_var = tk.StringVar(value=_STATUS_FILTER_TO_LABEL["active"])
         status_cb = ttk.Combobox(
             toolbar,
-            textvariable=self._status_var,
-            values=["active", "all"],
+            textvariable=self._status_display_var,
+            values=["Ativas", "Todas"],
             state="readonly",
             width=8,
         )
         status_cb.pack(side="left", padx=(2, 10))
-        status_cb.bind("<<ComboboxSelected>>", lambda _e: self.load())
+        status_cb.bind("<<ComboboxSelected>>", self._on_status_filter_selected)
 
         ttk.Label(toolbar, text="Busca:").pack(side="left")
         self._search_var = tk.StringVar()
@@ -161,8 +176,24 @@ class StructuresListPanel(ttk.Frame):
     # Carregamento / filtro
     # ------------------------------------------------------------------
 
+    def _on_status_filter_selected(self, _event=None):
+        """Sincroniza o rotulo do filtro com o valor interno e recarrega."""
+        label = self._status_display_var.get()
+        self._status_var.set(_STATUS_FILTER_LABEL_TO_VALUE.get(label, "active"))
+        self.load()
+
+    def _sync_status_filter_display(self):
+        """Mantem o combobox em PT-BR mesmo se _status_var for alterado por testes."""
+        value = self._status_var.get()
+        if value not in _STATUS_FILTER_TO_LABEL:
+            value = _STATUS_FILTER_LABEL_TO_VALUE.get(value, "active")
+            self._status_var.set(value)
+
+        self._status_display_var.set(_STATUS_FILTER_TO_LABEL.get(value, "Ativas"))
+
     def load(self):
         """Recarrega do banco respeitando o filtro de status atual."""
+        self._sync_status_filter_display()
         include_archived = self._status_var.get() == "all"
         self._current_rows = self._repo.list_structures(
             include_archived=include_archived
@@ -195,7 +226,7 @@ class StructuresListPanel(ttk.Frame):
                     row["name"],
                     row["underlying_asset"],
                     row.get("alias_legacy_aba") or "--",
-                    row["status"],
+                    _STATUS_VALUE_TO_LABEL.get(row["status"], row["status"]),
                     n_legs if n_legs else "--",
                 ),
                 tags=(row["status"],),

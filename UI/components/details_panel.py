@@ -1,3 +1,4 @@
+from UI.components.ptbr_labels import decision_to_label
 # UI/components/details_panel.py
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -460,7 +461,7 @@ class DetailsPanel(ttk.LabelFrame):
         basic_frame.grid_columnconfigure(1, weight=1)
         basic_frame.grid_columnconfigure(3, weight=1)
 
-        ttk.Label(basic_frame, text="Timestamp:").grid(
+        ttk.Label(basic_frame, text="Data/Hora:").grid(
             row=0, column=0, sticky="w", padx=(0, 5)
         )
         self.timestamp_label = ttk.Label(
@@ -514,7 +515,7 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.pl_max_label.grid(row=0, column=3, sticky="ew")
 
-        ttk.Label(metrics_frame, text="Ratio:").grid(
+        ttk.Label(metrics_frame, text="Razão:").grid(
             row=1, column=0, sticky="w", padx=(0, 5)
         )
         self.ratio_label = ttk.Label(
@@ -530,7 +531,7 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.dte_label.grid(row=1, column=3, sticky="ew")
 
-        ttk.Label(metrics_frame, text="Spot Ref:").grid(
+        ttk.Label(metrics_frame, text="Preço ref.:").grid(
             row=2, column=0, sticky="w", padx=(0, 5)
         )
         self.spot_ref_label = ttk.Label(
@@ -538,7 +539,7 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.spot_ref_label.grid(row=2, column=1, sticky="ew", padx=(0, 10))
 
-        ttk.Label(metrics_frame, text="Breakevens:").grid(
+        ttk.Label(metrics_frame, text="Pontos de equilíbrio:").grid(
             row=2, column=2, sticky="w", padx=(0, 5)
         )
         self.breakevens_label = ttk.Label(
@@ -582,8 +583,8 @@ class DetailsPanel(ttk.LabelFrame):
             row=1, column=1, columnspan=3, sticky="ew"
         )
 
-        # Rationale JSON
-        json_frame = ttk.LabelFrame(self, text="Rationale / Why JSON", padding=5)
+        # Justificativa JSON
+        json_frame = ttk.LabelFrame(self, text="Justificativa / JSON", padding=5)
         json_frame.grid(row=3, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
         json_frame.grid_rowconfigure(0, weight=1)
         json_frame.grid_columnconfigure(0, weight=1)
@@ -611,7 +612,7 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.source_label.grid(row=0, column=1, sticky="ew", padx=(0, 10))
 
-        ttk.Label(audit_frame, text="Created At:").grid(
+        ttk.Label(audit_frame, text="Criado em:").grid(
             row=0, column=2, sticky="w", padx=(0, 5)
         )
         self.created_at_label = ttk.Label(

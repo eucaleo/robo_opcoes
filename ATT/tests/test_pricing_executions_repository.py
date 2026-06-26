@@ -72,7 +72,7 @@ def test_save_execution_persists_record_with_payload_and_result(tmp_path):
     assert record["theoretical_value"] == 0.0
     assert record["pricing_payload"] == pricing_payload
     assert record["result"] == result
-    assert record["created_at"].endswith("Z")
+    assert record["created_at"].endswith("-03:00")
 
 
 def test_save_execution_accepts_none_pricing_payload(tmp_path):

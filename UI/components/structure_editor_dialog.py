@@ -40,6 +40,16 @@ from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichm
 from domain.position_side import normalize_position_side
 
 
+_STATUS_TO_LABEL = {
+    "active": "Ativa",
+    "archived": "Arquivada",
+}
+
+_LABEL_TO_STATUS = {
+    label: status for status, label in _STATUS_TO_LABEL.items()
+}
+
+
 def _parse_decimal(value, field_name: str) -> float:
     if value is None:
         raise ValueError(f"{field_name} é obrigatório")
@@ -93,6 +103,7 @@ class StructureEditorDialog(tk.Toplevel):
         self._f_underlying = tk.StringVar()
         self._f_alias      = tk.StringVar()
         self._f_status     = tk.StringVar(value="active")
+        self._f_status_label = tk.StringVar(value=_STATUS_TO_LABEL["active"])
         self._f_notes      = tk.StringVar()
 
         self._build_ui()
@@ -122,7 +133,7 @@ class StructureEditorDialog(tk.Toplevel):
             ("Nome *",         self._f_name,       "entry", None),
             ("Ativo *",        self._f_underlying, "entry", None),
             ("Aba / Alias",    self._f_alias,      "entry", None),
-            ("Status",         self._f_status,     "combo", ["active", "archived"]),
+            ("Status",         self._f_status_label, "combo", ["Ativa", "Arquivada"]),
             ("Observacoes",    self._f_notes,      "entry", None),
         ]
 
@@ -141,14 +152,14 @@ class StructureEditorDialog(tk.Toplevel):
 
         hdr.columnconfigure(1, weight=1)
 
-        # === Legs ===
-        legs_outer = ttk.LabelFrame(self, text="Legs", padding=8)
+        # === Pernas ===
+        legs_outer = ttk.LabelFrame(self, text="Pernas", padding=8)
         legs_outer.pack(fill="both", expand=True, padx=8, pady=4)
 
         # Toolbar de legs
         leg_toolbar = ttk.Frame(legs_outer)
         leg_toolbar.pack(fill="x", pady=(0, 4))
-        ttk.Button(leg_toolbar, text="+ Leg",    command=self._cmd_add_leg).pack(side="left", padx=2)
+        ttk.Button(leg_toolbar, text="+ Perna",    command=self._cmd_add_leg).pack(side="left", padx=2)
         ttk.Button(leg_toolbar, text="Remover",  command=self._cmd_remove_leg).pack(side="left", padx=2)
         ttk.Button(leg_toolbar, text="▲",        command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
         ttk.Button(leg_toolbar, text="▼",        command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
@@ -188,9 +199,68 @@ class StructureEditorDialog(tk.Toplevel):
         ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
         ttk.Button(btn_bar, text="[SAVE] Salvar", command=self._cmd_save).pack(side="right", padx=4)
 
+    def _set_status_value(self, value: str):
+        """Atualiza status interno e rotulo exibido no combobox."""
+        raw = str(value or "active").strip()
+        status = _LABEL_TO_STATUS.get(raw, raw)
+
+        if status not in _STATUS_TO_LABEL:
+            status = "active"
+
+        status_var = getattr(self, "_f_status", None)
+        if status_var is not None and hasattr(status_var, "set"):
+            status_var.set(status)
+
+        label_var = getattr(self, "_f_status_label", None)
+        if label_var is not None and hasattr(label_var, "set"):
+            label_var.set(_STATUS_TO_LABEL[status])
+
+    def _get_status_value(self) -> str:
+        """Retorna o valor interno do status a partir do rotulo exibido.
+
+        Compatível também com testes que constroem o dialog sem executar
+        __init__ completo e, portanto, sem _f_status_label.
+        """
+        status_var = getattr(self, "_f_status", None)
+        label_var = getattr(self, "_f_status_label", None)
+
+        raw = None
+
+        if label_var is not None and hasattr(label_var, "get"):
+            try:
+                raw = label_var.get()
+            except Exception:
+                raw = None
+
+        if raw in (None, "") and status_var is not None and hasattr(status_var, "get"):
+            try:
+                raw = status_var.get()
+            except Exception:
+                raw = None
+
+        raw = str(raw or "active").strip()
+        status = _LABEL_TO_STATUS.get(raw, raw)
+
+        if status not in _STATUS_TO_LABEL:
+            status = "active"
+
+        if status_var is not None and hasattr(status_var, "set"):
+            try:
+                status_var.set(status)
+            except Exception:
+                pass
+
+        if label_var is not None and hasattr(label_var, "set"):
+            try:
+                label_var.set(_STATUS_TO_LABEL[status])
+            except Exception:
+                pass
+
+        return status
+
     def _build_leg_form(self, parent: tk.Widget):
         """Formulario colapsavel para editar / adicionar uma leg."""
-        form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
+        form = ttk.LabelFrame(parent, text="Editar Perna", padding=6)
         form.pack(fill="x", pady=(6, 0))
 
         self._lf_side    = tk.StringVar(value="COMPRADO")
@@ -246,7 +316,7 @@ class StructureEditorDialog(tk.Toplevel):
 
         ttk.Button(
             btns,
-            text="[v] Aplicar Leg",
+            text="[v] Aplicar Perna",
             command=self._cmd_apply_leg,
         ).pack(side="right")
 
@@ -273,7 +343,7 @@ class StructureEditorDialog(tk.Toplevel):
         self._f_name.set(data.get("name", ""))
         self._f_underlying.set(data.get("underlying_asset", ""))
         self._f_alias.set(data.get("alias_legacy_aba") or "")
-        self._f_status.set(data.get("status", "active"))
+        self._set_status_value(data.get("status", "active"))
         self._f_notes.set(data.get("notes") or "")
 
         self._legs_rows = list(data.get("legs", []))
@@ -361,7 +431,7 @@ class StructureEditorDialog(tk.Toplevel):
             if other == normalized:
                 raise ValueError(
                     f"Opcao duplicada nesta estrutura: {normalized}. "
-                    f"Ja existe na leg {idx + 1}."
+                    f"Ja existe na perna {idx + 1}."
                 )
 
     # ------------------------------------------------------------------
@@ -420,7 +490,7 @@ class StructureEditorDialog(tk.Toplevel):
     def _cmd_remove_leg(self):
         idx = self._selected_leg_index()
         if idx is None:
-            messagebox.showwarning("Remover Leg", "Selecione uma leg primeiro.", parent=self)
+            messagebox.showwarning("Remover Perna", "Selecione uma perna primeiro.", parent=self)
             return
         self._legs_rows.pop(idx)
         self._set_editing_leg_index(None)
@@ -663,8 +733,8 @@ class StructureEditorDialog(tk.Toplevel):
         idx = self._get_editing_leg_index()
         if idx is None:
             messagebox.showwarning(
-                "Aplicar Leg",
-                "De duplo clique em uma leg para edita-la antes de aplicar.",
+                "Aplicar Perna",
+                "De duplo clique em uma perna para edita-la antes de aplicar.",
                 parent=self,
             )
             return
@@ -763,7 +833,7 @@ class StructureEditorDialog(tk.Toplevel):
                     require_quote=False,
                 )
             except ValueError as exc:
-                raise ValueError(f"Leg {index}: {exc}") from exc
+                raise ValueError(f"Perna {index}: {exc}") from exc
 
             row["position_side"] = _normalize_position_side(
                 row.get("position_side", "COMPRADO")
@@ -793,7 +863,7 @@ class StructureEditorDialog(tk.Toplevel):
                 if previous_index is not None:
                     raise ValueError(
                         f"Opcao duplicada nesta estrutura: {symbol_norm}. "
-                        f"Ja existe na leg {previous_index} e foi repetida na leg {index}."
+                        f"Ja existe na perna {previous_index} e foi repetida na perna {index}."
                     )
                 seen_symbols[symbol_norm] = index
 
@@ -841,7 +911,7 @@ class StructureEditorDialog(tk.Toplevel):
             "name":             name,
             "underlying_asset": underlying,
             "alias_legacy_aba": self._f_alias.get().strip() or None,
-            "status":           self._f_status.get(),
+            "status":           self._get_status_value(),
             "notes":            self._f_notes.get().strip() or None,
         }
 

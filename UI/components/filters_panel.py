@@ -1,3 +1,4 @@
+from UI.components.ptbr_labels import decision_filter_labels, decision_label_to_value
 # UI/components/filters_panel.py
 import tkinter as tk
 from tkinter import ttk
@@ -55,17 +56,17 @@ class FiltersPanel(ttk.LabelFrame):
         self.decision_combo = ttk.Combobox(
             row2,
             textvariable=self.decision_var,
-            values=["", "HOLD", "PREPARE_ROLL", "CLOSE_REOPEN", "ROLL", "ENTER"],
+            values=decision_filter_labels(include_blank=True),
             width=15,
             state="readonly",
         )
         self.decision_combo.pack(side="left", padx=(5, 0))
 
-        # Linha 3: Level e DTE
+        # Linha 3: Nível e DTE
         row3 = ttk.Frame(self)
         row3.pack(fill="x", pady=5)
 
-        ttk.Label(row3, text="Level >=:", width=10).pack(side="left")
+        ttk.Label(row3, text="Nível >=:", width=10).pack(side="left")
         self.level_var = tk.StringVar()
         self.level_entry = ttk.Entry(row3, textvariable=self.level_var, width=5)
         self.level_entry.pack(side="left", padx=(0, 10))
@@ -113,8 +114,8 @@ class FiltersPanel(ttk.LabelFrame):
             # Envia como "structure_id"; ui_data aceita os dois
             filters["structure_id"] = self.structure_var.get().strip()
 
-        if self.decision_var.get().strip():
-            filters["decision"] = self.decision_var.get().strip()
+        if decision_label_to_value(self.decision_var.get()).strip():
+            filters["decision"] = decision_label_to_value(self.decision_var.get()).strip()
 
         if self.level_var.get().strip():
             try:

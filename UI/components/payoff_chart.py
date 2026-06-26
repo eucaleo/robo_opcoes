@@ -345,7 +345,7 @@ class PayoffChart(ttk.Frame):
         self.ax.axhline(0, color="gray", linewidth=1, alpha=0.7)
 
         # ------------------------------------------------------------------
-        # Spot Ref
+        # Preço de referência
         # ------------------------------------------------------------------
         spot_ref: Optional[float] = None
         if decision_data:
@@ -361,14 +361,14 @@ class PayoffChart(ttk.Frame):
                 color="#ff7f0e",
                 linestyle="--",
                 linewidth=1.5,
-                label="Spot Ref",
+                label="Preço ref.",
             )
             pl_ref = self._interp_y_at_x(xs, ys, spot_ref)
             self._last_pl_at_spot_ref = pl_ref
             if pl_ref is not None:
                 self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
                 self.ax.annotate(
-                    f"Spot Ref: {_fmt_number_br(spot_ref, 2)}\n"
+                    f"Preço ref.: {_fmt_number_br(spot_ref, 2)}\n"
                     f"PL: {_fmt_currency_br(pl_ref, 2)}",
                     xy=(spot_ref, pl_ref),
                     xytext=(8, 8),
@@ -386,7 +386,7 @@ class PayoffChart(ttk.Frame):
             self._last_pl_at_spot_ref = None
 
         # ------------------------------------------------------------------
-        # Breakevens (só da curva principal)
+        # Pontos de equilíbrio (só da curva principal)
         # ------------------------------------------------------------------
         bks = self._find_breakevens(xs, ys)
         self._last_breakevens = bks

@@ -877,8 +877,10 @@ Baseline: executed_v1 + baseline_v1b"""
 
         # Fallback direto no banco.
         try:
-            import sqlite3
+            import importlib
             from pathlib import Path as _Path
+
+            sqlite3 = importlib.import_module("sqlite3")
 
             candidates = []
 

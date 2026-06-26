@@ -1,3 +1,4 @@
+from UI.components.ptbr_labels import decision_to_label
 # UI/components/decisions_grid.py
 from src.domain.refs.structure_ref import StructureRef
 import tkinter as tk
@@ -44,7 +45,7 @@ class DecisionsGrid(ttk.LabelFrame):
         self.tree.heading("structure_id", text="Estrutura")
         self.tree.heading("decision", text="Decisão")
         self.tree.heading("level", text="Nível")
-        self.tree.heading("ratio", text="Ratio %")
+        self.tree.heading("ratio", text="Razão %")
         self.tree.heading("dte", text="DTE")
         self.tree.heading("pl_atual", text="PL Atual")
         self.tree.heading("pl_max", text="PL Máx")
@@ -111,6 +112,7 @@ class DecisionsGrid(ttk.LabelFrame):
                 decision.get("structure_id") or decision.get("aba") or "N/A"
             )
             decision_text = decision.get("decision", "N/A")
+            decision_label = decision_to_label(decision_text)
             level = decision.get("level", "")
             ratio = self._format_ratio(decision.get("pl_pct_of_max"))
             dte = decision.get("dte_min", "")
@@ -130,7 +132,7 @@ class DecisionsGrid(ttk.LabelFrame):
                 values=(
                     timestamp,
                     structure_id,
-                    decision_text,
+                    decision_label,
                     level,
                     ratio,
                     dte,

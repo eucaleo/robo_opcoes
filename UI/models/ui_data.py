@@ -649,7 +649,7 @@ class UIDataModel:
         return (
             f"derived.db: OK\n"
             f"Consolidações: {ctbl} (linhas: {cnt}, estruturas: {n_structures})\n"
-            f"Timestamp mais recente: {last_ts}\n"
+            f"Data/hora mais recente: {last_ts}\n"
             f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
             f"Filtro de estrutura ativo: {filter_info}"    #  alteracao_33
         )
