@@ -1,0 +1,879 @@
+FASE 10 - BUSCAS INICIAIS PAYOFF
+Data: 2026-06-26 11:47:20 -0300
+Branch: reinicio-normalizacao-idioma-ptbr
+Commit base: 4e3fda8
+
+== Arquivos com payoff ==
+ATT/checks/check_cleanup_residuals.py:76:    "scripts/patch_derived_payoff_timestamp_consistency.sh",
+ATT/checks/check_end_to_end.py:21:    ROOT_DIR / "domain" / "payoff.py",
+ATT/checks/check_end_to_end.py:22:    ROOT_DIR / "domain" / "payoff_features.py",
+ATT/checks/check_end_to_end.py:36:    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+ATT/checks/check_structures.py:22:    ROOT_DIR / "domain" / "payoff.py",
+ATT/checks/check_structures.py:23:    ROOT_DIR / "domain" / "payoff_features.py",
+ATT/checks/check_structures.py:33:    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+ATT/tests/test_decision.py:1:from domain.decision import compute_decision_from_payoff
+ATT/tests/test_decision.py:4:def test_compute_decision_from_payoff_should_work_without_alias_legacy_aba():
+ATT/tests/test_decision.py:6:    Garante que compute_decision_from_payoff funciona com payoff canônico
+ATT/tests/test_decision.py:9:    payoff = {
+ATT/tests/test_decision.py:17:    result = compute_decision_from_payoff(
+ATT/tests/test_decision.py:18:        payoff=payoff,
+ATT/tests/test_derived_service.py:86:def test_save_payoff_from_canonical_payload_should_use_resolved_storage_key(monkeypatch):
+ATT/tests/test_derived_service.py:89:    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+ATT/tests/test_derived_service.py:97:    monkeypatch.setattr(ds, "save_payoff_curve", fake_save_payoff_curve)
+ATT/tests/test_derived_service.py:110:    result = ds.save_payoff_from_canonical_payload(payload)
+ATT/tests/test_orchestrator_run_methods.py:2:Testes para os métodos run_payoff e run_decision
+ATT/tests/test_orchestrator_run_methods.py:16:    _request_to_payoff_dict,
+ATT/tests/test_orchestrator_run_methods.py:18:    run_payoff,
+ATT/tests/test_orchestrator_run_methods.py:64:# Testes: _request_to_payoff_dict
+ATT/tests/test_orchestrator_run_methods.py:67:class TestRequestToPayoffDict:
+ATT/tests/test_orchestrator_run_methods.py:71:        result = _request_to_payoff_dict(req)
+ATT/tests/test_orchestrator_run_methods.py:76:        s = _request_to_payoff_dict(req)["structure"]
+ATT/tests/test_orchestrator_run_methods.py:86:        legs = _request_to_payoff_dict(req)["structure"]["legs"]
+ATT/tests/test_orchestrator_run_methods.py:93:        m = _request_to_payoff_dict(req)["market"]
+ATT/tests/test_orchestrator_run_methods.py:100:        result = _request_to_payoff_dict(req, extra_meta=meta)
+ATT/tests/test_orchestrator_run_methods.py:105:        result = _request_to_payoff_dict(req)
+ATT/tests/test_orchestrator_run_methods.py:114:        result_legs = _request_to_payoff_dict(req)["structure"]["legs"]
+ATT/tests/test_orchestrator_run_methods.py:120:# Testes: run_payoff
+ATT/tests/test_orchestrator_run_methods.py:123:class TestRunPayoff:
+ATT/tests/test_orchestrator_run_methods.py:125:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:130:        result = run_payoff(req)
+ATT/tests/test_orchestrator_run_methods.py:138:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:143:        run_payoff(req, low_pct=0.8, high_pct=1.2, step_pct=0.005)
+ATT/tests/test_orchestrator_run_methods.py:150:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:155:        run_payoff(req, extra_meta={"tag": "ci"})
+ATT/tests/test_orchestrator_run_methods.py:160:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:166:        result = run_payoff(req)
+ATT/tests/test_orchestrator_run_methods.py:192:    def test_payoff_dict_repassado(self, mock_decide):
+ATT/tests/test_orchestrator_run_methods.py:195:        payoff = {"pl_max": 600.0, "points": [{"spot": 50, "pl": 0}]}
+ATT/tests/test_orchestrator_run_methods.py:197:        run_decision(req, payoff=payoff, pl_max=600.0, pl_atual=100.0)
+ATT/tests/test_orchestrator_run_methods.py:200:        assert kwargs["payoff"] == payoff
+ATT/tests/test_orchestrator_run_methods.py:239:class TestRunPayoffIntegration:
+ATT/tests/test_orchestrator_run_methods.py:241:    Chama run_payoff sem mock.
+ATT/tests/test_orchestrator_run_methods.py:245:    def test_sanidade_run_payoff_call_chain(self):
+ATT/tests/test_orchestrator_run_methods.py:246:        pytest.importorskip("domain.payoff")
+ATT/tests/test_orchestrator_run_methods.py:260:            result = run_payoff(req, low_pct=0.8, high_pct=1.2, step_pct=0.05)
+ATT/tests/test_orchestrator_run_methods.py:261:            assert isinstance(result, dict), "run_payoff deve retornar dict"
+ATT/tests/test_payoff_canonical.py:1:from domain.payoff import compute_payoff_from_canonical_input
+ATT/tests/test_payoff_canonical.py:4:def test_compute_payoff_from_canonical_input_should_preserve_canonical_metadata():
+ATT/tests/test_payoff_canonical.py:37:    result = compute_payoff_from_canonical_input(canonical_input)
+ATT/tests/test_payoff_chart.py:1:# C:/users/eucal/projeto/ATT/tests/test_payoff_chart.py
+ATT/tests/test_payoff_chart.py:3:Testes unitários para UI/components/payoff_chart.py
+ATT/tests/test_payoff_chart.py:9:  - PayoffChart.clear()
+ATT/tests/test_payoff_chart.py:10:  - PayoffChart.update_chart()
+ATT/tests/test_payoff_chart.py:11:  - PayoffChart.fix_current_curve() / clear_comparison()
+ATT/tests/test_payoff_chart.py:12:  - PayoffChart.get_last_overlays()
+ATT/tests/test_payoff_chart.py:51:from UI.components.payoff_chart import (  # noqa: E402
+ATT/tests/test_payoff_chart.py:52:    PayoffChart,
+ATT/tests/test_payoff_chart.py:60:# Fixture: instância de PayoffChart com Tk fake
+ATT/tests/test_payoff_chart.py:63:def _make_chart() -> PayoffChart:
+ATT/tests/test_payoff_chart.py:64:    """Cria PayoffChart com dependências Tk mockadas."""
+ATT/tests/test_payoff_chart.py:65:    with patch("UI.components.payoff_chart.FigureCanvasTkAgg"), \
+ATT/tests/test_payoff_chart.py:66:         patch("UI.components.payoff_chart.NavigationToolbar2Tk"), \
+ATT/tests/test_payoff_chart.py:67:         patch("UI.components.payoff_chart.Figure") as MockFig, \
+ATT/tests/test_payoff_chart.py:68:         patch("UI.components.payoff_chart.ttk.Frame.__init__", return_value=None), \
+ATT/tests/test_payoff_chart.py:69:         patch("UI.components.payoff_chart.ttk.Frame.pack",     return_value=None), \
+ATT/tests/test_payoff_chart.py:70:         patch("UI.components.payoff_chart.ttk.Frame.bind",     return_value=None):
+ATT/tests/test_payoff_chart.py:77:        chart = PayoffChart.__new__(PayoffChart)
+ATT/tests/test_payoff_chart.py:171:        return PayoffChart._find_breakevens(spots, pls)
+ATT/tests/test_payoff_chart.py:225:        return PayoffChart._interp_y_at_x(xs, ys, x)
+ATT/tests/test_payoff_chart.py:305:# Testes de PayoffChart (estado e lógica)
+ATT/tests/test_payoff_chart.py:308:class TestPayoffChartState(unittest.TestCase):
+ATT/tests/test_payoff_chart.py:422:class TestPayoffChartRobustness(unittest.TestCase):
+ATT/tests/test_payoff_chart.py:456:            PayoffChart._find_breakevens(list(range(10)), [100.0] * 10), []
+ATT/tests/test_payoff_chart.py:460:        self.assertEqual(PayoffChart._find_breakevens([100.0], [0.0]), [])
+ATT/tests/test_payoff_chart.py:463:        result = PayoffChart._interp_y_at_x([100.0, 100.0], [0.0, 500.0], 100.0)
+ATT/tests/test_payoff_pricing_engine.py:3:from services.payoff_pricing_engine import PayoffPricingEngine
+ATT/tests/test_payoff_pricing_engine.py:6:def test_run_returns_payoff_based_metrics_and_valuation():
+ATT/tests/test_payoff_pricing_engine.py:7:    engine = PayoffPricingEngine()
+ATT/tests/test_payoff_pricing_engine.py:30:    assert result["engine"] == "payoff_pricing_engine"
+ATT/tests/test_payoff_pricing_engine.py:41:    assert result["metrics"]["payoff_points"] == 101
+ATT/tests/test_payoff_pricing_engine.py:51:    assert "payoff" in result
+ATT/tests/test_payoff_pricing_engine.py:52:    assert len(result["payoff"]["points"]) == 101
+ATT/tests/test_payoff_pricing_engine.py:56:    engine = PayoffPricingEngine()
+ATT/tests/test_payoff_pricing_engine.py:80:    assert result["metrics"]["payoff_points"] == 101
+ATT/tests/test_payoff_pricing_engine.py:84:    engine = PayoffPricingEngine()
+ATT/tests/test_payoff_pricing_engine.py:91:    engine = PayoffPricingEngine()
+ATT/tests/test_payoff_pricing_engine.py:108:    engine = PayoffPricingEngine()
+ATT/tests/test_pricing_execution_persistence_service.py:220:            "payoff": {
+ATT/tests/test_pricing_execution_persistence_service.py:258:    assert call["payoff_json"] == {
+ATT/tests/test_structure_analysis_service.py:124:    assert "payoff" in result
+ATT/tests/test_structure_analysis_service.py:134:    payoff = result["payoff"]
+ATT/tests/test_structure_analysis_service.py:135:    assert payoff is not None
+ATT/tests/test_structure_analysis_service.py:136:    assert payoff["pl_max"] == 10000.0
+ATT/tests/test_structure_analysis_service.py:137:    assert payoff["spot_ref"] == 198.35
+ATT/tests/test_structure_analysis_service.py:138:    assert "points" in payoff
+ATT/tests/test_structure_analysis_service.py:139:    assert len(payoff["points"]) > 0
+ATT/tests/test_structure_analysis_service.py:169:def test_structure_analysis_service_analyze_returns_structured_decision_for_invalid_payoff():
+ATT/tests/test_structure_analysis_service.py:179:    assert "payoff" in result
+ATT/tests/test_structure_analysis_service.py:184:    assert result["decision"]["why"]["error"] == "payoff is required"
+ATT/tests/test_structure_analysis_service.py:273:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:276:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:277:        payoff,
+ATT/tests/test_structure_analysis_service.py:283:        captured["payoff"] = payoff
+ATT/tests/test_structure_analysis_service.py:300:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:301:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:304:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:305:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:316:        "payoff": {"pl_max": 1.0, "spot_ref": 198.35, "points": []},
+ATT/tests/test_structure_analysis_service.py:336:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:339:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:340:        payoff,
+ATT/tests/test_structure_analysis_service.py:358:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:359:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:362:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:363:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:384:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:387:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:388:        payoff,
+ATT/tests/test_structure_analysis_service.py:407:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:408:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:411:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:412:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:504:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:507:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:508:        payoff,
+ATT/tests/test_structure_analysis_service.py:523:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:524:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:527:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:528:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:550:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:553:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:554:        payoff,
+ATT/tests/test_structure_analysis_service.py:569:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:570:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:573:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:574:        fake_compute_decision_from_payoff,
+ATT/tests/test_structure_analysis_service.py:597:    def fake_compute_payoff_from_canonical_input(canonical_input):
+ATT/tests/test_structure_analysis_service.py:600:    def fake_compute_decision_from_payoff(
+ATT/tests/test_structure_analysis_service.py:601:        payoff,
+ATT/tests/test_structure_analysis_service.py:615:        "services.structure_analysis_service.compute_payoff_from_canonical_input",
+ATT/tests/test_structure_analysis_service.py:616:        fake_compute_payoff_from_canonical_input,
+ATT/tests/test_structure_analysis_service.py:619:        "services.structure_analysis_service.compute_decision_from_payoff",
+ATT/tests/test_structure_analysis_service.py:620:        fake_compute_decision_from_payoff,
+ATT/tests/test_system_snapshots_repository.py:120:        payoff_json={"max_gain": 1000},
+ATT/tests/test_system_snapshots_repository.py:167:    assert snapshot["payoff_json"] == {"max_gain": 1000}
+ATT/tests/test_system_snapshots_schema.py:68:        "payoff_json",
+ATT/tests/test_ui_data_migration.py:167:# Nível 4 -- get_payoff_curve_info()
+ATT/tests/test_ui_data_migration.py:170:def test_payoff_curve_info_retorna_dados(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:172:    pts, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+ATT/tests/test_ui_data_migration.py:173:    assert isinstance(pts, list), "Pontos do payoff devem ser uma lista"
+ATT/tests/test_ui_data_migration.py:174:    assert isinstance(info, dict), "info do payoff deve ser dict"
+ATT/tests/test_ui_data_migration.py:177:def test_payoff_curve_info_tem_structure_id(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:179:    _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+ATT/tests/test_ui_data_migration.py:180:    assert "structure_id" in info, "info do payoff deve conter 'structure_id'"
+ATT/tests/test_ui_data_migration.py:183:def test_payoff_curve_info_aba_continuidade(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:185:    _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+ATT/tests/test_ui_data_migration.py:186:    assert "aba" in info, "info do payoff deve ainda conter 'aba' (continuidade)"
+ATT/tests/test_ui_data_migration.py:192:def test_payoff_curve_info_pontos_validos(model, non_empty_decisions):
+ATT/tests/test_ui_data_migration.py:194:    pts, _ = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+UI/components/details_panel.py:412:            "payoff_curve_points",
+UI/components/details_panel.py:940:    def _fetch_payoff_points_from_derived(self, structure_id):
+UI/components/details_panel.py:942:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:948:        - evita misturar pontos de payoff de recálculos antigos e novos.
+UI/components/details_panel.py:959:                FROM payoff_curve_points
+UI/components/details_panel.py:976:                FROM payoff_curve_points
+UI/components/details_panel.py:1041:            latest_payoff_row = cur.execute(
+UI/components/details_panel.py:1044:                FROM payoff_curve_points
+UI/components/details_panel.py:1053:            latest_payoff_timestamp = None
+UI/components/details_panel.py:1056:            if latest_payoff_row:
+UI/components/details_panel.py:1057:                latest_payoff_timestamp = latest_payoff_row["timestamp"]
+UI/components/details_panel.py:1058:                n_points = int(latest_payoff_row["n"] or 0)
+UI/components/details_panel.py:1061:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/components/details_panel.py:1065:                "latest_payoff_timestamp": latest_payoff_timestamp,
+UI/components/details_panel.py:1114:        pts = self._fetch_payoff_points_from_derived(structure_id)
+UI/components/payoff_chart.py:1:# UI/components/payoff_chart.py
+UI/components/payoff_chart.py:8:from UI.debug_utils import payoff_debug, payoff_info
+UI/components/payoff_chart.py:55:class PayoffChart(ttk.Frame):
+UI/components/payoff_chart.py:144:        self.ax.set_title("Curva de Payoff")
+UI/components/payoff_chart.py:170:        payoff_points: List[Dict],
+UI/components/payoff_chart.py:178:        self._last_points = list(payoff_points) if payoff_points else []
+UI/components/payoff_chart.py:182:            payoff_points, decision_data, overlay_curve=self._fixed_curve
+UI/components/payoff_chart.py:187:        payoff_debug("FIX clicked -- id=", id(self))
+UI/components/payoff_chart.py:216:        payoff_debug("CLEAR comparison -- id=", id(self))
+UI/components/payoff_chart.py:258:        payoff_points: List[Dict],
+UI/components/payoff_chart.py:268:        if not payoff_points:
+UI/components/payoff_chart.py:269:            self.ax.set_title("Sem dados de payoff")
+UI/components/payoff_chart.py:281:        for p in payoff_points:
+UI/components/payoff_chart.py:290:            payoff_info("ERROR: não consegui extrair xs/ys de payoff_points.")
+UI/components/payoff_chart.py:291:            self.ax.set_title("Sem dados de payoff")
+UI/components/payoff_chart.py:297:        payoff_debug(
+UI/components/payoff_chart.py:300:        payoff_debug(
+UI/components/payoff_chart.py:305:        # Label da curva principal (B quando há overlay, senão "Payoff")
+UI/components/payoff_chart.py:314:            main_label = "Payoff"
+UI/components/payoff_chart.py:422:            title = f"Payoff -- {sid} [{dec}]"
+UI/components/payoff_chart.py:426:            title = "Curva de Payoff -- Comparação"
+UI/components/payoff_chart.py:428:            title = "Curva de Payoff"
+UI/components/payoff_chart.py:453:            p, ["point_pl", "pl", "y", "pnl", "payoff", "profit_loss", "pl_value"]
+UI/debug_utils.py:24:def payoff_debug(*args, **kwargs):
+UI/debug_utils.py:25:    """Log de payoff chart apenas se debug ativo"""
+UI/debug_utils.py:27:        print("[PayoffChart] DEBUG", *args, **kwargs)
+UI/debug_utils.py:29:def payoff_info(*args, **kwargs):
+UI/debug_utils.py:30:    """Log de payoff sempre"""
+UI/debug_utils.py:31:    print("[PayoffChart]", *args, **kwargs)
+UI/main_window.py:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+UI/main_window.py:8:from UI.components.payoff_chart import PayoffChart
+UI/main_window.py:40:        self._payoff_worker_id = 0
+UI/main_window.py:46:        self._loading_payoff = False
+UI/main_window.py:57:        # Não executa pipeline e não recalcula payoff.
+UI/main_window.py:116:        # Aba 2: Gráfico de Payoff
+UI/main_window.py:118:        right_notebook.add(chart_frame, text="Curva de Payoff")
+UI/main_window.py:120:        self.payoff_chart = PayoffChart(chart_frame)
+UI/main_window.py:121:        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+UI/main_window.py:186:        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+UI/main_window.py:199:        # Carregar payoff em background -- apenas structure_id necessário
+UI/main_window.py:204:            self._start_payoff_load(structure_id, timestamp, decision_data)
+UI/main_window.py:206:            self.payoff_chart.clear()
+UI/main_window.py:207:            self.status_bar.config(text="Dados insuficientes para payoff")
+UI/main_window.py:209:    def _start_payoff_load(
+UI/main_window.py:215:        """Inicia carregamento de payoff em thread separada.
+UI/main_window.py:221:        self._payoff_worker_id += 1
+UI/main_window.py:222:        current_worker_id = self._payoff_worker_id
+UI/main_window.py:224:        if self._loading_payoff:
+UI/main_window.py:225:            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+UI/main_window.py:227:            self.status_bar.config(text="Carregando payoff...")
+UI/main_window.py:229:        self._loading_payoff = True
+UI/main_window.py:233:                points, info_dict = self.data_model.get_payoff_curve_info(
+UI/main_window.py:238:                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+UI/main_window.py:261:                if current_worker_id != self._payoff_worker_id:
+UI/main_window.py:266:                    self._finish_payoff_load,
+UI/main_window.py:273:                if current_worker_id == self._payoff_worker_id:
+UI/main_window.py:276:                        self._handle_payoff_error,
+UI/main_window.py:343:                        self._start_payoff_load(target_sid, fresh_ts, fresh_decision)
+UI/main_window.py:354:                    self.payoff_chart.clear()
+UI/main_window.py:492:            self.payoff_chart.fix_current_curve()
+UI/main_window.py:614:            f"- Pontos de payoff: {self._format_pipeline_value(summary.get('payoff_points'))}",
+UI/main_window.py:615:            f"- Resumos de payoff: {self._format_pipeline_value(summary.get('payoff_summaries'))}",
+UI/main_window.py:630:        payoff_points = self._format_pipeline_value(summary.get("payoff_points"))
+UI/main_window.py:635:            f"pontos_payoff={payoff_points}; erros={errors}"
+UI/main_window.py:715:Pipeline automático de payoff e decisões
+UI/main_window.py:727:    # Handlers de payoff (thread  main thread)
+UI/main_window.py:730:    def _finish_payoff_load(
+UI/main_window.py:738:        if worker_id != self._payoff_worker_id:
+UI/main_window.py:741:        self._loading_payoff = False
+UI/main_window.py:746:                overlays = self.payoff_chart.update_chart(points, decision_data)
+UI/main_window.py:764:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/main_window.py:771:                self.payoff_chart.clear()
+UI/main_window.py:772:                self.status_bar.config(text="Sem dados de payoff para esta seleção")
+UI/main_window.py:774:            self._handle_payoff_error(str(e), worker_id)
+UI/main_window.py:776:    def _handle_payoff_error(self, error_msg: str, worker_id: int):
+UI/main_window.py:777:        if worker_id != self._payoff_worker_id:
+UI/main_window.py:779:        self._loading_payoff = False
+UI/main_window.py:782:            self.payoff_chart.clear()
+UI/main_window.py:785:        self.status_bar.config(text=f"Erro ao carregar payoff: {error_msg}")
+UI/main_window.py:786:        print(f"[UI] Erro no payoff: {error_msg}")
+UI/main_window.py:1015:        Recalcula pricing/payoff/decisão após criação ou edição manual.
+UI/main_window.py:1034:        _post_status(f"Estrutura {sid} salva. Recalculando payoff...")
+UI/main_window.py:1050:                    _set_status(f"Estrutura {sid} salva e payoff recalculado.")
+UI/models/ui_data.py:16:    CANDIDATE_PAYOFF_TABLES,
+UI/models/ui_data.py:36:PAYOFF_COLUMN_ALIASES = {
+UI/models/ui_data.py:40:    "pl":        ["point_pl", "pl", "pl_value", "y", "payoff", "pl_venc"],
+UI/models/ui_data.py:61:        self._payoff_table: Optional[str] = None
+UI/models/ui_data.py:63:        self._payoff_cols: Dict[str, str] = {}
+UI/models/ui_data.py:66:        self._payoff_cache: Dict[Tuple[str, str], Dict[str, Any]] = {}
+UI/models/ui_data.py:67:        self._payoff_cache_max = 128
+UI/models/ui_data.py:101:        for t in CANDIDATE_PAYOFF_TABLES:
+UI/models/ui_data.py:103:                self._payoff_table = t
+UI/models/ui_data.py:124:    def _build_payoff_colmap(self):
+UI/models/ui_data.py:125:        if not self._payoff_table:
+UI/models/ui_data.py:126:            self._payoff_cols = {}
+UI/models/ui_data.py:129:        cols = self._inspect_columns(self._payoff_table)
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:142:            print(f"[UI] Usando contrato canônico para {self._payoff_table}")
+UI/models/ui_data.py:144:            aliases = PAYOFF_COLUMN_ALIASES
+UI/models/ui_data.py:145:            print(f"[UI] Usando aliases flexíveis para {self._payoff_table}")
+UI/models/ui_data.py:154:        self._payoff_cols = colmap
+UI/models/ui_data.py:156:        if ("spot" not in self._payoff_cols) or ("pl" not in self._payoff_cols):
+UI/models/ui_data.py:158:                f"Tabela {self._payoff_table} não apresenta colunas obrigatórias "
+UI/models/ui_data.py:159:                f"para payoff (point_spot/point_pl ou spot/pl)."
+UI/models/ui_data.py:163:        if "structure_id" not in self._payoff_cols:
+UI/models/ui_data.py:165:                f"[UI] AVISO: {self._payoff_table} nao tem coluna structure_id. "
+UI/models/ui_data.py:205:        self._build_payoff_colmap()
+UI/models/ui_data.py:401:    def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
+UI/models/ui_data.py:410:        if hasattr(self, "_payoff_cache") and cache_key in self._payoff_cache:
+UI/models/ui_data.py:411:            cached = self._payoff_cache[cache_key]
+UI/models/ui_data.py:417:        if not self._payoff_table:
+UI/models/ui_data.py:419:                "Tabela de payoff não encontrada. Esperadas: "
+UI/models/ui_data.py:420:                + ", ".join(CANDIDATE_PAYOFF_TABLES)
+UI/models/ui_data.py:424:        p = self._payoff_cols
+UI/models/ui_data.py:429:                f"Tabela {self._payoff_table} não possui colunas esperadas para payoff."
+UI/models/ui_data.py:439:            FROM {self._payoff_table}
+UI/models/ui_data.py:452:            FROM {self._payoff_table}
+UI/models/ui_data.py:466:            FROM {self._payoff_table}
+UI/models/ui_data.py:476:    def get_payoff_curve_info(
+UI/models/ui_data.py:487:        if not self._payoff_table:
+UI/models/ui_data.py:502:        p = self._payoff_cols
+UI/models/ui_data.py:516:                "source_table": self._payoff_table,
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+UI/models/ui_data.py:562:                        f"Tabela {self._payoff_table} não possui colunas esperadas."
+UI/models/ui_data.py:567:                    f"FROM {self._payoff_table} "
+UI/models/ui_data.py:576:                        f"SELECT {p['timestamp']} AS ts FROM {self._payoff_table} "
+UI/models/ui_data.py:639:        payoff_ok = bool(self._payoff_table)
+UI/models/ui_data.py:642:        p = self._payoff_cols
+UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+UI/models/ui_data.py:659:        self._payoff_cache = {}
+UI/models/ui_data.py:667:            return self._payoff_cache.get(key)
+UI/models/ui_data.py:673:            self._payoff_cache[key] = value
+UI/models/ui_data.py:674:            mx = getattr(self, "_payoff_cache_max", 0) or 0
+UI/models/ui_data.py:675:            if mx > 0 and len(self._payoff_cache) > mx:
+UI/models/ui_data.py:676:                self._payoff_cache.pop(next(iter(self._payoff_cache)))
+domain/calculation_request.py:217:    Contrato canônico de entrada para qualquer cálculo de payoff/decisão.
+domain/calculation_request.py:220:    e o domínio (payoff, decision) recebe SOMENTE este objeto -- sem
+domain/decision.py:6:Funcoes canonicas: compute_decision_from_inputs, compute_decision_from_payoff,
+domain/decision.py:32:def _interp_payoff(points: List[Tuple[float, float]], spot: float) -> float:
+domain/decision.py:139:def compute_decision_from_payoff(
+domain/decision.py:140:    payoff: Dict[str, Any],
+domain/decision.py:147:    Decide a partir de um dict de payoff.
+domain/decision.py:148:    Payoff vazio ou inválido  HOLD com 'error' em why_json.
+domain/decision.py:150:    if not payoff:
+domain/decision.py:151:        why_dict = {"error": "payoff vazio ou invalido", "reason": "invalid_input"}
+domain/decision.py:162:    pl_atual = payoff.get("pl_atual") or payoff.get("pl_now") or 0.0
+domain/decision.py:163:    pl_max   = payoff.get("pl_max") or 0.0
+domain/decision.py:166:    points = payoff.get("points") or []
+domain/decision.py:167:    spot   = payoff.get("spot")
+domain/decision.py:169:        pl_atual = _interp_payoff(points, float(spot))
+domain/decision.py:195:    payoff: Optional[Dict[str, Any]] = None,
+domain/decision.py:201:    if payoff:
+domain/decision.py:202:        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+domain/payoff.py:27:def _compute_leg_payoff_at_expiration(leg: dict[str, Any], spot_at_expiration: float) -> float:
+domain/payoff.py:43:    payoff_unit = intrinsic - premium_value
+domain/payoff.py:46:        payoff_unit = -payoff_unit
+domain/payoff.py:48:    return payoff_unit * quantity * multiplier
+domain/payoff.py:51:def compute_payoff_curve_from_canonical_legs(
+domain/payoff.py:90:            pl_total += _compute_leg_payoff_at_expiration(
+domain/payoff.py:123:def compute_payoff_from_canonical_input(
+domain/payoff.py:157:    result = compute_payoff_curve_from_canonical_legs(
+domain/payoff_features.py:106:    Computa features da curva de payoff.
+domain/payoff_features.py:146:    INSERT INTO payoff_curve_summary (
+repositories/system_snapshots_repository.py:16:    "payoff_json",
+repositories/system_snapshots_repository.py:90:        payoff_json: dict[str, Any] | list[Any] | None = None,
+repositories/system_snapshots_repository.py:123:                    payoff_json,
+repositories/system_snapshots_repository.py:140:                    _to_json(payoff_json),
+repositories/ui_data_table_candidates.py:19:CANDIDATE_PAYOFF_TABLES = [
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+repositories/ui_data_table_candidates.py:21:    "rtd_payoff_points",
+repositories/ui_data_table_candidates.py:22:    "rtd_payoff_curva",
+repositories/ui_data_table_candidates.py:23:    "payoff_points",
+services/calculation_orchestrator.py:3:# alteracao_46: _request_to_payoff_dict, run_payoff, run_decision
+services/calculation_orchestrator.py:20:from domain.payoff import compute_payoff_from_canonical_input
+services/calculation_orchestrator.py:111:def _request_to_payoff_dict(
+services/calculation_orchestrator.py:149:def run_payoff(
+services/calculation_orchestrator.py:156:    """Executa calculo de payoff a partir de um CalculationRequest."""
+services/calculation_orchestrator.py:157:    canonical = _request_to_payoff_dict(request, extra_meta=extra_meta)
+services/calculation_orchestrator.py:158:    return compute_payoff_from_canonical_input(
+services/calculation_orchestrator.py:168:    payoff: Optional[dict] = None,
+services/calculation_orchestrator.py:175:    if _pl_max is None and payoff:
+services/calculation_orchestrator.py:176:        _pl_max = float(payoff.get("pl_max") or 0.0)
+services/calculation_orchestrator.py:181:    if _pl_atual is None and payoff:
+services/calculation_orchestrator.py:182:        _pl_atual = float(payoff.get("pl_atual") or payoff.get("pl_now") or 0.0)
+services/calculation_orchestrator.py:195:    return compute_decision_from_contract(contract, payoff=payoff)
+services/calculation_orchestrator.py:205:    """alteracao_47: pipeline completo payoff + decision."""
+services/calculation_orchestrator.py:206:    payoff_result = run_payoff(
+services/calculation_orchestrator.py:213:    decision_result = run_decision(request, payoff=payoff_result)
+services/calculation_orchestrator.py:216:        "payoff":           payoff_result,
+services/calculation_orchestrator.py:233:    - Executar payoff e decisao sem acessar raw DB diretamente
+services/calculation_orchestrator.py:303:    def _request_to_payoff_dict(self, request: CalculationRequest) -> Dict[str, Any]:
+services/calculation_orchestrator.py:304:        """Converte CalculationRequest para o dict de payoff."""
+services/calculation_orchestrator.py:338:    # run_payoff / run_decision / run_full_pipeline
+services/calculation_orchestrator.py:341:    def run_payoff(
+services/calculation_orchestrator.py:348:        canonical = self._request_to_payoff_dict(request)
+services/calculation_orchestrator.py:349:        return compute_payoff_from_canonical_input(
+services/calculation_orchestrator.py:359:        payoff_result: Optional[Dict[str, Any]] = None,
+services/calculation_orchestrator.py:361:        if payoff_result is None:
+services/calculation_orchestrator.py:362:            payoff_result = self.run_payoff(request)
+services/calculation_orchestrator.py:365:            payoff_result.get("pl_max") or payoff_result.get("max_profit") or 0.0
+services/calculation_orchestrator.py:368:            payoff_result.get("pl_atual")
+services/calculation_orchestrator.py:369:            or payoff_result.get("current_pl")
+services/calculation_orchestrator.py:370:            or payoff_result.get("pl_now")
+services/calculation_orchestrator.py:374:            payoff_result.get("dte_min")
+services/calculation_orchestrator.py:384:        return compute_decision_from_contract(contract, payoff=payoff_result)
+services/calculation_orchestrator.py:393:        """Executa run_payoff -> run_decision em sequencia."""
+services/calculation_orchestrator.py:394:        payoff_result   = self.run_payoff(request, low_pct=low_pct, high_pct=high_pct, step_pct=step_pct)
+services/calculation_orchestrator.py:395:        decision_result = self.run_decision(request, payoff_result=payoff_result)
+services/calculation_orchestrator.py:398:            "payoff":           payoff_result,
+services/calculation_orchestrator.py:506:        Retorna dict com chaves: structure_id, payoff, decision.
+services/calculation_orchestrator.py:516:            "payoff":       pipeline_result["payoff"],
+services/canonical_input_service.py:199:        consumidores downstream (pricing, greeks, payoff) tenham os dados.
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:272:            # campos canônicos esperados pelo fluxo pricing/payoff
+services/canonical_pricing_facade.py:331:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:347:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py:459:                    result={"engine": "payoff_pricing_engine", "status": "error", "error_message": error_message},
+services/derived_payoff_persistence.py:1:# services/derived_payoff_persistence.py
+services/derived_payoff_persistence.py:5:from domain.payoff import compute_payoff_from_canonical_input
+services/derived_payoff_persistence.py:6:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:12:class DerivedPayoffPersistence:
+services/derived_payoff_persistence.py:14:    Implementação concreta de PayoffPersistencePort.
+services/derived_payoff_persistence.py:18:      2. Calcular a curva de payoff via domain/payoff.py
+services/derived_payoff_persistence.py:24:    #  PayoffPersistencePort.persist()                                 #
+services/derived_payoff_persistence.py:33:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+services/derived_payoff_persistence.py:40:                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+services/derived_payoff_persistence.py:45:        # Timestamp único para payoff + decisão.
+services/derived_payoff_persistence.py:49:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+services/derived_payoff_persistence.py:50:        if not payoff_saved:
+services/derived_payoff_persistence.py:52:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+services/derived_payoff_persistence.py:60:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+services/derived_payoff_persistence.py:66:    #  payoff                                                          #
+services/derived_payoff_persistence.py:69:    def _persist_payoff(
+services/derived_payoff_persistence.py:77:            payoff_result = compute_payoff_from_canonical_input(canonical_input)
+services/derived_payoff_persistence.py:79:            if not payoff_result.get("points"):
+services/derived_payoff_persistence.py:81:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+services/derived_payoff_persistence.py:86:            inserted = save_payoff_from_canonical_payload(
+services/derived_payoff_persistence.py:87:                payoff_result,
+services/derived_payoff_persistence.py:91:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+services/derived_payoff_persistence.py:99:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+services/derived_payoff_persistence.py:169:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+services/derived_payoff_persistence.py:176:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+services/derived_payoff_persistence.py:189:        Normaliza aliases de direção para o contrato canônico de payoff.
+services/derived_payoff_persistence.py:191:        domain/payoff.py exige leg["position_side"].
+services/derived_payoff_persistence.py:224:    def _normalize_leg_for_payoff(leg: Any) -> dict[str, Any]:
+services/derived_payoff_persistence.py:227:        esperado por domain.compute_payoff_from_canonical_input().
+services/derived_payoff_persistence.py:239:        normalized_side = DerivedPayoffPersistence._normalize_position_side(
+services/derived_payoff_persistence.py:277:    def _normalize_canonical_input_for_payoff(
+services/derived_payoff_persistence.py:281:        Retorna uma cópia rasa do canonical_input com legs normalizadas para payoff.
+services/derived_payoff_persistence.py:291:            DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+services/derived_payoff_persistence.py:295:        meta.setdefault("payoff_leg_normalization", "fase_3f_fix1_position_side_from_side")
+services/derived_payoff_persistence.py:310:        Monta o canonical_input esperado por compute_payoff_from_canonical_input().
+services/derived_payoff_persistence.py:317:        # estrito de domain/payoff.py.
+services/derived_payoff_persistence.py:319:            return DerivedPayoffPersistence._normalize_canonical_input_for_payoff(
+services/derived_payoff_persistence.py:334:        meta.setdefault("payoff_leg_normalization", "fase_3f_fix1_position_side_from_side")
+services/derived_payoff_persistence.py:342:                    DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+services/derived_service.py:4:alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+services/derived_service.py:6:alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
+services/derived_service.py:18:    cleanup_old_payoff_data,
+services/derived_service.py:20:    insert_payoff_points,
+services/derived_service.py:158:# Payoff
+services/derived_service.py:161:def save_payoff_curve(
+services/derived_service.py:210:        return insert_payoff_points(
+services/derived_service.py:221:def save_payoff_from_canonical_payload(
+services/derived_service.py:222:    payoff: Dict[str, Any],
+services/derived_service.py:230:        structure_id=payoff.get("structure_id"),
+services/derived_service.py:231:        structure_name=payoff.get("structure_name"),
+services/derived_service.py:232:        underlying_asset=payoff.get("underlying_asset"),
+services/derived_service.py:235:    sid_from_payload = payoff.get("structure_id")
+services/derived_service.py:243:        meta=payoff.get("meta"),
+services/derived_service.py:245:        structure_name=payoff.get("structure_name"),
+services/derived_service.py:246:        underlying_asset=payoff.get("underlying_asset"),
+services/derived_service.py:247:        reference_date=payoff.get("reference_date"),
+services/derived_service.py:248:        input_meta=payoff.get("input_meta"),
+services/derived_service.py:253:        sig = inspect.signature(save_payoff_curve)
+services/derived_service.py:265:        return save_payoff_curve(
+services/derived_service.py:267:            points=payoff.get("points", []),
+services/derived_service.py:268:            spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:274:    return save_payoff_curve(
+services/derived_service.py:276:        points=payoff.get("points", []),
+services/derived_service.py:277:        spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:382:        deleted_payoff = cleanup_old_payoff_data(conn, days_to_keep=days_to_keep)
+services/derived_service.py:384:        return {"payoff_deleted": deleted_payoff, "decisions_deleted": deleted_dec}
+services/derived_service.py:391:def get_all_payoff_curves():
+services/derived_service.py:396:            FROM payoff_curve_points
+services/derived_service.py:411:def get_payoff_by_structure_id(structure_id: int):
+services/derived_service.py:413:    alteracao_56/alteracao_65: único ponto de entrada canônico para leitura de payoff.
+services/derived_service.py:416:    Importante: payoff_curve_points mantém histórico por timestamp.
+services/derived_service.py:427:              FROM payoff_curve_points
+services/derived_service.py:431:                      FROM payoff_curve_points
+services/derived_service.py:544:# get_payoff_by_aba() removida da interface pública.
+services/derived_service.py:545:# get_payoff_by_structure_id() é o único ponto de entrada canônico.
+services/derived_service.py:550:    alteracao_65: get_payoff_by_aba() nao exposta -- use get_payoff_by_structure_id().
+services/derived_service.py:551:    get_payoff_by_aba() ausente por decisao de design (alteracao_65): interface simplificada.
+services/derived_service.py:554:    # alteracao_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
+services/derived_service.py:555:    # Chamadores legados devem migrar para get_payoff_by_structure_id().
+services/derived_service.py:557:    def get_payoff_by_structure_id(self, structure_id: int):
+services/derived_service.py:558:        """Retorna pontos de payoff para a estrutura informada."""
+services/derived_service.py:559:        return get_payoff_by_structure_id(structure_id)
+services/derived_service.py:561:    def save_payoff_curve(self, *args, **kwargs):
+services/derived_service.py:562:        return save_payoff_curve(*args, **kwargs)
+services/payoff_persistence_port.py:1:# services/payoff_persistence_port.py
+services/payoff_persistence_port.py:5:class PayoffPersistencePort(Protocol):
+services/payoff_persistence_port.py:7:    Contrato de persistência derivada (payoff + decisão).
+services/payoff_pricing_engine.py:3:from domain.payoff import compute_payoff_curve_from_canonical_legs
+services/payoff_pricing_engine.py:7:class PayoffPricingEngine:
+services/payoff_pricing_engine.py:9:    Motor financeiro inicial baseado na curva de payoff canônica.
+services/payoff_pricing_engine.py:18:    engine_name = "payoff_pricing_engine"
+services/payoff_pricing_engine.py:40:        payoff = compute_payoff_curve_from_canonical_legs(
+services/payoff_pricing_engine.py:48:        pl_max = payoff.get("pl_max")
+services/payoff_pricing_engine.py:49:        pl_min = payoff.get("pl_min")
+services/payoff_pricing_engine.py:72:                "payoff_points": len(payoff.get("points") or []),
+services/payoff_pricing_engine.py:85:                "method": "expiration_payoff_grid",
+services/payoff_pricing_engine.py:87:            "payoff": payoff,
+services/pricing_execution_orchestration_service.py:64:                    "engine": "payoff_pricing_engine",
+services/pricing_execution_persistence_service.py:7:from services.payoff_persistence_port import PayoffPersistencePort
+services/pricing_execution_persistence_service.py:16:        payoff_persistence_port: PayoffPersistencePort | None = None,
+services/pricing_execution_persistence_service.py:22:        self._payoff_port = payoff_persistence_port
+services/pricing_execution_persistence_service.py:67:        #  alteracao_21 -- persistência derivada (payoff + decisão)           #
+services/pricing_execution_persistence_service.py:70:        if self._payoff_port is not None:
+services/pricing_execution_persistence_service.py:72:                self._payoff_port.persist(
+services/pricing_execution_persistence_service.py:78:                    "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",
+services/pricing_execution_persistence_service.py:124:                payoff_json=self._extract_result_field(inner, "payoff"),
+services/pricing_execution_service.py:3:from services.payoff_pricing_engine import PayoffPricingEngine
+services/pricing_execution_service.py:11:        pricing_engine: PayoffPricingEngine | None = None,
+services/pricing_execution_service.py:14:        self.pricing_engine = pricing_engine or PayoffPricingEngine()
+services/structure_analysis_service.py:6:from domain.decision import compute_decision_from_payoff
+services/structure_analysis_service.py:7:from domain.payoff import compute_payoff_from_canonical_input
+services/structure_analysis_service.py:61:        # 6. Calcula payoff
+services/structure_analysis_service.py:62:        payoff = compute_payoff_from_canonical_input(canonical_input)
+services/structure_analysis_service.py:64:        # 7. Valida payoff -- se inválido, retorna HOLD com erro estruturado
+services/structure_analysis_service.py:65:        if not payoff or not payoff.get("pl_max"):
+services/structure_analysis_service.py:67:                "error": "payoff is required",
+services/structure_analysis_service.py:69:                "reasons": ["invalid_payoff"],
+services/structure_analysis_service.py:91:                "payoff":   payoff,
+services/structure_analysis_service.py:96:        decision = compute_decision_from_payoff(
+services/structure_analysis_service.py:97:            payoff=payoff,
+services/structure_analysis_service.py:119:            "payoff":   payoff,
+
+== Termos relacionados a breakeven, spot, curva e PL ==
+ATT/tests/test_decision.py:11:        "pl_max":   200.0,
+ATT/tests/test_decision.py:12:        "pl_min":   -50.0,
+ATT/tests/test_derived_service.py:89:    def fake_save_payoff_curve(ref, points, spot_ref=None, meta=None, timestamp=None):
+ATT/tests/test_derived_service.py:92:        captured["spot_ref"] = spot_ref
+ATT/tests/test_derived_service.py:107:        "spot_ref": 11.5,
+ATT/tests/test_derived_service.py:115:    assert captured["spot_ref"] == 11.5
+ATT/tests/test_orchestrator_run_methods.py:127:        mock_compute.return_value = {"pl_max": 500.0, "points": []}
+ATT/tests/test_orchestrator_run_methods.py:136:        assert result == {"pl_max": 500.0, "points": []}
+ATT/tests/test_orchestrator_run_methods.py:162:        expected = {"pl_max": 1200.0, "pl_min": -300.0, "breakeven": [105.0]}
+ATT/tests/test_orchestrator_run_methods.py:182:        result = run_decision(req, pl_atual=200.0, pl_max=500.0, dte_min=10)
+ATT/tests/test_orchestrator_run_methods.py:187:        assert contract.pl_max == 500.0
+ATT/tests/test_orchestrator_run_methods.py:195:        payoff = {"pl_max": 600.0, "points": [{"spot": 50, "pl": 0}]}
+ATT/tests/test_orchestrator_run_methods.py:197:        run_decision(req, payoff=payoff, pl_max=600.0, pl_atual=100.0)
+ATT/tests/test_orchestrator_run_methods.py:211:        assert contract.pl_max == 0.0
+ATT/tests/test_orchestrator_run_methods.py:219:        run_decision(req, pl_max=300.0)
+ATT/tests/test_orchestrator_run_methods.py:230:        result = run_decision(req, pl_max=100.0, pl_atual=80.0, dte_min=2)
+ATT/tests/test_payoff_chart.py:6:  - _find_breakevens
+ATT/tests/test_payoff_chart.py:82:        chart._last_breakevens     = []
+ATT/tests/test_payoff_chart.py:83:        chart._last_pl_at_spot_ref = None
+ATT/tests/test_payoff_chart.py:108:    """Pontos com PL constante (sem breakeven)."""
+ATT/tests/test_payoff_chart.py:165:# Testes de _find_breakevens
+ATT/tests/test_payoff_chart.py:168:class TestFindBreakevens(unittest.TestCase):
+ATT/tests/test_payoff_chart.py:171:        return PayoffChart._find_breakevens(spots, pls)
+ATT/tests/test_payoff_chart.py:314:        self.chart._last_breakevens     = [100.0]
+ATT/tests/test_payoff_chart.py:315:        self.chart._last_pl_at_spot_ref = 500.0
+ATT/tests/test_payoff_chart.py:318:        self.assertEqual(self.chart._last_breakevens, [])
+ATT/tests/test_payoff_chart.py:319:        self.assertIsNone(self.chart._last_pl_at_spot_ref)
+ATT/tests/test_payoff_chart.py:324:        self.assertIn("breakevens", result)
+ATT/tests/test_payoff_chart.py:325:        self.assertIn("pl_at_spot_ref", result)
+ATT/tests/test_payoff_chart.py:334:        dd  = {"structure_id": "collar_1", "decision": "BUY", "spot_ref": 100.0}
+ATT/tests/test_payoff_chart.py:338:    def test_update_chart_finds_breakeven(self):
+ATT/tests/test_payoff_chart.py:342:        self.assertGreater(len(result["breakevens"]), 0)
+ATT/tests/test_payoff_chart.py:343:        self.assertAlmostEqual(result["breakevens"][0], 100.0, delta=0.2)
+ATT/tests/test_payoff_chart.py:345:    def test_update_chart_no_breakeven_flat(self):
+ATT/tests/test_payoff_chart.py:347:        self.assertEqual(result["breakevens"], [])
+ATT/tests/test_payoff_chart.py:349:    def test_update_chart_pl_at_spot_ref(self):
+ATT/tests/test_payoff_chart.py:352:        result = self.chart.update_chart(pts, decision_data={"spot_ref": 100.0})
+ATT/tests/test_payoff_chart.py:353:        self.assertIsNotNone(result["pl_at_spot_ref"])
+ATT/tests/test_payoff_chart.py:354:        self.assertAlmostEqual(result["pl_at_spot_ref"], 0.0, delta=20.0)
+ATT/tests/test_payoff_chart.py:356:    def test_update_chart_spot_ref_none_when_missing(self):
+ATT/tests/test_payoff_chart.py:358:        self.assertIsNone(result["pl_at_spot_ref"])
+ATT/tests/test_payoff_chart.py:389:        self.assertIn("breakevens", ov)
+ATT/tests/test_payoff_chart.py:390:        self.assertIn("pl_at_spot_ref", ov)
+ATT/tests/test_payoff_chart.py:391:        self.assertIsInstance(ov["breakevens"], list)
+ATT/tests/test_payoff_chart.py:410:        self.assertIsInstance(result["breakevens"], list)
+ATT/tests/test_payoff_chart.py:415:        self.assertIsInstance(result["breakevens"], list)
+ATT/tests/test_payoff_chart.py:454:    def test_find_breakevens_constant_positive(self):
+ATT/tests/test_payoff_chart.py:456:            PayoffChart._find_breakevens(list(range(10)), [100.0] * 10), []
+ATT/tests/test_payoff_chart.py:459:    def test_find_breakevens_single_point(self):
+ATT/tests/test_payoff_chart.py:460:        self.assertEqual(PayoffChart._find_breakevens([100.0], [0.0]), [])
+ATT/tests/test_payoff_pricing_engine.py:46:    assert result["valuation"]["pl_min"] == -500.0
+ATT/tests/test_payoff_pricing_engine.py:47:    assert result["valuation"]["pl_max"] == 4500.0
+ATT/tests/test_payoff_pricing_engine.py:48:    assert result["valuation"]["max_profit"] == 4500.0
+ATT/tests/test_payoff_pricing_engine.py:49:    assert result["valuation"]["max_loss"] == -500.0
+ATT/tests/test_structure_analysis_service.py:136:    assert payoff["pl_max"] == 10000.0
+ATT/tests/test_structure_analysis_service.py:137:    assert payoff["spot_ref"] == 198.35
+ATT/tests/test_structure_analysis_service.py:274:        return {"pl_max": 1.0, "spot_ref": 198.35, "points": []}
+ATT/tests/test_structure_analysis_service.py:316:        "payoff": {"pl_max": 1.0, "spot_ref": 198.35, "points": []},
+ATT/tests/test_structure_analysis_service.py:337:        return {"pl_max": 1.0, "spot_ref": 198.35, "points": []}
+ATT/tests/test_structure_analysis_service.py:385:        return {"pl_max": 1.0, "spot_ref": 198.35, "points": []}
+ATT/tests/test_structure_analysis_service.py:505:        return {"pl_max": 1.0, "spot_ref": 198.35, "points": []}
+ATT/tests/test_structure_analysis_service.py:551:        return {"pl_max": 1.0, "spot_ref": 198.35, "points": []}
+ATT/tests/test_structure_analysis_service.py:598:        return {"pl_max": 1.0, "spot_ref": 198.35, "points": []}
+UI/components/decisions_grid.py:33:            "pl_max",
+UI/components/decisions_grid.py:51:        self.tree.heading("pl_max", text="PL Máx")
+UI/components/decisions_grid.py:61:        self.tree.column("pl_max", width=80, anchor="e")
+UI/components/decisions_grid.py:120:            pl_max = self._format_currency(decision.get("pl_max"))
+UI/components/decisions_grid.py:140:                    pl_max,
+UI/components/details_panel.py:412:            "payoff_curve_points",
+UI/components/details_panel.py:513:        self.pl_max_label = ttk.Label(
+UI/components/details_panel.py:516:        self.pl_max_label.grid(row=0, column=3, sticky="ew")
+UI/components/details_panel.py:537:        self.spot_ref_label = ttk.Label(
+UI/components/details_panel.py:540:        self.spot_ref_label.grid(row=2, column=1, sticky="ew", padx=(0, 10))
+UI/components/details_panel.py:542:        ttk.Label(metrics_frame, text="Pontos de equilíbrio:").grid(
+UI/components/details_panel.py:545:        self.breakevens_label = ttk.Label(
+UI/components/details_panel.py:548:        self.breakevens_label.grid(row=2, column=3, sticky="ew")
+UI/components/details_panel.py:655:        self._format_currency_label(self.pl_max_label, decision_data.get("pl_max"))
+UI/components/details_panel.py:664:        spot_ref = decision_data.get("spot_reference") or decision_data.get("spot_ref")
+UI/components/details_panel.py:665:        if spot_ref is not None:
+UI/components/details_panel.py:667:                self.spot_ref_label.config(text=f"{float(spot_ref):.2f}")
+UI/components/details_panel.py:669:                self.spot_ref_label.config(text=str(spot_ref))
+UI/components/details_panel.py:671:            self.spot_ref_label.config(text="N/A")
+UI/components/details_panel.py:697:    def update_breakevens(self, breakevens, pl_at_spot_ref):
+UI/components/details_panel.py:698:        if breakevens:
+UI/components/details_panel.py:700:                self.breakevens_label.config(
+UI/components/details_panel.py:701:                    text=", ".join([f"{float(be):.2f}" for be in breakevens])
+UI/components/details_panel.py:704:                self.breakevens_label.config(text=str(breakevens))
+UI/components/details_panel.py:706:            self.breakevens_label.config(text="N/A")
+UI/components/details_panel.py:743:            self.level_label, self.pl_atual_label, self.pl_max_label,
+UI/components/details_panel.py:744:            self.ratio_label, self.dte_label, self.spot_ref_label,
+UI/components/details_panel.py:745:            self.breakevens_label, self.source_label, self.created_at_label,
+UI/components/details_panel.py:913:                "pl_atual", "pl_max", "pl_pct_of_max", "dte_min",
+UI/components/details_panel.py:914:                "spot_ref", "meta_json", "created_at", "why_json",
+UI/components/details_panel.py:935:            d["spot_reference"] = d.pop("spot_ref", None)
+UI/components/details_panel.py:942:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:959:                FROM payoff_curve_points
+UI/components/details_panel.py:976:                FROM payoff_curve_points
+UI/components/details_panel.py:1044:                FROM payoff_curve_points
+UI/components/details_panel.py:1061:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+UI/components/details_panel.py:1073:    def _compute_breakevens_from_points(self, pts):
+UI/components/details_panel.py:1076:        breakevens = []
+UI/components/details_panel.py:1079:                breakevens.append(x1)
+UI/components/details_panel.py:1082:                breakevens.append(x2)
+UI/components/details_panel.py:1087:                    breakevens.append(x0)
+UI/components/details_panel.py:1089:        for be in sorted(breakevens):
+UI/components/details_panel.py:1094:    def _compute_pl_at_spot(self, pts, spot_ref: Optional[float]) -> Optional[float]:
+UI/components/details_panel.py:1095:        if spot_ref is None or not pts or len(pts) < 2:
+UI/components/details_panel.py:1097:        x = float(spot_ref)
+UI/components/details_panel.py:1115:        breakevens = self._compute_breakevens_from_points(pts)
+UI/components/details_panel.py:1117:        spot_ref = None
+UI/components/details_panel.py:1119:            spot_ref = decision.get("spot_reference")
+UI/components/details_panel.py:1121:        pl_at_spot = self._compute_pl_at_spot(pts, spot_ref)
+UI/components/details_panel.py:1122:        self.update_breakevens(breakevens, pl_at_spot)
+UI/components/payoff_chart.py:63:        self._last_breakevens: List[float] = []
+UI/components/payoff_chart.py:64:        self._last_pl_at_spot_ref: Optional[float] = None
+UI/components/payoff_chart.py:142:        self.ax.set_xlabel("Spot")
+UI/components/payoff_chart.py:161:        self._last_breakevens = []
+UI/components/payoff_chart.py:162:        self._last_pl_at_spot_ref = None
+UI/components/payoff_chart.py:176:        Retorna dict com breakevens e pl_at_spot_ref.
+UI/components/payoff_chart.py:237:        """Para integração com DetailsPanel: breakevens e PL interpolado no spot_ref."""
+UI/components/payoff_chart.py:239:            "breakevens": list(self._last_breakevens),
+UI/components/payoff_chart.py:240:            "pl_at_spot_ref": self._last_pl_at_spot_ref,
+UI/components/payoff_chart.py:264:        breakevens + spot_ref.
+UI/components/payoff_chart.py:271:            self._last_breakevens = []
+UI/components/payoff_chart.py:272:            self._last_pl_at_spot_ref = None
+UI/components/payoff_chart.py:293:            self._last_breakevens = []
+UI/components/payoff_chart.py:294:            self._last_pl_at_spot_ref = None
+UI/components/payoff_chart.py:350:        spot_ref: Optional[float] = None
+UI/components/payoff_chart.py:352:            raw = decision_data.get("spot_ref") or decision_data.get("spot_reference")
+UI/components/payoff_chart.py:354:                spot_ref = float(raw) if raw is not None else None
+UI/components/payoff_chart.py:356:                spot_ref = None
+UI/components/payoff_chart.py:358:        if spot_ref is not None:
+UI/components/payoff_chart.py:360:                spot_ref,
+UI/components/payoff_chart.py:366:            pl_ref = self._interp_y_at_x(xs, ys, spot_ref)
+UI/components/payoff_chart.py:367:            self._last_pl_at_spot_ref = pl_ref
+UI/components/payoff_chart.py:369:                self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
+UI/components/payoff_chart.py:371:                    f"Preço ref.: {_fmt_number_br(spot_ref, 2)}\n"
+UI/components/payoff_chart.py:373:                    xy=(spot_ref, pl_ref),
+UI/components/payoff_chart.py:386:            self._last_pl_at_spot_ref = None
+UI/components/payoff_chart.py:389:        # Pontos de equilíbrio (só da curva principal)
+UI/components/payoff_chart.py:391:        bks = self._find_breakevens(xs, ys)
+UI/components/payoff_chart.py:392:        self._last_breakevens = bks
+UI/components/payoff_chart.py:453:            p, ["point_pl", "pl", "y", "pnl", "payoff", "profit_loss", "pl_value"]
+UI/components/payoff_chart.py:477:    def _find_breakevens(spots: List[float], pls: List[float]) -> List[float]:
+UI/main_window.py:749:                    self.details_panel.update_breakevens(
+UI/main_window.py:750:                        overlays.get("breakevens"),
+UI/main_window.py:751:                        overlays.get("pl_at_spot_ref"),
+UI/main_window.py:764:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/models/ui_data.py:32:    "pl_max":        ["pl_max", "pl_best", "pl_top"],
+UI/models/ui_data.py:33:    "spot_ref":      ["spot_ref", "spot_reference", "ref_spot"],
+UI/models/ui_data.py:132:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:263:        elif c.get("pl_atual") and c.get("pl_max"):
+UI/models/ui_data.py:265:                f"CASE WHEN {c['pl_max']} IS NULL OR {c['pl_max']} = 0 "
+UI/models/ui_data.py:266:                f"THEN NULL ELSE ({c['pl_atual']} * 1.0 / {c['pl_max']}) END"
+UI/models/ui_data.py:275:            "dte_min", "why", "why_json", "pl_atual", "pl_max", "spot_ref",
+UI/models/ui_data.py:353:                t.pl_atual, t.pl_max, t.spot_ref
+UI/models/ui_data.py:524:            if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:527:                if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:532:                    f"FROM payoff_curve_points "
+UI/models/ui_data.py:541:                        f"SELECT timestamp FROM payoff_curve_points "
+UI/models/ui_data.py:605:                "pl_atual", "pl_max", "spot_ref",
+domain/decision.py:70:    pl_max: float,
+domain/decision.py:80:    ratio = _ratio(pl_atual, pl_max)
+domain/decision.py:163:    pl_max   = payoff.get("pl_max") or 0.0
+domain/decision.py:171:    if not math.isfinite(float(pl_max)):
+domain/decision.py:172:        why_dict = {"error": "pl_max invalido", "reason": "invalid_pl_max"}
+domain/decision.py:185:        pl_max=float(pl_max),
+domain/decision.py:198:    pl_max  = float(getattr(contract, "pl_max",  None) or 0.0)
+domain/decision.py:211:        pl_max=pl_max,
+domain/payoff.py:53:    spot_ref: float,
+domain/payoff.py:61:            "pl_max": 0.0,
+domain/payoff.py:62:            "pl_min": 0.0,
+domain/payoff.py:63:            "spot_ref": _round_money(spot_ref, 6),
+domain/payoff.py:75:    s_min = float(spot_ref) * float(low_pct)
+domain/payoff.py:76:    s_max = float(spot_ref) * float(high_pct)
+domain/payoff.py:77:    step = float(spot_ref) * float(step_pct)
+domain/payoff.py:103:    pl_max = _round_money(max(pl_values), 6) if pl_values else 0.0
+domain/payoff.py:104:    pl_min = _round_money(min(pl_values), 6) if pl_values else 0.0
+domain/payoff.py:108:        "pl_max": pl_max,
+domain/payoff.py:109:        "pl_min": pl_min,
+domain/payoff.py:110:        "spot_ref": _round_money(spot_ref, 6),
+domain/payoff.py:137:            "pl_max": 0.0,
+domain/payoff.py:138:            "pl_min": 0.0,
+domain/payoff.py:139:            "spot_ref": float(market.get("spot_price") or 0.0),
+domain/payoff.py:155:    spot_ref = float(market.get("spot_price") or 0.0)
+domain/payoff.py:159:        spot_ref=spot_ref,
+domain/payoff_features.py:40:def _find_breakevens(points: List[Tuple[float, float]], eps: float = 1e-12) -> List[float]:
+domain/payoff_features.py:70:    bes = _find_breakevens(pts)
+domain/payoff_features.py:98:    spot_ref: Optional[float] = None,
+domain/payoff_features.py:116:    pl_min = float(min(ys))
+domain/payoff_features.py:117:    pl_max = float(max(ys))
+domain/payoff_features.py:119:    pl_at_spot_ref = None
+domain/payoff_features.py:120:    if spot_ref is not None:
+domain/payoff_features.py:121:        pl_at_spot_ref = _interp_y_at_x(pts, float(spot_ref))
+domain/payoff_features.py:123:    bes = _find_breakevens(pts)
+domain/payoff_features.py:131:        "spot_ref":          float(spot_ref) if spot_ref is not None else None,
+domain/payoff_features.py:133:        "pl_min":            pl_min,
+domain/payoff_features.py:134:        "pl_max":            pl_max,
+domain/payoff_features.py:135:        "pl_at_spot_ref":    float(pl_at_spot_ref) if pl_at_spot_ref is not None else None,
+domain/payoff_features.py:136:        "breakevens":        bes,
+domain/payoff_features.py:140:        "max_drawdown_like": float(pl_max - pl_min),
+domain/payoff_features.py:149:        spot_ref, points_count,
+domain/payoff_features.py:150:        pl_min, pl_max, pl_at_spot_ref,
+domain/payoff_features.py:151:        breakevens_json, be_count,
+domain/payoff_features.py:157:        :spot_ref, :points_count,
+domain/payoff_features.py:158:        :pl_min, :pl_max, :pl_at_spot_ref,
+domain/payoff_features.py:159:        :breakevens_json, :be_count,
+domain/payoff_features.py:166:        spot_ref           = excluded.spot_ref,
+domain/payoff_features.py:168:        pl_min             = excluded.pl_min,
+domain/payoff_features.py:169:        pl_max             = excluded.pl_max,
+domain/payoff_features.py:170:        pl_at_spot_ref     = excluded.pl_at_spot_ref,
+domain/payoff_features.py:171:        breakevens_json    = excluded.breakevens_json,
+domain/payoff_features.py:223:                "spot_ref":          features.get("spot_ref"),
+domain/payoff_features.py:225:                "pl_min":            features.get("pl_min"),
+domain/payoff_features.py:226:                "pl_max":            features.get("pl_max"),
+domain/payoff_features.py:227:                "pl_at_spot_ref":    features.get("pl_at_spot_ref"),
+domain/payoff_features.py:228:                "breakevens_json":   json.dumps(features.get("breakevens", [])),
+repositories/ui_data_table_candidates.py:20:    "payoff_curve_points",
+services/calculation_orchestrator.py:170:    pl_max: Optional[float] = None,
+services/calculation_orchestrator.py:173:    """alteracao_47: extrai pl_max/pl_atual/dte_min automaticamente."""
+services/calculation_orchestrator.py:174:    _pl_max = pl_max
+services/calculation_orchestrator.py:175:    if _pl_max is None and payoff:
+services/calculation_orchestrator.py:176:        _pl_max = float(payoff.get("pl_max") or 0.0)
+services/calculation_orchestrator.py:177:    if _pl_max is None:
+services/calculation_orchestrator.py:178:        _pl_max = 0.0
+services/calculation_orchestrator.py:191:        pl_max=_pl_max,
+services/calculation_orchestrator.py:364:        _pl_max = float(
+services/calculation_orchestrator.py:365:            payoff_result.get("pl_max") or payoff_result.get("max_profit") or 0.0
+services/calculation_orchestrator.py:380:            pl_max=_pl_max,
+services/canonical_input_service.py:156:        # 1. Spot, taxa, vol — sempre via provider
+services/derived_payoff_persistence.py:124:            pl_max            = valuation.get("pl_max")
+services/derived_payoff_persistence.py:127:            spot_ref          = pricing_payload.get("spot_price")
+services/derived_payoff_persistence.py:129:            if spot_ref is None:
+services/derived_payoff_persistence.py:130:                spot_ref = (pricing_payload.get("market") or {}).get("spot_price")
+services/derived_payoff_persistence.py:133:            if pl_max and pl_atual is not None:
+services/derived_payoff_persistence.py:135:                    pl_pct_of_max = round(float(pl_atual) / float(pl_max), 6)
+services/derived_payoff_persistence.py:143:                "pl_max":        pl_max,
+services/derived_payoff_persistence.py:146:                "spot_ref":      spot_ref,
+services/derived_service.py:164:    spot_ref: Optional[float] = None,
+services/derived_service.py:215:            spot_ref=spot_ref,
+services/derived_service.py:268:            spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:277:        spot_ref=payoff.get("spot_ref"),
+services/derived_service.py:396:            FROM payoff_curve_points
+services/derived_service.py:416:    Importante: payoff_curve_points mantém histórico por timestamp.
+services/derived_service.py:427:              FROM payoff_curve_points
+services/derived_service.py:431:                      FROM payoff_curve_points
+services/derived_service.py:464:            "pl_atual", "pl_max", "pl_pct_of_max", "dte_min",
+services/derived_service.py:465:            "spot_ref", "meta_json", "created_at",
+services/payoff_pricing_engine.py:42:            spot_ref=spot_price,
+services/payoff_pricing_engine.py:48:        pl_max = payoff.get("pl_max")
+services/payoff_pricing_engine.py:49:        pl_min = payoff.get("pl_min")
+services/payoff_pricing_engine.py:57:        max_profit = pl_max
+services/payoff_pricing_engine.py:58:        max_loss = pl_min
+services/payoff_pricing_engine.py:73:                "pl_max": pl_max,
+services/payoff_pricing_engine.py:74:                "pl_min": pl_min,
+services/payoff_pricing_engine.py:80:                "max_profit": max_profit,
+services/payoff_pricing_engine.py:81:                "max_loss": max_loss,
+services/payoff_pricing_engine.py:82:                "pl_max": pl_max,
+services/payoff_pricing_engine.py:83:                "pl_min": pl_min,
+services/structure_analysis_service.py:65:        if not payoff or not payoff.get("pl_max"):
+services/structure_analysis_service.py:68:                "validation_errors": ["pl_max ausente ou zero"],
+
+== Estrutura do payoff_chart.py ==
+3:from matplotlib.ticker import FuncFormatter
+5:from matplotlib.figure import Figure
+6:from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+13:import matplotlib
+14:matplotlib.use("TkAgg")  # necessário para renderizar no Tkinter
+21:def _fmt_number_br(x: float, decimals: int = 2) -> str:
+30:def _fmt_currency_br(x: float, decimals: int = 2) -> str:
+34:def _brl_abbrev(x, pos=None) -> str:
+55:class PayoffChart(ttk.Frame):
+61:    def __init__(self, parent):
+63:        self._last_breakevens: List[float] = []
+64:        self._last_pl_at_spot_ref: Optional[float] = None
+68:        self._fixed_curve: Optional[Dict] = None
+69:        self._build_canvas()
+75:    def _build_canvas(self):
+76:        # Barra superior: toolbar matplotlib + botões de ação
+77:        top = ttk.Frame(self)
+85:        self.btn_fix_curve = ttk.Button(
+86:            top, text="Fixar Curva A", command=self.fix_current_curve
+88:        self.btn_fix_curve.pack(side="right", padx=(0, 6))
+95:        # Figure / canvas matplotlib
+96:        self.fig = Figure(figsize=(5, 4), dpi=100)
+97:        self.ax = self.fig.add_subplot(111)
+99:        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+100:        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+102:        # Toolbar do matplotlib (fica na barra superior)
+103:        self.toolbar = NavigationToolbar2Tk(self.canvas, top, pack_toolbar=False)
+113:    def _on_configure(self, event=None):
+128:    def _safe_draw_idle(self):
+131:            self.after(0, self.canvas.draw_idle)
+139:    def _reset_axes(self):
+159:    def clear(self):
+161:        self._last_breakevens = []
+162:        self._last_pl_at_spot_ref = None
+168:    def update_chart(
+176:        Retorna dict com breakevens e pl_at_spot_ref.
+181:        return self._draw_curves_and_overlays(
+182:            payoff_points, decision_data, overlay_curve=self._fixed_curve
+185:    def fix_current_curve(self):
+190:            self._fixed_curve = None
+204:            self._fixed_curve = None
+207:        self._fixed_curve = {
+214:    def clear_comparison(self):
+217:        self._fixed_curve = None
+221:    def export_png(self):
+236:    def get_last_overlays(self) -> Dict:
+237:        """Para integração com DetailsPanel: breakevens e PL interpolado no spot_ref."""
+239:            "breakevens": list(self._last_breakevens),
+240:            "pl_at_spot_ref": self._last_pl_at_spot_ref,
+247:    def _redraw_current(self):
+250:            self._draw_curves_and_overlays(
+253:                overlay_curve=self._fixed_curve,
+256:    def _draw_curves_and_overlays(
+260:        overlay_curve: Optional[Dict],
+264:        breakevens + spot_ref.
+271:            self._last_breakevens = []
+272:            self._last_pl_at_spot_ref = None
+293:            self._last_breakevens = []
+294:            self._last_pl_at_spot_ref = None
+305:        # Label da curva principal (B quando há overlay, senão "Payoff")
+307:        if overlay_curve and decision_data:
+316:        self.ax.plot(xs, ys, color="#1f77b4", linewidth=2, label=main_label)
+321:        if overlay_curve:
+324:            for point in overlay_curve["points"]:
+332:                self.ax.plot(
+335:                    color=overlay_curve["color"],
+339:                    label=overlay_curve["label"],
+350:        spot_ref: Optional[float] = None
+352:            raw = decision_data.get("spot_ref") or decision_data.get("spot_reference")
+354:                spot_ref = float(raw) if raw is not None else None
+356:                spot_ref = None
+358:        if spot_ref is not None:
+360:                spot_ref,
+366:            pl_ref = self._interp_y_at_x(xs, ys, spot_ref)
+367:            self._last_pl_at_spot_ref = pl_ref
+369:                self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
+371:                    f"Preço ref.: {_fmt_number_br(spot_ref, 2)}\n"
+373:                    xy=(spot_ref, pl_ref),
+386:            self._last_pl_at_spot_ref = None
+391:        bks = self._find_breakevens(xs, ys)
+392:        self._last_breakevens = bks
+423:            if overlay_curve:
+424:                title += f" vs {overlay_curve['label']}"
+425:        elif overlay_curve:
+439:    def _extract_xy(self, p) -> Tuple[Optional[float], Optional[float]]:
+457:    def _get_field(self, obj, keys: List[str], default=None):
+477:    def _find_breakevens(spots: List[float], pls: List[float]) -> List[float]:
+506:    def _interp_y_at_x(

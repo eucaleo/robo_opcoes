@@ -559,3 +559,51 @@ Evidência:
 Decisão operacional:
 
 A Fase 9 prossegue apenas com normalização textual segura, sem corrigir essas falhas neste momento para evitar mistura de escopos.
+
+---
+
+# Fase 10 - Comentário do gráfico de payoff
+
+## Data da execução
+
+2026-06-26 11:47:20 -0300
+
+## Branch usada
+
+reinicio-normalizacao-idioma-ptbr
+
+## Commit base
+
+4e3fda8
+
+## Problema testado
+
+Gráfico de payoff precisa apresentar comentário interpretativo sobre ganho, perda, melhor região, pior região, ponto de equilíbrio e situação atual, quando houver dados suficientes.
+
+## Evidência observada
+
+Em levantamento inicial, será verificado se o componente atual apenas exibe a curva sem comentário textual interpretativo.
+
+## Arquivos analisados
+
+Pendente de busca inicial.
+
+## Alteração feita
+
+Pendente.
+
+## Teste executado
+
+Pendente.
+
+## Resultado
+
+Pendente.
+
+## Commit gerado
+
+Pendente.
+
+## Pendência restante
+
+Executar busca, alterar componente de payoff, testar e commitar.
