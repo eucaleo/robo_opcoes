@@ -141,19 +141,19 @@ class DecisionsGrid(ttk.LabelFrame):
             )
 
     def _format_timestamp(self, timestamp_str: Optional[str]) -> str:
+        """Formata timestamp sempre em America/Sao_Paulo."""
         if not timestamp_str:
-            return "N/A"
+            return ""
+
         try:
-            for fmt in ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"]:
-                try:
-                    from datetime import datetime
-                    dt = datetime.strptime(timestamp_str, fmt)
-                    return dt.strftime("%d/%m/%Y %H:%M")
-                except ValueError:
-                    continue
-            return timestamp_str[:16] if len(timestamp_str) > 16 else timestamp_str
+            from core.datetime_utils import format_datetime_local
+            return format_datetime_local(
+                timestamp_str,
+                default=str(timestamp_str)[:16],
+                fmt="%d/%m/%Y %H:%M",
+            )
         except Exception:
-            return "N/A"
+            return str(timestamp_str)[:16] if len(str(timestamp_str)) > 16 else str(timestamp_str)
 
     def _format_ratio(self, ratio: Optional[float]) -> str:
         if ratio is None:

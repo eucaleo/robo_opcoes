@@ -713,8 +713,27 @@ class DetailsPanel(ttk.LabelFrame):
             txt += " [fallback]"
         self.source_label.config(text=txt)
 
-        created_at = info.get("created_at")
-        self.created_at_label.config(text=created_at if created_at else "N/A")
+        created_at_raw = info.get("created_at")
+        updated_at_raw = info.get("updated_at")
+
+        try:
+            from core.datetime_utils import format_datetime_local
+            created_at = format_datetime_local(created_at_raw, default="")
+            updated_at = format_datetime_local(updated_at_raw, default="")
+        except Exception:
+            created_at = str(created_at_raw)[:19] if created_at_raw else ""
+            updated_at = str(updated_at_raw)[:19] if updated_at_raw else ""
+
+        if created_at and updated_at and created_at != updated_at:
+            self.created_at_label.config(
+                text=f"Criado: {created_at} | Atualizado: {updated_at}"
+            )
+        elif created_at:
+            self.created_at_label.config(text=created_at)
+        elif updated_at:
+            self.created_at_label.config(text=f"Atualizado: {updated_at}")
+        else:
+            self.created_at_label.config(text="N/A")
 
     def clear(self):
         self._current_decision = None
@@ -899,7 +918,7 @@ class DetailsPanel(ttk.LabelFrame):
                 SELECT {", ".join(select_cols)}
                 FROM structure_decisions
                 WHERE structure_id = ?
-                ORDER BY COALESCE(created_at, timestamp) DESC
+                ORDER BY datetime(timestamp) DESC, id DESC
                 LIMIT 1
                 """,
                 (sid,),
@@ -921,6 +940,11 @@ class DetailsPanel(ttk.LabelFrame):
         """
         alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
         Legado aba removido.
+
+        Correção temporal:
+        - busca somente o snapshot mais recente da estrutura;
+        - ordena timestamps ISO com timezone usando datetime(timestamp);
+        - evita misturar pontos de payoff de recálculos antigos e novos.
         """
         sid = self._resolve_structure_key(structure_id)
         db_path = self._derived_db_path()
@@ -928,15 +952,34 @@ class DetailsPanel(ttk.LabelFrame):
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         try:
+            latest_ts_row = cur.execute(
+                """
+                SELECT timestamp
+                FROM payoff_curve_points
+                WHERE structure_id = ?
+                GROUP BY timestamp
+                ORDER BY datetime(timestamp) DESC
+                LIMIT 1
+                """,
+                (sid,),
+            ).fetchone()
+
+            if not latest_ts_row or not latest_ts_row["timestamp"]:
+                return []
+
+            latest_ts = latest_ts_row["timestamp"]
+
             rows = cur.execute(
                 """
                 SELECT point_spot, point_pl
                 FROM payoff_curve_points
                 WHERE structure_id = ?
+                  AND timestamp = ?
                 ORDER BY point_spot ASC
                 """,
-                (sid,),
+                (sid, latest_ts),
             ).fetchall()
+
             return [
                 (float(r["point_spot"]), float(r["point_pl"]))
                 for r in rows
@@ -945,10 +988,17 @@ class DetailsPanel(ttk.LabelFrame):
         finally:
             con.close()
 
+
     def _fetch_audit_info_from_derived(self, structure_id) -> Dict[str, Any]:
         """
         alteracao_36: filtra por structure_id (INTEGER).
         Legado aba removido.
+
+        Correção temporal:
+        - created_at representa o primeiro snapshot conhecido da estrutura;
+        - updated_at representa o último snapshot conhecido da estrutura;
+        - ambos priorizam timestamp operacional com timezone;
+        - ordenação usa datetime(timestamp), não comparação textual.
         """
         sid = self._resolve_structure_key(structure_id)
         db_path = self._derived_db_path()
@@ -956,34 +1006,68 @@ class DetailsPanel(ttk.LabelFrame):
         con.row_factory = sqlite3.Row
         cur = con.cursor()
         try:
-            row = cur.execute(
+            created_row = cur.execute(
                 """
-                SELECT created_at, timestamp
+                SELECT timestamp, created_at
                 FROM structure_decisions
                 WHERE structure_id = ?
-                ORDER BY COALESCE(created_at, timestamp) DESC
+                ORDER BY datetime(timestamp) ASC, id ASC
+                LIMIT 1
+                """,
+                (sid,),
+            ).fetchone()
+
+            updated_row = cur.execute(
+                """
+                SELECT timestamp, created_at
+                FROM structure_decisions
+                WHERE structure_id = ?
+                ORDER BY datetime(timestamp) DESC, id DESC
                 LIMIT 1
                 """,
                 (sid,),
             ).fetchone()
 
             created_at = None
-            if row:
-                created_at = row["created_at"] or row["timestamp"]
+            updated_at = None
 
-            n_points = cur.execute(
-                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+            if created_row:
+                created_at = created_row["timestamp"] or created_row["created_at"]
+
+            if updated_row:
+                updated_at = updated_row["timestamp"] or updated_row["created_at"]
+
+            latest_payoff_row = cur.execute(
+                """
+                SELECT timestamp, COUNT(*) AS n
+                FROM payoff_curve_points
+                WHERE structure_id = ?
+                GROUP BY timestamp
+                ORDER BY datetime(timestamp) DESC
+                LIMIT 1
+                """,
                 (sid,),
-            ).fetchone()["n"]
+            ).fetchone()
+
+            latest_payoff_timestamp = None
+            n_points = 0
+
+            if latest_payoff_row:
+                latest_payoff_timestamp = latest_payoff_row["timestamp"]
+                n_points = int(latest_payoff_row["n"] or 0)
 
             return {
                 "source_table": "derived.db:structure_decisions / payoff_curve_points",
                 "created_at": created_at,
+                "updated_at": updated_at,
+                "latest_decision_timestamp": updated_at,
+                "latest_payoff_timestamp": latest_payoff_timestamp,
+                "n_points": n_points,
                 "count_points": n_points,
-                "fallback": False,
             }
         finally:
             con.close()
+
 
     def _compute_breakevens_from_points(self, pts):
         if not pts or len(pts) < 2:

@@ -847,6 +847,98 @@ Baseline: executed_v1 + baseline_v1b"""
         )
         self._struct_detail_text.pack(fill="both", expand=True)
 
+    def _fetch_structure_temporal_audit_for_details(self, structure_id):
+        """
+        Busca datas operacionais da estrutura a partir dos snapshots em derived.db.
+
+        Retorna:
+        - created_at: primeiro snapshot conhecido em structure_decisions
+        - updated_at: último snapshot conhecido em structure_decisions
+        """
+        if structure_id in (None, ""):
+            return {}
+
+        try:
+            sid = int(structure_id)
+        except Exception:
+            return {}
+
+        # Preferência: reaproveitar o DetailsPanel, que já sabe localizar derived.db.
+        try:
+            panel = getattr(self, "details_panel", None)
+            if panel is not None and hasattr(panel, "_fetch_audit_info_from_derived"):
+                info = panel._fetch_audit_info_from_derived(sid) or {}
+                return {
+                    "created_at": info.get("created_at"),
+                    "updated_at": info.get("updated_at"),
+                }
+        except Exception:
+            pass
+
+        # Fallback direto no banco.
+        try:
+            import sqlite3
+            from pathlib import Path as _Path
+
+            candidates = []
+
+            for attr in ("derived_db_path", "db_path", "derived_db"):
+                val = getattr(self, attr, None)
+                if val:
+                    candidates.append(_Path(val))
+
+            candidates.append(_Path("dados") / "derived.db")
+            candidates.append(_Path("data") / "derived.db")
+            candidates.append(_Path("derived.db"))
+
+            db_path = next((p for p in candidates if p.exists()), None)
+            if db_path is None:
+                return {}
+
+            with sqlite3.connect(str(db_path)) as conn:
+                conn.row_factory = sqlite3.Row
+                cur = conn.cursor()
+
+                created_row = cur.execute(
+                    """
+                    SELECT timestamp, created_at
+                    FROM structure_decisions
+                    WHERE structure_id = ?
+                    ORDER BY datetime(timestamp) ASC, id ASC
+                    LIMIT 1
+                    """,
+                    (sid,),
+                ).fetchone()
+
+                updated_row = cur.execute(
+                    """
+                    SELECT timestamp, created_at
+                    FROM structure_decisions
+                    WHERE structure_id = ?
+                    ORDER BY datetime(timestamp) DESC, id DESC
+                    LIMIT 1
+                    """,
+                    (sid,),
+                ).fetchone()
+
+                created_at = None
+                updated_at = None
+
+                if created_row:
+                    created_at = created_row["timestamp"] or created_row["created_at"]
+
+                if updated_row:
+                    updated_at = updated_row["timestamp"] or updated_row["created_at"]
+
+                return {
+                    "created_at": created_at,
+                    "updated_at": updated_at,
+                }
+
+        except Exception:
+            return {}
+
+
     def _on_structure_selected(self, structure: Optional[Dict]):
         """Exibe detalhes da estrutura selecionada no painel direito."""
         txt = self._struct_detail_text
@@ -856,6 +948,20 @@ Baseline: executed_v1 + baseline_v1b"""
         if structure is None:
             txt.insert("end", "Nenhuma estrutura selecionada.")
         else:
+            audit_dates = self._fetch_structure_temporal_audit_for_details(
+                structure.get("id") or structure.get("structure_id")
+            )
+            created_at_display = audit_dates.get("created_at") or structure.get("created_at", "")
+            updated_at_display = audit_dates.get("updated_at") or structure.get("updated_at", "")
+
+            try:
+                from core.datetime_utils import format_datetime_local
+                created_at_display = format_datetime_local(created_at_display, default="")
+                updated_at_display = format_datetime_local(updated_at_display, default="")
+            except Exception:
+                created_at_display = str(created_at_display)[:19] if created_at_display else ""
+                updated_at_display = str(updated_at_display)[:19] if updated_at_display else ""
+
             legs = structure.get("legs", [])
             lines = [
                 f"ID         : {structure.get('id')}",
@@ -863,8 +969,8 @@ Baseline: executed_v1 + baseline_v1b"""
                 f"Ativo      : {structure.get('underlying_asset')}",
                 f"Aba legado : {structure.get('alias_legacy_aba') or '--'}",
                 f"Status     : {structure.get('status')}",
-                f"Criado em  : {str(structure.get('created_at', ''))[:19]}",
-                f"Atualizado : {str(structure.get('updated_at', ''))[:19]}",
+                f"Criado em  : {created_at_display or '--'}",
+                f"Atualizado : {updated_at_display or '--'}",
                 f"Obs        : {structure.get('notes') or '--'}",
                 "",
                 f" {len(legs)} Leg(s) ",
@@ -880,7 +986,6 @@ Baseline: executed_v1 + baseline_v1b"""
             txt.insert("end", "\n".join(lines))
 
         txt.config(state="disabled")
-
     def _on_structure_edit_request(self, structure_id: Optional[int]):
         """Abre dialog de criação (None) ou edição (int)."""
         dlg = StructureEditorDialog(

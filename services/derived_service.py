@@ -394,7 +394,7 @@ def get_all_payoff_curves():
         cursor.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            ORDER BY timestamp DESC, point_spot
+            ORDER BY datetime(timestamp) DESC, point_spot
         """)
         return [
             {
@@ -474,7 +474,7 @@ def get_recent_decisions():
         cursor.execute(f"""
             SELECT {", ".join(select_cols)}
             FROM structure_decisions
-            ORDER BY timestamp DESC
+            ORDER BY datetime(timestamp) DESC
             LIMIT 50
         """)
 

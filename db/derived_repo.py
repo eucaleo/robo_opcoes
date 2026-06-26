@@ -26,6 +26,7 @@ import json
 import sqlite3
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
+from core.datetime_utils import now_local_iso
 
 # alteracao_55: StructureRef
 try:
@@ -271,7 +272,7 @@ class DerivedRepo:
                 decision_dict = dict(decision_dict)
                 decision_dict["structure_id"] = _ref.structure_id
 
-        ts = timestamp or decision_dict.get("timestamp") or datetime.now().isoformat()
+        ts = timestamp or decision_dict.get("timestamp") or now_local_iso()
         ab = aba       or decision_dict.get("aba")       or decision_dict.get("ticker", "unknown")
         return ts, ab
 
@@ -342,7 +343,7 @@ class DerivedRepo:
         timestamp e aba podem ser passados explicitamente ou via meta dict.
         Retorna contagem inserida.
         """
-        ts  = timestamp    or (meta or {}).get("timestamp")    or datetime.now().isoformat()
+        ts  = timestamp    or (meta or {}).get("timestamp")    or now_local_iso()
         ab  = aba          or (meta or {}).get("aba")          or "unknown"
         sid = structure_id or (meta or {}).get("structure_id")
 
@@ -399,7 +400,7 @@ class DerivedRepo:
         structure_id: Optional[int] = None,
     ) -> int:
         """INSERT OR REPLACE idempotente por (timestamp, aba, point_spot)."""
-        ts  = timestamp    or (meta or {}).get("timestamp")    or datetime.now().isoformat()
+        ts  = timestamp    or (meta or {}).get("timestamp")    or now_local_iso()
         ab  = aba          or (meta or {}).get("aba")          or "unknown"
         sid = structure_id or (meta or {}).get("structure_id")
 
@@ -539,7 +540,7 @@ class DerivedRepo:
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
                     WHERE aba = ?
-                    ORDER BY timestamp DESC, point_spot
+                    ORDER BY datetime(timestamp) DESC, point_spot
                     LIMIT 100
                     """,
                     (aba,),
@@ -549,7 +550,7 @@ class DerivedRepo:
                     """
                     SELECT timestamp, aba, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
-                    ORDER BY timestamp DESC, point_spot
+                    ORDER BY datetime(timestamp) DESC, point_spot
                     LIMIT 100
                     """
                 )
@@ -774,7 +775,7 @@ def write_decision_snapshot_atomic(
         why, why_json,
         decision_dict.get("spot_ref"),
         json.dumps(meta, ensure_ascii=False) if meta else None,
-        datetime.now().isoformat(),
+        now_local_iso(),
         decision_dict.get("structure_id"),
     ))
     return cur.lastrowid
@@ -861,7 +862,7 @@ def insert_structure_decision(
         why, why_json,
         decision_dict.get("spot_ref"),
         json.dumps(meta, ensure_ascii=False) if meta else None,
-        datetime.now().isoformat(),
+        now_local_iso(),
         decision_dict.get("structure_id"),
     ))
     conn.commit()
@@ -888,14 +889,14 @@ def get_payoff_points(
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             WHERE aba = ?
-            ORDER BY timestamp DESC, point_spot
+            ORDER BY datetime(timestamp) DESC, point_spot
             LIMIT 100
         """, (aba,))
     else:
         cur.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
             FROM payoff_curve_points
-            ORDER BY timestamp DESC, point_spot
+            ORDER BY datetime(timestamp) DESC, point_spot
             LIMIT 100
         """)
     cols = [d[0] for d in cur.description]
