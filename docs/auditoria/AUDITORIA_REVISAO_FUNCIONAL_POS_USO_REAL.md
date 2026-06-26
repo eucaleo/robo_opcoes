@@ -490,3 +490,33 @@ Documento de referência:
 
     docs/fases/FASE_7_NORMALIZACAO_DATETIME.md
 
+
+## Fase 8 — Duplicidade de estrutura
+
+Status: concluída por reconciliação.
+
+A investigação da duplicidade relatada da estrutura número 2 foi encerrada documentalmente.
+
+O banco operacional atual dados/app.db não apresenta duplicidade ativa:
+
+- total_structures=2;
+- estrutura id=2 aparece uma única vez;
+- sem duplicidade física por id em structures;
+- sem duplicidade de legs por structure_id e símbolo normalizado.
+
+A evidência histórica indica que a duplicidade existiu em backup anterior, mas foi sanada por correções já aplicadas na Fase 6, especialmente no commit f67d408, que corrigiu edição e duplicidade de legs em estruturas.
+
+Não houve alteração adicional de código nesta fase.
+
+Checkpoint oficial criado:
+
+- docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_8_DUPLICIDADE_ESTRUTURA.md
+
+Validação executada:
+
+- python scripts/verificar_andamento_rota.py
+- compileall com retorno 0
+
+Commit documental:
+
+- ad1f324 Documenta encerramento da Fase 8 por reconciliacao
