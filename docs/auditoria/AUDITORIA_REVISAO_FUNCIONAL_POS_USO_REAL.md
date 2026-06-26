@@ -451,15 +451,17 @@ O painel de detalhes voltou a ser preenchido.
 
 O recálculo passou a gerar registros com métricas financeiras preenchidas.
 
-### Pendência restante
+### Pendências tratadas
 
-Antes do encerramento formal da Fase 7, mover o bloco de busca de auditoria temporal para depois da validação de estrutura nula em `_on_structure_selected`.
+O bloco de busca de auditoria temporal foi ajustado após a validação de estrutura nula em `_on_structure_selected`.
 
-Também falta confirmar visualmente se a mensagem exibida ao usuário diferencia execução real, falha e ausência de mudança.
+A normalização temporal foi validada com execução real da interface, recálculo, pipeline e conferência direta no banco.
 
-### Commit gerado
+### Commits gerados
 
-Pendente.
+    c106780 Normaliza datas timezone-aware na UI e snapshots derivados
+    6cfaf59 Documenta encerramento da Fase 7
+    62d44a7 Adiciona pacote core
 
 ---
 

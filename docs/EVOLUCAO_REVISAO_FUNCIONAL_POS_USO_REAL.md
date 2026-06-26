@@ -500,16 +500,16 @@ O recálculo passou a gerar nova execução de pricing e retornou métricas fina
 
 O painel de detalhes voltou a preencher após inclusão do helper de auditoria temporal.
 
-## Pendências antes do encerramento formal
+## Pendências tratadas no encerramento
 
-- Ajustar a posição do bloco de busca `audit_dates` para depois da validação de estrutura nula em `_on_structure_selected`.
-- Confirmar visualmente se a mensagem do recálculo diferencia execução real, falha e ausência de mudança.
-- Atualizar a auditoria viva.
-- Gerar commit da fase após os testes finais.
+- O bloco de busca `audit_dates` foi posicionado após a validação de estrutura nula em `_on_structure_selected`.
+- A auditoria viva foi atualizada.
+- A normalização temporal foi validada com registros novos e legados.
+- A documentação de encerramento foi gerada.
 
 ## Status
 
-Em validação final.
+Concluída.
 
 ---
 
