@@ -383,3 +383,108 @@ Durante a validação da Fase 6, o RTD foi confirmado como operacional de ponta 
 Isso confirma a operacionalidade do cache RTD, mas evidencia que a fonte canônica de símbolos ativos ainda precisa ser consolidada para produção. O fluxo produtivo deve preferencialmente gerar símbolos a partir de estruturas/pernas ativas e não a partir da própria tabela rtd_option_quotes, evitando perpetuação de códigos antigos após encerramento de operações.
 
 Pendência recomendada: validar/corrigir build_rtd_symbols.py para uso produtivo com fonte canônica de operações ativas e limpeza de símbolos/cotações RTD não mais ativos.
+
+## Execução — Fase 7 — Recálculo, Snapshot e Métricas Financeiras
+
+### Data da execução
+
+2026-06-25
+
+### Branch usada
+
+reinicio-normalizacao-idioma-ptbr
+
+### Problema testado
+
+Recálculo, atualização de snapshot, preenchimento de métricas financeiras e exibição das datas operacionais na aba "Estruturas".
+
+### Evidência observada
+
+Após a correção, a interface executou o pipeline com sucesso.
+
+Resumo operacional observado:
+
+- Decisões: 26
+- Pontos de payoff: 2626
+- Cotações RTD atualizadas: 8
+- Avisos: 0
+- Erros: 0
+
+A estrutura PRIO foi recalculada com sucesso e gerou `snapshot_id` 30.
+
+A estrutura SBSP+SMAL=BOVA foi recalculada com sucesso e gerou `snapshot_id` 31.
+
+As métricas financeiras foram preenchidas no retorno do recálculo.
+
+### Arquivos analisados
+
+- UI/main_window.py
+- UI/components/details_panel.py
+- UI/models/ui_data.py
+- db/derived_repo.py
+- services/derived_service.py
+- dados/derived.db
+
+### Alteração feita
+
+Foi adicionado o método `_fetch_structure_temporal_audit_for_details` em `MainWindow`.
+
+A exibição das datas "Criado em" e "Atualizado" na aba "Estruturas" passou a usar datas operacionais derivadas dos registros em `structure_decisions`.
+
+### Teste executado
+
+- Compilação dos arquivos alterados.
+- Execução da interface.
+- Atualização de dados.
+- Recálculo da estrutura PRIO.
+- Recálculo da estrutura SBSP+SMAL=BOVA.
+- Verificação de preenchimento das métricas financeiras.
+- Verificação de preenchimento do painel de detalhes da estrutura.
+
+### Resultado
+
+Correção principal validada.
+
+O erro anterior de ausência do método `_fetch_structure_temporal_audit_for_details` foi resolvido.
+
+O painel de detalhes voltou a ser preenchido.
+
+O recálculo passou a gerar registros com métricas financeiras preenchidas.
+
+### Pendência restante
+
+Antes do encerramento formal da Fase 7, mover o bloco de busca de auditoria temporal para depois da validação de estrutura nula em `_on_structure_selected`.
+
+Também falta confirmar visualmente se a mensagem exibida ao usuário diferencia execução real, falha e ausência de mudança.
+
+### Commit gerado
+
+Pendente.
+
+---
+
+## Auditoria da Fase 7 — Normalização temporal
+
+Status: **Aprovada**
+
+Foi validado que:
+
+- created_at e timestamp novos são gravados com offset explícito;
+- registros antigos sem timezone são interpretados como horário local;
+- datas UTC com offset explícito são convertidas na exibição;
+- a UI passou a usar formatter central;
+- o payoff usa o snapshot mais recente por timestamp;
+- o pipeline final executou com sucesso;
+- não restaram usos diretos relevantes de datetime.now().isoformat() nos fluxos principais.
+
+Ocorrências restantes:
+
+    DEFAULT CURRENT_TIMESTAMP
+    datetime('now')
+
+Essas ocorrências estão em schemas e foram classificadas como pendência técnica não bloqueante.
+
+Documento de referência:
+
+    docs/fases/FASE_7_NORMALIZACAO_DATETIME.md
+

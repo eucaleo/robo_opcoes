@@ -387,3 +387,155 @@ Evidências finais:
 Próxima fase:
 
     Fase 5 — Atualizar Dados e Resumo do Pipeline
+
+
+# Revisão Funcional Pós Uso Real — Fase 7 — Recálculo, Snapshot e Métricas Financeiras
+
+## Objetivo
+
+Corrigir o comportamento em que o recálculo informava que o snapshot não mudou, além de garantir que as métricas financeiras fossem preenchidas quando houvesse dados suficientes.
+
+## Problemas tratados
+
+- Recálculo da estrutura nova retornava mensagem de recálculo desnecessário.
+- Snapshot não refletia atualização operacional.
+- Métricas financeiras ficavam vazias ou não eram exibidas corretamente.
+- Painel de detalhes da estrutura não refletia as datas operacionais mais recentes.
+- Após ajuste inicial, o painel de detalhes ficou em branco devido à ausência do helper `_fetch_structure_temporal_audit_for_details`.
+
+## Arquivos analisados
+
+- UI/main_window.py
+- UI/components/details_panel.py
+- UI/models/ui_data.py
+- db/derived_repo.py
+- services/derived_service.py
+- dados/derived.db
+
+## Alterações realizadas
+
+- Inclusão do método `_fetch_structure_temporal_audit_for_details` em `MainWindow`.
+- Ajuste da aba "Estruturas" para exibir datas operacionais vindas de `structure_decisions`.
+- Substituição da exibição baseada apenas em `structure.created_at` e `structure.updated_at`.
+- Validação de que o recálculo persiste novas execuções de pricing.
+- Validação de que as métricas financeiras retornam preenchidas no resultado do recálculo.
+
+## Evidências observadas
+
+### Pipeline
+
+O pipeline foi executado com sucesso.
+
+Resumo observado:
+
+- Decisões: 26
+- Pontos de payoff: 2626
+- Cotações RTD atualizadas: 8
+- Avisos: 0
+- Erros: 0
+
+### Recálculo da estrutura PRIO
+
+Estrutura:
+
+- ID: 3
+- Nome: PRIO
+- Ativo: PRIO3
+
+Resultado observado:
+
+- Status: ok
+- Snapshot gerado: 30
+- Número de legs: 4
+- Quantidade total: 4000
+- Preço spot: 66.84
+- Taxa de juros: 0.1175
+- Volatilidade: 0.35
+- Pontos de payoff: 101
+- Valor teórico: -5810.0
+- Prêmio pago: -13690.0
+- Lucro máximo: -3810.0
+- Perda máxima: -15810.0
+- PL atual: -5810.0
+
+### Recálculo da estrutura SBSP+SMAL=BOVA
+
+Estrutura:
+
+- ID: 2
+- Nome: SBSP+SMAL=BOVA
+- Ativo: BOVA11
+
+Resultado observado:
+
+- Status: ok
+- Snapshot gerado: 31
+- Número de legs: 4
+- Quantidade total: 13000
+- Preço spot: 198.35
+- Taxa de juros: 0.1175
+- Volatilidade: 0.22
+- Pontos de payoff: 101
+- Valor teórico: 5650.0
+- Prêmio pago: -59625.0
+- Lucro máximo: 154412.5
+- Perda máxima: -12201.5
+- PL atual: 5650.0
+
+## Testes executados
+
+- Compilação dos arquivos alterados.
+- Execução da interface.
+- Atualização de dados pelo pipeline.
+- Recálculo da estrutura PRIO.
+- Recálculo da estrutura SBSP+SMAL=BOVA.
+- Verificação visual do painel de detalhes da aba "Estruturas".
+- Verificação do retorno de métricas financeiras no log da UI.
+
+## Resultado
+
+A correção principal da Fase 7 foi validada.
+
+O recálculo passou a gerar nova execução de pricing e retornou métricas financeiras preenchidas para estruturas com dados suficientes.
+
+O painel de detalhes voltou a preencher após inclusão do helper de auditoria temporal.
+
+## Pendências antes do encerramento formal
+
+- Ajustar a posição do bloco de busca `audit_dates` para depois da validação de estrutura nula em `_on_structure_selected`.
+- Confirmar visualmente se a mensagem do recálculo diferencia execução real, falha e ausência de mudança.
+- Atualizar a auditoria viva.
+- Gerar commit da fase após os testes finais.
+
+## Status
+
+Em validação final.
+
+---
+
+## Fase 7 — Normalização temporal e snapshots derivados
+
+Status: **Concluída**
+
+A Fase 7 normalizou o tratamento de datas e horários nos snapshots derivados e na UI.
+
+Principais entregas:
+
+- criação de core/datetime_utils.py;
+- gravação de novos timestamps com timezone explícito America/Sao_Paulo;
+- leitura compatível com registros antigos sem timezone;
+- formatação centralizada na UI;
+- ordenação temporal via datetime(timestamp);
+- seleção do snapshot mais recente para pontos de payoff;
+- estabilização da atualização do painel de detalhes.
+
+Validação final confirmou que registros novos e antigos são exibidos corretamente em horário local.
+
+Documento detalhado:
+
+    docs/fases/FASE_7_NORMALIZACAO_DATETIME.md
+
+Pendência técnica não bloqueante:
+
+- revisar defaults de schema com CURRENT_TIMESTAMP e datetime('now') em fase futura.
+
