@@ -520,3 +520,18 @@ Validação executada:
 Commit documental:
 
 - ad1f324 Documenta encerramento da Fase 8 por reconciliacao
+
+## Fase 9 — Português Brasil
+
+Status: em andamento.
+
+A Fase 9 foi iniciada após o encerramento da Fase 8 no commit 7027499.
+
+Objetivo: normalizar textos visíveis ao usuário para Português do Brasil, sem alterar lógica funcional, persistência, cálculo, RTD, payoff, decisão ou contratos internos.
+
+Critério de segurança: traduzir ou ajustar apenas textos de apresentação e mensagens controladas. Identificadores técnicos, nomes de tabelas, colunas, chaves de payload, APIs, funções, classes e contratos persistidos não devem ser alterados nesta fase sem análise específica.
+
+Checkpoint inicial:
+
+- docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_9_PORTUGUES_BRASIL.md
+

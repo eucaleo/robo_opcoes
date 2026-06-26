@@ -1,0 +1,904 @@
+REVISAO FUNCIONAL POS USO REAL - FASE 9 - INVENTARIO INICIAL PORTUGUES BRASIL
+
+Data operacional:
+Fri Jun 26 10:27:51     2026
+
+Branch:
+reinicio-normalizacao-idioma-ptbr
+
+HEAD:
+7027499 Documenta encerramento da Fase 8 por reconciliacao
+
+Arquivos candidatos com textos de UI ou mensagens:
+./ATT/tests/test_pricing_execution_app_service.py
+./ATT/tests/test_robo_leg_mapper.py
+./ATT/tests/test_structure_editor_dialog.py
+./ATT/tests/test_structure_input_mapper.py
+./ATT/tests/test_ui_data_migration.py
+./UI/components/__init__.py
+./UI/components/decisions_grid.py
+./UI/components/details_panel.py
+./UI/components/filters_panel.py
+./UI/components/payoff_chart.py
+./UI/components/structure_editor_dialog.py
+./UI/components/structures_list_panel.py
+./UI/main_window.py
+./UI/models/ui_data.py
+./docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+./docs/checkpoints/FASE_5F_VALIDACAO_UI_PIPELINE.md
+./docs/checkpoints/FASE_6_VALIDACAO_INTEGRADA_FINAL.md
+./docs/checkpoints/FASE_7_CONSOLIDACAO_OPERACIONAL_PREPARO_ENTREGA.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_2_NORMALIZACAO_NUMERICA.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_3_CADASTRO_ASSISTIDO.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_3_CADASTRO_ASSISTIDO_ESTRUTURA.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_4_PAYOFF_DECISOES.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_4_PAYOFF_E_DECISOES.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_ATUALIZAR_DADOS_PIPELINE.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_CANDIDATOS_PRINCIPAIS.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_CONTRATO_RESUMO_PIPELINE.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_CORRECAO_UX_ATUALIZAR_DADOS.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_DIAGNOSTICO_ATUALIZAR_DADOS.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_INSPECAO_MAIN_WINDOW.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_TESTE_UI_ATUALIZAR_DADOS.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_6_RTD.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_RECALCULO_METRICAS.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_8_DUPLICIDADE_ESTRUTURA.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_9_PORTUGUES_BRASIL.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_MAPA_ESTADO_ATUAL.md
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_PLANO_EXECUCAO.md
+./docs/checkpoints/auditoria-revisao-funcional-pos-uso-real.md
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md
+./docs/checkpoints/evidencias/fase-1-fechamento-mapa-runtime-codigo-atual.md
+./docs/checkpoints/evidencias/fase-10-abertura-auditoria-pricing-position-side.md
+./docs/checkpoints/evidencias/fase-12-fechamento-rota-mestre-3.md
+./docs/checkpoints/evidencias/fase-2b-analise-normalizacao-numerica.md
+./docs/checkpoints/evidencias/fase-2b-fechamento-normalizacao-numerica.md
+./docs/checkpoints/evidencias/fase-2b-quantity-normalizacao-regressao.md
+./docs/checkpoints/evidencias/fase-3-4-diagnostico-bugs-provaveis.md
+./docs/checkpoints/evidencias/fase-3-4-fluxo-manual-real-diagnostico.md
+./docs/checkpoints/evidencias/fase-3-contexto-cirurgico-codigo.md
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md
+./docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md
+./docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md
+./docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md
+./docs/checkpoints/fase-6-8-guardrail-matriz-diagnostico-rtd.md
+./docs/checkpoints/fase-6-9-ajuste-rtd-canonical-pricing.md
+./docs/validacoes/fase-17-mapa-pastas-arquivos.md
+./domain/__init__.py
+./domain/calculation_request.py
+./domain/canonical_validators.py
+./domain/contracts.py
+./domain/decision.py
+./domain/market_snapshot.py
+./domain/payoff.py
+./domain/payoff_features.py
+./domain/position_side.py
+./domain/structure_metrics.py
+./main.py
+./repositories/ui_data_table_candidates.py
+./run_ui.py
+./scripts/apply_fase9_atomic_create.py
+./scripts/apply_fase9_update_tests_atomic_create.py
+./scripts/build_rtd_symbols.py
+./services/__init__.py
+./services/calculation_orchestrator.py
+./services/canonical_input_service.py
+./services/canonical_pricing_facade.py
+./services/derived_payoff_persistence.py
+./services/derived_service.py
+./services/legacy_robo_legs_fallback.py
+./services/legacy_structure_legs_importer.py
+./services/legacy_structure_legs_reader.py
+./services/market_snapshot_provider.py
+./services/market_snapshot_selector.py
+./services/market_time.py
+./services/payoff_persistence_port.py
+./services/payoff_pricing_engine.py
+./services/pricing_execution_app_service.py
+./services/pricing_execution_orchestration_service.py
+./services/pricing_execution_persistence_service.py
+./services/pricing_execution_query_service.py
+./services/pricing_execution_service.py
+./services/pricing_input_service.py
+./services/pricing_payload_adapter.py
+./services/robo_leg_mapper.py
+./services/robo_legs_service.py
+./services/robo_legs_status_service.py
+./services/structure_analysis_service.py
+./services/structure_events_service.py
+./services/structure_input_mapper.py
+./services/structure_leg_rtd_enrichment_service.py
+./services/structure_market_input_assembler.py
+./src/domain/refs/__init__.py
+./src/domain/refs/structure_ref.py
+
+Ocorrencias provaveis em ingles expostas ao usuario:
+ui/components/decisions_grid.py:2:from src.domain.refs.structure_ref import StructureRef
+ui/components/decisions_grid.py:9:class DecisionsGrid(ttk.LabelFrame):
+ui/components/decisions_grid.py:97:        except (ValueError, IndexError):
+ui/components/decisions_grid.py:163:        except (TypeError, ValueError):
+ui/components/decisions_grid.py:174:        except (TypeError, ValueError):
+ui/components/decisions_grid.py:190:        except (ValueError, IndexError):
+ui/components/details_panel.py:10:class DetailsPanel(ttk.LabelFrame):
+ui/components/details_panel.py:93:        Aceita str ("7") ou int (7). Lança ValueError se não conversível.
+ui/components/details_panel.py:97:        except (TypeError, ValueError) as exc:
+ui/components/details_panel.py:98:            raise ValueError(
+ui/components/details_panel.py:128:            except TypeError:
+ui/components/details_panel.py:134:            except TypeError:
+ui/components/details_panel.py:394:                    except sqlite3.Error:
+ui/components/details_panel.py:438:            except sqlite3.Error:
+ui/components/details_panel.py:565:        ttk.Label(operational_frame, text="Cancelados ignorados:").grid(
+ui/components/details_panel.py:575:        ttk.Label(operational_frame, text="Status:").grid(
+ui/components/details_panel.py:788:        Aceita o formato retornado por StructureEventsService.apply_events_to_structure:
+ui/components/details_panel.py:851:            from repositories.structures_repository import StructuresRepository
+ui/components/details_panel.py:853:                StructureEventsRepository,
+ui/components/details_panel.py:855:            from services.structure_events_service import StructureEventsService
+ui/components/details_panel.py:858:            structures_repo = StructuresRepository(app_db_path)
+ui/components/details_panel.py:859:            events_repo = StructureEventsRepository(app_db_path)
+ui/components/details_panel.py:860:            events_service = StructureEventsService(
+ui/components/filters_panel.py:92:        # Status
+ui/components/filters_panel.py:122:            except ValueError:
+ui/components/filters_panel.py:128:            except ValueError:
+ui/components/payoff_chart.py:2:from src.domain.refs.structure_ref import StructureRef
+ui/components/payoff_chart.py:55:class PayoffChart(ttk.Frame):
+ui/components/payoff_chart.py:144:        self.ax.set_title("Curva de Payoff")
+ui/components/payoff_chart.py:237:        """Para integração com DetailsPanel: breakevens e PL interpolado no spot_ref."""
+ui/components/payoff_chart.py:305:        # Label da curva principal (B quando há overlay, senão "Payoff")
+ui/components/payoff_chart.py:314:            main_label = "Payoff"
+ui/components/payoff_chart.py:422:            title = f"Payoff -- {sid} [{dec}]"
+ui/components/payoff_chart.py:426:            title = "Curva de Payoff -- Comparação"
+ui/components/payoff_chart.py:428:            title = "Curva de Payoff"
+ui/components/structures_list_panel.py:3:StructuresListPanel -- alteracao_10 / Fase 5
+ui/components/structures_list_panel.py:10:    StructuresListPanel(
+ui/components/structures_list_panel.py:28:from repositories.structures_repository import StructuresRepository
+ui/components/structures_list_panel.py:40:    "alias":            ("Aba/Alias", 110, "w"),
+ui/components/structures_list_panel.py:41:    "status":           ("Status",    70,  "center"),
+ui/components/structures_list_panel.py:46:class StructuresListPanel(ttk.Frame):
+ui/components/structures_list_panel.py:62:        self._repo                  = StructuresRepository(db_path)
+ui/components/structures_list_panel.py:80:        ttk.Label(toolbar, text="Status:").pack(side="left")
+ui/components/structures_list_panel.py:143:            (" Editar",    self._cmd_edit),
+ui/components/structures_list_panel.py:218:        except (IndexError, ValueError, TypeError):
+ui/components/structures_list_panel.py:235:        except TypeError:
+ui/components/structures_list_panel.py:268:            messagebox.showwarning("Editar", "Selecione uma estrutura primeiro.")
+ui/components/structure_editor_dialog.py:3:StructureEditorDialog -- alteracao_10 / Fase 5
+ui/components/structure_editor_dialog.py:7:    dlg = StructureEditorDialog(
+ui/components/structure_editor_dialog.py:24:    _repo           StructuresRepository
+ui/components/structure_editor_dialog.py:37:from repositories.structures_repository import StructuresRepository
+ui/components/structure_editor_dialog.py:39:from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+ui/components/structure_editor_dialog.py:45:        raise ValueError(f"{field_name} is required")
+ui/components/structure_editor_dialog.py:50:            raise ValueError(f"{field_name} is required")
+ui/components/structure_editor_dialog.py:58:        raise ValueError(f"{field_name} must be numeric") from exc
+ui/components/structure_editor_dialog.py:61:class StructureEditorDialog(tk.Toplevel):
+ui/components/structure_editor_dialog.py:85:            self._repo = StructuresRepository(db_path)
+ui/components/structure_editor_dialog.py:114:        title = "Nova Estrutura" if self._structure_id is None else "Editar Estrutura"
+ui/components/structure_editor_dialog.py:124:            ("Aba / Alias",    self._f_alias,      "entry", None),
+ui/components/structure_editor_dialog.py:125:            ("Status",         self._f_status,     "combo", ["active", "archived"]),
+ui/components/structure_editor_dialog.py:188:        ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
+ui/components/structure_editor_dialog.py:193:        form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
+ui/components/structure_editor_dialog.py:307:        except (ValueError, TypeError):
+ui/components/structure_editor_dialog.py:331:        except (TypeError, ValueError):
+ui/components/structure_editor_dialog.py:362:                raise ValueError(
+ui/components/structure_editor_dialog.py:414:        Alias publico de _cmd_add_leg().
+ui/components/structure_editor_dialog.py:416:            hasattr(StructureEditorDialog, '_add_leg_row')
+ui/components/structure_editor_dialog.py:461:        service = StructureLegRtdEnrichmentService(repo)
+ui/components/structure_editor_dialog.py:541:            raise ValueError(f"Script de refresh RTD não encontrado: {script}")
+ui/components/structure_editor_dialog.py:544:            raise ValueError(f"Workbook RTD não encontrado: {workbook_path}")
+ui/components/structure_editor_dialog.py:581:            raise ValueError(
+ui/components/structure_editor_dialog.py:595:            raise ValueError(
+ui/components/structure_editor_dialog.py:658:        except ValueError as exc:
+ui/components/structure_editor_dialog.py:693:        except ValueError as exc:
+ui/components/structure_editor_dialog.py:714:                raise ValueError(f"{field_name} is required")
+ui/components/structure_editor_dialog.py:721:                raise ValueError(f"{field_name} is required")
+ui/components/structure_editor_dialog.py:731:            except ValueError as exc:
+ui/components/structure_editor_dialog.py:732:                raise ValueError(f"{field_name} must be numeric") from exc
+ui/components/structure_editor_dialog.py:737:                raise ValueError(f"{field_name} must be integer")
+ui/components/structure_editor_dialog.py:765:            except ValueError as exc:
+ui/components/structure_editor_dialog.py:766:                raise ValueError(f"Leg {index}: {exc}") from exc
+ui/components/structure_editor_dialog.py:794:                    raise ValueError(
+ui/components/structure_editor_dialog.py:814:        except ValueError as exc:
+ui/components/structure_editor_dialog.py:883:        except ValueError as exc:
+ui/debug_utils.py:27:        print("[PayoffChart] DEBUG", *args, **kwargs)
+ui/debug_utils.py:31:    print("[PayoffChart]", *args, **kwargs)
+ui/main_window.py:8:from UI.components.payoff_chart import PayoffChart
+ui/main_window.py:9:from UI.components.details_panel import DetailsPanel
+ui/main_window.py:10:from UI.components.decisions_grid import DecisionsGrid
+ui/main_window.py:12:from UI.components.structures_list_panel import StructuresListPanel
+ui/main_window.py:13:from UI.components.structure_editor_dialog import StructureEditorDialog
+ui/main_window.py:42:        # Loading animation
+ui/main_window.py:95:        self.decisions_grid = DecisionsGrid(
+ui/main_window.py:109:        self.details_panel = DetailsPanel(
+ui/main_window.py:116:        # Aba 2: Gráfico de Payoff
+ui/main_window.py:118:        right_notebook.add(chart_frame, text="Curva de Payoff")
+ui/main_window.py:120:        self.payoff_chart = PayoffChart(chart_frame)
+ui/main_window.py:126:        # Status bar
+ui/main_window.py:467:        - Ele recalcula somente a estrutura selecionada via CanonicalPricingFacade.
+ui/main_window.py:480:        except (TypeError, ValueError):
+ui/main_window.py:528:                from services.canonical_pricing_facade import CanonicalPricingFacade
+ui/main_window.py:530:                facade = CanonicalPricingFacade(db_path=self._db_path)
+ui/main_window.py:536:                    raise RuntimeError(f"Resposta inválida do pricing facade: {result!r}")
+ui/main_window.py:547:                    raise RuntimeError(msg)
+ui/main_window.py:558:                        raise RuntimeError(msg)
+ui/main_window.py:604:                "Pipeline executado com sucesso.\n\n"
+ui/main_window.py:609:            "Pipeline executado com sucesso.",
+ui/main_window.py:627:            return "Pipeline executado com sucesso"
+ui/main_window.py:634:            f"Pipeline OK: decisões={decisions}; "
+ui/main_window.py:657:                raise FileNotFoundError(
+ui/main_window.py:673:                print("[UI] Pipeline STDOUT:\n", res.stdout)
+ui/main_window.py:675:                print("[UI] Pipeline STDERR:\n", res.stderr)
+ui/main_window.py:684:        except subprocess.CalledProcessError as e:
+ui/main_window.py:687:                "Pipeline falhou:\n\nSTDOUT:\n"
+ui/main_window.py:701:            messagebox.showinfo("Status dos Bancos", status)
+ui/main_window.py:715:Pipeline automático de payoff e decisões
+ui/main_window.py:791:    # Loading animation
+ui/main_window.py:829:        self.structures_list = StructuresListPanel(
+ui/main_window.py:866:        # Preferência: reaproveitar o DetailsPanel, que já sabe localizar derived.db.
+ui/main_window.py:971:                f"Status     : {structure.get('status')}",
+ui/main_window.py:991:        dlg = StructureEditorDialog(
+ui/main_window.py:1037:                from services.canonical_pricing_facade import CanonicalPricingFacade
+ui/main_window.py:1039:                facade = CanonicalPricingFacade(db_path=self._db_path)
+ui/main_window.py:1043:                    raise RuntimeError(
+ui/models/ui_data.py:4:from src.domain.refs.structure_ref import StructureRef
+ui/models/ui_data.py:72:            raise FileNotFoundError(
+ui/models/ui_data.py:97:            raise RuntimeError(
+ui/models/ui_data.py:139:                # _structure_filter_col vai lancar RuntimeError com mensagem clara.
+ui/models/ui_data.py:157:            raise RuntimeError(
+ui/models/ui_data.py:166:                "Execute a migration (alteracao_36) para habilitar filtro canonico."
+ui/models/ui_data.py:180:        raise RuntimeError(
+ui/models/ui_data.py:182:            "Execute a migration do alteracao_33 antes de continuar."
+ui/models/ui_data.py:188:        Aceita str ("7") ou int (7). Lanca ValueError se nao conversivel.
+ui/models/ui_data.py:192:        except (TypeError, ValueError) as exc:
+ui/models/ui_data.py:193:            raise ValueError(
+ui/models/ui_data.py:212:            raise RuntimeError(
+ui/models/ui_data.py:215:                "Execute a migration do alteracao_33 antes de continuar."
+ui/models/ui_data.py:232:        """Alias de get_structure_ids() para compatibilidade."""
+ui/models/ui_data.py:244:        """Alias readonly de get_structure_ids() -- compat UI (alteracao_34:filtro_aba)."""
+ui/models/ui_data.py:326:                except (TypeError, ValueError) as exc:
+ui/models/ui_data.py:327:                    raise ValueError(
+ui/models/ui_data.py:373:                except (TypeError, ValueError):
+ui/models/ui_data.py:405:        Strings nao-numericas lancam ValueError.
+ui/models/ui_data.py:418:            raise RuntimeError(
+ui/models/ui_data.py:428:            raise RuntimeError(
+ui/models/ui_data.py:561:                    raise RuntimeError(
+services/calculation_orchestrator.py:16:    MarketSnapshotInput,
+services/calculation_orchestrator.py:17:    StructureInput,
+services/calculation_orchestrator.py:18:    StructureLegInput,
+services/calculation_orchestrator.py:35:    except ValueError as exc:
+services/calculation_orchestrator.py:36:        raise ValueError(f"position_side desconhecido: {raw!r}") from exc
+services/calculation_orchestrator.py:42:        raise ValueError(f"option_type desconhecido: {raw!r}")
+services/calculation_orchestrator.py:60:        raise ValueError("legs_rows nao pode ser vazio")
+services/calculation_orchestrator.py:65:            leg = StructureLegInput(
+services/calculation_orchestrator.py:81:        except (KeyError, TypeError, ValueError) as exc:
+services/calculation_orchestrator.py:82:            raise ValueError(f"Erro ao montar leg[{i}]: {exc}") from exc
+services/calculation_orchestrator.py:85:    structure = StructureInput(
+services/calculation_orchestrator.py:93:    snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:260:                StructureLegInput(
+services/calculation_orchestrator.py:278:        structure = StructureInput(
+services/calculation_orchestrator.py:286:        snapshot = MarketSnapshotInput(
+services/calculation_orchestrator.py:417:            RuntimeError: se repositorios nao foram injetados
+services/calculation_orchestrator.py:418:            ValueError  : se estrutura nao encontrada, arquivada ou sem legs
+services/calculation_orchestrator.py:419:            ValueError  : se snapshot nao encontrado
+services/calculation_orchestrator.py:422:            raise RuntimeError(
+services/calculation_orchestrator.py:423:                "StructuresRepository nao foi injetado no orquestrador. "
+services/calculation_orchestrator.py:427:            raise RuntimeError(
+services/calculation_orchestrator.py:428:                "MarketSnapshotRepository nao foi injetado no orquestrador. "
+services/calculation_orchestrator.py:435:            raise ValueError(
+services/calculation_orchestrator.py:439:            raise ValueError(
+services/calculation_orchestrator.py:446:            raise ValueError(
+services/calculation_orchestrator.py:457:            raise ValueError(
+services/calculation_orchestrator.py:458:                f"Snapshot nao encontrado para underlying_asset='{underlying}' "
+services/calculation_orchestrator.py:504:        Pipeline completo resolvendo estrutura e snapshot pelos repositorios.
+services/canonical_input_service.py:7:  - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+services/canonical_input_service.py:8:  - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+services/canonical_input_service.py:23:from src.domain.refs.structure_ref import StructureRef
+services/canonical_input_service.py:27:from repositories.structures_repository import StructuresRepository
+services/canonical_input_service.py:28:from repositories.structure_events_repository import StructureEventsRepository
+services/canonical_input_service.py:30:from services.market_snapshot_provider import MarketSnapshotProvider
+services/canonical_input_service.py:31:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_input_service.py:32:from services.structure_events_service import StructureEventsService
+services/canonical_input_service.py:39:        repository: StructuresRepository | None = None,
+services/canonical_input_service.py:40:        market_snapshot_provider: MarketSnapshotProvider | None = None,
+services/canonical_input_service.py:41:        market_snapshot_selector: MarketSnapshotSelector | None = None,
+services/canonical_input_service.py:43:        structure_events_service: StructureEventsService | None = None,
+services/canonical_input_service.py:49:        self.repository                  = repository or StructuresRepository()
+services/canonical_input_service.py:50:        self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+services/canonical_input_service.py:65:            except ImportError:
+services/canonical_input_service.py:77:            self.structure_events_service = StructureEventsService(
+services/canonical_input_service.py:78:                structure_events_repository=StructureEventsRepository(
+services/canonical_input_service.py:96:            raise ValueError(f"structure not found: {structure_id}")
+services/canonical_input_service.py:149:        Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+services/canonical_input_service.py:164:            ref = StructureRef.from_aba(aba)
+services/canonical_input_service.py:193:        ref: StructureRef,
+services/canonical_input_service.py:196:        Delega ao MarketSnapshotSelector e serializa legs completas.
+services/canonical_input_service.py:198:        Serialização cobre todos os campos de LegMarketSnapshot para que
+services/canonical_input_service.py:391:        previstos no domínio de MarketSnapshot.
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:5:           no PricingExecutionPersistenceService.
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:32:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/canonical_pricing_facade.py:33:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:35:from services.market_snapshot_selector import MarketSnapshotSelector
+services/canonical_pricing_facade.py:36:from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+services/canonical_pricing_facade.py:37:from services.pricing_execution_service import PricingExecutionService
+services/canonical_pricing_facade.py:38:from services.pricing_input_service import PricingInputService
+services/canonical_pricing_facade.py:49:    Raises ValueError se:
+services/canonical_pricing_facade.py:61:        raise ValueError(f"structure not found: {structure_id}")
+services/canonical_pricing_facade.py:65:        raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+services/canonical_pricing_facade.py:126:        except ValueError:
+services/canonical_pricing_facade.py:299:        raise ValueError(
+services/canonical_pricing_facade.py:321:class CanonicalPricingFacade:
+services/canonical_pricing_facade.py:327:                     MarketSnapshotSelector.select(aba=...)
+services/canonical_pricing_facade.py:329:                                     PricingExecutionService.execute_payload()
+services/canonical_pricing_facade.py:330:                                             PricingExecutionPersistenceService.persist()
+services/canonical_pricing_facade.py:331:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:338:        pricing_execution_service: PricingExecutionService | None = None,
+services/canonical_pricing_facade.py:339:        persistence_service: PricingExecutionPersistenceService | None = None,
+services/canonical_pricing_facade.py:342:        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+services/canonical_pricing_facade.py:343:        self._selector = MarketSnapshotSelector(repository=self._repo)
+services/canonical_pricing_facade.py:344:        self._engine   = pricing_execution_service or PricingExecutionService()
+services/canonical_pricing_facade.py:346:        self._persister = persistence_service or PricingExecutionPersistenceService(
+services/canonical_pricing_facade.py:347:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/canonical_pricing_facade.py:348:            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+services/canonical_pricing_facade.py:362:            #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
+services/canonical_pricing_facade.py:365:            #   structures.alias_legacy_aba NULL -> PricingInputService.build_pricing_payload().
+services/canonical_pricing_facade.py:384:            except ValueError as exc:
+services/canonical_pricing_facade.py:391:                    pricing_input_service = PricingInputService(db_path=self._db_path)
+services/canonical_pricing_facade.py:392:                except TypeError:
+services/canonical_pricing_facade.py:393:                    pricing_input_service = PricingInputService()
+services/canonical_pricing_facade.py:400:                except TypeError:
+services/canonical_pricing_facade.py:406:                    raise ValueError(
+services/canonical_pricing_facade.py:407:                        "PricingInputService.build_pricing_payload() retornou payload inválido"
+services/derived_payoff_persistence.py:12:class DerivedPayoffPersistence:
+services/derived_payoff_persistence.py:14:    Implementação concreta de PayoffPersistencePort.
+services/derived_payoff_persistence.py:24:    #  PayoffPersistencePort.persist()                                 #
+services/derived_payoff_persistence.py:136:                except (ZeroDivisionError, TypeError, ValueError):
+services/derived_payoff_persistence.py:218:        except (TypeError, ValueError):
+services/derived_payoff_persistence.py:239:        normalized_side = DerivedPayoffPersistence._normalize_position_side(
+services/derived_payoff_persistence.py:253:            except (TypeError, ValueError):
+services/derived_payoff_persistence.py:264:        # Aliases defensivos para eventuais payloads de outras origens.
+services/derived_payoff_persistence.py:291:            DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+services/derived_payoff_persistence.py:319:            return DerivedPayoffPersistence._normalize_canonical_input_for_payoff(
+services/derived_payoff_persistence.py:342:                    DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+services/derived_service.py:23:from src.domain.refs.structure_ref import StructureRef
+services/derived_service.py:82:    alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
+services/derived_service.py:85:    if isinstance(ref, StructureRef):
+services/derived_service.py:112:        except (ValueError, TypeError):
+services/derived_service.py:158:# Payoff
+services/derived_service.py:170:    alteracao_57: 'ref' aceita StructureRef, str ou None.
+services/derived_service.py:261:    except (TypeError, ValueError):
+services/derived_service.py:291:    alteracao_57: 'ref' aceita StructureRef, str ou None.
+services/derived_service.py:419:    ref = StructureRef.from_id(structure_id)
+services/derived_service.py:536:def snapshot_aba(ref: "StructureRef") -> str:
+services/derived_service.py:537:    """Retorna aba_str canônico a partir de um StructureRef."""
+services/legacy_robo_legs_fallback.py:1:from src.domain.refs.structure_ref import StructureRef
+services/legacy_robo_legs_fallback.py:130:                except TypeError:
+services/legacy_robo_legs_fallback.py:148:                except TypeError:
+services/legacy_robo_legs_fallback.py:188:                except TypeError:
+services/legacy_structure_legs_importer.py:3:LegacyStructureLegsImporter
+services/legacy_structure_legs_importer.py:6:Importa pernas legadas ja normalizadas pelo LegacyStructureLegsReader
+services/legacy_structure_legs_importer.py:12:      -> LegacyStructureLegsReader.read_by_structure_id(...)
+services/legacy_structure_legs_importer.py:14:      -> StructuresRepository.replace_legs(...)
+services/legacy_structure_legs_importer.py:19:    - Reaproveita o audit trail ja existente em StructuresRepository.replace_legs,
+services/legacy_structure_legs_importer.py:27:from repositories.structures_repository import StructuresRepository
+services/legacy_structure_legs_importer.py:30:class LegacyStructureLegsReaderProtocol(Protocol):
+services/legacy_structure_legs_importer.py:39:class LegacyStructureLegsImporter:
+services/legacy_structure_legs_importer.py:45:            Objeto compatível com LegacyStructureLegsReaderProtocol.
+services/legacy_structure_legs_importer.py:54:        reader: LegacyStructureLegsReaderProtocol,
+services/legacy_structure_legs_importer.py:55:        structures_repository: StructuresRepository,
+services/legacy_structure_legs_importer.py:79:            ValueError:
+services/legacy_structure_legs_importer.py:85:            raise ValueError(f"structure not found: {structure_id}")
+services/legacy_structure_legs_importer.py:93:            raise ValueError(
+services/legacy_structure_legs_reader.py:9:class LegacyStructureLegsReader:
+services/market_snapshot_provider.py:44:class MarketSnapshotProvider:
+services/market_snapshot_provider.py:56:            raise ValueError("underlying_asset is required")
+services/market_snapshot_provider.py:60:            raise ValueError(f"market snapshot not found for asset: {asset}")
+services/market_snapshot_selector.py:14:from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+services/market_snapshot_selector.py:15:from repositories.market_snapshot_repository import MarketSnapshotRepository
+services/market_snapshot_selector.py:16:from src.domain.refs.structure_ref import StructureRef
+services/market_snapshot_selector.py:22:def _ref_to_aba(ref: StructureRef | str) -> str:
+services/market_snapshot_selector.py:23:    """Aceita StructureRef ou str e devolve a string da aba."""
+services/market_snapshot_selector.py:24:    if isinstance(ref, StructureRef):
+services/market_snapshot_selector.py:27:        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+services/market_snapshot_selector.py:32:class SnapshotSelectionResult:
+services/market_snapshot_selector.py:36:    source: SnapshotSource | str
+services/market_snapshot_selector.py:37:    legs: list[LegMarketSnapshot] = field(default_factory=list)
+services/market_snapshot_selector.py:42:        return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+services/market_snapshot_selector.py:45:class MarketSnapshotSelector:
+services/market_snapshot_selector.py:50:    def __init__(self, repository: MarketSnapshotRepository) -> None:
+services/market_snapshot_selector.py:55:        ref: StructureRef | str | None = None,
+services/market_snapshot_selector.py:58:    ) -> SnapshotSelectionResult:
+services/market_snapshot_selector.py:63:          - select(ref=StructureRef(...))
+services/market_snapshot_selector.py:64:          - select(StructureRef(...))
+services/market_snapshot_selector.py:69:            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+services/market_snapshot_selector.py:71:        effective_ref: StructureRef | str = ref if ref is not None else aba
+services/market_snapshot_selector.py:90:        manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+services/market_snapshot_selector.py:95:        rtd_option_quote_by_ativo: dict[str, LegMarketSnapshot] = {}
+services/market_snapshot_selector.py:100:        rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+services/market_snapshot_selector.py:111:        legs_selected: list[LegMarketSnapshot] = []
+services/market_snapshot_selector.py:125:            source: SnapshotSource | str = SnapshotSource.MANUAL
+services/market_snapshot_selector.py:129:            source = SnapshotSource.RTD
+services/market_snapshot_selector.py:131:        return SnapshotSelectionResult(
+services/payoff_persistence_port.py:5:class PayoffPersistencePort(Protocol):
+services/payoff_pricing_engine.py:7:class PayoffPricingEngine:
+services/payoff_pricing_engine.py:13:    - manter o contrato de saída esperado por PricingExecutionService;
+services/payoff_pricing_engine.py:22:            raise ValueError("pricing_payload is required")
+services/payoff_pricing_engine.py:26:            raise ValueError("pricing_payload.legs is required")
+services/payoff_pricing_engine.py:30:            raise ValueError("pricing_payload.spot_price is required")
+services/pricing_execution_app_service.py:3:alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+services/pricing_execution_app_service.py:7:  - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+services/pricing_execution_app_service.py:16:from services.canonical_pricing_facade import CanonicalPricingFacade
+services/pricing_execution_app_service.py:17:from services.pricing_execution_query_service import PricingExecutionQueryService
+services/pricing_execution_app_service.py:22:class PricingExecutionAppService:
+services/pricing_execution_app_service.py:25:        canonical_pricing_facade: CanonicalPricingFacade | None = None,
+services/pricing_execution_app_service.py:26:        pricing_execution_query_service: PricingExecutionQueryService | None = None,
+services/pricing_execution_app_service.py:29:        self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+services/pricing_execution_app_service.py:33:            pricing_execution_query_service or PricingExecutionQueryService()
+services/pricing_execution_app_service.py:53:        # propaga erros como ValueError para manter contrato com callers existentes
+services/pricing_execution_app_service.py:55:            raise ValueError(response.get("error_message", "pricing execution failed"))
+services/pricing_execution_app_service.py:128:            raise ValueError("structure_id must be greater than zero")
+services/pricing_execution_app_service.py:136:        except ValueError as exc:
+services/pricing_execution_app_service.py:137:            raise ValueError("reference_date must be in YYYY-MM-DD format") from exc
+services/pricing_execution_app_service.py:140:            raise ValueError("reference_date must be in YYYY-MM-DD format")
+services/pricing_execution_orchestration_service.py:4:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_orchestration_service.py:6:    PricingExecutionPersistenceService,
+services/pricing_execution_orchestration_service.py:8:from services.pricing_execution_service import PricingExecutionService
+services/pricing_execution_orchestration_service.py:9:from services.pricing_input_service import PricingInputService
+services/pricing_execution_orchestration_service.py:12:class PricingExecutionOrchestrationService:
+services/pricing_execution_orchestration_service.py:15:        pricing_input_service: PricingInputService | None = None,
+services/pricing_execution_orchestration_service.py:16:        pricing_execution_service: PricingExecutionService | None = None,
+services/pricing_execution_orchestration_service.py:17:        pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
+services/pricing_execution_orchestration_service.py:19:        self.pricing_input_service = pricing_input_service or PricingInputService()
+services/pricing_execution_orchestration_service.py:20:        self.pricing_execution_service = pricing_execution_service or PricingExecutionService(
+services/pricing_execution_orchestration_service.py:25:            or PricingExecutionPersistenceService(
+services/pricing_execution_orchestration_service.py:26:                system_snapshots_repository=SystemSnapshotsRepository(),
+services/pricing_execution_persistence_service.py:5:from repositories.pricing_executions_repository import PricingExecutionsRepository
+services/pricing_execution_persistence_service.py:6:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+services/pricing_execution_persistence_service.py:7:from services.payoff_persistence_port import PayoffPersistencePort
+services/pricing_execution_persistence_service.py:12:class PricingExecutionPersistenceService:
+services/pricing_execution_persistence_service.py:15:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+services/pricing_execution_persistence_service.py:16:        payoff_persistence_port: PayoffPersistencePort | None = None,
+services/pricing_execution_persistence_service.py:17:        system_snapshots_repository: SystemSnapshotsRepository | None = None,
+services/pricing_execution_persistence_service.py:20:            pricing_executions_repository or PricingExecutionsRepository()
+services/pricing_execution_query_service.py:4:from repositories.pricing_executions_repository import PricingExecutionsRepository
+services/pricing_execution_query_service.py:7:class PricingExecutionQueryService:
+services/pricing_execution_query_service.py:10:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+services/pricing_execution_query_service.py:13:            pricing_executions_repository or PricingExecutionsRepository()
+services/pricing_execution_query_service.py:24:            raise ValueError("structure_id must be greater than zero")
+services/pricing_execution_query_service.py:27:            raise ValueError("underlying_asset must not be empty")
+services/pricing_execution_query_service.py:30:            raise ValueError("status must be either 'ok' or 'error'")
+services/pricing_execution_query_service.py:34:                raise ValueError("reference_date must not be empty")
+services/pricing_execution_query_service.py:38:            except ValueError as exc:
+services/pricing_execution_query_service.py:39:                raise ValueError(
+services/pricing_execution_query_service.py:65:        except TypeError as exc:
+services/pricing_execution_query_service.py:170:            raise ValueError("page must be greater than zero")
+services/pricing_execution_query_service.py:173:            raise ValueError("page_size must be greater than zero")
+services/pricing_execution_query_service.py:223:            raise ValueError("no pricing execution summaries found")
+services/pricing_execution_query_service.py:229:            raise ValueError("execution_id must be greater than zero")
+services/pricing_execution_query_service.py:234:            raise ValueError(f"pricing execution {execution_id} not found")
+services/pricing_execution_service.py:3:from services.payoff_pricing_engine import PayoffPricingEngine
+services/pricing_execution_service.py:4:from services.pricing_input_service import PricingInputService
+services/pricing_execution_service.py:7:class PricingExecutionService:
+services/pricing_execution_service.py:10:        pricing_input_service: PricingInputService | None = None,
+services/pricing_execution_service.py:11:        pricing_engine: PayoffPricingEngine | None = None,
+services/pricing_execution_service.py:13:        self.pricing_input_service = pricing_input_service or PricingInputService()
+services/pricing_execution_service.py:14:        self.pricing_engine = pricing_engine or PayoffPricingEngine()
+services/pricing_input_service.py:7:class PricingInputService:
+services/pricing_payload_adapter.py:20:        raise ValueError("canonical_input is required")
+services/pricing_payload_adapter.py:26:        raise ValueError("canonical_input.structure is required")
+services/pricing_payload_adapter.py:29:        raise ValueError("canonical_input.market is required")
+services/pricing_payload_adapter.py:36:            raise ValueError(f"canonical_input.structure.legs[{index}] is required")
+services/robo_legs_service.py:6:  - from __future__ movido para primeira linha (SyntaxError fix)
+services/robo_legs_service.py:7:  - get_legs(): parametro renomeado para ref: StructureRef; aba extraida de ref
+services/robo_legs_service.py:16:from src.domain.refs.structure_ref import StructureRef
+services/robo_legs_service.py:32:        ref: StructureRef,
+services/robo_legs_service.py:39:        Aceita StructureRef ou string de aba. Primeiro tenta a API nova
+services/robo_legs_service.py:43:        aba = ref.aba if isinstance(ref, StructureRef) else str(ref)
+services/robo_legs_service.py:47:        except TypeError as exc:
+services/robo_legs_service.py:56:                raise ValueError(
+services/robo_legs_service.py:79:                raise ValueError(
+services/robo_legs_status_service.py:3:alteracao_57c -- RoboLegsStatusService.
+services/robo_legs_status_service.py:13:from src.domain.refs.structure_ref import StructureRef
+services/robo_legs_status_service.py:15:from dto.robo_legs_status_dto import DataFreshness, RoboLegsStatusDTO
+services/robo_legs_status_service.py:18:    RoboLegsStatusRepository,
+services/robo_legs_status_service.py:19:    RoboLegsStatusRepoConfig,
+services/robo_legs_status_service.py:30:class RoboLegsStatusService:
+services/robo_legs_status_service.py:34:        status_repo: Optional[RoboLegsStatusRepository] = None,
+services/robo_legs_status_service.py:38:        self.status_repo = status_repo or RoboLegsStatusRepository(
+services/robo_legs_status_service.py:39:            RoboLegsStatusRepoConfig()
+services/robo_legs_status_service.py:45:        ref: StructureRef,
+services/robo_legs_status_service.py:48:    ) -> RoboLegsStatusDTO:
+services/robo_legs_status_service.py:66:        except TypeError as exc:
+services/robo_legs_status_service.py:78:            return RoboLegsStatusDTO(
+services/robo_legs_status_service.py:99:        return RoboLegsStatusDTO(
+services/robo_leg_mapper.py:32:    except (TypeError, ValueError) as exc:
+services/robo_leg_mapper.py:33:        raise ValueError(f"invalid {field_name}: {value}") from exc
+services/robo_leg_mapper.py:39:    except (TypeError, ValueError) as exc:
+services/robo_leg_mapper.py:40:        raise ValueError(f"invalid {field_name}: {value}") from exc
+services/robo_leg_mapper.py:57:    except ValueError as exc:
+services/robo_leg_mapper.py:58:        raise ValueError(f"invalid cv: {cv}") from exc
+services/robo_leg_mapper.py:65:        raise ValueError(f"invalid call_put: {call_put}")
+services/structure_analysis_service.py:14:class StructureAnalysisService:
+services/structure_events_service.py:6:from repositories.structure_events_repository import StructureEventsRepository
+services/structure_events_service.py:9:class StructureEventsService:
+services/structure_events_service.py:38:        structure_events_repository: StructureEventsRepository | None = None,
+services/structure_events_service.py:41:            structure_events_repository or StructureEventsRepository()
+services/structure_events_service.py:46:            raise ValueError(f"{field_name} must be greater than zero")
+services/structure_events_service.py:59:            raise ValueError(f"event_type must be one of: {allowed}")
+services/structure_events_service.py:64:            raise ValueError(f"event_status must be one of: {allowed}")
+services/structure_events_service.py:69:            raise ValueError(f"source must be one of: {allowed}")
+services/structure_events_service.py:73:            raise ValueError("event_date must not be empty")
+services/structure_events_service.py:77:        except ValueError as exc:
+services/structure_events_service.py:78:            raise ValueError("event_date must be in YYYY-MM-DD format") from exc
+services/structure_events_service.py:85:            raise ValueError("quantity must be an integer")
+services/structure_events_service.py:88:            raise ValueError("quantity must be greater than or equal to zero")
+services/structure_events_service.py:95:            raise ValueError("price must be numeric")
+services/structure_events_service.py:98:            raise ValueError("price must be greater than or equal to zero")
+services/structure_events_service.py:197:            raise ValueError("notes must not be empty")
+services/structure_events_service.py:242:            raise ValueError("limit must be greater than zero")
+services/structure_events_service.py:245:            raise ValueError("offset must be greater than or equal to zero")
+services/structure_events_service.py:308:            raise ValueError("structure must be a dict")
+services/structure_events_service.py:401:            raise ValueError("structure_id is required to apply events") from exc
+services/structure_events_service.py:404:            raise ValueError("structure_id must be greater than zero")
+services/structure_events_service.py:471:            raise ValueError("event quantity must be integer") from exc
+services/structure_events_service.py:474:            raise ValueError("event quantity must be greater than or equal to zero")
+services/structure_input_mapper.py:24:    except (TypeError, ValueError):
+services/structure_input_mapper.py:87:        raise ValueError("structure is required")
+services/structure_leg_rtd_enrichment_service.py:17:class StructureLegRtdEnrichmentService:
+services/structure_leg_rtd_enrichment_service.py:42:            raise ValueError("symbol is required for RTD leg enrichment")
+services/structure_leg_rtd_enrichment_service.py:46:            raise ValueError(f"option quote not found for symbol: {symbol}")
+services/structure_leg_rtd_enrichment_service.py:59:                raise ValueError(
+services/structure_leg_rtd_enrichment_service.py:95:            raise ValueError(f"{field_name} is required")
+services/structure_leg_rtd_enrichment_service.py:98:            raise ValueError(f"{field_name} is required")
+services/structure_leg_rtd_enrichment_service.py:114:            raise ValueError(f"invalid option_type/call_put: {value!r}")
+services/structure_leg_rtd_enrichment_service.py:141:            raise ValueError(f"{field_name} is required")
+services/structure_leg_rtd_enrichment_service.py:151:        except (TypeError, ValueError) as exc:
+services/structure_leg_rtd_enrichment_service.py:152:            raise ValueError(f"{field_name} must be numeric") from exc
+services/structure_leg_rtd_enrichment_service.py:164:            raise ValueError(f"{field_name} must be integer")
+services/structure_leg_rtd_enrichment_service.py:175:                raise ValueError(f"missing required RTD field: {field}")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:17:class StructureLegRtdEnrichmentService:
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:42:            raise ValueError("symbol is required for RTD leg enrichment")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:46:            raise ValueError(f"option quote not found for symbol: {symbol}")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:59:                raise ValueError(
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:95:            raise ValueError(f"{field_name} is required")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:98:            raise ValueError(f"{field_name} is required")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:114:            raise ValueError(f"invalid option_type/call_put: {value!r}")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:120:            raise ValueError(f"{field_name} is required")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:130:        except (TypeError, ValueError) as exc:
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:131:            raise ValueError(f"{field_name} must be numeric") from exc
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:143:            raise ValueError(f"{field_name} must be integer")
+services/structure_leg_rtd_enrichment_service.py.bak_premium_from_rtd:154:                raise ValueError(f"missing required RTD field: {field}")
+services/structure_market_input_assembler.py:11:        raise ValueError("structure is required")
+services/structure_market_input_assembler.py:14:        raise ValueError("market_snapshot is required")
+services/structure_market_input_assembler.py:21:        raise ValueError(
+domain/calculation_request.py:6:     structure: StructureInput
+domain/calculation_request.py:7:          legs: List[StructureLegInput]
+domain/calculation_request.py:8:     market_snapshot: MarketSnapshotInput
+domain/calculation_request.py:37:        raise ValueError(f"{field_name} não pode ser vazio")
+domain/calculation_request.py:44:    except (TypeError, ValueError):
+domain/calculation_request.py:45:        raise ValueError(f"{field_name} deve ser numérico, recebeu: {value!r}")
+domain/calculation_request.py:47:        raise ValueError(f"{field_name} deve ser positivo, recebeu: {v}")
+domain/calculation_request.py:54:        raise ValueError(
+domain/calculation_request.py:60:    except ValueError:
+domain/calculation_request.py:61:        raise ValueError(f"{field_name} é uma data inválida: {value!r}")
+domain/calculation_request.py:66:# StructureLegInput
+domain/calculation_request.py:69:class StructureLegInput:
+domain/calculation_request.py:98:        except ValueError as exc:
+domain/calculation_request.py:99:            raise ValueError(
+domain/calculation_request.py:107:            raise ValueError(
+domain/calculation_request.py:112:            raise ValueError(
+domain/calculation_request.py:120:            raise ValueError(f"quantity deve ser inteiro positivo, recebeu: {self.quantity!r}")
+domain/calculation_request.py:128:            raise ValueError(f"multiplier deve ser positivo, recebeu: {self.multiplier}")
+domain/calculation_request.py:132:# StructureInput
+domain/calculation_request.py:135:class StructureInput:
+domain/calculation_request.py:147:    legs:             List[StructureLegInput]
+domain/calculation_request.py:154:            raise ValueError(
+domain/calculation_request.py:159:            raise ValueError("legs não pode ser lista vazia")
+domain/calculation_request.py:161:            if not isinstance(leg, StructureLegInput):
+domain/calculation_request.py:162:                raise TypeError(
+domain/calculation_request.py:163:                    f"legs[{i}] deve ser StructureLegInput, recebeu: {type(leg)}"
+domain/calculation_request.py:168:# MarketSnapshotInput
+domain/calculation_request.py:171:class MarketSnapshotInput:
+domain/calculation_request.py:176:    underlying_asset   : deve coincidir com StructureInput.underlying_asset
+domain/calculation_request.py:199:            raise ValueError(
+domain/calculation_request.py:205:        except ValueError:
+domain/calculation_request.py:206:            raise ValueError(
+domain/calculation_request.py:223:    structure:       StructureInput
+domain/calculation_request.py:224:    market_snapshot: MarketSnapshotInput
+domain/calculation_request.py:228:            raise ValueError(
+domain/contracts.py:18:class CanonicalStructure:
+domain/contracts.py:43:class CanonicalStructureMarketInput:
+domain/contracts.py:44:    structure: CanonicalStructure
+domain/contracts.py:49:    def from_dict(cls, payload: dict[str, Any]) -> "CanonicalStructureMarketInput":
+domain/contracts.py:68:        structure = CanonicalStructure(
+domain/decision.py:3:Domain: Decision logic (30/60/80 thresholds + DTE gate) from real data.
+domain/decision.py:15:from domain.contracts import CanonicalStructureMarketInput
+domain/decision.py:148:    Payoff vazio ou inválido  HOLD com 'error' em why_json.
+domain/decision.py:194:    contract: CanonicalStructureMarketInput,
+domain/decision.py:197:    """Entrada canônica via CanonicalStructureMarketInput."""
+domain/market_snapshot.py:5:alteracao_12: LegMarketSnapshot, SnapshotSource
+domain/market_snapshot.py:6:alteracao_13: StructureMarketSnapshot (agrega legs + cabeçalho de mercado)
+domain/market_snapshot.py:18:class SnapshotSource(str, Enum):
+domain/market_snapshot.py:26:class LegMarketSnapshot:
+domain/market_snapshot.py:50:    source          : SnapshotSource  = SnapshotSource.RTD
+domain/market_snapshot.py:56:class StructureMarketSnapshot:
+domain/market_snapshot.py:66:      legs  -- lista de LegMarketSnapshot
+domain/market_snapshot.py:71:    legs               : list[LegMarketSnapshot]        = field(default_factory=list)
+domain/market_snapshot.py:72:    source             : SnapshotSource                 = SnapshotSource.RTD
+domain/market_snapshot.py:100:            f"StructureMarketSnapshot("
+domain/payoff_features.py:1:from src.domain.refs.structure_ref import StructureRef
+domain/payoff_features.py:113:        raise ValueError("points vazio")
+domain/payoff_features.py:194:              em caso de exceção (ResourceWarning fix).
+domain/payoff_features.py:207:        raise ValueError(
+domain/position_side.py:7:Aliases aceitos por compatibilidade:
+domain/position_side.py:39:        raise ValueError("position_side é obrigatório")
+domain/position_side.py:43:        raise ValueError("position_side é obrigatório")
+domain/position_side.py:47:        raise ValueError(
+domain/structure_metrics.py:18:        except ValueError:
+domain/structure_metrics.py:42:    except ValueError:
+domain/structure_metrics.py:156:    except ValueError:
+main.py:8:    title="Structures API",
+
+
+Ocorrencias possiveis de acentuacao corrompida:
+./ATT/tests/test_structure_editor_integration.py:97:    # CORREÇÃO PRINCIPAL: Toplevel e Widget como classes reais
+./ATT/tests/test_structure_editor_integration.py:158:            # CORREÇÃO: ttk widgets também precisam ser classes reais
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37387:      877: UI/components/structure_editor_dialog.py:385:        """Cria/lÃª o service de enriquecimento por sÃ­mbolo sob demanda."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37402:      885: UI/components/structure_editor_dialog.py:432:        """Preenche/valida o ativo objeto da estrutura a partir da opÃ§Ã£o."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37412:      885: UI/components/structure_editor_dialog.py:432:        """Preenche/valida o ativo objeto da estrutura a partir da opÃ§Ã£o."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37423:      890: UI/components/structure_editor_dialog.py:440:                "Ativo objeto divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37583:      914: UI/components/structure_editor_dialog.py:539:        - Aceita decimal pt-BR com vÃ­rgula em strike, premium e multiplier.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37594:      914: UI/components/structure_editor_dialog.py:539:        - Aceita decimal pt-BR com vÃ­rgula em strike, premium e multiplier.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37604:      914: UI/components/structure_editor_dialog.py:539:        - Aceita decimal pt-BR com vÃ­rgula em strike, premium e multiplier.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37749:     1094: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37750:     1095: repositories/market_snapshot_repository.py:284:        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37751:     1096: repositories/market_snapshot_repository.py:285:        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37760:     1094: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37761:     1095: repositories/market_snapshot_repository.py:284:        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37762:     1096: repositories/market_snapshot_repository.py:285:        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38172:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38183:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38194:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38205:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38216:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38227:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38238:     1438: services/structure_leg_rtd_enrichment_service.py:60:                    "option_type divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38952:     2331: UI/components/structure_editor_dialog.py:534:        ConstrÃ³i lista de legs com leg_order sequencial a partir de 1.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38959:     2392: api/structures_controller.py:400:    NÃ£o persiste alteraÃ§Ãµes nas legs. Apenas calcula o estado efetivo:
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38960:     2393: repositories/_aba_resolver_mixin.py:16:    alteracao_40 -- mÃ©todo criado em robo_legs_repository e robo_legs_status_repository
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38961:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38970:     2392: api/structures_controller.py:400:    NÃ£o persiste alteraÃ§Ãµes nas legs. Apenas calcula o estado efetivo:
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38971:     2393: repositories/_aba_resolver_mixin.py:16:    alteracao_40 -- mÃ©todo criado em robo_legs_repository e robo_legs_status_repository
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38972:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38982:     2393: repositories/_aba_resolver_mixin.py:16:    alteracao_40 -- mÃ©todo criado em robo_legs_repository e robo_legs_status_repository
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38983:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38994:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39060:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39071:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39082:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39093:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39104:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39126:     2424: repositories/robo_legs_repository.py:5:             (elimina duplicaÃ§Ã£o com robo_legs_status_repository)
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39192:     2456: repositories/structures_repository.py:3:RepositÃ³rio canÃ´nico de estruturas e suas pernas (legs).
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39204:     2522: services/canonical_input_service.py:42:        robo_legs_service: Any | None = None,  # injeÃ§Ã£o explÃ­cita
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39215:     2538: services/canonical_input_service.py:162:        # 2. Legs â via selector se disponÃ­vel, senÃ£o mantÃ©m o que o provider trouxe
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39226:     2538: services/canonical_input_service.py:162:        # 2. Legs â via selector se disponÃ­vel, senÃ£o mantÃ©m o que o provider trouxe
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39261:     2687: services/market_snapshot_selector.py:8:  - Caso contrÃ¡rio, usa rtd_analise_robo_legs
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39263:     2689: services/market_snapshot_selector.py:60:        Seleciona as legs canÃ´nicas para a estrutura informada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39271:     2689: services/market_snapshot_selector.py:60:        Seleciona as legs canÃ´nicas para a estrutura informada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39282:     2689: services/market_snapshot_selector.py:60:        Seleciona as legs canÃ´nicas para a estrutura informada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39405:     2745: services/robo_legs_service.py:23:      - obtÃ©m legs com regra manual > rtd
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39428:     2848: ATT/tests/test_decision.py:26:    # com dte_min=12 > dte_gate=7 nÃ£o hÃ¡ gate, decisÃ£o depende do ratio
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39971:     3513: domain/calculation_request.py:217:    Contrato canÃ´nico de entrada para qualquer cÃ¡lculo de payoff/decisÃ£o.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39972:     3514: domain/calculation_request.py:220:    e o domÃ­nio (payoff, decision) recebe SOMENTE este objeto -- sem
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39982:     3513: domain/calculation_request.py:217:    Contrato canÃ´nico de entrada para qualquer cÃ¡lculo de payoff/decisÃ£o.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39983:     3514: domain/calculation_request.py:220:    e o domÃ­nio (payoff, decision) recebe SOMENTE este objeto -- sem
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39993:     3553: domain/market_snapshot.py:60:    Atributos do cabeÃ§alho (todos opcionais -- podem vir de RTD ou manual):
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40039:     3603: repositories/robo_legs_repository.py:259:        """VersÃ£o canÃ´nica de has_manual() por structure_id."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40050:     3603: repositories/robo_legs_repository.py:259:        """VersÃ£o canÃ´nica de has_manual() por structure_id."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40185:     3761: services/market_snapshot_selector.py:3:PolÃ­tica de precedÃªncia de snapshots: manual > rtd_option_quotes > rtd.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40197:     3766: services/market_snapshot_selector.py:47:    Aplica a polÃ­tica manual > rtd_option_quotes > rtd para selecionar o snapshot canÃ´nico.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40209:     3782: services/pricing_execution_app_service.py:6:  - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canÃ´nico)
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40221:     3805: services/robo_legs_service.py:23:      - obtÃ©m legs com regra manual > rtd
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40232:     3805: services/robo_legs_service.py:23:      - obtÃ©m legs com regra manual > rtd
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40243:     3805: services/robo_legs_service.py:23:      - obtÃ©m legs com regra manual > rtd
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40354:     4257:    385	        """Cria/lÃª o service de enriquecimento por sÃ­mbolo sob demanda."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40364:     4257:    385	        """Cria/lÃª o service de enriquecimento por sÃ­mbolo sob demanda."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40374:     4257:    385	        """Cria/lÃª o service de enriquecimento por sÃ­mbolo sob demanda."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40462:     4304:    432	        """Preenche/valida o ativo objeto da estrutura a partir da opÃ§Ã£o."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40472:     4304:    432	        """Preenche/valida o ativo objeto da estrutura a partir da opÃ§Ã£o."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40483:     4312:    440	                "Ativo objeto divergente do sÃ­mbolo informado: "
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40785:     6432:      5	Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40796:     6432:      5	Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40881:     6623:    196	    Converte uma cotaÃ§Ã£o de rtd_option_quotes em LegMarketSnapshot mantendo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40884:     6626:    199	    A tabela rtd_option_quotes Ã© cache de cotaÃ§Ã£o. Ela nÃ£o define composiÃ§Ã£o
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40892:     6623:    196	    Converte uma cotaÃ§Ã£o de rtd_option_quotes em LegMarketSnapshot mantendo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40895:     6626:    199	    A tabela rtd_option_quotes Ã© cache de cotaÃ§Ã£o. Ela nÃ£o define composiÃ§Ã£o
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40902:     6623:    196	    Converte uma cotaÃ§Ã£o de rtd_option_quotes em LegMarketSnapshot mantendo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40905:     6626:    199	    A tabela rtd_option_quotes Ã© cache de cotaÃ§Ã£o. Ela nÃ£o define composiÃ§Ã£o
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40915:     6626:    199	    A tabela rtd_option_quotes Ã© cache de cotaÃ§Ã£o. Ela nÃ£o define composiÃ§Ã£o
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41039:     6710:    283	        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41040:     6711:    284	        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41049:     6710:    283	        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41050:     6711:    284	        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41051:     6712:    285	        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41060:     6710:    283	        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41061:     6711:    284	        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41062:     6712:    285	        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41070:     6711:    284	        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41071:     6712:    285	        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41097:     6757:    330	            # Banco sem tabela rtd_option_quotes: mantÃ©m compatibilidade com
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41098:     6758:    331	            # instalaÃ§Ãµes/testes que ainda nÃ£o possuem o cache centralizado.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41216:     6869:     35	    Leitura canÃ´nica por (aba, timestamp) com regra:
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41219:     6872:     38	    ObservaÃ§Ã£o importante:
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41291:     6937:    103	        """Lista timestamps disponÃ­veis para a aba."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:41327:     7107:    273	        """VersÃ£o canÃ´nica de list_timestamps() por structure_id."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:51470:      825: services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54228:      323: domain/payoff_features.py:108:    Chave canÃ´nica : structure_id + reference_date   upsert no derived.db.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54261:      715:             # Remove espaÃ§os internos comuns em valores monetÃ¡rios.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54275:     1138: AlteraÃ§Ãµes:
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54276:     1139:   - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canÃ´nico)
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54277:     1140:   - PricingExecutionOrchestrationService removido do __init__ (nÃ£o mais necessÃ¡rio aqui)
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54278:     1141:   - Todos os mÃ©todos de query (list, get, paginate, latest) inalterados
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:54279:     1142:   - ValidaÃ§Ãµes _validate_structure_id / _validate_reference_date mantidas
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:67716:       48: == Arquivo de sÃ­mbolos atual ==
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75196:       55: +    """Extrai mÃ©tricas textuais emitidas pelo pipeline RTD restaurado."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75207:       55: +    """Extrai mÃ©tricas textuais emitidas pelo pipeline RTD restaurado."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75232:       75: +    """Retorna o total de cotaÃ§Ãµes efetivamente inseridas/atualizadas."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75242:       75: +    """Retorna o total de cotaÃ§Ãµes efetivamente inseridas/atualizadas."""
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75291:       88: +    Executa a cadeia operacional RTD jÃ¡ restaurada contra o derived.db.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75300:       88: +    Executa a cadeia operacional RTD jÃ¡ restaurada contra o derived.db.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75304:       92: +    - NÃ£o aciona Excel, PowerShell, COM ou refresh RTD ao vivo.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75305:       93: +    - Delega importaÃ§Ã£o + auditoria para scripts/run_rtd_option_quotes_pipeline.py.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75315:       92: +    - NÃ£o aciona Excel, PowerShell, COM ou refresh RTD ao vivo.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75316:       93: +    - Delega importaÃ§Ã£o + auditoria para scripts/run_rtd_option_quotes_pipeline.py.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75326:       92: +    - NÃ£o aciona Excel, PowerShell, COM ou refresh RTD ao vivo.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75327:       93: +    - Delega importaÃ§Ã£o + auditoria para scripts/run_rtd_option_quotes_pipeline.py.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75336:       93: +    - Delega importaÃ§Ã£o + auditoria para scripts/run_rtd_option_quotes_pipeline.py.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75351:      105: +            "message": f"Script RTD nÃ£o encontrado: {pipeline_script}",
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75363:      117: +            "message": f"CSV RTD nÃ£o encontrado: {resolved_csv}",
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75389:      171:      Coleta resumo operacional do derived.db apÃ³s execuÃ§Ã£o/validaÃ§Ã£o.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75396:      175: -    - NÃ£o executa novo cÃ¡lculo.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75397:      176: -    - Apenas lÃª contagens para feedback visual/rastreabilidade.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75399:      178: +    - Inclui a quantidade de cotaÃ§Ãµes RTD inseridas/atualizadas.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75400:      179: +    - NÃ£o aciona Excel.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75401:      180: +    - Apenas lÃª contagens do banco depois que o pipeline RTD CSV jÃ¡ rodou.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75409:      178: +    - Inclui a quantidade de cotaÃ§Ãµes RTD inseridas/atualizadas.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75410:      179: +    - NÃ£o aciona Excel.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75411:      180: +    - Apenas lÃª contagens do banco depois que o pipeline RTD CSV jÃ¡ rodou.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75480:      200:          help="NÃ£o executar cleanup do derived.db antes de validar",
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75485:      205: +        help="NÃ£o importar dados/RTD_LINKS.csv para rtd_option_quotes no derived.db",
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75495:      205: +        help="NÃ£o importar dados/RTD_LINKS.csv para rtd_option_quotes no derived.db",
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75504:      205: +        help="NÃ£o importar dados/RTD_LINKS.csv para rtd_option_quotes no derived.db",
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75545:      221: +        print("\n[PIPELINE] ImportaÃ§Ã£o RTD pulada por --skip-rtd.")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75556:      221: +        print("\n[PIPELINE] ImportaÃ§Ã£o RTD pulada por --skip-rtd.")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75567:      221: +        print("\n[PIPELINE] ImportaÃ§Ã£o RTD pulada por --skip-rtd.")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75578:      221: +        print("\n[PIPELINE] ImportaÃ§Ã£o RTD pulada por --skip-rtd.")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75591:      233: +        print("\n[PIPELINE] Importando cotaÃ§Ãµes RTD para derived.db...")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75602:      233: +        print("\n[PIPELINE] Importando cotaÃ§Ãµes RTD para derived.db...")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75612:      233: +        print("\n[PIPELINE] Importando cotaÃ§Ãµes RTD para derived.db...")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75628:      241: +            print("[ERROR] PIPELINE FALHOU: importaÃ§Ã£o/auditoria RTD falhou")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75639:      241: +            print("[ERROR] PIPELINE FALHOU: importaÃ§Ã£o/auditoria RTD falhou")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75650:      241: +            print("[ERROR] PIPELINE FALHOU: importaÃ§Ã£o/auditoria RTD falhou")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75661:      241: +            print("[ERROR] PIPELINE FALHOU: importaÃ§Ã£o/auditoria RTD falhou")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75672:      241: +            print("[ERROR] PIPELINE FALHOU: importaÃ§Ã£o/auditoria RTD falhou")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75689:      248:      # ValidaÃ§Ã£o final OBRIGATÃ“RIA
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75690:      249:      print("\n[PIPELINE] Validando consistÃªncia final dos snapshots...")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75696:      249:      print("\n[PIPELINE] Validando consistÃªncia final dos snapshots...")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75698:      251:          print("[ERROR] PIPELINE FALHOU: InconsistÃªncias detectadas nos snapshots")
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75735:      288: ImportaÃ§Ã£o RTD wide CSV
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:92365:      258: services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:109211:     1537: services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:113343:      127: [TESTE] VALIDAÇÃO
+./docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:121178:       18:       - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/diagnostico_rtd_autopreenchimento_focado.txt:1030:  450:         - Este botão NÃO executa o pipeline completo.
+./docs/checkpoints/evidencias/diagnostico_rtd_autopreenchimento_focado.txt:2363:  109:     print(f"Modo strict: {'SIM' if args.strict else 'NÃO'}")
+./docs/checkpoints/evidencias/diagnostico_rtd_autopreenchimento_focado.txt:2364:  110:     print(f"Skip Excel: {'SIM' if args.skip_excel else 'NÃO'}")
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-codigo-atual.txt:592:./UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-1-mapa-payoff-runtime-codigo-atual.txt:442:./UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2519:./scripts/check_rota_desenvolvimento.py:238:            print("Documentos: NÃO ENCONTRADO")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2522:./scripts/check_rota_desenvolvimento.py:248:            print("Evidências em commits: NÃO ENCONTRADO")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2532:./scripts/check_rota_desenvolvimento.py:274:    print(f"Commit vazio ou sem alteração de arquivos: {'SIM' if is_empty else 'NÃO'}")
+./docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:2546:./scripts/check_rota_desenvolvimento.py:322:            print("Status: NÃO ENCONTRADO")
+./docs/checkpoints/evidencias/fase-3-4-alvos-provaveis-correcao.txt:379:domain/calculation_request.py:143:    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+./docs/checkpoints/evidencias/fase-3-4-diagnostico-bugs-provaveis.md:501:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-3-4-fluxo-manual-real-diagnostico.md:2678:services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/fase-3-4-fluxo-manual-real-diagnostico.md:5295:   359	        # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
+./docs/checkpoints/evidencias/fase-3-4-fluxo-manual-real-diagnostico.md:5589:   653	            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-3-contexto-cirurgico-codigo.md:55:domain/calculation_request.py:143:    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+./docs/checkpoints/evidencias/fase-3-contexto-cirurgico-codigo.md:1999:    10	O domínio NÃO acessa banco diretamente -- recebe estes objetos
+./docs/checkpoints/evidencias/fase-3-contexto-cirurgico-codigo.md:2132:   143	    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+./docs/checkpoints/evidencias/fase-3-correcao-codigo-inventario.txt:2879:domain/calculation_request.py:143:    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+./docs/checkpoints/evidencias/fase-3a-grep-geracao-payoff.txt:340:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-3a-grep-salvamento-manual.txt:825:services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/fase-3a-test-structure-editor-integration.txt:97:    # CORREÇÃO PRINCIPAL: Toplevel e Widget como classes reais
+./docs/checkpoints/evidencias/fase-3a-test-structure-editor-integration.txt:158:            # CORREÇÃO: ttk widgets também precisam ser classes reais
+./docs/checkpoints/evidencias/fase-3a3-test-structure-editor-integration.txt:97:    # CORREÇÃO PRINCIPAL: Toplevel e Widget como classes reais
+./docs/checkpoints/evidencias/fase-3a3-test-structure-editor-integration.txt:158:            # CORREÇÃO: ttk widgets também precisam ser classes reais
+./docs/checkpoints/evidencias/fase-3b-diagnostico-schema-canonico-estruturas.txt:211:./services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/fase-3f-diagnostico-payoff-manual-canonico.txt:505:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md:422:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md:3767:   200	                         responsabilidade do caller -- esta função NÃO
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md:4852:   359	        # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md:5146:   653	            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md:5330:   155	        # 1) Caminhos explicitamente configurados NA INSTÂNCIA.
+./docs/checkpoints/evidencias/fase-4-contexto-cirurgico-codigo.md:7473:   450	        - Este botão NÃO executa o pipeline completo.
+./docs/checkpoints/evidencias/fase-4-correcao-codigo-inventario.txt:975:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/evidencias/fase-4-correcao-codigo-inventario.txt:2115:domain/calculation_request.py:143:    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+./docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt:638:        print("Arquivo de saída NÃO foi sobrescrito para evitar apagar lista existente.")
+./docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt:1193:    print(f"Modo strict: {'SIM' if args.strict else 'NÃO'}")
+./docs/checkpoints/evidencias/fase-5c-restauracao-rtd-historico.txt:1194:    print(f"Skip Excel: {'SIM' if args.skip_excel else 'NÃO'}")
+./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:2248:services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:258:services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_ATUALIZAR_DADOS_PIPELINE.md:1:# REVISÃO FUNCIONAL PÓS-USO REAL — FASE 5 — ATUALIZAR DADOS E RESUMO DO PIPELINE
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_CONTRATO_RESUMO_PIPELINE.md:1:# VERIFICAÇÃO FASE 5 — CONTRATO MÍNIMO DO RESUMO DO PIPELINE
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_CORRECAO_UX_ATUALIZAR_DADOS.md:1:# FASE 5 — CORREÇÃO UX ATUALIZAR DADOS
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_DIAGNOSTICO_ATUALIZAR_DADOS.md:1:# DIAGNÓSTICO FASE 5 — BOTÃO ATUALIZAR DADOS
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_DIAGNOSTICO_ATUALIZAR_DADOS.md:534:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_INSPECAO_MAIN_WINDOW.md:1:# FASE 5 — INSPEÇÃO CIRÚRGICA DO FLUXO REAL EM UI/main_window.py
+./docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_5_INSPECAO_MAIN_WINDOW.md:32:450:        - Este botão NÃO executa o pipeline completo.
+./docs/evidencias/LEVANTAMENTO_ATUALIZACAO_AUTOMATICA_RTD.md:956:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/evidencias/LEVANTAMENTO_ATUALIZACAO_AUTOMATICA_RTD.md:1537:services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4267:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37749:     1094: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4268:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37750:     1095: repositories/market_snapshot_repository.py:284:        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4269:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37751:     1096: repositories/market_snapshot_repository.py:285:        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4273:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37760:     1094: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4274:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37761:     1095: repositories/market_snapshot_repository.py:284:        dessa composiÃ§Ã£o, se houver cotaÃ§Ã£o em rtd_option_quotes.codigo_opcao,
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4275:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:37762:     1096: repositories/market_snapshot_repository.py:285:        preÃ§o/greeks/strike/vencimento passam a vir da cotaÃ§Ã£o centralizada.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4500:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38961:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4504:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38972:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4509:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38983:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4515:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:38994:     2394: repositories/market_snapshot_repository.py:5:Le legs RTD (rtd_analise_robo_legs), cotaÃ§Ãµes RTD de opÃ§Ãµes
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4556:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39060:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4562:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39071:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4568:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39082:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4574:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39093:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4580:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39104:     2408: repositories/market_snapshot_repository.py:283:        A composiÃ§Ã£o da estrutura vem de rtd_analise_robo_legs. Para cada ativo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4594:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39261:     2687: services/market_snapshot_selector.py:8:  - Caso contrÃ¡rio, usa rtd_analise_robo_legs
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4596:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39263:     2689: services/market_snapshot_selector.py:60:        Seleciona as legs canÃ´nicas para a estrutura informada.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4599:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39271:     2689: services/market_snapshot_selector.py:60:        Seleciona as legs canÃ´nicas para a estrutura informada.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4605:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39282:     2689: services/market_snapshot_selector.py:60:        Seleciona as legs canÃ´nicas para a estrutura informada.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4692:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:39993:     3553: domain/market_snapshot.py:60:    Atributos do cabeÃ§alho (todos opcionais -- podem vir de RTD ou manual):
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4702:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40185:     3761: services/market_snapshot_selector.py:3:PolÃ­tica de precedÃªncia de snapshots: manual > rtd_option_quotes > rtd.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4709:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40197:     3766: services/market_snapshot_selector.py:47:    Aplica a polÃ­tica manual > rtd_option_quotes > rtd para selecionar o snapshot canÃ´nico.
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4720:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40881:     6623:    196	    Converte uma cotaÃ§Ã£o de rtd_option_quotes em LegMarketSnapshot mantendo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4722:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40892:     6623:    196	    Converte uma cotaÃ§Ã£o de rtd_option_quotes em LegMarketSnapshot mantendo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:4723:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:40902:     6623:    196	    Converte uma cotaÃ§Ã£o de rtd_option_quotes em LegMarketSnapshot mantendo
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:7896:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75690:      249:      print("\n[PIPELINE] Validando consistÃªncia final dos snapshots...")
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:7897:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75696:      249:      print("\n[PIPELINE] Validando consistÃªncia final dos snapshots...")
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:7898:docs/checkpoints/evidencias/diagnostico_fluxo_autopreenchimento_rtd.md:75698:      251:          print("[ERROR] PIPELINE FALHOU: InconsistÃªncias detectadas nos snapshots")
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_BUSCAS.txt:17418:UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+./docs/evidencias/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_7_FLUXO_RECALCULO.txt:28:        - Este botão NÃO executa o pipeline completo.
+./docs/EVOLUCAO_REVISAO_FUNCIONAL_POS_USO_REAL.md:226:REVISÃO FUNCIONAL PÓS-USO REAL — FASE 4 — PAYOFF E DECISÕES
+./docs/evolucoes de fases/baseline_v1.md:83:	OBSERVAÇÃO
+./docs/evolucoes de fases/baseline_v1.md:470:FASES DE PRODUÇÃO
+./docs/evolucoes de fases/executed_v1.md:127:[TESTE] VALIDAÇÃO
+./docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:33:ERROS ENCONTRADOS NA 1º EXECUÇÃO
+./domain/calculation_request.py:10:O domínio NÃO acessa banco diretamente -- recebe estes objetos
+./domain/calculation_request.py:143:    alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+./domain/payoff_features.py:200:                         responsabilidade do caller -- esta função NÃO
+./mapear_repositorio.sh:16:# - Este script NÃO apaga nenhum arquivo
+./scripts/build_rtd_symbols.py:168:        print("Arquivo de saída NÃO foi sobrescrito para evitar apagar lista existente.")
+./scripts/check_rota_desenvolvimento.py:193:            after = "SIM" if date_is_after_or_equal(last.date) else "NÃO"
+./scripts/check_rota_desenvolvimento.py:233:                    after = "SIM" if date_is_after_or_equal(last.date) else "NÃO"
+./scripts/check_rota_desenvolvimento.py:238:            print("Documentos: NÃO ENCONTRADO")
+./scripts/check_rota_desenvolvimento.py:245:                after = "SIM" if date_is_after_or_equal(c.date) else "NÃO"
+./scripts/check_rota_desenvolvimento.py:248:            print("Evidências em commits: NÃO ENCONTRADO")
+./scripts/check_rota_desenvolvimento.py:274:    print(f"Commit vazio ou sem alteração de arquivos: {'SIM' if is_empty else 'NÃO'}")
+./scripts/check_rota_desenvolvimento.py:322:            print("Status: NÃO ENCONTRADO")
+./scripts/check_rota_desenvolvimento.py:385:    section("SCRIPTS OPERACIONAIS E DE VALIDAÇÃO")
+./scripts/fase-2b-quantity-tests-auto.sh:148:  echo "ATENÇÃO: os testes falharam."
+./scripts/fase5_automacao_gitbash.sh:49:# REVISÃO FUNCIONAL PÓS-USO REAL — FASE 5 — ATUALIZAR DADOS E RESUMO DO PIPELINE
+./scripts/fase5_automacao_gitbash.sh:220:# AUDITORIA — REVISÃO FUNCIONAL PÓS-USO REAL
+./scripts/fase5_automacao_gitbash.sh:373:  echo "# DIAGNÓSTICO FASE 5 — BOTÃO ATUALIZAR DADOS"
+./scripts/fase5_automacao_gitbash.sh:469:  echo "# VERIFICAÇÃO FASE 5 — CONTRATO MÍNIMO DO RESUMO DO PIPELINE"
+./scripts/fase5_buscar_fluxo_atualizar_dados.sh:44:  echo "# DIAGNÓSTICO FASE 5 — BOTÃO ATUALIZAR DADOS"
+./scripts/fase5_checar_resumo_pipeline.sh:60:  echo "# VERIFICAÇÃO FASE 5 — CONTRATO MÍNIMO DO RESUMO DO PIPELINE"
+./scripts/run_rtd_refresh_full.py:109:    print(f"Modo strict: {'SIM' if args.strict else 'NÃO'}")
+./scripts/run_rtd_refresh_full.py:110:    print(f"Skip Excel: {'SIM' if args.skip_excel else 'NÃO'}")
+./scripts/verificar_andamento_rota.py:388:    print_section("VALIDAÇÃO TÉCNICA")
+./services/legacy_structure_legs_reader.py:18:      - NÃO gravar em structure_legs.
+./UI/components/details_panel.py:155:        # 1) Caminhos explicitamente configurados NA INSTÂNCIA.
+./UI/main_window.py:466:        - Este botão NÃO executa o pipeline completo.
+./UI/models/ui_data.py:359:        # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
+./UI/models/ui_data.py:653:            f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
