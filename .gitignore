@@ -98,3 +98,6 @@ ATT/checks/**/*.pyo
 *.bak
 *.fix*.bak
 *.fase*.bak
+
+# Artefatos locais da Fase 7
+_local_scripts_fase7/
