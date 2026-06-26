@@ -1,0 +1,48 @@
+REVISAO FUNCIONAL POS USO REAL - FASE 9
+TRIAGEM DE DOCUMENTACAO VIVA PARA NORMALIZACAO PT-BR
+
+====================================================================================================
+docs/rotas/NOVA_ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+====================================================================================================
+43: 2. Normalizacao numerica para aceitar formatos brasileiros e tecnicos.
+73: 5. Fase 2: correcao da normalizacao numerica.
+
+====================================================================================================
+docs/auditoria/AUDITORIA_REVISAO_FUNCIONAL_POS_USO_REAL.md
+====================================================================================================
+30: | Ordem | Etapa | Status | Commit |
+94: Foram localizadas referências a Atualizar Dados, recálculo, snapshot, strike must be numeric, structure_decisions, payoff_curve_points, rtd_option_quotes, aba e alias.
+182: - Premium vazio enviado pela interface podia gerar erro premium is required.
+204:     grep -RIn "premium is required\|premium is requered\|premium.*required\|premium.*obrig" . --exclude-dir=.git --exclude-dir=__pycache__ --exclude="*.bak*"
+326: # Registro de Auditoria — Fase 4 — Payoff e Decisões
+332: ## Status
+371:     Fase 5 — Atualizar Dados e Resumo do Pipeline
+387: ## Execução — Fase 7 — Recálculo, Snapshot e Métricas Financeiras
+470: Status: **Aprovada**
+496: Status: concluída por reconciliação.
+526: Status: em andamento.
+
+====================================================================================================
+docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_PLANO_EXECUCAO.md
+====================================================================================================
+49: ## Fase 2 - Correcao da normalizacao numerica
+55: 1. Valor como 158,00 gera erro de campo numerico.
+67: 3. Conversores numericos.
+134: 8. Status active.
+261: 4. Status.
+272: 4. Status e decisoes usam vocabulario padronizado.
+358: 6. Payoff.
+391: 5. Payoff gerado para estrutura valida.
+
+====================================================================================================
+docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_9_PORTUGUES_BRASIL.md
+====================================================================================================
+3: ## Status
+
+====================================================================================================
+docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_MAPA_ESTADO_ATUAL.md
+====================================================================================================
+45: 2. Normalizacao numerica
+73: | Fase 2 | Normalizacao numerica | REVISAO_FUNCIONAL_POS_USO_REAL_FASE_2_NORMALIZACAO_NUMERICA.md | Concluida por reconciliacao documental |
+75: | Fase 4 | Payoff e decisoes | docs/checkpoints/REVISAO_FUNCIONAL_POS_USO_REAL_FASE_4_PAYOFF_E_DECISOES.md | Concluida por reconciliacao documental |
+

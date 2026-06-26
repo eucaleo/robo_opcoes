@@ -1,0 +1,1187 @@
+REVISAO FUNCIONAL POS USO REAL - FASE 9
+TRIAGEM DE CODIGO VIVO PARA NORMALIZACAO PT-BR
+
+Escopo: arquivos .py em UI/ui/api/services/repositories/domain/scripts
+Observacao: caminhos duplicados por diferenca de caixa foram deduplicados.
+
+====================================================================================================
+UI/components/decisions_grid.py
+====================================================================================================
+2: from src.domain.refs.structure_ref import StructureRef
+9: class DecisionsGrid(ttk.LabelFrame):
+97:         except (ValueError, IndexError):
+163:         except (TypeError, ValueError):
+174:         except (TypeError, ValueError):
+190:         except (ValueError, IndexError):
+
+====================================================================================================
+UI/components/details_panel.py
+====================================================================================================
+10: class DetailsPanel(ttk.LabelFrame):
+93:         Aceita str ("7") ou int (7). Lança ValueError se não conversível.
+97:         except (TypeError, ValueError) as exc:
+98:             raise ValueError(
+128:             except TypeError:
+134:             except TypeError:
+155:         # 1) Caminhos explicitamente configurados NA INSTÂNCIA.
+394:                     except sqlite3.Error:
+438:             except sqlite3.Error:
+565:         ttk.Label(operational_frame, text="Cancelados ignorados:").grid(
+575:         ttk.Label(operational_frame, text="Status:").grid(
+788:         Aceita o formato retornado por StructureEventsService.apply_events_to_structure:
+851:             from repositories.structures_repository import StructuresRepository
+853:                 StructureEventsRepository,
+855:             from services.structure_events_service import StructureEventsService
+858:             structures_repo = StructuresRepository(app_db_path)
+859:             events_repo = StructureEventsRepository(app_db_path)
+860:             events_service = StructureEventsService(
+
+====================================================================================================
+UI/components/filters_panel.py
+====================================================================================================
+92:         # Status
+122:             except ValueError:
+128:             except ValueError:
+
+====================================================================================================
+UI/components/payoff_chart.py
+====================================================================================================
+2: from src.domain.refs.structure_ref import StructureRef
+55: class PayoffChart(ttk.Frame):
+144:         self.ax.set_title("Curva de Payoff")
+225:             filetypes=[("PNG", "*.png"), ("All files", "*.*")],
+237:         """Para integração com DetailsPanel: breakevens e PL interpolado no spot_ref."""
+305:         # Label da curva principal (B quando há overlay, senão "Payoff")
+314:             main_label = "Payoff"
+422:             title = f"Payoff -- {sid} [{dec}]"
+426:             title = "Curva de Payoff -- Comparação"
+428:             title = "Curva de Payoff"
+
+====================================================================================================
+UI/components/structure_editor_dialog.py
+====================================================================================================
+3: StructureEditorDialog -- alteracao_10 / Fase 5
+7:     dlg = StructureEditorDialog(
+24:     _repo           StructuresRepository
+37: from repositories.structures_repository import StructuresRepository
+39: from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+45:         raise ValueError(f"{field_name} is required")
+50:             raise ValueError(f"{field_name} is required")
+58:         raise ValueError(f"{field_name} must be numeric") from exc
+61: class StructureEditorDialog(tk.Toplevel):
+85:             self._repo = StructuresRepository(db_path)
+95:         self._f_status     = tk.StringVar(value="active")
+114:         title = "Nova Estrutura" if self._structure_id is None else "Editar Estrutura"
+124:             ("Aba / Alias",    self._f_alias,      "entry", None),
+125:             ("Status",         self._f_status,     "combo", ["active", "archived"]),
+188:         ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
+193:         form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
+276:         self._f_status.set(data.get("status", "active"))
+307:         except (ValueError, TypeError):
+331:         except (TypeError, ValueError):
+362:                 raise ValueError(
+414:         Alias publico de _cmd_add_leg().
+416:             hasattr(StructureEditorDialog, '_add_leg_row')
+461:         service = StructureLegRtdEnrichmentService(repo)
+466:     def _leg_has_manual_required_fields(leg_data: dict) -> bool:
+494:         if not require_quote and self._leg_has_manual_required_fields(leg_data):
+504:                 if not require_quote and self._leg_has_manual_required_fields(leg_data):
+541:             raise ValueError(f"Script de refresh RTD não encontrado: {script}")
+544:             raise ValueError(f"Workbook RTD não encontrado: {workbook_path}")
+581:             raise ValueError(
+595:             raise ValueError(
+658:         except ValueError as exc:
+693:         except ValueError as exc:
+714:                 raise ValueError(f"{field_name} is required")
+721:                 raise ValueError(f"{field_name} is required")
+731:             except ValueError as exc:
+732:                 raise ValueError(f"{field_name} must be numeric") from exc
+737:                 raise ValueError(f"{field_name} must be integer")
+765:             except ValueError as exc:
+766:                 raise ValueError(f"Leg {index}: {exc}") from exc
+794:                     raise ValueError(
+814:         except ValueError as exc:
+883:         except ValueError as exc:
+
+====================================================================================================
+UI/components/structures_list_panel.py
+====================================================================================================
+3: StructuresListPanel -- alteracao_10 / Fase 5
+10:     StructuresListPanel(
+19:     _status_var     tk.StringVar  ("active" | "all")
+28: from repositories.structures_repository import StructuresRepository
+40:     "alias":            ("Aba/Alias", 110, "w"),
+41:     "status":           ("Status",    70,  "center"),
+46: class StructuresListPanel(ttk.Frame):
+62:         self._repo                  = StructuresRepository(db_path)
+80:         ttk.Label(toolbar, text="Status:").pack(side="left")
+82:         self._status_var = tk.StringVar(value="active")
+86:             values=["active", "all"],
+133:         self._tree.tag_configure("archived", foreground="#999999")
+134:         self._tree.tag_configure("active",   foreground="#1a1a1a")
+143:             (" Editar",    self._cmd_edit),
+166:         include_archived = self._status_var.get() == "all"
+168:             include_archived=include_archived
+218:         except (IndexError, ValueError, TypeError):
+235:         except TypeError:
+268:             messagebox.showwarning("Editar", "Selecione uma estrutura primeiro.")
+288:                 "status":           "active",
+319:         if src and src.get("status") == "archived":
+
+====================================================================================================
+UI/debug_utils.py
+====================================================================================================
+27:         print("[PayoffChart] DEBUG", *args, **kwargs)
+31:     print("[PayoffChart]", *args, **kwargs)
+
+====================================================================================================
+UI/main_window.py
+====================================================================================================
+8: from UI.components.payoff_chart import PayoffChart
+9: from UI.components.details_panel import DetailsPanel
+10: from UI.components.decisions_grid import DecisionsGrid
+12: from UI.components.structures_list_panel import StructuresListPanel
+13: from UI.components.structure_editor_dialog import StructureEditorDialog
+42:         # Loading animation
+43:         self._loading_animation_active = False
+95:         self.decisions_grid = DecisionsGrid(
+109:         self.details_panel = DetailsPanel(
+116:         # Aba 2: Gráfico de Payoff
+118:         right_notebook.add(chart_frame, text="Curva de Payoff")
+120:         self.payoff_chart = PayoffChart(chart_frame)
+126:         # Status bar
+451:             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+466:         - Este botão NÃO executa o pipeline completo.
+467:         - Ele recalcula somente a estrutura selecionada via CanonicalPricingFacade.
+480:         except (TypeError, ValueError):
+528:                 from services.canonical_pricing_facade import CanonicalPricingFacade
+530:                 facade = CanonicalPricingFacade(db_path=self._db_path)
+536:                     raise RuntimeError(f"Resposta inválida do pricing facade: {result!r}")
+547:                     raise RuntimeError(msg)
+558:                         raise RuntimeError(msg)
+604:                 "Pipeline executado com sucesso.\n\n"
+609:             "Pipeline executado com sucesso.",
+627:             return "Pipeline executado com sucesso"
+634:             f"Pipeline OK: decisões={decisions}; "
+657:                 raise FileNotFoundError(
+673:                 print("[UI] Pipeline STDOUT:\n", res.stdout)
+675:                 print("[UI] Pipeline STDERR:\n", res.stderr)
+684:         except subprocess.CalledProcessError as e:
+687:                 "Pipeline falhou:\n\nSTDOUT:\n"
+701:             messagebox.showinfo("Status dos Bancos", status)
+715: Pipeline automático de payoff e decisões
+791:     # Loading animation
+795:         self._loading_animation_active = True
+799:             if not self._loading_animation_active:
+811:         self._loading_animation_active = False
+829:         self.structures_list = StructuresListPanel(
+866:         # Preferência: reaproveitar o DetailsPanel, que já sabe localizar derived.db.
+971:                 f"Status     : {structure.get('status')}",
+991:         dlg = StructureEditorDialog(
+1037:                 from services.canonical_pricing_facade import CanonicalPricingFacade
+1039:                 facade = CanonicalPricingFacade(db_path=self._db_path)
+1043:                     raise RuntimeError(
+
+====================================================================================================
+UI/models/ui_data.py
+====================================================================================================
+4: from src.domain.refs.structure_ref import StructureRef
+72:             raise FileNotFoundError(
+97:             raise RuntimeError(
+139:                 # _structure_filter_col vai lancar RuntimeError com mensagem clara.
+157:             raise RuntimeError(
+166:                 "Execute a migration (alteracao_36) para habilitar filtro canonico."
+180:         raise RuntimeError(
+182:             "Execute a migration do alteracao_33 antes de continuar."
+188:         Aceita str ("7") ou int (7). Lanca ValueError se nao conversivel.
+192:         except (TypeError, ValueError) as exc:
+193:             raise ValueError(
+195:                 "Esperado inteiro ou string numerica."
+212:             raise RuntimeError(
+215:                 "Execute a migration do alteracao_33 antes de continuar."
+232:         """Alias de get_structure_ids() para compatibilidade."""
+244:         """Alias readonly de get_structure_ids() -- compat UI (alteracao_34:filtro_aba)."""
+326:                 except (TypeError, ValueError) as exc:
+327:                     raise ValueError(
+359:         # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
+373:                 except (TypeError, ValueError):
+404:         Aceita structure_id como inteiro ou string numerica ("7").
+405:         Strings nao-numericas lancam ValueError.
+418:             raise RuntimeError(
+426:         required = ["timestamp", "spot", "pl"]
+427:         if any(k not in p for k in required):
+428:             raise RuntimeError(
+559:                 required = ["timestamp", "spot", "pl"]
+560:                 if any(k not in p for k in required):
+561:                     raise RuntimeError(
+653:             f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
+
+====================================================================================================
+api/pricing_execution_controller.py
+====================================================================================================
+4: from services.pricing_execution_app_service import PricingExecutionAppService
+7: service = PricingExecutionAppService()
+10: class CreatePricingExecutionRequest(BaseModel):
+16: def create_pricing_execution(request: CreatePricingExecutionRequest):
+22:     except ValueError as exc:
+46:     except ValueError as exc:
+64:     except ValueError as exc:
+79:     except ValueError as exc:
+
+====================================================================================================
+api/structures_controller.py
+====================================================================================================
+18: from repositories.structures_repository import StructuresRepository
+23: _repo: StructuresRepository = StructuresRepository()
+30: class CreateStructureRequest(BaseModel):
+37: class UpdateStructureRequest(BaseModel):
+42:     status: str | None = Field(default=None, pattern=r"^(active|archived)$")
+78: class CreateStructureResponse(BaseModel):
+82: class StructureSummaryResponse(BaseModel):
+93: class StructureDetailResponse(StructureSummaryResponse):
+119: @router.post("/structures", response_model=CreateStructureResponse, status_code=201)
+120: def create_structure(request: CreateStructureRequest) -> CreateStructureResponse:
+123:     except ValueError as exc:
+125:     return CreateStructureResponse(structure_id=structure_id)
+128: @router.get("/structures", response_model=list[StructureSummaryResponse])
+130:     include_archived: bool = Query(False, description="Inclui estruturas arquivadas"),
+131: ) -> list[StructureSummaryResponse]:
+132:     rows = _repo.list_structures(include_archived=include_archived)
+133:     return [StructureSummaryResponse(**row) for row in rows]
+136: @router.get("/structures/{structure_id}", response_model=StructureDetailResponse)
+137: def get_structure(structure_id: int) -> StructureDetailResponse:
+139:     return StructureDetailResponse(**structure)
+143: def update_structure(structure_id: int, request: UpdateStructureRequest) -> None:
+152:     except ValueError as exc:
+163:     except ValueError as exc:
+187:     except ValueError as exc:
+206:     except ValueError as exc:
+256: from datetime import datetime as _StructureEventsDateTime
+257: from typing import Any as _StructureEventsAny
+259: from fastapi import HTTPException as _StructureEventsHTTPException
+260: from pydantic import BaseModel as _StructureEventsBaseModel
+263:     StructureEventsService as _StructureEventsService,
+267: _events_service = _StructureEventsService()
+297: class RecordStructureEventRequest(_StructureEventsBaseModel):
+307:     metadata: dict[str, _StructureEventsAny] | list[_StructureEventsAny] | None = None
+310: class CancelStructureEventRequest(_StructureEventsBaseModel):
+314: def _structure_events_model_dump(model: _StructureEventsBaseModel) -> dict[str, _StructureEventsAny]:
+320: def _structure_events_result_payload(result: _StructureEventsAny) -> dict[str, _StructureEventsAny]:
+326: def _structure_events_value_error_to_http(exc: ValueError) -> _StructureEventsHTTPException:
+329:     return _StructureEventsHTTPException(status_code=status_code, detail=message)
+335:         raise _StructureEventsHTTPException(
+342:     request: RecordStructureEventRequest,
+345:         raise _StructureEventsHTTPException(
+351:         _StructureEventsDateTime.strptime(request.event_date, "%Y-%m-%d")
+352:     except ValueError as exc:
+353:         raise _StructureEventsHTTPException(
+359:         raise _StructureEventsHTTPException(
+365:         raise _StructureEventsHTTPException(
+371:         raise _StructureEventsHTTPException(
+377:         raise _StructureEventsHTTPException(
+383:         raise _StructureEventsHTTPException(
+392:     response_model=dict[str, _StructureEventsAny],
+396: ) -> dict[str, _StructureEventsAny]:
+410:     except ValueError as exc:
+416:     response_model=dict[str, _StructureEventsAny],
+421:     request: RecordStructureEventRequest,
+422: ) -> dict[str, _StructureEventsAny]:
+431:     except ValueError as exc:
+439:     response_model=list[dict[str, _StructureEventsAny]],
+444: ) -> list[dict[str, _StructureEventsAny]]:
+452:     except ValueError as exc:
+458:     response_model=list[dict[str, _StructureEventsAny]],
+467: ) -> list[dict[str, _StructureEventsAny]]:
+469:         raise _StructureEventsHTTPException(
+475:         raise _StructureEventsHTTPException(
+481:         raise _StructureEventsHTTPException(
+495:     except ValueError as exc:
+501:     response_model=dict[str, _StructureEventsAny],
+503: def get_structure_event(event_id: int) -> dict[str, _StructureEventsAny]:
+506:     except ValueError as exc:
+510:         raise _StructureEventsHTTPException(
+520:     response_model=dict[str, _StructureEventsAny],
+524:     request: CancelStructureEventRequest,
+525: ) -> dict[str, _StructureEventsAny]:
+528:     except ValueError as exc:
+
+====================================================================================================
+services/calculation_orchestrator.py
+====================================================================================================
+16:     MarketSnapshotInput,
+17:     StructureInput,
+18:     StructureLegInput,
+35:     except ValueError as exc:
+36:         raise ValueError(f"position_side desconhecido: {raw!r}") from exc
+42:         raise ValueError(f"option_type desconhecido: {raw!r}")
+60:         raise ValueError("legs_rows nao pode ser vazio")
+65:             leg = StructureLegInput(
+81:         except (KeyError, TypeError, ValueError) as exc:
+82:             raise ValueError(f"Erro ao montar leg[{i}]: {exc}") from exc
+85:     structure = StructureInput(
+93:     snapshot = MarketSnapshotInput(
+260:                 StructureLegInput(
+278:         structure = StructureInput(
+286:         snapshot = MarketSnapshotInput(
+417:             RuntimeError: se repositorios nao foram injetados
+418:             ValueError  : se estrutura nao encontrada, arquivada ou sem legs
+419:             ValueError  : se snapshot nao encontrado
+422:             raise RuntimeError(
+423:                 "StructuresRepository nao foi injetado no orquestrador. "
+427:             raise RuntimeError(
+428:                 "MarketSnapshotRepository nao foi injetado no orquestrador. "
+435:             raise ValueError(
+438:         if structure.get("status") == "archived":
+439:             raise ValueError(
+446:             raise ValueError(
+457:             raise ValueError(
+458:                 f"Snapshot nao encontrado para underlying_asset='{underlying}' "
+504:         Pipeline completo resolvendo estrutura e snapshot pelos repositorios.
+
+====================================================================================================
+services/canonical_input_service.py
+====================================================================================================
+7:   - _resolve_spot_and_rates  → MarketSnapshotProvider (spot, taxa, vol)
+8:   - _resolve_legs            → MarketSnapshotSelector (manual > rtd por ativo)
+23: from src.domain.refs.structure_ref import StructureRef
+27: from repositories.structures_repository import StructuresRepository
+28: from repositories.structure_events_repository import StructureEventsRepository
+30: from services.market_snapshot_provider import MarketSnapshotProvider
+31: from services.market_snapshot_selector import MarketSnapshotSelector
+32: from services.structure_events_service import StructureEventsService
+39:         repository: StructuresRepository | None = None,
+40:         market_snapshot_provider: MarketSnapshotProvider | None = None,
+41:         market_snapshot_selector: MarketSnapshotSelector | None = None,
+43:         structure_events_service: StructureEventsService | None = None,
+49:         self.repository                  = repository or StructuresRepository()
+50:         self.market_snapshot_provider    = market_snapshot_provider or MarketSnapshotProvider()
+65:             except ImportError:
+77:             self.structure_events_service = StructureEventsService(
+78:                 structure_events_repository=StructureEventsRepository(
+96:             raise ValueError(f"structure not found: {structure_id}")
+149:         Sempre busca spot/taxa/vol no MarketSnapshotProvider (fonte autoritativa).
+164:             ref = StructureRef.from_aba(aba)
+193:         ref: StructureRef,
+196:         Delega ao MarketSnapshotSelector e serializa legs completas.
+198:         Serialização cobre todos os campos de LegMarketSnapshot para que
+391:         previstos no domínio de MarketSnapshot.
+
+====================================================================================================
+services/canonical_pricing_facade.py
+====================================================================================================
+4: alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+5:            no PricingExecutionPersistenceService.
+21:   C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+32: from repositories.market_snapshot_repository import MarketSnapshotRepository
+33: from repositories.system_snapshots_repository import SystemSnapshotsRepository
+34: from services.derived_payoff_persistence import DerivedPayoffPersistence
+35: from services.market_snapshot_selector import MarketSnapshotSelector
+36: from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+37: from services.pricing_execution_service import PricingExecutionService
+38: from services.pricing_input_service import PricingInputService
+49:     Raises ValueError se:
+61:         raise ValueError(f"structure not found: {structure_id}")
+65:         raise ValueError(f"alias_legacy_aba is null for structure_id={structure_id}")
+126:         except ValueError:
+299:         raise ValueError(
+321: class CanonicalPricingFacade:
+327:                      MarketSnapshotSelector.select(aba=...)
+329:                                      PricingExecutionService.execute_payload()
+330:                                              PricingExecutionPersistenceService.persist()
+331:                                                      DerivedPayoffPersistence.persist()
+338:         pricing_execution_service: PricingExecutionService | None = None,
+339:         persistence_service: PricingExecutionPersistenceService | None = None,
+342:         self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+343:         self._selector = MarketSnapshotSelector(repository=self._repo)
+344:         self._engine   = pricing_execution_service or PricingExecutionService()
+346:         self._persister = persistence_service or PricingExecutionPersistenceService(
+347:             payoff_persistence_port=DerivedPayoffPersistence(),
+348:             system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+362:             #   structures.alias_legacy_aba preenchido -> MarketSnapshotSelector.
+365:             #   structures.alias_legacy_aba NULL -> PricingInputService.build_pricing_payload().
+384:             except ValueError as exc:
+391:                     pricing_input_service = PricingInputService(db_path=self._db_path)
+392:                 except TypeError:
+393:                     pricing_input_service = PricingInputService()
+400:                 except TypeError:
+406:                     raise ValueError(
+407:                         "PricingInputService.build_pricing_payload() retornou payload inválido"
+
+====================================================================================================
+services/derived_payoff_persistence.py
+====================================================================================================
+12: class DerivedPayoffPersistence:
+14:     Implementação concreta de PayoffPersistencePort.
+24:     #  PayoffPersistencePort.persist()                                 #
+136:                 except (ZeroDivisionError, TypeError, ValueError):
+218:         except (TypeError, ValueError):
+239:         normalized_side = DerivedPayoffPersistence._normalize_position_side(
+253:             except (TypeError, ValueError):
+264:         # Aliases defensivos para eventuais payloads de outras origens.
+291:             DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+319:             return DerivedPayoffPersistence._normalize_canonical_input_for_payoff(
+342:                     DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+
+====================================================================================================
+services/derived_service.py
+====================================================================================================
+23: from src.domain.refs.structure_ref import StructureRef
+82:     alteracao_57: extrai string aba de StructureRef ou passa str diretamente.
+85:     if isinstance(ref, StructureRef):
+112:         except (ValueError, TypeError):
+158: # Payoff
+170:     alteracao_57: 'ref' aceita StructureRef, str ou None.
+261:     except (TypeError, ValueError):
+291:     alteracao_57: 'ref' aceita StructureRef, str ou None.
+419:     ref = StructureRef.from_id(structure_id)
+536: def snapshot_aba(ref: "StructureRef") -> str:
+537:     """Retorna aba_str canônico a partir de um StructureRef."""
+
+====================================================================================================
+services/legacy_robo_legs_fallback.py
+====================================================================================================
+1: from src.domain.refs.structure_ref import StructureRef
+130:                 except TypeError:
+148:                 except TypeError:
+188:                 except TypeError:
+
+====================================================================================================
+services/legacy_structure_legs_importer.py
+====================================================================================================
+3: LegacyStructureLegsImporter
+6: Importa pernas legadas ja normalizadas pelo LegacyStructureLegsReader
+12:       -> LegacyStructureLegsReader.read_by_structure_id(...)
+14:       -> StructuresRepository.replace_legs(...)
+19:     - Reaproveita o audit trail ja existente em StructuresRepository.replace_legs,
+27: from repositories.structures_repository import StructuresRepository
+30: class LegacyStructureLegsReaderProtocol(Protocol):
+39: class LegacyStructureLegsImporter:
+45:             Objeto compatível com LegacyStructureLegsReaderProtocol.
+54:         reader: LegacyStructureLegsReaderProtocol,
+55:         structures_repository: StructuresRepository,
+79:             ValueError:
+85:             raise ValueError(f"structure not found: {structure_id}")
+93:             raise ValueError(
+
+====================================================================================================
+services/legacy_structure_legs_reader.py
+====================================================================================================
+9: class LegacyStructureLegsReader:
+18:       - NÃO gravar em structure_legs.
+
+====================================================================================================
+services/market_snapshot_provider.py
+====================================================================================================
+44: class MarketSnapshotProvider:
+56:             raise ValueError("underlying_asset is required")
+60:             raise ValueError(f"market snapshot not found for asset: {asset}")
+
+====================================================================================================
+services/market_snapshot_selector.py
+====================================================================================================
+14: from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
+15: from repositories.market_snapshot_repository import MarketSnapshotRepository
+16: from src.domain.refs.structure_ref import StructureRef
+22: def _ref_to_aba(ref: StructureRef | str) -> str:
+23:     """Aceita StructureRef ou str e devolve a string da aba."""
+24:     if isinstance(ref, StructureRef):
+27:         raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+32: class SnapshotSelectionResult:
+36:     source: SnapshotSource | str
+37:     legs: list[LegMarketSnapshot] = field(default_factory=list)
+42:         return self.source == SnapshotSource.MANUAL or bool(self.manual_overrides)
+45: class MarketSnapshotSelector:
+50:     def __init__(self, repository: MarketSnapshotRepository) -> None:
+55:         ref: StructureRef | str | None = None,
+58:     ) -> SnapshotSelectionResult:
+63:           - select(ref=StructureRef(...))
+64:           - select(StructureRef(...))
+69:             raise ValueError("Informe ref ou aba para selecionar snapshot.")
+71:         effective_ref: StructureRef | str = ref if ref is not None else aba
+90:         manual_by_ativo: dict[str, LegMarketSnapshot] = {}
+95:         rtd_option_quote_by_ativo: dict[str, LegMarketSnapshot] = {}
+100:         rtd_by_ativo: dict[str, LegMarketSnapshot] = {}
+111:         legs_selected: list[LegMarketSnapshot] = []
+125:             source: SnapshotSource | str = SnapshotSource.MANUAL
+129:             source = SnapshotSource.RTD
+131:         return SnapshotSelectionResult(
+
+====================================================================================================
+services/payoff_persistence_port.py
+====================================================================================================
+5: class PayoffPersistencePort(Protocol):
+
+====================================================================================================
+services/payoff_pricing_engine.py
+====================================================================================================
+7: class PayoffPricingEngine:
+13:     - manter o contrato de saída esperado por PricingExecutionService;
+22:             raise ValueError("pricing_payload is required")
+26:             raise ValueError("pricing_payload.legs is required")
+30:             raise ValueError("pricing_payload.spot_price is required")
+
+====================================================================================================
+services/pricing_execution_app_service.py
+====================================================================================================
+3: alteracao_18 -- execute_pricing() delegado para CanonicalPricingFacade.
+6:   - execute_pricing() agora usa CanonicalPricingFacade (manual > rtd, caminho canônico)
+7:   - PricingExecutionOrchestrationService removido do __init__ (não mais necessário aqui)
+16: from services.canonical_pricing_facade import CanonicalPricingFacade
+17: from services.pricing_execution_query_service import PricingExecutionQueryService
+22: class PricingExecutionAppService:
+25:         canonical_pricing_facade: CanonicalPricingFacade | None = None,
+26:         pricing_execution_query_service: PricingExecutionQueryService | None = None,
+29:         self._facade = canonical_pricing_facade or CanonicalPricingFacade(
+33:             pricing_execution_query_service or PricingExecutionQueryService()
+53:         # propaga erros como ValueError para manter contrato com callers existentes
+55:             raise ValueError(response.get("error_message", "pricing execution failed"))
+128:             raise ValueError("structure_id must be greater than zero")
+136:         except ValueError as exc:
+137:             raise ValueError("reference_date must be in YYYY-MM-DD format") from exc
+140:             raise ValueError("reference_date must be in YYYY-MM-DD format")
+
+====================================================================================================
+services/pricing_execution_orchestration_service.py
+====================================================================================================
+4: from repositories.system_snapshots_repository import SystemSnapshotsRepository
+6:     PricingExecutionPersistenceService,
+8: from services.pricing_execution_service import PricingExecutionService
+9: from services.pricing_input_service import PricingInputService
+12: class PricingExecutionOrchestrationService:
+15:         pricing_input_service: PricingInputService | None = None,
+16:         pricing_execution_service: PricingExecutionService | None = None,
+17:         pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
+19:         self.pricing_input_service = pricing_input_service or PricingInputService()
+20:         self.pricing_execution_service = pricing_execution_service or PricingExecutionService(
+25:             or PricingExecutionPersistenceService(
+26:                 system_snapshots_repository=SystemSnapshotsRepository(),
+
+====================================================================================================
+services/pricing_execution_persistence_service.py
+====================================================================================================
+5: from repositories.pricing_executions_repository import PricingExecutionsRepository
+6: from repositories.system_snapshots_repository import SystemSnapshotsRepository
+7: from services.payoff_persistence_port import PayoffPersistencePort
+12: class PricingExecutionPersistenceService:
+15:         pricing_executions_repository: PricingExecutionsRepository | None = None,
+16:         payoff_persistence_port: PayoffPersistencePort | None = None,
+17:         system_snapshots_repository: SystemSnapshotsRepository | None = None,
+20:             pricing_executions_repository or PricingExecutionsRepository()
+
+====================================================================================================
+services/pricing_execution_query_service.py
+====================================================================================================
+4: from repositories.pricing_executions_repository import PricingExecutionsRepository
+7: class PricingExecutionQueryService:
+10:         pricing_executions_repository: PricingExecutionsRepository | None = None,
+13:             pricing_executions_repository or PricingExecutionsRepository()
+24:             raise ValueError("structure_id must be greater than zero")
+27:             raise ValueError("underlying_asset must not be empty")
+30:             raise ValueError("status must be either 'ok' or 'error'")
+34:                 raise ValueError("reference_date must not be empty")
+38:             except ValueError as exc:
+39:                 raise ValueError(
+65:         except TypeError as exc:
+170:             raise ValueError("page must be greater than zero")
+173:             raise ValueError("page_size must be greater than zero")
+223:             raise ValueError("no pricing execution summaries found")
+229:             raise ValueError("execution_id must be greater than zero")
+234:             raise ValueError(f"pricing execution {execution_id} not found")
+
+====================================================================================================
+services/pricing_execution_service.py
+====================================================================================================
+3: from services.payoff_pricing_engine import PayoffPricingEngine
+4: from services.pricing_input_service import PricingInputService
+7: class PricingExecutionService:
+10:         pricing_input_service: PricingInputService | None = None,
+11:         pricing_engine: PayoffPricingEngine | None = None,
+13:         self.pricing_input_service = pricing_input_service or PricingInputService()
+14:         self.pricing_engine = pricing_engine or PayoffPricingEngine()
+
+====================================================================================================
+services/pricing_input_service.py
+====================================================================================================
+7: class PricingInputService:
+
+====================================================================================================
+services/pricing_payload_adapter.py
+====================================================================================================
+20:         raise ValueError("canonical_input is required")
+26:         raise ValueError("canonical_input.structure is required")
+29:         raise ValueError("canonical_input.market is required")
+36:             raise ValueError(f"canonical_input.structure.legs[{index}] is required")
+
+====================================================================================================
+services/robo_leg_mapper.py
+====================================================================================================
+32:     except (TypeError, ValueError) as exc:
+33:         raise ValueError(f"invalid {field_name}: {value}") from exc
+39:     except (TypeError, ValueError) as exc:
+40:         raise ValueError(f"invalid {field_name}: {value}") from exc
+57:     except ValueError as exc:
+58:         raise ValueError(f"invalid cv: {cv}") from exc
+65:         raise ValueError(f"invalid call_put: {call_put}")
+
+====================================================================================================
+services/robo_legs_service.py
+====================================================================================================
+6:   - from __future__ movido para primeira linha (SyntaxError fix)
+7:   - get_legs(): parametro renomeado para ref: StructureRef; aba extraida de ref
+16: from src.domain.refs.structure_ref import StructureRef
+32:         ref: StructureRef,
+39:         Aceita StructureRef ou string de aba. Primeiro tenta a API nova
+43:         aba = ref.aba if isinstance(ref, StructureRef) else str(ref)
+47:         except TypeError as exc:
+56:                 raise ValueError(
+79:                 raise ValueError(
+
+====================================================================================================
+services/robo_legs_status_service.py
+====================================================================================================
+3: alteracao_57c -- RoboLegsStatusService.
+13: from src.domain.refs.structure_ref import StructureRef
+15: from dto.robo_legs_status_dto import DataFreshness, RoboLegsStatusDTO
+18:     RoboLegsStatusRepository,
+19:     RoboLegsStatusRepoConfig,
+30: class RoboLegsStatusService:
+34:         status_repo: Optional[RoboLegsStatusRepository] = None,
+38:         self.status_repo = status_repo or RoboLegsStatusRepository(
+39:             RoboLegsStatusRepoConfig()
+45:         ref: StructureRef,
+48:     ) -> RoboLegsStatusDTO:
+66:         except TypeError as exc:
+78:             return RoboLegsStatusDTO(
+99:         return RoboLegsStatusDTO(
+
+====================================================================================================
+services/structure_analysis_service.py
+====================================================================================================
+14: class StructureAnalysisService:
+67:                 "error": "payoff is required",
+
+====================================================================================================
+services/structure_events_service.py
+====================================================================================================
+6: from repositories.structure_events_repository import StructureEventsRepository
+9: class StructureEventsService:
+38:         structure_events_repository: StructureEventsRepository | None = None,
+41:             structure_events_repository or StructureEventsRepository()
+46:             raise ValueError(f"{field_name} must be greater than zero")
+59:             raise ValueError(f"event_type must be one of: {allowed}")
+64:             raise ValueError(f"event_status must be one of: {allowed}")
+69:             raise ValueError(f"source must be one of: {allowed}")
+73:             raise ValueError("event_date must not be empty")
+77:         except ValueError as exc:
+78:             raise ValueError("event_date must be in YYYY-MM-DD format") from exc
+85:             raise ValueError("quantity must be an integer")
+88:             raise ValueError("quantity must be greater than or equal to zero")
+95:             raise ValueError("price must be numeric")
+98:             raise ValueError("price must be greater than or equal to zero")
+197:             raise ValueError("notes must not be empty")
+242:             raise ValueError("limit must be greater than zero")
+245:             raise ValueError("offset must be greater than or equal to zero")
+308:             raise ValueError("structure must be a dict")
+401:             raise ValueError("structure_id is required to apply events") from exc
+404:             raise ValueError("structure_id must be greater than zero")
+471:             raise ValueError("event quantity must be integer") from exc
+474:             raise ValueError("event quantity must be greater than or equal to zero")
+
+====================================================================================================
+services/structure_input_mapper.py
+====================================================================================================
+24:     except (TypeError, ValueError):
+87:         raise ValueError("structure is required")
+
+====================================================================================================
+services/structure_leg_rtd_enrichment_service.py
+====================================================================================================
+17: class StructureLegRtdEnrichmentService:
+42:             raise ValueError("symbol is required for RTD leg enrichment")
+46:             raise ValueError(f"option quote not found for symbol: {symbol}")
+48:         self._ensure_required_quote_fields(
+50:             required=("ativo_base", "call_put", "strike", "vencimento"),
+59:                 raise ValueError(
+80:             "underlying_asset": self._normalize_required_text(
+93:     def _normalize_required_text(value: Any, field_name: str) -> str:
+95:             raise ValueError(f"{field_name} is required")
+98:             raise ValueError(f"{field_name} is required")
+103:         text = cls._normalize_required_text(value, "option_type")
+114:             raise ValueError(f"invalid option_type/call_put: {value!r}")
+141:             raise ValueError(f"{field_name} is required")
+151:         except (TypeError, ValueError) as exc:
+152:             raise ValueError(f"{field_name} must be numeric") from exc
+164:             raise ValueError(f"{field_name} must be integer")
+168:     def _ensure_required_quote_fields(
+170:         required: tuple[str, ...],
+172:         for field in required:
+175:                 raise ValueError(f"missing required RTD field: {field}")
+
+====================================================================================================
+services/structure_market_input_assembler.py
+====================================================================================================
+11:         raise ValueError("structure is required")
+14:         raise ValueError("market_snapshot is required")
+21:         raise ValueError(
+
+====================================================================================================
+repositories/market_snapshot_repository.py
+====================================================================================================
+7: e retorna objetos LegMarketSnapshot prontos para uso.
+15: from src.domain.refs.structure_ref import StructureRef
+18:     LegMarketSnapshot,
+19:     SnapshotSource,
+20:     StructureMarketSnapshot,
+111: def _ref_to_aba(ref: StructureRef | str) -> str:
+112:     """Aceita StructureRef ou str e devolve a string da aba."""
+113:     if isinstance(ref, StructureRef):
+116:         raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+127:     except (ValueError, TypeError):
+160: def _row_to_leg(row: sqlite3.Row, source: SnapshotSource) -> LegMarketSnapshot:
+165:     return LegMarketSnapshot(
+192:     base_leg: LegMarketSnapshot,
+194: ) -> LegMarketSnapshot:
+196:     Converte uma cotação de rtd_option_quotes em LegMarketSnapshot mantendo
+216:     return LegMarketSnapshot(
+249: class MarketSnapshotRepository:
+254:       get_rtd_legs(aba)                -> lista de LegMarketSnapshot source=RTD
+256:       get_manual_legs(aba)             -> lista de LegMarketSnapshot source=MANUAL
+258:       get_structure(aba)               -> StructureMarketSnapshot completo
+264:             raise FileNotFoundError(f"Banco nao encontrado: {self._db_path}")
+273:     def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+277:         return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
+279:     def get_rtd_option_quote_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+329:         except sqlite3.OperationalError:
+340:         enriched: list[LegMarketSnapshot] = []
+349:     def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
+357:     # -- Manual ---------------------------------------------------------------
+359:     def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+363:         return [_row_to_leg(r, SnapshotSource.MANUAL) for r in rows]
+369:         ref: StructureRef | str,
+370:         source: SnapshotSource = SnapshotSource.RTD,
+371:     ) -> StructureMarketSnapshot:
+374:         if source == SnapshotSource.RTD:
+388:         return StructureMarketSnapshot(
+
+====================================================================================================
+repositories/pricing_executions_repository.py
+====================================================================================================
+11: class PricingExecutionsRepository:
+44:             raise ValueError("result is required")
+234:                 raise ValueError(
+239:         raise TypeError(f"Tipo de row não suportado: {type(row).__name__}")
+252:                 except (json.JSONDecodeError, ValueError):
+
+====================================================================================================
+repositories/robo_legs_repository.py
+====================================================================================================
+17: from src.domain.refs.structure_ref import StructureRef
+22:     """Aceita StructureRef ou str e devolve a string da aba."""
+25:     return ref.aba  # StructureRef.aba (alteracao_53)
+53:     def get_legs(self, ref: StructureRef, timestamp: Any) -> List[RoboLegDTO]:
+80:     def has_manual(self, ref: StructureRef, timestamp: Any) -> bool:
+100:         ref: StructureRef,
+243:         Levanta ValueError se structure_id não mapeado.
+247:             raise ValueError(
+250:         # alteracao_62: passa StructureRef em vez de str nua -- semântica explícita
+251:         ref = StructureRef(aba=aba, structure_id=structure_id)
+264:             ref=StructureRef(aba=aba, structure_id=structure_id),
+276:             raise ValueError(
+280:             ref=StructureRef(aba=aba, structure_id=structure_id),
+
+====================================================================================================
+repositories/robo_legs_status_repository.py
+====================================================================================================
+15: from src.domain.refs.structure_ref import StructureRef
+20:     """Aceita StructureRef ou str e devolve a string da aba."""
+27: class RoboLegsStatusRepoConfig:
+31: class RoboLegsStatusRepository(AbaResolverMixin):
+39:     def __init__(self, config: Optional[RoboLegsStatusRepoConfig] = None):
+40:         self.config = config or RoboLegsStatusRepoConfig()
+44:         ref: StructureRef,
+82:             ref=StructureRef(aba=aba, structure_id=structure_id),
+
+====================================================================================================
+repositories/rtd_option_quotes_repository.py
+====================================================================================================
+7: - erros sqlite3.OperationalError propagam;
+
+====================================================================================================
+repositories/structure_events_repository.py
+====================================================================================================
+41:         # Aliases legados mantidos por compatibilidade
+63:         # Alias legado
+94:         raise ValueError("event payload must be a dict")
+99:         raise ValueError("structure_id is required") from exc
+102:         raise ValueError("structure_id must be > 0")
+110:             raise ValueError("leg_id must be integer when provided") from exc
+112:             raise ValueError("leg_id must be > 0 when provided")
+116:         raise ValueError(f"invalid event_type: {event_type}")
+120:         raise ValueError(f"invalid event_status: {event_status}")
+124:         raise ValueError("event_date is required")
+132:             raise ValueError("quantity must be integer when provided") from exc
+134:             raise ValueError("quantity must be > 0 when provided")
+142:             raise ValueError("price must be numeric when provided") from exc
+146:         raise ValueError(f"invalid source: {source}")
+153:         raise ValueError("metadata must be a dict when provided")
+170: class StructureEventsRepository:
+276:             raise ValueError(f"structure not found: {structure_id}")
+298:             raise ValueError(
+365:             raise ValueError("event_id must be > 0")
+380:                 raise ValueError(f"event not found: {event_id}")
+408:             raise ValueError("event_id must be > 0")
+440:                 raise ValueError("structure_id must be > 0")
+447:                 raise ValueError(f"invalid event_type: {event_type}")
+454:                 raise ValueError(f"invalid event_status: {event_status}")
+464:             raise ValueError("limit must be > 0")
+466:             raise ValueError("offset must be >= 0")
+513:                 raise ValueError("structure_id must be > 0")
+520:                 raise ValueError(f"invalid event_type: {event_type}")
+
+====================================================================================================
+repositories/structures_repository.py
+====================================================================================================
+28: VALID_STRUCTURE_STATUS: frozenset[str] = frozenset({"active", "archived"})
+46:         raise ValueError("expiration_date is required")
+52:     except ValueError as exc:
+53:         raise ValueError(
+64:     status = str(data.get("status", "active")).strip().lower()
+68:         raise ValueError("name is required")
+71:         raise ValueError("underlying_asset is required")
+74:         raise ValueError(f"invalid status: {status}")
+102:         raise ValueError(f"invalid position_side: {position_side}")
+105:         raise ValueError(f"invalid option_type: {option_type}")
+110:         raise ValueError("strike must be numeric") from exc
+113:         raise ValueError("strike must be > 0")
+118:         raise ValueError("quantity must be integer") from exc
+121:         raise ValueError("quantity must be > 0")
+126:         raise ValueError("multiplier must be numeric") from exc
+129:         raise ValueError("multiplier must be > 0")
+134:         raise ValueError("leg_order must be integer") from exc
+137:         raise ValueError("leg_order must be >= 0")
+144:             raise ValueError("premium must be numeric when provided") from exc
+180:             raise ValueError(
+209:         raise ValueError(
+219: class StructuresRepository:
+267:             raise ValueError(f"structure not found: {structure_id}")
+409:             raise ValueError("estrutura deve ter ao menos uma leg")
+498:         self, include_archived: bool = False
+507:         if not include_archived:
+509:             params = ("active",)
+548:             raise ValueError(f"structure not found: {structure_id}")
+602:             raise ValueError(f"structure not found: {structure_id}")
+612:                 ("archived", now, structure_id),
+621:                 after={**before_snap, "status": "archived", "updated_at": now},
+772:                 WHERE alias_legacy_aba = ? AND status = 'active'
+
+====================================================================================================
+repositories/system_snapshots_repository.py
+====================================================================================================
+57:     except json.JSONDecodeError:
+65: class SystemSnapshotsRepository:
+102:             raise ValueError("structure_id é obrigatório")
+105:             raise ValueError("structure_json é obrigatório")
+250:             raise ValueError("limit deve ser maior que zero")
+
+====================================================================================================
+domain/calculation_request.py
+====================================================================================================
+6:      structure: StructureInput
+7:           legs: List[StructureLegInput]
+8:      market_snapshot: MarketSnapshotInput
+10: O domínio NÃO acessa banco diretamente -- recebe estes objetos
+37:         raise ValueError(f"{field_name} não pode ser vazio")
+44:     except (TypeError, ValueError):
+45:         raise ValueError(f"{field_name} deve ser numérico, recebeu: {value!r}")
+47:         raise ValueError(f"{field_name} deve ser positivo, recebeu: {v}")
+54:         raise ValueError(
+60:     except ValueError:
+61:         raise ValueError(f"{field_name} é uma data inválida: {value!r}")
+66: # StructureLegInput
+69: class StructureLegInput:
+98:         except ValueError as exc:
+99:             raise ValueError(
+107:             raise ValueError(
+112:             raise ValueError(
+120:             raise ValueError(f"quantity deve ser inteiro positivo, recebeu: {self.quantity!r}")
+128:             raise ValueError(f"multiplier deve ser positivo, recebeu: {self.multiplier}")
+132: # StructureInput
+135: class StructureInput:
+143:     alias_legacy_aba  : compatibilidade -- NÃO é chave de cálculo
+147:     legs:             List[StructureLegInput]
+154:             raise ValueError(
+159:             raise ValueError("legs não pode ser lista vazia")
+161:             if not isinstance(leg, StructureLegInput):
+162:                 raise TypeError(
+163:                     f"legs[{i}] deve ser StructureLegInput, recebeu: {type(leg)}"
+168: # MarketSnapshotInput
+171: class MarketSnapshotInput:
+176:     underlying_asset   : deve coincidir com StructureInput.underlying_asset
+199:             raise ValueError(
+205:         except ValueError:
+206:             raise ValueError(
+223:     structure:       StructureInput
+224:     market_snapshot: MarketSnapshotInput
+228:             raise ValueError(
+
+====================================================================================================
+domain/canonical_validators.py
+====================================================================================================
+11:         errors.append("structure.structure_id is required")
+14:         errors.append("structure.underlying_asset is required")
+22:             errors.append(f"structure.legs[{index}].position_side is required")
+24:             errors.append(f"structure.legs[{index}].option_type is required")
+26:             errors.append(f"structure.legs[{index}].strike is required")
+28:             errors.append(f"structure.legs[{index}].quantity is required")
+30:             errors.append(f"structure.legs[{index}].expiration_date is required")
+33:         errors.append("market.spot_price is required")
+36:         errors.append("market.reference_date is required")
+
+====================================================================================================
+domain/contracts.py
+====================================================================================================
+18: class CanonicalStructure:
+43: class CanonicalStructureMarketInput:
+44:     structure: CanonicalStructure
+49:     def from_dict(cls, payload: dict[str, Any]) -> "CanonicalStructureMarketInput":
+68:         structure = CanonicalStructure(
+
+====================================================================================================
+domain/decision.py
+====================================================================================================
+3: Domain: Decision logic (30/60/80 thresholds + DTE gate) from real data.
+15: from domain.contracts import CanonicalStructureMarketInput
+148:     Payoff vazio ou inválido  HOLD com 'error' em why_json.
+194:     contract: CanonicalStructureMarketInput,
+197:     """Entrada canônica via CanonicalStructureMarketInput."""
+
+====================================================================================================
+domain/market_snapshot.py
+====================================================================================================
+5: alteracao_12: LegMarketSnapshot, SnapshotSource
+6: alteracao_13: StructureMarketSnapshot (agrega legs + cabeçalho de mercado)
+18: class SnapshotSource(str, Enum):
+26: class LegMarketSnapshot:
+50:     source          : SnapshotSource  = SnapshotSource.RTD
+56: class StructureMarketSnapshot:
+66:       legs  -- lista de LegMarketSnapshot
+71:     legs               : list[LegMarketSnapshot]        = field(default_factory=list)
+72:     source             : SnapshotSource                 = SnapshotSource.RTD
+100:             f"StructureMarketSnapshot("
+
+====================================================================================================
+domain/payoff_features.py
+====================================================================================================
+1: from src.domain.refs.structure_ref import StructureRef
+113:         raise ValueError("points vazio")
+194:               em caso de exceção (ResourceWarning fix).
+200:                          responsabilidade do caller -- esta função NÃO
+207:         raise ValueError(
+
+====================================================================================================
+domain/position_side.py
+====================================================================================================
+7: Aliases aceitos por compatibilidade:
+39:         raise ValueError("position_side é obrigatório")
+43:         raise ValueError("position_side é obrigatório")
+47:         raise ValueError(
+
+====================================================================================================
+domain/structure_metrics.py
+====================================================================================================
+18:         except ValueError:
+42:     except ValueError:
+156:     except ValueError:
+
+====================================================================================================
+scripts/apply_fase9_atomic_create.py
+====================================================================================================
+75:             raise ValueError("estrutura deve ter ao menos uma leg")
+
+====================================================================================================
+scripts/apply_fase9_update_tests_atomic_create.py
+====================================================================================================
+50:         dlg._f_status.set("active")
+63:         self.assertEqual(structure_arg["status"], "active")
+76:         dlg._f_status.set("active")
+
+====================================================================================================
+scripts/audit_rtd_option_quotes.py
+====================================================================================================
+114:                 "missing required columns: " + ", ".join(missing_columns)
+221:     print(f"Status: {result['status']}")
+
+====================================================================================================
+scripts/build_rtd_symbols.py
+====================================================================================================
+10:     "inactive",
+29: def collect_from_structure_legs(cur, include_inactive=False):
+33:     if include_inactive or not table_exists(cur, "structures"):
+54:                         'inactive',
+112: def load_symbols(db_path, include_inactive=False, include_snapshots=True, include_existing_quotes=True):
+119:         leg_symbols = collect_from_structure_legs(cur, include_inactive=include_inactive)
+144:     parser.add_argument("--db", required=True)
+145:     parser.add_argument("--out", required=True)
+146:     parser.add_argument("--include-inactive", action="store_true")
+154:         include_inactive=args.include_inactive,
+168:         print("Arquivo de saída NÃO foi sobrescrito para evitar apagar lista existente.")
+
+====================================================================================================
+scripts/check_rota_desenvolvimento.py
+====================================================================================================
+76:         raise RuntimeError(
+193:             after = "SIM" if date_is_after_or_equal(last.date) else "NÃO"
+206:     print("Status --short:")
+233:                     after = "SIM" if date_is_after_or_equal(last.date) else "NÃO"
+238:             print("Documentos: NÃO ENCONTRADO")
+245:                 after = "SIM" if date_is_after_or_equal(c.date) else "NÃO"
+248:             print("Evidências em commits: NÃO ENCONTRADO")
+251:             print("Status sugerido: há evidência Git, mas falta documento versionado da fase.")
+253:             print("Status sugerido: fase possui documento e evidência Git.")
+255:             print("Status sugerido: há documento, mas pouca evidência textual no log.")
+257:             print("Status sugerido: fase sem evidência suficiente nesta auditoria.")
+274:     print(f"Commit vazio ou sem alteração de arquivos: {'SIM' if is_empty else 'NÃO'}")
+322:             print("Status: NÃO ENCONTRADO")
+326:         print(f"Status: encontrado | tamanho: {size} bytes")
+385:     section("SCRIPTS OPERACIONAIS E DE VALIDAÇÃO")
+
+====================================================================================================
+scripts/create_rtd_option_quotes_sheet.py
+====================================================================================================
+45:         required=True,
+53:         raise SystemExit(f"Workbook não encontrado: {path}")
+97:     print("Workbook:", path.resolve())
+
+====================================================================================================
+scripts/fase-3f-fix1-patch-normaliza-position-side.py
+====================================================================================================
+42:         except (TypeError, ValueError):
+63:         normalized_side = DerivedPayoffPersistence._normalize_position_side(
+77:             except (TypeError, ValueError):
+88:         # Aliases defensivos para eventuais payloads de outras origens.
+115:             DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+146:             return DerivedPayoffPersistence._normalize_canonical_input_for_payoff(
+189:                     DerivedPayoffPersistence._normalize_leg_for_payoff(leg)
+
+====================================================================================================
+scripts/import_legacy_structure_legs.py
+====================================================================================================
+18: from repositories.structures_repository import StructuresRepository  # noqa: E402
+20:     LegacyStructureLegsImporter,
+22: from services.legacy_structure_legs_reader import LegacyStructureLegsReader  # noqa: E402
+36:         required=True,
+42:         required=True,
+80:     reader = LegacyStructureLegsReader(
+104:         structures_repository = StructuresRepository(
+108:         importer = LegacyStructureLegsImporter(
+
+====================================================================================================
+scripts/import_lista_rtd_excel_to_option_quotes.py
+====================================================================================================
+144:             except ValueError:
+183:     except ValueError:
+231:     except ImportError as exc:
+232:         raise RuntimeError(
+249:         excel.AskToUpdateLinks = False
+261:                     workbook.Close(SaveChanges=False)
+279:             raise FileNotFoundError(f"Workbook não encontrado: {workbook_path}")
+281:         workbook = excel.Workbooks.Open(
+283:             UpdateLinks=3,
+307:                 workbook.Close(SaveChanges=False)
+341:     raise RuntimeError(
+430:         raise RuntimeError("Tabela rtd_option_quotes não encontrada no banco.")
+435:         raise RuntimeError(
+695:             print("Status: error")
+705:         print(f"Workbook: {result['workbook']}")
+709:         print("Status: ok")
+
+====================================================================================================
+scripts/import_rtd_links_to_option_quotes.py
+====================================================================================================
+149:     except ValueError as exc:
+150:         raise ValueError(f"número inválido: {value!r}") from exc
+179:     except csv.Error:
+185:         raise ValueError("CSV sem cabeçalho")
+192:         raise ValueError(f"CSV sem colunas obrigatórias: {missing_text}")
+225:         raise FileNotFoundError(f"CSV não encontrado: {path}")
+273:             except ValueError:
+
+====================================================================================================
+scripts/import_rtd_option_quotes_wide_csv.py
+====================================================================================================
+91:     except ValueError:
+108:         except ValueError:
+151:     except csv.Error:
+166:             raise ValueError("CSV sem cabeçalho.")
+172:             raise ValueError("CSV sem colunas obrigatórias: " + ", ".join(missing))
+357:     parser.add_argument("--csv", required=True)
+358:     parser.add_argument("--db", required=True)
+
+====================================================================================================
+scripts/mapear_automacao_opcoes_rtd.py
+====================================================================================================
+99:             except UnicodeDecodeError:
+103:     except OSError:
+
+====================================================================================================
+scripts/run_derived_pipeline.py
+====================================================================================================
+251:     parser = argparse.ArgumentParser(description="Run derived pipeline")
+
+====================================================================================================
+scripts/run_lista_rtd_option_quotes_pipeline.py
+====================================================================================================
+3: Pipeline LISTA_RTD.xlsm -> rtd_option_quotes.
+45:         except json.JSONDecodeError:
+148:             print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+149:             print("Status: error")
+210:         print("Pipeline LISTA_RTD.xlsm -> rtd_option_quotes")
+211:         print(f"Status: {result['status']}")
+213:         print(f"Workbook: {args.workbook}")
+
+====================================================================================================
+scripts/run_rtd_option_quotes_pipeline.py
+====================================================================================================
+96:     print("Pipeline RTD option quotes")
+112:         print(f"Pipeline interrompido: importador retornou código {import_code}.")
+117:         print("Pipeline concluído em dry-run. Auditoria não executada porque nada foi gravado.")
+132:         print(f"Pipeline concluído com alerta/erro operacional. Auditor retornou código {audit_code}.")
+136:     print("Pipeline concluído com sucesso.")
+
+====================================================================================================
+scripts/run_rtd_refresh_full.py
+====================================================================================================
+50:     except sqlite3.Error:
+76:         description="Pipeline completo: gerar símbolos RTD, atualizar Excel/CSV e importar cotações no SQLite."
+103:     print("=== RTD Refresh Full ===")
+108:     print(f"Workbook: {workbook_path}")
+109:     print(f"Modo strict: {'SIM' if args.strict else 'NÃO'}")
+110:     print(f"Skip Excel: {'SIM' if args.skip_excel else 'NÃO'}")
+112:     required = [build_script, import_script]
+115:         required.append(ps1_script)
+117:     missing = [str(p) for p in required if not p.exists()]
+159:                 "-WorkbookPath",
+191:         print("Pipeline interrompido na geração de símbolos.")
+205:         print("Pipeline interrompido: nenhum símbolo para consultar no RTD.")
+224:             "-WorkbookPath",
+241:             print("Pipeline interrompido no refresh Excel/RTD.")
+245:         print("Refresh Excel/RTD pulado por --skip-excel.")
+261:         print("Pipeline interrompido na importação do CSV.")
+
+====================================================================================================
+scripts/seed_current_rtd_option_quotes.py
+====================================================================================================
+131:         raise FileNotFoundError(f"Banco não encontrado: {database}")
+137:             raise RuntimeError("Tabela rtd_option_quotes não encontrada.")
+
+====================================================================================================
+scripts/verificar_andamento_rota.py
+====================================================================================================
+39:     "PricingEngineStub",
+55:         raise RuntimeError(result.stderr.strip() or result.stdout.strip())
+79:         ("Status curto", ["git", "status", "--short"]),
+215:                 except OSError:
+364:             print_subsection("Payoff curve points")
+374:             print_subsection("Structure decisions")
+388:     print_section("VALIDAÇÃO TÉCNICA")
+
