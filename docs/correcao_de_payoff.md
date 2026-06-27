@@ -1080,3 +1080,104 @@ Ressalvas encontradas:
 Decisão:
 
 As pendências relacionadas à fonte RTD dos ativos-base e ao MarketSnapshotProvider podem ser consideradas fechadas. A qualidade RTD das opções deve permanecer como ressalva até ajuste ou justificativa formal da regra de fallback de preço e normalização de call_put.
+python -m py_compile services/canonical_pricing_facade.py services/pricing_input_service.py
+OK
+
+_lookup_spot_price(Path("dados/app.db"), "PRIO3")
+53.2
+
+PricingInputService(db_path="dados/app.db")
+spot_price: 53.2
+market_snapshot_source: rtd_underlying_quotes
+is_static_fallback: False
+
+python -m pytest
+669 passed, 2 skipped
+
+python -m pytest ATT/tests -k "pricing or canonical or snapshot"
+135 passed, 536 deselected
+## Encerramento complementar - PRIOS525 como perna substituída
+
+## Encerramento da rota RTD, Market Snapshot e Pricing Canônico
+
+Data: 2026-06-26
+
+Foram executadas as validações finais da rota de dados de mercado para payoff/pricing.
+
+Validações executadas:
+
+    python -m py_compile services/canonical_pricing_facade.py services/pricing_input_service.py
+    OK
+
+    _lookup_spot_price(Path("dados/app.db"), "PRIO3")
+    53.2
+
+    PricingInputService(db_path="dados/app.db")
+    spot_price: 53.2
+    market_snapshot_source: rtd_underlying_quotes
+    is_static_fallback: False
+
+    python -m pytest
+    669 passed, 2 skipped
+
+    python -m pytest ATT/tests -k "pricing or canonical or snapshot"
+    135 passed, 536 deselected
+
+RTD de ativos-base validado:
+
+    BOVA11 = 170.55
+    PRIO3  = 53.20
+    source = btg_rtd_excel_underlying
+    market_snapshot_source = rtd_underlying_quotes
+    is_static_fallback = False
+    is_current_market = True
+
+RTD de opções validado:
+
+    count: 8
+    missing: []
+    extra: []
+
+Opções no escopo operacional:
+
+    BOVAG34
+    BOVAH186
+    BOVAS61
+    BOVAT158
+    PRIOG800
+    PRIOH505
+    PRIOS525
+    PRIOT700
+
+Qualidade atual das opções conferida:
+
+    PRIOH505  CALL  ultimo_preco 4.97
+    PRIOS525  PUT   ultimo_preco 1.05
+
+Decisão sobre PRIOS525:
+
+Foi esclarecido que PRIOS525 corresponde a uma perna substituída da estrutura.
+
+A validação do payoff ativo deve considerar as pernas efetivas/operacionais da estrutura, não pernas substituídas ou históricas.
+
+No estado atual do banco, PRIOS525 também já aparece normalizada como PUT e com ultimo_preco positivo, portanto não há pendência bloqueante relacionada a call_put ou preço zerado.
+
+Status atualizado:
+
+    OK        RTD opções limitado ao escopo operacional esperado
+    OK        RTD ativos-base limitado ao escopo ativo
+    OK        rtd_underlying_quotes populado com BOVA11 e PRIO3
+    OK        MarketSnapshotProvider lendo rtd_underlying_quotes
+    OK        CanonicalPricingFacade priorizando rtd_underlying_quotes
+    OK        PricingInputService usando db_path correto e spot real
+    OK        Payoff/Pricing bloqueiam static_fallback como mercado atual
+    OK        PRIO3 não retorna mais 66.84 no facade
+    OK        PRIOS525 não bloqueia payoff ativo
+    OK        Pendências de call_put e ultimo_preco zerado não aparecem no estado atual validado
+    OK        Teste completo: 669 passed, 2 skipped
+    OK        Teste pricing/canonical/snapshot: 135 passed
+    OK        Push realizado até 90978f8
+
+Conclusão:
+
+A rota RTD + Market Snapshot real + Pricing Canônico pode ser considerada encerrada para a correção do preço incorreto usado no payoff/pricing.
