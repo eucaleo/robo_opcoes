@@ -345,6 +345,28 @@ def _snapshot_result_to_payload(
             "vega":        _pick(d, "vega"),
             "source":      str(_pick(d, "source")),
 
+            # campos de cotação atual da opção, usados para MTM
+            "bid":              _to_float(_pick(d, "bid"), None),
+            "ask":              _to_float(_pick(d, "ask"), None),
+            "mid":              _to_float(_pick(d, "mid"), None),
+            "ultimo_preco":     _to_float(_pick(d, "ultimo_preco", "last_price"), None),
+            "current_option_price": _to_float(
+                _pick(
+                    d,
+                    "current_option_price",
+                    "current_price",
+                    "effective_option_price",
+                    "mid",
+                    "ultimo_preco",
+                    "last_price",
+                ),
+                None,
+            ),
+            "current_option_price_source": str(
+                _pick(d, "current_option_price_source", "price_source", "source")
+                or "rtd_option_quotes"
+            ),
+
             # campos canônicos esperados pelo fluxo pricing/payoff
             "symbol":          raw_asset,
             "premium":         _to_float(raw_price, 0.0),
