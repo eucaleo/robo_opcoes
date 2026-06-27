@@ -1995,3 +1995,23 @@ Criterio da proxima etapa:
 
 <!-- CHECKPOINT_PAYOFF_VALIDACAO_POS_AUDITORIA_20260627_FIM -->
 
+
+## Checkpoint — Conferência da UI de payoff
+
+Status: INCOMPLETO COM PATCH NECESSÁRIO.
+
+Evidências:
+- A UI exibe gráfico de payoff, breakevens, preço base atual, PL interpolado, comentário interpretativo, fonte e auditoria básica.
+- A UI carrega dados por structure_id e usa payoff_curve_points/structure_decisions.
+- Não foi encontrada exibição explícita de:
+  - snapshot da implantação;
+  - snapshot atual completo;
+  - tabela analítica por perna;
+  - intrínseco atual por perna;
+  - extrínseco atual por perna;
+  - PL atual por perna;
+  - payoff no vencimento ao preço atual por perna;
+  - separação visual entre PL atual e payoff no vencimento.
+
+Decisão:
+- Criar patch específico para completar a tela de payoff com bloco analítico por perna e snapshots, reaproveitando fontes existentes de snapshot/métricas quando disponíveis.
