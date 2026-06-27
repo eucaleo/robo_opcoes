@@ -223,3 +223,125 @@ Integrar o view model analitico ao arquivo responsavel pela tela de payoff, rend
     - bloco separado de payoff no vencimento.
 
 <!-- CHECKPOINT_PAYOFF_VIEW_MODEL_ANALITICO_20260627_FIM -->
+
+<!-- CHECKPOINT_PAYOFF_VIEW_MODEL_ANALITICO_20260627_INICIO -->
+
+## Checkpoint 2026-06-27 - Branch feature/payoff-view-model-analitico validada
+
+### Contexto
+
+Foi criada e validada a branch:
+
+    feature/payoff-view-model-analitico
+
+O objetivo da branch é preparar a continuidade da frente de payoff analítico, preservando compatibilidade operacional da camada de dados da UI antes dos próximos patches funcionais.
+
+### Correção aplicada
+
+Foi corrigido o método legado:
+
+    UIDataModel.get_abas()
+
+Antes, o método retornava:
+
+    get_structure_ids()
+
+Esse comportamento alterava a ordem esperada em relação a:
+
+    get_structures()
+
+A correção aplicada fez `get_abas()` voltar a ser alias operacional de `get_structures()`:
+
+    def get_abas(self) -> List[str]:
+        """Alias legado de compatibilidade para get_structures()."""
+        return self.get_structures()
+
+### Motivo
+
+A suíte de migração exige que:
+
+    model.get_abas() == model.get_structures()
+
+inclusive preservando a mesma ordem dos itens.
+
+Isso garante continuidade operacional para chamadas legadas da UI sem alterar a semântica consolidada de estruturas.
+
+### Validações executadas
+
+Foram executados:
+
+    python -m py_compile UI/models/ui_data.py
+
+    pytest ATT/tests/test_ui_data_migration.py::test_get_abas_alias_de_get_structures -q
+
+Resultado do teste específico:
+
+    1 passed
+
+Também foi executada a suíte completa:
+
+    pytest
+
+Resultado:
+
+    678 passed, 2 skipped
+
+### Commit realizado
+
+Commit local criado:
+
+    739803d fix: preserva get_abas como alias de get_structures
+
+### Push realizado
+
+Branch enviada ao remoto:
+
+    feature/payoff-view-model-analitico
+
+Resultado:
+
+    [new branch] feature/payoff-view-model-analitico -> feature/payoff-view-model-analitico
+
+Link sugerido para abertura de pull request:
+
+    https://github.com/eucaleo/robo_opcoes/pull/new/feature/payoff-view-model-analitico
+
+### Status consolidado
+
+    OK        get_abas preservado como alias de get_structures
+    OK        ordem de retorno compatível com get_structures
+    OK        py_compile aprovado
+    OK        teste específico aprovado
+    OK        suíte completa aprovada
+    OK        commit criado
+    OK        branch publicada no remoto
+
+### Próxima frente funcional
+
+A próxima etapa permanece a mesma registrada na conferência da UI de payoff:
+
+    completar a tela de payoff com bloco analítico por perna e snapshots.
+
+A UI ainda precisa exibir ou consolidar explicitamente:
+
+    - snapshot da implantação;
+    - snapshot atual completo;
+    - tabela analítica por perna;
+    - intrínseco atual por perna;
+    - extrínseco atual por perna;
+    - PL atual por perna;
+    - payoff no vencimento ao preço atual por perna;
+    - separação visual entre PL atual e payoff no vencimento.
+
+### Decisão
+
+A branch está apta para abertura de Pull Request.
+
+Após merge ou aprovação, a próxima branch deve atacar a implementação visual/analítica da tela de payoff, sem alterar a regra já consolidada:
+
+    payoff é calculado por structure_id;
+    ativo-base é atributo, não chave principal;
+    fallback estático não pode alimentar mercado atual;
+    PL atual e payoff no vencimento devem permanecer separados.
+
+<!-- CHECKPOINT_PAYOFF_VIEW_MODEL_ANALITICO_20260627_FIM -->
