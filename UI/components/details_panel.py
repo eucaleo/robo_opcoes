@@ -582,9 +582,117 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.breakevens_label.grid(row=2, column=3, sticky="ew")
 
+        ttk.Label(metrics_frame, text="Payoff no vencimento ao preço atual:").grid(
+            row=3, column=0, sticky="w", padx=(0, 5)
+        )
+        self.pl_venc_spot_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.pl_venc_spot_label.grid(row=3, column=1, sticky="ew", padx=(0, 10))
+
+        ttk.Label(metrics_frame, text="Leitura payoff:").grid(
+            row=3, column=2, sticky="w", padx=(0, 5)
+        )
+        self.payoff_reading_label = ttk.Label(
+            metrics_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.payoff_reading_label.grid(row=3, column=3, sticky="ew")
+
+        # Payoff analítico
+        analytical_frame = ttk.LabelFrame(self, text="Payoff analítico", padding=5)
+        analytical_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=5)
+        analytical_frame.grid_columnconfigure(1, weight=1)
+        analytical_frame.grid_columnconfigure(3, weight=1)
+
+        ttk.Label(analytical_frame, text="Snapshot da implantação").grid(
+            row=0, column=0, columnspan=4, sticky="w", pady=(0, 3)
+        )
+
+        ttk.Label(analytical_frame, text="Preço base na implantação:").grid(
+            row=1, column=0, sticky="w", padx=(0, 5)
+        )
+        self.snapshot_implantacao_preco_label = ttk.Label(
+            analytical_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.snapshot_implantacao_preco_label.grid(
+            row=1, column=1, sticky="ew", padx=(0, 10)
+        )
+
+        ttk.Label(analytical_frame, text="Data implantação:").grid(
+            row=1, column=2, sticky="w", padx=(0, 5)
+        )
+        self.snapshot_implantacao_data_label = ttk.Label(
+            analytical_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.snapshot_implantacao_data_label.grid(row=1, column=3, sticky="ew")
+
+        ttk.Label(analytical_frame, text="Snapshot atual").grid(
+            row=2, column=0, columnspan=4, sticky="w", pady=(8, 3)
+        )
+
+        ttk.Label(analytical_frame, text="Preço base atual:").grid(
+            row=3, column=0, sticky="w", padx=(0, 5)
+        )
+        self.snapshot_atual_preco_label = ttk.Label(
+            analytical_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.snapshot_atual_preco_label.grid(
+            row=3, column=1, sticky="ew", padx=(0, 10)
+        )
+
+        ttk.Label(analytical_frame, text="Fonte snapshot atual:").grid(
+            row=3, column=2, sticky="w", padx=(0, 5)
+        )
+        self.snapshot_atual_fonte_label = ttk.Label(
+            analytical_frame, text="N/A", background="white", relief="sunken"
+        )
+        self.snapshot_atual_fonte_label.grid(row=3, column=3, sticky="ew")
+
+        ttk.Label(analytical_frame, text="Tabela analítica por perna").grid(
+            row=4, column=0, columnspan=4, sticky="w", pady=(8, 3)
+        )
+
+        self.tabela_pernas = ttk.Treeview(
+            analytical_frame,
+            columns=(
+                "ticker",
+                "tipo",
+                "direcao",
+                "qtd",
+                "strike",
+                "premio_entrada",
+                "preco_atual",
+                "intrinseco_atual",
+                "extrinseco_atual",
+                "pl_atual",
+                "payoff_vencimento",
+            ),
+            show="headings",
+            height=4,
+        )
+        self.tabela_pernas.grid(row=5, column=0, columnspan=4, sticky="ew")
+
+        colunas_pernas = {
+            "ticker": "Ticker",
+            "tipo": "Tipo",
+            "direcao": "Direção",
+            "qtd": "Qtd",
+            "strike": "Strike",
+            "premio_entrada": "Prêmio entrada",
+            "preco_atual": "Preço atual",
+            "intrinseco_atual": "Intrínseco atual",
+            "extrinseco_atual": "Extrínseco atual",
+            "pl_atual": "PL atual",
+            "payoff_vencimento": "Payoff no vencimento ao preço atual",
+        }
+
+        for coluna, titulo in colunas_pernas.items():
+            self.tabela_pernas.heading(coluna, text=titulo)
+            self.tabela_pernas.column(coluna, width=95, anchor="center", stretch=True)
+
         # Estado Operacional
         operational_frame = ttk.LabelFrame(self, text="Estado Operacional", padding=5)
-        operational_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=5)
+        operational_frame.grid(row=3, column=0, columnspan=2, sticky="ew", pady=5)
         operational_frame.grid_columnconfigure(1, weight=1)
         operational_frame.grid_columnconfigure(3, weight=1)
 
@@ -620,7 +728,7 @@ class DetailsPanel(ttk.LabelFrame):
 
         # Justificativa JSON
         json_frame = ttk.LabelFrame(self, text="Justificativa / JSON", padding=5)
-        json_frame.grid(row=3, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
+        json_frame.grid(row=4, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
         json_frame.grid_rowconfigure(0, weight=1)
         json_frame.grid_columnconfigure(0, weight=1)
 
@@ -635,7 +743,7 @@ class DetailsPanel(ttk.LabelFrame):
 
         # Auditoria & Ações
         audit_frame = ttk.LabelFrame(self, text="Auditoria & Ações", padding=5)
-        audit_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
+        audit_frame.grid(row=5, column=0, columnspan=2, sticky="ew", pady=5)
         audit_frame.grid_columnconfigure(1, weight=1)
         audit_frame.grid_columnconfigure(3, weight=1)
 
@@ -704,6 +812,42 @@ class DetailsPanel(ttk.LabelFrame):
 
         self._format_currency_label(self.pl_atual_label, decision_data.get("pl_atual"))
         self._format_currency_label(self.pl_max_label, decision_data.get("pl_max"))
+        self.pl_venc_spot_label.config(text="Aguardando curva")
+        self.payoff_reading_label.config(text="Aguardando curva")
+
+        preco_implantacao = (
+            decision_data.get("preco_base_implantacao")
+            or decision_data.get("underlying_price_at_deployment")
+            or decision_data.get("underlyingPriceAtDeployment")
+        )
+        self._set_value_label(self.snapshot_implantacao_preco_label, preco_implantacao)
+
+        data_implantacao = (
+            decision_data.get("data_implantacao")
+            or decision_data.get("deployed_at")
+            or decision_data.get("created_at")
+        )
+        self.snapshot_implantacao_data_label.config(
+            text=str(data_implantacao) if data_implantacao else "N/A"
+        )
+
+        preco_atual_snapshot = (
+            decision_data.get("preco_base_atual")
+            or decision_data.get("spot_ref")
+            or decision_data.get("spot_reference")
+            or decision_data.get("current_underlying_price")
+            or decision_data.get("currentUnderlyingPrice")
+        )
+        self._set_value_label(self.snapshot_atual_preco_label, preco_atual_snapshot)
+
+        fonte_snapshot = (
+            decision_data.get("market_snapshot_source")
+            or decision_data.get("snapshot_source")
+            or decision_data.get("source")
+            or "N/A"
+        )
+        self.snapshot_atual_fonte_label.config(text=str(fonte_snapshot))
+        self._update_tabela_pernas(decision_data.get("pernas") or decision_data.get("legs") or [])
 
         ratio = decision_data.get("pl_pct_of_max")
         self.ratio_label.config(
@@ -746,6 +890,14 @@ class DetailsPanel(ttk.LabelFrame):
             self._refresh_operational_state_for_structure(structure_id)
 
     def update_breakevens(self, breakevens, pl_at_spot_ref):
+        """
+        Atualiza os pontos de equilíbrio e o payoff no vencimento interpolado
+        ao preço atual.
+
+        Observação:
+        - PL Atual vem de structure_decisions.pl_atual.
+        - Payoff no vencimento ao preço atual vem da curva payoff_curve_points interpolada.
+        """
         if breakevens:
             try:
                 self.breakevens_label.config(
@@ -755,6 +907,92 @@ class DetailsPanel(ttk.LabelFrame):
                 self.breakevens_label.config(text=str(breakevens))
         else:
             self.breakevens_label.config(text="N/A")
+
+        if pl_at_spot_ref is None:
+            self.pl_venc_spot_label.config(text="N/A")
+            self.payoff_reading_label.config(text="Fora da faixa calculada")
+            return
+
+        try:
+            pl = float(pl_at_spot_ref)
+            self._format_currency_label(self.pl_venc_spot_label, pl)
+
+            if pl > 0:
+                txt = "Ganho no vencimento ao preço atual"
+            elif pl < 0:
+                txt = "Perda no vencimento ao preço atual"
+            else:
+                txt = "Equilíbrio no preço atual"
+
+            self.payoff_reading_label.config(text=txt)
+        except Exception:
+            self.pl_venc_spot_label.config(text=str(pl_at_spot_ref))
+            self.payoff_reading_label.config(text="Valor não numérico")
+
+    def _set_value_label(self, label, value):
+        if value is None or value == "":
+            label.config(text="N/A")
+            return
+
+        try:
+            label.config(text=f"{float(value):.2f}")
+        except Exception:
+            label.config(text=str(value))
+
+    def _format_table_number(self, value):
+        if value is None or value == "":
+            return "N/A"
+
+        try:
+            return f"{float(value):.2f}"
+        except Exception:
+            return str(value)
+
+    def _clear_tabela_pernas(self):
+        if not hasattr(self, "tabela_pernas"):
+            return
+
+        for item in self.tabela_pernas.get_children():
+            self.tabela_pernas.delete(item)
+
+    def _update_tabela_pernas(self, pernas):
+        self._clear_tabela_pernas()
+
+        if not isinstance(pernas, list):
+            return
+
+        for perna in pernas:
+            if not isinstance(perna, dict):
+                continue
+
+            values = (
+                perna.get("ticker") or perna.get("codigo") or perna.get("codigo_opcao") or "",
+                perna.get("tipo") or perna.get("type") or perna.get("option_type") or "",
+                perna.get("direcao") or perna.get("side") or perna.get("direction") or "",
+                self._format_table_number(
+                    perna.get("quantidade") or perna.get("quantity") or perna.get("qty")
+                ),
+                self._format_table_number(perna.get("strike")),
+                self._format_table_number(
+                    perna.get("premio_entrada")
+                    or perna.get("entry_premium")
+                    or perna.get("entryPremium")
+                ),
+                self._format_table_number(
+                    perna.get("preco_atual")
+                    or perna.get("current_premium")
+                    or perna.get("currentPremium")
+                ),
+                self._format_table_number(perna.get("intrinseco_atual")),
+                self._format_table_number(perna.get("extrinseco_atual")),
+                self._format_table_number(perna.get("pl_atual")),
+                self._format_table_number(
+                    perna.get("payoff_vencimento_ao_preco_atual")
+                    or perna.get("payoff_no_vencimento_ao_preco_atual")
+                ),
+            )
+
+            self.tabela_pernas.insert("", "end", values=values)
 
     def update_audit_info(self, info: Dict):
         source_table = info.get("source_table", "N/A")
@@ -793,13 +1031,20 @@ class DetailsPanel(ttk.LabelFrame):
             self.timestamp_label, self.structure_label, self.decision_label,
             self.level_label, self.pl_atual_label, self.pl_max_label,
             self.ratio_label, self.dte_label, self.spot_ref_label,
-            self.breakevens_label, self.source_label, self.created_at_label,
+            self.breakevens_label, self.pl_venc_spot_label,
+            self.payoff_reading_label,
+            self.snapshot_implantacao_preco_label,
+            self.snapshot_implantacao_data_label,
+            self.snapshot_atual_preco_label,
+            self.snapshot_atual_fonte_label,
+            self.source_label, self.created_at_label,
             self.operational_events_applied_label,
             self.operational_cancelled_ignored_label,
             self.operational_status_label,
         ]:
             lbl.config(text="N/A")
         self.why_text.delete("1.0", tk.END)
+        self._clear_tabela_pernas()
         self.lbl_recalc_status.config(text="", foreground="gray")
 
     def on_recalc_finished(self, structure_id, ok: bool, message: str = ""):
@@ -1167,7 +1412,9 @@ class DetailsPanel(ttk.LabelFrame):
 
         spot_ref = None
         if decision:
-            spot_ref = decision.get("spot_reference")
+            spot_ref = decision.get("spot_ref")
+            if spot_ref is None:
+                spot_ref = decision.get("spot_reference")
 
         pl_at_spot = self._compute_pl_at_spot(pts, spot_ref)
         self.update_breakevens(breakevens, pl_at_spot)
