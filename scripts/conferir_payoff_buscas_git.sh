@@ -27,7 +27,7 @@ run_section() {
     echo "Pathspec: $pathspec" >> "$OUT_FILE"
     echo "============================================================" >> "$OUT_FILE"
 
-    git grep -n -I -E "$pattern" -- "$pathspec" >> "$OUT_FILE" 2>/dev/null || true
+    git grep -n -I -E "$pattern" -- "$pathspec" ':!docs/**' ':!reports/**' ':!scripts/conferir_payoff_buscas_git.sh' >> "$OUT_FILE" 2>/dev/null || true
     echo "" >> "$OUT_FILE"
 }
 
