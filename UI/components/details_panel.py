@@ -96,6 +96,33 @@ class DetailsPanel(ttk.LabelFrame):
 
         return project_root / "dados" / "app.db"
 
+    def _is_usable_sqlite_db(self, db_path: Path, required_any: tuple[str, ...] = ()) -> bool:
+        """
+        Evita selecionar arquivos SQLite vazios/acidentais como app.db/db.app.db
+        quando o banco real fica em dados/app.db.
+        """
+        try:
+            db_path = Path(db_path)
+            if not db_path.exists() or db_path.stat().st_size <= 0:
+                return False
+
+            import sqlite3
+            with sqlite3.connect(str(db_path)) as con:
+                rows = con.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                ).fetchall()
+
+            tables = {str(r[0]) for r in rows}
+            if not tables:
+                return False
+
+            if required_any:
+                return any(t in tables for t in required_any)
+
+            return True
+        except Exception:
+            return False
+
     def _resolve_structure_key(self, structure_id) -> int:
         """
         structure_id é sempre INTEGER no DB.
