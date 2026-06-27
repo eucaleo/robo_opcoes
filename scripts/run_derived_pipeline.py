@@ -342,12 +342,7 @@ def _collect_pipeline_summary(rtd_result: dict | None = None) -> dict:
         }
 
         return {
-            "structures": _first_count(
-                table_counts,
-                "structure_snapshots",
-                "structures",
-                "derived_structures",
-            ),
+            "structures": _count_app_table("structures"),
             "decisions": _first_count(
                 table_counts,
                 "decision_snapshots",
@@ -367,11 +362,7 @@ def _collect_pipeline_summary(rtd_result: dict | None = None) -> dict:
                 "payoff_summaries",
                 "derived_payoff_summary",
             ),
-            "pricing_executions": _first_count(
-                table_counts,
-                "pricing_executions",
-                "pricing_execution",
-            ),
+            "pricing_executions": _count_app_table("pricing_executions"),
             "rtd_quotes_updated": _rtd_quotes_updated_count(rtd_result),
             "rtd_import": rtd_result,
             "warnings": int((rtd_result or {}).get("warnings") or 0),
