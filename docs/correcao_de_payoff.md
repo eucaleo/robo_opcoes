@@ -1054,3 +1054,29 @@ Ele deverá montar o snapshot buscando:
 E eliminar fallback estático como fonte primária de payoff.
 
 <!-- PAYOFF_MARKET_DATA_ROUTE_END -->
+## Conferência de seguimento RTD, snapshot e payoff
+
+Foi executada conferência de runtime para validar a fonte de preço dos ativos-base utilizada pelo MarketSnapshotProvider.
+
+Resultado:
+
+- A tabela rtd_underlying_quotes existe em dados/app.db.
+- BOVA11 possui preço atualizado de 170.55, fonte btg_rtd_excel_underlying.
+- PRIO3 possui preço atualizado de 53.20, fonte btg_rtd_excel_underlying.
+- O MarketSnapshotProvider retornou snapshot_source e market_snapshot_source iguais a rtd_underlying_quotes para BOVA11 e PRIO3.
+- O campo is_static_fallback retornou False para ambos os ativos.
+- O campo is_current_market retornou True para ambos os ativos.
+
+Conclusão:
+
+A fonte real de spot para ativos-base está validada em runtime. O provider não está usando fallback estático no cenário conferido.
+
+Ressalvas encontradas:
+
+- A opção PRIOS525 ainda aparece com call_put igual a 0.
+- As opções PRIOH505 e PRIOS525 aparecem com ultimo_preco igual a 0.0 apesar de possuírem bid/ask positivos.
+- O valor 66.84 ainda aparece como referência residual/fallback em código/documentação histórica, embora o snapshot atual de PRIO3 tenha retornado 53.20 vindo de rtd_underlying_quotes.
+
+Decisão:
+
+As pendências relacionadas à fonte RTD dos ativos-base e ao MarketSnapshotProvider podem ser consideradas fechadas. A qualidade RTD das opções deve permanecer como ressalva até ajuste ou justificativa formal da regra de fallback de preço e normalização de call_put.

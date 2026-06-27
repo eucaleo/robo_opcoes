@@ -1,6 +1,6 @@
 # Conferencia de seguimento - Payoff RTD
 
-Gerado em: 2026-06-26 20:44:18
+Gerado em: 2026-06-26 20:57:40
 
 ## Objetivo
 
@@ -46,12 +46,12 @@ Colunas encontradas:
 Ativo: BOVA11
 Preco: 170.55
 Source: btg_rtd_excel_underlying
-Updated_at: 2026-06-26 20:12:24
+Updated_at: 2026-06-26 20:54:49
 
 Ativo: PRIO3
 Preco: 53.2
 Source: btg_rtd_excel_underlying
-Updated_at: 2026-06-26 20:12:24
+Updated_at: 2026-06-26 20:54:49
 
 Resultado conferencia 1 banco RTD: OK
 
@@ -64,7 +64,7 @@ Resultado conferencia 1 banco RTD: OK
 - is_static_fallback: False
 - market_snapshot_rtd_source: btg_rtd_excel_underlying
 - market_snapshot_source: rtd_underlying_quotes
-- market_snapshot_updated_at: 2026-06-26 20:12:24
+- market_snapshot_updated_at: 2026-06-26 20:54:49
 - reference_date: 2026-06-26
 - snapshot_source: rtd_underlying_quotes
 - snapshot_warning: None
@@ -79,7 +79,7 @@ Resultado conferencia 1 banco RTD: OK
 - is_static_fallback: False
 - market_snapshot_rtd_source: btg_rtd_excel_underlying
 - market_snapshot_source: rtd_underlying_quotes
-- market_snapshot_updated_at: 2026-06-26 20:12:24
+- market_snapshot_updated_at: 2026-06-26 20:54:49
 - reference_date: 2026-06-26
 - snapshot_source: rtd_underlying_quotes
 - snapshot_warning: None
@@ -309,6 +309,9 @@ Com as tres primeiras pendencias tratadas, a frente deve seguir para as pendenci
 ## Estado Git no momento da conferencia
 
 -  M LISTA_RTD.xlsm
+-  M docs/checkpoints/evidencias/fase-12-conferencia-seguimento-payoff-rtd.md
+-  M docs/correcao_de_payoff.md
+- ?? conferencia_payoff_rtd.txt
 - ?? scripts/conferir_seguimento_payoff_rtd.sh
 - ?? scripts/gerar_docs_rtd.sh
 - ?? scripts/import_rtd_underlying_quotes_csv.py
