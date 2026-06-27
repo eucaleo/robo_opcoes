@@ -145,46 +145,123 @@ def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
     """
     Procura spot positivo no app.db.
 
-    Caso confirmado:
-      estrutura SMAL11 possui spot positivo disponível na base canônica/staging.
-      spot observado = 124.66
+    Fonte prioritaria:
+      rtd_underlying_quotes.ultimo_preco
+
+    Motivo:
+      A busca generica pode encontrar valores antigos em tabelas auxiliares.
+      Para ativos base, a fonte autoritativa atual e rtd_underlying_quotes.
     """
     if not underlying_asset:
         return 0.0
 
-    symbol_candidates = {
-        "aba",
-        "ativo",
-        "asset",
-        "symbol",
-        "ticker",
-        "underlying_asset",
-        "codigo",
-        "papel",
-    }
+    normalized_asset = str(underlying_asset).strip().upper()
+    if not normalized_asset:
+        return 0.0
 
-    price_candidates = {
-        "spot",
-        "spot_price",
-        "underlying_price",
+    price_priority = [
+        "ultimo_preco",
         "last_price",
+        "spot_price",
+        "spot",
+        "underlying_price",
+        "close_price",
+        "prev_close",
+        "bid",
+        "ask",
         "price",
         "preco",
         "preco_atual",
-        "valor",
         "cotacao",
         "ultimo",
         "fechamento",
         "close",
-    }
+    ]
 
     try:
         with sqlite3.connect(str(db_path)) as conn:
+            conn.row_factory = sqlite3.Row
+
+            # 1. Fonte autoritativa RTD para ativo base
+            try:
+                rtd_columns_info = conn.execute(
+                    'PRAGMA table_info("rtd_underlying_quotes")'
+                ).fetchall()
+
+                rtd_lower_to_real = {
+                    row[1].lower(): row[1]
+                    for row in rtd_columns_info
+                }
+
+                if "ativo" in rtd_lower_to_real:
+                    available_price_cols = [
+                        name
+                        for name in price_priority
+                        if name in rtd_lower_to_real
+                    ]
+
+                    if available_price_cols:
+                        select_expr = ", ".join(
+                            _quote_ident(rtd_lower_to_real[name])
+                            for name in available_price_cols
+                        )
+
+                        order_parts = []
+                        if "updated_at" in rtd_lower_to_real:
+                            order_parts.append(
+                                f'{_quote_ident(rtd_lower_to_real["updated_at"])} DESC'
+                            )
+                        if "id" in rtd_lower_to_real:
+                            order_parts.append(
+                                f'{_quote_ident(rtd_lower_to_real["id"])} DESC'
+                            )
+
+                        order_clause = (
+                            " ORDER BY " + ", ".join(order_parts)
+                            if order_parts
+                            else ""
+                        )
+
+                        query = (
+                            f"SELECT {select_expr} "
+                            f"FROM {_quote_ident('rtd_underlying_quotes')} "
+                            f"WHERE UPPER(CAST({_quote_ident(rtd_lower_to_real['ativo'])} AS TEXT)) = ?"
+                            f"{order_clause} "
+                            f"LIMIT 1"
+                        )
+
+                        row = conn.execute(query, (normalized_asset,)).fetchone()
+
+                        if row is not None:
+                            for logical_name in available_price_cols:
+                                real_name = rtd_lower_to_real[logical_name]
+                                price = _to_float(row[real_name], 0.0)
+                                if price > 0:
+                                    return price
+            except Exception:
+                pass
+
+            # 2. Fallback generico legado
+            symbol_candidates = {
+                "aba",
+                "ativo",
+                "asset",
+                "symbol",
+                "ticker",
+                "underlying_asset",
+                "codigo",
+                "papel",
+            }
+
+            price_candidates = set(price_priority)
+
             tables = conn.execute(
                 "SELECT name FROM sqlite_master WHERE type = 'table'"
             ).fetchall()
 
-            for (table_name,) in tables:
+            for table_row in tables:
+                table_name = table_row[0]
+
                 columns_info = conn.execute(
                     f"PRAGMA table_info({_quote_ident(table_name)})"
                 ).fetchall()
@@ -212,13 +289,13 @@ def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
                         query = (
                             f"SELECT {_quote_ident(price_col)} "
                             f"FROM {_quote_ident(table_name)} "
-                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = UPPER(?) "
+                            f"WHERE UPPER(CAST({_quote_ident(symbol_col)} AS TEXT)) = ? "
                             f"AND {_quote_ident(price_col)} IS NOT NULL "
                             f"LIMIT 20"
                         )
 
                         try:
-                            rows = conn.execute(query, (underlying_asset,)).fetchall()
+                            rows = conn.execute(query, (normalized_asset,)).fetchall()
                         except Exception:
                             continue
 
@@ -230,7 +307,6 @@ def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
         return 0.0
 
     return 0.0
-
 
 def _snapshot_result_to_payload(
     selection_result: Any,
