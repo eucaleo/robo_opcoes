@@ -101,3 +101,6 @@ ATT/checks/**/*.pyo
 
 # Artefatos locais da Fase 7
 _local_scripts_fase7/
+
+# Arquivo Excel RTD local/cacheado
+LISTA_RTD.xlsm
