@@ -11,37 +11,30 @@ DEFAULT_VOLATILITY = 0.30
 
 DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
     "BOVA11": {
-        "spot_price": 198.35,
         "interest_rate": 0.1175,
         "volatility": 0.22,
     },
     "SMAL11": {
-        "spot_price": 124.66,
         "interest_rate": 0.1175,
         "volatility": 0.30,
     },
     "SBSP3": {
-        "spot_price": 168.67,
         "interest_rate": 0.1175,
         "volatility": 0.28,
     },
     "PRIO3": {
-        "spot_price": 66.84,
         "interest_rate": 0.1175,
         "volatility": 0.35,
     },
     "EMBJ3": {
-        "spot_price": 87.37,
         "interest_rate": 0.1175,
         "volatility": 0.32,
     },
     "PETR4": {
-        "spot_price": 37.42,
         "interest_rate": 0.1175,
         "volatility": 0.31,
     },
     "VALE3": {
-        "spot_price": 61.80,
         "interest_rate": 0.1175,
         "volatility": 0.28,
     },
@@ -178,20 +171,12 @@ class MarketSnapshotProvider:
         asset: str,
         effective_reference_date: str,
     ) -> dict[str, Any]:
-        market = DEFAULT_MARKET_BY_ASSET.get(asset)
-        if market is None:
+        defaults = DEFAULT_MARKET_BY_ASSET.get(asset)
+        if defaults is None:
             raise ValueError(f'market snapshot not found for asset: {asset}')
 
-        return {
-            "reference_date": effective_reference_date,
-            "underlying_asset": asset,
-            "spot_price": float(market["spot_price"]),
-            "interest_rate": float(market["interest_rate"]),
-            "volatility": float(market["volatility"]),
-            "snapshot_source": "static_fallback",
-            "market_snapshot_source": "static_fallback",
-            "is_static_fallback": True,
-            "is_current_market": False,
-            "snapshot_warning": "Preço vindo de fallback estático. Não representa mercado atual.",
-        }
+        raise ValueError(
+            "market snapshot real/atual ausente para asset="
+            f"{asset}. O fallback estático não fornece spot_price operacional."
+        )
 
