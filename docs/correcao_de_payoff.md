@@ -1746,3 +1746,105 @@ A migracao de nomes internos deve ser feita com cuidado para nao quebrar:
 
 <!-- CHECKPOINT_PAYOFF_NOMENCLATURA_PRECO_20260627_FIM -->
 
+
+<!-- CHECKPOINT_PAYOFF_AUDITORIA_NOMENCLATURA_SCRIPT_20260627_INICIO -->
+
+## Checkpoint 2026-06-27 - Auditoria permanente de nomenclatura de preco
+
+### Contexto
+
+A classificacao das ocorrencias de nomenclatura de preco deixou de ser apenas uma conferencia manual.
+
+Foi criado um script permanente para auditar os termos relacionados a preco no contexto de payoff.
+
+Script criado:
+
+    scripts/classificar_nomenclatura_preco_payoff.py
+
+### Objetivo
+
+Garantir que termos tecnicos como spot_ref e pl_at_spot_ref sejam classificados corretamente sem confundir:
+
+    - label exibida ao usuario;
+    - campo tecnico interno;
+    - persistencia;
+    - dominio;
+    - servicos;
+    - testes;
+    - scripts diagnosticos;
+    - seeds.
+
+### Escopo da auditoria
+
+A auditoria procura ocorrencias de:
+
+    - spot_ref
+    - pl_at_spot_ref
+    - preco_ref
+    - reference_price
+    - Preco ref.
+    - Preço ref.
+
+A busca ignora:
+
+    - docs
+    - reports
+
+Motivo:
+
+    documentos e relatorios podem conter historico e evidencias antigas, sem representar necessariamente codigo operacional ativo.
+
+### Classes utilizadas
+
+O script classifica ocorrencias em grupos como:
+
+    - TESTE_FIXTURE_OU_EXPECTATIVA
+    - PERSISTENCIA_COMPATIBILIDADE
+    - DOMINIO_CALCULO_INTERNO
+    - SERVICO_PAYLOAD_INTERNO
+    - UI_LABEL_ATUALIZADO
+    - UI_NOME_INTERNO_COMPATIBILIDADE
+    - SCRIPT_DIAGNOSTICO_OU_AUDITORIA
+    - SCRIPT_SEED_DADOS_TESTE
+    - A_CLASSIFICAR
+    - UI_LABEL_BLOQUEANTE
+
+### Regra de bloqueio
+
+A classe bloqueante e:
+
+    UI_LABEL_BLOQUEANTE
+
+Se aparecer label ambigua de Preco ref na UI, o script retorna erro.
+
+### Decisao
+
+Ocorrencias internas de spot_ref e pl_at_spot_ref continuam permitidas temporariamente quando estiverem em:
+
+    - schema;
+    - persistencia;
+    - payload interno;
+    - dominio;
+    - testes;
+    - compatibilidade;
+    - scripts diagnosticos.
+
+A proibicao principal permanece na interface:
+
+    o usuario nao deve ver Preco ref como rotulo ambiguo.
+
+### Uso recomendado
+
+Executar antes de fechar alteracoes relacionadas a payoff, pricing, UI ou persistencia:
+
+    python scripts/classificar_nomenclatura_preco_payoff.py
+
+### Status
+
+    OK        auditoria permanente criada
+    OK        docs e reports excluidos da busca operacional
+    OK        UI_LABEL_BLOQUEANTE definido como falha
+    OK        relatorio classificatorio gerado em reports/payoff_conferencia
+
+<!-- CHECKPOINT_PAYOFF_AUDITORIA_NOMENCLATURA_SCRIPT_20260627_FIM -->
+
