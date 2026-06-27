@@ -121,3 +121,105 @@ Ainda falta completar a tela de payoff para exibir de forma auditável:
 - separação visual clara entre PL atual e payoff no vencimento.
 
 <!-- CHECKPOINT_PAYOFF_MTM_OPCOES_20260627_FIM -->
+
+<!-- CHECKPOINT_PAYOFF_VIEW_MODEL_ANALITICO_20260627_INICIO -->
+
+## Checkpoint 2026-06-27 - View model analitico para tela de payoff
+
+### Contexto
+
+A conferencia da UI de payoff indicou que a tela ainda estava incompleta e precisava de patch especifico para exibir:
+
+    - snapshot da implantacao;
+    - snapshot atual completo;
+    - tabela analitica por perna;
+    - intrinsico atual por perna;
+    - extrinsico atual por perna;
+    - PL atual por perna;
+    - payoff no vencimento ao preco atual por perna;
+    - separacao visual entre PL atual e payoff no vencimento.
+
+### Evolucao aplicada
+
+Foi criada uma camada de view model analitico para organizar os dados de payoff por estrutura individual antes da renderizacao final da UI.
+
+Arquivo criado:
+
+    services/payoff_analysis_view_model.py
+
+Responsabilidades:
+
+    - montar identificacao da estrutura;
+    - montar snapshot da implantacao;
+    - montar snapshot atual;
+    - montar tabela por perna;
+    - calcular intrinsico atual por perna;
+    - calcular extrinsico atual por perna;
+    - calcular PL atual por perna;
+    - calcular payoff no vencimento ao preco atual por perna;
+    - consolidar PL atual financeiro;
+    - consolidar payoff no vencimento ao preco atual;
+    - bloquear sinalizacao de fallback estatico como mercado atual.
+
+### Auditoria de UI
+
+Foi criado script permanente de conferencia da profundidade da tela:
+
+    scripts/validar_payoff_ui_analitica.py
+
+O script verifica:
+
+    - ausencia de label ambigua Preco ref;
+    - existencia dos grupos visuais obrigatorios;
+    - snapshot da implantacao;
+    - snapshot atual;
+    - tabela por perna;
+    - payoff no vencimento separado.
+
+Por padrao, o script gera relatorio sem bloquear por grupos faltantes.
+Com a opcao --strict, grupos faltantes passam a bloquear a validacao.
+
+Relatorio gerado em:
+
+    reports/payoff_conferencia/payoff_ui_analitica.json
+
+### Testes adicionados
+
+Arquivo criado:
+
+    ATT/tests/test_payoff_analysis_view_model.py
+
+Cobertura inicial:
+
+    - intrinsico de call;
+    - intrinsico de put;
+    - PL atual de perna comprada;
+    - PL atual de perna vendida;
+    - payoff no vencimento de call comprada;
+    - payoff no vencimento de put vendida;
+    - montagem de view model com duas pernas;
+    - bloqueio de fallback estatico.
+
+### Status
+
+    OK        view model analitico criado
+    OK        calculos por perna centralizados
+    OK        snapshot da implantacao estruturado
+    OK        snapshot atual estruturado
+    OK        tabela por perna estruturada
+    OK        auditoria de UI analitica criada
+    PENDENTE  conectar o view model ao componente visual da tela de payoff
+    PENDENTE  renderizar painel minimo e tabela por perna na UI
+
+### Proxima etapa
+
+Integrar o view model analitico ao arquivo responsavel pela tela de payoff, renderizando:
+
+    - bloco de identificacao da estrutura;
+    - snapshot da implantacao;
+    - snapshot atual;
+    - tabela analitica por perna;
+    - bloco separado de PL atual;
+    - bloco separado de payoff no vencimento.
+
+<!-- CHECKPOINT_PAYOFF_VIEW_MODEL_ANALITICO_20260627_FIM -->
