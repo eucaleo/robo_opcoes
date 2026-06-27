@@ -1637,3 +1637,112 @@ A etapa seguinte pode ser considerada concluida quando:
 
 <!-- CHECKPOINT_PAYOFF_EVOLUCAO_20260627_FIM -->
 
+
+<!-- CHECKPOINT_PAYOFF_NOMENCLATURA_PRECO_20260627_INICIO -->
+
+## Checkpoint 2026-06-27 - Nomenclatura de preco no payoff
+
+### Contexto
+
+Apos o registro da evolucao da correcao de payoff, foi iniciada a classificacao das ocorrencias relacionadas a:
+
+    - spot_ref
+    - pl_at_spot_ref
+    - preco_ref
+    - reference_price
+    - Preco ref.
+
+O objetivo desta etapa nao e remover campos internos de forma cega.
+
+O objetivo e separar:
+
+    - label exibida ao usuario;
+    - campo tecnico interno;
+    - coluna persistida por compatibilidade;
+    - fixture de teste;
+    - script diagnostico;
+    - evidencia historica.
+
+### Validacao de UI
+
+Foi executada validacao automatizada procurando labels visiveis residuais na pasta UI com os termos:
+
+    - Preco ref
+    - Preco ref.
+    - Preço ref
+    - Preço ref.
+
+Resultado esperado e validado nesta etapa:
+
+    OK        nenhum label visivel Preco ref encontrado na UI
+
+Isso confirma que a interface nao deve mais exibir o rotulo ambiguo como nome de campo principal.
+
+### Script temporario de correcao de label
+
+O script abaixo era um artefato temporario de migracao de nomenclatura:
+
+    scripts/corrigir_labels_preco_ref_ui.py
+
+Situacao nesta etapa:
+
+    remocao versionada: sim
+
+Motivo:
+
+    - o script continha os textos antigos como padrao de substituicao;
+    - isso gerava ruido nas auditorias de nomenclatura;
+    - a correcao de label ja havia sido aplicada;
+    - scripts temporarios de migracao nao devem permanecer como fonte de falso positivo.
+
+### Decisao de nomenclatura
+
+A nomenclatura de interface deve seguir a regra consolidada:
+
+    - Preco base na implantacao
+    - Preco base atual
+    - Preco usado na curva
+    - Preco simulado no vencimento
+    - PL atual
+    - Payoff no vencimento ao preco atual
+    - Resultado simulado no vencimento
+
+O termo generico Preco ref. nao deve ser usado em label de usuario.
+
+### Ocorrencias internas ainda permitidas temporariamente
+
+As ocorrencias restantes de spot_ref e pl_at_spot_ref podem existir temporariamente em:
+
+    - persistencia;
+    - schema de banco;
+    - camada de compatibilidade;
+    - testes;
+    - payloads internos;
+    - calculo de interpolacao do PL no preco base atual;
+    - scripts diagnosticos.
+
+Essas ocorrencias nao sao bloqueantes quando nao aparecem como label ambigua para o usuario.
+
+### Proxima etapa
+
+Gerar classificacao das ocorrencias restantes em codigo operacional, separando:
+
+    - UI interna;
+    - dominio e calculo;
+    - persistencia;
+    - servicos;
+    - testes;
+    - scripts diagnosticos;
+    - seeds;
+    - pendencias reais.
+
+A migracao de nomes internos deve ser feita com cuidado para nao quebrar:
+
+    - schema existente;
+    - historico em dados/derived.db;
+    - testes de compatibilidade;
+    - persistencia de curvas ja gravadas;
+    - integracao entre payoff_chart e details_panel.
+
+<!-- CHECKPOINT_PAYOFF_NOMENCLATURA_PRECO_20260627_FIM -->
+
