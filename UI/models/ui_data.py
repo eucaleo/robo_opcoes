@@ -277,9 +277,9 @@ class UIDataModel:
             self._cache_structures = self._load_structures()
         return list(self._cache_structures)
 
-    def get_abas(self) -> list:
-        """Alias readonly de get_structure_ids() -- compat UI (alteracao_34:filtro_aba)."""
-        return self.get_structure_ids()
+    def get_abas(self) -> List[str]:
+        """Alias legado de compatibilidade para get_structures()."""
+        return self.get_structures()
 
     def get_decisions(self, filters: Optional[Dict] = None) -> List[Dict]:
         """
@@ -713,3 +713,4 @@ class UIDataModel:
                 self._payoff_cache.pop(next(iter(self._payoff_cache)))
         except Exception:
             pass
+
