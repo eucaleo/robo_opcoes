@@ -393,14 +393,14 @@ class PayoffChart(ttk.Frame):
                 color="#ff7f0e",
                 linestyle="--",
                 linewidth=1.5,
-                label="Preço ref.",
+                label="Preço base atual",
             )
             pl_ref = self._interp_y_at_x(xs, ys, spot_ref)
             self._last_pl_at_spot_ref = pl_ref
             if pl_ref is not None:
                 self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
                 self.ax.annotate(
-                    f"Preço ref.: {_fmt_number_br(spot_ref, 2)}\n"
+                    f"Preço base atual: {_fmt_number_br(spot_ref, 2)}\n"
                     f"PL: {_fmt_currency_br(pl_ref, 2)}",
                     xy=(spot_ref, pl_ref),
                     xytext=(8, 8),

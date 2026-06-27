@@ -539,7 +539,7 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.dte_label.grid(row=1, column=3, sticky="ew")
 
-        ttk.Label(metrics_frame, text="Preço ref.:").grid(
+        ttk.Label(metrics_frame, text="Preço base atual:").grid(
             row=2, column=0, sticky="w", padx=(0, 5)
         )
         self.spot_ref_label = ttk.Label(

@@ -104,3 +104,7 @@ _local_scripts_fase7/
 
 # Arquivo Excel RTD local/cacheado
 LISTA_RTD.xlsm
+
+# Relatorios locais de conferencia
+reports/payoff_conferencia/
+reports/payoff_runtime_focado/
