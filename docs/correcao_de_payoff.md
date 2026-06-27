@@ -1467,3 +1467,173 @@ A separação correta é feita por structure_id.
 
 O payoff deve ser profundo, auditável e completo dentro da estrutura selecionada.
 
+
+<!-- CHECKPOINT_PAYOFF_EVOLUCAO_20260627_INICIO -->
+
+## Checkpoint 2026-06-27 11:49 - Evolucao da limpeza de payoff por estrutura individual
+
+### Contexto
+
+Este checkpoint registra a evolucao posterior ao encerramento da rota RTD, Market Snapshot real e Pricing Canonico.
+
+A base do projeto ja havia consolidado que:
+
+    - o ativo-base nao e chave principal de calculo de payoff;
+    - a chave principal deve ser structure_id;
+    - o MarketSnapshotProvider deve usar rtd_underlying_quotes como fonte real de spot;
+    - fallback estatico nao pode ser tratado como mercado atual;
+    - a analise de payoff deve ser individual por estrutura;
+    - pernas, snapshots, metricas e curva de payoff nao devem ser carregados apenas por ativo-base.
+
+### Commits recentes relevantes
+
+Estado observado na branch reinicio-normalizacao-idioma-ptbr:
+
+    b775a1a chore: adiciona conferencia completa de payoff por estrutura
+    210c6ff fix: remove spot hardcoded de fallback de mercado
+    5068b60 chore: adiciona limpeza de derivados antigos de payoff
+    d893de0 chore: remove CSVs legados da pasta bridge
+    2c41b11 chore: remove ruido legado de comparacao entre estruturas
+
+Commit atual remoto e local:
+
+    2c41b11 chore: remove ruido legado de comparacao entre estruturas
+
+### Evolucao aplicada
+
+Foi removido o script temporario:
+
+    scripts/atualiza_doc_payoff_estrutura_individual.py
+
+Tambem foi ajustado o checker:
+
+    scripts/conferir_payoff_buscas_git.sh
+
+O checker passou a excluir caminhos que geravam ruido de auditoria:
+
+    - docs
+    - reports
+    - o proprio script conferir_payoff_buscas_git.sh
+
+Com isso, o bloco de termos antigos de comparacao incompativel deixou de acusar o proprio arquivo de conferencia.
+
+### Validacoes executadas
+
+Foram executados os comandos de conferencia:
+
+    bash scripts/run_conferencia_payoff_estrutura_individual.sh
+    bash scripts/conferir_payoff_runtime_focado.sh
+    python scripts/scan_db_tokens_payoff.py dados/app.db dados/derived.db
+
+Resultado observado:
+
+    - conferencia principal concluida;
+    - relatorio Git/Grep gerado;
+    - conferencia DB gerada;
+    - conferencia runtime focada gerada;
+    - scan de tokens em bancos gerado;
+    - bloco 1 do relatorio sem ocorrencias de termos antigos fora do escopo;
+    - working tree limpo apos commit e push.
+
+### Resultado da busca de termos antigos
+
+O bloco 1 do relatorio:
+
+    1. Termos antigos de comparacao incompativel
+
+ficou sem ocorrencias apos a exclusao de docs, reports e do proprio checker.
+
+Isso confirma que os termos legados abaixo nao aparecem mais no codigo operacional conferido:
+
+    - validateComparableStructures
+    - Nao e possivel comparar estruturas com ativos-base diferentes
+    - comparacao entre duas estruturas incompativeis
+    - Estruturas de ativos diferentes nao puderem
+
+### Estado atual de Git
+
+Estado final confirmado:
+
+    HEAD local: 2c41b11
+    origin/reinicio-normalizacao-idioma-ptbr: 2c41b11
+    git status --short: sem pendencias
+
+### Situacao atual da frente de payoff
+
+Status consolidado:
+
+    OK        RTD de opcoes limitado ao escopo operacional
+    OK        RTD de ativos-base populado para BOVA11 e PRIO3
+    OK        MarketSnapshotProvider usando rtd_underlying_quotes
+    OK        PricingInputService usando spot real do banco correto
+    OK        Payoff/Pricing bloqueiam fallback estatico como mercado atual
+    OK        PRIO3 nao retorna mais 66.84 no fluxo canonico validado
+    OK        regra de payoff individual por estrutura consolidada
+    OK        checker de conferencia ajustado para evitar self-hit
+    OK        limpeza de artefatos temporarios e CSVs legados realizada
+
+### Ressalva de acompanhamento
+
+O relatorio de busca ainda possui uma secao sobre campos e labels de preco de referencia.
+
+Foram observadas ocorrencias tecnicas como:
+
+    - spot_ref
+    - pl_at_spot_ref
+
+principalmente em testes e nomes internos.
+
+Essas ocorrencias nao necessariamente indicam erro funcional, mas devem ser classificadas na proxima etapa como:
+
+    - uso interno aceitavel;
+    - legado a renomear;
+    - label de interface a substituir;
+    - campo persistido que precisa de migracao futura;
+    - teste que precisa acompanhar a nova nomenclatura.
+
+### Proxima etapa recomendada
+
+A proxima etapa deve ser uma auditoria focada de nomenclatura e interface.
+
+Objetivo:
+
+    garantir que o usuario final nao veja mais o rotulo generico Preco ref. quando o dado representar conceitos diferentes.
+
+Separar explicitamente:
+
+    - Preco base na implantacao
+    - Preco base atual
+    - Preco usado na curva
+    - Preco simulado no vencimento
+    - PL atual
+    - Payoff no vencimento ao preco atual
+    - Resultado simulado no vencimento
+
+### Ordem sugerida para continuidade
+
+1. Classificar ocorrencias restantes de spot_ref, preco_ref, reference_price e Preco ref.
+
+2. Separar o que e campo interno tecnico do que e label exibida na interface.
+
+3. Renomear labels visuais ambiguas.
+
+4. Manter compatibilidade de campos internos quando houver persistencia ou testes dependentes.
+
+5. Reexecutar a conferencia completa.
+
+6. Registrar novo checkpoint com a decisao de nomenclatura.
+
+### Criterio de conclusao da proxima etapa
+
+A etapa seguinte pode ser considerada concluida quando:
+
+    - nenhuma tela exibir Preco ref. de forma ambigua;
+    - o preco atual do ativo-base estiver rotulado como Preco base atual;
+    - o preco de implantacao estiver separado do preco atual;
+    - o preco usado na curva estiver identificado;
+    - PL atual e payoff no vencimento estiverem visualmente separados;
+    - testes continuarem passando;
+    - relatorio de busca estiver classificado sem pendencias bloqueantes.
+
+<!-- CHECKPOINT_PAYOFF_EVOLUCAO_20260627_FIM -->
+
