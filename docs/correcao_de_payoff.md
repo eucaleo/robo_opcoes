@@ -1848,3 +1848,150 @@ Executar antes de fechar alteracoes relacionadas a payoff, pricing, UI ou persis
 
 <!-- CHECKPOINT_PAYOFF_AUDITORIA_NOMENCLATURA_SCRIPT_20260627_FIM -->
 
+
+<!-- CHECKPOINT_PAYOFF_VALIDACAO_POS_AUDITORIA_20260627_INICIO -->
+
+## Checkpoint 2026-06-27 - Validacao pos-auditoria de payoff e nomenclatura
+
+### Contexto
+
+Apos a criacao da auditoria permanente de nomenclatura de preco no payoff, foi executada uma rodada completa de validacao para confirmar que a branch permanece aderente as regras consolidadas no documento.
+
+A validacao teve como foco:
+
+    - nomenclatura de preco na UI;
+    - payoff individual por structure_id;
+    - conferencia de runtime focada;
+    - scan de tokens em bancos;
+    - testes automatizados de payoff, pricing, canonical e snapshot.
+
+### Comandos executados
+
+Foram executados:
+
+    git status --short
+
+    python scripts/classificar_nomenclatura_preco_payoff.py
+
+    bash scripts/run_conferencia_payoff_estrutura_individual.sh
+
+    bash scripts/conferir_payoff_runtime_focado.sh
+
+    python scripts/scan_db_tokens_payoff.py dados/app.db dados/derived.db
+
+    python -m pytest ATT/tests -k "payoff or pricing or canonical or snapshot"
+
+A rodada foi repetida parcialmente para confirmar estabilidade:
+
+    git status --short
+    python scripts/classificar_nomenclatura_preco_payoff.py
+    bash scripts/run_conferencia_payoff_estrutura_individual.sh
+    bash scripts/conferir_payoff_runtime_focado.sh
+    python -m pytest ATT/tests -k "payoff or pricing or canonical or snapshot"
+
+### Auditoria de nomenclatura
+
+Resultado da classificacao:
+
+    DOMINIO_CALCULO_INTERNO: 24
+    PERSISTENCIA_COMPATIBILIDADE: 23
+    SCRIPT_DIAGNOSTICO_OU_AUDITORIA: 18
+    SCRIPT_SEED_DADOS_TESTE: 9
+    SERVICO_PAYLOAD_INTERNO: 10
+    TESTE_FIXTURE_OU_EXPECTATIVA: 24
+    UI_NOME_INTERNO_COMPATIBILIDADE: 51
+
+Resultado bloqueante:
+
+    OK: nenhuma ocorrencia classificada como UI_LABEL_BLOQUEANTE.
+
+Decisao:
+
+    A auditoria permanente esta operacional.
+    Nao ha label ambigua de Preco ref bloqueando a UI no estado conferido.
+
+### Conferencia por estrutura individual
+
+Foi executado:
+
+    bash scripts/run_conferencia_payoff_estrutura_individual.sh
+
+Resultado:
+
+    Conferencia Payoff por Estrutura Individual concluida.
+    Branch: reinicio-normalizacao-idioma-ptbr
+    Commit: 9c4ad94
+    Relatorios gerados em reports/payoff_conferencia
+
+A conferencia confirma a continuidade da regra vigente:
+
+    o payoff deve ser calculado por structure_id;
+    o ativo-base nao deve ser usado como chave principal;
+    pernas, snapshots, metricas e curvas nao devem misturar estruturas diferentes.
+
+### Runtime focado e scan de bancos
+
+Foi executado:
+
+    bash scripts/conferir_payoff_runtime_focado.sh
+
+Resultado:
+
+    Relatorio gerado em reports/payoff_runtime_focado
+
+Tambem foi executado:
+
+    python scripts/scan_db_tokens_payoff.py dados/app.db dados/derived.db
+
+Resultado:
+
+    Relatorio de scan de tokens gerado em reports/payoff_runtime_focado
+
+### Testes automatizados
+
+Foi executado:
+
+    python -m pytest ATT/tests -k "payoff or pricing or canonical or snapshot"
+
+Resultado:
+
+    211 passed
+    4 skipped
+    456 deselected
+
+A segunda execucao confirmou estabilidade:
+
+    211 passed
+    4 skipped
+    456 deselected
+
+### Status consolidado
+
+    OK        auditoria permanente executada
+    OK        nenhuma UI_LABEL_BLOQUEANTE encontrada
+    OK        conferencia por estrutura individual executada
+    OK        runtime focado executado
+    OK        scan de tokens em bancos executado
+    OK        testes payoff/pricing/canonical/snapshot aprovados
+    OK        regra de structure_id permanece vigente
+    OK        nomenclatura visual sem bloqueio conhecido
+    OK        branch validada no commit 9c4ad94
+
+### Proxima frente recomendada
+
+Apos esta validacao, a proxima frente funcional deve verificar a profundidade da tela de payoff, especialmente:
+
+    - painel minimo do grafico;
+    - tabela obrigatoria por perna;
+    - intrinsico atual por perna;
+    - extrinsico atual por perna;
+    - PL atual por perna;
+    - payoff no vencimento ao preco atual;
+    - separacao visual entre PL atual e resultado simulado no vencimento.
+
+Criterio da proxima etapa:
+
+    confirmar se a UI ja exibe todos os blocos obrigatorios ou abrir patch especifico para completar a tela de payoff.
+
+<!-- CHECKPOINT_PAYOFF_VALIDACAO_POS_AUDITORIA_20260627_FIM -->
+
