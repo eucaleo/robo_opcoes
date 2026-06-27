@@ -181,6 +181,146 @@ def _first_count(table_counts: dict, *candidate_names: str):
     return None
 
 
+
+def _is_ok_status(value) -> bool:
+    """Retorna True para status operacionais bem-sucedidos."""
+    return str(value or "").lower() in {"ok", "success", "completed"}
+
+
+def _count_app_table(table_name: str):
+    """Conta linhas de uma tabela no app.db, retornando None em caso de erro."""
+    import sqlite3
+    from db.config import APP_DB_PATH
+
+    conn = sqlite3.connect(str(APP_DB_PATH))
+    try:
+        exists = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+            (table_name,),
+        ).fetchone()
+
+        if not exists:
+            return None
+
+        row = conn.execute(f'SELECT COUNT(*) FROM "{table_name}"').fetchone()
+        return int(row[0]) if row is not None else None
+
+    except Exception:
+        return None
+
+    finally:
+        conn.close()
+
+
+def _list_structure_ids_from_app_db() -> list[int]:
+    """Lista structure_id do app.db canônico."""
+    import sqlite3
+    from db.config import APP_DB_PATH
+
+    conn = sqlite3.connect(str(APP_DB_PATH))
+    try:
+        exists = conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type='table' AND name='structures'"
+        ).fetchone()
+
+        if not exists:
+            print("[WARN] Tabela app.db:structures não encontrada.")
+            return []
+
+        rows = conn.execute(
+            """
+            SELECT id
+            FROM structures
+            ORDER BY id
+            """
+        ).fetchall()
+
+        return [int(row[0]) for row in rows if row and row[0] is not None]
+
+    finally:
+        conn.close()
+
+
+def _run_pricing_for_all_structures() -> dict:
+    """
+    Executa pricing/payoff/decisão para todas as estruturas do app.db.
+
+    Esta etapa popula:
+      - app.db:pricing_executions
+      - derived.db:structure_decisions
+      - derived.db:payoff_curve_points
+    """
+    from db.config import APP_DB_PATH
+    from services.canonical_pricing_facade import CanonicalPricingFacade
+
+    structure_ids = _list_structure_ids_from_app_db()
+
+    result = {
+        "structures_found": len(structure_ids),
+        "structures_processed": 0,
+        "pricing_ok": 0,
+        "pricing_errors": 0,
+        "errors": [],
+    }
+
+    if not structure_ids:
+        print("[WARN] Nenhuma estrutura encontrada em app.db:structures.")
+        return result
+
+    facade = CanonicalPricingFacade(db_path=APP_DB_PATH)
+
+    for sid in structure_ids:
+        print(f"[PIPELINE] Pricing structure_id={sid}...")
+
+        try:
+            pricing_result = facade.execute_pricing(sid)
+
+            top_status = None
+            inner_status = None
+
+            if isinstance(pricing_result, dict):
+                top_status = pricing_result.get("status")
+
+                inner = pricing_result.get("result")
+                if isinstance(inner, dict):
+                    nested = inner.get("result", inner)
+                    if isinstance(nested, dict):
+                        inner_status = nested.get("status")
+
+            ok = _is_ok_status(top_status)
+
+            if inner_status is not None:
+                ok = ok and _is_ok_status(inner_status)
+
+            result["structures_processed"] += 1
+
+            if ok:
+                result["pricing_ok"] += 1
+            else:
+                result["pricing_errors"] += 1
+                result["errors"].append(
+                    {
+                        "structure_id": sid,
+                        "status": top_status,
+                        "inner_status": inner_status,
+                        "message": "Status de pricing não OK",
+                    }
+                )
+
+        except Exception as exc:
+            result["structures_processed"] += 1
+            result["pricing_errors"] += 1
+            result["errors"].append(
+                {
+                    "structure_id": sid,
+                    "error": str(exc),
+                }
+            )
+            print(f"[ERROR] Falha no pricing structure_id={sid}: {exc}")
+
+    return result
+
+
 def _collect_pipeline_summary(rtd_result: dict | None = None) -> dict:
     """
     Coleta resumo operacional do derived.db após execução/validação.
@@ -307,6 +447,19 @@ def main(argv=None) -> int:
             return int(rtd_result.get("returncode") or 1)
 
     # Validação final OBRIGATÓRIA
+
+    print("\n[PIPELINE] Calculando pricing/payoff/decisões para estruturas...")
+    pricing_result = _run_pricing_for_all_structures()
+
+    print("[PIPELINE] Resultado pricing:")
+    print(f"  Estruturas encontradas: {pricing_result.get('structures_found')}")
+    print(f"  Estruturas processadas: {pricing_result.get('structures_processed')}")
+    print(f"  Pricing OK: {pricing_result.get('pricing_ok')}")
+    print(f"  Pricing com erro: {pricing_result.get('pricing_errors')}")
+
+    if int(pricing_result.get("pricing_errors") or 0) > 0:
+        print("[WARN] Algumas estruturas falharam no pricing.")
+
     print("\n[PIPELINE] Validando consistência final dos snapshots...")
     if not validate_final_consistency():
         print("[ERROR] PIPELINE FALHOU: Inconsistências detectadas nos snapshots")
