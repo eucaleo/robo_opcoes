@@ -229,10 +229,47 @@ class UIDataModel:
             conn.close()
 
     def get_structures(self) -> List[str]:
-        """Alias de get_structure_ids() para compatibilidade."""
-        if not self._cache_structures:
-            self._cache_structures = self._load_structures()
-        return list(self._cache_structures)
+        """
+        Retorna estruturas ativas para popular o filtro da UI.
+
+        Importante:
+        - Não depende de decisões/pricing_executions/payoff.
+        - A fonte canônica para o combo é app.db:structures.
+        - Retorna IDs como string para manter compatibilidade com FiltersPanel.
+        """
+        import sqlite3
+        from pathlib import Path
+
+        # UIDataModel usa derived.db para decisões/payoff.
+        # Porém o cadastro canônico de estruturas está em dados/app.db.
+        project_root = Path(__file__).resolve().parents[2]
+        app_db_path = project_root / "dados" / "app.db"
+
+        conn = sqlite3.connect(str(app_db_path))
+        conn.row_factory = sqlite3.Row
+
+        try:
+            rows = conn.execute(
+                """
+                SELECT id
+                FROM structures
+                WHERE COALESCE(status, 'active') = 'active'
+                ORDER BY name, id
+                """
+            ).fetchall()
+
+            return [str(row["id"]) for row in rows]
+        except Exception:
+            # Fallback legado: mantém compatibilidade caso a tabela structures
+            # não exista em algum ambiente antigo.
+            if not self._cache_structures:
+                self._cache_structures = self._load_structures()
+            return list(self._cache_structures)
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
     def get_structure_ids(self) -> List[str]:
         """alteracao_34: metodo canonico. Substitui get_structures()."""
