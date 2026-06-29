@@ -823,3 +823,43 @@ Regras preservadas:
     Não usar git add -A.
     Banco permanece como fonte da verdade.
     Excel permanece apenas como ponte RTD.
+
+## Registro de alinhamento arquitetural — escopo local do controller
+
+Data de registro:
+
+    2026-06-29 10:57:22 -0300
+
+Decisão de arquitetura reforçada:
+
+    O Terminal VWAP Payoff permanece como camada visual local.
+    O controller do terminal, quando existente, deve atuar apenas como orquestrador local entre UI, ViewModels e serviços.
+    Não faz parte do escopo atual criar endpoint REST/API, router FastAPI ou integração web para o terminal.
+
+Permitido:
+
+    UI local.
+    Controller local.
+    ViewModel do terminal.
+    App service do terminal.
+    Serviços existentes do sistema.
+    Testes locais do terminal.
+    Integração por structure_id.
+    Consumo de dados calculados pelo sistema.
+
+Não permitido nesta etapa:
+
+    FastAPI específico para o terminal.
+    APIRouter específico para o terminal.
+    Inclusão de router do terminal em main.py.
+    Endpoint REST para o terminal.
+    TestClient para endpoint do terminal.
+    Cálculo financeiro oficial dentro da UI.
+    Acesso direto da UI ao banco.
+    Acesso direto da UI a CSV antigo.
+    Restauração de LISTA_RTD.xlsx.
+
+Critério de continuidade:
+
+    Antes de novos incrementos, confirmar que main.py permanece sem router do terminal e que api/terminal_vwap_payoff_controller.py permanece ausente.
+    Após cada incremento, executar os testes acumulados do terminal.

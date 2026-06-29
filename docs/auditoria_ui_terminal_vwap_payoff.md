@@ -654,3 +654,58 @@ Decisão:
 
     Registrar o Incremento 2 como evolução válida da Fase 7.
     Prosseguir para os próximos incrementos mantendo commits pequenos, testados e auditados.
+
+## Registro de correção de rota — remoção de risco REST/API indevido
+
+Data de registro:
+
+    2026-06-29 10:57:22 -0300
+
+Branch verificada:
+
+    feature/ui-terminal-vwap-payoff
+
+Contexto:
+
+    Foi identificada a necessidade de garantir que o Terminal VWAP Payoff permanecesse dentro do escopo local previsto no plano.
+    O terminal não deve ser migrado para web, não deve expor endpoint REST/API próprio e não deve alterar a arquitetura do sistema atual.
+
+Verificação realizada:
+
+    api/terminal_vwap_payoff_controller.py ausente.
+    main.py sem referência ao terminal.
+    controllers/terminal_vwap_payoff_controller.py sem indício de FastAPI, APIRouter, HTTPException, TestClient, include_router ou rota REST.
+    ATT/tests/test_terminal_vwap_payoff_controller.py sem indício de FastAPI, APIRouter, HTTPException, TestClient, include_router ou rota REST.
+
+Resultado da auditoria final:
+
+    Nenhum resíduo REST/API crítico detectado nos arquivos alvo.
+
+Testes executados:
+
+    Comando:
+        python -m pytest ATT/tests/test_terminal_vwap_payoff_viewmodel_service.py ATT/tests/test_terminal_vwap_payoff_app_service.py ATT/tests/test_terminal_vwap_payoff_controller.py
+
+    Resultado:
+        19 passed
+
+Decisão:
+
+    O desenvolvimento deve prosseguir no trilho local.
+    O controller do terminal permanece permitido apenas como controller local de orquestração.
+    Não deve ser criado endpoint REST/API para o Terminal VWAP Payoff nesta etapa.
+    main.py não deve incluir router do terminal.
+    A UI deve continuar consumindo ViewModels, controllers locais ou serviços do sistema.
+    Banco permanece como fonte da verdade.
+    Excel permanece apenas como ponte RTD.
+    LISTA_RTD.xlsx permanece tratado como legado e não deve ser restaurado.
+
+Arquivos sensíveis observados fora do escopo deste registro:
+
+    LISTA_RTD.xlsx
+    LISTA_RTD.xlsm
+    OPERACOES_E_OPCOES.xlsm
+
+Observação:
+
+    Alterações de Excel, reports, spikes e scripts locais não fazem parte deste registro documental.
