@@ -709,3 +709,158 @@ Arquivos sensíveis observados fora do escopo deste registro:
 Observação:
 
     Alterações de Excel, reports, spikes e scripts locais não fazem parte deste registro documental.
+
+## Registro de auditoria — Integração UI principal, saneamento operacional e publicação remota
+
+Marcador: REGISTRO_UI_PRINCIPAL_TERMINAL_VWAP_PAYOFF_434fd1e
+
+Data de registro:
+
+    2026-06-29 12:49:38 -0300
+
+Branch verificada:
+
+    feature/ui-terminal-vwap-payoff
+
+Contexto:
+
+    Foi concluída a integração do Terminal VWAP Payoff na UI principal.
+    A alteração respeitou a arquitetura definida para o projeto, mantendo o terminal como camada visual local.
+    Também foi realizado saneamento de arquivos operacionais e legados para evitar regressão e ruído permanente no Git.
+
+Histórico recente observado:
+
+    434fd1e chore: ignora arquivos operacionais locais
+    4f2fe3f chore: remove planilhas legadas do sistema
+    fb1b5d8 feat(ui): integra terminal VWAP payoff na UI principal
+
+Commits registrados nesta etapa:
+
+    fb1b5d8 feat(ui): integra terminal VWAP payoff na UI principal
+
+        Arquivos:
+            ATT/tests/test_terminal_vwap_payoff_panel.py
+            UI/components/terminal_vwap_payoff_panel.py
+            UI/main_window.py
+            services/terminal_vwap_payoff_app_service.py
+
+        Resultado:
+            Painel local do terminal integrado à UI principal.
+            Testes do painel adicionados.
+            Integração preservou o consumo por serviços, controller local e ViewModel.
+
+    4f2fe3f chore: remove planilhas legadas do sistema
+
+        Arquivos removidos:
+            LISTA_RTD.xlsx
+            OPERACOES_E_OPCOES.xlsm
+
+        Resultado:
+            Remoção intencional dos arquivos que não pertencem mais ao sistema atualizado.
+            LISTA_RTD.xlsx permanece classificado como legado e não deve ser restaurado.
+
+    434fd1e chore: ignora arquivos operacionais locais
+
+        Arquivo alterado:
+            .gitignore
+
+        Arquivos e pastas ignorados:
+            LISTA_RTD.xlsm
+            _local_scripts_fase7/
+            reports/
+            spikes/
+
+        Resultado:
+            LISTA_RTD.xlsm permanece como ponte RTD operacional local, sem versionamento.
+            Artefatos locais, relatórios e spikes deixam de aparecer como pendências no Git.
+
+Verificações executadas:
+
+    Branch confirmada:
+        feature/ui-terminal-vwap-payoff
+
+    Status após saneamento:
+        Working tree limpo.
+
+    Push remoto:
+        Branch publicada em origin/feature/ui-terminal-vwap-payoff.
+
+Validação específica do terminal executada:
+
+    Comando:
+        python -m pytest ATT/tests/test_terminal_vwap_payoff_viewmodel_service.py ATT/tests/test_terminal_vwap_payoff_app_service.py ATT/tests/test_terminal_vwap_payoff_controller.py ATT/tests/test_terminal_vwap_payoff_panel.py
+
+    Resultado:
+        24 passed in 0.29s
+
+Validação de compilação executada:
+
+    Comando:
+        python -m py_compile UI/components/terminal_vwap_payoff_panel.py UI/main_window.py services/terminal_vwap_payoff_app_service.py controllers/terminal_vwap_payoff_controller.py
+
+    Resultado:
+        Sem erro reportado.
+
+Validação integrada geral executada:
+
+    Comando:
+        python -m pytest
+
+    Resultado:
+        651 passed, 2 skipped in 35.48s
+
+Impacto no sistema existente:
+
+    Testes gerais continuam passando.
+    Não houve restauração de LISTA_RTD.xlsx.
+    Não houve inclusão de arquivo Excel operacional no commit funcional.
+    Não houve uso de git add -A.
+    Não houve migração web.
+    Não houve criação de endpoint REST/API específico para o terminal.
+    Não houve dependência nova de CSV derivado antigo.
+    Não houve acesso direto da UI ao banco.
+    Não houve acesso direto da UI ao RTD bruto.
+    Não houve cálculo financeiro oficial implementado dentro da UI.
+
+Decisão sobre arquivos sensíveis:
+
+    LISTA_RTD.xlsx:
+        Arquivo legado removido intencionalmente.
+        Não deve ser restaurado.
+
+    LISTA_RTD.xlsm:
+        Arquivo operacional vigente da ponte RTD.
+        Deve permanecer local e ignorado pelo Git, pois sofre alterações constantes durante consultas RTD.
+
+    OPERACOES_E_OPCOES.xlsm:
+        Arquivo removido intencionalmente por não pertencer mais ao sistema atualizado.
+
+Regras preservadas:
+
+    Banco de dados permanece como fonte da verdade.
+    Excel permanece apenas como ponte RTD.
+    UI permanece como camada de apresentação.
+    Terminal permanece local.
+    Controller permanece local, sem API REST.
+    Cálculos permanecem nos serviços do sistema.
+    Structure_id permanece como referência central.
+    Testes acumulados foram executados.
+    Alterações concluídas foram commitadas.
+    Branch foi publicada no remoto.
+
+Posição atual revisada:
+
+    A etapa de integração do Terminal VWAP Payoff na UI principal está concluída.
+    A branch feature/ui-terminal-vwap-payoff está publicada no remoto.
+    O repositório local estava limpo após os commits.
+    A suíte completa foi executada com sucesso.
+    O projeto está apto para pull request ou continuidade para a próxima etapa planejada.
+
+Pendências atualizadas:
+
+    Abrir pull request da branch feature/ui-terminal-vwap-payoff, se essa for a estratégia de integração.
+    Revisar visualmente a tela em execução local.
+    Definir próxima evolução após aprovação da integração principal.
+    Manter LISTA_RTD.xlsm fora do versionamento.
+    Não restaurar LISTA_RTD.xlsx.
+
