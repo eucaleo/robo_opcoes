@@ -11,6 +11,7 @@ from UI.components.decisions_grid import DecisionsGrid
 from UI.components.filters_panel import FiltersPanel
 from UI.components.structures_list_panel import StructuresListPanel
 from UI.components.structure_editor_dialog import StructureEditorDialog
+from UI.components.terminal_vwap_payoff_panel import TerminalVWAPPayoffPanel
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from UI.debug_utils import debug, info
@@ -110,6 +111,8 @@ class MainWindow:
 
         # Aba 3: Estruturas (Fase 5 -- alteracao_10)
         self._setup_structures_tab(right_notebook)
+
+        self._setup_terminal_vwap_payoff_tab(right_notebook)
 
         # Status bar
         self.status_bar = ttk.Label(
@@ -691,6 +694,60 @@ Baseline: executed_v1 + baseline_v1b"""
     # ------------------------------------------------------------------
     # Entry point
     # ------------------------------------------------------------------
+
+    def _setup_terminal_vwap_payoff_tab(self, notebook: ttk.Notebook):
+        """Adiciona o Terminal VWAP Payoff como aba nativa da UI principal."""
+
+        terminal_frame = ttk.Frame(notebook)
+        notebook.add(terminal_frame, text="Terminal VWAP Payoff")
+
+        try:
+            from repositories.structures_repository import StructuresRepository
+            from services.terminal_vwap_payoff_app_service import (
+                TerminalVWAPPayoffAppService,
+            )
+            from controllers.terminal_vwap_payoff_controller import (
+                TerminalVWAPPayoffController,
+            )
+
+            db_path = (
+                getattr(self, "_db_path", None)
+                or getattr(self, "db_path", None)
+                or getattr(getattr(self, "repository", None), "db_path", None)
+                or "dados/app.db"
+            )
+
+            structure_repository = StructuresRepository(db_path)
+            app_service = TerminalVWAPPayoffAppService(
+                structure_repository=structure_repository,
+            )
+            controller = TerminalVWAPPayoffController(app_service)
+
+            self.terminal_vwap_payoff_panel = TerminalVWAPPayoffPanel(
+                parent=terminal_frame,
+                controller=controller,
+                on_status=lambda msg: (
+                    self.status_bar.config(text=msg)
+                    if hasattr(self, "status_bar")
+                    else None
+                ),
+            )
+            self.terminal_vwap_payoff_panel.pack(
+                fill="both",
+                expand=True,
+                padx=5,
+                pady=5,
+            )
+        except Exception as exc:
+            ttk.Label(
+                terminal_frame,
+                text=(
+                    "Terminal VWAP Payoff indisponível.\n\n"
+                    f"Erro ao inicializar integração local:\n{exc}"
+                ),
+                foreground="red",
+                justify="left",
+            ).pack(fill="both", expand=True, padx=12, pady=12)
 
     def run(self):
         """Inicia a aplicação."""

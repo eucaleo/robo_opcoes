@@ -72,6 +72,29 @@ class TerminalVWAPPayoffAppService:
             payoff_points=payoff_points,
         )
 
+    def list_structures(self, include_archived: bool = True) -> list[dict[str, Any]]:
+        """Lista estruturas via repositório injetado, sem acesso direto pela UI."""
+
+        if self.structure_repository is None:
+            return []
+
+        result = self._call_first_available(
+            self.structure_repository,
+            method_names=(
+                "list_structures",
+                "list_available_structures",
+                "listar_estruturas",
+            ),
+            call_variants=(
+                lambda method: method(include_archived=include_archived),
+                lambda method: method(include_archived),
+                lambda method: method(),
+            ),
+            default=[],
+        )
+
+        return list(result or [])
+
     @staticmethod
     def _validate_structure_id(structure_id: int) -> int:
         try:
