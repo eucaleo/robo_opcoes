@@ -553,3 +553,37 @@ Não haverá:
 - dependência de CSV antigo;
 - substituição do banco como fonte da verdade;
 - substituição do Excel como ponte RTD.
+
+## Registro de verificação local RTD
+
+Verificação registrada para a branch feature/ui-terminal-vwap-payoff.
+
+Estado observado:
+
+    LISTA_RTD.xlsx aparece como deletado no Git, mas é arquivo legado.
+    LISTA_RTD.xlsm aparece como arquivo operacional vigente da ponte RTD com macros.
+    OPERACOES_E_OPCOES.xlsm aparece como deletado no Git e exige decisão separada.
+    Os documentos do terminal VWAP Payoff foram criados em docs.
+    Os documentos foram convertidos de txt para md.
+    Os documentos não possuem blocos com crase.
+
+Decisões registradas:
+
+    Não restaurar LISTA_RTD.xlsx.
+    Não tratar LISTA_RTD.xlsx como ponte RTD vigente.
+    Preservar LISTA_RTD.xlsm como evolução consolidada.
+    Não fazer restauração antes de verificações locais.
+    Não usar buscas profundas no histórico para reintroduzir arquivos ou padrões legados.
+    Não incluir alterações de Excel no mesmo commit de documentação.
+    Não incluir reports, spikes ou scripts locais no commit de documentação.
+
+Comandos proibidos nesta etapa:
+
+    git restore LISTA_RTD.xlsx
+    git reset --hard
+    git clean -fd
+    git add -A
+
+Critério de segurança:
+
+    Qualquer modificação em documentos ou arquivos deve ser feita por script Git Bash local, com verificações antes da escrita.
