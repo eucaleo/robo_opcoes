@@ -587,3 +587,70 @@ Comandos proibidos nesta etapa:
 Critério de segurança:
 
     Qualquer modificação em documentos ou arquivos deve ser feita por script Git Bash local, com verificações antes da escrita.
+
+## Registro de andamento — Incremento 2 do Terminal VWAP Payoff
+
+Marcador: AUDITORIA_INCREMENTO_2_TERMINAL_VWAP_PAYOFF_594057f
+
+Data de registro:
+
+    2026-06-29 09:47:54 -0300
+
+Branch verificada:
+
+    feature/ui-terminal-vwap-payoff
+
+Commit funcional registrado:
+
+    594057f feat(ui): adiciona app service do terminal vwap payoff
+
+Histórico recente observado:
+
+    594057f (HEAD -> feature/ui-terminal-vwap-payoff) feat(ui): adiciona app service do terminal vwap payoff
+    37e915f feat(ui): adiciona viewmodel do terminal vwap payoff
+    4610f38 docs: registra premissas rtd do terminal vwap payoff
+    30dbc6c docs: adiciona plano e auditoria do terminal vwap payoff
+    34bc73c (origin/main, spike/ui-terminal-vwap-payoff, main) docs(checkpoints): add fase 2a strike investigation evidence
+
+Evidência do último commit:
+
+    594057f feat(ui): adiciona app service do terminal vwap payoff
+    ATT/tests/test_terminal_vwap_payoff_app_service.py
+    services/terminal_vwap_payoff_app_service.py
+
+Arquivos incluídos no Incremento 2:
+
+    ATT/tests/test_terminal_vwap_payoff_app_service.py
+    services/terminal_vwap_payoff_app_service.py
+
+Testes executados:
+
+    Comando: python -m pytest ATT/tests/test_terminal_vwap_payoff*.py
+    Resultado: ============================== 7 passed in 0.17s ==============================
+
+Resultado:
+
+    Incremento 2 concluído, testado e commitado.
+    App service do Terminal VWAP Payoff adicionado.
+    Testes acumulados do terminal executados com sucesso.
+    Arquivos sensíveis permaneceram fora do commit funcional.
+
+Impacto no sistema existente:
+
+    Sem alteração intencional em arquivos Excel.
+    Sem inclusão de reports, spikes ou scripts locais.
+    Sem uso de git add -A.
+    Banco permanece como fonte da verdade.
+    Excel permanece apenas como ponte RTD.
+    UI permanece como camada consumidora de serviços/ViewModels.
+
+Arquivos sensíveis observados fora do commit funcional:
+
+    LISTA_RTD.xlsx
+    LISTA_RTD.xlsm
+    OPERACOES_E_OPCOES.xlsm
+
+Decisão:
+
+    Registrar o Incremento 2 como evolução válida da Fase 7.
+    Prosseguir para os próximos incrementos mantendo commits pequenos, testados e auditados.
