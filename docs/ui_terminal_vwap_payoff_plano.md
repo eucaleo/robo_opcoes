@@ -785,3 +785,41 @@ Regras de proteção:
     Não executar git add -A
     Não misturar documentação com alterações de Excel
     Não misturar documentação com reports, spikes ou scripts locais
+
+## Registro de evolução — Incremento 2 do Terminal VWAP Payoff
+
+Marcador: PLANO_INCREMENTO_2_TERMINAL_VWAP_PAYOFF_594057f
+
+Data de registro:
+
+    2026-06-29 09:47:54 -0300
+
+Commit funcional registrado:
+
+    594057f feat(ui): adiciona app service do terminal vwap payoff
+
+Escopo registrado:
+
+    Inclusão do app service do Terminal VWAP Payoff.
+    Inclusão dos testes correspondentes.
+    Preservação da separação entre UI, serviços e fonte da verdade.
+
+Arquivos funcionais do incremento:
+
+    ATT/tests/test_terminal_vwap_payoff_app_service.py
+    services/terminal_vwap_payoff_app_service.py
+
+Validação:
+
+    Testes acumulados do terminal executados com sucesso.
+    Resultado observado: ============================== 7 passed in 0.17s ==============================
+
+Regras preservadas:
+
+    Não migrar para web.
+    Não usar CSV derivado antigo como dependência da UI.
+    Não restaurar LISTA_RTD.xlsx.
+    Não incluir arquivos Excel em commit funcional ou documental.
+    Não usar git add -A.
+    Banco permanece como fonte da verdade.
+    Excel permanece apenas como ponte RTD.
