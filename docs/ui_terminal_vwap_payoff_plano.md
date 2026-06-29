@@ -747,3 +747,41 @@ O terminal será uma nova camada visual local, preservando:
 - UI como camada de apresentação;
 - structure_id como chave de análise;
 - auditoria como trilha de evolução.
+
+## Premissas de proteção contra regressão RTD
+
+Esta fase adota como premissa que o arquivo LISTA_RTD.xlsx é legado e não deve ser restaurado.
+
+O arquivo operacional vigente para a ponte RTD é LISTA_RTD.xlsm, com uso de macros.
+
+A substituição de LISTA_RTD.xlsx por LISTA_RTD.xlsm é evolução consolidada do sistema e não deve ser revertida.
+
+Qualquer tentativa de restaurar LISTA_RTD.xlsx deve ser tratada como regressão.
+
+Antes de qualquer restauração, remoção, substituição ou alteração estrutural de arquivo, devem ser feitas verificações locais do estado atual do projeto.
+
+As verificações devem observar o estado presente da branch e os registros de supersessão já existentes, evitando buscas profundas no histórico que tragam de volta problemas já resolvidos.
+
+Fluxo obrigatório antes de modificar arquivos sensíveis:
+
+    Verificar branch atual
+    Verificar status do working tree
+    Verificar arquivos deletados e não rastreados
+    Verificar referências atuais no projeto
+    Confirmar premissas vigentes
+    Somente depois alterar documentos ou código
+
+Arquivos sensíveis nesta fase:
+
+    LISTA_RTD.xlsx
+    LISTA_RTD.xlsm
+    OPERACOES_E_OPCOES.xlsm
+
+Regras de proteção:
+
+    Não restaurar LISTA_RTD.xlsx
+    Não executar git reset --hard
+    Não executar git clean -fd
+    Não executar git add -A
+    Não misturar documentação com alterações de Excel
+    Não misturar documentação com reports, spikes ou scripts locais
