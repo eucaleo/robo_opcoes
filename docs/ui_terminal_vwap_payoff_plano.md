@@ -863,3 +863,102 @@ Critério de continuidade:
 
     Antes de novos incrementos, confirmar que main.py permanece sem router do terminal e que api/terminal_vwap_payoff_controller.py permanece ausente.
     Após cada incremento, executar os testes acumulados do terminal.
+
+## Registro de evolução — Integração do Terminal VWAP Payoff na UI principal
+
+Marcador: REGISTRO_UI_PRINCIPAL_TERMINAL_VWAP_PAYOFF_434fd1e
+
+Data de registro:
+
+    2026-06-29 12:49:38 -0300
+
+Branch verificada:
+
+    feature/ui-terminal-vwap-payoff
+
+Commits funcionais e operacionais registrados:
+
+    fb1b5d8 feat(ui): integra terminal VWAP payoff na UI principal
+    4f2fe3f chore: remove planilhas legadas do sistema
+    434fd1e chore: ignora arquivos operacionais locais
+
+Escopo concluído:
+
+    Integração do painel Terminal VWAP Payoff na UI principal.
+    Inclusão do componente visual local do terminal.
+    Inclusão dos testes do painel.
+    Ajuste de integração em UI/main_window.py.
+    Ajuste complementar no app service do terminal.
+    Remoção das planilhas legadas que não pertencem mais ao sistema atualizado.
+    Inclusão no .gitignore dos arquivos operacionais locais e artefatos voláteis.
+
+Arquivos funcionais adicionados ou alterados:
+
+    ATT/tests/test_terminal_vwap_payoff_panel.py
+    UI/components/terminal_vwap_payoff_panel.py
+    UI/main_window.py
+    services/terminal_vwap_payoff_app_service.py
+
+Arquivos legados removidos intencionalmente:
+
+    LISTA_RTD.xlsx
+    OPERACOES_E_OPCOES.xlsm
+
+Arquivos operacionais e locais ignorados:
+
+    LISTA_RTD.xlsm
+    _local_scripts_fase7/
+    reports/
+    spikes/
+
+Validação executada antes do commit funcional:
+
+    Comando:
+        python -m pytest ATT/tests/test_terminal_vwap_payoff_viewmodel_service.py ATT/tests/test_terminal_vwap_payoff_app_service.py ATT/tests/test_terminal_vwap_payoff_controller.py ATT/tests/test_terminal_vwap_payoff_panel.py
+
+    Resultado:
+        24 passed in 0.29s
+
+Validação de compilação executada:
+
+    Comando:
+        python -m py_compile UI/components/terminal_vwap_payoff_panel.py UI/main_window.py services/terminal_vwap_payoff_app_service.py controllers/terminal_vwap_payoff_controller.py
+
+    Resultado:
+        Compilação concluída sem erro reportado.
+
+Validação integrada geral executada após publicação da branch:
+
+    Comando:
+        python -m pytest
+
+    Resultado:
+        651 passed, 2 skipped in 35.48s
+
+Publicação remota:
+
+    Branch publicada em origin:
+        feature/ui-terminal-vwap-payoff
+
+    Rastreamento remoto configurado:
+        origin/feature/ui-terminal-vwap-payoff
+
+Decisões consolidadas:
+
+    LISTA_RTD.xlsx permanece legado e não deve ser restaurado.
+    OPERACOES_E_OPCOES.xlsm foi removido por não pertencer mais ao sistema atualizado.
+    LISTA_RTD.xlsm permanece como arquivo operacional vigente da ponte RTD, mas não deve ser versionado porque sofre alterações constantes durante consultas RTD.
+    Banco de dados permanece como fonte da verdade.
+    Excel permanece apenas como ponte RTD.
+    UI permanece como camada local de apresentação.
+    O terminal continua sem endpoint REST/API específico.
+    Não houve migração web.
+    Não houve dependência de CSV derivado antigo.
+    Não houve cálculo financeiro oficial implementado dentro da UI.
+
+Posição atual:
+
+    A integração visual principal do Terminal VWAP Payoff está concluída, testada, commitada e publicada no remoto.
+    O working tree ficou limpo após os commits operacionais.
+    O projeto está apto para abertura de pull request ou próxima fase planejada.
+
