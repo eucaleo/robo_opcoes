@@ -8,7 +8,6 @@ from typing import Any, Callable
 DEFAULT_INTEREST_RATE = 0.1175
 DEFAULT_VOLATILITY = 0.30
 
-
 DEFAULT_MARKET_BY_ASSET: dict[str, dict[str, Any]] = {
     "BOVA11": {
         "interest_rate": 0.1175,
@@ -50,6 +49,21 @@ def _default_db_path() -> Path:
     return Path(os.getenv("MYHUBIA_DB_PATH", "dados/app.db"))
 
 
+def _positive_float_or_none(value: Any) -> float | None:
+    if value is None:
+        return None
+
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+
+    if parsed <= 0:
+        return None
+
+    return parsed
+
+
 class MarketSnapshotProvider:
     def __init__(
         self,
@@ -67,26 +81,39 @@ class MarketSnapshotProvider:
 
         self.allow_static_fallback = bool(allow_static_fallback)
 
-    def get_snapshot(self, underlying_asset: str, reference_date: str | None = None) -> dict[str, Any]:
-        asset = str(underlying_asset or '').strip().upper()
+    def get_snapshot(
+        self,
+        underlying_asset: str,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        asset = str(underlying_asset or "").strip().upper()
         if not asset:
             raise ValueError("underlying_asset is required")
 
         effective_reference_date = reference_date or self.today_provider().isoformat()
 
         if self.market_by_asset is not None:
-            return self._snapshot_from_injected_market(asset, effective_reference_date)
+            return self._snapshot_from_injected_market(
+                asset,
+                effective_reference_date,
+            )
 
-        db_snapshot = self._snapshot_from_rtd_underlying_quotes(asset, effective_reference_date)
+        db_snapshot = self._snapshot_from_rtd_underlying_quotes(
+            asset,
+            effective_reference_date,
+        )
         if db_snapshot is not None:
             return db_snapshot
 
         if self.allow_static_fallback:
-            return self._snapshot_from_static_fallback(asset, effective_reference_date)
+            return self._snapshot_from_static_fallback(
+                asset,
+                effective_reference_date,
+            )
 
         raise ValueError(
             "market snapshot real/atual ausente para asset="
-            f'{asset}. O fallback estático está bloqueado.'
+            f"{asset}. O fallback estático está bloqueado."
         )
 
     def _snapshot_from_injected_market(
@@ -96,7 +123,7 @@ class MarketSnapshotProvider:
     ) -> dict[str, Any]:
         market = self.market_by_asset.get(asset) if self.market_by_asset is not None else None
         if market is None:
-            raise ValueError(f'market snapshot not found for asset: {asset}')
+            raise ValueError(f"market snapshot not found for asset: {asset}")
 
         return {
             "reference_date": effective_reference_date,
@@ -117,11 +144,25 @@ class MarketSnapshotProvider:
         try:
             with sqlite3.connect(self.db_path) as con:
                 con.row_factory = sqlite3.Row
+
+                table_columns = {
+                    row["name"]
+                    for row in con.execute(
+                        'PRAGMA table_info("rtd_underlying_quotes")'
+                    ).fetchall()
+                }
+
+                if not table_columns:
+                    return None
+
+                vwap_select = "vwap" if "vwap" in table_columns else "NULL AS vwap"
+
                 row = con.execute(
-                    """
+                    f"""
                     SELECT
                         ativo,
                         ultimo_preco,
+                        {vwap_select},
                         source,
                         updated_at
                     FROM rtd_underlying_quotes
@@ -135,7 +176,7 @@ class MarketSnapshotProvider:
             if self.allow_static_fallback:
                 return None
             raise ValueError(
-                f'erro ao consultar rtd_underlying_quotes para asset={asset}: {exc}'
+                f"erro ao consultar rtd_underlying_quotes para asset={asset}: {exc}"
             ) from exc
 
         if row is None:
@@ -146,15 +187,17 @@ class MarketSnapshotProvider:
             if self.allow_static_fallback:
                 return None
             raise ValueError(
-                f'rtd_underlying_quotes sem ultimo_preco válido para asset={asset}'
+                f"rtd_underlying_quotes sem ultimo_preco válido para asset={asset}"
             )
 
         defaults = DEFAULT_MARKET_BY_ASSET.get(asset, {})
+        vwap = _positive_float_or_none(row["vwap"])
 
         return {
             "reference_date": effective_reference_date,
             "underlying_asset": asset,
             "spot_price": float(spot_price),
+            "vwap": vwap,
             "interest_rate": float(defaults.get("interest_rate", DEFAULT_INTEREST_RATE)),
             "volatility": float(defaults.get("volatility", DEFAULT_VOLATILITY)),
             "snapshot_source": "rtd_underlying_quotes",
@@ -173,10 +216,9 @@ class MarketSnapshotProvider:
     ) -> dict[str, Any]:
         defaults = DEFAULT_MARKET_BY_ASSET.get(asset)
         if defaults is None:
-            raise ValueError(f'market snapshot not found for asset: {asset}')
+            raise ValueError(f"market snapshot not found for asset: {asset}")
 
         raise ValueError(
             "market snapshot real/atual ausente para asset="
             f"{asset}. O fallback estático não fornece spot_price operacional."
         )
-

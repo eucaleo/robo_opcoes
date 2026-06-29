@@ -93,6 +93,22 @@ def normalize_header(value):
     )
 
 
+def existing_columns(conn, table_name):
+    cur = conn.execute(f'PRAGMA table_info("{table_name}")')
+    return {row[1] for row in cur.fetchall()}
+
+
+def ensure_column(conn, table_name, column_name, column_type):
+    columns = existing_columns(conn, table_name)
+
+    if column_name in columns:
+        return
+
+    conn.execute(
+        f'ALTER TABLE "{table_name}" ADD COLUMN "{column_name}" {column_type}'
+    )
+
+
 def ensure_table(conn):
     conn.execute(
         """
@@ -100,6 +116,7 @@ def ensure_table(conn):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             ativo TEXT NOT NULL UNIQUE,
             ultimo_preco REAL,
+            vwap REAL,
             bid REAL,
             ask REAL,
             close_price REAL,
@@ -115,6 +132,8 @@ def ensure_table(conn):
         )
         """
     )
+
+    ensure_column(conn, "rtd_underlying_quotes", "vwap", "REAL")
 
     conn.execute(
         """
@@ -168,6 +187,7 @@ def read_records(csv_path):
             record = {
                 "ativo": ativo.upper(),
                 "ultimo_preco": parse_number(normalized.get("ultimo_preco")),
+                "vwap": parse_number(normalized.get("vwap")),
                 "bid": parse_number(normalized.get("bid")),
                 "ask": parse_number(normalized.get("ask")),
                 "close_price": parse_number(normalized.get("close_price")),
@@ -225,6 +245,7 @@ def upsert_records(conn, records, dry_run=False):
             INSERT INTO rtd_underlying_quotes (
                 ativo,
                 ultimo_preco,
+                vwap,
                 bid,
                 ask,
                 close_price,
@@ -238,9 +259,10 @@ def upsert_records(conn, records, dry_run=False):
                 updated_at,
                 created_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(ativo) DO UPDATE SET
                 ultimo_preco = excluded.ultimo_preco,
+                vwap = excluded.vwap,
                 bid = excluded.bid,
                 ask = excluded.ask,
                 close_price = excluded.close_price,
@@ -256,6 +278,7 @@ def upsert_records(conn, records, dry_run=False):
             (
                 ativo,
                 rec.get("ultimo_preco"),
+                rec.get("vwap"),
                 rec.get("bid"),
                 rec.get("ask"),
                 rec.get("close_price"),

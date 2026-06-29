@@ -14,7 +14,7 @@ function CsvEscape([object]$Value) {
     }
 
     $Text = [string]$Value
-    $Text = $Text.Replace("`r", " ").Replace("`n", " ")
+    $Text = $Text.Replace([string][char]13, " ").Replace([string][char]10, " ")
 
     if ($Text.Contains(";") -or $Text.Contains('"')) {
         $Text = $Text.Replace('"', '""')
@@ -85,6 +85,7 @@ try {
     $headers = @(
         "ativo",
         "ultimo_preco",
+        "vwap",
         "bid",
         "ask",
         "close_price",
@@ -106,15 +107,16 @@ try {
         $sheet.Cells.Item($row, 1).Value2 = $sym
 
         $sheet.Cells.Item($row, 2).Formula = '=RTD("btg_pro_rtd","","QUOTE.LAST_TRADE_PRICE",$A' + $row + ')'
-        $sheet.Cells.Item($row, 3).Formula = '=RTD("btg_pro_rtd","","QUOTE.BID_PRICE",$A' + $row + ')'
-        $sheet.Cells.Item($row, 4).Formula = '=RTD("btg_pro_rtd","","QUOTE.ASK_PRICE",$A' + $row + ')'
-        $sheet.Cells.Item($row, 5).Formula = '=RTD("btg_pro_rtd","","QUOTE.CLOSE",$A' + $row + ')'
-        $sheet.Cells.Item($row, 6).Formula = '=RTD("btg_pro_rtd","","QUOTE.PREV_CLOSE",$A' + $row + ')'
-        $sheet.Cells.Item($row, 7).Formula = '=RTD("btg_pro_rtd","","QUOTE.OPEN",$A' + $row + ')'
-        $sheet.Cells.Item($row, 8).Formula = '=RTD("btg_pro_rtd","","QUOTE.HIGH",$A' + $row + ')'
-        $sheet.Cells.Item($row, 9).Formula = '=RTD("btg_pro_rtd","","QUOTE.LOW",$A' + $row + ')'
-        $sheet.Cells.Item($row, 10).Formula = '=RTD("btg_pro_rtd","","QUOTE.VOLUME",$A' + $row + ')'
-        $sheet.Cells.Item($row, 11).Formula = '=RTD("btg_pro_rtd","","QUOTE.CHGPERCENT",$A' + $row + ')'
+        $sheet.Cells.Item($row, 3).Formula = '=RTD("btg_pro_rtd","","QUOTE.VWAP",$A' + $row + ')'
+        $sheet.Cells.Item($row, 4).Formula = '=RTD("btg_pro_rtd","","QUOTE.BID_PRICE",$A' + $row + ')'
+        $sheet.Cells.Item($row, 5).Formula = '=RTD("btg_pro_rtd","","QUOTE.ASK_PRICE",$A' + $row + ')'
+        $sheet.Cells.Item($row, 6).Formula = '=RTD("btg_pro_rtd","","QUOTE.CLOSE",$A' + $row + ')'
+        $sheet.Cells.Item($row, 7).Formula = '=RTD("btg_pro_rtd","","QUOTE.PREV_CLOSE",$A' + $row + ')'
+        $sheet.Cells.Item($row, 8).Formula = '=RTD("btg_pro_rtd","","QUOTE.OPEN",$A' + $row + ')'
+        $sheet.Cells.Item($row, 9).Formula = '=RTD("btg_pro_rtd","","QUOTE.HIGH",$A' + $row + ')'
+        $sheet.Cells.Item($row, 10).Formula = '=RTD("btg_pro_rtd","","QUOTE.LOW",$A' + $row + ')'
+        $sheet.Cells.Item($row, 11).Formula = '=RTD("btg_pro_rtd","","QUOTE.VOLUME",$A' + $row + ')'
+        $sheet.Cells.Item($row, 12).Formula = '=RTD("btg_pro_rtd","","QUOTE.CHGPERCENT",$A' + $row + ')'
 
         $row++
     }
