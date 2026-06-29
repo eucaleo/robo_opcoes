@@ -94,3 +94,11 @@ ATT/checks/__pycache__/
 ATT/checks/**/__pycache__/
 ATT/checks/**/*.pyc
 ATT/checks/**/*.pyo
+
+# Planilhas operacionais com RTD / dados voláteis
+LISTA_RTD.xlsm
+
+# Artefatos locais / experimentos
+_local_scripts_fase7/
+reports/
+spikes/
