@@ -19,6 +19,7 @@ REQUIRED_COLUMNS = {
     "bid",
     "ask",
     "volume",
+    "vwap",
     "iv",
     "delta",
     "gamma",
@@ -28,6 +29,11 @@ REQUIRED_COLUMNS = {
     "raw_json",
     "updated_at",
     "created_at",
+}
+
+
+ADDITIVE_COLUMNS = {
+    "vwap": "REAL",
 }
 
 
@@ -48,6 +54,7 @@ CREATE TABLE IF NOT EXISTS rtd_option_quotes (
     bid REAL,
     ask REAL,
     volume REAL,
+    vwap REAL,
 
     iv REAL,
     delta REAL,
@@ -85,6 +92,28 @@ def get_columns(conn: sqlite3.Connection, table_name: str) -> set[str]:
     return {row[1] for row in rows}
 
 
+def apply_additive_migrations(conn: sqlite3.Connection) -> None:
+    columns = get_columns(conn, TABLE_NAME)
+
+    for column_name, column_type in ADDITIVE_COLUMNS.items():
+        if column_name not in columns:
+            conn.execute(
+                f'ALTER TABLE {TABLE_NAME} ADD COLUMN "{column_name}" {column_type}'
+            )
+
+    conn.commit()
+
+
+def validate_required_columns(conn: sqlite3.Connection) -> None:
+    columns = get_columns(conn, TABLE_NAME)
+    missing = sorted(REQUIRED_COLUMNS - columns)
+
+    if missing:
+        raise RuntimeError(
+            "Tabela rtd_option_quotes existe, mas está sem colunas obrigatórias: "
+            + ", ".join(missing)
+        )
+
 
 def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
     db_path = Path(db_path)
@@ -94,14 +123,9 @@ def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
         conn.execute(DDL)
         conn.commit()
 
-        columns = get_columns(conn, TABLE_NAME)
-        missing = sorted(REQUIRED_COLUMNS - columns)
+        apply_additive_migrations(conn)
+        validate_required_columns(conn)
 
-        if missing:
-            raise RuntimeError(
-                "Tabela rtd_option_quotes existe, mas está sem colunas obrigatórias: "
-                + ", ".join(missing)
-            )
 
 def main() -> int:
     parser = argparse.ArgumentParser(
@@ -131,14 +155,19 @@ def main() -> int:
         conn.execute(DDL)
         conn.commit()
 
-        columns = get_columns(conn, TABLE_NAME)
-        missing = sorted(REQUIRED_COLUMNS - columns)
+        before_columns = get_columns(conn, TABLE_NAME)
+        missing_additive = [
+            name
+            for name in ADDITIVE_COLUMNS
+            if name not in before_columns
+        ]
 
-        if missing:
-            print("[ERRO] Tabela existe, mas está sem colunas obrigatórias:")
-            for col in missing:
-                print(f"  - {col}")
-            return 2
+        for column_name in missing_additive:
+            column_type = ADDITIVE_COLUMNS[column_name]
+            print(f"[INFO] Adicionando coluna ausente: {column_name} {column_type}")
+
+        apply_additive_migrations(conn)
+        validate_required_columns(conn)
 
         count = conn.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}").fetchone()[0]
 

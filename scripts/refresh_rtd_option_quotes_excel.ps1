@@ -90,7 +90,8 @@ try {
         "delta",
         "gamma",
         "theta",
-        "vega"
+        "vega",
+        "vwap"
     )
 
     for ($c = 1; $c -le $headers.Count; $c++) {
@@ -111,7 +112,8 @@ try {
         "QUOTE.DELTA",
         "QUOTE.GAMMA",
         "QUOTE.THETA",
-        "QUOTE.VEGA"
+        "QUOTE.VEGA",
+        "QUOTE.VWAP"
     )
 
     $row = 2

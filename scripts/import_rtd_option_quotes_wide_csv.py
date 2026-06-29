@@ -21,6 +21,7 @@ NUMERIC_COLUMNS = {
     "bid",
     "ask",
     "volume",
+    "vwap",
     "iv",
     "delta",
     "gamma",
@@ -40,6 +41,7 @@ EXPECTED_COLUMNS = [
     "bid",
     "ask",
     "volume",
+    "vwap",
     "iv",
     "delta",
     "gamma",
@@ -172,6 +174,7 @@ def load_csv(csv_path):
             raise ValueError("CSV sem colunas obrigatórias: " + ", ".join(missing))
 
         for raw in reader:
+            raw = {str(k).strip(): v for k, v in raw.items() if k is not None}
             codigo = clean_text(raw.get("codigo_opcao"))
 
             if not codigo:
@@ -188,6 +191,7 @@ def load_csv(csv_path):
                 "bid": parse_number(raw.get("bid")),
                 "ask": parse_number(raw.get("ask")),
                 "volume": parse_number(raw.get("volume")),
+                "vwap": parse_number(raw.get("vwap")),
                 "iv": parse_number(raw.get("iv")),
                 "delta": parse_number(raw.get("delta")),
                 "gamma": parse_number(raw.get("gamma")),
@@ -225,6 +229,36 @@ def import_rows(db_path, rows, dry_run=False):
 
     ensure_rtd_option_quotes_schema(db_path)
 
+    quote_columns = [
+        "codigo_opcao",
+        "ativo_base",
+        "call_put",
+        "strike",
+        "vencimento",
+        "ultimo_preco",
+        "ultima_quantidade",
+        "bid",
+        "ask",
+        "volume",
+        "vwap",
+        "iv",
+        "delta",
+        "gamma",
+        "theta",
+        "vega",
+        "source",
+        "raw_json",
+        "updated_at",
+    ]
+
+    update_columns = [
+        column
+        for column in quote_columns
+        if column != "codigo_opcao"
+    ]
+
+    insert_columns = quote_columns + ["created_at"]
+
     con = sqlite3.connect(db_path)
 
     try:
@@ -234,7 +268,7 @@ def import_rows(db_path, rows, dry_run=False):
             codigo = rec["codigo_opcao"]
 
             existing = con.execute(
-                "SELECT id, created_at FROM rtd_option_quotes WHERE codigo_opcao = ? ORDER BY id DESC LIMIT 1",
+                "SELECT id FROM rtd_option_quotes WHERE codigo_opcao = ? ORDER BY id DESC LIMIT 1",
                 (codigo,),
             ).fetchone()
 
@@ -244,108 +278,38 @@ def import_rows(db_path, rows, dry_run=False):
             }
 
             if existing:
-                row_id, created_at = existing
+                row_id = existing[0]
+                set_clause = ", ".join(
+                    f"{column} = ?"
+                    for column in update_columns
+                )
+                params = [
+                    payload.get(column)
+                    for column in update_columns
+                ]
+                params.append(row_id)
 
                 con.execute(
-                    """
-                    UPDATE rtd_option_quotes
-                    SET
-                        ativo_base = ?,
-                        call_put = ?,
-                        strike = ?,
-                        vencimento = ?,
-                        ultimo_preco = ?,
-                        ultima_quantidade = ?,
-                        bid = ?,
-                        ask = ?,
-                        volume = ?,
-                        iv = ?,
-                        delta = ?,
-                        gamma = ?,
-                        theta = ?,
-                        vega = ?,
-                        source = ?,
-                        raw_json = ?,
-                        updated_at = ?
-                    WHERE id = ?
-                    """,
-                    (
-                        payload["ativo_base"],
-                        payload["call_put"],
-                        payload["strike"],
-                        payload["vencimento"],
-                        payload["ultimo_preco"],
-                        payload["ultima_quantidade"],
-                        payload["bid"],
-                        payload["ask"],
-                        payload["volume"],
-                        payload["iv"],
-                        payload["delta"],
-                        payload["gamma"],
-                        payload["theta"],
-                        payload["vega"],
-                        payload["source"],
-                        payload["raw_json"],
-                        payload["updated_at"],
-                        row_id,
-                    ),
+                    f"UPDATE rtd_option_quotes SET {set_clause} WHERE id = ?",
+                    params,
                 )
-
                 stats["updated"] += 1
-
             else:
-                con.execute(
-                    """
-                    INSERT INTO rtd_option_quotes (
-                        codigo_opcao,
-                        ativo_base,
-                        call_put,
-                        strike,
-                        vencimento,
-                        ultimo_preco,
-                        ultima_quantidade,
-                        bid,
-                        ask,
-                        volume,
-                        iv,
-                        delta,
-                        gamma,
-                        theta,
-                        vega,
-                        source,
-                        raw_json,
-                        updated_at,
-                        created_at
-                    )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        payload["codigo_opcao"],
-                        payload["ativo_base"],
-                        payload["call_put"],
-                        payload["strike"],
-                        payload["vencimento"],
-                        payload["ultimo_preco"],
-                        payload["ultima_quantidade"],
-                        payload["bid"],
-                        payload["ask"],
-                        payload["volume"],
-                        payload["iv"],
-                        payload["delta"],
-                        payload["gamma"],
-                        payload["theta"],
-                        payload["vega"],
-                        payload["source"],
-                        payload["raw_json"],
-                        payload["updated_at"],
-                        payload["updated_at"],
-                    ),
-                )
+                payload["created_at"] = updated_at
+                columns_sql = ", ".join(insert_columns)
+                placeholders = ", ".join("?" for _ in insert_columns)
+                params = [
+                    payload.get(column)
+                    for column in insert_columns
+                ]
 
+                con.execute(
+                    f"INSERT INTO rtd_option_quotes ({columns_sql}) VALUES ({placeholders})",
+                    params,
+                )
                 stats["inserted"] += 1
 
         con.commit()
-
     finally:
         con.close()
 
