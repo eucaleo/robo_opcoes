@@ -1,0 +1,18 @@
+ M UI/components/structure_editor_dialog.py
+ M UI/components/terminal_vwap_payoff_dark_panel.py
+ M UI/components/terminal_vwap_payoff_panel.py
+ M UI/main_window.py
+?? ATT/patches/
+?? UI/components/structure_editor_dialog.py.bak_rtd_fill_20260629_225017
+?? UI/components/terminal_vwap_payoff_dark_panel.py.bak_fix_justify_20260629_191010
+?? UI/components/terminal_vwap_payoff_dark_panel.py.bak_side_actions_fix
+?? UI/components/terminal_vwap_payoff_dark_panel.py.bak_vwap_underlying
+?? UI/main_window.py.bak_dark_layout_20260629_190807
+?? UI/main_window.py.bak_terminal_operacional_20260629_185045
+?? docs/auditoria_rtd_nova_ui_bovak900.md
+?? infra/bootstrap_rtd_option_quotes_schema.py
+?? scripts/import_rtd_option_quotes_wide_csv.py
+?? scripts/refresh_rtd_option_quotes_excel.ps1
+?? scripts/refresh_rtd_symbol_to_option_quotes.py
+?? scripts/refresh_rtd_symbol_to_option_quotes_fallback.py
+?? tools/audit_rtd_ui_flow.py
