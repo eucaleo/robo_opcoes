@@ -11,11 +11,15 @@ class RtdOptionQuotesRepository:
     """
     Leitura da tabela rtd_option_quotes.
 
-    Essa tabela é alimentada pelo CSV exportado da aba RTD_LINKS
-    e funciona como cache centralizado das cotações RTD de opções.
+    Essa tabela e alimentada pelo CSV exportado da aba RTD_LINKS
+    e funciona como cache centralizado das cotacoes RTD de opcoes.
+
+    Arquitetura:
+    - dados/app.db: dados persistentes da aplicacao/estruturas
+    - dados/derived.db: cache RTD e dados derivados
     """
 
-    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+    def __init__(self, db_path: str | Path = "dados/derived.db") -> None:
         self.db_path = Path(db_path)
 
     def _connect(self) -> sqlite3.Connection:
@@ -36,6 +40,7 @@ class RtdOptionQuotesRepository:
                 bid,
                 ask,
                 volume,
+                vwap,
                 iv,
                 delta,
                 gamma,
@@ -46,7 +51,8 @@ class RtdOptionQuotesRepository:
                 updated_at,
                 created_at
             FROM rtd_option_quotes
-            WHERE codigo_opcao = ?
+            WHERE UPPER(TRIM(codigo_opcao)) = UPPER(TRIM(?))
+            ORDER BY updated_at DESC, id DESC
             LIMIT 1
         """
 
@@ -68,6 +74,7 @@ class RtdOptionQuotesRepository:
                 bid,
                 ask,
                 volume,
+                vwap,
                 iv,
                 delta,
                 gamma,
@@ -78,7 +85,7 @@ class RtdOptionQuotesRepository:
                 updated_at,
                 created_at
             FROM rtd_option_quotes
-            WHERE ativo_base = ?
+            WHERE UPPER(TRIM(ativo_base)) = UPPER(TRIM(?))
             ORDER BY vencimento, call_put, strike, codigo_opcao
         """
 
@@ -100,6 +107,7 @@ class RtdOptionQuotesRepository:
                 bid,
                 ask,
                 volume,
+                vwap,
                 iv,
                 delta,
                 gamma,
