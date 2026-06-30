@@ -28,6 +28,18 @@ from tkinter import ttk
 import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+from tkinter import messagebox
+
+try:
+    from repositories.structures_repository import StructuresRepository
+except Exception:
+    StructuresRepository = None
+
+try:
+    from UI.components.structure_editor_dialog import StructureEditorDialog
+except Exception:
+    StructureEditorDialog = None
+
 
 
 DARK_BG = "#121212"
@@ -97,6 +109,22 @@ def _number(value: Any) -> str:
         return "N/A"
     return f"{val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
+
+# BEGIN AUTO STRUCTURE DECISION HELPERS
+if "DECISION_LABELS" not in globals():
+    DECISION_LABELS = {
+        "HOLD": "Manter",
+        "ADJUST": "Ajustar",
+        "CLOSE": "Encerrar",
+    }
+
+
+def decision_label(value: Any) -> str:
+    if value is None:
+        return "--"
+    raw = str(value).strip()
+    return DECISION_LABELS.get(raw.upper(), raw)
+# END AUTO STRUCTURE DECISION HELPERS
 
 class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
     def __init__(
@@ -175,7 +203,59 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             font=ctk.CTkFont(size=14, weight="bold"),
             command=self.toggle_structures_panel,
         )
-        self.btn_toggle.pack(pady=20, padx=10)
+        self.btn_toggle.pack(pady=(20, 8), padx=10)
+
+        self.btn_reload_fixed = ctk.CTkButton(
+            self.rail,
+            text="↻",
+            width=50,
+            height=42,
+            fg_color=CARD_BG_2,
+            hover_color=BLUE,
+            text_color=TEXT,
+            font=ctk.CTkFont(size=18, weight="bold"),
+            command=self.reload_structures,
+        )
+        self.btn_reload_fixed.pack(pady=6, padx=10)
+
+        self.btn_new_fixed = ctk.CTkButton(
+            self.rail,
+            text="+",
+            width=50,
+            height=42,
+            fg_color=GREEN,
+            hover_color="#059669",
+            text_color=TEXT,
+            font=ctk.CTkFont(size=22, weight="bold"),
+            command=self.new_structure,
+        )
+        self.btn_new_fixed.pack(pady=6, padx=10)
+
+        self.btn_struct_actions = ctk.CTkButton(
+            self.rail,
+            text="Acoes",
+            width=50,
+            height=42,
+            fg_color=CARD_BG_2,
+            hover_color=BLUE,
+            text_color=TEXT,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            command=self._render_structure_actions,
+        )
+        self.btn_struct_actions.pack(pady=6, padx=10)
+
+        self.btn_open_fixed = ctk.CTkButton(
+            self.rail,
+            text="ID",
+            width=50,
+            height=42,
+            fg_color=CARD_BG_2,
+            hover_color=GREEN,
+            text_color=TEXT,
+            font=ctk.CTkFont(size=13, weight="bold"),
+            command=self.toggle_structures_panel,
+        )
+        self.btn_open_fixed.pack(pady=6, padx=10)
 
         self.side = ctk.CTkFrame(
             self,
@@ -428,6 +508,18 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         for widget in self.side.winfo_children():
             widget.destroy()
 
+        btn_add = ctk.CTkButton(
+            self.side,
+            text="+ Nova Estrutura",
+            height=32,
+            fg_color=GREEN,
+            hover_color="#059669",
+            text_color=TEXT,
+            command=self.new_structure,
+        )
+        btn_add.pack(fill="x", padx=10, pady=(8, 10))
+
+
         title = ctk.CTkLabel(
             self.side,
             text="ESTRUTURAS DISPONÍVEIS",
@@ -503,6 +595,13 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.on_status(f"Estrutura carregada: ID {sid}")
 
         # Menu lateral fixo: não recolher automaticamente após carregar estrutura.
+
+
+        try:
+            self._render_structure_actions()
+        except Exception as exc:
+            if hasattr(self, 'on_status'):
+                self.on_status(f"Falha ao abrir painel de acoes: {exc}")
 
     def _find_legs_table(self, schema: Dict[str, List[str]]) -> Optional[str]:
         preferred = [
@@ -1039,3 +1138,371 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.canvas_payoff = FigureCanvasTkAgg(fig, master=self.frame_payoff)
         self.canvas_payoff.draw()
         self.canvas_payoff.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+    # BEGIN AUTO STRUCTURE SIDE ACTIONS
+    def _safe_status(self, message: str) -> None:
+        if hasattr(self, "on_status"):
+            self.on_status(message)
+
+
+    def _get_db_path(self) -> str:
+        for attr in ("db_path", "database_path", "db_file", "database_file"):
+            value = getattr(self, attr, None)
+            if value:
+                return value
+        raise RuntimeError("Caminho do banco nao encontrado. Ajuste o atributo db_path neste componente.")
+
+
+    def _clear_side(self) -> None:
+        for child in self.side.winfo_children():
+            child.destroy()
+
+
+    def _require_selected_structure(self):
+        structure = getattr(self, "selected_structure", None)
+        if not structure:
+            messagebox.showwarning(
+                "Estrutura",
+                "Selecione uma estrutura antes de executar esta acao.",
+                parent=self.winfo_toplevel(),
+            )
+            return None
+        return structure
+
+
+    def _side_section_title(self, text: str) -> None:
+        label = ctk.CTkLabel(
+            self.side,
+            text=text,
+            text_color=MUTED,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            anchor="w",
+        )
+        label.pack(fill="x", padx=10, pady=(16, 6))
+
+
+    def _side_button(self, text: str, color: str, hover: str, command) -> None:
+        button = ctk.CTkButton(
+            self.side,
+            text=text,
+            height=34,
+            fg_color=color,
+            hover_color=hover,
+            text_color=TEXT,
+            command=command,
+        )
+        button.pack(fill="x", padx=10, pady=4)
+
+
+    def _render_structure_actions(self) -> None:
+        structure = self._require_selected_structure()
+        if not structure:
+            self._render_structures_list()
+            return
+
+        self._clear_side()
+
+        sid = structure.get("id")
+        name = structure.get("name")
+        asset = structure.get("underlying_asset")
+        status = structure.get("status")
+
+        title = ctk.CTkLabel(
+            self.side,
+            text="ESTRUTURA ATIVA",
+            text_color=MUTED,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            anchor="w",
+        )
+        title.pack(fill="x", pady=(15, 8), padx=10)
+
+        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+        info_frame.pack(fill="x", padx=10, pady=0)
+
+        info = ctk.CTkLabel(
+            info_frame,
+            text=f"ID {sid}\n{name}\nAtivo: {asset}\nStatus: {status}",
+            text_color=TEXT,
+            justify="left",
+            anchor="w",
+        )
+        info.pack(fill="x", padx=10, pady=10)
+
+        self._side_section_title("PAYOFF")
+        self._side_button(
+            text="Recalcular Payoff",
+            color=BLUE,
+            hover="#2563EB",
+            command=self.recalculate_selected_structure,
+        )
+
+        self._side_section_title("ESTRUTURA")
+        self._side_button(
+            text="Editar pernas",
+            color=CARD_BG_2,
+            hover="#374151",
+            command=self.edit_selected_structure,
+        )
+        self._side_button(
+            text="Duplicar estrutura",
+            color=CARD_BG_2,
+            hover="#374151",
+            command=self.duplicate_selected_structure,
+        )
+        self._side_button(
+            text="Arquivar estrutura",
+            color="#92400E",
+            hover="#78350F",
+            command=self.archive_selected_structure,
+        )
+
+        self._side_section_title("DECISAO")
+        self._side_button(
+            text="Manter",
+            color=GREEN,
+            hover="#059669",
+            command=lambda: self._register_structure_decision("HOLD"),
+        )
+        self._side_button(
+            text="Ajustar / Trocar perna",
+            color="#D97706",
+            hover="#B45309",
+            command=self._render_adjust_structure_block,
+        )
+        self._side_button(
+            text="Encerrar",
+            color="#DC2626",
+            hover="#991B1B",
+            command=lambda: self._register_structure_decision("CLOSE"),
+        )
+
+        self._side_button(
+            text="Voltar para lista",
+            color="#111827",
+            hover="#1F2937",
+            command=self._render_structures_list,
+        )
+
+
+    def _render_adjust_structure_block(self) -> None:
+        structure = self._require_selected_structure()
+        if not structure:
+            return
+
+        self._clear_side()
+
+        sid = structure.get("id")
+        name = structure.get("name")
+        asset = structure.get("underlying_asset")
+
+        title = ctk.CTkLabel(
+            self.side,
+            text="AJUSTAR ESTRUTURA",
+            text_color=MUTED,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            anchor="w",
+        )
+        title.pack(fill="x", pady=(15, 8), padx=10)
+
+        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+        info_frame.pack(fill="x", padx=10, pady=0)
+
+        info = ctk.CTkLabel(
+            info_frame,
+            text=f"ID {sid}\n{name}\nAtivo: {asset}",
+            text_color=TEXT,
+            justify="left",
+            anchor="w",
+        )
+        info.pack(fill="x", padx=10, pady=10)
+
+        self._side_section_title("ACAO")
+        self._side_button(
+            text="Editar pernas",
+            color=BLUE,
+            hover="#2563EB",
+            command=self.edit_selected_structure,
+        )
+        self._side_button(
+            text="Duplicar para ajuste",
+            color=CARD_BG_2,
+            hover="#374151",
+            command=self.duplicate_selected_structure,
+        )
+        self._side_button(
+            text="Registrar decisao ADJUST",
+            color="#D97706",
+            hover="#B45309",
+            command=lambda: self._register_structure_decision("ADJUST"),
+        )
+        self._side_button(
+            text="Voltar",
+            color="#111827",
+            hover="#1F2937",
+            command=self._render_structure_actions,
+        )
+
+
+    def new_structure(self) -> None:
+        if StructureEditorDialog is None:
+            messagebox.showerror(
+                "Editor indisponivel",
+                "StructureEditorDialog nao foi encontrado.",
+                parent=self.winfo_toplevel(),
+            )
+            return
+
+        try:
+            dlg = StructureEditorDialog(
+                self.winfo_toplevel(),
+                structure_id=None,
+                db_path=self._get_db_path(),
+            )
+            self.wait_window(dlg)
+
+            if getattr(dlg, "saved", False):
+                self._safe_status("Nova estrutura salva")
+                self.reload_structures()
+                self._render_structures_list()
+        except Exception as exc:
+            messagebox.showerror("Erro ao criar estrutura", str(exc), parent=self.winfo_toplevel())
+
+
+    def edit_selected_structure(self) -> None:
+        structure = self._require_selected_structure()
+        if not structure:
+            return
+
+        if StructureEditorDialog is None:
+            messagebox.showerror(
+                "Editor indisponivel",
+                "StructureEditorDialog nao foi encontrado.",
+                parent=self.winfo_toplevel(),
+            )
+            return
+
+        sid = structure.get("id")
+
+        try:
+            db_path = self._get_db_path()
+            dlg = StructureEditorDialog(
+                self.winfo_toplevel(),
+                structure_id=sid,
+                db_path=db_path,
+            )
+            self.wait_window(dlg)
+
+            if getattr(dlg, "saved", False):
+                self._safe_status(f"Estrutura ID {sid} atualizada")
+                self.reload_structures()
+
+                try:
+                    repo = StructuresRepository(db_path)
+                    updated = repo.get_structure(sid)
+                    if updated:
+                        self.select_structure(updated)
+                except Exception:
+                    pass
+
+                self._render_structure_actions()
+        except Exception as exc:
+            messagebox.showerror("Erro ao editar estrutura", str(exc), parent=self.winfo_toplevel())
+
+
+    def duplicate_selected_structure(self) -> None:
+        try:
+            if hasattr(self, "_cmd_duplicate"):
+                self._cmd_duplicate()
+                self.reload_structures()
+                self._safe_status("Estrutura duplicada")
+                return
+
+            messagebox.showinfo(
+                "Duplicar estrutura",
+                "Metodo _cmd_duplicate nao encontrado neste componente.",
+                parent=self.winfo_toplevel(),
+            )
+        except Exception as exc:
+            messagebox.showerror("Erro ao duplicar estrutura", str(exc), parent=self.winfo_toplevel())
+
+
+    def recalculate_selected_structure(self) -> None:
+        structure = self._require_selected_structure()
+        if not structure:
+            return
+
+        sid = structure.get("id")
+        name = structure.get("name")
+        asset = structure.get("underlying_asset")
+
+        try:
+            legs = self._load_legs(sid)
+            market = self._load_market(asset)
+            payoff_points = self._calculate_payoff_from_legs(legs)
+
+            self.header.configure(
+                text=f"Analise ativa: ID {sid} - {name} | Ativo: {asset} | Payoff recalculado"
+            )
+
+            self._update_kpis(market, payoff_points)
+            self._render_legs(legs)
+            self._render_charts(market, payoff_points, asset)
+            self._render_alerts(market, payoff_points, legs)
+
+            self._safe_status(f"Payoff recalculado: ID {sid}")
+        except Exception as exc:
+            messagebox.showerror("Erro ao recalcular payoff", str(exc), parent=self.winfo_toplevel())
+
+
+    def archive_selected_structure(self) -> None:
+        structure = self._require_selected_structure()
+        if not structure:
+            return
+
+        sid = structure.get("id")
+
+        if StructuresRepository is None:
+            messagebox.showerror(
+                "Repositorio indisponivel",
+                "StructuresRepository nao foi encontrado.",
+                parent=self.winfo_toplevel(),
+            )
+            return
+
+        ok = messagebox.askyesno(
+            "Arquivar",
+            f"Deseja arquivar a estrutura ID {sid}?",
+            parent=self.winfo_toplevel(),
+        )
+        if not ok:
+            return
+
+        try:
+            repo = StructuresRepository(self._get_db_path())
+            repo.archive_structure(sid)
+
+            self.selected_structure = None
+            self._safe_status(f"Arquivada ID {sid}")
+            self.reload_structures()
+            self._render_structures_list()
+
+            if hasattr(self, "header"):
+                self.header.configure(
+                    text="Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff"
+                )
+        except Exception as exc:
+            messagebox.showerror("Erro ao arquivar estrutura", str(exc), parent=self.winfo_toplevel())
+
+
+    def _register_structure_decision(self, decision: str) -> None:
+        structure = self._require_selected_structure()
+        if not structure:
+            return
+
+        sid = structure.get("id")
+        label = decision_label(decision)
+
+        self._safe_status(f"Decisao para ID {sid}: {label} ({decision})")
+        self._render_structure_actions()
+    # END AUTO STRUCTURE SIDE ACTIONS
+
