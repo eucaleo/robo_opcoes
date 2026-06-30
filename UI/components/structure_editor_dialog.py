@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import json
+import subprocess
+import sys
+from pathlib import Path
 # UI/components/structure_editor_dialog.py
 """
 StructureEditorDialog -- alteracao_10 / Fase 5
@@ -28,13 +34,14 @@ Atributos publicos esperados pelos testes de integracao:
     _build_ui()     constroi todos os widgets
     _add_leg_row()  alias publico de _cmd_add_leg (exigido por checks estaticos)
 """
-from __future__ import annotations
 
 import tkinter as tk
 from tkinter import ttk, messagebox
 from typing import Optional
 
 from repositories.structures_repository import StructuresRepository
+from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
 from domain.position_side import normalize_position_side
 
 
@@ -66,6 +73,7 @@ class StructureEditorDialog(tk.Toplevel):
         db_path: str = "dados/app.db",
         *,
         _repo=None,                          # <-- injecao de dependencia (testes)
+        _rtd_leg_enrichment_service=None,    # <-- injecao opcional para testes/UI
     ):
         super().__init__(parent)
 
@@ -79,6 +87,8 @@ class StructureEditorDialog(tk.Toplevel):
             self._repo = _repo
         else:
             self._repo = StructuresRepository(db_path)
+
+        self._rtd_leg_enrichment_service = _rtd_leg_enrichment_service
 
         # Variaveis de formulario -- inicializadas ANTES de _build_ui
         # para que _load_existing() possa fazer .set() mesmo se chamado
@@ -228,10 +238,21 @@ class StructureEditorDialog(tk.Toplevel):
             ttk.Label(r2, text=label + ":").pack(side="left")
             ttk.Entry(r2, textvariable=var, width=10).pack(side="left", padx=(0, 8))
 
-        # Botao aplicar
-        ttk.Button(form, text="[v] Aplicar Leg", command=self._cmd_apply_leg).pack(
-            anchor="e", pady=(4, 0)
-        )
+        # Botoes do formulario
+        form_btns = ttk.Frame(form)
+        form_btns.pack(fill="x", pady=(4, 0))
+
+        ttk.Button(
+            form_btns,
+            text="[RTD] Preencher por Simbolo",
+            command=self._cmd_fill_leg_from_rtd,
+        ).pack(side="left")
+
+        ttk.Button(
+            form_btns,
+            text="[v] Aplicar Leg",
+            command=self._cmd_apply_leg,
+        ).pack(side="right")
 
     # ------------------------------------------------------------------
     # Carregar estrutura existente
@@ -385,6 +406,175 @@ class StructureEditorDialog(tk.Toplevel):
             "notes":           None,
         }
         self._refresh_leg_tree()
+
+
+    def _refresh_rtd_symbol_on_demand(self, codigo_opcao: str) -> tuple[bool, str]:
+        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/derived.db."""
+        symbol = str(codigo_opcao or "").strip().upper()
+
+        if not symbol:
+            return False, "Codigo da opcao vazio."
+
+        project_root = Path(__file__).resolve().parents[2]
+        script_path = project_root / "scripts" / "refresh_rtd_symbol_to_option_quotes_fallback.py"
+        db_path = project_root / "dados" / "derived.db"
+
+        if not script_path.exists():
+            return False, f"Script RTD nao encontrado: {script_path}"
+
+        cmd = [
+            sys.executable,
+            str(script_path),
+            "--symbol",
+            symbol,
+            "--db",
+            str(db_path),
+            "--wait-seconds",
+            "3",
+            "--json",
+        ]
+
+        try:
+            completed = subprocess.run(
+                cmd,
+                cwd=str(project_root),
+                text=True,
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=20,
+                check=False,
+            )
+        except subprocess.TimeoutExpired:
+            return False, f"Timeout ao atualizar RTD para {symbol}."
+
+        stdout = completed.stdout.strip()
+        stderr = completed.stderr.strip()
+
+        if completed.returncode != 0:
+            detail = stderr or stdout or "sem detalhe"
+            return False, f"Falha ao atualizar RTD para {symbol}: {detail}"
+
+        try:
+            data = json.loads(stdout)
+        except json.JSONDecodeError:
+            return False, f"RTD atualizou, mas retornou JSON invalido: {stdout[:500]}"
+
+        if data.get("status") != "ok":
+            errors = data.get("errors") or []
+            return False, f"RTD retornou erro para {symbol}: {errors}"
+
+        quote = data.get("quote")
+
+        if not quote:
+            return False, f"RTD executou, mas nao retornou cotacao para {symbol}."
+
+        return True, "OK"
+
+    def _get_rtd_leg_enrichment_service(self):
+        """Cria/lazily retorna o service de preenchimento de leg via RTD."""
+        if self._rtd_leg_enrichment_service is None:
+            project_root = Path(__file__).resolve().parents[2]
+            rtd_db_path = project_root / "dados" / "derived.db"
+            rtd_repo = RtdOptionQuotesRepository(rtd_db_path)
+            self._rtd_leg_enrichment_service = StructureLegRtdEnrichmentService(
+                rtd_repo
+            )
+        return self._rtd_leg_enrichment_service
+
+    @staticmethod
+    def _normalize_option_type_for_ui(value) -> str:
+        """Normaliza tipo de opcao para os valores aceitos pelo Combobox."""
+        text = str(value or "").strip().upper()
+        mapping = {
+            "C": "CALL",
+            "CALL": "CALL",
+            "COMPRA": "CALL",
+            "P": "PUT",
+            "PUT": "PUT",
+            "VENDA": "PUT",
+        }
+        return mapping.get(text, text)
+
+    def _cmd_fill_leg_from_rtd(self):
+        """Preenche a leg selecionada usando rtd_option_quotes.codigo_opcao."""
+        idx = self._selected_leg_index()
+        if idx is None:
+            messagebox.showwarning(
+                "Preencher via RTD",
+                "Selecione uma leg na lista primeiro.",
+                parent=self,
+            )
+            return
+
+        symbol = self._lf_symbol.get().strip().upper()
+        if not symbol:
+            messagebox.showwarning(
+                "Preencher via RTD",
+                "Informe o campo 'Simbolo' antes de consultar o RTD.",
+                parent=self,
+            )
+            return
+
+        leg_data = {
+            "symbol": symbol,
+            "position_side": self._lf_side.get(),
+            "quantity": self._lf_qty.get() or 1,
+            "multiplier": self._lf_mult.get() or 1,
+            "leg_order": idx + 1,
+            "notes": self._legs_rows[idx].get("notes") if idx < len(self._legs_rows) else None,
+        }
+
+        try:
+            ok, message = self._refresh_rtd_symbol_on_demand(symbol)
+            
+            if not ok:
+                messagebox.showwarning(
+                    "Preencher via RTD",
+                    message,
+                    parent=self,
+                )
+                return
+            
+            enriched = self._get_rtd_leg_enrichment_service().enrich(leg_data)
+        except Exception as exc:
+            messagebox.showerror(
+                "Preencher via RTD",
+                f"Nao foi possivel preencher a leg pelo RTD:\n{exc}",
+                parent=self,
+            )
+            return
+
+        option_type = self._normalize_option_type_for_ui(enriched.get("option_type"))
+
+        self._lf_symbol.set(enriched.get("symbol") or symbol)
+        self._lf_type.set(option_type)
+        self._lf_strike.set(str(enriched.get("strike", "")))
+        self._lf_expiry.set(str(enriched.get("expiration_date", "")))
+        self._lf_qty.set(str(enriched.get("quantity", self._lf_qty.get() or 1)))
+        self._lf_premium.set(str(enriched.get("premium", self._lf_premium.get() or "") or ""))
+        self._lf_mult.set(str(enriched.get("multiplier", self._lf_mult.get() or 1)))
+
+        if not self._f_underlying.get().strip() and enriched.get("underlying_asset"):
+            self._f_underlying.set(str(enriched["underlying_asset"]))
+
+        current = dict(self._legs_rows[idx])
+        current.update(
+            {
+                "position_side": normalize_position_side(self._lf_side.get()),
+                "option_type": option_type,
+                "strike": self._lf_strike.get(),
+                "expiration_date": self._lf_expiry.get(),
+                "quantity": self._lf_qty.get(),
+                "premium": self._lf_premium.get() or None,
+                "multiplier": self._lf_mult.get() or 1,
+                "leg_order": idx + 1,
+                "symbol": self._lf_symbol.get() or None,
+            }
+        )
+        self._legs_rows[idx] = current
+        self._refresh_leg_tree()
+        self._leg_tree.selection_set(str(idx))
 
     # ------------------------------------------------------------------
     # Logica de payload (pura -- testavel sem display)
