@@ -255,23 +255,110 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
         self._structures_tree.bind("<Double-1>", lambda _e: self.load_selected_structure())
 
     def _build_right_panel(self, parent: tk.Widget) -> None:
-        notebook = ttk.Notebook(parent)
-        notebook.pack(fill="both", expand=True)
+        parent.columnconfigure(0, weight=1)
+        parent.rowconfigure(1, weight=1)
 
-        summary_tab = ttk.Frame(notebook, padding=6)
-        legs_tab = ttk.Frame(notebook, padding=6)
-        payoff_tab = ttk.Frame(notebook, padding=6)
-        warnings_tab = ttk.Frame(notebook, padding=6)
+        header = ttk.Frame(parent, padding=(6, 0, 6, 6))
+        header.grid(row=0, column=0, sticky="ew")
+        header.columnconfigure(0, weight=1)
 
-        notebook.add(summary_tab, text="Resumo")
-        notebook.add(legs_tab, text="Legs")
-        notebook.add(payoff_tab, text="Payoff")
-        notebook.add(warnings_tab, text="Avisos")
+        self._active_structure_title_var = tk.StringVar(
+            value="Nenhuma estrutura carregada"
+        )
+        self._active_structure_subtitle_var = tk.StringVar(
+            value="Selecione uma estrutura à esquerda para carregar VWAP, payoff e pernas."
+        )
 
-        self._build_summary_tab(summary_tab)
-        self._build_legs_tab(legs_tab)
-        self._build_payoff_tab(payoff_tab)
-        self._build_warnings_tab(warnings_tab)
+        ttk.Label(
+            header,
+            textvariable=self._active_structure_title_var,
+            font=("Segoe UI", 13, "bold"),
+            anchor="w",
+        ).grid(row=0, column=0, sticky="ew")
+
+        ttk.Label(
+            header,
+            textvariable=self._active_structure_subtitle_var,
+            anchor="w",
+        ).grid(row=1, column=0, sticky="ew", pady=(2, 0))
+
+        actions = ttk.Frame(header)
+        actions.grid(row=0, column=1, rowspan=2, sticky="e", padx=(12, 0))
+
+        ttk.Button(
+            actions,
+            text="Atualizar estruturas",
+            command=self.reload_structures,
+        ).pack(side="left")
+
+        ttk.Button(
+            actions,
+            text="Carregar selecionada",
+            command=self.load_selected_structure,
+        ).pack(side="left", padx=(6, 0))
+
+        body = ttk.Frame(parent, padding=(6, 0, 6, 0))
+        body.grid(row=1, column=0, sticky="nsew")
+        body.columnconfigure(0, weight=1)
+        body.rowconfigure(1, weight=1)
+
+        cards = ttk.Frame(body)
+        cards.grid(row=0, column=0, sticky="ew", pady=(0, 8))
+        self._build_summary_tab(cards)
+
+        workspace = ttk.PanedWindow(body, orient="vertical")
+        workspace.grid(row=1, column=0, sticky="nsew")
+
+        charts_area = ttk.PanedWindow(workspace, orient="horizontal")
+
+        market_box = ttk.LabelFrame(
+            charts_area,
+            text="VWAP / Mercado",
+            padding=8,
+        )
+        payoff_box = ttk.LabelFrame(
+            charts_area,
+            text="Payoff",
+            padding=8,
+        )
+
+        charts_area.add(market_box, weight=1)
+        charts_area.add(payoff_box, weight=2)
+
+        self._market_text = tk.Text(
+            market_box,
+            height=10,
+            wrap="word",
+            relief=tk.FLAT,
+            padx=8,
+            pady=8,
+        )
+        self._market_text.pack(fill="both", expand=True)
+        self._market_text.insert(
+            "1.0",
+            "Carregue uma estrutura para visualizar preço atual, VWAP, fonte e atualização.",
+        )
+        self._market_text.configure(state="disabled")
+
+        self._build_payoff_tab(payoff_box)
+
+        legs_box = ttk.LabelFrame(
+            workspace,
+            text="Pernas da estrutura",
+            padding=8,
+        )
+        self._build_legs_tab(legs_box)
+
+        workspace.add(charts_area, weight=3)
+        workspace.add(legs_box, weight=2)
+
+        warnings_box = ttk.LabelFrame(
+            body,
+            text="Avisos operacionais",
+            padding=6,
+        )
+        warnings_box.grid(row=2, column=0, sticky="ew", pady=(8, 0))
+        self._build_warnings_tab(warnings_box)
 
     def _build_summary_tab(self, parent: tk.Widget) -> None:
         self._summary_vars: dict[str, tk.StringVar] = {}
@@ -307,12 +394,20 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
             ),
         ]
 
-        for group_title, fields in groups:
+        for column_index, (group_title, fields) in enumerate(groups):
+            parent.columnconfigure(column_index, weight=1)
+
             group = ttk.LabelFrame(parent, text=group_title, padding=8)
-            group.pack(fill="x", pady=(0, 8))
+            group.grid(
+                row=0,
+                column=column_index,
+                sticky="nsew",
+                padx=(0, 8 if column_index < len(groups) - 1 else 0),
+            )
+            group.columnconfigure(1, weight=1)
 
             for row, (key, label) in enumerate(fields):
-                ttk.Label(group, text=f"{label}:", width=18, anchor="e").grid(
+                ttk.Label(group, text=f"{label}:", width=16, anchor="e").grid(
                     row=row,
                     column=0,
                     sticky="e",
@@ -333,8 +428,6 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
                     sticky="ew",
                     pady=2,
                 )
-
-            group.columnconfigure(1, weight=1)
 
     def _build_legs_tab(self, parent: tk.Widget) -> None:
         columns = (
@@ -482,6 +575,42 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
         summary = _summarize_viewmodel(self._current_viewmodel)
         for key, var in self._summary_vars.items():
             var.set(summary.get(key, "N/A"))
+
+        if hasattr(self, "_active_structure_title_var"):
+            self._active_structure_title_var.set(
+                "{name} | {asset} | ID {structure_id}".format(
+                    name=summary.get("name", "N/A"),
+                    asset=summary.get("underlying_asset", "N/A"),
+                    structure_id=summary.get("structure_id", "N/A"),
+                )
+            )
+
+        if hasattr(self, "_active_structure_subtitle_var"):
+            self._active_structure_subtitle_var.set(
+                "Status: {status} | Preço atual: {price} | VWAP: {vwap} | Preço vs VWAP: {spread}".format(
+                    status=summary.get("status", "N/A"),
+                    price=summary.get("current_price", "N/A"),
+                    vwap=summary.get("vwap", "N/A"),
+                    spread=summary.get("price_vs_vwap_percent", "N/A"),
+                )
+            )
+
+        if hasattr(self, "_market_text"):
+            market_text = (
+                "Leitura operacional VWAP\n\n"
+                f"Ativo: {summary.get('underlying_asset', 'N/A')}\n"
+                f"Preço atual: {summary.get('current_price', 'N/A')}\n"
+                f"VWAP: {summary.get('vwap', 'N/A')}\n"
+                f"Preço vs VWAP: {summary.get('price_vs_vwap_percent', 'N/A')}\n"
+                f"Fonte: {summary.get('market_source', 'N/A')}\n"
+                f"Atualizado em: {summary.get('market_timestamp', 'N/A')}\n\n"
+                "Este bloco consolida os dados de mercado usados pelo terminal. "
+                "Nenhum cálculo, RTD, banco ou serviço foi alterado nesta camada."
+            )
+            self._market_text.configure(state="normal")
+            self._market_text.delete("1.0", tk.END)
+            self._market_text.insert("1.0", market_text)
+            self._market_text.configure(state="disabled")
 
         self._render_legs(self._current_viewmodel)
         self._render_payoff(self._current_viewmodel)

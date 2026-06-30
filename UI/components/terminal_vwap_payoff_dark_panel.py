@@ -508,18 +508,6 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         for widget in self.side.winfo_children():
             widget.destroy()
 
-        btn_add = ctk.CTkButton(
-            self.side,
-            text="+ Nova Estrutura",
-            height=32,
-            fg_color=GREEN,
-            hover_color="#059669",
-            text_color=TEXT,
-            command=self.new_structure,
-        )
-        btn_add.pack(fill="x", padx=10, pady=(8, 10))
-
-
         title = ctk.CTkLabel(
             self.side,
             text="ESTRUTURAS DISPONÍVEIS",
@@ -527,16 +515,6 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             font=ctk.CTkFont(size=11, weight="bold"),
         )
         title.pack(pady=(15, 8), padx=10, anchor="w")
-
-        btn_reload = ctk.CTkButton(
-            self.side,
-            text="Atualizar",
-            height=30,
-            fg_color=BLUE,
-            hover_color="#2563EB",
-            command=self.reload_structures,
-        )
-        btn_reload.pack(fill="x", padx=10, pady=(0, 8))
 
         scroll = ctk.CTkScrollableFrame(
             self.side,
@@ -1505,4 +1483,3 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self._safe_status(f"Decisao para ID {sid}: {label} ({decision})")
         self._render_structure_actions()
     # END AUTO STRUCTURE SIDE ACTIONS
-
