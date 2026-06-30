@@ -16,10 +16,10 @@ class RtdOptionQuotesRepository:
 
     Arquitetura:
     - dados/app.db: dados persistentes da aplicacao/estruturas
-    - dados/derived.db: cache RTD e dados derivados
+    - dados/app.db: cache RTD operacional
     """
 
-    def __init__(self, db_path: str | Path = "dados/derived.db") -> None:
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
         self.db_path = Path(db_path)
 
     def _connect(self) -> sqlite3.Connection:
