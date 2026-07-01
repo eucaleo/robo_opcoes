@@ -391,7 +391,6 @@ def audit_scripts() -> None:
         "scripts/run_smoke_full.py",
         "run_derived_pipeline.py",
         "validate_derived_db.py",
-        "bridge_ingest_csv.py",
     ]
 
     for rel in candidates:

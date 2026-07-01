@@ -13,7 +13,6 @@ LISTA_RTD.xlsx
 
 # Bridge / artefatos exportados
 bridge/*.csv
-bridge/last_export.txt
 bridge/4026BA10
 
 # Logs / temporários
