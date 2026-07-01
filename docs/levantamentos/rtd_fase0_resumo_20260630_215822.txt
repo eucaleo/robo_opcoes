@@ -1,0 +1,17 @@
+Timestamp: 20260630_215822
+
+=== Branch ===
+patch-side-actions-structures
+
+=== HEAD ===
+7db83db chore: ignorar levantamentos grandes gerados automaticamente
+3d28069 chore: adicionar patches de apoio do desenvolvimento
+1d1b40a tools: adicionar scripts de auditoria e operacao RTD
+57648f8 docs: adicionar rota de desenvolvimento
+d71a666 docs: adicionar documentacao e levantamentos RTD operacional
+b021b17 ui: consolidar terminal VWAP Payoff como janela principal
+df7faed fix: usar appdb para cache RTD operacional
+2feed23 fix: padronizar caminho do appdb operacional
+
+=== Status ===
+?? docs/levantamentos/rtd_fase0_resumo_20260630_215822.txt

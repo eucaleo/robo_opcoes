@@ -1,0 +1,124 @@
+================================================================================
+DB: dados\app.db
+EXISTS: True
+
+TABLES:
+  pricing_executions
+  rtd_option_quotes
+  rtd_option_quotes_backup_scope_20260626_184057
+  rtd_underlying_quotes
+  sqlite_sequence
+  structure_audit_log
+  structure_events
+  structure_leg_snapshots
+  structure_legs
+  structure_snapshots
+  structures
+
+TABLES OF INTEREST:
+  rtd_option_quotes: YES
+    count: 11
+    columns:
+      (0, 'id', 'INTEGER', 0, None, 1)
+      (1, 'codigo_opcao', 'TEXT', 1, None, 0)
+      (2, 'ativo_base', 'TEXT', 0, None, 0)
+      (3, 'call_put', 'TEXT', 0, None, 0)
+      (4, 'strike', 'REAL', 0, None, 0)
+      (5, 'vencimento', 'TEXT', 0, None, 0)
+      (6, 'ultimo_preco', 'REAL', 0, None, 0)
+      (7, 'ultima_quantidade', 'REAL', 0, None, 0)
+      (8, 'bid', 'REAL', 0, None, 0)
+      (9, 'ask', 'REAL', 0, None, 0)
+      (10, 'volume', 'REAL', 0, None, 0)
+      (11, 'iv', 'REAL', 0, None, 0)
+      (12, 'delta', 'REAL', 0, None, 0)
+      (13, 'gamma', 'REAL', 0, None, 0)
+      (14, 'theta', 'REAL', 0, None, 0)
+      (15, 'vega', 'REAL', 0, None, 0)
+      (16, 'source', 'TEXT', 1, "'rtd_links'", 0)
+      (17, 'raw_json', 'TEXT', 0, None, 0)
+      (18, 'updated_at', 'TEXT', 1, 'CURRENT_TIMESTAMP', 0)
+      (19, 'created_at', 'TEXT', 1, 'CURRENT_TIMESTAMP', 0)
+      (20, 'vwap', 'REAL', 0, None, 0)
+  rtd_underlying_quotes: YES
+    count: 2
+    columns:
+      (0, 'id', 'INTEGER', 0, None, 1)
+      (1, 'ativo', 'TEXT', 1, None, 0)
+      (2, 'ultimo_preco', 'REAL', 0, None, 0)
+      (3, 'bid', 'REAL', 0, None, 0)
+      (4, 'ask', 'REAL', 0, None, 0)
+      (5, 'close_price', 'REAL', 0, None, 0)
+      (6, 'prev_close', 'REAL', 0, None, 0)
+      (7, 'open_price', 'REAL', 0, None, 0)
+      (8, 'high_price', 'REAL', 0, None, 0)
+      (9, 'low_price', 'REAL', 0, None, 0)
+      (10, 'volume', 'REAL', 0, None, 0)
+      (11, 'change_percent', 'REAL', 0, None, 0)
+      (12, 'source', 'TEXT', 0, None, 0)
+      (13, 'updated_at', 'TEXT', 0, None, 0)
+      (14, 'created_at', 'TEXT', 0, None, 0)
+      (15, 'vwap', 'REAL', 0, None, 0)
+      (16, 'raw_json', 'TEXT', 0, None, 0)
+================================================================================
+DB: dados\derived.db
+EXISTS: True
+
+TABLES:
+  payoff_curve_points
+  pricing_executions
+  rtd_option_quotes
+  rtd_underlying_quotes
+  sqlite_sequence
+  structure_audit_log
+  structure_decisions
+  structure_leg_snapshots
+  structure_legs
+  structure_snapshots
+  structures
+
+TABLES OF INTEREST:
+  rtd_option_quotes: YES
+    count: 11
+    columns:
+      (0, 'id', 'INTEGER', 0, None, 1)
+      (1, 'codigo_opcao', 'TEXT', 1, None, 0)
+      (2, 'ativo_base', 'TEXT', 0, None, 0)
+      (3, 'call_put', 'TEXT', 0, None, 0)
+      (4, 'strike', 'REAL', 0, None, 0)
+      (5, 'vencimento', 'TEXT', 0, None, 0)
+      (6, 'ultimo_preco', 'REAL', 0, None, 0)
+      (7, 'ultima_quantidade', 'REAL', 0, None, 0)
+      (8, 'bid', 'REAL', 0, None, 0)
+      (9, 'ask', 'REAL', 0, None, 0)
+      (10, 'volume', 'REAL', 0, None, 0)
+      (11, 'iv', 'REAL', 0, None, 0)
+      (12, 'delta', 'REAL', 0, None, 0)
+      (13, 'gamma', 'REAL', 0, None, 0)
+      (14, 'theta', 'REAL', 0, None, 0)
+      (15, 'vega', 'REAL', 0, None, 0)
+      (16, 'source', 'TEXT', 1, "'rtd_links'", 0)
+      (17, 'raw_json', 'TEXT', 0, None, 0)
+      (18, 'updated_at', 'TEXT', 1, 'CURRENT_TIMESTAMP', 0)
+      (19, 'created_at', 'TEXT', 1, 'CURRENT_TIMESTAMP', 0)
+      (20, 'vwap', 'REAL', 0, None, 0)
+  rtd_underlying_quotes: YES
+    count: 2
+    columns:
+      (0, 'id', 'INTEGER', 0, None, 1)
+      (1, 'ativo', 'TEXT', 1, None, 0)
+      (2, 'ultimo_preco', 'REAL', 0, None, 0)
+      (3, 'bid', 'REAL', 0, None, 0)
+      (4, 'ask', 'REAL', 0, None, 0)
+      (5, 'vwap', 'REAL', 0, None, 0)
+      (6, 'volume', 'REAL', 0, None, 0)
+      (7, 'source', 'TEXT', 0, None, 0)
+      (8, 'raw_json', 'TEXT', 0, None, 0)
+      (9, 'updated_at', 'TEXT', 0, None, 0)
+      (10, 'created_at', 'TEXT', 0, None, 0)
+      (11, 'close_price', 'REAL', 0, None, 0)
+      (12, 'prev_close', 'REAL', 0, None, 0)
+      (13, 'open_price', 'REAL', 0, None, 0)
+      (14, 'high_price', 'REAL', 0, None, 0)
+      (15, 'low_price', 'REAL', 0, None, 0)
+      (16, 'change_percent', 'REAL', 0, None, 0)

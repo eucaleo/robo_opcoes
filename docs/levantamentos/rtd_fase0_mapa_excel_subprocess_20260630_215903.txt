@@ -1,0 +1,685 @@
+.gitignore:9:# Excel local / arquivos operacionais
+.gitignore:12:LISTA_RTD.xlsx
+.gitignore:15:bridge/*.csv
+.gitignore:99:LISTA_RTD.xlsm
+ATT/checks/check_api_routes.py:6:    import win32com.client
+ATT/checks/check_api_routes.py:8:    win32com = None
+ATT/checks/check_api_routes.py:33:        log("INFO", "Iniciando check local do runtime Excel")
+ATT/checks/check_api_routes.py:35:        if win32com is None:
+ATT/checks/check_api_routes.py:41:        excel = win32com.client.Dispatch("Excel.Application")
+ATT/checks/check_api_routes.py:43:        log("OK", "Excel COM iniciado com sucesso")
+ATT/checks/check_api_routes.py:45:        wb = excel.Workbooks.Open(str(workbook_path))
+ATT/checks/check_api_routes.py:61:        log("OK", "Check de Excel local concluído com sucesso")
+ATT/checks/check_api_routes.py:65:        log("FAIL", f"Erro no check de Excel local: {e}")
+ATT/checks/check_cleanup_residuals.py:2:import subprocess
+ATT/checks/check_cleanup_residuals.py:89:    result = subprocess.run(
+ATT/checks/check_cleanup_residuals.py:93:        stdout=subprocess.PIPE,
+ATT/checks/check_cleanup_residuals.py:94:        stderr=subprocess.PIPE,
+ATT/checks/check_cleanup_residuals.py:108:    result = subprocess.run(
+ATT/checks/check_cleanup_residuals.py:112:        stdout=subprocess.PIPE,
+ATT/checks/check_cleanup_residuals.py:113:        stderr=subprocess.PIPE,
+ATT/checks/check_end_to_end.py:15:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+ATT/checks/check_end_to_end.py:16:    ROOT_DIR / "bridge" / "analise_robo.csv",
+ATT/checks/check_end_to_end.py:17:    ROOT_DIR / "bridge" / "analise_raiox.csv",
+ATT/checks/check_legs.py:2:import csv
+ATT/checks/check_legs.py:12:    BRIDGE_DIR / "analise_robo_legs.csv",
+ATT/checks/check_legs.py:13:    BRIDGE_DIR / "analise_robo.csv",
+ATT/checks/check_legs.py:14:    BRIDGE_DIR / "analise_raiox.csv",
+ATT/checks/check_legs.py:34:def read_csv_rows(path: Path):
+ATT/checks/check_legs.py:39:        dialect = csv.Sniffer().sniff(sample, delimiters=";,")
+ATT/checks/check_legs.py:41:        rows = list(csv.reader(StringIO(text), dialect))
+ATT/checks/check_legs.py:42:    except csv.Error:
+ATT/checks/check_legs.py:45:        rows = list(csv.reader(StringIO(text), delimiter=delimiter))
+ATT/checks/check_legs.py:50:def validate_csv(path: Path) -> None:
+ATT/checks/check_legs.py:51:    rows, delimiter, encoding = read_csv_rows(path)
+ATT/checks/check_legs.py:73:        found_csv = False
+ATT/checks/check_legs.py:76:                validate_csv(path)
+ATT/checks/check_legs.py:77:                found_csv = True
+ATT/checks/check_legs.py:79:        if not found_csv:
+ATT/checks/check_structures.py:15:    ROOT_DIR / "bridge" / "analise_robo.csv",
+ATT/checks/check_structures.py:16:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+ATT/checks/check_structures.py:17:    ROOT_DIR / "bridge" / "configurações.csv",
+ATT/checks/check_structures.py:18:    ROOT_DIR / "bridge" / "consolidações.csv",
+ATT/checks/run_all_checks.py:2:import subprocess
+ATT/checks/run_all_checks.py:26:        result = subprocess.run([sys.executable, str(script_path)], cwd=str(CHECKS_DIR.parent))
+ATT/tests/test_rtd_live_db_guardrail.py:14:    "scripts/import_rtd_option_quotes_wide_csv.py",
+UI/components/details_panel.py:735:        """Chamado pelo MainWindow ao finalizar o subprocess do pipeline."""
+UI/components/structure_editor_dialog.py:4:import subprocess
+UI/components/structure_editor_dialog.py:412:        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/app.db."""
+UI/components/structure_editor_dialog.py:438:            completed = subprocess.run(
+UI/components/structure_editor_dialog.py:448:        except subprocess.TimeoutExpired:
+UI/models/ui_data.py:11:import csv
+UI/models/ui_data.py:600:    def export_to_csv(self, data: List[Dict], filename: str):
+UI/models/ui_data.py:608:                w = csv.DictWriter(f, fieldnames=headers)
+UI/models/ui_data.py:614:            w = csv.DictWriter(f, fieldnames=headers)
+bridge_ingest_csv.py:1:#bridge_ingest_csv.py
+bridge_ingest_csv.py:6:import subprocess
+bridge_ingest_csv.py:33:    CsvSpec("analise_raiox.csv",          "rtd_analise_raiox",          "replace"),
+bridge_ingest_csv.py:34:    CsvSpec("consolidacoes.csv",           "rtd_consolidacoes",           "replace"),
+bridge_ingest_csv.py:35:    CsvSpec("analise_robo.csv",            "rtd_analise_robo",            "replace"),
+bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+bridge_ingest_csv.py:37:    CsvSpec("configuracoes.csv",           "rtd_configuracoes",           "replace"),
+bridge_ingest_csv.py:39:    CsvSpec("rolls_detectados.csv",        "rtd_rolls_detectados",        "append"),
+bridge_ingest_csv.py:40:    CsvSpec("hist_robo.csv",               "rtd_hist_robo",               "append"),
+bridge_ingest_csv.py:41:    CsvSpec("encerramentos_manuais.csv",   "rtd_encerramentos_manuais",   "append"),
+bridge_ingest_csv.py:75:    p = subprocess.run(cmd, cwd=str(PROJECT_DIR), capture_output=True, text=True)
+bridge_ingest_csv.py:89:        df = pd.read_csv(
+bridge_ingest_csv.py:106:def read_csv(path: Path) -> pd.DataFrame:
+bridge_ingest_csv.py:203:            df = read_csv(path)
+controllers/terminal_vwap_payoff_controller.py:9:- não acessar Excel, RTD bruto, CSV antigo ou arquivos operacionais.
+db/import_excel.py:71:    # drop colunas lixo do Excel
+docs/AUDITORIA_DESENVOLVIMENTO.md:84:    implementar detecção do Excel LISTA_RTD.xlsm aberto
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:1:# Auditoria RTD Excel Vivo
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:7:Acompanhar a implementação da arquitetura RTD sempre online com Excel aberto, app.db como fonte oficial de mercado vivo e derived.db restrito a resultados derivados e artefatos regeneráveis.
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:44:    LISTA_RTD.xlsm permanece aberto como antena RTD viva
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:45:    coletor Python observa o Excel e atualiza app.db
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:93:    LISTA_RTD.xlsm deve existir na raiz e permanecer aberto durante a operação
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:94:    fluxo antigo sob demanda via subprocess, PowerShell, Excel COM, CSV e import SQLite deixa de ser fluxo principal
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:99:    Terminal VWAP Payoff não deve acessar Excel diretamente
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:101:    subprocessos podem permanecer apenas para manutenção, diagnóstico, importação emergencial ou recuperação operacional
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:106:    confirmar manualmente Excel aberto
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:108:    confirmar LISTA_RTD.xlsm aberto
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:145:    manter LISTA_RTD.xlsm aberto
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:146:    detectar Excel aberto
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:150:    eliminar subprocesso para preencher leg
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:154:    sistema lê dados vivos do Excel
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:157:    preenchimento de leg usa snapshot, não subprocesso por símbolo
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:281:Correção documental para alinhar a auditoria com o PDF de arquitetura RTD Excel Vivo.
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:300:    validar operacionalmente Excel aberto
+docs/AUDITORIA_RTD_EXCEL_VIVO.md:302:    validar LISTA_RTD.xlsm aberto
+docs/INDICE_DOCUMENTACAO.md:7:### Plano RTD Excel Vivo
+docs/INDICE_DOCUMENTACAO.md:15:    descreve a arquitetura alvo com Excel LISTA_RTD.xlsm aberto, coletor Python online, snapshot em app.db, histórico intraday, candles, VWAP e UI operacional viva
+docs/INDICE_DOCUMENTACAO.md:57:Excel RTD vivo:
+docs/INDICE_DOCUMENTACAO.md:59:    LISTA_RTD.xlsm
+docs/PLANO_RTD_EXCEL_VIVO.md:1:# Plano RTD Excel Vivo
+docs/PLANO_RTD_EXCEL_VIVO.md:7:Este documento define a rota oficial para transformar o RTD em uma fonte viva de dados para o sistema, mantendo o Excel LISTA_RTD.xlsm aberto durante a operação e usando o banco correto para cada tipo de informação.
+docs/PLANO_RTD_EXCEL_VIVO.md:73:## Papel do Excel LISTA_RTD.xlsm
+docs/PLANO_RTD_EXCEL_VIVO.md:75:O Excel LISTA_RTD.xlsm deve permanecer aberto junto com o sistema durante o uso operacional.
+docs/PLANO_RTD_EXCEL_VIVO.md:80:    Excel recebe os dados em tempo quase real
+docs/PLANO_RTD_EXCEL_VIVO.md:81:    Excel mantém uma tabela viva de símbolos monitorados
+docs/PLANO_RTD_EXCEL_VIVO.md:82:    coletor Python observa o Excel
+docs/PLANO_RTD_EXCEL_VIVO.md:89:O sistema não deve depender de subprocesso para consultar uma opção individual sob demanda.
+docs/PLANO_RTD_EXCEL_VIVO.md:91:O botão de preenchimento por RTD deve ler o último estado conhecido no snapshot, e não abrir Excel, salvar CSV ou chamar script externo para cada símbolo.
+docs/PLANO_RTD_EXCEL_VIVO.md:100:    Excel LISTA_RTD.xlsm
+docs/PLANO_RTD_EXCEL_VIVO.md:106:        detecta Excel aberto
+docs/PLANO_RTD_EXCEL_VIVO.md:265:    Excel aberto
+docs/PLANO_RTD_EXCEL_VIVO.md:276:Excel pode virar gargalo.
+docs/PLANO_RTD_EXCEL_VIVO.md:322:    abrir LISTA_RTD.xlsm
+docs/PLANO_RTD_EXCEL_VIVO.md:327:    verificar se o Excel está aberto
+docs/PLANO_RTD_EXCEL_VIVO.md:337:    RTD atualiza Excel
+docs/PLANO_RTD_EXCEL_VIVO.md:357:    manter LISTA_RTD.xlsm aberto
+docs/PLANO_RTD_EXCEL_VIVO.md:358:    detectar Excel aberto
+docs/PLANO_RTD_EXCEL_VIVO.md:362:    eliminar subprocesso para preencher leg
+docs/PLANO_RTD_EXCEL_VIVO.md:366:    ter o sistema lendo dados vivos do Excel
+docs/PLANO_RTD_EXCEL_VIVO.md:463:    Excel aberto o tempo todo como receptor RTD
+docs/PLANO_RTD_EXCEL_VIVO.md:470:    nada de subprocesso para consultar opção individual
+docs/PLANO_RTD_EXCEL_VIVO.md:471:    subprocessos apenas para manutenção, importação ou recuperação emergencial
+docs/PLANO_RTD_EXCEL_VIVO.md:477:    menos subprocessos
+docs/ROTA_DESENVOLVIMENTO.md:17:Excel operacional:
+docs/ROTA_DESENVOLVIMENTO.md:19:    LISTA_RTD.xlsm aberto durante o uso do sistema
+docs/ROTA_DESENVOLVIMENTO.md:73:### Marco 4: Excel RTD vivo
+docs/ROTA_DESENVOLVIMENTO.md:77:    manter LISTA_RTD.xlsm aberto
+docs/ROTA_DESENVOLVIMENTO.md:78:    detectar Excel aberto
+docs/ROTA_DESENVOLVIMENTO.md:85:    sistema detecta Excel
+docs/ROTA_DESENVOLVIMENTO.md:102:    subprocesso por opção deixa de ser caminho principal
+docs/ROTA_REVISAO_FUNCIONAL_POS_USO_REAL.md:25:•	Excel é apenas ponte RTD.
+docs/auditoria_rtd_nova_ui_bovak900.md:14:    - O Excel/RTD atua apenas como ponte dinamica.
+docs/auditoria_rtd_nova_ui_bovak900.md:39:A nova UI consulta o cache rtd_option_quotes, mas nao aciona antes a ponte RTD/Excel para hidratar o ticker solicitado.
+docs/auditoria_rtd_nova_ui_bovak900.md:51:        -> solicitar ou hidratar ticker na ponte RTD/Excel
+docs/auditoria_rtd_nova_ui_bovak900.md:64:Significa que BOVAK900 ainda nao foi persistido no banco consultado e a nova UI nao chamou a rotina que deveria buscar o ticker no RTD/Excel e gravar no banco.
+docs/auditoria_ui_terminal_vwap_payoff.md:27:- O Excel permanece apenas como ponte RTD.
+docs/auditoria_ui_terminal_vwap_payoff.md:58:Arquivo Excel informado como ponte:
+docs/auditoria_ui_terminal_vwap_payoff.md:60:    LISTA_RTD.xlsm
+docs/auditoria_ui_terminal_vwap_payoff.md:315:- Excel fechado;
+docs/auditoria_ui_terminal_vwap_payoff.md:555:- substituição do Excel como ponte RTD.
+docs/auditoria_ui_terminal_vwap_payoff.md:563:    LISTA_RTD.xlsx aparece como deletado no Git, mas é arquivo legado.
+docs/auditoria_ui_terminal_vwap_payoff.md:564:    LISTA_RTD.xlsm aparece como arquivo operacional vigente da ponte RTD com macros.
+docs/auditoria_ui_terminal_vwap_payoff.md:572:    Não restaurar LISTA_RTD.xlsx.
+docs/auditoria_ui_terminal_vwap_payoff.md:573:    Não tratar LISTA_RTD.xlsx como ponte RTD vigente.
+docs/auditoria_ui_terminal_vwap_payoff.md:574:    Preservar LISTA_RTD.xlsm como evolução consolidada.
+docs/auditoria_ui_terminal_vwap_payoff.md:577:    Não incluir alterações de Excel no mesmo commit de documentação.
+docs/auditoria_ui_terminal_vwap_payoff.md:582:    git restore LISTA_RTD.xlsx
+docs/auditoria_ui_terminal_vwap_payoff.md:640:    Sem alteração intencional em arquivos Excel.
+docs/auditoria_ui_terminal_vwap_payoff.md:644:    Excel permanece apenas como ponte RTD.
+docs/auditoria_ui_terminal_vwap_payoff.md:649:    LISTA_RTD.xlsx
+docs/auditoria_ui_terminal_vwap_payoff.md:650:    LISTA_RTD.xlsm
+docs/auditoria_ui_terminal_vwap_payoff.md:700:    Excel permanece apenas como ponte RTD.
+docs/auditoria_ui_terminal_vwap_payoff.md:701:    LISTA_RTD.xlsx permanece tratado como legado e não deve ser restaurado.
+docs/auditoria_ui_terminal_vwap_payoff.md:705:    LISTA_RTD.xlsx
+docs/auditoria_ui_terminal_vwap_payoff.md:706:    LISTA_RTD.xlsm
+docs/auditoria_ui_terminal_vwap_payoff.md:711:    Alterações de Excel, reports, spikes e scripts locais não fazem parte deste registro documental.
+docs/auditoria_ui_terminal_vwap_payoff.md:755:            LISTA_RTD.xlsx
+docs/auditoria_ui_terminal_vwap_payoff.md:760:            LISTA_RTD.xlsx permanece classificado como legado e não deve ser restaurado.
+docs/auditoria_ui_terminal_vwap_payoff.md:768:            LISTA_RTD.xlsm
+docs/auditoria_ui_terminal_vwap_payoff.md:774:            LISTA_RTD.xlsm permanece como ponte RTD operacional local, sem versionamento.
+docs/auditoria_ui_terminal_vwap_payoff.md:815:    Não houve restauração de LISTA_RTD.xlsx.
+docs/auditoria_ui_terminal_vwap_payoff.md:816:    Não houve inclusão de arquivo Excel operacional no commit funcional.
+docs/auditoria_ui_terminal_vwap_payoff.md:827:    LISTA_RTD.xlsx:
+docs/auditoria_ui_terminal_vwap_payoff.md:831:    LISTA_RTD.xlsm:
+docs/auditoria_ui_terminal_vwap_payoff.md:841:    Excel permanece apenas como ponte RTD.
+docs/auditoria_ui_terminal_vwap_payoff.md:864:    Manter LISTA_RTD.xlsm fora do versionamento.
+docs/auditoria_ui_terminal_vwap_payoff.md:865:    Não restaurar LISTA_RTD.xlsx.
+docs/checkpoints/alteracoes/fase-6-11-autoalteracao-ajuste-enquadramento-em-documento-existente.txt:77:            - nao depender de Excel real
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:126:./bridge_ingest_csv.py:33:    CsvSpec("analise_raiox.csv",          "rtd_analise_raiox",          "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:127:./bridge_ingest_csv.py:34:    CsvSpec("consolidacoes.csv",           "rtd_consolidacoes",           "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:128:./bridge_ingest_csv.py:35:    CsvSpec("analise_robo.csv",            "rtd_analise_robo",            "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:129:./bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:130:./bridge_ingest_csv.py:37:    CsvSpec("configuracoes.csv",           "rtd_configuracoes",           "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:131:./bridge_ingest_csv.py:39:    CsvSpec("rolls_detectados.csv",        "rtd_rolls_detectados",        "append"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:132:./bridge_ingest_csv.py:40:    CsvSpec("hist_robo.csv",               "rtd_hist_robo",               "append"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:133:./bridge_ingest_csv.py:41:    CsvSpec("encerramentos_manuais.csv",   "rtd_encerramentos_manuais",   "append"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-codigo-atual.txt:268:./UI/main_window.py:509:* Excel RTD  CSV Bridge
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:1:./bridge_ingest_csv.py:33:    CsvSpec("analise_raiox.csv",          "rtd_analise_raiox",          "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:2:./bridge_ingest_csv.py:34:    CsvSpec("consolidacoes.csv",           "rtd_consolidacoes",           "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:3:./bridge_ingest_csv.py:35:    CsvSpec("analise_robo.csv",            "rtd_analise_robo",            "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:4:./bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:5:./bridge_ingest_csv.py:37:    CsvSpec("configuracoes.csv",           "rtd_configuracoes",           "replace"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:6:./bridge_ingest_csv.py:39:    CsvSpec("rolls_detectados.csv",        "rtd_rolls_detectados",        "append"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:7:./bridge_ingest_csv.py:40:    CsvSpec("hist_robo.csv",               "rtd_hist_robo",               "append"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:8:./bridge_ingest_csv.py:41:    CsvSpec("encerramentos_manuais.csv",   "rtd_encerramentos_manuais",   "append"),
+docs/checkpoints/evidencias/fase-1-mapa-rtd-runtime-codigo-atual.txt:143:./UI/main_window.py:509:* Excel RTD  CSV Bridge
+docs/checkpoints/evidencias/fase-1-trechos-atualizar-dados-runtime.txt:95:        file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:47:./ATT/checks/check_api_routes.py:8:    win32com = None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:50:./ATT/checks/check_api_routes.py:35:        if win32com is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:80:./ATT/checks/check_legs.py:50:def validate_csv(path: Path) -> None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:417:./bridge_ingest_csv.py:22:DERIVED_DEBOUNCE_SEC = float(os.getenv("DERIVED_DEBOUNCE_SEC", "3"))
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:418:./bridge_ingest_csv.py:46:    s = str(col).strip()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:419:./bridge_ingest_csv.py:47:    s = s.replace("\n", " ").replace("\r", " ")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:420:./bridge_ingest_csv.py:51:    s = re.sub(r"_+", "_", s).strip("_")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:421:./bridge_ingest_csv.py:69:        print(f"[DERIVED] pipeline não encontrado: {DERIVED_PIPELINE}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:422:./bridge_ingest_csv.py:73:    print(f"[DERIVED] executando: {' '.join(cmd)}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:423:./bridge_ingest_csv.py:78:        print(p.stdout.rstrip())
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:424:./bridge_ingest_csv.py:80:        print(p.stderr.rstrip())
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:425:./bridge_ingest_csv.py:82:    print(f"[DERIVED] returncode={p.returncode}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:426:./bridge_ingest_csv.py:87:    """Tenta ler o CSV com sep e enc dados. Retorna DataFrame ou None."""
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:427:./bridge_ingest_csv.py:99:        return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:428:./bridge_ingest_csv.py:101:        return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:429:./bridge_ingest_csv.py:103:        return None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:430:./bridge_ingest_csv.py:114:    df = None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:431:./bridge_ingest_csv.py:115:    used_enc = None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:432:./bridge_ingest_csv.py:116:    used_sep = None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:433:./bridge_ingest_csv.py:121:            if candidate is not None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:434:./bridge_ingest_csv.py:126:        if df is not None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:435:./bridge_ingest_csv.py:129:    if df is None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:436:./bridge_ingest_csv.py:135:    print(f"[INGEST] {path.name}: encoding={used_enc} sep='{used_sep}' colunas={list(df.columns)}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:437:./bridge_ingest_csv.py:138:    df = df.map(lambda x: x.strip() if isinstance(x, str) else x)
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:438:./bridge_ingest_csv.py:200:                print(f"[INGEST] Arquivo não encontrado, pulando: {spec.filename}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:439:./bridge_ingest_csv.py:210:            print(f"[INGEST] {spec.filename} -> {spec.table} ({spec.mode}): {len(df)} linhas")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:440:./bridge_ingest_csv.py:219:def main(argv=None):
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:441:./bridge_ingest_csv.py:241:        print(f"[INGEST] Criado sentinela: {control}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:442:./bridge_ingest_csv.py:243:    print(f"[INGEST] Bridge dir: {BRIDGE_DIR}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:443:./bridge_ingest_csv.py:244:    print(f"[INGEST] Raw DB:     {RAW_DB}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:444:./bridge_ingest_csv.py:255:                print("[DERIVED] WARNING: pipeline falhou (ingest ok).")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:445:./bridge_ingest_csv.py:257:            print("[DERIVED] debounce: ignorando disparo muito próximo do anterior.")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:446:./bridge_ingest_csv.py:262:        print(f"[INGEST] import concluído, linhas processadas: {rows}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:447:./bridge_ingest_csv.py:267:    print("[INGEST] aguardando last_export.txt ...")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:448:./bridge_ingest_csv.py:275:                print(f"[INGEST] import concluído, linhas processadas: {rows}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:449:./bridge_ingest_csv.py:279:                    print("[INGEST] --once: finalizando.")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1202:./docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:258:docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py:300:def _write_rtd_links_csv(csv_path: Path) -> None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1850:./docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:300:def _write_rtd_links_csv(csv_path: Path) -> None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1878:./docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:300:def _write_rtd_links_csv(csv_path: Path) -> None:
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1897:./docs/evolucoes de fases/baseline_v1.md:274:import win32com.clientexcel = win32com.client.Dispatch("Excel.Application")print(excel.Version)excel.Quit()
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1915:./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:123:bridge_ingest_csv.py:243:    print(f"[INGEST] Bridge dir: {BRIDGE_DIR}")
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1916:./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:132:ATT/checks/check_api_routes.py:8:    win32com = None
+docs/checkpoints/evidencias/fase-2a-grep-conversoes-validacoes.txt:1917:./docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:137:ATT/checks/check_api_routes.py:35:        if win32com is None:
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:356:./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:30:docs/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:392:./docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1626:docs/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:441:./docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:442:./docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:9:Nova estrutura criada no sistema aparece corretamente na UI sem edição manual no Excel.
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:448:./docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:70:Podem mudar de formato, depender de Excel, RTD, exportação manual ou captura externa.
+docs/checkpoints/evidencias/fase-2a-grep-fluxo-manual.txt:467:./docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:344:Mapear todos os SELECT/INSERT/UPDATE envolvendo rtd_*, manual_* e tabelas legadas do Excel.
+docs/checkpoints/evidencias/fase-2a-grep-strike.txt:151:./dados/RTD_LINKS.csv:1:﻿codigo_opcao;ativo_base;call_put;strike;vencimento;ultimo_preco;ultima_quantidade;bid;ask;volume;iv;delta;gamma;theta;vega
+docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:37:import csv
+docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:258:docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py:300:def _write_rtd_links_csv(csv_path: Path) -> None:
+docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:262:docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py:352:    csv_path = tmp_path / "RTD_LINKS.csv"
+docs/checkpoints/evidencias/fase-6-11-analise-estatica-testes-rtd-historicos.txt:266:docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py:357:    _write_rtd_links_csv(csv_path)
+docs/checkpoints/evidencias/fase-6-11-estado-atual-rtd-db-scripts-testes.txt:101:- LISTA_RTD.xlsx
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:30:docs/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:204:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:75:ATT/checks/check_structures.py:15:    ROOT_DIR / "bridge" / "analise_robo.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:205:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:76:ATT/checks/check_structures.py:16:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:381:ATT/checks/check_end_to_end.py:15:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:382:ATT/checks/check_legs.py:12:    BRIDGE_DIR / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:383:ATT/checks/check_structures.py:16:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1392:bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1523:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:474:bridge/analise_robo_legs.csv
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1532:docs/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:513:- bridge/analise_robo.csv, bridge/analise_robo_legs.csv e bridge/analise_raiox.csv ainda aparecem em checks
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1542:docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:142:bridge/analise_robo_legs.csv
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1551:docs/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:282:| `bridge/analise_robo_legs.csv` | legado | manter apenas enquanto houver consumidor |
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1554:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:69:ATT/checks/check_end_to_end.py:15:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1555:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:72:ATT/checks/check_legs.py:12:    BRIDGE_DIR / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1556:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:75:ATT/checks/check_structures.py:15:    ROOT_DIR / "bridge" / "analise_robo.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1557:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:76:ATT/checks/check_structures.py:16:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1558:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:81:bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1572:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:113:ATT/checks/check_legs.py:12:    BRIDGE_DIR / "analise_robo_legs.csv",
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1579:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:232:analise_robo_legs.csv
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1587:docs/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:372:analise_robo_legs.csv
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1592:docs/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:111:analise_robo_legs.csv
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1626:docs/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1642:docs/baseline_v1a.md:85:Input: ler rtd_analise_robo_legs (em vez de COM/Excel)
+docs/checkpoints/evidencias/fase-8-diagnostico-cadastro-estruturas-leg-minima.txt:1739:docs/validacoes/fase-17-mapa-pastas-arquivos.md:159:| `bridge/analise_robo_legs.csv` | Sim | Versionado |
+docs/checkpoints/evidencias/fase-9-encerramento-enriquecimento-legs-rtd-e-position-side.md:34:- não acoplar UI diretamente ao Excel;
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1373:./.pytest_cache/v/cache/nodeids:91:  "ATT/tests/test_import_rtd_links_to_option_quotes.py::test_import_csv_to_db_dry_run_does_not_write",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1374:./.pytest_cache/v/cache/nodeids:92:  "ATT/tests/test_import_rtd_links_to_option_quotes.py::test_import_csv_to_db_upsert_is_idempotent_and_updates_existing_row",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1375:./.pytest_cache/v/cache/nodeids:93:  "ATT/tests/test_import_rtd_links_to_option_quotes.py::test_load_and_normalize_vertical_csv",
+docs/checkpoints/evidencias/fase-9-implementacao-enriquecimento-legs-rtd.txt:1387:./.pytest_cache/v/cache/nodeids:302:  "ATT/tests/test_run_rtd_option_quotes_pipeline.py::test_build_import_command_uses_csv_db_and_script_path",
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:1:import csv
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:300:def _write_rtd_links_csv(csv_path: Path) -> None:
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:301:    with csv_path.open("w", newline="", encoding="utf-8-sig") as f:
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:302:        writer = csv.writer(f)
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:352:    csv_path = tmp_path / "RTD_LINKS.csv"
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:357:    _write_rtd_links_csv(csv_path)
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:359:    import_stats = importer.import_csv_to_db(
+docs/checkpoints/evidencias/rtd_historico_collect_sanitizado/test_fase_11_rtd_integrated_flow_from_9009a40.py.txt:360:        csv_path=csv_path,
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:1:import csv
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:300:def _write_rtd_links_csv(csv_path: Path) -> None:
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:301:    with csv_path.open("w", newline="", encoding="utf-8-sig") as f:
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:302:        writer = csv.writer(f)
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:352:    csv_path = tmp_path / "RTD_LINKS.csv"
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:357:    _write_rtd_links_csv(csv_path)
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:359:    import_stats = importer.import_csv_to_db(
+docs/checkpoints/evidencias/rtd_historico_preview/test_fase_11_rtd_integrated_flow.from-9009a40.py.txt:360:        csv_path=csv_path,
+docs/checkpoints/fase-6-11-retomada-funcional-pos-restauracao-documental.md:102:- nao depender de Excel real
+docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md:7:Esta microfatia não altera UI/API e mantém o Excel apenas como gateway RTD.
+docs/checkpoints/fase-6-7-consolidacao-diagnostico-rtd-canonical.md:154:3. Excel permanece apenas como gateway RTD;
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:13:5. A UI lê do banco, CSV ou Excel?
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:29:- Excel;
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:73:## Decisão sobre fontes legadas e LISTA_RTD.xlsx
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:82:- `LISTA_RTD.xlsx` passa a ser considerada candidata a fonte/gateway para o universo bruto RTD.
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:88:O fluxo novo não deve reconstruir o sistema em torno dos dados obsoletos. A Fase 2 deve mapear o legado existente e preparar a transição para um modelo onde a `LISTA_RTD.xlsx` alimenta dados RTD brutos, enquanto as estruturas operacionais nascem e vivem no banco do sistema.
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:98:- `LISTA_RTD`
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:113:- `db/import_excel.py` não consome `LISTA_RTD.xlsx`.
+docs/decisions/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:128:- criar posteriormente um gateway específico para `LISTA_RTD.xlsx`;
+docs/evolucoes de fases/AUDITORIA_FASE_11_SNAPSHOTS_HISTORICO.md:12:Substituir o histórico gerado pelo Excel por histórico gerado pelo próprio sistema.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:22:10. O Excel permanece apenas como gateway RTD.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:92:O dry-run com LISTA_RTD.xlsx falhou porque a aba disponível é diferente das esperadas pelos scripts:
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:166:LISTA_RTD.xlsm
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:178:LISTA_RTD.xlsm
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:239:A planilha `LISTA_RTD.xlsm` foi preservada como ponte RTD oficial e testada.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:241:A planilha RTD legada abolida foi removida do versionamento. A entrada `LISTA_RTD.xlsx` deixou de ser tratada como ponte RTD oficial.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:253:## Nota de supersessão — LISTA_RTD.xlsx
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:255:Esta auditoria pode conter referências históricas a `LISTA_RTD.xlsx` feitas durante a reconciliação da ponte RTD.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:259:- `LISTA_RTD.xlsm` é a ponte RTD operacional oficial.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:260:- `LISTA_RTD.xlsx` é referência legada/histórica.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:261:- Referências anteriores a `LISTA_RTD.xlsx` nesta auditoria devem ser lidas como evidência do processo de reconciliação, não como contrato operacional vigente.
+docs/evolucoes de fases/AUDITORIA_ROTA_MESTRE_3.md:324:O Excel permaneceu apenas como gateway RTD.
+docs/evolucoes de fases/DB_PATHS.md:6:- Bridge: `bridge/*.csv` + `bridge/last_export.txt`
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:389:### Excel direto na UI
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:391:Não foi identificada importação direta de Excel na camada de UI, como:
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:394:win32com
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:402:A UI não parece acessar Excel diretamente, mas ainda consome dados derivados que podem ter origem indireta no fluxo legado.
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:473:bridge/analise_robo.csv
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:474:bridge/analise_robo_legs.csv
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:475:bridge/analise_raiox.csv
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:508:- dependência direta de Excel: não evidenciada na UI
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:511:Excel/bridge:
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:512:- Excel ainda aparece em checks locais
+docs/evolucoes de fases/FASE_2_DIAGNOSTICO_FLUXO_ATUAL.md:513:- bridge/analise_robo.csv, bridge/analise_robo_legs.csv e bridge/analise_raiox.csv ainda aparecem em checks
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:70:Podem mudar de formato, depender de Excel, RTD, exportação manual ou captura externa.
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:141:bridge/analise_robo.csv
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:142:bridge/analise_robo_legs.csv
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:143:bridge/analise_raiox.csv
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:148:bridge/hist_robo.csv
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:281:| `bridge/analise_robo.csv` | legado | manter apenas enquanto houver consumidor |
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:282:| `bridge/analise_robo_legs.csv` | legado | manter apenas enquanto houver consumidor |
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:283:| `bridge/analise_raiox.csv` | legado | manter apenas enquanto houver consumidor |
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:284:| `bridge/hist_robo.csv` | legado | manter apenas como referência histórica ou migração pontual |
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:369:Fase 4 - Auditoria de Dependência do Excel
+docs/evolucoes de fases/FASE_3_CLASSIFICACAO_FONTES_DADOS.md:375:Descobrir exatamente onde o sistema ainda depende das abas do Excel, CSVs derivados antigos, leituras diretas da bridge e cálculos prontos vindos da planilha.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:1:# Fase 4 - Auditoria de Dependência do Excel
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:5:Descobrir exatamente onde o sistema ainda depende de abas do Excel, CSVs derivados antigos, leituras diretas da pasta bridge, arquivos temporários ou cálculos prontos vindos da planilha.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:26:Lista objetiva de arquivos e funções que ainda dependem do Excel como fonte operacional.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:53:### Referências a abas críticas do Excel
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:69:ATT/checks/check_end_to_end.py:15:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:70:ATT/checks/check_end_to_end.py:16:    ROOT_DIR / "bridge" / "analise_robo.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:71:ATT/checks/check_end_to_end.py:17:    ROOT_DIR / "bridge" / "analise_raiox.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:72:ATT/checks/check_legs.py:12:    BRIDGE_DIR / "analise_robo_legs.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:73:ATT/checks/check_legs.py:13:    BRIDGE_DIR / "analise_robo.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:74:ATT/checks/check_legs.py:14:    BRIDGE_DIR / "analise_raiox.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:75:ATT/checks/check_structures.py:15:    ROOT_DIR / "bridge" / "analise_robo.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:76:ATT/checks/check_structures.py:16:    ROOT_DIR / "bridge" / "analise_robo_legs.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:78:bridge_ingest_csv.py:33:    CsvSpec("analise_raiox.csv",          "rtd_analise_raiox",          "replace"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:79:bridge_ingest_csv.py:34:    CsvSpec("consolidacoes.csv",           "rtd_consolidacoes",           "replace"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:80:bridge_ingest_csv.py:35:    CsvSpec("analise_robo.csv",            "rtd_analise_robo",            "replace"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:81:bridge_ingest_csv.py:36:    CsvSpec("analise_robo_legs.csv",       "rtd_analise_robo_legs",       "replace"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:82:bridge_ingest_csv.py:39:    CsvSpec("rolls_detectados.csv",        "rtd_rolls_detectados",        "append"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:83:bridge_ingest_csv.py:40:    CsvSpec("hist_robo.csv",               "rtd_hist_robo",               "append"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:84:bridge_ingest_csv.py:41:    CsvSpec("encerramentos_manuais.csv",   "rtd_encerramentos_manuais",   "append"),
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:113:ATT/checks/check_legs.py:12:    BRIDGE_DIR / "analise_robo_legs.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:114:ATT/checks/check_legs.py:13:    BRIDGE_DIR / "analise_robo.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:115:ATT/checks/check_legs.py:14:    BRIDGE_DIR / "analise_raiox.csv",
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:118:bridge_ingest_csv.py:18:BRIDGE_DIR = PROJECT_DIR / "bridge"
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:119:bridge_ingest_csv.py:198:            path = BRIDGE_DIR / spec.filename
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:120:bridge_ingest_csv.py:220:    parser = argparse.ArgumentParser(description="Ingest CSVs do bridge/ para dados/app.db")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:121:bridge_ingest_csv.py:233:    BRIDGE_DIR.mkdir(parents=True, exist_ok=True)
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:122:bridge_ingest_csv.py:234:    control = BRIDGE_DIR / "last_export.txt"
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:123:bridge_ingest_csv.py:243:    print(f"[INGEST] Bridge dir: {BRIDGE_DIR}")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:128:### Dependências técnicas de Excel
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:131:ATT/checks/check_api_routes.py:6:    import win32com.client
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:132:ATT/checks/check_api_routes.py:8:    win32com = None
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:136:ATT/checks/check_api_routes.py:33:        log("INFO", "Iniciando check local do runtime Excel")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:137:ATT/checks/check_api_routes.py:35:        if win32com is None:
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:138:ATT/checks/check_api_routes.py:41:        excel = win32com.client.Dispatch("Excel.Application")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:139:ATT/checks/check_api_routes.py:43:        log("OK", "Excel COM iniciado com sucesso")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:140:ATT/checks/check_api_routes.py:45:        wb = excel.Workbooks.Open(str(workbook_path))
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:143:ATT/checks/check_api_routes.py:61:        log("OK", "Check de Excel local concluído com sucesso")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:144:ATT/checks/check_api_routes.py:65:        log("FAIL", f"Erro no check de Excel local: {e}")
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:149:UI/main_window.py:508:* Excel RTD  CSV Bridge
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:151:db/import_excel.py:71:    # drop colunas lixo do Excel
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:153:utils/leg_normalizers.py:50:        Converte serial date do Excel para datetime.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:155:utils/leg_normalizers.py:59:        Tenta interpretar value como serial do Excel.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:156:utils/leg_normalizers.py:91:        """Parser robusto para timestamp, incluindo serial Excel."""
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:157:utils/leg_normalizers.py:101:        # tenta serial Excel cedo, antes do pandas genérico
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:163:ATT/checks/check_legs.py:34:def read_csv_rows(path: Path):
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:164:ATT/checks/check_legs.py:41:        rows = list(csv.reader(StringIO(text), dialect))
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:165:ATT/checks/check_legs.py:45:        rows = list(csv.reader(StringIO(text), delimiter=delimiter))
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:166:ATT/checks/check_legs.py:51:    rows, delimiter, encoding = read_csv_rows(path)
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:167:bridge_ingest_csv.py:89:        df = pd.read_csv(
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:168:bridge_ingest_csv.py:106:def read_csv(path: Path) -> pd.DataFrame:
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:169:bridge_ingest_csv.py:203:            df = read_csv(path)
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:174:### 2.1 Dependência direta de Excel
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:189:Dependência direta ou legado de Excel.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:196:- Ele mapeia abas críticas do Excel para tabelas internas:
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:202:- `db/schema_excel.py` não lê Excel diretamente, mas define estrutura associada ao modelo importado do Excel.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:203:- Os arquivos em `ATT/checks/` fazem validações locais envolvendo workbook Excel, `win32com` ou presença de `OPERACOES_E_OPCOES.xlsm/xlsx`.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:208:A dependência direta real de Excel em código operacional está concentrada em db/import_excel.py.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:217:bridge_ingest_csv.py
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:229:analise_raiox.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:230:consolidacoes.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:231:analise_robo.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:232:analise_robo_legs.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:233:rolls_detectados.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:234:hist_robo.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:235:encerramentos_manuais.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:253:bridge_ingest_csv.py é o principal ponto de acoplamento operacional entre arquivos CSV exportados pelo bridge e o banco dados/app.db.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:256:### 2.3 Dependência indireta de tabelas derivadas do Excel/bridge
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:277:Esses arquivos não leem Excel nem CSV diretamente, mas consomem tabelas que são alimentadas por dados vindos do bridge/RTD ou de estruturas manuais equivalentes.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:313:- `utils/leg_normalizers.py` converte serial date do Excel, mas não lê Excel.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:314:- `UI/main_window.py` apenas menciona visualmente o fluxo `Excel RTD CSV Bridge`.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:325:A auditoria da Fase 4 identificou que a dependência do Excel está concentrada em poucos pontos.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:327:### Lista objetiva de arquivos e funções/pontos que ainda dependem do Excel ou bridge como fonte operacional
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:329:#### Dependência direta de Excel
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:354:bridge_ingest_csv.py
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:362:pd.read_csv(...)
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:363:read_csv(path)
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:369:analise_raiox.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:370:consolidacoes.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:371:analise_robo.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:372:analise_robo_legs.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:373:rolls_detectados.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:374:hist_robo.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:375:encerramentos_manuais.csv
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:402:A dependência direta de Excel está concentrada em db/import_excel.py.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:403:A dependência operacional atual está concentrada em bridge_ingest_csv.py.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:404:A aplicação consome majoritariamente tabelas SQLite, mas essas tabelas ainda carregam semântica e origem de dados do bridge/Excel.
+docs/evolucoes de fases/FASE_4_AUDITORIA_DEPENDENCIA_EXCEL.md:410:Fase 5 - Isolar formalmente o bridge/Excel como adaptador legado e definir quais tabelas passam a ser fonte canônica, quais continuam temporárias e quais devem ser migradas ou renomeadas.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:1:# Fase 5 - Isolamento do Bridge/Excel como Adaptador Legado
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:5:Isolar formalmente o Excel e o bridge CSV como adaptadores legados, separando origem física de dados, tabelas intermediárias e modelo canônico usado pela aplicação.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:28:- quais arquivos compõem o adaptador legado Excel/bridge;
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:40:A dependência direta de Excel está concentrada em db/import_excel.py.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:41:A dependência operacional atual está concentrada em bridge_ingest_csv.py.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:42:A aplicação consome majoritariamente tabelas SQLite, mas essas tabelas ainda carregam semântica e origem de dados do bridge/Excel.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:47:### 2.1 Adaptador legado Excel direto
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:80:Adaptador legado de importação Excel.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:90:bridge_ingest_csv.py
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:102:bridge/*.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:108:analise_raiox.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:109:consolidacoes.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:110:analise_robo.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:111:analise_robo_legs.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:112:rolls_detectados.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:113:hist_robo.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:114:encerramentos_manuais.csv
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:121:É atualmente o principal acoplamento entre Excel/RTD/bridge e o banco dados/app.db.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:175:### 3.3 Tabelas importadas diretamente do Excel
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:190:Legado de importação Excel direta.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:202:- Ler Excel;
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:214:bridge_ingest_csv.py
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:221:Excel/CSV/bridge não devem aparecer em serviços de domínio, UI ou regras de cálculo.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:250:- Evitar dependência direta de bridge, Excel, CSV ou win32com;
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:265:### 5.1 Excel direto
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:287:bridge_ingest_csv.py deve ser tratado como adaptador legado operacional.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:294:adapters/legacy_bridge/ingest_csv.py
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:324:Avaliar renomeação semântica futura para nomes de domínio, sem referência a abas Excel.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:338:Verificar onde db/import_excel.py e bridge_ingest_csv.py são chamados.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:344:Mapear todos os SELECT/INSERT/UPDATE envolvendo rtd_*, manual_* e tabelas legadas do Excel.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:364:git grep -n "import_excel\|bridge_ingest_csv\|read_excel\|read_csv\|BRIDGE_DIR\|OPERACOES_E_OPCOES"
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:373:### Dependências técnicas Excel/COM
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:376:git grep -n "win32com\|Excel.Application\|openpyxl\|xlsx\|xlsm"
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:384:Excel e bridge são adaptadores legados.
+docs/evolucoes de fases/FASE_5_ISOLAMENTO_BRIDGE_EXCEL_ADAPTADOR_LEGADO.md:387:Domínio e serviços não devem depender diretamente de arquivo, bridge, CSV, Excel ou COM.
+docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:24:- Excel direto é adaptador legado.
+docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:28:- Domínio e serviços devem evitar dependência direta de arquivos, bridge, CSV, Excel ou COM.
+docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:52:- `bridge_ingest_csv.py`
+docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:60:- `bridge_ingest_csv.py`
+docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:179:- `bridge_ingest_csv.py`
+docs/evolucoes de fases/FASE_6_CAMADA_CANONICA_LEITURA.md:191:- `bridge_ingest_csv.py` é adaptador de ingestão.
+docs/evolucoes de fases/FASE_7_ISOLAMENTO_NOMES_FISICOS_LEGADOS.md:14:- `bridge_ingest_csv.py`
+docs/evolucoes de fases/MAPA_MODULOS_FUNCOES.md:7:- **bridge_ingest_csv.py**
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:35:10. O Excel permanece apenas como gateway RTD.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:47:Classificar LISTA_RTD.xlsm e _usage_audit/ antes de qualquer limpeza.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:61:### Fase 5 — Reconciliação RTD/Excel
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:102:3. o Excel permanece apenas como gateway RTD;
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:164:8. Excel permanece apenas como gateway RTD.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:196:8. Excel permanece apenas como gateway RTD.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:202:## Nota de supersessão — LISTA_RTD.xlsx
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:204:A partir da reconciliação registrada em `docs/checkpoints/fase-2-rota-mestre-3-reconciliacao-ponte-rtd.md` e `docs/checkpoints/fase-2-1-classificacao-referencias-lista-rtd.md`, a ponte RTD operacional oficial é `LISTA_RTD.xlsm`.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:206:Referências anteriores a `LISTA_RTD.xlsx` devem ser interpretadas como histórico/legado, salvo evidência funcional ativa em sentido contrário.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:313:6. o Excel permaneceu apenas como gateway RTD.
+docs/evolucoes de fases/ROTA_MESTRE_3_RECONCILIACAO_POS_BACKUP.md:355:7. o Excel permaneceu apenas como gateway RTD.
+docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:5:Validar e corrigir o fluxo de cadastro e persistência de estruturas, garantindo que uma nova estrutura criada no sistema seja gravada no banco, tenha pernas persistidas, seja recuperada pela UI e possa alimentar o fluxo de cálculo sem edição manual no Excel.
+docs/evolucoes de fases/auditoria_fase_9_cadastro_estruturas.md:9:Nova estrutura criada no sistema aparece corretamente na UI sem edição manual no Excel.
+docs/evolucoes de fases/baseline_v1.md:122:Transformar o Excel (com RTD) em fonte de dados, e o SQLite em sistema de verdade (histórico + consultas).
+docs/evolucoes de fases/baseline_v1.md:126:1) DataSource (Excel/RTD)
+docs/evolucoes de fases/baseline_v1.md:127:Responsável por conectar no Excel via COM, identificar abas de ativos automaticamente, ler a tabela (header linha 1, dados linha 2, até 10 linhas), normalizar valores e produzir um "snapshot".
+docs/evolucoes de fases/baseline_v1.md:130:*	ExcelRTDSnapshotter
+docs/evolucoes de fases/baseline_v1.md:132:Abre/fecha Excel invisível e o workbook.
+docs/evolucoes de fases/baseline_v1.md:172:1.	abrir Excel (ou manter aberto)
+docs/evolucoes de fases/baseline_v1.md:185:Se Excel travar/RTD falhar, reinicia a instância COM e segue.
+docs/evolucoes de fases/baseline_v1.md:206:*	e opcionalmente "exportadas" para o Excel se você quiser manter compatibilidade visual.
+docs/evolucoes de fases/baseline_v1.md:222:2.	abre Excel  datasource/ExcelRTDSnapshotter
+docs/evolucoes de fases/baseline_v1.md:227:7.	Tkinter lê do SQLite (nunca do Excel) e exibe
+docs/evolucoes de fases/baseline_v1.md:247:pywin32	Conexão com o Excel via COM (Windows only)	pip install pywin32
+docs/evolucoes de fases/baseline_v1.md:260:*	Esse sistema roda em Windows, porque depende do Excel/COM (não funciona em Linux).
+docs/evolucoes de fases/baseline_v1.md:265:2.	Excel instalado:
+docs/evolucoes de fases/baseline_v1.md:266:*	Microsoft Office Excel 2016, 2019, ou 365 (não funciona com LibreOffice)
+docs/evolucoes de fases/baseline_v1.md:274:import win32com.clientexcel = win32com.client.Dispatch("Excel.Application")print(excel.Version)excel.Quit()
+docs/evolucoes de fases/baseline_v1.md:275:Se mostrar a versão do seu Excel sem erro: está tudo certo!
+docs/evolucoes de fases/baseline_v1.md:386:2.	Excel RTD  snapshot por aba
+docs/evolucoes de fases/baseline_v1.md:550:*	sem travar Excel/COM
+docs/evolucoes de fases/baseline_v1a.md:5:*	Excel: permanece como RTD bridge + exportador CSV (não mais COM direto)
+docs/evolucoes de fases/baseline_v1a.md:6:*	Python ingestor: bridge_ingest_csv.py como substituto do services/update_cycle.py original
+docs/evolucoes de fases/baseline_v1a.md:9:Excel RTD  CSV export  Python ingest  app.db (raw)  derivadores  derived.db
+docs/evolucoes de fases/baseline_v1a.md:16:*	Excel/RTD: ativo, mas apenas como bridge/exportador
+docs/evolucoes de fases/baseline_v1a.md:21:*	Tabelas rtd_* para dados raw vindos do Excel
+docs/evolucoes de fases/baseline_v1a.md:25:1.1 Excel/RTD Layer (bridge only)
+docs/evolucoes de fases/baseline_v1a.md:32:*	Módulo: bridge_ingest_csv.py (já implementado)
+docs/evolucoes de fases/baseline_v1a.md:44:*	Fonte: somente SQLite (nunca Excel direto)
+docs/evolucoes de fases/baseline_v1a.md:47:Aba Excel	Tabela SQLite	Modo	Status
+docs/evolucoes de fases/baseline_v1a.md:75:*	VBA exportador + bridge_ingest_csv.py
+docs/evolucoes de fases/baseline_v1a.md:85:Input: ler rtd_analise_robo_legs (em vez de COM/Excel)
+docs/evolucoes de fases/baseline_v1a.md:94:*	Adicionar hook em bridge_ingest_csv.py ou criar derived_processor.py
+docs/evolucoes de fases/baseline_v1a.md:99:*	Todas as colunas como TEXT no app.db (tolerância a variações do Excel)
+docs/evolucoes de fases/baseline_v1a.md:113:Excel  bridge/*.csv  app.db (8 tabelas rtd_*)  derived.db (próximo)
+docs/evolucoes de fases/baseline_v2.md:41:- CSVs e Excel vêm pela ponte `bridge_ingest_csv.py` (constrói tabelas dinamicamente)
+docs/evolucoes de fases/executed_v1.md:205:Próximo: P3 (Hook pós-ingest) -- acionar derivadores após ingest do bridge_ingest_csv.py.
+docs/evolucoes de fases/executed_v1.md:235:Próximo: P3 (Hook pós-ingest) -- acionar derivadores após ingest do bridge_ingest_csv.py.
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:26:O sistema deve conseguir consultar dados essenciais sem depender das abas calculadas do Excel.
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:41:- 37903fe Documenta isolamento do bridge Excel da fase 5
+docs/evolucoes de fases/fase_8_banco_fonte_verdade_auditoria.md:193:- histórico operacional independente do Excel
+docs/evolucoes de fases/roteiro_v2.md:4:- Origem: exportação por Excel, scripts `bridge_ingest_csv.py`
+docs/ui_terminal_vwap_payoff_plano.md:56:M. Excel é apenas ponte RTD.
+docs/ui_terminal_vwap_payoff_plano.md:90:### 3.1 Excel RTD
+docs/ui_terminal_vwap_payoff_plano.md:92:O arquivo LISTA_RTD.xlsm será utilizado apenas como ponte para o RTD do BTG.
+docs/ui_terminal_vwap_payoff_plano.md:94:O Excel não é fonte da verdade de:
+docs/ui_terminal_vwap_payoff_plano.md:259:    Excel como ponte RTD
+docs/ui_terminal_vwap_payoff_plano.md:504:- comparar com Excel aberto;
+docs/ui_terminal_vwap_payoff_plano.md:508:- tratar Excel fechado;
+docs/ui_terminal_vwap_payoff_plano.md:696:- preservar Excel apenas como ponte RTD.
+docs/ui_terminal_vwap_payoff_plano.md:706:### Risco 2 — Dependência indevida do Excel
+docs/ui_terminal_vwap_payoff_plano.md:710:Excel é ponte RTD. O sistema deve tratar indisponibilidade do Excel e não assumir que Excel é fonte da verdade.
+docs/ui_terminal_vwap_payoff_plano.md:753:Esta fase adota como premissa que o arquivo LISTA_RTD.xlsx é legado e não deve ser restaurado.
+docs/ui_terminal_vwap_payoff_plano.md:755:O arquivo operacional vigente para a ponte RTD é LISTA_RTD.xlsm, com uso de macros.
+docs/ui_terminal_vwap_payoff_plano.md:757:A substituição de LISTA_RTD.xlsx por LISTA_RTD.xlsm é evolução consolidada do sistema e não deve ser revertida.
+docs/ui_terminal_vwap_payoff_plano.md:759:Qualquer tentativa de restaurar LISTA_RTD.xlsx deve ser tratada como regressão.
+docs/ui_terminal_vwap_payoff_plano.md:776:    LISTA_RTD.xlsx
+docs/ui_terminal_vwap_payoff_plano.md:777:    LISTA_RTD.xlsm
+docs/ui_terminal_vwap_payoff_plano.md:782:    Não restaurar LISTA_RTD.xlsx
+docs/ui_terminal_vwap_payoff_plano.md:786:    Não misturar documentação com alterações de Excel
+docs/ui_terminal_vwap_payoff_plano.md:821:    Não restaurar LISTA_RTD.xlsx.
+docs/ui_terminal_vwap_payoff_plano.md:822:    Não incluir arquivos Excel em commit funcional ou documental.
+docs/ui_terminal_vwap_payoff_plano.md:825:    Excel permanece apenas como ponte RTD.
+docs/ui_terminal_vwap_payoff_plano.md:860:    Restauração de LISTA_RTD.xlsx.
+docs/ui_terminal_vwap_payoff_plano.md:904:    LISTA_RTD.xlsx
+docs/ui_terminal_vwap_payoff_plano.md:909:    LISTA_RTD.xlsm
+docs/ui_terminal_vwap_payoff_plano.md:948:    LISTA_RTD.xlsx permanece legado e não deve ser restaurado.
+docs/ui_terminal_vwap_payoff_plano.md:950:    LISTA_RTD.xlsm permanece como arquivo operacional vigente da ponte RTD, mas não deve ser versionado porque sofre alterações constantes durante consultas RTD.
+docs/ui_terminal_vwap_payoff_plano.md:952:    Excel permanece apenas como ponte RTD.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:126:LISTA_RTD.xlsx
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:128:bridge_ingest_csv.py
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:145:- `LISTA_RTD.xlsx` está versionado.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:146:- Scripts principais como `main.py`, `run_ui.py`, `validate_db.py`, `bridge_ingest_csv.py` e scripts auxiliares estão versionados.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:157:| `LISTA_RTD.xlsx` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:158:| `bridge/analise_robo.csv` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:159:| `bridge/analise_robo_legs.csv` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:160:| `bridge/hist_robo.csv` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:161:| `bridge/analise_raiox.csv` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:162:| `bridge/configuracoes.csv` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:163:| `bridge/encerramentos_manuais.csv` | Sim | Versionado |
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:176:- Os arquivos operacionais legados de Excel/CSV permanecem presentes e versionados.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:347:- Elas estão concentradas em importação/schema Excel e documentação histórica.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:363:dados/RTD_LINKS.csv
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:390:9. Os arquivos Excel/CSV críticos seguem presentes e versionados.
+docs/validacoes/fase-17-mapa-pastas-arquivos.md:413:8. Não remover arquivos Excel/CSV de bridge sem fase específica de substituição validada.
+mapear_repositorio.sh:12:# - Mapear arquivos Excel/CSV/parquet/json/db
+mapear_repositorio.sh:205:      -iname "*.csv" -o \
+mapear_repositorio.sh:221:# 10. Arquivos relacionados ao Excel, RTD, Bridge e rotas
+mapear_repositorio.sh:225:  echo "Arquivos possivelmente relacionados a Excel, RTD, Bridge, rotas e ingestão:"
+scripts/check_rota_desenvolvimento.py:6:import subprocess
+scripts/check_rota_desenvolvimento.py:31:        "name": "Auditoria de Dependência do Excel",
+scripts/check_rota_desenvolvimento.py:36:        "name": "Isolamento Bridge/Excel",
+scripts/check_rota_desenvolvimento.py:67:    result = subprocess.run(
+scripts/check_rota_desenvolvimento.py:71:        stdout=subprocess.PIPE,
+scripts/check_rota_desenvolvimento.py:72:        stderr=subprocess.PIPE,
+scripts/check_rota_desenvolvimento.py:394:        "bridge_ingest_csv.py",
+scripts/import_rtd_option_quotes_wide_csv.py:2:import csv
+scripts/import_rtd_option_quotes_wide_csv.py:118:    # Excel usa 1899-12-30 como base para compatibilidade histórica.
+scripts/import_rtd_option_quotes_wide_csv.py:148:def detect_dialect(csv_path):
+scripts/import_rtd_option_quotes_wide_csv.py:149:    sample = Path(csv_path).read_text(encoding="utf-8-sig", errors="replace")[:4096]
+scripts/import_rtd_option_quotes_wide_csv.py:152:        return csv.Sniffer().sniff(sample, delimiters=";,")
+scripts/import_rtd_option_quotes_wide_csv.py:153:    except csv.Error:
+scripts/import_rtd_option_quotes_wide_csv.py:154:        class Dialect(csv.excel):
+scripts/import_rtd_option_quotes_wide_csv.py:160:def load_csv(csv_path):
+scripts/import_rtd_option_quotes_wide_csv.py:161:    dialect = detect_dialect(csv_path)
+scripts/import_rtd_option_quotes_wide_csv.py:164:    with open(csv_path, "r", encoding="utf-8-sig", newline="") as f:
+scripts/import_rtd_option_quotes_wide_csv.py:165:        reader = csv.DictReader(f, dialect=dialect)
+scripts/import_rtd_option_quotes_wide_csv.py:321:    parser.add_argument("--csv", required=True)
+scripts/import_rtd_option_quotes_wide_csv.py:327:    rows = load_csv(args.csv)
+scripts/refresh_rtd_option_quotes_excel.ps1:2:    [string]$WorkbookPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "LISTA_RTD.xlsm"),
+scripts/refresh_rtd_option_quotes_excel.ps1:4:    [string]$CsvPath = (Join-Path (Split-Path -Parent $PSScriptRoot) "dados\RTD_LINKS.csv"),
+scripts/refresh_rtd_option_quotes_excel.ps1:47:$excel = New-Object -ComObject Excel.Application
+scripts/refresh_rtd_option_quotes_excel.ps1:56:    Write-Host ("Aviso: não foi possível alterar o modo de cálculo do Excel. Continuando. Detalhe: " + $_.Exception.Message)
+scripts/refresh_rtd_option_quotes_excel.ps1:59:    $wb = Invoke-WithRetry { $excel.Workbooks.Open($WorkbookPath) }
+scripts/refresh_rtd_option_quotes_excel.ps1:140:    Write-Host "Recalculando Excel/RTD..."
+scripts/refresh_rtd_option_quotes_excel.ps1:154:    $csvWb = $excel.ActiveWorkbook
+scripts/refresh_rtd_option_quotes_excel.ps1:157:    Invoke-WithRetry { $csvWb.SaveAs($CsvPath, 62) | Out-Null }
+scripts/refresh_rtd_option_quotes_excel.ps1:158:    Invoke-WithRetry { $csvWb.Close($false) | Out-Null }
+scripts/refresh_rtd_symbol_to_option_quotes.py:3:Atualiza uma opção avulsa via RTD Excel e importa para rtd_option_quotes.
+scripts/refresh_rtd_symbol_to_option_quotes.py:7:    -> CSV temporário -> import_rtd_option_quotes_wide_csv.py -> SQLite
+scripts/refresh_rtd_symbol_to_option_quotes.py:18:import subprocess
+scripts/refresh_rtd_symbol_to_option_quotes.py:27:IMPORT_SCRIPT = PROJECT_ROOT / "scripts" / "import_rtd_option_quotes_wide_csv.py"
+scripts/refresh_rtd_symbol_to_option_quotes.py:32:        completed = subprocess.run(
+scripts/refresh_rtd_symbol_to_option_quotes.py:42:    except subprocess.TimeoutExpired as exc:
+scripts/refresh_rtd_symbol_to_option_quotes.py:103:        description="Atualiza uma opção avulsa via RTD Excel e importa para rtd_option_quotes."
+scripts/refresh_rtd_symbol_to_option_quotes.py:120:        default="LISTA_RTD.xlsm",
+scripts/refresh_rtd_symbol_to_option_quotes.py:121:        help="Caminho do workbook RTD. Padrão: LISTA_RTD.xlsm",
+scripts/refresh_rtd_symbol_to_option_quotes.py:134:        help="Deixa o Excel visível durante o refresh.",
+scripts/refresh_rtd_symbol_to_option_quotes.py:141:        help="Timeout máximo do processo PowerShell/Excel. Padrão: 45.",
+scripts/refresh_rtd_symbol_to_option_quotes.py:178:    csv_path = tmp_dir / f"RTD_LINKS_probe_{symbol}.csv"
+scripts/refresh_rtd_symbol_to_option_quotes.py:186:        "csv_path": str(csv_path),
+scripts/refresh_rtd_symbol_to_option_quotes.py:191:            "import_csv": None,
+scripts/refresh_rtd_symbol_to_option_quotes.py:202:            raise FileNotFoundError(f"PowerShell não encontrado: {PS1_SCRIPT}")
+scripts/refresh_rtd_symbol_to_option_quotes.py:212:        if csv_path.exists():
+scripts/refresh_rtd_symbol_to_option_quotes.py:213:            csv_path.unlink()
+scripts/refresh_rtd_symbol_to_option_quotes.py:216:            "powershell.exe",
+scripts/refresh_rtd_symbol_to_option_quotes.py:227:            str(csv_path),
+scripts/refresh_rtd_symbol_to_option_quotes.py:250:            "--csv",
+scripts/refresh_rtd_symbol_to_option_quotes.py:251:            str(csv_path),
+scripts/refresh_rtd_symbol_to_option_quotes.py:262:        result["steps"]["import_csv"] = import_result
+scripts/refresh_rtd_symbol_to_option_quotes.py:266:            result["errors"].append("import_csv step failed")
+scripts/refresh_rtd_symbol_to_option_quotes.py:267:            raise RuntimeError("import_csv step failed")
+scripts/refresh_rtd_symbol_to_option_quotes.py:304:                if csv_path.exists():
+scripts/refresh_rtd_symbol_to_option_quotes.py:305:                    csv_path.unlink()
+scripts/refresh_rtd_symbol_to_option_quotes_fallback.py:4:import subprocess
+scripts/refresh_rtd_symbol_to_option_quotes_fallback.py:60:    cp = subprocess.run(
+scripts/rtd_auditoria_fase0.sh:20:# Auditoria RTD Excel Vivo
+scripts/rtd_auditoria_fase0.sh:24:Acompanhar a implementação da arquitetura RTD sempre online com Excel aberto.
+scripts/rtd_auditoria_fase0.sh:106:echo "Auditoria Fase 0: verificando Excel de forma segura"
+scripts/rtd_auditoria_fase0.sh:110:if command -v powershell.exe >/dev/null 2>&1; then
+scripts/rtd_auditoria_fase0.sh:112:        EXCEL_INFO="$(timeout 8s powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Get-Process EXCEL -ErrorAction SilentlyContinue | Select-Object -First 5 Id,ProcessName,MainWindowTitle | Format-Table -AutoSize | Out-String" 2>/dev/null | tr -d '\r' || true)"
+scripts/rtd_auditoria_fase0.sh:114:        EXCEL_INFO="Comando timeout nao encontrado. Verificacao automatica do Excel ignorada para evitar travamento."
+scripts/rtd_auditoria_fase0.sh:119:    EXCEL_INFO="Excel nao identificado em execucao, ou sem janela detectavel."
+scripts/rtd_auditoria_fase0.sh:122:echo "Auditoria Fase 0: procurando LISTA_RTD.xlsm"
+scripts/rtd_auditoria_fase0.sh:124:RTD_FILES="$(find . -maxdepth 5 -type f -iname 'LISTA_RTD.xlsm' 2>/dev/null | sort || true)"
+scripts/rtd_auditoria_fase0.sh:129:    echo "# Checklist operacional RTD Excel Vivo"
+scripts/rtd_auditoria_fase0.sh:161:    echo "## Processo Excel"
+scripts/rtd_auditoria_fase0.sh:165:    echo "## Arquivo LISTA_RTD.xlsm"
+scripts/rtd_auditoria_fase0.sh:168:        echo "- Arquivo LISTA_RTD.xlsm encontrado no projeto:"
+scripts/rtd_auditoria_fase0.sh:172:        echo "- Arquivo LISTA_RTD.xlsm nao encontrado dentro da pasta do projeto."
+scripts/rtd_auditoria_fase0.sh:173:        echo "- Observacao: isso nao impede o uso se o arquivo estiver em outro caminho e aberto no Excel."
+scripts/rtd_auditoria_fase0.sh:180:    echo "- LISTA_RTD.xlsm aberto no Excel: pendente confirmacao manual"
+scripts/rtd_auditoria_fase0.sh:182:    echo "- Calculo automatico do Excel ativo: pendente confirmacao manual"
+scripts/rtd_auditoria_fase0.sh:196:    echo "- Excel aberto"
+scripts/rtd_auditoria_fase0.sh:220:    echo "Geracao de checklist operacional seguro para a frente RTD Excel vivo."
+scripts/rtd_auditoria_fase0.sh:240:    echo "- Confirmar manualmente Excel, corretora, LISTA_RTD.xlsm e campos RTD."
+scripts/rtd_auditoria_fase0.sh:241:    echo "- Mapear arquivos atuais que usam subprocesso, RTD, Excel e banco."
+scripts/rtd_consulta_projeto.sh:86:            grep -InE "RTD|LISTA_RTD|rtd_option_quotes|derived\.db|subprocess|Popen|run\(|Excel|xlwings|win32com|openpyxl|VWAP|vwap" "$file" 2>/dev/null | sed "s#^#$file:#" || true
+scripts/rtd_consulta_projeto.sh:141:    echo "8. VERIFICACAO DE ARQUIVO LISTA_RTD.xlsm"
+scripts/rtd_consulta_projeto.sh:143:    find . -maxdepth 6 -type f -iname "LISTA_RTD.xlsm" 2>/dev/null | sort || true
+scripts/rtd_enriquecer_underlying_csv.py:2:import csv
+scripts/rtd_enriquecer_underlying_csv.py:63:        return csv.Sniffer().sniff(sample, delimiters=";,|\t,")
+scripts/rtd_enriquecer_underlying_csv.py:130:def parse_csv(path):
+scripts/rtd_enriquecer_underlying_csv.py:134:        reader = csv.DictReader(f, dialect=dialect)
+scripts/rtd_enriquecer_underlying_csv.py:305:            "  python scripts/rtd_enriquecer_underlying_csv.py dados/RTD_UNDERLYING_QUOTES.csv"
+scripts/rtd_enriquecer_underlying_csv.py:308:    csv_path = Path(sys.argv[1])
+scripts/rtd_enriquecer_underlying_csv.py:309:    if not csv_path.is_absolute():
+scripts/rtd_enriquecer_underlying_csv.py:310:        csv_path = ROOT / csv_path
+scripts/rtd_enriquecer_underlying_csv.py:312:    if not csv_path.exists():
+scripts/rtd_enriquecer_underlying_csv.py:313:        raise SystemExit(f"CSV não encontrado: {csv_path}")
+scripts/rtd_enriquecer_underlying_csv.py:315:    items = parse_csv(csv_path)
+scripts/rtd_importar_underlying_csv.py:2:import csv
+scripts/rtd_importar_underlying_csv.py:63:        return csv.Sniffer().sniff(sample, delimiters=";,|\t,")
+scripts/rtd_importar_underlying_csv.py:193:def parse_csv(path):
+scripts/rtd_importar_underlying_csv.py:198:        reader = csv.DictReader(f, dialect=dialect)
+scripts/rtd_importar_underlying_csv.py:264:            "  python scripts/rtd_importar_underlying_csv.py caminho/do/arquivo.csv\n\n"
+scripts/rtd_importar_underlying_csv.py:266:            "  python scripts/rtd_importar_underlying_csv.py dados/RTD_UNDERLYING_QUOTES.csv"
+scripts/rtd_importar_underlying_csv.py:269:    csv_path = Path(sys.argv[1])
+scripts/rtd_importar_underlying_csv.py:271:    if not csv_path.is_absolute():
+scripts/rtd_importar_underlying_csv.py:272:        csv_path = ROOT / csv_path
+scripts/rtd_importar_underlying_csv.py:274:    if not csv_path.exists():
+scripts/rtd_importar_underlying_csv.py:275:        raise SystemExit(f"CSV não encontrado: {csv_path}")
+scripts/rtd_importar_underlying_csv.py:277:    items = parse_csv(csv_path)
+scripts/rtd_mapa_alvos_fase0.py:6:import subprocess
+scripts/rtd_mapa_alvos_fase0.py:21:    "scripts/import_rtd_option_quotes_wide_csv.py",
+scripts/rtd_mapa_alvos_fase0.py:43:    "LISTA_RTD",
+scripts/rtd_mapa_alvos_fase0.py:46:    "subprocess",
+scripts/rtd_mapa_alvos_fase0.py:47:    "Popen",
+scripts/rtd_mapa_alvos_fase0.py:51:    "Excel",
+scripts/rtd_mapa_alvos_fase0.py:52:    "win32com",
+scripts/rtd_mapa_alvos_fase0.py:53:    "xlwings",
+scripts/rtd_mapa_alvos_fase0.py:100:        p = subprocess.run(
+scripts/rtd_mapa_alvos_fase0.py:375:    lines.append("- Confirmar manualmente Excel aberto, corretora conectada e RTD atualizando.")
+services/terminal_vwap_payoff_app_service.py:6:- não acessa Excel, RTD real ou UI pesada diretamente.
+services/terminal_vwap_payoff_app_service.py:25:    diretamente a Excel, RTD, Tkinter ou banco em testes unitários.
+services/terminal_vwap_payoff_viewmodel_service.py:6:- não acessa Excel;
+tools/audit_rtd_ui_flow.py:25:    "win32com",
+tools/audit_rtd_ui_flow.py:26:    "xlwings",
+tools/audit_rtd_ui_flow.py:173:    header("2) Varredura de código por RTD/Excel/repositories/services/UI")
+tools/audit_rtd_ui_flow.py:292:    header("6) Candidatos a fluxo antigo de atualização RTD/Excel")
+tools/audit_rtd_ui_flow.py:301:        r"class\s+\w*Excel\w*",
+tools/audit_rtd_ui_flow.py:302:        r"win32com",
+tools/audit_rtd_ui_flow.py:303:        r"xlwings",
+tools/audit_rtd_ui_flow.py:355:    print("- item 6: funções antigas de refresh/update/RTD/Excel.")
+utils/leg_normalizers.py:50:        Converte serial date do Excel para datetime.
+utils/leg_normalizers.py:59:        Tenta interpretar value como serial do Excel.
+utils/leg_normalizers.py:91:        """Parser robusto para timestamp, incluindo serial Excel."""
+utils/leg_normalizers.py:101:        # tenta serial Excel cedo, antes do pandas genérico
