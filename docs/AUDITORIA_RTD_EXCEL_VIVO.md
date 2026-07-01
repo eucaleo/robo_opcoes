@@ -314,3 +314,69 @@ Correção documental para alinhar a auditoria com o PDF de arquitetura RTD Exce
 ### Commit
 
     Pendente.
+
+## Registro operacional - Fase 0 concluída em 2026-06-30
+
+Status:
+
+    Fase 0 concluída documental e operacionalmente, com pendências localizadas para saneamento controlado.
+
+Evidências produzidas:
+
+    docs/levantamentos/rtd_fase0_resumo_20260630_215822.txt
+    docs/levantamentos/rtd_fase0_mapa_bancos_20260630_215847.txt
+    docs/levantamentos/rtd_fase0_mapa_excel_subprocess_20260630_215903.txt
+    docs/levantamentos/rtd_fase0_arquivos_candidatos_20260630_215918.txt
+    docs/levantamentos/rtd_fase0_sqlite_tabelas_20260630_215939.txt
+    docs/levantamentos/rtd_fase0_conclusao_20260630_220155.md
+    docs/levantamentos/rtd_fase1_alvos_iniciais_20260630_220530.md
+
+Confirmações operacionais:
+
+    dados/app.db existe
+    dados/derived.db existe
+    dados/app.db.rtd_option_quotes existe
+    dados/app.db.rtd_underlying_quotes existe
+    dados/app.db.rtd_option_quotes possui registros
+    dados/app.db.rtd_underlying_quotes possui registros
+
+Contagens observadas na auditoria SQLite:
+
+    dados/app.db.rtd_option_quotes: 11 registros
+    dados/app.db.rtd_underlying_quotes: 2 registros
+    dados/derived.db.rtd_option_quotes: 11 registros
+    dados/derived.db.rtd_underlying_quotes: 2 registros
+
+Decisão arquitetural reafirmada:
+
+    dados/app.db é a fonte operacional de mercado vivo RTD.
+    dados/derived.db não é fonte ativa de cotação viva.
+    dados/derived.db pode conter tabelas RTD legadas apenas como resíduo, diagnóstico, manutenção, recuperação ou evidência histórica.
+    Não deve existir sincronização contínua app.db -> derived.db ou derived.db -> app.db no runtime.
+
+Pendências localizadas:
+
+    scripts/rtd_reconciliar_app_para_derived.py
+        classificar explicitamente como manutenção, diagnóstico ou recuperação emergencial.
+        não pertence ao fluxo runtime.
+
+    UI/components/structure_editor_dialog.py
+        ainda contém atualização RTD sob demanda via subprocess.
+        alvo funcional inicial da Fase 1.
+        deve ser alterado para preencher leg a partir do snapshot/cache operacional em dados/app.db.
+
+    scripts/import_rtd_option_quotes_wide_csv.py
+    scripts/refresh_rtd_option_quotes_excel.ps1
+        manter apenas como importação, manutenção ou recuperação operacional.
+        não devem ser fluxo principal de preenchimento de leg.
+
+Alvo inicial recomendado para Fase 1:
+
+    UI/components/structure_editor_dialog.py
+
+Objetivo da Fase 1:
+
+    Eliminar subprocesso por símbolo no preenchimento RTD da leg.
+    Ler a última cotação disponível em dados/app.db.rtd_option_quotes.
+    Usar o repositório operacional/snapshot já apontado para app.db.
+    Manter Excel LISTA_RTD.xlsm como antena viva, não como chamada sob demanda por botão.
