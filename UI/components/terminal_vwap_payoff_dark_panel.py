@@ -36,6 +36,11 @@ except Exception:
     StructuresRepository = None
 
 try:
+    from repositories.rtd_underlying_quotes_repository import RtdUnderlyingQuotesRepository
+except Exception:
+    RtdUnderlyingQuotesRepository = None
+
+try:
     from UI.components.structure_editor_dialog import StructureEditorDialog
 except Exception:
     StructureEditorDialog = None
@@ -132,11 +137,13 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         parent,
         db_path: str,
         on_status=None,
+        _rtd_underlying_quotes_repository=None,
     ) -> None:
         super().__init__(parent, fg_color=DARK_BG)
 
         self.db_path = str(db_path)
         self.on_status = on_status or (lambda _msg: None)
+        self._rtd_underlying_quotes_repository = _rtd_underlying_quotes_repository
 
         self.menu_visible = True
         self.structures: List[Dict[str, Any]] = []
@@ -646,8 +653,9 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         finally:
             conn.close()
 
-    def _load_market(self, asset: Any) -> Dict[str, Any]:
-        result = {
+
+    def _empty_market(self) -> Dict[str, Any]:
+        return {
             "current_price": None,
             "vwap": None,
             "bid": None,
@@ -665,129 +673,26 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             "vwap_source": None,
         }
 
-        asset = str(asset or "").strip().upper()
-        if not asset or asset == "N/A":
-            return result
+    def _get_rtd_underlying_quotes_repository(self):
+        if self._rtd_underlying_quotes_repository is None:
+            if RtdUnderlyingQuotesRepository is None:
+                raise RuntimeError("RtdUnderlyingQuotesRepository indisponivel")
+            self._rtd_underlying_quotes_repository = RtdUnderlyingQuotesRepository(
+                self.db_path
+            )
+        return self._rtd_underlying_quotes_repository
 
-        conn = self._connect()
+    def _load_market(self, asset: Any) -> Dict[str, Any]:
         try:
-            schema = self._tables_cols(conn)
-
-            table = "rtd_underlying_quotes"
-            if table not in schema:
-                return result
-
-            cols = schema[table]
-
-            ativo_col = _first_col(
-                cols,
-                ["ativo", "underlying_asset", "asset", "ticker", "symbol"],
+            return self._get_rtd_underlying_quotes_repository().get_latest_by_asset(
+                asset
             )
-            price_col = _first_col(
-                cols,
-                ["ultimo_preco", "current_price", "preco_atual", "price", "last_price", "last"],
-            )
-            vwap_col = _first_col(
-                cols,
-                ["vwap", "vwap_price", "preco_medio"],
-            )
-            bid_col = _first_col(cols, ["bid"])
-            ask_col = _first_col(cols, ["ask"])
-            close_col = _first_col(cols, ["close_price", "close", "fechamento"])
-            prev_close_col = _first_col(
-                cols,
-                ["prev_close", "previous_close", "fechamento_anterior"],
-            )
-            open_col = _first_col(cols, ["open_price", "open", "abertura"])
-            high_col = _first_col(cols, ["high_price", "high", "maxima"])
-            low_col = _first_col(cols, ["low_price", "low", "minima"])
-            volume_col = _first_col(cols, ["volume"])
-            change_col = _first_col(
-                cols,
-                ["change_percent", "variation_percent", "variacao_percentual"],
-            )
-            ts_col = _first_col(
-                cols,
-                ["updated_at", "created_at", "timestamp", "datetime", "dt_ref"],
-            )
-            id_col = _first_col(cols, ["id"])
-
-            if not ativo_col or not price_col:
-                return result
-
-            select_parts = [
-                f"{_q(price_col)} AS current_price",
-                f"{_q(vwap_col)} AS vwap" if vwap_col else "NULL AS vwap",
-                f"{_q(bid_col)} AS bid" if bid_col else "NULL AS bid",
-                f"{_q(ask_col)} AS ask" if ask_col else "NULL AS ask",
-                f"{_q(close_col)} AS close_price" if close_col else "NULL AS close_price",
-                f"{_q(prev_close_col)} AS prev_close" if prev_close_col else "NULL AS prev_close",
-                f"{_q(open_col)} AS open_price" if open_col else "NULL AS open_price",
-                f"{_q(high_col)} AS high_price" if high_col else "NULL AS high_price",
-                f"{_q(low_col)} AS low_price" if low_col else "NULL AS low_price",
-                f"{_q(volume_col)} AS volume" if volume_col else "NULL AS volume",
-                f"{_q(change_col)} AS change_percent" if change_col else "NULL AS change_percent",
-                f"{_q(ts_col)} AS updated_at" if ts_col else "NULL AS updated_at",
-            ]
-
-            order_parts = []
-            if ts_col:
-                order_parts.append(f"{_q(ts_col)} DESC")
-            if id_col:
-                order_parts.append(f"{_q(id_col)} DESC")
-
-            order_sql = ""
-            if order_parts:
-                order_sql = " ORDER BY " + ", ".join(order_parts)
-
-            sql = (
-                f"SELECT {', '.join(select_parts)} "
-                f"FROM {_q(table)} "
-                f"WHERE UPPER(CAST({_q(ativo_col)} AS TEXT)) = UPPER(?)"
-                f"{order_sql} "
-                f"LIMIT 200"
-            )
-
-            rows = conn.execute(sql, (asset,)).fetchall()
-            if not rows:
-                return result
-
-            first = dict(rows[0])
-
-            result["current_price"] = first.get("current_price")
-            result["vwap"] = first.get("vwap")
-            result["bid"] = first.get("bid")
-            result["ask"] = first.get("ask")
-            result["close_price"] = first.get("close_price")
-            result["prev_close"] = first.get("prev_close")
-            result["open_price"] = first.get("open_price")
-            result["high_price"] = first.get("high_price")
-            result["low_price"] = first.get("low_price")
-            result["volume"] = first.get("volume")
-            result["change_percent"] = first.get("change_percent")
-            result["updated_at"] = first.get("updated_at")
-            result["source_table"] = table
-            result["vwap_source"] = table if vwap_col else None
-
-            series = []
-            for idx, row in enumerate(reversed(rows)):
-                r = dict(row)
-                price = _to_float(r.get("current_price"))
-                vwap = _to_float(r.get("vwap"))
-                if price is not None or vwap is not None:
-                    series.append(
-                        {
-                            "x": idx + 1,
-                            "price": price,
-                            "vwap": vwap,
-                        }
-                    )
-
-            result["series"] = series
-            return result
-
-        finally:
-            conn.close()
+        except Exception as exc:
+            try:
+                self.on_status(f"Falha ao carregar mercado RTD do ativo-base: {exc}")
+            except Exception:
+                pass
+            return self._empty_market()
 
     def _load_payoff_points(
         self,
