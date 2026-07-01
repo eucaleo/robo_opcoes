@@ -102,3 +102,6 @@ LISTA_RTD.xlsm
 _local_scripts_fase7/
 reports/
 spikes/
+
+# Levantamentos grandes gerados automaticamente
+/docs/levantamentos/rtd_uso_tabelas_codigo_*.md
