@@ -380,3 +380,72 @@ Objetivo da Fase 1:
     Ler a última cotação disponível em dados/app.db.rtd_option_quotes.
     Usar o repositório operacional/snapshot já apontado para app.db.
     Manter Excel LISTA_RTD.xlsm como antena viva, não como chamada sob demanda por botão.
+
+## Fase 1 - fechamento do alvo inicial: preenchimento RTD de leg sem subprocesso
+
+Data operacional: 2026-06-30
+
+### Escopo
+
+    Arquivo principal alterado:
+    UI/components/structure_editor_dialog.py
+
+    Evidência operacional:
+    docs/levantamentos/rtd_fase1_remocao_subprocess_structure_editor_20260630_221911.md
+
+### Decisão aplicada
+
+    O botão de preenchimento RTD da leg deixou de executar atualização sob demanda por símbolo.
+    A UI deixou de chamar subprocesso.
+    A UI deixou de chamar script de refresh RTD por símbolo.
+    O método _refresh_rtd_symbol_on_demand foi removido.
+    Os imports json, subprocess e sys foram removidos do arquivo da UI.
+
+### Fluxo anterior removido
+
+    StructureEditorDialog
+        -> _refresh_rtd_symbol_on_demand
+            -> subprocess.run
+                -> scripts/refresh_rtd_symbol_to_option_quotes_fallback.py
+                    -> RTD/Excel sob demanda
+                    -> dados/app.db.rtd_option_quotes
+
+### Fluxo atual validado
+
+    StructureEditorDialog
+        -> StructureLegRtdEnrichmentService.enrich
+            -> RtdOptionQuotesRepository
+                -> dados/app.db.rtd_option_quotes
+
+### Verificações executadas
+
+    grep de resíduos em UI/components/structure_editor_dialog.py:
+    Nenhum resíduo encontrado para:
+        _refresh_rtd_symbol_on_demand
+        refresh_rtd_symbol_to_option_quotes_fallback
+        subprocess.run
+        subprocess
+        import subprocess
+        import json
+        import sys
+
+    Testes executados:
+        python -m pytest ATT/tests/test_rtd_live_db_guardrail.py -q
+        Resultado: 3 passed
+
+        python -m pytest ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py -q
+        Resultado: 4 passed
+
+        python -m pytest ATT/tests/test_rtd_live_db_guardrail.py ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py -q
+        Resultado: 7 passed
+
+### Commit de fechamento
+
+    ebbd793 fix: remover subprocesso do preenchimento RTD da leg
+
+### Status
+
+    Alvo inicial da Fase 1 concluído.
+    A UI do preenchimento de leg passa a depender apenas do cache operacional rtd_option_quotes.
+    O refresh RTD/Excel permanece fora da UI e deve continuar tratado como fluxo operacional separado.
+
