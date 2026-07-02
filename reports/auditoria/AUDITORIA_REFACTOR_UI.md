@@ -1123,3 +1123,106 @@ O patch ficou restrito aos arquivos do painel dark e seu espelho ui.
 ### 27.4. Proximo passo
 
 Registrar checkpoint git do patch validado.
+
+## 28. Integracao do patch de acoes laterais na main
+
+O patch funcional das acoes laterais de estruturas do painel dark foi integrado na branch principal.
+
+### 28.1. Estado registrado
+
+Branch de trabalho anterior:
+
+- patch-side-actions-structures
+
+Branch principal atual:
+
+- main
+
+Commit integrado:
+
+- f454cb2 fix(ui): corrige acoes laterais de estruturas no dark
+
+Tag principal da rodada:
+
+- checkpoint-modern-side-actions-structures-fix
+
+### 28.2. Resultado da integracao
+
+A integracao foi realizada por fast-forward, sem conflito manual.
+
+A branch main passou a conter:
+
+- UI moderna dark em paralelo
+- painel dark de Terminal VWAP Payoff
+- exportacao PNG validada
+- acoes laterais de estruturas corrigidas
+- relatorios de inventario, classificacao, validacao e patch
+- auditoria atualizada ate a frente de acoes laterais
+
+### 28.3. Publicacao remota
+
+Foi executado push da branch main para o remoto.
+
+Tambem foi executado push das tags locais.
+
+Resultado final observado:
+
+- main enviada para origin/main
+- tags enviadas ao remoto
+- segunda execucao de push confirmou Everything up-to-date
+
+### 28.4. Fechamento da secao 27
+
+A secao 27 fica considerada encerrada.
+
+O patch validado de acoes laterais esta agora:
+
+- testado manualmente
+- compilado com py_compile
+- commitado
+- tageado
+- integrado na main
+- publicado no remoto
+
+### 28.5. Restricoes preservadas
+
+A integracao nao altera a diretriz arquitetural registrada anteriormente:
+
+- a UI atual ainda nao deve ser eliminada
+- o modo dark permanece como UI moderna paralela
+- regra de negocio nao deve ser recriada na UI
+- banco nao deve ser alterado junto com layout
+- derived.db e app.db nao devem ter sincronismo continuo
+- app.db permanece o destino canonico para mercado vivo
+
+### 28.6. Proxima frente recomendada
+
+A proxima frente deve voltar ao mapa de equivalencia funcional.
+
+Frente recomendada:
+
+- inventario dirigido de filtros, tabela e detalhe de decisoes no modo dark
+
+Objetivo da proxima frente:
+
+- identificar o que ja existe no modo dark relacionado a decisoes
+- comparar com a UI atual auditada
+- mapear lacunas de filtros, tabela, selecao, detalhe e rationale/why JSON
+- nao alterar codigo antes do inventario
+- produzir relatorio em reports/ui_modern_equivalence
+
+### 28.7. Comandos de verificacao recomendados
+
+Antes da proxima alteracao, recomenda-se validar o estado da main com:
+
+- git status --short
+- git log --oneline -8 --decorate
+- python -m py_compile UI/modern/__main__.py UI/modern/app.py UI/modern/theme.py UI/modern/dark_window.py UI/components/terminal_vwap_payoff_dark_panel.py
+- python -m UI.modern --info
+- python -m UI.modern
+
+### 28.8. Decisao
+
+A proxima etapa autorizada e documental.
+
+Nao iniciar novo patch funcional antes de concluir o inventario dirigido de decisoes no modo dark.
