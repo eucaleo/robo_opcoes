@@ -46,6 +46,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.structure_index: Dict[str, Dict[str, Any]] = {}
         self.active_structure_ids: set[str] = set()
         self.selected_index: Optional[int] = None
+        self._last_decision_status_text: Optional[str] = None
         self._row_buttons: List[ctk.CTkButton] = []
 
         self._build_layout()
