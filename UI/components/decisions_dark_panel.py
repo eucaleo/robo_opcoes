@@ -704,12 +704,18 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         decision_text = decision.get("decision", "N/A")
         if len(self.filtered_decisions) == len(self.decisions):
-            self._status(f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}")
+            status_text = f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}"
+            if status_text != getattr(self, "_last_decision_status_text", None):
+                self._last_decision_status_text = status_text
+                self._status(status_text)
         else:
-            self._status(
+            status_text = (
                 f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
                 f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
             )
+            if status_text != getattr(self, "_last_decision_status_text", None):
+                self._last_decision_status_text = status_text
+                self._status(status_text)
 
     def _copy_selected_detail(self) -> None:
         if self.selected_index < 0 or self.selected_index >= len(self.filtered_decisions):
