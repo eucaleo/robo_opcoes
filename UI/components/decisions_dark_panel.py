@@ -256,7 +256,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
             decisions = self.data_model.get_decisions()
             self.decisions = list(decisions or [])
-            self.selected_index = None
+            self._clear_selection()
             self._refresh_structure_index()
             self._apply_filter(render=False)
 
@@ -286,7 +286,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self.filtered_decisions = []
             self.structure_index = {}
             self.active_structure_ids = set()
-            self.selected_index = None
+            self._clear_selection()
             self._render_rows()
             self._set_detail_text(f"Erro ao carregar decisões:\n\n{exc}")
             self._status(f"Erro ao carregar decisões: {exc}")
@@ -533,7 +533,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         level_min, level_min_valid = self._parse_float_filter("level_min_filter_entry")
         dte_max, dte_max_valid = self._parse_float_filter("dte_max_filter_entry")
 
-        self.selected_index = None
+        self._clear_selection()
 
         active_decisions = [
             decision
@@ -712,6 +712,10 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
             )
         self._status_selected_decision(status_text)
+
+    def _clear_selection(self) -> None:
+        self.selected_index = None
+        self._last_decision_status_text = None
 
     def _status_selected_decision(self, status_text: str) -> None:
         if status_text == getattr(self, "_last_decision_status_text", None):

@@ -556,3 +556,77 @@ Resultado esperado:
 - selecao limpa corretamente;
 - status continua sem duplicacao consecutiva;
 - carregamento de estrutura permanece funcional.
+
+---
+
+## 42. Reset do estado de status ao limpar selecao de decisoes dark
+
+### 42.1. Objetivo
+
+Corrigir pendencia tecnica registrada na secao 40.11, garantindo que o estado interno de status da selecao seja limpo sempre que a selecao de decisao for resetada.
+
+### 42.2. Arquivo alterado
+
+Arquivo alterado nesta rodada:
+
+- UI/components/decisions_dark_panel.py
+
+### 42.3. Implementacao realizada
+
+Foi criado helper local para centralizar a limpeza de selecao:
+
+- _clear_selection
+
+Responsabilidades do helper:
+
+- limpar selected_index;
+- limpar _last_decision_status_text;
+- evitar que o cache de status preserve texto antigo apos a selecao ser resetada.
+
+Os pontos diretos de limpeza de selecao foram substituidos por chamada centralizada ao helper.
+
+### 42.4. Restricoes preservadas
+
+A alteracao nao modifica:
+
+- layout funcional;
+- banco de dados;
+- repositories;
+- services;
+- controllers;
+- contratos canonicos;
+- regra de negocio;
+- entrypoint principal;
+- UI atual.
+
+O modo dark permanece como UI moderna paralela.
+
+### 42.5. Validacoes obrigatorias
+
+Validacoes previstas para esta rodada:
+
+- python -m py_compile UI/components/decisions_dark_panel.py
+- git diff --check
+- python -m UI.modern
+
+Validacao manual minima:
+
+- abrir aba Decisoes;
+- selecionar decisao;
+- aplicar filtro sem resultado;
+- limpar filtro;
+- selecionar decisao novamente;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 42.6. Resultado esperado
+
+Resultado esperado:
+
+- selecao limpa corretamente;
+- cache de status tambem e limpo;
+- status continua sem duplicacao consecutiva;
+- detalhe permanece funcional;
+- copia de detalhe permanece funcional;
+- carregamento de estrutura no Terminal VWAP permanece funcional.
+
