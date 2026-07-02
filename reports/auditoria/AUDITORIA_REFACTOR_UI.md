@@ -1425,3 +1425,121 @@ Escopo inicial:
 - nao eliminar a UI atual;
 - nao trocar entrypoint principal;
 - nao recriar regra de negocio na UI.
+
+---
+
+## 32. Listagem global minima de decisoes no modo dark
+
+### 32.1. Objetivo
+
+Avancar a equivalencia parcial do fluxo de decisoes no modo dark, sem alterar a UI legada, sem trocar entrypoint principal e sem modificar banco de dados.
+
+A frente foi orientada pelo inventario tecnico registrado em:
+
+- reports/ui_modern_equivalence/14_decisions_flow_dark_inventory.md
+
+### 32.2. Decisao tecnica
+
+Foi adotada a opcao de adaptador minimo, em vez de reaproveitamento direto dos componentes existentes da UI clara.
+
+Motivos:
+
+- FiltersPanel, DecisionsGrid e DetailsPanel usam tkinter/ttk;
+- o modo dark atual usa customtkinter;
+- DetailsPanel possui acoplamentos maiores com recalc, derived.db, payoff e estado operacional;
+- a primeira entrega funcional deveria reduzir risco e manter escopo pequeno.
+
+### 32.3. Implementacao realizada
+
+Foi criado o componente:
+
+- UI/components/decisions_dark_panel.py
+
+Responsabilidades do novo painel:
+
+- carregar decisoes via UIDataModel.get_decisions();
+- exibir listagem global simples em customtkinter;
+- permitir selecao de decisao;
+- exibir detalhe textual da decisao selecionada;
+- preservar campos principais como timestamp, structure_id, decision, level, dte_min, pl_atual, pl_max, pl_pct_of_max e rationale/why quando disponivel;
+- limitar exibicao inicial a 300 registros para evitar sobrecarga visual;
+- nao alterar schema, tabelas ou regras de negocio.
+
+O arquivo UI/modern/dark_window.py foi ajustado para:
+
+- instanciar UIDataModel;
+- criar CTkTabview;
+- manter o Terminal VWAP na aba "Terminal VWAP";
+- adicionar nova aba "Decisões";
+- recarregar tambem a listagem de decisoes pelo menu Aplicacao > Atualizar.
+
+### 32.4. Validacao manual
+
+Comando executado:
+
+- python -m py_compile UI/modern/dark_window.py UI/components/decisions_dark_panel.py
+- python -m UI.modern
+
+Resultado observado:
+
+- aplicacao abriu no modo dark;
+- painel Terminal VWAP continuou funcional;
+- 4 estruturas foram carregadas;
+- aba Decisões foi exibida;
+- 8 decisoes foram carregadas no modo dark;
+- selecao de decisoes alternou entre estruturas reais;
+- detalhe textual foi atualizado conforme a decisao selecionada.
+
+Logs observados:
+
+- [ModernDarkUI] 4 estruturas carregadas
+- [ModernDarkUI] 8 decisões carregadas no modo dark
+- [ModernDarkUI] Decisão selecionada: estrutura=3, decisão=HOLD
+- [ModernDarkUI] Decisão selecionada: estrutura=2, decisão=HOLD
+
+### 32.5. Commit funcional associado
+
+Commit:
+
+- 004f0c0 feat(ui): adiciona listagem de decisoes no modo dark
+
+Tag:
+
+- checkpoint-modern-decisions-list-dark-minimal
+
+### 32.6. Resultado funcional
+
+A UI dark agora possui equivalencia parcial do fluxo de decisoes:
+
+- listagem global de decisoes;
+- selecao de decisao;
+- detalhe textual simples;
+- carregamento via UIDataModel existente;
+- integracao ao shell dark por aba dedicada.
+
+### 32.7. Pendencias conhecidas
+
+Ainda nao foram migrados nesta frente:
+
+- filtros avancados;
+- grid completo equivalente ao DecisionsGrid;
+- painel completo equivalente ao DetailsPanel;
+- atualizacao do payoff a partir da decisao selecionada;
+- acao direta para carregar a estrutura selecionada no Terminal VWAP;
+- exportacao CSV da listagem dark;
+- ordenacao/Busca textual no painel dark.
+
+### 32.8. Proxima frente recomendada
+
+A proxima frente deve conectar a decisao selecionada a uma acao operacional simples.
+
+Opcoes recomendadas:
+
+1. adicionar botao "Carregar estrutura no Terminal" na aba Decisões;
+2. adicionar busca/filtro textual minimo por estrutura, decisao ou timestamp;
+3. adicionar exportacao CSV da listagem de decisoes exibida.
+
+Prioridade recomendada:
+
+- carregar a estrutura da decisao selecionada no Terminal VWAP, se houver metodo seguro ja existente no TerminalVWAPPayoffDarkPanel.
+
