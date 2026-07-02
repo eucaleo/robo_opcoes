@@ -1057,3 +1057,39 @@ Nenhuma alteracao funcional foi aplicada nesta etapa.
 ### 25.4. Proximo passo
 
 Executar validacao manual dirigida das acoes laterais no modo dark.
+
+## 26. Validacao manual das acoes laterais de estruturas no painel dark
+
+Foi executada validacao manual dirigida das acoes laterais de estruturas na UI moderna dark.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/09_validacao_manual_acoes_laterais_estruturas_dark_panel.md
+
+### 26.1. Resultado
+
+A validacao encontrou acoes funcionais, acoes parciais e falhas a corrigir.
+
+### 26.2. Acoes funcionais
+
+- recarregar estruturas
+- abrir lista de estruturas
+- selecionar estrutura
+- editar pernas
+- voltar para lista
+- abrir acoes da estrutura
+
+### 26.3. Acoes parciais
+
+- recalcular Payoff executa, mas precisa feedback operacional visivel
+- encerrar estrutura registra decisao CLOSE no console, mas precisa feedback operacional visivel
+
+### 26.4. Falhas
+
+- duplicar estrutura falha por metodo _cmd_duplicate nao encontrado neste componente
+- abrir ajuste nao funciona no fluxo manual
+- arquivar estrutura nao funciona no fluxo manual
+
+### 26.5. Decisao
+
+A proxima etapa deve aplicar patch funcional minimo restrito ao painel dark.
