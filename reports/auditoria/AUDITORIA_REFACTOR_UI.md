@@ -1925,3 +1925,230 @@ Prioridade recomendada:
 
 - implementar exportacao CSV da listagem filtrada, pois reaproveita filtered_decisions, tem baixo risco e melhora a utilidade operacional da aba Decisoes sem alterar banco nem regra de negocio.
 
+---
+
+## 35. Exportacao CSV da listagem filtrada de decisoes no modo dark
+
+### 35.1. Objetivo
+
+Adicionar exportacao CSV na aba Decisoes do modo dark, usando como base exatamente a listagem exibida apos o filtro atual.
+
+A frente evoluiu diretamente a secao 34, que havia introduzido:
+
+- busca por ID da estrutura;
+- busca por nome da estrutura;
+- restricao da listagem a estruturas ativas;
+- armazenamento da listagem exibida em filtered_decisions.
+
+### 35.2. Escopo definido
+
+A exportacao CSV foi limitada ao escopo operacional da aba Decisoes dark:
+
+- exportar somente decisoes exibidas em filtered_decisions;
+- respeitar busca textual atual;
+- respeitar filtro de estruturas ativas;
+- incluir nome da estrutura quando disponivel;
+- incluir payload bruto da decisao para auditoria;
+- nao alterar banco de dados;
+- nao alterar regra de negocio;
+- nao alterar geracao das decisoes;
+- nao substituir componentes legados de DecisionsGrid ou FiltersPanel.
+
+### 35.3. Inventario previo
+
+Foi identificado que o projeto ja possuia padroes de exportacao em outras areas:
+
+- UI/main_window.py;
+- UI/modern/main_window.py;
+- UI/models/ui_data.py;
+- UI/components/payoff_chart.py;
+- UI/components/terminal_vwap_payoff_dark_panel.py.
+
+Padroes observados:
+
+- uso de tkinter.filedialog.asksaveasfilename;
+- uso de messagebox para sucesso ou erro;
+- uso de csv.DictWriter em exportacao tabular;
+- uso de status da UI para feedback operacional;
+- exportacao especifica por contexto, sem alterar banco.
+
+### 35.4. Implementacao realizada
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+Imports adicionados:
+
+- csv;
+- datetime;
+- filedialog;
+- messagebox.
+
+Mudancas de layout:
+
+- adicionado botao "Exportar CSV" no cabecalho da aba Decisoes;
+- botao posicionado entre "Carregar estrutura no Terminal" e "Atualizar";
+- header passou a usar uma coluna adicional;
+- campo de busca foi ajustado para manter o layout responsivo;
+- botao "Limpar" foi reposicionado para a nova coluna final.
+
+Metodo principal adicionado:
+
+- _export_filtered_csv
+
+Responsabilidades do metodo:
+
+- validar se existem decisoes exibidas para exportar;
+- abrir dialogo de salvamento;
+- sugerir nome de arquivo com timestamp;
+- escrever CSV com encoding utf-8-sig;
+- usar csv.DictWriter;
+- exportar uma linha por decisao filtrada;
+- emitir status de cancelamento, sucesso ou erro;
+- exibir messagebox de sucesso ou erro.
+
+Metodo auxiliar adicionado:
+
+- _decision_export_row
+
+Responsabilidades:
+
+- montar linha padronizada para cada decisao;
+- calcular structure_id a partir de structure_id ou aba;
+- incluir nome da estrutura;
+- indicar se a estrutura esta ativa;
+- preservar campos principais da decisao;
+- incluir payload bruto em raw_json.
+
+Metodo auxiliar adicionado:
+
+- _csv_value
+
+Responsabilidades:
+
+- normalizar valores para CSV;
+- converter None para string vazia;
+- serializar dict/list como JSON textual;
+- converter demais valores para string.
+
+Metodo auxiliar adicionado:
+
+- _structure_name
+
+Responsabilidades:
+
+- resolver nome/rotulo/descricao da estrutura a partir de structure_index;
+- reutilizar a mesma familia defensiva de campos usada na busca da secao 34.
+
+### 35.5. Campos exportados
+
+A exportacao CSV passou a gerar as seguintes colunas:
+
+- export_index;
+- timestamp;
+- created_at;
+- structure_id;
+- structure_name;
+- structure_active;
+- decision;
+- level;
+- dte_min;
+- pl_atual;
+- pl_max;
+- pl_pct_of_max;
+- spot_reference;
+- spot_ref;
+- rationale;
+- why;
+- raw_json.
+
+A coluna raw_json foi incluida para preservar rastreabilidade completa do registro original da decisao sem depender apenas dos campos tabulares principais.
+
+### 35.6. Comportamento funcional validado
+
+Comportamento esperado e validado:
+
+- quando ha busca ativa, exporta somente as decisoes filtradas;
+- quando nao ha busca ativa, exporta as decisoes exibidas de estruturas ativas;
+- quando nao ha decisoes exibidas, informa que nao ha dados para exportar;
+- cancelar o dialogo de salvamento nao gera erro;
+- exportacao concluida exibe status de sucesso;
+- arquivo CSV e salvo corretamente;
+- arquivo CSV abre corretamente;
+- selecao da decisao nao e alterada;
+- estrutura carregada no Terminal nao e alterada;
+- banco de dados nao e modificado.
+
+### 35.7. Validacao tecnica
+
+Comandos executados:
+
+- python -m py_compile UI/components/decisions_dark_panel.py UI/modern/dark_window.py
+- python -m UI.modern
+
+Resultado:
+
+- compilacao sem erro;
+- aplicacao abriu no modo dark;
+- aba Decisoes abriu corretamente;
+- botao Exportar CSV ficou visivel;
+- busca por ID funcionou;
+- lista filtrada funcionou;
+- exportacao funcionou;
+- arquivo foi salvo;
+- CSV foi aberto com sucesso.
+
+### 35.8. Commit funcional associado
+
+Commit:
+
+- ad3c15f feat(ui): exporta csv de decisoes filtradas no modo dark
+
+Tag:
+
+- checkpoint-modern-decisions-filtered-csv-dark
+
+### 35.9. Resultado funcional
+
+A aba Decisoes do modo dark passa a oferecer ciclo operacional completo para a listagem filtrada:
+
+- carregar decisoes;
+- restringir a estruturas ativas;
+- buscar por ID ou nome da estrutura;
+- selecionar decisao;
+- carregar estrutura associada no Terminal VWAP;
+- exportar a listagem exibida em CSV.
+
+A exportacao aproveita filtered_decisions e, portanto, respeita diretamente o estado visual atual da aba.
+
+### 35.10. Pendencias conhecidas
+
+Ainda nao foram implementados nesta frente:
+
+- filtros avancados equivalentes ao FiltersPanel legado;
+- grid completo equivalente ao DecisionsGrid legado;
+- painel completo equivalente ao DetailsPanel legado;
+- destaque visual persistente da decisao ja carregada;
+- acao inversa Terminal VWAP -> Decisoes filtradas pela estrutura selecionada;
+- testes automatizados especificos para exportacao CSV do DecisionsDarkPanel;
+- configuracao customizada de colunas exportadas pelo usuario.
+
+### 35.11. Proxima frente recomendada
+
+A proxima frente recomendada e enriquecer o detalhe da decisao no modo dark.
+
+Motivos:
+
+- a aba ja lista, filtra, seleciona, carrega estrutura e exporta CSV;
+- o proximo ganho natural esta na leitura detalhada da decisao;
+- pode reaproveitar structure_index;
+- pode exibir nome da estrutura, status ativo e dados principais de forma mais legivel;
+- aproxima a aba dark da equivalencia parcial com o DetailsPanel legado;
+- nao exige alteracao de banco nem de regra de negocio.
+
+Prioridade sugerida:
+
+- adicionar cabecalho estruturado no detalhe da decisao com estrutura, nome, status, decisao, nivel, timestamp e principais metricas;
+- manter abaixo o bloco textual/raw atual para auditoria.
+
