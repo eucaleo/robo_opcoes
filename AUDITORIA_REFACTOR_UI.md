@@ -629,4 +629,3 @@ Resultado esperado:
 - detalhe permanece funcional;
 - copia de detalhe permanece funcional;
 - carregamento de estrutura no Terminal VWAP permanece funcional.
-
