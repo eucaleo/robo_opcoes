@@ -1024,3 +1024,36 @@ Nenhuma regra de negocio deve ser alterada nesta etapa.
 ### 24.3. Proximo passo
 
 Classificar lacunas e escolher o menor patch seguro para equivalencia das acoes laterais de estruturas.
+
+## 25. Classificacao das acoes laterais de estruturas no painel dark
+
+As acoes laterais de estruturas da UI moderna dark foram classificadas quanto a presenca visual e callbacks.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/08_classificacao_acoes_laterais_estruturas_dark_panel.md
+
+### 25.1. Resultado
+
+O painel dark indica cobertura das principais acoes laterais de estruturas.
+
+### 25.2. Acoes classificadas
+
+- recarregar estruturas
+- nova estrutura
+- selecionar estrutura
+- recalcular payoff
+- editar pernas
+- duplicar estrutura
+- arquivar estrutura
+- registrar decisoes HOLD, CLOSE e ADJUST
+- abrir bloco de ajuste
+- voltar para lista
+
+### 25.3. Decisao de seguranca
+
+Nenhuma alteracao funcional foi aplicada nesta etapa.
+
+### 25.4. Proximo passo
+
+Executar validacao manual dirigida das acoes laterais no modo dark.
