@@ -1543,3 +1543,144 @@ Prioridade recomendada:
 
 - carregar a estrutura da decisao selecionada no Terminal VWAP, se houver metodo seguro ja existente no TerminalVWAPPayoffDarkPanel.
 
+
+---
+
+## 33. Carregamento de estrutura a partir da decisao no modo dark
+
+### 33.1. Objetivo
+
+Conectar a listagem de decisoes do modo dark ao Terminal VWAP, permitindo que uma decisao selecionada carregue diretamente a estrutura associada.
+
+A frente foi uma evolucao da entrega registrada na secao 32, que havia introduzido a listagem global minima de decisoes no modo dark.
+
+### 33.2. Decisao tecnica
+
+Foi adotada integracao por callback entre o painel de decisoes e a janela dark principal.
+
+Motivos:
+
+- manter DecisionsDarkPanel desacoplado do TerminalVWAPPayoffDarkPanel;
+- evitar que o painel de decisoes conheca detalhes internos do terminal;
+- preservar o Terminal VWAP como responsavel por carregar estrutura, pernas, mercado, payoff, KPIs, graficos e alertas;
+- nao alterar banco de dados;
+- nao modificar regra de negocio.
+
+### 33.3. Inspecao previa
+
+Foi confirmado que TerminalVWAPPayoffDarkPanel ja mantem as estruturas carregadas em:
+
+- self.structures
+
+Tambem foi confirmado metodo existente para carregamento operacional:
+
+- select_structure(self, structure: Dict[str, Any]) -> None
+
+Esse metodo ja executa o fluxo completo do Terminal VWAP:
+
+- define selected_structure;
+- carrega pernas;
+- carrega mercado;
+- carrega pontos de payoff;
+- atualiza cabecalho;
+- atualiza KPIs;
+- renderiza pernas;
+- renderiza graficos;
+- renderiza alertas;
+- renderiza painel de acoes da estrutura.
+
+### 33.4. Implementacao realizada
+
+O componente UI/components/decisions_dark_panel.py foi ajustado para receber callback opcional:
+
+- on_load_structure
+
+Foi adicionado o botao:
+
+- Carregar estrutura no Terminal
+
+Comportamento do botao:
+
+- inicia desabilitado;
+- habilita quando a decisao selecionada possui structure_id ou aba;
+- ao clicar, chama o callback com o identificador da estrutura;
+- exibe status quando nao ha decisao selecionada, quando a selecao e invalida ou quando nao ha callback disponivel.
+
+O arquivo UI/modern/dark_window.py foi ajustado para:
+
+- passar on_load_structure=self._load_structure_from_decision ao DecisionsDarkPanel;
+- localizar a estrutura em self.panel.structures;
+- recarregar estruturas se necessario;
+- chamar self.panel.select_structure(selected);
+- trocar a aba ativa para "Terminal VWAP";
+- emitir status de sucesso ou erro.
+
+### 33.5. Validacao manual
+
+Comandos executados:
+
+- python -m py_compile UI/modern/dark_window.py UI/components/decisions_dark_panel.py
+- python -m UI.modern
+
+Resultado observado:
+
+- aplicacao abriu no modo dark;
+- aba Decisões carregou as decisoes;
+- botao "Carregar estrutura no Terminal" ficou ativo apos selecionar decisao com estrutura;
+- clique no botao carregou a estrutura correspondente no Terminal VWAP;
+- UI alternou para a aba Terminal VWAP;
+- Terminal atualizou a analise ativa;
+- fluxo funcionou para mais de uma estrutura.
+
+Logs observados:
+
+- [ModernDarkUI] Estrutura carregada: ID 3
+- [ModernDarkUI] Estrutura 3 carregada a partir da decisão
+- [ModernDarkUI] Estrutura carregada: ID 2
+- [ModernDarkUI] Estrutura 2 carregada a partir da decisão
+
+### 33.6. Commit funcional associado
+
+Commit:
+
+- 2b45b47 feat(ui): carrega estrutura da decisao no terminal dark
+
+Tag:
+
+- checkpoint-modern-decisions-load-structure-dark
+
+### 33.7. Resultado funcional
+
+A UI dark passa a oferecer fluxo operacional integrado:
+
+- visualizar decisoes;
+- selecionar uma decisao;
+- carregar a estrutura associada diretamente no Terminal VWAP;
+- continuar a analise pelo painel operacional ja existente.
+
+### 33.8. Pendencias conhecidas
+
+Ainda nao foram implementados nesta frente:
+
+- filtro textual na listagem dark;
+- filtros avancados equivalentes a FiltersPanel;
+- grid completo equivalente ao DecisionsGrid;
+- painel completo equivalente ao DetailsPanel;
+- exportacao CSV;
+- acao inversa Terminal VWAP -> Decisoes filtradas por estrutura;
+- destaque visual persistente da decisao ja carregada.
+
+### 33.9. Proxima frente recomendada
+
+A proxima frente recomendada e adicionar busca/filtro textual minimo na aba Decisões.
+
+Campos sugeridos para busca:
+
+- structure_id;
+- decision;
+- timestamp;
+- level;
+- rationale/why.
+
+Essa frente tem baixo risco, melhora bastante a usabilidade e nao exige alteracao de banco nem regra de negocio.
+
