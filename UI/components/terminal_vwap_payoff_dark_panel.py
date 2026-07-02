@@ -28,7 +28,7 @@ from tkinter import ttk
 import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from tkinter import messagebox
+from tkinter import filedialog, messagebox
 
 try:
     from repositories.structures_repository import StructuresRepository
@@ -144,6 +144,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
         self.canvas_vwap: Optional[FigureCanvasTkAgg] = None
         self.canvas_payoff: Optional[FigureCanvasTkAgg] = None
+        self.fig_payoff: Optional[Figure] = None
 
         self.kpi_labels: Dict[str, ctk.CTkLabel] = {}
 
@@ -1105,8 +1106,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
     def _render_payoff_chart(self, points: List[Dict[str, float]]) -> None:
         self._clear_canvas("canvas_payoff")
+        self.fig_payoff = None
+        self._build_payoff_export_button()
 
         fig, ax = self._figure()
+        self.fig_payoff = fig
 
         if points:
             xs = [p["spot"] for p in points]
@@ -1138,6 +1142,64 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.canvas_payoff = FigureCanvasTkAgg(fig, master=self.frame_payoff)
         self.canvas_payoff.draw()
         self.canvas_payoff.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
+    def _build_payoff_export_button(self) -> None:
+        existing = getattr(self, "btn_export_payoff_png", None)
+        try:
+            if existing is not None and existing.winfo_exists():
+                return
+        except Exception:
+            pass
+
+        self.btn_export_payoff_png = ctk.CTkButton(
+            self.frame_payoff,
+            text="Exportar PNG",
+            command=self.export_payoff_png,
+            width=130,
+            height=28,
+            fg_color=BLUE,
+            hover_color="#2563EB",
+            text_color=TEXT,
+        )
+        self.btn_export_payoff_png.pack(anchor="ne", padx=10, pady=(10, 0))
+
+    def export_payoff_png(self) -> None:
+        fig = getattr(self, "fig_payoff", None)
+        if fig is None:
+            messagebox.showwarning(
+                "Exportar PNG",
+                "Nenhum grafico de payoff disponivel para exportar.",
+                parent=self.winfo_toplevel(),
+            )
+            self._safe_status("Exportacao PNG indisponivel")
+            return
+
+        file_path = filedialog.asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG", "*.png"), ("All files", "*.*")],
+            title="Exportar payoff como PNG",
+            parent=self.winfo_toplevel(),
+        )
+
+        if not file_path:
+            self._safe_status("Exportacao PNG cancelada")
+            return
+
+        try:
+            fig.savefig(file_path, dpi=150, bbox_inches="tight")
+            self._safe_status("Payoff exportado em PNG")
+            messagebox.showinfo(
+                "Exportar PNG",
+                f"Grafico salvo em {file_path}",
+                parent=self.winfo_toplevel(),
+            )
+        except Exception as exc:
+            self._safe_status("Erro ao exportar PNG")
+            messagebox.showerror(
+                "Erro ao exportar PNG",
+                f"Erro ao salvar: {exc}",
+                parent=self.winfo_toplevel(),
+            )
 
     # BEGIN AUTO STRUCTURE SIDE ACTIONS
     def _safe_status(self, message: str) -> None:

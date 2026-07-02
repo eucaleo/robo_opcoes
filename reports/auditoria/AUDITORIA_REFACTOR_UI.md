@@ -963,3 +963,24 @@ Localizar apenas pontos relevantes da UI relacionados a gráfico, canvas, arquiv
 Esta etapa não altera código funcional.
 
 O patch de exportação PNG só deve ser feito após identificar o arquivo alvo.
+
+## 22. Exportação PNG no painel dark
+
+Foi implementada exportação PNG do gráfico de Payoff no painel dark.
+
+Relatório gerado:
+
+- reports/ui_modern_equivalence/05_exportacao_png_dark_panel.md
+
+### 22.1. Arquivos alterados
+
+- UI/components/terminal_vwap_payoff_dark_panel.py
+- ui/components/terminal_vwap_payoff_dark_panel.py
+
+### 22.2. Decisão de segurança
+
+O patch é isolado na UI dark.
+
+Não altera banco, contratos canônicos, decisões ou cálculo.
+
+A UI atual permanece como caminho principal.
