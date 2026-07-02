@@ -30,13 +30,18 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         data_model,
         on_status: Optional[Callable[[str], None]] = None,
         on_load_structure: Optional[Callable[[Any], None]] = None,
+        get_structures: Optional[Callable[[], List[Dict[str, Any]]]] = None,
     ) -> None:
         super().__init__(parent, fg_color="#0f172a")
 
         self.data_model = data_model
         self.on_status = on_status
         self.on_load_structure = on_load_structure
+        self.get_structures = get_structures
         self.decisions: List[Dict[str, Any]] = []
+        self.filtered_decisions: List[Dict[str, Any]] = []
+        self.structure_index: Dict[str, Dict[str, Any]] = {}
+        self.active_structure_ids: set[str] = set()
         self.selected_index: Optional[int] = None
         self._row_buttons: List[ctk.CTkButton] = []
 
@@ -56,6 +61,8 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         header = ctk.CTkFrame(self, fg_color="#111827")
         header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 6))
         header.grid_columnconfigure(0, weight=1)
+        header.grid_columnconfigure(1, weight=0)
+        header.grid_columnconfigure(2, weight=0)
 
         title = ctk.CTkLabel(
             header,
@@ -81,6 +88,25 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             command=self.reload_decisions,
         )
         refresh_btn.grid(row=0, column=2, sticky="e", padx=(4, 12), pady=10)
+
+        self.search_entry = ctk.CTkEntry(
+            header,
+            placeholder_text="Buscar por ID ou nome da estrutura ativa...",
+            height=32,
+        )
+        self.search_entry.grid(row=1, column=0, columnspan=2, sticky="ew", padx=(12, 4), pady=(0, 10))
+        self.search_entry.bind("<KeyRelease>", self._on_search_changed)
+
+        clear_search_btn = ctk.CTkButton(
+            header,
+            text="Limpar",
+            width=120,
+            height=32,
+            fg_color="#374151",
+            hover_color="#4b5563",
+            command=self._clear_search,
+        )
+        clear_search_btn.grid(row=1, column=2, sticky="e", padx=(4, 12), pady=(0, 10))
 
         self.list_frame = ctk.CTkScrollableFrame(
             self,
@@ -122,12 +148,25 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             decisions = self.data_model.get_decisions()
             self.decisions = list(decisions or [])
             self.selected_index = None
+            self._refresh_structure_index()
+            self._apply_filter(render=False)
 
             self._render_rows()
 
-            if self.decisions:
+            if self.filtered_decisions:
                 self._select_decision(0)
-                self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
+                if len(self.filtered_decisions) == len(self.decisions):
+                    self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
+                else:
+                    self._status(
+                        f"{len(self.filtered_decisions)} de {len(self.decisions)} decisões exibidas"
+                    )
+            elif self.decisions:
+                self.load_structure_btn.configure(state="disabled")
+                self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
+                self._status(
+                    f"Filtro sem resultados: 0 de {len(self.decisions)} decisões exibidas"
+                )
             else:
                 self.load_structure_btn.configure(state="disabled")
                 self._set_detail_text("Nenhuma decisão encontrada.")
@@ -135,6 +174,9 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         except Exception as exc:
             self.decisions = []
+            self.filtered_decisions = []
+            self.structure_index = {}
+            self.active_structure_ids = set()
             self.selected_index = None
             self._render_rows()
             self._set_detail_text(f"Erro ao carregar decisões:\n\n{exc}")
@@ -146,16 +188,20 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         self._row_buttons = []
 
-        if not self.decisions:
+        if not self.filtered_decisions:
+            empty_text = "Nenhuma decisão disponível."
+            if self.decisions:
+                empty_text = "Nenhuma decisão encontrada para o filtro atual."
+
             empty = ctk.CTkLabel(
                 self.list_frame,
-                text="Nenhuma decisão disponível.",
+                text=empty_text,
                 text_color="#9ca3af",
             )
             empty.pack(fill="x", padx=8, pady=8)
             return
 
-        visible = self.decisions[:300]
+        visible = self.filtered_decisions[:300]
 
         for index, decision in enumerate(visible):
             btn = ctk.CTkButton(
@@ -171,24 +217,198 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             btn.pack(fill="x", padx=6, pady=3)
             self._row_buttons.append(btn)
 
-        if len(self.decisions) > len(visible):
+        if len(self.filtered_decisions) > len(visible):
             more = ctk.CTkLabel(
                 self.list_frame,
-                text=f"Exibindo 300 de {len(self.decisions)} decisões.",
+                text=f"Exibindo 300 de {len(self.filtered_decisions)} decisões filtradas.",
                 text_color="#fbbf24",
             )
             more.pack(fill="x", padx=8, pady=8)
+
+    def _on_search_changed(self, _event=None) -> None:
+        self._apply_filter(render=True)
+
+    def _clear_search(self) -> None:
+        self.search_entry.delete(0, "end")
+        self._apply_filter(render=True)
+
+    def _refresh_structure_index(self) -> None:
+        """
+        Monta indice local de estruturas para:
+        - filtrar somente decisoes de estruturas ativas;
+        - permitir busca por ID ou nome da estrutura.
+        """
+        structures: List[Dict[str, Any]] = []
+
+        if self.get_structures:
+            try:
+                structures = list(self.get_structures() or [])
+            except Exception as exc:
+                self._status(f"Erro ao carregar estruturas para filtro de decisões: {exc}")
+                structures = []
+
+        self.structure_index = {}
+        self.active_structure_ids = set()
+
+        for structure in structures:
+            structure_id = structure.get("id")
+            if structure_id is None:
+                structure_id = structure.get("structure_id") or structure.get("aba")
+
+            if structure_id is None:
+                continue
+
+            key = str(structure_id)
+            self.structure_index[key] = structure
+
+            if self._is_active_structure(structure):
+                self.active_structure_ids.add(key)
+
+        # Fallback seguro: se nao houver informacao de estruturas, nao bloqueia a lista.
+        if not structures:
+            ids = {
+                str(decision.get("structure_id") or decision.get("aba"))
+                for decision in self.decisions
+                if decision.get("structure_id") is not None or decision.get("aba") is not None
+            }
+            self.active_structure_ids = ids
+
+    def _is_active_structure(self, structure: Dict[str, Any]) -> bool:
+        """
+        Heuristica defensiva para identificar estrutura ativa sem depender
+        de um unico nome de campo.
+        """
+        for key in ("active", "is_active", "ativo", "enabled"):
+            if key in structure:
+                value = structure.get(key)
+                if isinstance(value, str):
+                    return value.strip().lower() not in {"0", "false", "falso", "no", "nao", "não"}
+                return bool(value)
+
+        status = (
+            structure.get("status")
+            or structure.get("state")
+            or structure.get("situacao")
+            or structure.get("situação")
+            or ""
+        )
+
+        if status:
+            normalized = str(status).strip().lower()
+            inactive_values = {
+                "inactive",
+                "inativo",
+                "inativa",
+                "closed",
+                "fechado",
+                "fechada",
+                "encerrado",
+                "encerrada",
+                "finalizado",
+                "finalizada",
+                "archived",
+                "arquivado",
+                "arquivada",
+                "deleted",
+                "removido",
+                "removida",
+                "cancelado",
+                "cancelada",
+            }
+            return normalized not in inactive_values
+
+        # Se nao houver campo de status, assume ativa para preservar compatibilidade.
+        return True
+
+    def _apply_filter(self, render: bool = True) -> None:
+        query = ""
+        if hasattr(self, "search_entry"):
+            query = self.search_entry.get().strip().lower()
+
+        self.selected_index = None
+
+        active_decisions = [
+            decision
+            for decision in self.decisions
+            if self._decision_structure_id(decision) in self.active_structure_ids
+        ]
+
+        if not query:
+            self.filtered_decisions = active_decisions
+        else:
+            terms = [term for term in query.split() if term]
+            self.filtered_decisions = [
+                decision
+                for decision in active_decisions
+                if self._decision_matches_filter(decision, terms)
+            ]
+
+        if render:
+            self._render_rows()
+
+            if self.filtered_decisions:
+                self._select_decision(0)
+            else:
+                self.load_structure_btn.configure(state="disabled")
+                if active_decisions:
+                    self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
+                    self._status(
+                        f"Filtro sem resultados: 0 de {len(active_decisions)} decisões de estruturas ativas"
+                    )
+                else:
+                    self._set_detail_text("Nenhuma decisão de estrutura ativa encontrada.")
+                    self._status("Nenhuma decisão de estrutura ativa encontrada no modo dark")
+
+    def _decision_matches_filter(self, decision: Dict[str, Any], terms: List[str]) -> bool:
+        blob = self._decision_search_blob(decision)
+        return all(term in blob for term in terms)
+
+    def _decision_structure_id(self, decision: Dict[str, Any]) -> str:
+        structure_id = decision.get("structure_id")
+        if structure_id is None:
+            structure_id = decision.get("aba")
+        return str(structure_id)
+
+    def _decision_search_blob(self, decision: Dict[str, Any]) -> str:
+        """
+        Busca intencionalmente restrita:
+        - ID da estrutura;
+        - nome/rotulo/descricao da estrutura.
+        """
+        structure_id = self._decision_structure_id(decision)
+        structure = self.structure_index.get(structure_id, {})
+
+        parts: List[str] = [structure_id]
+
+        for key in (
+            "name",
+            "nome",
+            "label",
+            "title",
+            "titulo",
+            "título",
+            "description",
+            "descricao",
+            "descrição",
+            "structure_name",
+            "nome_estrutura",
+            "estrutura",
+        ):
+            if key in structure and structure.get(key) is not None:
+                parts.append(str(structure.get(key)))
+
+        return " ".join(parts).lower()
 
     def _load_selected_structure(self) -> None:
         if self.selected_index is None:
             self._status("Nenhuma decisão selecionada para carregar estrutura")
             return
 
-        if self.selected_index < 0 or self.selected_index >= len(self.decisions):
+        if self.selected_index < 0 or self.selected_index >= len(self.filtered_decisions):
             self._status("Seleção de decisão inválida")
             return
 
-        decision = self.decisions[self.selected_index]
+        decision = self.filtered_decisions[self.selected_index]
         structure_id = decision.get("structure_id") or decision.get("aba")
 
         if structure_id is None:
@@ -202,7 +422,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.on_load_structure(structure_id)
 
     def _select_decision(self, index: int) -> None:
-        if index < 0 or index >= len(self.decisions):
+        if index < 0 or index >= len(self.filtered_decisions):
             return
 
         self.selected_index = index
@@ -213,7 +433,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             else:
                 btn.configure(fg_color="#111827", hover_color="#1f2937")
 
-        decision = self.decisions[index]
+        decision = self.filtered_decisions[index]
         self._set_detail_text(self._format_detail(decision))
 
         structure_id = decision.get("structure_id") or decision.get("aba") or "N/A"
@@ -222,11 +442,18 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         else:
             self.load_structure_btn.configure(state="disabled")
         decision_text = decision.get("decision", "N/A")
-        self._status(f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}")
+        if len(self.filtered_decisions) == len(self.decisions):
+            self._status(f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}")
+        else:
+            self._status(
+                f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
+                f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
+            )
 
     def _format_row(self, decision: Dict[str, Any], index: int) -> str:
         timestamp = decision.get("timestamp") or decision.get("created_at") or "sem timestamp"
         structure_id = decision.get("structure_id") or decision.get("aba") or "N/A"
+        structure_name = self._structure_display_name(structure_id)
         decision_text = decision.get("decision") or "N/A"
         level = decision.get("level", "")
         dte = decision.get("dte_min", "")
@@ -234,9 +461,30 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         return (
             f"{index + 1:03d} | {timestamp} | "
-            f"estrutura {structure_id} | {decision_text} | "
+            f"estrutura {structure_id} {structure_name} | {decision_text} | "
             f"nivel {level} | dte {dte} | pl% {ratio}"
         )
+
+    def _structure_display_name(self, structure_id: Any) -> str:
+        structure = self.structure_index.get(str(structure_id), {})
+        for key in (
+            "name",
+            "nome",
+            "label",
+            "title",
+            "titulo",
+            "título",
+            "description",
+            "descricao",
+            "descrição",
+            "structure_name",
+            "nome_estrutura",
+            "estrutura",
+        ):
+            value = structure.get(key)
+            if value:
+                return f"({value})"
+        return ""
 
     def _format_detail(self, decision: Dict[str, Any]) -> str:
         lines = []
