@@ -1684,3 +1684,244 @@ Campos sugeridos para busca:
 
 Essa frente tem baixo risco, melhora bastante a usabilidade e nao exige alteracao de banco nem regra de negocio.
 
+---
+
+## 34. Busca por estrutura ativa na aba Decisoes dark
+
+### 34.1. Objetivo
+
+Adicionar busca textual na aba Decisoes do modo dark, mantendo o escopo operacional correto:
+
+- buscar por ID da estrutura;
+- buscar por nome da estrutura;
+- exibir somente decisoes associadas a estruturas ativas;
+- evitar busca em campos ruidosos como timestamp, rationale, why, level ou demais metadados internos.
+
+A frente evoluiu diretamente a entrega da secao 33, que havia conectado a decisao selecionada ao carregamento da estrutura no Terminal VWAP.
+
+### 34.2. Problema identificado
+
+A primeira versao da busca textual foi ampla demais.
+
+Ela permitia procurar em muitos campos da decisao, incluindo:
+
+- timestamp;
+- decision;
+- level;
+- rationale;
+- why;
+- why_json;
+- demais chaves internas do registro.
+
+Durante o teste manual, foi observado que isso gerava comportamento confuso:
+
+- buscas por timestamp dependiam de sequencias numericas longas e pouco previsiveis;
+- numeros soltos podiam coincidir com campos internos sem significado operacional;
+- a busca deixava de refletir o uso real esperado na tela;
+- o usuario precisava localizar decisoes a partir da estrutura, nao a partir dos metadados da decisao.
+
+A diretriz operacional validada foi:
+
+- a busca da aba Decisoes deve localizar decisoes por estrutura;
+- estrutura significa ID ou nome;
+- estruturas inativas nao devem participar da listagem principal.
+
+### 34.3. Decisao tecnica
+
+Foi mantido o componente DecisionsDarkPanel desacoplado do Terminal VWAP.
+
+Para permitir que o painel de decisoes conheca as estruturas ativas sem acessar diretamente o terminal, foi criado callback opcional:
+
+- get_structures
+
+Responsabilidades:
+
+- dark_window.py fornece as estruturas carregadas no Terminal VWAP;
+- DecisionsDarkPanel monta indice local structure_id -> structure;
+- DecisionsDarkPanel identifica estruturas ativas;
+- DecisionsDarkPanel filtra decisoes com base nesse indice;
+- DecisionsDarkPanel restringe a busca ao ID e nome/rotulo/descricao da estrutura.
+
+Essa abordagem preserva:
+
+- baixo acoplamento;
+- ausencia de alteracao no banco;
+- ausencia de alteracao em regras de negocio;
+- compatibilidade com o fluxo ja existente do Terminal VWAP.
+
+### 34.4. Implementacao realizada
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+Principais mudancas:
+
+- adicionado atributo filtered_decisions;
+- adicionado indice structure_index;
+- adicionado conjunto active_structure_ids;
+- adicionado campo de busca no cabecalho;
+- adicionado botao Limpar;
+- listagem passou a renderizar filtered_decisions;
+- selecao passou a operar sobre filtered_decisions;
+- carregamento da estrutura passou a usar a decisao filtrada selecionada;
+- busca passou a ser aplicada em tempo real no evento KeyRelease;
+- busca foi restringida a ID e nome/rotulo/descricao da estrutura;
+- decisoes de estruturas inativas passaram a ser excluidas da listagem.
+
+Campos considerados para nome/rotulo da estrutura:
+
+- name;
+- nome;
+- label;
+- title;
+- titulo;
+- título;
+- description;
+- descricao;
+- descrição;
+- structure_name;
+- nome_estrutura;
+- estrutura.
+
+Campos considerados para status ativo/inativo de forma defensiva:
+
+- active;
+- is_active;
+- ativo;
+- enabled;
+- status;
+- state;
+- situacao;
+- situação.
+
+Valores tratados como inativos incluem:
+
+- inactive;
+- inativo;
+- inativa;
+- closed;
+- fechado;
+- fechada;
+- encerrado;
+- encerrada;
+- finalizado;
+- finalizada;
+- archived;
+- arquivado;
+- arquivada;
+- deleted;
+- removido;
+- removida;
+- cancelado;
+- cancelada.
+
+Arquivo alterado:
+
+- UI/modern/dark_window.py
+
+Principais mudancas:
+
+- DecisionsDarkPanel passou a receber get_structures=self._get_structures_for_decisions;
+- criado helper _get_structures_for_decisions;
+- helper retorna self.panel.structures;
+- se necessario, tenta recarregar estruturas via reload_structures.
+
+### 34.5. Comportamento funcional validado
+
+A aba Decisoes passou a apresentar busca ativa caractere a caractere.
+
+Comportamento validado:
+
+- buscar por ID da estrutura funciona;
+- buscar por nome da estrutura funciona;
+- busca por trechos do nome funciona;
+- a listagem considera somente estruturas ativas;
+- a selecao continua funcionando apos filtro;
+- o botao "Carregar estrutura no Terminal" continua funcionando;
+- ao carregar estrutura a partir da decisao, a UI alterna corretamente para o Terminal VWAP;
+- a busca nao depende mais de timestamp nem campos internos ruidosos.
+
+Exemplo validado:
+
+- nome de estrutura no teste: SBSP+SMAL=BOVA;
+- busca por ID funcionou;
+- busca por nome/trecho funcionou;
+- log indicou reducao da lista exibida para decisoes de estruturas ativas.
+
+### 34.6. Validacao tecnica
+
+Comandos executados:
+
+- python -m py_compile UI/components/decisions_dark_panel.py UI/modern/dark_window.py
+- python -m UI.modern
+
+Resultado:
+
+- compilacao sem erro;
+- aplicacao abriu no modo dark;
+- Terminal VWAP carregou estruturas;
+- aba Decisoes carregou decisoes;
+- filtro textual funcionou em tempo real;
+- carregamento de estrutura a partir da decisao continuou funcional.
+
+Logs observados:
+
+- [ModernDarkUI] 4 estruturas carregadas
+- [ModernDarkUI] 8 decisões carregadas no modo dark
+- [ModernDarkUI] Decisão selecionada: estrutura=2, decisão=HOLD (3 de 8 exibidas)
+- [ModernDarkUI] Estrutura carregada: ID 2
+- [ModernDarkUI] Estrutura 2 carregada a partir da decisão
+
+### 34.7. Commit funcional associado
+
+Commit:
+
+- bceedfa feat/ui): adiciona busca por estrutura ativa em decisoes dark
+
+Observacao:
+
+- a mensagem do commit foi publicada com pequeno desvio no padrao conventional commit: feat/ui) em vez de feat(ui);
+- como o commit ja foi enviado ao repositorio remoto, nao foi reescrito historico apenas por esse detalhe.
+
+Tag:
+
+- checkpoint-modern-decisions-active-structure-search-dark
+
+### 34.8. Resultado funcional
+
+A UI dark passa a oferecer um fluxo operacional mais consistente para decisoes:
+
+- listar decisoes relevantes;
+- restringir a exibicao a estruturas ativas;
+- buscar rapidamente por ID ou nome da estrutura;
+- selecionar uma decisao;
+- carregar a estrutura associada diretamente no Terminal VWAP.
+
+A busca deixou de ser generica e passou a refletir o fluxo real de uso da tela.
+
+### 34.9. Pendencias conhecidas
+
+Ainda nao foram implementados nesta frente:
+
+- exportacao CSV da listagem filtrada;
+- filtros avancados equivalentes ao FiltersPanel legado;
+- grid completo equivalente ao DecisionsGrid legado;
+- painel completo equivalente ao DetailsPanel legado;
+- destaque visual persistente da decisao ja carregada;
+- acao inversa Terminal VWAP -> Decisoes filtradas pela estrutura selecionada;
+- testes automatizados especificos para DecisionsDarkPanel.
+
+### 34.10. Proxima frente recomendada
+
+A proxima frente recomendada e uma das seguintes, em ordem sugerida:
+
+1. exportar CSV da listagem filtrada de decisoes no modo dark;
+2. enriquecer o detalhe da decisao com nome da estrutura e status ativo;
+3. adicionar acao Terminal VWAP -> Decisoes filtradas pela estrutura selecionada;
+4. iniciar equivalencia parcial com o DetailsPanel legado.
+
+Prioridade recomendada:
+
+- implementar exportacao CSV da listagem filtrada, pois reaproveita filtered_decisions, tem baixo risco e melhora a utilidade operacional da aba Decisoes sem alterar banco nem regra de negocio.
+
