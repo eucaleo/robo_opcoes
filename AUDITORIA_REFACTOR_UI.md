@@ -273,3 +273,287 @@ A classificacao nao altera:
 ### 39.5. Proximo passo
 
 Revisar o relatorio tecnico e, se confirmado, abrir patch funcional minimo para filtros simples na aba Decisoes dark.
+
+---
+
+## 35. Filtros simples e estabilizacao da selecao de decisoes no modo dark
+
+### 35.1. Objetivo
+
+Avancar a equivalencia parcial da aba Decisoes no modo dark, adicionando filtros simples e corrigindo problemas operacionais de selecao, detalhe e mensagens de status.
+
+Esta rodada continua a evolucao iniciada nas secoes anteriores sobre:
+
+- listagem global de decisoes;
+- selecao de decisao;
+- detalhe textual;
+- carregamento da estrutura da decisao no Terminal VWAP;
+- busca por estrutura ativa.
+
+### 35.2. Restricoes preservadas
+
+As alteracoes desta rodada preservaram as restricoes arquiteturais do projeto:
+
+- a UI atual nao foi eliminada;
+- o modo dark permanece como UI moderna paralela;
+- nao houve migracao para web;
+- nao houve alteracao de banco;
+- nao houve sincronismo continuo entre derived.db e app.db;
+- nao houve recriacao de regra de negocio na UI;
+- nao houve alteracao em repositories, services ou controllers;
+- os contratos canonicos foram preservados.
+
+### 35.3. Inventario e classificacao de filtros avancados
+
+Antes da implementacao dos filtros simples, foram registradas etapas documentais de inventario e classificacao dos filtros avancados de decisoes no modo dark.
+
+Commits associados:
+
+- b5ec20c docs(ui): abre inventario de filtros avancados de decisoes dark
+- d23f8ef docs(ui): classifica filtros avancados de decisoes dark
+
+Tags associadas:
+
+- checkpoint-modern-decisions-advanced-filters-dark-inventory
+- checkpoint-modern-decisions-advanced-filters-dark-classification
+
+Decisao registrada:
+
+- filtros avancados completos nao deveriam ser implementados de uma vez;
+- a proxima entrega funcional deveria ser pequena;
+- o primeiro passo funcional seria adicionar filtros simples de baixo risco.
+
+### 35.4. Implementacao de filtros simples
+
+Foi implementada evolucao funcional no componente:
+
+- UI/components/decisions_dark_panel.py
+
+Funcionalidades adicionadas ou estabilizadas:
+
+- filtro textual por estrutura ativa;
+- filtro por decisao;
+- filtro numerico minimo por level;
+- filtro numerico maximo por DTE;
+- limpeza dos filtros;
+- preservacao da listagem filtrada;
+- selecao operando sobre filtered_decisions;
+- detalhe textual sincronizado com a decisao filtrada;
+- botao de carregar estrutura preservado no fluxo filtrado.
+
+Commit associado:
+
+- a137c1e feat(ui): adiciona filtros simples em decisoes dark
+
+Tag associada:
+
+- checkpoint-modern-decisions-simple-filters-dark
+
+### 35.5. Correcao de detalhe sem selecao
+
+Foi corrigido comportamento no qual o painel de detalhe poderia ser acessado em situacao sem selecao valida.
+
+A correcao tornou o fluxo mais defensivo em relacao a:
+
+- selected_index ausente;
+- selected_index fora da faixa;
+- lista filtrada vazia;
+- tentativa de copiar detalhe sem decisao valida.
+
+Commit associado:
+
+- 2ce94a6 fix(ui): corrige detalhe de decisao sem selecao
+
+Tag associada:
+
+- checkpoint-modern-decisions-simple-filters-dark-selection-fix
+
+### 35.6. Dedupe de status de selecao
+
+Foi corrigido excesso de mensagens repetidas de status quando a mesma decisao era selecionada repetidamente.
+
+Problema observado:
+
+- a UI registrava status repetido para a mesma selecao;
+- isso gerava ruido no console operacional;
+- a mensagem de selecao deveria ser emitida apenas quando o texto de status mudasse.
+
+Correcao aplicada:
+
+- criado controle interno para evitar emissao duplicada consecutiva do mesmo status de selecao.
+
+Commit associado:
+
+- 436b168 fix(ui): evita status duplicado em decisoes dark
+
+Tag associada:
+
+- checkpoint-modern-decisions-dark-dedupe-selection-status
+
+### 35.7. Centralizacao do status de selecao
+
+Foi aplicada refatoracao pequena para centralizar o controle de status de selecao em helper dedicado.
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+Helper criado:
+
+- _status_selected_decision
+
+Objetivo:
+
+- reduzir duplicacao;
+- concentrar a regra de dedupe;
+- manter _select_decision mais legivel;
+- facilitar manutencao futura.
+
+Commit associado:
+
+- 954585c refactor(ui): centraliza status de selecao em decisoes dark
+
+Tag associada:
+
+- checkpoint-modern-decisions-dark-selection-status-helper
+
+### 35.8. Inicializacao explicita do estado de status
+
+Foi inicializado explicitamente no construtor o estado interno usado para deduplicar status de selecao.
+
+Estado adicionado:
+
+- self._last_decision_status_text: Optional[str] = None
+
+Motivo:
+
+- evitar atributo implicito criado apenas durante o fluxo;
+- tornar o estado do painel mais previsivel;
+- reduzir risco de manutencao futura.
+
+Commit associado:
+
+- d4ab1be refactor(ui): inicializa status de selecao em decisoes dark
+
+Tag associada:
+
+- checkpoint-modern-decisions-dark-selection-status-state
+
+### 35.9. Validacoes executadas
+
+Validacoes executadas ao longo da rodada:
+
+- python -m py_compile UI/components/decisions_dark_panel.py
+- git diff --check
+- git diff --cached --check
+- python -m UI.modern
+
+Resultados observados:
+
+- UI moderna abriu em modo dark;
+- estruturas reais foram carregadas;
+- decisoes foram carregadas no modo dark;
+- filtros simples permaneceram funcionais;
+- selecao de decisoes funcionou;
+- detalhe da decisao foi atualizado;
+- copia do detalhe funcionou;
+- carregamento de estrutura a partir da decisao funcionou;
+- Terminal VWAP recebeu a estrutura carregada;
+- mensagens duplicadas consecutivas de mesma selecao foram evitadas.
+
+### 35.10. Estado atual apos a rodada
+
+Checkpoint atual da main:
+
+- d4ab1be refactor(ui): inicializa status de selecao em decisoes dark
+
+Tag atual:
+
+- checkpoint-modern-decisions-dark-selection-status-state
+
+A aba Decisoes do modo dark possui agora equivalencia parcial mais robusta:
+
+- listagem global;
+- filtros simples;
+- selecao;
+- detalhe;
+- copia de detalhe;
+- carregamento da estrutura no Terminal VWAP;
+- controle de status sem repeticao consecutiva.
+
+### 35.11. Pendencia tecnica identificada
+
+Foi identificada uma pendencia pequena de robustez:
+
+- quando a selecao e limpa com selected_index = None, o cache _last_decision_status_text permanece com o ultimo texto.
+
+Risco:
+
+- baixo;
+- nao quebra o fluxo atual;
+- mas deixa estado antigo preservado apos limpeza da selecao.
+
+Proxima correcao recomendada:
+
+- centralizar a limpeza de selecao em helper;
+- ao limpar selected_index, tambem limpar _last_decision_status_text;
+- aplicar apenas em UI/components/decisions_dark_panel.py;
+- validar com py_compile e python -m UI.modern.
+
+## 36. Rota alinhada para a proxima frente
+
+### 36.1. Proxima frente recomendada
+
+Frente recomendada:
+
+- resetar estado de status quando a selecao de decisao for limpa.
+
+Escopo permitido:
+
+- UI/components/decisions_dark_panel.py
+
+Objetivo:
+
+- substituir pontos diretos de selected_index = None por helper local;
+- garantir que _last_decision_status_text tambem seja limpo;
+- preservar comportamento visual e funcional atual.
+
+### 36.2. Restricoes da proxima frente
+
+A proxima frente nao deve:
+
+- alterar banco;
+- alterar repositories;
+- alterar services;
+- alterar controllers;
+- alterar contratos canonicos;
+- recriar regra de negocio na UI;
+- alterar layout funcional;
+- trocar entrypoint;
+- eliminar UI atual.
+
+### 36.3. Validacoes obrigatorias da proxima frente
+
+Validacoes obrigatorias:
+
+- python -m py_compile UI/components/decisions_dark_panel.py
+- git diff --check
+- python -m UI.modern
+
+Validacao manual minima:
+
+- abrir aba Decisoes;
+- selecionar decisao;
+- aplicar filtro sem resultado;
+- limpar filtro;
+- selecionar decisao novamente;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+Resultado esperado:
+
+- nenhuma regressao;
+- selecao limpa corretamente;
+- status continua sem duplicacao consecutiva;
+- carregamento de estrutura permanece funcional.
+
