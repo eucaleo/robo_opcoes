@@ -972,10 +972,10 @@ Relatório gerado:
 
 - reports/ui_modern_equivalence/05_exportacao_png_dark_panel.md
 
-### 22.1. Arquivos alterados
+### 22.1. Arquivos verificados
 
-- UI/components/terminal_vwap_payoff_dark_panel.py
-- ui/components/terminal_vwap_payoff_dark_panel.py
+- UI/components/terminal_vwap_payoff_dark_panel.py alterado nesta rodada
+- ui/components/terminal_vwap_payoff_dark_panel.py já possuía implementação equivalente
 
 ### 22.2. Decisão de segurança
 

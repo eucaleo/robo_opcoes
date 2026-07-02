@@ -6,10 +6,10 @@ Data de referência: 2026-07-02
 
 Implementar exportação PNG do gráfico de Payoff no modo dark.
 
-## Arquivos alterados
+## Arquivos verificados
 
-- UI/components/terminal_vwap_payoff_dark_panel.py
-- ui/components/terminal_vwap_payoff_dark_panel.py
+- UI/components/terminal_vwap_payoff_dark_panel.py alterado nesta rodada
+- ui/components/terminal_vwap_payoff_dark_panel.py já possuía implementação equivalente
 
 ## Decisão técnica
 
