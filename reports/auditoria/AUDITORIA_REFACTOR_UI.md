@@ -515,3 +515,180 @@ Sequência recomendada:
 7. Rodar testes.
 8. Trocar entrypoint somente após equivalência funcional mínima.
 
+
+## 15. Evolução executada após autorização do shell visual paralelo
+
+Após a diretriz registrada na seção 14.4, foi iniciada a preparação do novo shell visual em paralelo, sem eliminar a UI atual.
+
+A implementação seguiu a restrição principal da auditoria:
+
+- a UI atual não foi removida;
+- a regra de negócio não foi recriada na camada visual;
+- os launchers antigos foram preservados;
+- a evolução foi feita em checkpoints pequenos e rastreáveis;
+- o novo layout moderno permanece paralelo até equivalência funcional mínima.
+
+### 15.1. Checkpoints criados nesta frente
+
+Foram criados os seguintes checkpoints locais:
+
+- checkpoint-ui-audit-before-new-layout
+- checkpoint-modern-ui-shell-opens
+- checkpoint-modern-dark-ui-opens
+- checkpoint-modern-unified-entrypoint
+- checkpoint-modern-package-entrypoint
+- checkpoint-modern-launcher-info
+
+Commits associados na branch atual:
+
+- bbd71f2 docs: registra auditoria e diretriz do novo layout desktop
+- 05853ce docs: adiciona auditoria visual da UI atual
+- ebcd5b3 feat(ui): adiciona shell paralelo para novo layout desktop
+- 9402a43 feat(ui): adiciona launcher paralelo para layout dark
+- 037fed2 feat(ui): adiciona entrypoint moderno unificado
+- 8492f4b feat(ui): permite executar pacote moderno diretamente
+- 38c2ff1 feat(ui): adiciona diagnostico ao launcher moderno
+
+### 15.2. Estado atual da UI moderna
+
+Foi criado um pacote moderno executável diretamente por módulo Python.
+
+Comando canônico atual:
+
+- python -m UI.modern
+
+Modos disponíveis:
+
+- python -m UI.modern --mode dark
+- python -m UI.modern --mode shell
+
+Diagnóstico disponível sem abrir janela:
+
+- python -m UI.modern --info
+- python -m UI.modern --mode shell --theme clean --info
+
+O modo padrão atual é:
+
+- dark
+
+O módulo aberto por padrão é:
+
+- UI.modern.dark_window
+
+O modo shell permanece disponível como referência temporária:
+
+- UI.modern.main_window
+
+### 15.3. Decisão arquitetural sobre entrypoint moderno
+
+Decisão registrada:
+
+- UI.modern passa a ser o ponto de entrada canônico da UI moderna em paralelo.
+- O modo dark é a base visual preferencial em evolução.
+- O modo shell permanece como referência temporária para comparação e preservação de direção.
+- Nenhum dos dois substitui a UI atual até validação funcional mínima.
+- Novas features não devem ser adicionadas ao shell temporário sem decisão documentada.
+- A evolução visual deve convergir para o modo dark ou para um sucessor documentado dele.
+
+### 15.4. Regras de continuidade a partir deste ponto
+
+Antes de novas alterações em layout, tema, navegação, painel lateral, payoff, VWAP, estruturas ou terminal:
+
+- consultar este documento;
+- verificar os checkpoints existentes;
+- conferir se a alteração preserva a diretriz da seção 14.2;
+- não remover função operacional sem decisão explícita;
+- não duplicar regra de negócio na UI;
+- não alterar banco junto com layout sem fase específica;
+- atualizar esta auditoria após cada checkpoint relevante.
+
+### 15.5. Validações executadas
+
+Foram executadas validações de sintaxe e abertura dos entrypoints modernos.
+
+Validação de compilação:
+
+- python -m py_compile UI/modern/__main__.py UI/modern/app.py UI/modern/theme.py
+
+Validação do pacote moderno:
+
+- python -m UI.modern
+
+Resultado observado:
+
+- abertura da UI moderna em modo dark;
+- carregamento de estruturas reais;
+- log indicando ModernDarkUI com estruturas carregadas.
+
+Validação do modo shell:
+
+- python -m UI.modern --mode shell
+
+Resultado observado:
+
+- abertura do shell moderno;
+- uso do banco derived.db;
+- uso do contrato canônico para payoff_curve_points.
+
+Validação do diagnóstico:
+
+- python -m UI.modern --info
+- python -m UI.modern --mode shell --theme clean --info
+
+Resultado observado:
+
+- impressão de mode;
+- impressão de theme;
+- impressão de appearance_mode;
+- impressão de module;
+- impressão de project_root;
+- impressão de python;
+- impressão de python_version;
+- impressão de platform.
+
+### 15.6. Pendências abertas da frente moderna
+
+Pendência 1:
+
+- Consolidar a tabela mestre da UI atual prevista na seção 10.
+
+Pendência 2:
+
+- Mapear explicitamente quais funções da UI atual já aparecem no novo layout moderno e quais ainda faltam.
+
+Pendência 3:
+
+- Classificar os tokens visuais hardcoded do arquivo UI/modern/dark_window.py.
+
+Pendência 4:
+
+- Integrar gradualmente UI/modern/theme.py ao layout dark, sem alterar regra de negócio.
+
+Pendência 5:
+
+- Preservar ou realocar filtros, tabela de decisões, payoff, comparação Curva A, exportação PNG, CRUD de estruturas e Terminal VWAP Payoff.
+
+Pendência 6:
+
+- Definir critério objetivo para considerar o modo dark equivalente o suficiente para substituir o shell temporário.
+
+### 15.7. Próxima etapa autorizada
+
+A próxima etapa autorizada não é eliminar a UI atual.
+
+A próxima etapa autorizada é documental e de mapeamento:
+
+1. atualizar esta auditoria com o estado da UI moderna;
+2. criar ou complementar a tabela mestre de equivalência funcional;
+3. mapear funções preservadas, ausentes e realocadas;
+4. somente depois iniciar a troca de tokens visuais hardcoded por tema centralizado.
+
+A próxima alteração de código recomendada, após esta atualização documental, será pequena e restrita:
+
+- inventariar cores e estilos hardcoded em UI/modern/dark_window.py;
+- substituir apenas tokens visuais por chamadas ao tema central;
+- não mudar layout funcional;
+- não mudar banco;
+- não mudar regra de negócio;
+- validar com python -m UI.modern, python -m UI.modern --info e py_compile.
+
