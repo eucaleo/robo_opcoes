@@ -13,8 +13,11 @@ Escopo intencionalmente pequeno:
 
 from __future__ import annotations
 
+import csv
 import json
+from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional
+from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
 
@@ -63,6 +66,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         header.grid_columnconfigure(0, weight=1)
         header.grid_columnconfigure(1, weight=0)
         header.grid_columnconfigure(2, weight=0)
+        header.grid_columnconfigure(3, weight=0)
 
         title = ctk.CTkLabel(
             header,
@@ -81,20 +85,30 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         self.load_structure_btn.grid(row=0, column=1, sticky="e", padx=(8, 4), pady=10)
 
+        export_csv_btn = ctk.CTkButton(
+            header,
+            text="Exportar CSV",
+            width=120,
+            fg_color="#166534",
+            hover_color="#15803d",
+            command=self._export_filtered_csv,
+        )
+        export_csv_btn.grid(row=0, column=2, sticky="e", padx=(4, 4), pady=10)
+
         refresh_btn = ctk.CTkButton(
             header,
             text="Atualizar",
             width=120,
             command=self.reload_decisions,
         )
-        refresh_btn.grid(row=0, column=2, sticky="e", padx=(4, 12), pady=10)
+        refresh_btn.grid(row=0, column=3, sticky="e", padx=(4, 12), pady=10)
 
         self.search_entry = ctk.CTkEntry(
             header,
             placeholder_text="Buscar por ID ou nome da estrutura ativa...",
             height=32,
         )
-        self.search_entry.grid(row=1, column=0, columnspan=2, sticky="ew", padx=(12, 4), pady=(0, 10))
+        self.search_entry.grid(row=1, column=0, columnspan=3, sticky="ew", padx=(12, 4), pady=(0, 10))
         self.search_entry.bind("<KeyRelease>", self._on_search_changed)
 
         clear_search_btn = ctk.CTkButton(
@@ -106,7 +120,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             hover_color="#4b5563",
             command=self._clear_search,
         )
-        clear_search_btn.grid(row=1, column=2, sticky="e", padx=(4, 12), pady=(0, 10))
+        clear_search_btn.grid(row=1, column=3, sticky="e", padx=(4, 12), pady=(0, 10))
 
         self.list_frame = ctk.CTkScrollableFrame(
             self,
@@ -449,6 +463,124 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
                 f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
             )
+
+    def _export_filtered_csv(self) -> None:
+        if not self.filtered_decisions:
+            self._status("Nenhuma decisão exibida para exportar")
+            messagebox.showinfo(
+                "Exportar CSV",
+                "Não há decisões exibidas para exportar.",
+            )
+            return
+
+        default_name = f"decisoes_dark_filtradas_{datetime.now():%Y%m%d_%H%M%S}.csv"
+
+        file_path = filedialog.asksaveasfilename(
+            title="Exportar decisões filtradas",
+            defaultextension=".csv",
+            initialfile=default_name,
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
+
+        if not file_path:
+            self._status("Exportação CSV cancelada")
+            return
+
+        fieldnames = [
+            "export_index",
+            "timestamp",
+            "created_at",
+            "structure_id",
+            "structure_name",
+            "structure_active",
+            "decision",
+            "level",
+            "dte_min",
+            "pl_atual",
+            "pl_max",
+            "pl_pct_of_max",
+            "spot_reference",
+            "spot_ref",
+            "rationale",
+            "why",
+            "raw_json",
+        ]
+
+        try:
+            with open(file_path, "w", newline="", encoding="utf-8-sig") as csv_file:
+                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+                writer.writeheader()
+
+                for index, decision in enumerate(self.filtered_decisions, start=1):
+                    writer.writerow(self._decision_export_row(decision, index))
+
+            total = len(self.filtered_decisions)
+            self._status(f"{total} decisões exportadas em CSV")
+            messagebox.showinfo(
+                "Exportar CSV",
+                f"{total} decisões exportadas com sucesso.\n\n{file_path}",
+            )
+        except Exception as exc:
+            self._status(f"Erro ao exportar CSV: {exc}")
+            messagebox.showerror(
+                "Erro ao exportar CSV",
+                f"Não foi possível exportar o CSV.\n\n{exc}",
+            )
+
+    def _decision_export_row(self, decision: Dict[str, Any], index: int) -> Dict[str, Any]:
+        structure_id = decision.get("structure_id")
+        if structure_id is None:
+            structure_id = decision.get("aba")
+
+        return {
+            "export_index": index,
+            "timestamp": self._csv_value(decision.get("timestamp")),
+            "created_at": self._csv_value(decision.get("created_at")),
+            "structure_id": self._csv_value(structure_id),
+            "structure_name": self._csv_value(self._structure_name(structure_id)),
+            "structure_active": str(self._decision_structure_id(decision) in self.active_structure_ids),
+            "decision": self._csv_value(decision.get("decision")),
+            "level": self._csv_value(decision.get("level")),
+            "dte_min": self._csv_value(decision.get("dte_min")),
+            "pl_atual": self._csv_value(decision.get("pl_atual")),
+            "pl_max": self._csv_value(decision.get("pl_max")),
+            "pl_pct_of_max": self._csv_value(decision.get("pl_pct_of_max")),
+            "spot_reference": self._csv_value(decision.get("spot_reference")),
+            "spot_ref": self._csv_value(decision.get("spot_ref")),
+            "rationale": self._csv_value(decision.get("rationale")),
+            "why": self._csv_value(decision.get("why") or decision.get("why_json")),
+            "raw_json": json.dumps(decision, ensure_ascii=False, default=str),
+        }
+
+    def _csv_value(self, value: Any) -> str:
+        if value is None:
+            return ""
+
+        if isinstance(value, (dict, list)):
+            return json.dumps(value, ensure_ascii=False, default=str)
+
+        return str(value)
+
+    def _structure_name(self, structure_id: Any) -> str:
+        structure = self.structure_index.get(str(structure_id), {})
+        for key in (
+            "name",
+            "nome",
+            "label",
+            "title",
+            "titulo",
+            "título",
+            "description",
+            "descricao",
+            "descrição",
+            "structure_name",
+            "nome_estrutura",
+            "estrutura",
+        ):
+            value = structure.get(key)
+            if value:
+                return str(value)
+        return ""
 
     def _format_row(self, decision: Dict[str, Any], index: int) -> str:
         timestamp = decision.get("timestamp") or decision.get("created_at") or "sem timestamp"
