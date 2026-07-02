@@ -984,3 +984,23 @@ O patch é isolado na UI dark.
 Não altera banco, contratos canônicos, decisões ou cálculo.
 
 A UI atual permanece como caminho principal.
+
+## 23. Validação da exportação PNG no painel dark
+
+A exportação PNG do gráfico de Payoff no painel dark foi validada manualmente.
+
+Relatório gerado:
+
+- reports/ui_modern_equivalence/06_validacao_exportacao_png_dark_panel.md
+
+### 23.1. Resultado
+
+A funcionalidade foi considerada 100 por cento funcional.
+
+### 23.2. Evidência operacional
+
+A execução de python -m UI.modern abriu a UI moderna em modo dark, carregou estruturas, carregou uma estrutura e registrou Payoff exportado em PNG.
+
+### 23.3. Decisão
+
+Checkpoint de validação manual recomendado: checkpoint-modern-export-png-dark-panel-validated.
