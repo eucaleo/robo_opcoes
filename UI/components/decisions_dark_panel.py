@@ -133,6 +133,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         detail_frame = ctk.CTkFrame(self, fg_color="#020617")
         detail_frame.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=(0, 10))
         detail_frame.grid_columnconfigure(0, weight=1)
+        detail_frame.grid_columnconfigure(1, weight=0)
         detail_frame.grid_rowconfigure(1, weight=1)
 
         detail_title = ctk.CTkLabel(
@@ -143,6 +144,18 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         detail_title.grid(row=0, column=0, sticky="w", padx=12, pady=(12, 6))
 
+        self.copy_detail_btn = ctk.CTkButton(
+            detail_frame,
+            text="Copiar detalhe",
+            width=130,
+            height=30,
+            fg_color="#374151",
+            hover_color="#4b5563",
+            state="disabled",
+            command=self._copy_selected_detail,
+        )
+        self.copy_detail_btn.grid(row=0, column=1, sticky="e", padx=(4, 12), pady=(12, 6))
+
         self.details_text = ctk.CTkTextbox(
             detail_frame,
             fg_color="#0f172a",
@@ -151,7 +164,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             border_color="#1f2937",
             wrap="word",
         )
-        self.details_text.grid(row=1, column=0, sticky="nsew", padx=12, pady=(0, 12))
+        self.details_text.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=12, pady=(0, 12))
         self._set_detail_text("Nenhuma decisão selecionada.")
 
     def reload_decisions(self) -> None:
@@ -455,6 +468,9 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self.load_structure_btn.configure(state="normal")
         else:
             self.load_structure_btn.configure(state="disabled")
+
+        self.copy_detail_btn.configure(state="normal")
+
         decision_text = decision.get("decision", "N/A")
         if len(self.filtered_decisions) == len(self.decisions):
             self._status(f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}")
@@ -463,6 +479,20 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
                 f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
             )
+
+    def _copy_selected_detail(self) -> None:
+        if self.selected_index < 0 or self.selected_index >= len(self.filtered_decisions):
+            self._status("Nenhuma decisão selecionada para copiar")
+            return
+
+        detail_text = self.details_text.get("1.0", "end").strip()
+        if not detail_text:
+            self._status("Detalhe da decisão selecionada está vazio")
+            return
+
+        self.clipboard_clear()
+        self.clipboard_append(detail_text)
+        self._status("Detalhe da decisão copiado para a área de transferência")
 
     def _export_filtered_csv(self) -> None:
         if not self.filtered_decisions:
@@ -791,3 +821,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.details_text.delete("1.0", "end")
         self.details_text.insert("1.0", text)
         self.details_text.configure(state="disabled")
+
+        if hasattr(self, "copy_detail_btn"):
+            has_selection = self.selected_index >= 0 and self.selected_index < len(self.filtered_decisions)
+            self.copy_detail_btn.configure(state="normal" if has_selection else "disabled")
