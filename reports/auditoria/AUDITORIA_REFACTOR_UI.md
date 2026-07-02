@@ -1004,3 +1004,23 @@ A execução de python -m UI.modern abriu a UI moderna em modo dark, carregou es
 ### 23.3. Decisão
 
 Checkpoint de validação manual recomendado: checkpoint-modern-export-png-dark-panel-validated.
+
+## 24. Inventario das acoes laterais de estruturas no painel dark
+
+Foi iniciado o inventario das acoes laterais de estruturas na UI moderna dark.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/07_acoes_laterais_estruturas_dark_panel.md
+
+### 24.1. Objetivo
+
+Mapear botoes, callbacks e comandos relacionados a estruturas antes de aplicar novo patch funcional.
+
+### 24.2. Decisao de seguranca
+
+Nenhuma regra de negocio deve ser alterada nesta etapa.
+
+### 24.3. Proximo passo
+
+Classificar lacunas e escolher o menor patch seguro para equivalencia das acoes laterais de estruturas.
