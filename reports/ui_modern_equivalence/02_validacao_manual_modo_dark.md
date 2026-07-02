@@ -31,8 +31,10 @@ Observação registrada:
     [ModernApp] Abrindo UI moderna mode='dark' theme='dark' module='UI.modern.dark_window'
     [ModernDarkUI] 2 estruturas carregadas
     [ModernDarkUI] Estrutura carregada: ID 2
-    [ModernDarkUI] 2 estruturas carregadas
     [ModernDarkUI] Estrutura carregada: ID 3
+    [ModernDarkUI] 2 estruturas carregadas
+    [ModernDarkUI] 2 estruturas carregadas
+    [ModernDarkUI] Estruturas recarregadas
 
 ## Critérios de classificação
 
@@ -48,66 +50,66 @@ Use os seguintes status:
 
 | Função obrigatória | Status manual | Evidência/observação | Próxima ação |
 |---|---|---|---|
-| Filtros de decisões | NÃO TESTADO |PARCIAL|  |
-| Seleção de decisões | NÃO TESTADO |PARCIAL|  |
-| Detalhamento de decisão | NÃO TESTADO |PARCIAL|  |
-| Rationale/why JSON | NÃO TESTADO |AUSENTE|  |
-| Recalcular estrutura | NÃO TESTADO | PARCIAL |  |
-| Curva de Payoff | NÃO TESTADO | PARCIAL |  |
-| Comparação Curva A | NÃO TESTADO | PARCIAL |  |
-| Exportação PNG | NÃO TESTADO | AUSENTE |  |
-| CRUD de estruturas | NÃO TESTADO | PARCIAL |  |
-| Terminal VWAP Payoff | NÃO TESTADO | PARCIAL |  |
-| Legs/pernas da estrutura | NÃO TESTADO | VALIDADO |  |
-| Mensagens de status | NÃO TESTADO | PARCIAL |  |
-| Banco e contratos canônicos | NÃO TESTADO | NÃO TESTADO |  |
-| Conexao com RTD | AUSENTE|  |  |
-| Validação nova perna| PARCIAL |  |  |
+| Filtros de decisões | PARCIAL | Presença parcial observada no modo dark. | Detalhar lacunas funcionais em rodada específica. |
+| Seleção de decisões | PARCIAL | Presença parcial observada no modo dark. | Validar seleção contra UI atual. |
+| Detalhamento de decisão | PARCIAL | Presença parcial observada no modo dark. | Validar campos e comportamento contra UI atual. |
+| Rationale/why JSON | AUSENTE | Função não localizada no modo dark. | Implementar ou realocar em rodada futura. |
+| Recalcular estrutura | PARCIAL | Presença parcial observada no modo dark. | Validar cálculo, callback e mensagens. |
+| Curva de Payoff | PARCIAL | Presença parcial observada no modo dark. | Comparar comportamento com UI atual. |
+| Comparação Curva A | PARCIAL | Presença parcial observada no modo dark. | Validar fluxo completo de comparação. |
+| Exportação PNG | AUSENTE | Função não localizada no modo dark. | Implementar exportação em patch isolado. |
+| CRUD de estruturas | PARCIAL | Presença parcial observada no modo dark. | Validar criar, editar, remover e recarregar. |
+| Terminal VWAP Payoff | PARCIAL | Presença parcial observada no modo dark. | Validar equivalência funcional por bloco. |
+| Legs/pernas da estrutura | VALIDADO | Pernas visíveis e utilizáveis no modo dark. | Manter contrato e evitar regressão. |
+| Mensagens de status | PARCIAL | Mensagens aparecem no terminal e no fluxo observado. | Validar cobertura completa de estados. |
+| Banco e contratos canônicos | NÃO TESTADO | Não validado nesta rodada. | Validar sem alterar contratos canônicos. |
+| Conexão com RTD | AUSENTE | Função não localizada no modo dark. | Mapear dependência e decidir se entra no modo moderno. |
+| Validação nova perna | PARCIAL | Presença parcial observada no modo dark. | Validar regras de entrada e mensagens. |
 
 ## Observações por área
 
 ### Estruturas
 
-- Observação:
-- Pendência:
+- Observação: estruturas reais foram carregadas e recarregadas no modo dark.
+- Pendência: validar CRUD completo e regras de nova perna.
 
 ### Payoff
 
-- Observação:
-- Pendência:
+- Observação: recursos de payoff foram classificados como parciais.
+- Pendência: comparar curva, recálculo e comparação Curva A contra a UI atual.
 
 ### Terminal VWAP Payoff
 
-- Observação:
-- Pendência:
+- Observação: terminal moderno abriu e carregou estruturas.
+- Pendência: validar equivalência funcional por bloco.
 
 ### Decisões
 
-- Observação:
-- Pendência:
+- Observação: filtros, seleção e detalhamento foram classificados como parciais.
+- Pendência: validar comportamento completo e verificar rationale/why JSON.
 
 ### Exportação
 
-- Observação:
-- Pendência:
+- Observação: exportação PNG foi classificada como ausente.
+- Pendência: implementar exportação em patch isolado quando priorizado.
 
 ### Status e mensagens
 
-- Observação:
-- Pendência:
+- Observação: mensagens foram emitidas durante abertura, carregamento e recarregamento.
+- Pendência: validar cobertura completa de erro, sucesso e ações do usuário.
 
 ## Conclusão manual
 
 Conclusão desta rodada:
 
-- [ ] O modo dark ainda NÃO possui equivalência funcional suficiente para substituir a UI atual.
-- [ ] O modo dark possui equivalência parcial e pode continuar evoluindo em paralelo.
-- [ ] A UI atual deve permanecer como caminho principal.
-- [ ] Próximos patches devem ser pequenos e por função faltante.
+- [x] O modo dark ainda NÃO possui equivalência funcional suficiente para substituir a UI atual.
+- [x] O modo dark possui equivalência parcial e pode continuar evoluindo em paralelo.
+- [x] A UI atual deve permanecer como caminho principal.
+- [x] Próximos patches devem ser pequenos e por função faltante.
 
 ## Próxima decisão recomendada
 
-Após preencher esta validação, escolher apenas uma função pendente para implementação ou realocação no modo dark.
+Após esta validação, escolher apenas uma função pendente para implementação ou realocação no modo dark.
 
 Ordem sugerida:
 

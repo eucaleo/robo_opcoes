@@ -905,3 +905,23 @@ A próxima implementação funcional só deve ocorrer após classificação manu
 - ausente;
 - realocada;
 - não testada.
+
+### 19.4. Correção da tabela de validação manual
+
+A tabela do relatório manual foi normalizada para manter o status na coluna correta.
+
+Correção aplicada:
+
+- status manual movido para a coluna Status manual;
+- evidências resumidas na coluna Evidência/observação;
+- próximas ações preenchidas sem alterar código;
+- conclusões manuais marcadas conforme validação observada.
+
+A correção não altera:
+
+- código;
+- layout;
+- callbacks;
+- banco;
+- services;
+- regra de negócio.
