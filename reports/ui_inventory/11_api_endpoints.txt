@@ -1,0 +1,61 @@
+ATT/tests/test_orchestrator_run_methods.py:125:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:138:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:150:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:160:    @patch("services.calculation_orchestrator.compute_payoff_from_canonical_input")
+ATT/tests/test_orchestrator_run_methods.py:177:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:191:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:202:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:214:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_orchestrator_run_methods.py:224:    @patch("services.calculation_orchestrator.compute_decision_from_contract")
+ATT/tests/test_pricing_execution_controller.py:1:from fastapi.testclient import TestClient
+ATT/tests/test_structure_events_api.py:6:from fastapi import FastAPI
+ATT/tests/test_structure_events_api.py:7:from fastapi.testclient import TestClient
+ATT/tests/test_structure_events_api.py:98:        app = FastAPI()
+ATT/tests/test_structures_api.py:5:Usa TestClient do FastAPI (repositório mockado via unittest.mock).
+ATT/tests/test_structures_api.py:21:from fastapi import FastAPI
+ATT/tests/test_structures_api.py:22:from fastapi.testclient import TestClient
+ATT/tests/test_structures_api.py:61:# Testes dos endpoints de legs
+ATT/tests/test_structures_api.py:91:        app = FastAPI()
+ATT/tests/test_structures_api.py:119:        app = FastAPI()
+ATT/tests/test_structures_api.py:129:    """Testes do endpoint POST /structures."""
+ATT/tests/test_structures_api.py:249:    """Testes do endpoint GET /structures."""
+ATT/tests/test_structures_api.py:314:    """Testes do endpoint GET /structures/{id}."""
+ATT/tests/test_structures_api.py:386:    """Testes do endpoint PATCH /structures/{id}."""
+ATT/tests/test_structures_api.py:490:    """Testes do endpoint DELETE /structures/{id} (soft-delete / archive)."""
+ATT/tests/test_structures_legs_endpoints.py:1:# Testes dos endpoints de legs de estruturas
+ATT/tests/test_structures_legs_endpoints.py:3:Testes dos endpoints de legs na API de estruturas.
+ATT/tests/test_structures_legs_endpoints.py:17:from fastapi import FastAPI
+ATT/tests/test_structures_legs_endpoints.py:18:from fastapi.testclient import TestClient
+ATT/tests/test_structures_legs_endpoints.py:77:        app = FastAPI()
+ATT/tests/test_structures_legs_endpoints.py:87:    """12 casos para o endpoint de adição de perna."""
+ATT/tests/test_structures_legs_endpoints.py:168:    """10 casos para o endpoint de substituição atômica de pernas."""
+ATT/tests/test_structures_legs_endpoints.py:245:    """4 casos para o endpoint de remoção de perna individual."""
+api/pricing_execution_controller.py:1:from fastapi import APIRouter, HTTPException, Query
+api/pricing_execution_controller.py:6:router = APIRouter(tags=["pricing-executions"])
+api/pricing_execution_controller.py:15:@router.post("/pricing-executions")
+api/pricing_execution_controller.py:28:@router.get("/pricing-executions")
+api/pricing_execution_controller.py:50:@router.get("/pricing-executions/latest")
+api/pricing_execution_controller.py:75:@router.get("/pricing-executions/{execution_id}")
+api/structures_controller.py:4:alteracao_63 -- Endpoints de legs:
+api/structures_controller.py:15:from fastapi import APIRouter, HTTPException, Query
+api/structures_controller.py:21:router = APIRouter(tags=["structures"])
+api/structures_controller.py:116:# Endpoints — estrutura (alteracao_51, inalterados)
+api/structures_controller.py:119:@router.post("/structures", response_model=CreateStructureResponse, status_code=201)
+api/structures_controller.py:128:@router.get("/structures", response_model=list[StructureSummaryResponse])
+api/structures_controller.py:136:@router.get("/structures/{structure_id}", response_model=StructureDetailResponse)
+api/structures_controller.py:142:@router.patch("/structures/{structure_id}", status_code=204)
+api/structures_controller.py:158:@router.delete("/structures/{structure_id}", status_code=204)
+api/structures_controller.py:170:# Endpoints — legs  (alteracao_63)
+api/structures_controller.py:173:@router.post(
+api/structures_controller.py:193:@router.put("/structures/{structure_id}/legs", status_code=204)
+api/structures_controller.py:210:@router.delete("/structures/{structure_id}/legs/{leg_id}", status_code=204)
+api/structures_controller.py:253:# Endpoints — eventos operacionais
+api/structures_controller.py:259:from fastapi import HTTPException as _StructureEventsHTTPException
+api/structures_controller.py:390:@router.get(
+api/structures_controller.py:414:@router.post(
+api/structures_controller.py:437:@router.get(
+api/structures_controller.py:456:@router.get(
+api/structures_controller.py:499:@router.get(
+api/structures_controller.py:518:@router.post(
+main.py:2:from fastapi import FastAPI
+main.py:7:app = FastAPI(

@@ -1,0 +1,118 @@
+ATT/tests/test_canonical_input_service.py:204:        enriched, meta = service._enrich_structure_with_legs(
+ATT/tests/test_canonical_input_service.py:209:        self.assertEqual(enriched["legs"], [])
+ATT/tests/test_canonical_input_service.py:213:    def test_should_enrich_market_with_internal_structure_metrics(self):
+ATT/tests/test_derived_service.py:68:def test_merge_meta_should_enrich_with_canonical_identity():
+ATT/tests/test_derived_service.py:125:def test_save_decision_from_canonical_payload_should_enrich_meta(monkeypatch):
+ATT/tests/test_market_snapshot_repository_rtd_option_quotes.py:117:def test_get_rtd_option_quote_legs_enriches_base_rtd_leg_with_quote_cache(tmp_path):
+ATT/tests/test_pricing_execution_controller.py:1:from fastapi.testclient import TestClient
+ATT/tests/test_structure_editor_dialog.py:130:        import tkinter as Tk
+ATT/tests/test_structure_editor_dialog.py:199:        import tkinter as tk
+ATT/tests/test_structure_editor_dialog.py:306:        import tkinter as tk
+ATT/tests/test_structure_events_api.py:6:from fastapi import FastAPI
+ATT/tests/test_structure_events_api.py:7:from fastapi.testclient import TestClient
+ATT/tests/test_structure_events_api.py:98:        app = FastAPI()
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:3:from services.structure_leg_rtd_enrichment_service import (
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:4:    StructureLegRtdEnrichmentService,
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:18:def test_enrich_leg_from_symbol_uses_rtd_quote_and_returns_canonical_leg():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:30:    service = StructureLegRtdEnrichmentService(repo)
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:32:    leg = service.enrich(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:59:def test_enrich_leg_accepts_codigo_opcao_as_symbol_alias():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:71:    service = StructureLegRtdEnrichmentService(repo)
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:73:    leg = service.enrich(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:94:def test_enrich_leg_raises_value_error_when_symbol_is_missing():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:95:    service = StructureLegRtdEnrichmentService(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:100:        service.enrich(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:108:def test_enrich_leg_raises_value_error_when_rtd_quote_is_not_found():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:109:    service = StructureLegRtdEnrichmentService(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:114:        service.enrich(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:123:def test_enrich_leg_raises_value_error_when_rtd_quote_has_missing_required_fields():
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:124:    service = StructureLegRtdEnrichmentService(
+ATT/tests/test_structure_leg_rtd_enrichment_service.py:138:        service.enrich(
+ATT/tests/test_structures_api.py:5:Usa TestClient do FastAPI (repositório mockado via unittest.mock).
+ATT/tests/test_structures_api.py:21:from fastapi import FastAPI
+ATT/tests/test_structures_api.py:22:from fastapi.testclient import TestClient
+ATT/tests/test_structures_api.py:91:        app = FastAPI()
+ATT/tests/test_structures_api.py:119:        app = FastAPI()
+ATT/tests/test_structures_archive_wiring.py:518:        import tkinter as tk
+ATT/tests/test_structures_legs_endpoints.py:17:from fastapi import FastAPI
+ATT/tests/test_structures_legs_endpoints.py:18:from fastapi.testclient import TestClient
+ATT/tests/test_structures_legs_endpoints.py:77:        app = FastAPI()
+UI/components/decisions_grid.py:3:import tkinter as tk
+UI/components/decisions_grid.py:4:from tkinter import ttk
+UI/components/details_panel.py:2:import tkinter as tk
+UI/components/details_panel.py:3:from tkinter import ttk, scrolledtext
+UI/components/filters_panel.py:2:import tkinter as tk
+UI/components/filters_panel.py:3:from tkinter import ttk
+UI/components/payoff_chart.py:7:import tkinter as tk
+UI/components/payoff_chart.py:9:from tkinter import filedialog, messagebox
+UI/components/payoff_chart.py:10:from tkinter import ttk
+UI/components/structure_editor_dialog.py:38:import tkinter as tk
+UI/components/structure_editor_dialog.py:39:from tkinter import ttk, messagebox
+UI/components/structure_editor_dialog.py:44:from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+UI/components/structure_editor_dialog.py:76:        _rtd_leg_enrichment_service=None,    # <-- injecao opcional para testes/UI
+UI/components/structure_editor_dialog.py:91:        self._rtd_leg_enrichment_service = _rtd_leg_enrichment_service
+UI/components/structure_editor_dialog.py:474:    def _get_rtd_leg_enrichment_service(self):
+UI/components/structure_editor_dialog.py:476:        if self._rtd_leg_enrichment_service is None:
+UI/components/structure_editor_dialog.py:480:            self._rtd_leg_enrichment_service = StructureLegRtdEnrichmentService(
+UI/components/structure_editor_dialog.py:483:        return self._rtd_leg_enrichment_service
+UI/components/structure_editor_dialog.py:539:            enriched = self._get_rtd_leg_enrichment_service().enrich(leg_data)
+UI/components/structure_editor_dialog.py:548:        option_type = self._normalize_option_type_for_ui(enriched.get("option_type"))
+UI/components/structure_editor_dialog.py:550:        self._lf_symbol.set(enriched.get("symbol") or symbol)
+UI/components/structure_editor_dialog.py:552:        self._lf_strike.set(str(enriched.get("strike", "")))
+UI/components/structure_editor_dialog.py:553:        self._lf_expiry.set(str(enriched.get("expiration_date", "")))
+UI/components/structure_editor_dialog.py:554:        self._lf_qty.set(str(enriched.get("quantity", self._lf_qty.get() or 1)))
+UI/components/structure_editor_dialog.py:555:        self._lf_premium.set(str(enriched.get("premium", self._lf_premium.get() or "") or ""))
+UI/components/structure_editor_dialog.py:556:        self._lf_mult.set(str(enriched.get("multiplier", self._lf_mult.get() or 1)))
+UI/components/structure_editor_dialog.py:558:        if not self._f_underlying.get().strip() and enriched.get("underlying_asset"):
+UI/components/structure_editor_dialog.py:559:            self._f_underlying.set(str(enriched["underlying_asset"]))
+UI/components/structures_list_panel.py:24:import tkinter as tk
+UI/components/structures_list_panel.py:25:from tkinter import ttk, messagebox
+UI/components/terminal_vwap_payoff_dark_panel.py:25:import tkinter as tk
+UI/components/terminal_vwap_payoff_dark_panel.py:26:from tkinter import ttk
+UI/components/terminal_vwap_payoff_dark_panel.py:28:import customtkinter as ctk
+UI/components/terminal_vwap_payoff_dark_panel.py:31:from tkinter import messagebox
+UI/components/terminal_vwap_payoff_panel.py:20:import tkinter as tk
+UI/components/terminal_vwap_payoff_panel.py:21:from tkinter import ttk, messagebox
+UI/main_window.py:18:import tkinter as tk
+UI/main_window.py:19:from tkinter import ttk, messagebox
+UI/main_window.py:341:        from tkinter import filedialog
+api/pricing_execution_controller.py:1:from fastapi import APIRouter, HTTPException, Query
+api/structures_controller.py:15:from fastapi import APIRouter, HTTPException, Query
+api/structures_controller.py:259:from fastapi import HTTPException as _StructureEventsHTTPException
+main.py:2:from fastapi import FastAPI
+main.py:7:app = FastAPI(
+repositories/market_snapshot_repository.py:340:        enriched: list[LegMarketSnapshot] = []
+repositories/market_snapshot_repository.py:345:                enriched.append(_row_to_rtd_option_quote_leg(base_leg, quote_row))
+repositories/market_snapshot_repository.py:347:        return enriched
+scripts/check_rota_desenvolvimento.py:255:            print("Status sugerido: há documento, mas pouca evidência textual no log.")
+scripts/import_rtd_option_quotes_wide_csv.py:106:    # Já veio como data textual.
+services/canonical_input_service.py:112:        enriched_structure, enrichment_meta = self._enrich_structure_with_legs(
+services/canonical_input_service.py:117:        enriched_structure, events_meta = self._apply_structure_events(
+services/canonical_input_service.py:118:            structure=enriched_structure,
+services/canonical_input_service.py:121:        assembled       = assemble_structure_market_input(enriched_structure, snapshot)
+services/canonical_input_service.py:122:        assembled       = self._enrich_assembled_with_structure_metrics(assembled)
+services/canonical_input_service.py:130:                **enrichment_meta,
+services/canonical_input_service.py:291:    def _enrich_structure_with_legs(
+services/canonical_input_service.py:382:    def _enrich_assembled_with_structure_metrics(
+services/derived_service.py:284:    enriched_decision = {
+services/derived_service.py:300:            decision_dict=enriched_decision,
+services/derived_service.py:327:    enriched_decision = {
+services/derived_service.py:341:        decision=enriched_decision,
+services/structure_input_mapper.py:28:def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+services/structure_input_mapper.py:80:    _enrich_bid_ask_derived_fields(mapped_leg)
+services/structure_leg_rtd_enrichment_service.py:18:class StructureLegRtdEnrichmentService:
+services/structure_leg_rtd_enrichment_service.py:24:    def enrich(self, leg_data: dict[str, Any]) -> dict[str, Any]:
+services/structure_leg_rtd_enrichment_service.py:49:            raise ValueError("symbol is required for RTD leg enrichment")
+tools/audit_rtd_ui_flow.py:30:    "StructureLegRtdEnrichmentService",
+tools/audit_rtd_ui_flow.py:238:        ("services.structure_leg_rtd_enrichment_service", "StructureLegRtdEnrichmentService"),
+tools/audit_rtd_ui_flow.py:260:def try_enrichment_against_all_dbs() -> None:
+tools/audit_rtd_ui_flow.py:261:    header("5) Teste direto do enrichment service contra todos os bancos encontrados")
+tools/audit_rtd_ui_flow.py:265:        from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+tools/audit_rtd_ui_flow.py:274:            service = StructureLegRtdEnrichmentService(repo)
+tools/audit_rtd_ui_flow.py:275:            result = service.enrich(
+tools/audit_rtd_ui_flow.py:340:        "services/structure_leg_rtd_enrichment_service.py",
+tools/audit_rtd_ui_flow.py:348:    try_enrichment_against_all_dbs()
+tools/fix_structure_side_panel_patch.py:16:    "from tkinter import messagebox\n"
+tools/fix_structure_side_panel_patch.py:22:    "from tkinter import messagebox\n"
+tools/patch_structure_side_panel.py:96:    if "from tkinter import messagebox" not in text and "import messagebox" not in text:
+tools/patch_structure_side_panel.py:97:        additions.append("from tkinter import messagebox")

@@ -1,0 +1,27 @@
+ATT/tests/conftest.py:39:    class _FakeWidget:
+ATT/tests/conftest.py:114:    class _FakeTk(_FakeWidget):
+ATT/tests/conftest.py:117:    class _FakeToplevel(_FakeWidget):
+ATT/tests/conftest.py:120:    class _FakeStringVar(_FakeWidget):
+ATT/tests/conftest.py:127:    class _FakeIntVar(_FakeWidget):
+ATT/tests/conftest.py:133:    class _FakeBooleanVar(_FakeWidget):
+ATT/tests/conftest.py:139:    class _FakeFrame(_FakeWidget):    pass
+ATT/tests/conftest.py:140:    class _FakeLabel(_FakeWidget):    pass
+ATT/tests/conftest.py:141:    class _FakeButton(_FakeWidget):   pass
+ATT/tests/conftest.py:142:    class _FakeEntry(_FakeWidget):    pass
+ATT/tests/conftest.py:143:    class _FakeCanvas(_FakeWidget):   pass
+ATT/tests/conftest.py:144:    class _FakeText(_FakeWidget):     pass
+ATT/tests/conftest.py:145:    class _FakeListbox(_FakeWidget):  pass
+ATT/tests/conftest.py:147:    class _FakeCombobox(_FakeWidget):
+ATT/tests/conftest.py:152:    class _FakeTreeview(_FakeWidget):
+ATT/tests/test_structure_editor_dialog.py:371:class TestStructureEditorDialogStaticChecks(unittest.TestCase):
+ATT/tests/test_structure_editor_integration.py:100:    class _Widget:
+ATT/tests/test_structure_editor_integration.py:121:    class _Toplevel(_Widget):
+ATT/tests/test_structures_archive_wiring.py:47:        self.assertIn("class StructuresListPanel", _src(STRUCTURES_PANEL))
+ATT/tests/test_structures_archive_wiring.py:115:class TestStructuresArchiveWiringMainWindow(unittest.TestCase):
+UI/components/details_panel.py:10:class DetailsPanel(ttk.LabelFrame):
+UI/components/filters_panel.py:7:class FiltersPanel(ttk.LabelFrame):
+UI/components/structure_editor_dialog.py:66:class StructureEditorDialog(tk.Toplevel):
+UI/components/structures_list_panel.py:46:class StructuresListPanel(ttk.Frame):
+UI/components/terminal_vwap_payoff_dark_panel.py:129:class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
+UI/components/terminal_vwap_payoff_panel.py:151:class TerminalVWAPPayoffPanel(ttk.Frame):
+UI/main_window.py:28:class MainWindow:

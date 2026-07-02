@@ -1,0 +1,202 @@
+ATT/tests/conftest.py:271:    # colorchooser
+ATT/tests/conftest.py:272:    cc = types.ModuleType("tkinter.colorchooser")
+ATT/tests/conftest.py:273:    cc.askcolor = MagicMock(return_value=((0, 0, 0), "#000000"))
+ATT/tests/conftest.py:274:    tk_mock.colorchooser = cc
+ATT/tests/conftest.py:286:sys.modules.setdefault("tkinter.colorchooser", _cc)
+ATT/tests/test_payoff_chart.py:376:    def test_fix_curve_color_is_red(self):
+ATT/tests/test_payoff_chart.py:379:        self.assertEqual(self.chart._fixed_curve["color"], "red")
+ATT/tests/test_structure_editor_integration.py:145:                      "simpledialog", "colorchooser", "scrolledtext"):
+ATT/tests/test_structure_editor_integration.py:184:        "matplotlib.colors",
+ATT/tests/test_structure_editor_integration.py:208:                 "colors", "cm", "transforms", "path", "widgets",
+ATT/tests/test_structure_editor_integration.py:239:                 "colors", "cm", "transforms", "path", "widgets",
+UI/components/decisions_grid.py:66:        self.tree.tag_configure("HOLD", background="#e8f5e8")
+UI/components/decisions_grid.py:67:        self.tree.tag_configure("PREPARE_ROLL", background="#fff3cd")
+UI/components/decisions_grid.py:68:        self.tree.tag_configure("CLOSE_REOPEN", background="#f8d7da")
+UI/components/decisions_grid.py:69:        self.tree.tag_configure("ROLL", background="#d1ecf1")
+UI/components/decisions_grid.py:70:        self.tree.tag_configure("ENTER", background="#d4edda")
+UI/components/details_panel.py:30:    def _set_recalc_ui_state(self, in_progress: bool, msg: str = "", color: str = "gray"):
+UI/components/details_panel.py:41:                self.lbl_recalc_status.config(text=msg, foreground=color)
+UI/components/details_panel.py:467:            basic_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:475:            basic_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:483:            basic_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:491:            basic_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:505:            metrics_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:513:            metrics_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:521:            metrics_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:529:            metrics_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:537:            metrics_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:545:            metrics_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:559:            operational_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:569:            operational_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:579:            operational_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:596:            background="#f8f9fa",
+UI/components/details_panel.py:610:            audit_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:618:            audit_frame, text="N/A", background="white", relief="sunken"
+UI/components/details_panel.py:744:                    color="green",
+UI/components/details_panel.py:750:                    color="red",
+UI/components/details_panel.py:1066:                color="orange",
+UI/components/details_panel.py:1075:                color="gray",
+UI/components/details_panel.py:1083:                color="blue",
+UI/components/details_panel.py:1090:                    False, msg="Erro ao iniciar recálculo", color="red"
+UI/components/payoff_chart.py:67:        # Comparação: overlay de curvas {"points": [...], "label": "...", "color": "..."}
+UI/components/payoff_chart.py:209:            "color": "red",
+UI/components/payoff_chart.py:316:        self.ax.plot(xs, ys, color="#1f77b4", linewidth=2, label=main_label)
+UI/components/payoff_chart.py:335:                    color=overlay_curve["color"],
+UI/components/payoff_chart.py:345:        self.ax.axhline(0, color="gray", linewidth=1, alpha=0.7)
+UI/components/payoff_chart.py:361:                color="#ff7f0e",
+UI/components/payoff_chart.py:369:                self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
+UI/components/payoff_chart.py:377:                    color="#ff7f0e",
+UI/components/payoff_chart.py:395:            self.ax.axvline(bx, color="green", linestyle=":", linewidth=1, alpha=0.85)
+UI/components/payoff_chart.py:396:            self.ax.scatter([bx], [0], s=30, color="green", zorder=6)
+UI/components/payoff_chart.py:404:                color="green",
+UI/components/terminal_vwap_payoff_dark_panel.py:1:# UI/components/terminal_vwap_payoff_dark_panel.py
+UI/components/terminal_vwap_payoff_dark_panel.py:4:Painel operacional dark para análise VWAP e Payoff.
+UI/components/terminal_vwap_payoff_dark_panel.py:45:DARK_BG = "#121212"
+UI/components/terminal_vwap_payoff_dark_panel.py:129:class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
+UI/components/terminal_vwap_payoff_dark_panel.py:136:        super().__init__(parent, fg_color=DARK_BG)
+UI/components/terminal_vwap_payoff_dark_panel.py:157:            style.theme_use("clam")
+UI/components/terminal_vwap_payoff_dark_panel.py:162:            "Dark.Treeview",
+UI/components/terminal_vwap_payoff_dark_panel.py:163:            background=CARD_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:165:            fieldbackground=CARD_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:166:            bordercolor=GRID,
+UI/components/terminal_vwap_payoff_dark_panel.py:170:            "Dark.Treeview.Heading",
+UI/components/terminal_vwap_payoff_dark_panel.py:171:            background=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:176:            "Dark.Treeview",
+UI/components/terminal_vwap_payoff_dark_panel.py:177:            background=[("selected", BLUE)],
+UI/components/terminal_vwap_payoff_dark_panel.py:191:            fg_color=RAIL_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:201:            fg_color=GREEN,
+UI/components/terminal_vwap_payoff_dark_panel.py:202:            hover_color="#059669",
+UI/components/terminal_vwap_payoff_dark_panel.py:213:            fg_color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:214:            hover_color=BLUE,
+UI/components/terminal_vwap_payoff_dark_panel.py:215:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:226:            fg_color=GREEN,
+UI/components/terminal_vwap_payoff_dark_panel.py:227:            hover_color="#059669",
+UI/components/terminal_vwap_payoff_dark_panel.py:228:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:239:            fg_color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:240:            hover_color=BLUE,
+UI/components/terminal_vwap_payoff_dark_panel.py:241:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:252:            fg_color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:253:            hover_color=GREEN,
+UI/components/terminal_vwap_payoff_dark_panel.py:254:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:264:            fg_color=SIDE_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:271:            fg_color=DARK_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:281:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:288:            fg_color="transparent",
+UI/components/terminal_vwap_payoff_dark_panel.py:302:            fg_color=CARD_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:309:            fg_color=CARD_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:316:            fg_color=CARD_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:327:            text_color=BLUE,
+UI/components/terminal_vwap_payoff_dark_panel.py:335:            text_color=YELLOW,
+UI/components/terminal_vwap_payoff_dark_panel.py:344:            style="Dark.Treeview",
+UI/components/terminal_vwap_payoff_dark_panel.py:375:            fg_color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:376:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:388:            fg_color=CARD_BG,
+UI/components/terminal_vwap_payoff_dark_panel.py:396:            text_color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:404:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:414:            self.btn_toggle.configure(fg_color=BLUE)
+UI/components/terminal_vwap_payoff_dark_panel.py:418:            self.btn_toggle.configure(fg_color=GREEN)
+UI/components/terminal_vwap_payoff_dark_panel.py:515:            fg_color=GREEN,
+UI/components/terminal_vwap_payoff_dark_panel.py:516:            hover_color="#059669",
+UI/components/terminal_vwap_payoff_dark_panel.py:517:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:526:            text_color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:535:            fg_color=BLUE,
+UI/components/terminal_vwap_payoff_dark_panel.py:536:            hover_color="#2563EB",
+UI/components/terminal_vwap_payoff_dark_panel.py:543:            fg_color="transparent",
+UI/components/terminal_vwap_payoff_dark_panel.py:551:                text_color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:568:                fg_color="#2B2B2B",
+UI/components/terminal_vwap_payoff_dark_panel.py:569:                hover_color="#3D3D3D",
+UI/components/terminal_vwap_payoff_dark_panel.py:570:                text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:947:            color = GREEN if diff >= 0 else RED
+UI/components/terminal_vwap_payoff_dark_panel.py:950:                text_color=color,
+UI/components/terminal_vwap_payoff_dark_panel.py:953:            self.kpi_labels["diff"].configure(text="N/A", text_color=TEXT)
+UI/components/terminal_vwap_payoff_dark_panel.py:1033:        fig.patch.set_facecolor(CARD_BG)
+UI/components/terminal_vwap_payoff_dark_panel.py:1035:        ax.set_facecolor(CARD_BG)
+UI/components/terminal_vwap_payoff_dark_panel.py:1036:        ax.tick_params(colors=MUTED, labelsize=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1038:            spine.set_color(GRID)
+UI/components/terminal_vwap_payoff_dark_panel.py:1039:        ax.grid(True, color=GRID, linestyle=":", linewidth=0.8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1070:                    color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:1080:                    color=YELLOW,
+UI/components/terminal_vwap_payoff_dark_panel.py:1085:            ax.legend(loc="upper left", fontsize=8, frameon=False, labelcolor=TEXT)
+UI/components/terminal_vwap_payoff_dark_panel.py:1091:                color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:1098:        ax.set_title("Preço atual do ativo-base vs VWAP", color=MUTED, fontsize=10)
+UI/components/terminal_vwap_payoff_dark_panel.py:1099:        ax.set_xlabel("Amostras", color=MUTED, fontsize=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1100:        ax.set_ylabel("Preço", color=MUTED, fontsize=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1115:            color = GREEN if max(ys) >= abs(min(ys)) else RED
+UI/components/terminal_vwap_payoff_dark_panel.py:1116:            ax.plot(xs, ys, color=color, linewidth=2.0)
+UI/components/terminal_vwap_payoff_dark_panel.py:1117:            ax.axhline(0, color="#666666", linewidth=1.0)
+UI/components/terminal_vwap_payoff_dark_panel.py:1121:                ax.axvline(be, color=YELLOW, linestyle="--", linewidth=0.8, alpha=0.8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1127:                color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:1134:        ax.set_title("Payoff Combinado da Estrutura", color=MUTED, fontsize=10)
+UI/components/terminal_vwap_payoff_dark_panel.py:1135:        ax.set_xlabel("Spot", color=MUTED, fontsize=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1136:        ax.set_ylabel("Resultado", color=MUTED, fontsize=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1177:            text_color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:1184:    def _side_button(self, text: str, color: str, hover: str, command) -> None:
+UI/components/terminal_vwap_payoff_dark_panel.py:1189:            fg_color=color,
+UI/components/terminal_vwap_payoff_dark_panel.py:1190:            hover_color=hover,
+UI/components/terminal_vwap_payoff_dark_panel.py:1191:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:1213:            text_color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:1219:        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1225:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:1234:            color=BLUE,
+UI/components/terminal_vwap_payoff_dark_panel.py:1242:            color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:1248:            color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:1254:            color="#92400E",
+UI/components/terminal_vwap_payoff_dark_panel.py:1262:            color=GREEN,
+UI/components/terminal_vwap_payoff_dark_panel.py:1268:            color="#D97706",
+UI/components/terminal_vwap_payoff_dark_panel.py:1274:            color="#DC2626",
+UI/components/terminal_vwap_payoff_dark_panel.py:1281:            color="#111827",
+UI/components/terminal_vwap_payoff_dark_panel.py:1301:            text_color=MUTED,
+UI/components/terminal_vwap_payoff_dark_panel.py:1307:        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1313:            text_color=TEXT,
+UI/components/terminal_vwap_payoff_dark_panel.py:1322:            color=BLUE,
+UI/components/terminal_vwap_payoff_dark_panel.py:1328:            color=CARD_BG_2,
+UI/components/terminal_vwap_payoff_dark_panel.py:1334:            color="#D97706",
+UI/components/terminal_vwap_payoff_dark_panel.py:1340:            color="#111827",
+UI/main_window.py:4:UI Principal - Sistema de Derivados
+UI/main_window.py:31:        self.root.title("Sistema de Derivados - Análise de Decisões")
+UI/main_window.py:189:        # Carregar payoff em background -- apenas structure_id necessário
+UI/main_window.py:505:        """Mostra informações sobre o sistema."""
+UI/main_window.py:506:        about_text = """Sistema de Derivados v1.0
+UI/main_window.py:640:            background="#fafafa",
+db/writer.py:71:            cursor.executemany("""
+infra/bootstrap_structures_schema.py:122:        # Histórico operacional oficial gerado pelo sistema.                  #
+repositories/structure_events_repository.py:14:A tabela structure_events é a fonte viva do sistema para eventos operacionais.
+repositories/system_snapshots_repository.py:66:    """Persistência do histórico operacional oficial gerado pelo sistema."""
+tools/audit_rtd_ui_flow.py:343:        "UI/components/terminal_vwap_payoff_dark_panel.py",
+tools/fix_structure_side_panel_patch.py:3:path = Path("UI/components/terminal_vwap_payoff_dark_panel.py")
+tools/fix_structure_side_panel_patch.py:11:backup = Path("UI/components/terminal_vwap_payoff_dark_panel.py.bak_side_actions_fix")
+tools/fix_structure_side_panel_patch.py:43:    "            fg_color=GREEN,\n"
+tools/fix_structure_side_panel_patch.py:44:    "            hover_color=\"#059669\",\n"
+tools/fix_structure_side_panel_patch.py:45:    "            text_color=TEXT,\n"
+tools/patch_structure_side_panel.py:194:        f'{body_indent}    fg_color=GREEN,',
+tools/patch_structure_side_panel.py:195:        f'{body_indent}    hover_color="#059669",',
+tools/patch_structure_side_panel.py:196:        f'{body_indent}    text_color=TEXT,',
+tools/patch_structure_side_panel.py:276:        f"{indent}    fg_color=GREEN,",
+tools/patch_structure_side_panel.py:277:        f'{indent}    hover_color="#059669",',
+tools/patch_structure_side_panel.py:278:        f"{indent}    text_color=TEXT,",
+tools/patch_structure_side_panel.py:289:        f"{indent}    fg_color=CARD_BG_2,",
+tools/patch_structure_side_panel.py:290:        f"{indent}    hover_color=BLUE,",
+tools/patch_structure_side_panel.py:291:        f"{indent}    text_color=TEXT,",
+tools/patch_structure_side_panel.py:383:        text_color=MUTED,
+tools/patch_structure_side_panel.py:390:def _side_button(self, text: str, color: str, hover: str, command) -> None:
+tools/patch_structure_side_panel.py:395:        fg_color=color,
+tools/patch_structure_side_panel.py:396:        hover_color=hover,
+tools/patch_structure_side_panel.py:397:        text_color=TEXT,
+tools/patch_structure_side_panel.py:419:        text_color=MUTED,
+tools/patch_structure_side_panel.py:425:    info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+tools/patch_structure_side_panel.py:431:        text_color=TEXT,
+tools/patch_structure_side_panel.py:440:        color=BLUE,
+tools/patch_structure_side_panel.py:448:        color=CARD_BG_2,
+tools/patch_structure_side_panel.py:454:        color=CARD_BG_2,
+tools/patch_structure_side_panel.py:460:        color="#92400E",
+tools/patch_structure_side_panel.py:468:        color=GREEN,
+tools/patch_structure_side_panel.py:474:        color="#D97706",
+tools/patch_structure_side_panel.py:480:        color="#DC2626",
+tools/patch_structure_side_panel.py:487:        color="#111827",
+tools/patch_structure_side_panel.py:507:        text_color=MUTED,
+tools/patch_structure_side_panel.py:513:    info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+tools/patch_structure_side_panel.py:519:        text_color=TEXT,
+tools/patch_structure_side_panel.py:528:        color=BLUE,
+tools/patch_structure_side_panel.py:534:        color=CARD_BG_2,
+tools/patch_structure_side_panel.py:540:        color="#D97706",
+tools/patch_structure_side_panel.py:546:        color="#111827",

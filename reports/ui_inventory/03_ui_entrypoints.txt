@@ -1,0 +1,553 @@
+ATT/tests/conftest.py:2:Mocka Tk/Toplevel ANTES de qualquer import dos views,
+ATT/tests/conftest.py:31:def _make_tk_mock():
+ATT/tests/conftest.py:32:    """Cria um modulo tkinter falso completo com _FakeWidget universal."""
+ATT/tests/conftest.py:33:    tk_mock = types.ModuleType("tkinter")
+ATT/tests/conftest.py:65:        def mainloop(self):              pass
+ATT/tests/conftest.py:114:    class _FakeTk(_FakeWidget):
+ATT/tests/conftest.py:185:        setattr(tk_mock, _k, _v)
+ATT/tests/conftest.py:188:    tk_mock.Tk            = _FakeTk
+ATT/tests/conftest.py:189:    tk_mock.Toplevel      = _FakeToplevel
+ATT/tests/conftest.py:190:    tk_mock.StringVar     = _FakeStringVar
+ATT/tests/conftest.py:191:    tk_mock.IntVar        = _FakeIntVar
+ATT/tests/conftest.py:192:    tk_mock.BooleanVar    = _FakeBooleanVar
+ATT/tests/conftest.py:193:    tk_mock.DoubleVar     = _FakeIntVar
+ATT/tests/conftest.py:194:    tk_mock.Frame         = _FakeFrame
+ATT/tests/conftest.py:195:    tk_mock.LabelFrame    = _FakeFrame
+ATT/tests/conftest.py:196:    tk_mock.Label         = _FakeLabel
+ATT/tests/conftest.py:197:    tk_mock.Button        = _FakeButton
+ATT/tests/conftest.py:198:    tk_mock.Entry         = _FakeEntry
+ATT/tests/conftest.py:199:    tk_mock.Text          = _FakeText
+ATT/tests/conftest.py:200:    tk_mock.Canvas        = _FakeCanvas
+ATT/tests/conftest.py:201:    tk_mock.Listbox       = _FakeListbox
+ATT/tests/conftest.py:202:    tk_mock.Scrollbar     = _FakeWidget
+ATT/tests/conftest.py:203:    tk_mock.Menu          = _FakeWidget
+ATT/tests/conftest.py:204:    tk_mock.Menubutton    = _FakeWidget
+ATT/tests/conftest.py:205:    tk_mock.OptionMenu    = _FakeWidget
+ATT/tests/conftest.py:206:    tk_mock.Checkbutton   = _FakeWidget
+ATT/tests/conftest.py:207:    tk_mock.Radiobutton   = _FakeWidget
+ATT/tests/conftest.py:208:    tk_mock.Scale         = _FakeWidget
+ATT/tests/conftest.py:209:    tk_mock.Spinbox       = _FakeEntry
+ATT/tests/conftest.py:210:    tk_mock.PanedWindow   = _FakeFrame
+ATT/tests/conftest.py:211:    tk_mock.Message       = _FakeLabel
+ATT/tests/conftest.py:212:    tk_mock.Wm            = _FakeWidget
+ATT/tests/conftest.py:215:    tk_mock.CENTER = "center"
+ATT/tests/conftest.py:216:    tk_mock.N      = "n"
+ATT/tests/conftest.py:217:    tk_mock.S      = "s"
+ATT/tests/conftest.py:218:    tk_mock.E      = "e"
+ATT/tests/conftest.py:219:    tk_mock.W      = "w"
+ATT/tests/conftest.py:220:    tk_mock.NW     = "nw"
+ATT/tests/conftest.py:221:    tk_mock.NE     = "ne"
+ATT/tests/conftest.py:222:    tk_mock.SW     = "sw"
+ATT/tests/conftest.py:223:    tk_mock.SE     = "se"
+ATT/tests/conftest.py:224:    tk_mock.NSEW   = "nsew"
+ATT/tests/conftest.py:226:    # ttk
+ATT/tests/conftest.py:227:    ttk = types.ModuleType("tkinter.ttk")
+ATT/tests/conftest.py:228:    ttk.Frame         = _FakeFrame
+ATT/tests/conftest.py:229:    ttk.LabelFrame    = _FakeFrame
+ATT/tests/conftest.py:230:    ttk.Label         = _FakeLabel
+ATT/tests/conftest.py:231:    ttk.Button        = _FakeButton
+ATT/tests/conftest.py:232:    ttk.Entry         = _FakeEntry
+ATT/tests/conftest.py:233:    ttk.Combobox      = _FakeCombobox
+ATT/tests/conftest.py:234:    ttk.Treeview      = _FakeTreeview
+ATT/tests/conftest.py:235:    ttk.Scrollbar     = _FakeWidget
+ATT/tests/conftest.py:236:    ttk.Notebook      = _FakeWidget
+ATT/tests/conftest.py:237:    ttk.Separator     = _FakeWidget
+ATT/tests/conftest.py:238:    ttk.Scale         = _FakeWidget
+ATT/tests/conftest.py:239:    ttk.Spinbox       = _FakeEntry
+ATT/tests/conftest.py:240:    ttk.Progressbar   = _FakeWidget
+ATT/tests/conftest.py:241:    ttk.Panedwindow   = _FakeFrame
+ATT/tests/conftest.py:242:    ttk.Style         = _FakeWidget
+ATT/tests/conftest.py:243:    ttk.Sizegrip      = _FakeWidget
+ATT/tests/conftest.py:244:    tk_mock.ttk       = ttk
+ATT/tests/conftest.py:247:    mb = types.ModuleType("tkinter.messagebox")
+ATT/tests/conftest.py:254:    tk_mock.messagebox = mb
+ATT/tests/conftest.py:257:    sd = types.ModuleType("tkinter.simpledialog")
+ATT/tests/conftest.py:262:    tk_mock.simpledialog = sd
+ATT/tests/conftest.py:265:    fd = types.ModuleType("tkinter.filedialog")
+ATT/tests/conftest.py:269:    tk_mock.filedialog  = fd
+ATT/tests/conftest.py:272:    cc = types.ModuleType("tkinter.colorchooser")
+ATT/tests/conftest.py:274:    tk_mock.colorchooser = cc
+ATT/tests/conftest.py:276:    return tk_mock, ttk, mb, sd, fd, cc
+ATT/tests/conftest.py:280:_tk_mock, _ttk, _mb, _sd, _fd, _cc = _make_tk_mock()
+ATT/tests/conftest.py:281:sys.modules.setdefault("tkinter",              _tk_mock)
+ATT/tests/conftest.py:282:sys.modules.setdefault("tkinter.ttk",          _ttk)
+ATT/tests/conftest.py:283:sys.modules.setdefault("tkinter.messagebox",   _mb)
+ATT/tests/conftest.py:284:sys.modules.setdefault("tkinter.simpledialog", _sd)
+ATT/tests/conftest.py:285:sys.modules.setdefault("tkinter.filedialog",   _fd)
+ATT/tests/conftest.py:286:sys.modules.setdefault("tkinter.colorchooser", _cc)
+ATT/tests/test_payoff_chart.py:41:    "matplotlib.backends.backend_tkagg": MagicMock(),
+ATT/tests/test_payoff_chart.py:60:# Fixture: instância de PayoffChart com Tk fake
+ATT/tests/test_payoff_chart.py:64:    """Cria PayoffChart com dependências Tk mockadas."""
+ATT/tests/test_payoff_chart.py:65:    with patch("UI.components.payoff_chart.FigureCanvasTkAgg"), \
+ATT/tests/test_payoff_chart.py:66:         patch("UI.components.payoff_chart.NavigationToolbar2Tk"), \
+ATT/tests/test_payoff_chart.py:68:         patch("UI.components.payoff_chart.ttk.Frame.__init__", return_value=None), \
+ATT/tests/test_payoff_chart.py:69:         patch("UI.components.payoff_chart.ttk.Frame.pack",     return_value=None), \
+ATT/tests/test_payoff_chart.py:70:         patch("UI.components.payoff_chart.ttk.Frame.bind",     return_value=None):
+ATT/tests/test_structure_editor_dialog.py:30:# Helpers Tk
+ATT/tests/test_structure_editor_dialog.py:32:_TK_MODAL_METHODS = ["transient", "grab_set", "wait_window", "focus_set"]
+ATT/tests/test_structure_editor_dialog.py:35:def _start_tk_patches() -> list:
+ATT/tests/test_structure_editor_dialog.py:37:    Mocka metodos modais herdados de tk.Toplevel.
+ATT/tests/test_structure_editor_dialog.py:41:    for name in _TK_MODAL_METHODS:
+ATT/tests/test_structure_editor_dialog.py:73:# Bloco 1 -- Logica pura (sem Tk, sem repositorio)
+ATT/tests/test_structure_editor_dialog.py:130:        import tkinter as Tk
+ATT/tests/test_structure_editor_dialog.py:131:        self.root = Tk.Tk()
+ATT/tests/test_structure_editor_dialog.py:133:        self._tk_patchers = _start_tk_patches()
+ATT/tests/test_structure_editor_dialog.py:136:        _stop_patches(self._tk_patchers)
+ATT/tests/test_structure_editor_dialog.py:181:        with patch("tkinter.messagebox.showerror"):
+ATT/tests/test_structure_editor_dialog.py:199:        import tkinter as tk
+ATT/tests/test_structure_editor_dialog.py:200:        self.root = tk.Tk()
+ATT/tests/test_structure_editor_dialog.py:202:        self._tk_patchers = _start_tk_patches()
+ATT/tests/test_structure_editor_dialog.py:206:        _stop_patches(self._tk_patchers)
+ATT/tests/test_structure_editor_dialog.py:283:        with patch("tkinter.messagebox.showwarning"):
+ATT/tests/test_structure_editor_dialog.py:292:        with patch("tkinter.messagebox.showwarning"):
+ATT/tests/test_structure_editor_dialog.py:306:        import tkinter as tk
+ATT/tests/test_structure_editor_dialog.py:307:        self.root = tk.Tk()
+ATT/tests/test_structure_editor_dialog.py:309:        self._tk_patchers = _start_tk_patches()
+ATT/tests/test_structure_editor_dialog.py:313:        _stop_patches(self._tk_patchers)
+ATT/tests/test_structure_editor_integration.py:5:Testes de integração: StructureEditorDialog x MainWindow.
+ATT/tests/test_structure_editor_integration.py:18:# Stubs de tkinter + matplotlib
+ATT/tests/test_structure_editor_integration.py:24:    _tk_mock = _umock.MagicMock()
+ATT/tests/test_structure_editor_integration.py:25:    _tk_mock.__name__    = "tkinter"
+ATT/tests/test_structure_editor_integration.py:26:    _tk_mock.__spec__    = None
+ATT/tests/test_structure_editor_integration.py:27:    _tk_mock.__path__    = []
+ATT/tests/test_structure_editor_integration.py:28:    _tk_mock.__package__ = "tkinter"
+ATT/tests/test_structure_editor_integration.py:31:    _tk_mock.END        = "end"
+ATT/tests/test_structure_editor_integration.py:32:    _tk_mock.BOTH       = "both"
+ATT/tests/test_structure_editor_integration.py:33:    _tk_mock.YES        = True
+ATT/tests/test_structure_editor_integration.py:34:    _tk_mock.LEFT       = "left"
+ATT/tests/test_structure_editor_integration.py:35:    _tk_mock.RIGHT      = "right"
+ATT/tests/test_structure_editor_integration.py:36:    _tk_mock.TOP        = "top"
+ATT/tests/test_structure_editor_integration.py:37:    _tk_mock.BOTTOM     = "bottom"
+ATT/tests/test_structure_editor_integration.py:38:    _tk_mock.X          = "x"
+ATT/tests/test_structure_editor_integration.py:39:    _tk_mock.Y          = "y"
+ATT/tests/test_structure_editor_integration.py:40:    _tk_mock.W          = "w"
+ATT/tests/test_structure_editor_integration.py:41:    _tk_mock.E          = "e"
+ATT/tests/test_structure_editor_integration.py:42:    _tk_mock.N          = "n"
+ATT/tests/test_structure_editor_integration.py:43:    _tk_mock.S          = "s"
+ATT/tests/test_structure_editor_integration.py:44:    _tk_mock.NW         = "nw"
+ATT/tests/test_structure_editor_integration.py:45:    _tk_mock.NE         = "ne"
+ATT/tests/test_structure_editor_integration.py:46:    _tk_mock.SW         = "sw"
+ATT/tests/test_structure_editor_integration.py:47:    _tk_mock.SE         = "se"
+ATT/tests/test_structure_editor_integration.py:48:    _tk_mock.NSEW       = "nsew"
+ATT/tests/test_structure_editor_integration.py:49:    _tk_mock.CENTER     = "center"
+ATT/tests/test_structure_editor_integration.py:50:    _tk_mock.NORMAL     = "normal"
+ATT/tests/test_structure_editor_integration.py:51:    _tk_mock.DISABLED   = "disabled"
+ATT/tests/test_structure_editor_integration.py:52:    _tk_mock.WORD       = "word"
+ATT/tests/test_structure_editor_integration.py:53:    _tk_mock.VERTICAL   = "vertical"
+ATT/tests/test_structure_editor_integration.py:54:    _tk_mock.HORIZONTAL = "horizontal"
+ATT/tests/test_structure_editor_integration.py:55:    _tk_mock.FLAT       = "flat"
+ATT/tests/test_structure_editor_integration.py:56:    _tk_mock.RAISED     = "raised"
+ATT/tests/test_structure_editor_integration.py:57:    _tk_mock.SUNKEN     = "sunken"
+ATT/tests/test_structure_editor_integration.py:58:    _tk_mock.GROOVE     = "groove"
+ATT/tests/test_structure_editor_integration.py:59:    _tk_mock.RIDGE      = "ridge"
+ATT/tests/test_structure_editor_integration.py:60:    _tk_mock.LAST       = "last"
+ATT/tests/test_structure_editor_integration.py:61:    _tk_mock.FIRST      = "first"
+ATT/tests/test_structure_editor_integration.py:62:    _tk_mock.ACTIVE     = "active"
+ATT/tests/test_structure_editor_integration.py:63:    _tk_mock.HIDDEN     = "hidden"
+ATT/tests/test_structure_editor_integration.py:64:    _tk_mock.CASCADE    = "cascade"
+ATT/tests/test_structure_editor_integration.py:65:    _tk_mock.CHECKBUTTON = "checkbutton"
+ATT/tests/test_structure_editor_integration.py:66:    _tk_mock.RADIOBUTTON = "radiobutton"
+ATT/tests/test_structure_editor_integration.py:67:    _tk_mock.SEPARATOR  = "separator"
+ATT/tests/test_structure_editor_integration.py:68:    _tk_mock.ANCHOR     = "anchor"
+ATT/tests/test_structure_editor_integration.py:69:    _tk_mock.INSERT     = "insert"
+ATT/tests/test_structure_editor_integration.py:70:    _tk_mock.SEL        = "sel"
+ATT/tests/test_structure_editor_integration.py:71:    _tk_mock.SEL_FIRST  = "sel.first"
+ATT/tests/test_structure_editor_integration.py:72:    _tk_mock.SEL_LAST   = "sel.last"
+ATT/tests/test_structure_editor_integration.py:92:    _tk_mock.StringVar  = _StringVar
+ATT/tests/test_structure_editor_integration.py:93:    _tk_mock.BooleanVar = _BoolVar
+ATT/tests/test_structure_editor_integration.py:94:    _tk_mock.IntVar     = _IntVar
+ATT/tests/test_structure_editor_integration.py:101:        """Stub genérico para widgets Tk — absorve pack/grid/bind/etc."""
+ATT/tests/test_structure_editor_integration.py:123:        Stub de tk.Toplevel.
+ATT/tests/test_structure_editor_integration.py:137:    _tk_mock.Toplevel = _Toplevel
+ATT/tests/test_structure_editor_integration.py:138:    _tk_mock.Widget   = _Widget
+ATT/tests/test_structure_editor_integration.py:139:    _tk_mock.Frame    = _Widget
+ATT/tests/test_structure_editor_integration.py:141:    sys.modules["tkinter"] = _tk_mock
+ATT/tests/test_structure_editor_integration.py:143:    # Submódulos de tkinter
+ATT/tests/test_structure_editor_integration.py:144:    for _sub_name in ("font", "messagebox", "ttk", "filedialog",
+ATT/tests/test_structure_editor_integration.py:146:        _key = f"tkinter.{_sub_name}"
+ATT/tests/test_structure_editor_integration.py:157:        if _sub_name == "ttk":
+ATT/tests/test_structure_editor_integration.py:158:            # CORREÇÃO: ttk widgets também precisam ser classes reais
+ATT/tests/test_structure_editor_integration.py:169:        setattr(_tk_mock, _sub_name, _sub_mock)
+ATT/tests/test_structure_editor_integration.py:175:        "matplotlib.backends.backend_tkagg",
+ATT/tests/test_structure_editor_integration.py:176:        "matplotlib.backends._backend_tk",
+ATT/tests/test_structure_editor_integration.py:218:    _mpl_stub.get_backend     = MagicMock(return_value="TkAgg")
+ATT/tests/test_structure_editor_integration.py:221:    mpl_tk = sys.modules["matplotlib.backends.backend_tkagg"]
+ATT/tests/test_structure_editor_integration.py:222:    if not hasattr(mpl_tk, "FigureCanvasTkAgg"):
+ATT/tests/test_structure_editor_integration.py:223:        mpl_tk.FigureCanvasTkAgg    = MagicMock
+ATT/tests/test_structure_editor_integration.py:224:        mpl_tk.NavigationToolbar2Tk = MagicMock
+ATT/tests/test_structure_editor_integration.py:308:    mw = object.__new__(mw_mod.MainWindow)
+ATT/tests/test_structure_editor_integration.py:500:        with patch("tkinter.messagebox.showwarning"):
+ATT/tests/test_structure_editor_integration.py:506:        with patch("tkinter.messagebox.showwarning"):
+ATT/tests/test_structure_editor_integration.py:514:        with patch("tkinter.messagebox.showerror"):
+ATT/tests/test_structures_archive_wiring.py:7:Todos os testes que dependem de Tkinter real estao marcados com
+ATT/tests/test_structures_archive_wiring.py:8:@unittest.skip("Requer display Tkinter -- headless nao suportado").
+ATT/tests/test_structures_archive_wiring.py:115:class TestStructuresArchiveWiringMainWindow(unittest.TestCase):
+ATT/tests/test_structures_archive_wiring.py:181:    Constroi um objeto que simula StructuresListPanel sem Tkinter.
+ATT/tests/test_structures_archive_wiring.py:198:    # Garante que tkinter nao seja chamado -- substitui por stubs antes do import
+ATT/tests/test_structures_archive_wiring.py:199:    _fake_tk = types.ModuleType("tkinter")
+ATT/tests/test_structures_archive_wiring.py:200:    _fake_tk.Tk = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:201:    _fake_tk.StringVar = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:202:    _fake_ttk = types.ModuleType("tkinter.ttk")
+ATT/tests/test_structures_archive_wiring.py:203:    _fake_ttk.Frame = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:204:    _fake_mb = types.ModuleType("tkinter.messagebox")
+ATT/tests/test_structures_archive_wiring.py:212:        "tkinter":          _fake_tk,
+ATT/tests/test_structures_archive_wiring.py:213:        "tkinter.ttk":      _fake_ttk,
+ATT/tests/test_structures_archive_wiring.py:214:        "tkinter.messagebox": _fake_mb,
+ATT/tests/test_structures_archive_wiring.py:402:        Constroi objeto minimo para testar _set_status sem Tkinter.
+ATT/tests/test_structures_archive_wiring.py:414:        _fake_tk  = _types.ModuleType("tkinter")
+ATT/tests/test_structures_archive_wiring.py:415:        _fake_tk.StringVar = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:416:        _fake_ttk = _types.ModuleType("tkinter.ttk")
+ATT/tests/test_structures_archive_wiring.py:417:        _fake_ttk.Frame = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:418:        _fake_mb  = _types.ModuleType("tkinter.messagebox")
+ATT/tests/test_structures_archive_wiring.py:424:            "tkinter": _fake_tk,
+ATT/tests/test_structures_archive_wiring.py:425:            "tkinter.ttk": _fake_ttk,
+ATT/tests/test_structures_archive_wiring.py:426:            "tkinter.messagebox": _fake_mb,
+ATT/tests/test_structures_archive_wiring.py:469:        _fake_tk  = _types.ModuleType("tkinter")
+ATT/tests/test_structures_archive_wiring.py:470:        _fake_tk.StringVar = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:471:        _fake_ttk = _types.ModuleType("tkinter.ttk")
+ATT/tests/test_structures_archive_wiring.py:472:        _fake_ttk.Frame = mock.MagicMock
+ATT/tests/test_structures_archive_wiring.py:473:        _fake_mb  = _types.ModuleType("tkinter.messagebox")
+ATT/tests/test_structures_archive_wiring.py:479:            "tkinter": _fake_tk,
+ATT/tests/test_structures_archive_wiring.py:480:            "tkinter.ttk": _fake_ttk,
+ATT/tests/test_structures_archive_wiring.py:481:            "tkinter.messagebox": _fake_mb,
+ATT/tests/test_structures_archive_wiring.py:507:# 5. Testes Tk-dependentes (skip em headless)
+ATT/tests/test_structures_archive_wiring.py:510:@unittest.skip("Requer display Tkinter -- headless nao suportado")
+ATT/tests/test_structures_archive_wiring.py:511:class TestArchiveWiringTkinter(unittest.TestCase):
+ATT/tests/test_structures_archive_wiring.py:513:    Testes de integracao real com Tkinter.
+ATT/tests/test_structures_archive_wiring.py:518:        import tkinter as tk
+ATT/tests/test_structures_archive_wiring.py:519:        self.root = tk.Tk()
+ATT/tests/test_terminal_vwap_payoff_panel.py:76:def test_terminal_panel_extracts_leg_rows_without_tk_display():
+ATT/tests/test_terminal_vwap_payoff_panel.py:93:def test_terminal_panel_extracts_payoff_rows_without_tk_display():
+UI/components/decisions_grid.py:3:import tkinter as tk
+UI/components/decisions_grid.py:4:from tkinter import ttk
+UI/components/decisions_grid.py:9:class DecisionsGrid(ttk.LabelFrame):
+UI/components/decisions_grid.py:35:        self.tree = ttk.Treeview(
+UI/components/decisions_grid.py:73:        v_scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+UI/components/decisions_grid.py:76:        h_scrollbar = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
+UI/components/details_panel.py:2:import tkinter as tk
+UI/components/details_panel.py:3:from tkinter import ttk, scrolledtext
+UI/components/details_panel.py:10:class DetailsPanel(ttk.LabelFrame):
+UI/components/details_panel.py:458:        basic_frame = ttk.LabelFrame(self, text="Informações Básicas", padding=5)
+UI/components/details_panel.py:463:        ttk.Label(basic_frame, text="Timestamp:").grid(
+UI/components/details_panel.py:466:        self.timestamp_label = ttk.Label(
+UI/components/details_panel.py:471:        ttk.Label(basic_frame, text="Estrutura:").grid(
+UI/components/details_panel.py:474:        self.structure_label = ttk.Label(
+UI/components/details_panel.py:479:        ttk.Label(basic_frame, text="Decisão:").grid(
+UI/components/details_panel.py:482:        self.decision_label = ttk.Label(
+UI/components/details_panel.py:487:        ttk.Label(basic_frame, text="Nível:").grid(
+UI/components/details_panel.py:490:        self.level_label = ttk.Label(
+UI/components/details_panel.py:496:        metrics_frame = ttk.LabelFrame(self, text="Métricas Financeiras", padding=5)
+UI/components/details_panel.py:501:        ttk.Label(metrics_frame, text="PL Atual:").grid(
+UI/components/details_panel.py:504:        self.pl_atual_label = ttk.Label(
+UI/components/details_panel.py:509:        ttk.Label(metrics_frame, text="PL Máximo:").grid(
+UI/components/details_panel.py:512:        self.pl_max_label = ttk.Label(
+UI/components/details_panel.py:517:        ttk.Label(metrics_frame, text="Ratio:").grid(
+UI/components/details_panel.py:520:        self.ratio_label = ttk.Label(
+UI/components/details_panel.py:525:        ttk.Label(metrics_frame, text="DTE Mín:").grid(
+UI/components/details_panel.py:528:        self.dte_label = ttk.Label(
+UI/components/details_panel.py:533:        ttk.Label(metrics_frame, text="Spot Ref:").grid(
+UI/components/details_panel.py:536:        self.spot_ref_label = ttk.Label(
+UI/components/details_panel.py:541:        ttk.Label(metrics_frame, text="Breakevens:").grid(
+UI/components/details_panel.py:544:        self.breakevens_label = ttk.Label(
+UI/components/details_panel.py:550:        operational_frame = ttk.LabelFrame(self, text="Estado Operacional", padding=5)
+UI/components/details_panel.py:555:        ttk.Label(operational_frame, text="Eventos aplicados:").grid(
+UI/components/details_panel.py:558:        self.operational_events_applied_label = ttk.Label(
+UI/components/details_panel.py:565:        ttk.Label(operational_frame, text="Cancelados ignorados:").grid(
+UI/components/details_panel.py:568:        self.operational_cancelled_ignored_label = ttk.Label(
+UI/components/details_panel.py:575:        ttk.Label(operational_frame, text="Status:").grid(
+UI/components/details_panel.py:578:        self.operational_status_label = ttk.Label(
+UI/components/details_panel.py:586:        json_frame = ttk.LabelFrame(self, text="Rationale / Why JSON", padding=5)
+UI/components/details_panel.py:594:            wrap=tk.WORD,
+UI/components/details_panel.py:601:        audit_frame = ttk.LabelFrame(self, text="Auditoria & Ações", padding=5)
+UI/components/details_panel.py:606:        ttk.Label(audit_frame, text="Fonte:").grid(
+UI/components/details_panel.py:609:        self.source_label = ttk.Label(
+UI/components/details_panel.py:614:        ttk.Label(audit_frame, text="Created At:").grid(
+UI/components/details_panel.py:617:        self.created_at_label = ttk.Label(
+UI/components/details_panel.py:622:        actions_frame = ttk.Frame(audit_frame)
+UI/components/details_panel.py:625:        self.btn_recalculate = ttk.Button(
+UI/components/details_panel.py:632:        self.lbl_recalc_status = ttk.Label(
+UI/components/details_panel.py:673:        self.why_text.delete("1.0", tk.END)
+UI/components/details_panel.py:731:        self.why_text.delete("1.0", tk.END)
+UI/components/details_panel.py:735:        """Chamado pelo MainWindow ao finalizar o subprocess do pipeline."""
+UI/components/details_panel.py:865:    def _format_currency_label(self, label: ttk.Label, value):
+UI/components/filters_panel.py:2:import tkinter as tk
+UI/components/filters_panel.py:3:from tkinter import ttk
+UI/components/filters_panel.py:7:class FiltersPanel(ttk.LabelFrame):
+UI/components/filters_panel.py:17:        row1 = ttk.Frame(self)
+UI/components/filters_panel.py:20:        ttk.Label(row1, text="Período:", width=10).pack(side="left")
+UI/components/filters_panel.py:22:        self.date_from_var = tk.StringVar()
+UI/components/filters_panel.py:23:        self.date_to_var = tk.StringVar()
+UI/components/filters_panel.py:31:        ttk.Label(row1, text="De:").pack(side="left", padx=(10, 5))
+UI/components/filters_panel.py:32:        self.date_from_entry = ttk.Entry(row1, textvariable=self.date_from_var, width=12)
+UI/components/filters_panel.py:35:        ttk.Label(row1, text="Até:").pack(side="left", padx=(10, 5))
+UI/components/filters_panel.py:36:        self.date_to_entry = ttk.Entry(row1, textvariable=self.date_to_var, width=12)
+UI/components/filters_panel.py:40:        row2 = ttk.Frame(self)
+UI/components/filters_panel.py:43:        ttk.Label(row2, text="Estrutura:", width=10).pack(side="left")
+UI/components/filters_panel.py:44:        self.structure_var = tk.StringVar()
+UI/components/filters_panel.py:45:        self.structure_combo = ttk.Combobox(
+UI/components/filters_panel.py:53:        ttk.Label(row2, text="Decisão:").pack(side="left")
+UI/components/filters_panel.py:54:        self.decision_var = tk.StringVar()
+UI/components/filters_panel.py:55:        self.decision_combo = ttk.Combobox(
+UI/components/filters_panel.py:65:        row3 = ttk.Frame(self)
+UI/components/filters_panel.py:68:        ttk.Label(row3, text="Level >=:", width=10).pack(side="left")
+UI/components/filters_panel.py:69:        self.level_var = tk.StringVar()
+UI/components/filters_panel.py:70:        self.level_entry = ttk.Entry(row3, textvariable=self.level_var, width=5)
+UI/components/filters_panel.py:73:        ttk.Label(row3, text="DTE <=:").pack(side="left")
+UI/components/filters_panel.py:74:        self.dte_var = tk.StringVar()
+UI/components/filters_panel.py:75:        self.dte_entry = ttk.Entry(row3, textvariable=self.dte_var, width=5)
+UI/components/filters_panel.py:79:        btn_frame = ttk.Frame(row3)
+UI/components/filters_panel.py:82:        self.apply_btn = ttk.Button(
+UI/components/filters_panel.py:87:        self.reset_btn = ttk.Button(
+UI/components/filters_panel.py:93:        self.status_label = ttk.Label(self, text="Filtros prontos", foreground="green")
+UI/components/payoff_chart.py:6:from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+UI/components/payoff_chart.py:7:import tkinter as tk
+UI/components/payoff_chart.py:9:from tkinter import filedialog, messagebox
+UI/components/payoff_chart.py:10:from tkinter import ttk
+UI/components/payoff_chart.py:14:matplotlib.use("TkAgg")  # necessário para renderizar no Tkinter
+UI/components/payoff_chart.py:55:class PayoffChart(ttk.Frame):
+UI/components/payoff_chart.py:77:        top = ttk.Frame(self)
+UI/components/payoff_chart.py:80:        self.btn_export = ttk.Button(
+UI/components/payoff_chart.py:85:        self.btn_fix_curve = ttk.Button(
+UI/components/payoff_chart.py:90:        self.btn_clear_comparison = ttk.Button(
+UI/components/payoff_chart.py:99:        self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+UI/components/payoff_chart.py:100:        self.canvas.get_tk_widget().pack(fill="both", expand=True)
+UI/components/payoff_chart.py:103:        self.toolbar = NavigationToolbar2Tk(self.canvas, top, pack_toolbar=False)
+UI/components/payoff_chart.py:129:        """Agenda draw_idle na thread do Tk."""
+UI/components/structure_editor_dialog.py:23:    _f_name         tk.StringVar
+UI/components/structure_editor_dialog.py:24:    _f_underlying   tk.StringVar
+UI/components/structure_editor_dialog.py:25:    _f_alias        tk.StringVar
+UI/components/structure_editor_dialog.py:26:    _f_status       tk.StringVar
+UI/components/structure_editor_dialog.py:27:    _f_notes        tk.StringVar
+UI/components/structure_editor_dialog.py:38:import tkinter as tk
+UI/components/structure_editor_dialog.py:39:from tkinter import ttk, messagebox
+UI/components/structure_editor_dialog.py:66:class StructureEditorDialog(tk.Toplevel):
+UI/components/structure_editor_dialog.py:71:        parent: tk.Widget,
+UI/components/structure_editor_dialog.py:95:        # antes do mainloop (cenario de teste headless via object.__new__)
+UI/components/structure_editor_dialog.py:96:        self._f_name       = tk.StringVar()
+UI/components/structure_editor_dialog.py:97:        self._f_underlying = tk.StringVar()
+UI/components/structure_editor_dialog.py:98:        self._f_alias      = tk.StringVar()
+UI/components/structure_editor_dialog.py:99:        self._f_status     = tk.StringVar(value="active")
+UI/components/structure_editor_dialog.py:100:        self._f_notes      = tk.StringVar()
+UI/components/structure_editor_dialog.py:122:        hdr = ttk.LabelFrame(self, text="Dados Gerais", padding=8)
+UI/components/structure_editor_dialog.py:134:            ttk.Label(hdr, text=label, anchor="e", width=14).grid(
+UI/components/structure_editor_dialog.py:138:                w = ttk.Combobox(
+UI/components/structure_editor_dialog.py:143:                w = ttk.Entry(hdr, textvariable=var, width=40)
+UI/components/structure_editor_dialog.py:149:        legs_outer = ttk.LabelFrame(self, text="Legs", padding=8)
+UI/components/structure_editor_dialog.py:153:        leg_toolbar = ttk.Frame(legs_outer)
+UI/components/structure_editor_dialog.py:155:        ttk.Button(leg_toolbar, text="+ Leg",    command=self._cmd_add_leg).pack(side="left", padx=2)
+UI/components/structure_editor_dialog.py:156:        ttk.Button(leg_toolbar, text="Remover",  command=self._cmd_remove_leg).pack(side="left", padx=2)
+UI/components/structure_editor_dialog.py:157:        ttk.Button(leg_toolbar, text="▲",        command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
+UI/components/structure_editor_dialog.py:158:        ttk.Button(leg_toolbar, text="▼",        command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
+UI/components/structure_editor_dialog.py:161:        leg_frame = ttk.Frame(legs_outer)
+UI/components/structure_editor_dialog.py:168:        self._leg_tree = ttk.Treeview(
+UI/components/structure_editor_dialog.py:177:            self._leg_tree.column(col, width=w, anchor=tk.CENTER, stretch=(col == "expiry"))
+UI/components/structure_editor_dialog.py:179:        leg_vsb = ttk.Scrollbar(leg_frame, orient="vertical", command=self._leg_tree.yview)
+UI/components/structure_editor_dialog.py:189:        btn_bar = ttk.Frame(self)
+UI/components/structure_editor_dialog.py:192:        ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
+UI/components/structure_editor_dialog.py:193:        ttk.Button(btn_bar, text="[SAVE] Salvar", command=self._cmd_save).pack(side="right", padx=4)
+UI/components/structure_editor_dialog.py:195:    def _build_leg_form(self, parent: tk.Widget):
+UI/components/structure_editor_dialog.py:197:        form = ttk.LabelFrame(parent, text="Editar Leg", padding=6)
+UI/components/structure_editor_dialog.py:200:        self._lf_side    = tk.StringVar(value="COMPRADO")
+UI/components/structure_editor_dialog.py:201:        self._lf_type    = tk.StringVar(value="CALL")
+UI/components/structure_editor_dialog.py:202:        self._lf_strike  = tk.StringVar()
+UI/components/structure_editor_dialog.py:203:        self._lf_expiry  = tk.StringVar()
+UI/components/structure_editor_dialog.py:204:        self._lf_qty     = tk.StringVar(value="1")
+UI/components/structure_editor_dialog.py:205:        self._lf_premium = tk.StringVar()
+UI/components/structure_editor_dialog.py:206:        self._lf_mult    = tk.StringVar(value="1")
+UI/components/structure_editor_dialog.py:207:        self._lf_symbol  = tk.StringVar()
+UI/components/structure_editor_dialog.py:210:        r1 = ttk.Frame(form)
+UI/components/structure_editor_dialog.py:216:            ttk.Label(r1, text=label + ":").pack(side="left")
+UI/components/structure_editor_dialog.py:217:            ttk.Combobox(
+UI/components/structure_editor_dialog.py:226:            ttk.Label(r1, text=label + ":").pack(side="left")
+UI/components/structure_editor_dialog.py:227:            ttk.Entry(r1, textvariable=var, width=13).pack(side="left", padx=(0, 8))
+UI/components/structure_editor_dialog.py:230:        r2 = ttk.Frame(form)
+UI/components/structure_editor_dialog.py:238:            ttk.Label(r2, text=label + ":").pack(side="left")
+UI/components/structure_editor_dialog.py:239:            ttk.Entry(r2, textvariable=var, width=10).pack(side="left", padx=(0, 8))
+UI/components/structure_editor_dialog.py:242:        form_btns = ttk.Frame(form)
+UI/components/structure_editor_dialog.py:245:        ttk.Button(
+UI/components/structure_editor_dialog.py:251:        ttk.Button(
+UI/components/structure_editor_dialog.py:587:        Logica pura: nao modifica _legs_rows nem acessa Tk.
+UI/components/structures_list_panel.py:18:    _tree           ttk.Treeview
+UI/components/structures_list_panel.py:19:    _status_var     tk.StringVar  ("active" | "all")
+UI/components/structures_list_panel.py:24:import tkinter as tk
+UI/components/structures_list_panel.py:25:from tkinter import ttk, messagebox
+UI/components/structures_list_panel.py:46:class StructuresListPanel(ttk.Frame):
+UI/components/structures_list_panel.py:51:        parent: tk.Widget,
+UI/components/structures_list_panel.py:77:        toolbar = ttk.Frame(self)
+UI/components/structures_list_panel.py:80:        ttk.Label(toolbar, text="Status:").pack(side="left")
+UI/components/structures_list_panel.py:82:        self._status_var = tk.StringVar(value="active")
+UI/components/structures_list_panel.py:83:        status_cb = ttk.Combobox(
+UI/components/structures_list_panel.py:93:        ttk.Label(toolbar, text="Busca:").pack(side="left")
+UI/components/structures_list_panel.py:94:        self._search_var = tk.StringVar()
+UI/components/structures_list_panel.py:95:        search_entry = ttk.Entry(toolbar, textvariable=self._search_var, width=18)
+UI/components/structures_list_panel.py:99:        ttk.Button(toolbar, text="", width=3,
+UI/components/structures_list_panel.py:104:        frame = ttk.Frame(self)
+UI/components/structures_list_panel.py:107:        self._tree = ttk.Treeview(
+UI/components/structures_list_panel.py:122:        vsb = ttk.Scrollbar(frame, orient="vertical",   command=self._tree.yview)
+UI/components/structures_list_panel.py:123:        hsb = ttk.Scrollbar(frame, orient="horizontal", command=self._tree.xview)
+UI/components/structures_list_panel.py:138:        btn_bar = ttk.Frame(self)
+UI/components/structures_list_panel.py:148:            ttk.Button(btn_bar, text=label, command=cmd).pack(
+UI/components/structures_list_panel.py:152:        self._status_label_var = tk.StringVar(value="")
+UI/components/structures_list_panel.py:153:        ttk.Label(
+UI/components/terminal_vwap_payoff_dark_panel.py:25:import tkinter as tk
+UI/components/terminal_vwap_payoff_dark_panel.py:26:from tkinter import ttk
+UI/components/terminal_vwap_payoff_dark_panel.py:28:import customtkinter as ctk
+UI/components/terminal_vwap_payoff_dark_panel.py:29:from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+UI/components/terminal_vwap_payoff_dark_panel.py:31:from tkinter import messagebox
+UI/components/terminal_vwap_payoff_dark_panel.py:129:class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
+UI/components/terminal_vwap_payoff_dark_panel.py:145:        self.canvas_vwap: Optional[FigureCanvasTkAgg] = None
+UI/components/terminal_vwap_payoff_dark_panel.py:146:        self.canvas_payoff: Optional[FigureCanvasTkAgg] = None
+UI/components/terminal_vwap_payoff_dark_panel.py:148:        self.kpi_labels: Dict[str, ctk.CTkLabel] = {}
+UI/components/terminal_vwap_payoff_dark_panel.py:155:        style = ttk.Style()
+UI/components/terminal_vwap_payoff_dark_panel.py:187:        self.rail = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:196:        self.btn_toggle = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:203:            font=ctk.CTkFont(size=14, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:208:        self.btn_reload_fixed = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:216:            font=ctk.CTkFont(size=18, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:221:        self.btn_new_fixed = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:229:            font=ctk.CTkFont(size=22, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:234:        self.btn_struct_actions = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:242:            font=ctk.CTkFont(size=11, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:247:        self.btn_open_fixed = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:255:            font=ctk.CTkFont(size=13, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:260:        self.side = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:269:        self.main = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:278:        self.header = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:282:            font=ctk.CTkFont(size=16, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:286:        self.kpi_frame = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:300:        self.frame_vwap = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:307:        self.frame_payoff = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:314:        self.bottom = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:324:        self.legs_title = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:328:            font=ctk.CTkFont(size=12, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:332:        self.alerts_title = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:336:            font=ctk.CTkFont(size=12, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:340:        self.legs_table = ttk.Treeview(
+UI/components/terminal_vwap_payoff_dark_panel.py:373:        self.alerts_box = ctk.CTkTextbox(
+UI/components/terminal_vwap_payoff_dark_panel.py:378:            font=ctk.CTkFont(family="Consolas", size=12),
+UI/components/terminal_vwap_payoff_dark_panel.py:386:        card = ctk.CTkFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:393:        lbl_title = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:397:            font=ctk.CTkFont(size=11, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:401:        lbl_value = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:405:            font=ctk.CTkFont(size=15, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:511:        btn_add = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:523:        title = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:527:            font=ctk.CTkFont(size=11, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:531:        btn_reload = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:541:        scroll = ctk.CTkScrollableFrame(
+UI/components/terminal_vwap_payoff_dark_panel.py:548:            lbl = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:563:            btn = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:1026:                canvas.get_tk_widget().destroy()
+UI/components/terminal_vwap_payoff_dark_panel.py:1102:        self.canvas_vwap = FigureCanvasTkAgg(fig, master=self.frame_vwap)
+UI/components/terminal_vwap_payoff_dark_panel.py:1104:        self.canvas_vwap.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+UI/components/terminal_vwap_payoff_dark_panel.py:1138:        self.canvas_payoff = FigureCanvasTkAgg(fig, master=self.frame_payoff)
+UI/components/terminal_vwap_payoff_dark_panel.py:1140:        self.canvas_payoff.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+UI/components/terminal_vwap_payoff_dark_panel.py:1174:        label = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:1178:            font=ctk.CTkFont(size=11, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:1185:        button = ctk.CTkButton(
+UI/components/terminal_vwap_payoff_dark_panel.py:1210:        title = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:1214:            font=ctk.CTkFont(size=11, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:1219:        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1222:        info = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:1298:        title = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_dark_panel.py:1302:            font=ctk.CTkFont(size=11, weight="bold"),
+UI/components/terminal_vwap_payoff_dark_panel.py:1307:        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+UI/components/terminal_vwap_payoff_dark_panel.py:1310:        info = ctk.CTkLabel(
+UI/components/terminal_vwap_payoff_panel.py:3:Painel nativo Tkinter do Terminal VWAP Payoff.
+UI/components/terminal_vwap_payoff_panel.py:9:    MainWindow
+UI/components/terminal_vwap_payoff_panel.py:20:import tkinter as tk
+UI/components/terminal_vwap_payoff_panel.py:21:from tkinter import ttk, messagebox
+UI/components/terminal_vwap_payoff_panel.py:151:class TerminalVWAPPayoffPanel(ttk.Frame):
+UI/components/terminal_vwap_payoff_panel.py:156:        parent: tk.Widget,
+UI/components/terminal_vwap_payoff_panel.py:179:        outer = ttk.PanedWindow(self, orient="horizontal")
+UI/components/terminal_vwap_payoff_panel.py:182:        left = ttk.Frame(outer)
+UI/components/terminal_vwap_payoff_panel.py:183:        right = ttk.Frame(outer)
+UI/components/terminal_vwap_payoff_panel.py:191:        self._status_var = tk.StringVar(value="Terminal VWAP Payoff pronto")
+UI/components/terminal_vwap_payoff_panel.py:192:        ttk.Label(
+UI/components/terminal_vwap_payoff_panel.py:195:            relief=tk.SUNKEN,
+UI/components/terminal_vwap_payoff_panel.py:199:    def _build_left_panel(self, parent: tk.Widget) -> None:
+UI/components/terminal_vwap_payoff_panel.py:200:        box = ttk.LabelFrame(parent, text="Estruturas", padding=6)
+UI/components/terminal_vwap_payoff_panel.py:203:        toolbar = ttk.Frame(box)
+UI/components/terminal_vwap_payoff_panel.py:206:        ttk.Button(
+UI/components/terminal_vwap_payoff_panel.py:212:        ttk.Button(
+UI/components/terminal_vwap_payoff_panel.py:219:        self._structures_tree = ttk.Treeview(
+UI/components/terminal_vwap_payoff_panel.py:245:        vsb = ttk.Scrollbar(
+UI/components/terminal_vwap_payoff_panel.py:257:    def _build_right_panel(self, parent: tk.Widget) -> None:
+UI/components/terminal_vwap_payoff_panel.py:258:        notebook = ttk.Notebook(parent)
+UI/components/terminal_vwap_payoff_panel.py:261:        summary_tab = ttk.Frame(notebook, padding=6)
+UI/components/terminal_vwap_payoff_panel.py:262:        legs_tab = ttk.Frame(notebook, padding=6)
+UI/components/terminal_vwap_payoff_panel.py:263:        payoff_tab = ttk.Frame(notebook, padding=6)
+UI/components/terminal_vwap_payoff_panel.py:264:        warnings_tab = ttk.Frame(notebook, padding=6)
+UI/components/terminal_vwap_payoff_panel.py:276:    def _build_summary_tab(self, parent: tk.Widget) -> None:
+UI/components/terminal_vwap_payoff_panel.py:277:        self._summary_vars: dict[str, tk.StringVar] = {}
+UI/components/terminal_vwap_payoff_panel.py:311:            group = ttk.LabelFrame(parent, text=group_title, padding=8)
+UI/components/terminal_vwap_payoff_panel.py:315:                ttk.Label(group, text=f"{label}:", width=18, anchor="e").grid(
+UI/components/terminal_vwap_payoff_panel.py:323:                var = tk.StringVar(value="N/A")
+UI/components/terminal_vwap_payoff_panel.py:326:                ttk.Label(
+UI/components/terminal_vwap_payoff_panel.py:339:    def _build_legs_tab(self, parent: tk.Widget) -> None:
+UI/components/terminal_vwap_payoff_panel.py:351:        self._legs_tree = ttk.Treeview(parent, columns=columns, show="headings")
+UI/components/terminal_vwap_payoff_panel.py:369:        vsb = ttk.Scrollbar(parent, orient="vertical", command=self._legs_tree.yview)
+UI/components/terminal_vwap_payoff_panel.py:375:    def _build_payoff_tab(self, parent: tk.Widget) -> None:
+UI/components/terminal_vwap_payoff_panel.py:376:        top = ttk.Frame(parent)
+UI/components/terminal_vwap_payoff_panel.py:379:        self._payoff_summary_var = tk.StringVar(value="Payoff ainda não carregado")
+UI/components/terminal_vwap_payoff_panel.py:380:        ttk.Label(
+UI/components/terminal_vwap_payoff_panel.py:387:        self._payoff_tree = ttk.Treeview(parent, columns=columns, show="headings")
+UI/components/terminal_vwap_payoff_panel.py:395:        vsb = ttk.Scrollbar(parent, orient="vertical", command=self._payoff_tree.yview)
+UI/components/terminal_vwap_payoff_panel.py:401:    def _build_warnings_tab(self, parent: tk.Widget) -> None:
+UI/components/terminal_vwap_payoff_panel.py:402:        self._warnings_text = tk.Text(parent, height=8, wrap="word")
+UI/components/terminal_vwap_payoff_panel.py:525:        self._warnings_text.delete("1.0", tk.END)
+UI/main_window.py:18:import tkinter as tk
+UI/main_window.py:19:from tkinter import ttk, messagebox
+UI/main_window.py:21:# FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import
+UI/main_window.py:28:class MainWindow:
+UI/main_window.py:30:        self.root = tk.Tk()
+UI/main_window.py:66:        main_paned = ttk.PanedWindow(self.root, orient="horizontal")
+UI/main_window.py:70:        left_frame = ttk.Frame(main_paned)
+UI/main_window.py:74:        right_frame = ttk.Frame(main_paned)
+UI/main_window.py:91:        right_notebook = ttk.Notebook(right_frame)
+UI/main_window.py:95:        details_frame = ttk.Frame(right_notebook)
+UI/main_window.py:106:        chart_frame = ttk.Frame(right_notebook)
+UI/main_window.py:118:        self.status_bar = ttk.Label(
+UI/main_window.py:121:            relief=tk.SUNKEN,
+UI/main_window.py:128:        menubar = tk.Menu(self.root)
+UI/main_window.py:132:        file_menu = tk.Menu(menubar, tearoff=0)
+UI/main_window.py:141:        tools_menu = tk.Menu(menubar, tearoff=0)
+UI/main_window.py:149:        help_menu = tk.Menu(menubar, tearoff=0)
+UI/main_window.py:341:        from tkinter import filedialog
+UI/main_window.py:515:* UI Tkinter (esta interface)
+UI/main_window.py:611:    def _setup_structures_tab(self, notebook: ttk.Notebook):
+UI/main_window.py:613:        outer = ttk.Frame(notebook)
+UI/main_window.py:616:        paned = ttk.PanedWindow(outer, orient="horizontal")
+UI/main_window.py:620:        list_frame = ttk.Frame(paned)
+UI/main_window.py:632:        detail_frame = ttk.LabelFrame(paned, text="Detalhes", padding=8)
+UI/main_window.py:635:        self._struct_detail_text = tk.Text(
+UI/main_window.py:698:    def _setup_terminal_vwap_payoff_tab(self, notebook: ttk.Notebook):
+UI/main_window.py:701:        terminal_frame = ttk.Frame(notebook)
+UI/main_window.py:742:            ttk.Label(
+UI/main_window.py:754:        self.root.mainloop()
+UI/main_window.py:758:    app = MainWindow()
+run_ui.py:1:# run_ui.py  --  entry point da interface Tkinter
+scripts/apply_fase9_update_tests_atomic_create.py:117:        with patch("tkinter.messagebox.showerror"):
+services/terminal_vwap_payoff_app_service.py:25:    diretamente a Excel, RTD, Tkinter ou banco em testes unitários.
+tools/fix_structure_side_panel_patch.py:16:    "from tkinter import messagebox\n"
+tools/fix_structure_side_panel_patch.py:22:    "from tkinter import messagebox\n"
+tools/fix_structure_side_panel_patch.py:39:    "        btn_add = ctk.CTkButton(\n"
+tools/fix_structure_side_panel_patch.py:75:    "        btn_add = ctk.CTkButton(\n"
+tools/patch_structure_side_panel.py:96:    if "from tkinter import messagebox" not in text and "import messagebox" not in text:
+tools/patch_structure_side_panel.py:97:        additions.append("from tkinter import messagebox")
+tools/patch_structure_side_panel.py:190:        f'{body_indent}btn_add = ctk.CTkButton(',
+tools/patch_structure_side_panel.py:271:        f"{indent}self.btn_new_fixed = ctk.CTkButton(",
+tools/patch_structure_side_panel.py:279:        f'{indent}    font=ctk.CTkFont(size=22, weight="bold"),',
+tools/patch_structure_side_panel.py:284:        f"{indent}self.btn_struct_actions = ctk.CTkButton(",
+tools/patch_structure_side_panel.py:292:        f'{indent}    font=ctk.CTkFont(size=11, weight="bold"),',
+tools/patch_structure_side_panel.py:380:    label = ctk.CTkLabel(
+tools/patch_structure_side_panel.py:384:        font=ctk.CTkFont(size=11, weight="bold"),
+tools/patch_structure_side_panel.py:391:    button = ctk.CTkButton(
+tools/patch_structure_side_panel.py:416:    title = ctk.CTkLabel(
+tools/patch_structure_side_panel.py:420:        font=ctk.CTkFont(size=11, weight="bold"),
+tools/patch_structure_side_panel.py:425:    info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+tools/patch_structure_side_panel.py:428:    info = ctk.CTkLabel(
+tools/patch_structure_side_panel.py:504:    title = ctk.CTkLabel(
+tools/patch_structure_side_panel.py:508:        font=ctk.CTkFont(size=11, weight="bold"),
+tools/patch_structure_side_panel.py:513:    info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
+tools/patch_structure_side_panel.py:516:    info = ctk.CTkLabel(
