@@ -212,3 +212,64 @@ Nao deve alterar:
 ### 38.4. Proximo passo
 
 Ler os arquivos candidatos, classificar campos disponiveis e definir o menor patch seguro para filtros avancados de decisoes no modo dark.
+
+## 39. Classificacao tecnica dos filtros avancados de decisoes no modo dark
+
+Foi criada a classificacao tecnica dos filtros avancados de decisoes no modo dark.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/39_classificacao_filtros_avancados_decisoes_dark.md
+
+### 39.1. Objetivo
+
+Ler os arquivos candidatos da frente 38 e classificar o menor caminho seguro para filtros avancados na aba Decisoes do modo dark.
+
+### 39.2. Arquivos considerados
+
+Foram considerados os seguintes arquivos:
+
+- UI/components/decisions_dark_panel.py
+- UI/modern/dark_window.py
+- UI/modern/main_window.py
+- UI/components/filters_panel.py
+- UI/components/decisions_grid.py
+- UI/components/details_panel.py
+
+### 39.3. Decisao tecnica preliminar
+
+A proxima implementacao deve preferir filtragem em memoria sobre as decisoes ja carregadas por UIDataModel.get_decisions(), desde que os campos necessarios estejam disponiveis.
+
+Filtros candidatos de menor risco:
+
+- decisao;
+- level minimo;
+- DTE maximo;
+- estrutura usando indice ja existente;
+- limpar filtros;
+- indicador textual de quantidade filtrada.
+
+Filtro que exige cuidado adicional:
+
+- periodo De/Ate, por depender da padronizacao do campo de data ou timestamp.
+
+### 39.4. Restricoes preservadas
+
+A classificacao nao altera:
+
+- codigo funcional;
+- layout operacional;
+- callbacks;
+- banco;
+- schema;
+- services;
+- controllers;
+- repositories;
+- regra de negocio;
+- contratos canonicos;
+- entrypoint principal;
+- UI atual legada.
+
+### 39.5. Proximo passo
+
+Revisar o relatorio tecnico e, se confirmado, abrir patch funcional minimo para filtros simples na aba Decisoes dark.
