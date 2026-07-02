@@ -692,3 +692,62 @@ A próxima alteração de código recomendada, após esta atualização document
 - não mudar regra de negócio;
 - validar com python -m UI.modern, python -m UI.modern --info e py_compile.
 
+## 16. Mapa de equivalência funcional da UI moderna
+
+Foi criada a primeira versão do mapa de equivalência funcional entre a UI atual auditada e a UI moderna em paralelo.
+
+Relatório gerado:
+
+- reports/ui_modern_equivalence/01_mapa_equivalencia_funcional_ui_moderna.md
+
+### 16.1. Objetivo do mapa
+
+O mapa existe para impedir avanço visual sem controle funcional.
+
+Ele compara as funções obrigatórias registradas na seção 14.2 com evidências textuais nos arquivos atuais de UI.modern.
+
+### 16.2. Critério adotado
+
+O relatório não declara equivalência funcional final.
+
+Critério usado:
+
+- ausência textual indica pendência;
+- presença apenas no shell indica que a função ainda não está confirmada no caminho preferencial;
+- presença no dark indica evidência parcial;
+- equivalência final exige validação manual e, quando aplicável, teste.
+
+### 16.3. Funções obrigatórias avaliadas
+
+Foram avaliadas as seguintes funções:
+
+- filtros de decisões;
+- seleção de decisões;
+- detalhamento de decisão;
+- rationale/why JSON;
+- recalcular estrutura;
+- curva de payoff;
+- comparação Curva A;
+- exportação PNG;
+- CRUD e arquivamento de estruturas;
+- Terminal VWAP Payoff;
+- legs/pernas da estrutura;
+- mensagens de status;
+- banco e contratos canônicos.
+
+### 16.4. Decisão de continuidade
+
+A UI atual ainda não será removida.
+
+O modo dark continua sendo o caminho preferencial da UI moderna.
+
+O shell continua como referência temporária.
+
+A próxima alteração de código autorizada permanece pequena e restrita:
+
+- inventariar tokens visuais hardcoded em UI/modern/dark_window.py;
+- substituir tokens visuais por tema centralizado;
+- não mudar layout funcional;
+- não mudar regra de negócio;
+- não mudar banco;
+- validar abertura e diagnóstico do launcher moderno.
