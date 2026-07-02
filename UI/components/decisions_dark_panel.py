@@ -618,38 +618,144 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 return f"({value})"
         return ""
 
-    def _format_detail(self, decision: Dict[str, Any]) -> str:
-        lines = []
+    def _structure_status_label(self, structure_id: Any) -> str:
+        if structure_id is None or structure_id == "":
+            return "N/A"
 
-        main_fields = [
-            ("timestamp", "Timestamp"),
-            ("created_at", "Criada em"),
-            ("structure_id", "Estrutura"),
-            ("aba", "Aba"),
-            ("decision", "Decisão"),
-            ("level", "Nível"),
-            ("dte_min", "DTE mínimo"),
-            ("pl_atual", "PL atual"),
-            ("pl_max", "PL máximo"),
-            ("pl_pct_of_max", "PL % do máximo"),
-            ("spot_reference", "Spot referência"),
-            ("spot_ref", "Spot ref"),
+        structure_key = str(structure_id)
+        if structure_key in self.active_structure_ids:
+            return "Ativa"
+
+        if structure_key in self.structure_index:
+            return "Inativa ou fora da listagem ativa"
+
+        return "Não localizada"
+
+    def _format_money_value(self, value: Any) -> str:
+        if value is None or value == "":
+            return "N/A"
+
+        try:
+            number = float(value)
+            formatted = f"{number:,.2f}"
+            formatted = formatted.replace(",", "X").replace(".", ",").replace("X", ".")
+            return f"R$ {formatted}"
+        except Exception:
+            return str(value)
+
+    def _format_percent_value(self, value: Any) -> str:
+        if value is None or value == "":
+            return "N/A"
+
+        try:
+            number = float(value)
+            if abs(number) <= 1:
+                number = number * 100
+            return f"{number:.1f}%"
+        except Exception:
+            return str(value)
+
+    def _format_number_value(self, value: Any) -> str:
+        if value is None or value == "":
+            return "N/A"
+
+        try:
+            number = float(value)
+            if number.is_integer():
+                return str(int(number))
+            return f"{number:.2f}"
+        except Exception:
+            return str(value)
+
+    def _detail_value(self, decision: Dict[str, Any], *keys: str) -> Any:
+        for key in keys:
+            value = decision.get(key)
+            if value is not None and value != "":
+                return value
+        return None
+
+    def _format_detail_header(self, decision: Dict[str, Any]) -> str:
+        structure_id = self._decision_structure_id(decision)
+        structure_name = self._structure_name(structure_id)
+        structure_display = str(structure_id) if structure_id is not None else "N/A"
+
+        if structure_name:
+            structure_display = f"{structure_display} - {structure_name}"
+
+        timestamp = self._detail_value(decision, "timestamp")
+        created_at = self._detail_value(decision, "created_at")
+        decision_text = self._detail_value(decision, "decision")
+        level = self._detail_value(decision, "level")
+
+        pl_atual = self._detail_value(decision, "pl_atual")
+        pl_max = self._detail_value(decision, "pl_max")
+        ratio = self._detail_value(decision, "pl_pct_of_max")
+        dte_min = self._detail_value(decision, "dte_min")
+        spot_ref = self._detail_value(decision, "spot_reference", "spot_ref")
+
+        lines = [
+            "Resumo operacional",
+            "------------------",
+            f"Estrutura: {structure_display}",
+            f"Status da estrutura: {self._structure_status_label(structure_id)}",
+            f"Decisão: {decision_text if decision_text is not None else 'N/A'}",
+            f"Nível: {level if level is not None else 'N/A'}",
+            f"Timestamp: {timestamp if timestamp is not None else 'N/A'}",
+            f"Criada em: {created_at if created_at is not None else 'N/A'}",
+            "",
+            "Métricas principais",
+            "-------------------",
+            f"PL atual: {self._format_money_value(pl_atual)}",
+            f"PL máximo: {self._format_money_value(pl_max)}",
+            f"PL % do máximo: {self._format_percent_value(ratio)}",
+            f"DTE mínimo: {self._format_number_value(dte_min)}",
+            f"Spot referência: {self._format_number_value(spot_ref)}",
         ]
 
-        used = set()
+        return "\n".join(lines)
 
-        for key, label in main_fields:
-            if key in decision:
-                lines.append(f"{label}: {decision.get(key)}")
-                used.add(key)
+    def _format_detail(self, decision: Dict[str, Any]) -> str:
+        lines = [self._format_detail_header(decision)]
+
+        structure_id = self._decision_structure_id(decision)
+
+        used = {
+            "timestamp",
+            "created_at",
+            "structure_id",
+            "aba",
+            "decision",
+            "level",
+            "dte_min",
+            "pl_atual",
+            "pl_max",
+            "pl_pct_of_max",
+            "spot_reference",
+            "spot_ref",
+        }
+
+        rationale_payload = decision.get("rationale")
+        if rationale_payload:
+            used.add("rationale")
+            lines.append("")
+            lines.append("Rationale")
+            lines.append("---------")
+            lines.append(self._format_json_like(rationale_payload))
 
         why_payload = decision.get("why") or decision.get("why_json")
         if why_payload:
             used.add("why")
             used.add("why_json")
             lines.append("")
-            lines.append("Rationale / why:")
+            lines.append("Rationale / why")
+            lines.append("---------------")
             lines.append(self._format_json_like(why_payload))
+
+        if not rationale_payload and not why_payload:
+            lines.append("")
+            lines.append("Rationale / why")
+            lines.append("---------------")
+            lines.append("Sem rationale disponível.")
 
         extra = {
             key: value
@@ -659,9 +765,10 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         if extra:
             lines.append("")
-            lines.append("Campos adicionais:")
+            lines.append("Campos adicionais / raw")
+            lines.append("-----------------------")
             for key, value in extra.items():
-                lines.append(f"- {key}: {value}")
+                lines.append(f"- {key}: {self._format_json_like(value)}")
 
         return "\n".join(lines).strip() or "Decisão sem dados detalhados."
 
