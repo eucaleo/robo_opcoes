@@ -42,11 +42,11 @@ Validação manual aprovada na UI moderna dark.\n
 
 Foi implementada e registrada a exportacao CSV da listagem filtrada de decisoes no modo dark.
 
-### 40.1. Objetivo
+### 35.1. Objetivo
 
 Permitir que a visao atual da aba Decisoes no modo dark seja exportada para CSV, respeitando a listagem filtrada exibida ao usuario.
 
-### 40.2. Resultado funcional
+### 35.2. Resultado funcional
 
 A UI moderna dark passou a oferecer exportacao CSV associada ao fluxo de decisoes.
 
@@ -58,7 +58,7 @@ A funcionalidade preserva o escopo da camada visual:
 - nao substitui a UI atual;
 - nao troca o entrypoint principal.
 
-### 40.3. Commits e tags associados
+### 35.3. Commits e tags associados
 
 Commits associados:
 
@@ -74,11 +74,11 @@ Tags associadas:
 
 Foi implementado e registrado o detalhe enriquecido de decisao na aba Decisoes do modo dark.
 
-### 41.1. Objetivo
+### 36.1. Objetivo
 
 Melhorar a leitura operacional da decisao selecionada, exibindo mais campos relevantes sem recriar regra de negocio na UI.
 
-### 41.2. Resultado funcional
+### 36.2. Resultado funcional
 
 O detalhe da decisao no modo dark passou a apresentar informacoes mais completas da decisao selecionada, mantendo o fluxo paralelo da UI moderna.
 
@@ -92,7 +92,7 @@ A alteracao preserva:
 - repositories;
 - UI atual como caminho principal.
 
-### 41.3. Commits e tags associados
+### 36.3. Commits e tags associados
 
 Commits associados:
 
