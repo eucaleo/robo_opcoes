@@ -1226,3 +1226,39 @@ Antes da proxima alteracao, recomenda-se validar o estado da main com:
 A proxima etapa autorizada e documental.
 
 Nao iniciar novo patch funcional antes de concluir o inventario dirigido de decisoes no modo dark.
+
+## 29. Inventario dirigido de decisoes, filtros e tabela no modo dark
+
+Foi iniciado inventario dirigido das funcionalidades de decisoes no modo dark da UI moderna.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/11_inventario_decisoes_filtros_tabela_dark.md
+
+### 29.1. Objetivo
+
+Mapear, antes de qualquer patch funcional, a presenca ou ausencia de:
+
+- filtros de decisoes
+- tabela/listagem de decisoes
+- selecao de decisao
+- detalhe da decisao
+- rationale/why JSON
+- conexoes com controllers, services e repositories
+
+### 29.2. Decisao de seguranca
+
+Esta etapa e documental.
+
+Nao altera:
+
+- codigo funcional
+- layout operacional
+- callbacks
+- banco
+- regra de negocio
+- contratos canonicos
+
+### 29.3. Proximo passo
+
+Ler o inventario gerado, classificar lacunas e definir o menor patch seguro para equivalencia parcial de decisoes no modo dark.
