@@ -103,6 +103,87 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         refresh_btn.grid(row=0, column=3, sticky="e", padx=(4, 12), pady=10)
 
+        filters_frame = ctk.CTkFrame(header, fg_color="#0f172a")
+        filters_frame.grid(row=2, column=0, columnspan=4, sticky="ew", padx=12, pady=(0, 10))
+        filters_frame.grid_columnconfigure(1, weight=1)
+        filters_frame.grid_columnconfigure(8, weight=1)
+
+        decision_filter_label = ctk.CTkLabel(
+            filters_frame,
+            text="Decisão",
+            text_color="#d1d5db",
+        )
+        decision_filter_label.grid(row=0, column=0, sticky="w", padx=(10, 4), pady=8)
+
+        self.decision_filter_entry = ctk.CTkEntry(
+            filters_frame,
+            placeholder_text="Ex.: BUY, SELL, HOLD...",
+            height=30,
+            width=150,
+        )
+        self.decision_filter_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8), pady=8)
+        self.decision_filter_entry.bind("<Return>", self._apply_advanced_filters)
+
+        level_filter_label = ctk.CTkLabel(
+            filters_frame,
+            text="Level mín.",
+            text_color="#d1d5db",
+        )
+        level_filter_label.grid(row=0, column=2, sticky="w", padx=(0, 4), pady=8)
+
+        self.level_min_filter_entry = ctk.CTkEntry(
+            filters_frame,
+            placeholder_text="mín.",
+            height=30,
+            width=70,
+        )
+        self.level_min_filter_entry.grid(row=0, column=3, sticky="w", padx=(0, 8), pady=8)
+        self.level_min_filter_entry.bind("<Return>", self._apply_advanced_filters)
+
+        dte_filter_label = ctk.CTkLabel(
+            filters_frame,
+            text="DTE máx.",
+            text_color="#d1d5db",
+        )
+        dte_filter_label.grid(row=0, column=4, sticky="w", padx=(0, 4), pady=8)
+
+        self.dte_max_filter_entry = ctk.CTkEntry(
+            filters_frame,
+            placeholder_text="máx.",
+            height=30,
+            width=70,
+        )
+        self.dte_max_filter_entry.grid(row=0, column=5, sticky="w", padx=(0, 8), pady=8)
+        self.dte_max_filter_entry.bind("<Return>", self._apply_advanced_filters)
+
+        apply_filters_btn = ctk.CTkButton(
+            filters_frame,
+            text="Aplicar",
+            width=90,
+            height=30,
+            command=self._apply_advanced_filters,
+        )
+        apply_filters_btn.grid(row=0, column=6, sticky="e", padx=(0, 6), pady=8)
+
+        clear_filters_btn = ctk.CTkButton(
+            filters_frame,
+            text="Limpar filtros",
+            width=110,
+            height=30,
+            fg_color="#374151",
+            hover_color="#4b5563",
+            command=self._clear_advanced_filters,
+        )
+        clear_filters_btn.grid(row=0, column=7, sticky="e", padx=(0, 8), pady=8)
+
+        self.filter_summary_label = ctk.CTkLabel(
+            filters_frame,
+            text="Filtros: sem dados carregados.",
+            text_color="#9ca3af",
+            anchor="e",
+        )
+        self.filter_summary_label.grid(row=0, column=8, sticky="e", padx=(0, 10), pady=8)
+
         self.search_entry = ctk.CTkEntry(
             header,
             placeholder_text="Buscar por ID ou nome da estrutura ativa...",
@@ -259,6 +340,104 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.search_entry.delete(0, "end")
         self._apply_filter(render=True)
 
+    def _apply_advanced_filters(self, _event=None) -> None:
+        self._apply_filter(render=True)
+
+    def _clear_advanced_filters(self) -> None:
+        for attr in (
+            "decision_filter_entry",
+            "level_min_filter_entry",
+            "dte_max_filter_entry",
+        ):
+            widget = getattr(self, attr, None)
+            if widget is not None:
+                widget.delete(0, "end")
+
+        self._apply_filter(render=True)
+
+    def _entry_text(self, attr: str) -> str:
+        widget = getattr(self, attr, None)
+        if widget is None:
+            return ""
+
+        return widget.get().strip()
+
+    def _parse_float_filter(self, attr: str) -> tuple[Optional[float], bool]:
+        raw_value = self._entry_text(attr)
+        if not raw_value:
+            return None, True
+
+        try:
+            return float(raw_value.replace(",", ".")), True
+        except ValueError:
+            return None, False
+
+    def _coerce_float(self, value: Any) -> Optional[float]:
+        if value is None:
+            return None
+
+        if isinstance(value, (int, float)):
+            return float(value)
+
+        text = str(value).strip()
+        if not text:
+            return None
+
+        try:
+            return float(text.replace(",", "."))
+        except ValueError:
+            return None
+
+    def _decision_numeric_value(self, decision: Dict[str, Any], *keys: str) -> Optional[float]:
+        for key in keys:
+            number = self._coerce_float(decision.get(key))
+            if number is not None:
+                return number
+
+        return None
+
+    def _update_filter_summary(
+        self,
+        visible_count: int,
+        active_count: int,
+        error: Optional[str] = None,
+    ) -> None:
+        if not hasattr(self, "filter_summary_label"):
+            return
+
+        if error:
+            self.filter_summary_label.configure(
+                text=f"Filtros inválidos: {error}",
+                text_color="#fca5a5",
+            )
+            return
+
+        active_filters = []
+
+        if self._entry_text("search_entry"):
+            active_filters.append("estrutura")
+
+        if self._entry_text("decision_filter_entry"):
+            active_filters.append("decisão")
+
+        if self._entry_text("level_min_filter_entry"):
+            active_filters.append("level mín.")
+
+        if self._entry_text("dte_max_filter_entry"):
+            active_filters.append("DTE máx.")
+
+        suffix = "sem filtros avançados"
+        if active_filters:
+            suffix = "filtros: " + ", ".join(active_filters)
+
+        self.filter_summary_label.configure(
+            text=(
+                f"Exibindo {visible_count} de {active_count} decisões ativas "
+                f"({len(self.decisions)} totais) — {suffix}."
+            ),
+            text_color="#9ca3af",
+        )
+
     def _refresh_structure_index(self) -> None:
         """
         Monta indice local de estruturas para:
@@ -348,9 +527,10 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         return True
 
     def _apply_filter(self, render: bool = True) -> None:
-        query = ""
-        if hasattr(self, "search_entry"):
-            query = self.search_entry.get().strip().lower()
+        query = self._entry_text("search_entry").lower()
+        decision_query = self._entry_text("decision_filter_entry").lower()
+        level_min, level_min_valid = self._parse_float_filter("level_min_filter_entry")
+        dte_max, dte_max_valid = self._parse_float_filter("dte_max_filter_entry")
 
         self.selected_index = None
 
@@ -360,15 +540,66 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             if self._decision_structure_id(decision) in self.active_structure_ids
         ]
 
-        if not query:
-            self.filtered_decisions = active_decisions
-        else:
+        if not level_min_valid or not dte_max_valid:
+            errors = []
+            if not level_min_valid:
+                errors.append("level mínimo deve ser numérico")
+            if not dte_max_valid:
+                errors.append("DTE máximo deve ser numérico")
+
+            error_text = "; ".join(errors)
+            self.filtered_decisions = []
+            self._update_filter_summary(0, len(active_decisions), error_text)
+
+            if render:
+                self._render_rows()
+                self.load_structure_btn.configure(state="disabled")
+                self._set_detail_text(f"Filtro inválido: {error_text}.")
+                self._status(f"Filtro inválido: {error_text}")
+
+            return
+
+        filtered_decisions = active_decisions
+
+        if query:
             terms = [term for term in query.split() if term]
-            self.filtered_decisions = [
+            filtered_decisions = [
                 decision
-                for decision in active_decisions
+                for decision in filtered_decisions
                 if self._decision_matches_filter(decision, terms)
             ]
+
+        if decision_query:
+            filtered_decisions = [
+                decision
+                for decision in filtered_decisions
+                if decision_query in str(decision.get("decision") or "").lower()
+            ]
+
+        if level_min is not None:
+            filtered_decisions = [
+                decision
+                for decision in filtered_decisions
+                if (
+                    self._decision_numeric_value(decision, "level", "nivel", "nível")
+                    is not None
+                    and self._decision_numeric_value(decision, "level", "nivel", "nível") >= level_min
+                )
+            ]
+
+        if dte_max is not None:
+            filtered_decisions = [
+                decision
+                for decision in filtered_decisions
+                if (
+                    self._decision_numeric_value(decision, "dte_min", "dte", "DTE")
+                    is not None
+                    and self._decision_numeric_value(decision, "dte_min", "dte", "DTE") <= dte_max
+                )
+            ]
+
+        self.filtered_decisions = filtered_decisions
+        self._update_filter_summary(len(self.filtered_decisions), len(active_decisions))
 
         if render:
             self._render_rows()
