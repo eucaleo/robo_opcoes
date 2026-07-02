@@ -861,3 +861,47 @@ Prioridade da próxima rodada:
 - separar funções preservadas, ausentes e realocadas;
 - só depois iniciar implementação funcional faltante por blocos pequenos.
 
+## 19. Validação manual de equivalência funcional do modo dark
+
+Foi criada a etapa de validação manual do modo dark contra o mapa de equivalência funcional.
+
+Relatório gerado:
+
+- reports/ui_modern_equivalence/02_validacao_manual_modo_dark.md
+
+### 19.1. Objetivo
+
+Validar manualmente o caminho preferencial da UI moderna antes de qualquer troca de entrypoint.
+
+A validação compara o modo dark com as funções obrigatórias registradas no mapa:
+
+- reports/ui_modern_equivalence/01_mapa_equivalencia_funcional_ui_moderna.md
+
+### 19.2. Escopo
+
+Esta etapa é documental e manual.
+
+Ela não altera:
+
+- código;
+- layout;
+- banco;
+- callbacks;
+- services;
+- controllers;
+- repositories;
+- regra de negócio.
+
+### 19.3. Decisão de continuidade
+
+A UI atual permanece como caminho principal.
+
+O modo dark continua como caminho moderno paralelo.
+
+A próxima implementação funcional só deve ocorrer após classificação manual das funções como:
+
+- validada;
+- parcial;
+- ausente;
+- realocada;
+- não testada.
