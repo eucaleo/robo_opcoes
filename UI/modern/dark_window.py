@@ -87,6 +87,7 @@ class ModernDarkWindow:
             parent=decisions_tab,
             data_model=self.data_model,
             on_status=self.set_status,
+            on_load_structure=self._load_structure_from_decision,
         )
         self.decisions_panel.pack(fill="both", expand=True)
 
@@ -111,6 +112,53 @@ class ModernDarkWindow:
         except Exception as exc:
             messagebox.showerror(
                 "Erro ao atualizar",
+                str(exc),
+                parent=self.root,
+            )
+
+    def _load_structure_from_decision(self, structure_id) -> None:
+        """
+        Carrega no Terminal VWAP a estrutura associada a uma decisão selecionada.
+        """
+        try:
+            target = str(structure_id)
+
+            structures = getattr(self.panel, "structures", None)
+            if structures is None:
+                structures = []
+
+            if not structures and hasattr(self.panel, "reload_structures"):
+                self.panel.reload_structures()
+                structures = getattr(self.panel, "structures", []) or []
+
+            selected = None
+            for structure in structures:
+                if str(structure.get("id")) == target:
+                    selected = structure
+                    break
+
+            if selected is None:
+                self.set_status(f"Estrutura {structure_id} não encontrada no Terminal VWAP")
+                messagebox.showwarning(
+                    "Estrutura não encontrada",
+                    f"Estrutura {structure_id} não foi encontrada na lista do Terminal VWAP.",
+                    parent=self.root,
+                )
+                return
+
+            self.panel.select_structure(selected)
+
+            try:
+                self.tabs.set("Terminal VWAP")
+            except Exception:
+                pass
+
+            self.set_status(f"Estrutura {structure_id} carregada a partir da decisão")
+
+        except Exception as exc:
+            self.set_status(f"Erro ao carregar estrutura da decisão: {exc}")
+            messagebox.showerror(
+                "Erro ao carregar estrutura",
                 str(exc),
                 parent=self.root,
             )

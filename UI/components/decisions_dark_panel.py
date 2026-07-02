@@ -29,11 +29,13 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         parent,
         data_model,
         on_status: Optional[Callable[[str], None]] = None,
+        on_load_structure: Optional[Callable[[Any], None]] = None,
     ) -> None:
         super().__init__(parent, fg_color="#0f172a")
 
         self.data_model = data_model
         self.on_status = on_status
+        self.on_load_structure = on_load_structure
         self.decisions: List[Dict[str, Any]] = []
         self.selected_index: Optional[int] = None
         self._row_buttons: List[ctk.CTkButton] = []
@@ -63,13 +65,22 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         title.grid(row=0, column=0, sticky="w", padx=12, pady=10)
 
+        self.load_structure_btn = ctk.CTkButton(
+            header,
+            text="Carregar estrutura no Terminal",
+            width=210,
+            state="disabled",
+            command=self._load_selected_structure,
+        )
+        self.load_structure_btn.grid(row=0, column=1, sticky="e", padx=(8, 4), pady=10)
+
         refresh_btn = ctk.CTkButton(
             header,
             text="Atualizar",
             width=120,
             command=self.reload_decisions,
         )
-        refresh_btn.grid(row=0, column=1, sticky="e", padx=12, pady=10)
+        refresh_btn.grid(row=0, column=2, sticky="e", padx=(4, 12), pady=10)
 
         self.list_frame = ctk.CTkScrollableFrame(
             self,
@@ -118,6 +129,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 self._select_decision(0)
                 self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
             else:
+                self.load_structure_btn.configure(state="disabled")
                 self._set_detail_text("Nenhuma decisão encontrada.")
                 self._status("Nenhuma decisão encontrada no modo dark")
 
@@ -167,6 +179,28 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             )
             more.pack(fill="x", padx=8, pady=8)
 
+    def _load_selected_structure(self) -> None:
+        if self.selected_index is None:
+            self._status("Nenhuma decisão selecionada para carregar estrutura")
+            return
+
+        if self.selected_index < 0 or self.selected_index >= len(self.decisions):
+            self._status("Seleção de decisão inválida")
+            return
+
+        decision = self.decisions[self.selected_index]
+        structure_id = decision.get("structure_id") or decision.get("aba")
+
+        if structure_id is None:
+            self._status("Decisão selecionada não possui structure_id")
+            return
+
+        if not self.on_load_structure:
+            self._status("Carregamento de estrutura não está disponível")
+            return
+
+        self.on_load_structure(structure_id)
+
     def _select_decision(self, index: int) -> None:
         if index < 0 or index >= len(self.decisions):
             return
@@ -183,6 +217,10 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self._set_detail_text(self._format_detail(decision))
 
         structure_id = decision.get("structure_id") or decision.get("aba") or "N/A"
+        if structure_id != "N/A" and self.on_load_structure:
+            self.load_structure_btn.configure(state="normal")
+        else:
+            self.load_structure_btn.configure(state="disabled")
         decision_text = decision.get("decision", "N/A")
         self._status(f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}")
 
