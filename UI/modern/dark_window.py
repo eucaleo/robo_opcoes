@@ -18,6 +18,8 @@ import customtkinter as ctk
 from UI.modern.theme import CUSTOMTKINTER_APPEARANCE_MODE, CUSTOMTKINTER_COLOR_THEME
 
 from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
+from UI.components.decisions_dark_panel import DecisionsDarkPanel
+from UI.models.ui_data import UIDataModel
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -39,6 +41,7 @@ class ModernDarkWindow:
         self.root.minsize(1180, 680)
 
         self.status_var = tk.StringVar(value="Inicializando layout DARK...")
+        self.data_model = UIDataModel()
 
         self._build_menu()
         self._build_layout()
@@ -67,12 +70,25 @@ class ModernDarkWindow:
                 parent=self.root,
             )
 
+        self.tabs = ctk.CTkTabview(self.root)
+        self.tabs.pack(fill="both", expand=True)
+
+        terminal_tab = self.tabs.add("Terminal VWAP")
+        decisions_tab = self.tabs.add("Decisões")
+
         self.panel = TerminalVWAPPayoffDarkPanel(
-            parent=self.root,
+            parent=terminal_tab,
             db_path=str(APP_DB_PATH),
             on_status=self.set_status,
         )
         self.panel.pack(fill="both", expand=True)
+
+        self.decisions_panel = DecisionsDarkPanel(
+            parent=decisions_tab,
+            data_model=self.data_model,
+            on_status=self.set_status,
+        )
+        self.decisions_panel.pack(fill="both", expand=True)
 
     def set_status(self, message: str) -> None:
         self.status_var.set(message)
@@ -80,9 +96,18 @@ class ModernDarkWindow:
 
     def _reload_panel(self) -> None:
         try:
+            reloaded = False
+
             if hasattr(self.panel, "reload_structures"):
                 self.panel.reload_structures()
-                self.set_status("Estruturas recarregadas")
+                reloaded = True
+
+            if hasattr(self, "decisions_panel") and hasattr(self.decisions_panel, "reload_decisions"):
+                self.decisions_panel.reload_decisions()
+                reloaded = True
+
+            if reloaded:
+                self.set_status("Dados recarregados")
         except Exception as exc:
             messagebox.showerror(
                 "Erro ao atualizar",
