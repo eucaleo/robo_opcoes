@@ -1054,5 +1054,10 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.details_text.configure(state="disabled")
 
         if hasattr(self, "copy_detail_btn"):
-            has_selection = self.selected_index >= 0 and self.selected_index < len(self.filtered_decisions)
+            selected_index = self.selected_index
+            has_selection = (
+                isinstance(selected_index, int)
+                and selected_index >= 0
+                and selected_index < len(self.filtered_decisions)
+            )
             self.copy_detail_btn.configure(state="normal" if has_selection else "disabled")
