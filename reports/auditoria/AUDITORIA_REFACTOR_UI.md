@@ -925,3 +925,23 @@ A correção não altera:
 - banco;
 - services;
 - regra de negócio.
+
+## 20. Inventário técnico da exportação PNG
+
+Foi criada uma etapa documental para mapear a exportação PNG antes de qualquer implementação.
+
+Relatório gerado:
+
+- reports/ui_modern_equivalence/03_inventario_exportacao_png.md
+
+### 20.1. Objetivo
+
+Localizar pontos existentes relacionados a PNG, savefig, canvas, matplotlib, exportação e payoff.
+
+### 20.2. Decisão de segurança
+
+Nenhuma alteração funcional deve ser feita antes da leitura do inventário.
+
+O modo dark permanece paralelo.
+
+A UI atual permanece como caminho principal.
