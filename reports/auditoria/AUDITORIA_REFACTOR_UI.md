@@ -751,3 +751,47 @@ A próxima alteração de código autorizada permanece pequena e restrita:
 - não mudar regra de negócio;
 - não mudar banco;
 - validar abertura e diagnóstico do launcher moderno.
+
+## 17. Inventário de tokens visuais da UI moderna
+
+Foi criada a primeira etapa da rodada de tema da UI moderna.
+
+Relatório gerado:
+
+- reports/ui_modern_theme/01_inventario_tokens_visuais_dark.md
+
+### 17.1. Objetivo
+
+Identificar cores, dimensões e parâmetros visuais hardcoded em:
+
+- UI/modern/dark_window.py
+- UI/modern/theme.py
+
+### 17.2. Restrição desta etapa
+
+Esta etapa não altera código.
+
+Ela apenas prepara o patch de centralização visual.
+
+### 17.3. Decisão de continuidade
+
+A próxima alteração de código autorizada será restrita a:
+
+- UI/modern/theme.py
+- UI/modern/dark_window.py
+
+Escopo permitido:
+
+- centralizar tokens visuais;
+- substituir cores hardcoded por constantes/funções de tema;
+- manter o mesmo layout funcional;
+- manter os mesmos callbacks;
+- manter os mesmos textos operacionais;
+- não alterar banco;
+- não alterar regra de negócio.
+
+Validações obrigatórias após o patch:
+
+- python -m py_compile UI/modern/__main__.py UI/modern/app.py UI/modern/theme.py UI/modern/dark_window.py
+- python -m UI.modern --info
+- python -m UI.modern
