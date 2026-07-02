@@ -945,3 +945,21 @@ Nenhuma alteração funcional deve ser feita antes da leitura do inventário.
 O modo dark permanece paralelo.
 
 A UI atual permanece como caminho principal.
+
+## 21. Inventário focado da exportação PNG
+
+Foi criado um inventário focado para reduzir o ruído do levantamento amplo de exportação PNG.
+
+Relatório gerado:
+
+- reports/ui_modern_equivalence/04_inventario_focado_exportacao_png.md
+
+### 21.1. Objetivo
+
+Localizar apenas pontos relevantes da UI relacionados a gráfico, canvas, arquivo PNG e exportação.
+
+### 21.2. Decisão de segurança
+
+Esta etapa não altera código funcional.
+
+O patch de exportação PNG só deve ser feito após identificar o arquivo alvo.
