@@ -1256,6 +1256,140 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         button.pack(fill="x", padx=10, pady=4)
 
 
+    def _ensure_structure_decisions_table(self, conn: sqlite3.Connection) -> None:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_decisions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                decision TEXT NOT NULL,
+                label TEXT,
+                note TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_decisions_structure_id
+            ON structure_decisions(structure_id)
+            """
+        )
+
+
+    def _insert_structure_decision(self, sid: int, decision: str, note: Optional[str] = None) -> None:
+        raw_decision = str(decision or "").strip().upper()
+        if raw_decision not in DECISION_LABELS:
+            raise ValueError(f"Decisao invalida: {decision}")
+
+        label = decision_label(raw_decision)
+
+        with self._connect() as conn:
+            self._ensure_structure_decisions_table(conn)
+            conn.execute(
+                """
+                INSERT INTO structure_decisions (
+                    structure_id,
+                    decision,
+                    label,
+                    note
+                )
+                VALUES (?, ?, ?, ?)
+                """,
+                (
+                    int(sid),
+                    raw_decision,
+                    label,
+                    note,
+                ),
+            )
+            conn.commit()
+
+
+    def _load_structure_decisions(self, sid: int, limit: int = 5) -> List[Dict[str, Any]]:
+        with self._connect() as conn:
+            self._ensure_structure_decisions_table(conn)
+            rows = conn.execute(
+                """
+                SELECT
+                    id,
+                    structure_id,
+                    decision,
+                    label,
+                    note,
+                    created_at
+                FROM structure_decisions
+                WHERE structure_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (
+                    int(sid),
+                    int(limit),
+                ),
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+
+    def _render_decision_history(self, sid: Any) -> None:
+        self._side_section_title("ULTIMAS DECISOES")
+
+        box = ctk.CTkFrame(
+            self.side,
+            fg_color=CARD_BG_2,
+            corner_radius=8,
+        )
+        box.pack(fill="x", padx=10, pady=(0, 8))
+
+        try:
+            rows = self._load_structure_decisions(int(sid), limit=5)
+        except Exception as exc:
+            label = ctk.CTkLabel(
+                box,
+                text=f"Historico indisponivel.\n{exc}",
+                text_color=YELLOW,
+                justify="left",
+                anchor="w",
+                wraplength=210,
+            )
+            label.pack(fill="x", padx=10, pady=8)
+            return
+
+        if not rows:
+            label = ctk.CTkLabel(
+                box,
+                text="Nenhuma decisao registrada para esta estrutura.",
+                text_color=MUTED,
+                justify="left",
+                anchor="w",
+                wraplength=210,
+            )
+            label.pack(fill="x", padx=10, pady=8)
+            return
+
+        for row in rows:
+            decision = str(row.get("decision") or "").upper()
+            label_text = row.get("label") or decision_label(decision)
+            created_at = row.get("created_at") or "--"
+            note = row.get("note") or ""
+
+            text = f"{created_at}\n{label_text} ({decision})"
+            if note:
+                text += f"\n{note}"
+
+            item = ctk.CTkLabel(
+                box,
+                text=text,
+                text_color=TEXT,
+                justify="left",
+                anchor="w",
+                wraplength=210,
+            )
+            item.pack(fill="x", padx=10, pady=(8, 6))
+
+
+
     def _render_structure_actions(self, notice: Optional[str] = None) -> None:
         structure = self._require_selected_structure()
         if not structure:
@@ -1351,6 +1485,8 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             hover="#991B1B",
             command=lambda: self._register_structure_decision("CLOSE"),
         )
+
+        self._render_decision_history(sid)
 
         self._side_button(
             text="Voltar para lista",
@@ -1685,6 +1821,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             try:
                 repo = StructuresRepository(self._get_db_path())
                 repo.archive_structure(int(sid))
+                self._insert_structure_decision(int(sid), decision)
 
                 msg = f"Decisao registrada para ID {sid}: {label} ({decision}). Estrutura encerrada."
                 self._safe_status(msg)
@@ -1701,6 +1838,13 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                 self._safe_status(f"Erro ao encerrar estrutura: {exc}")
                 messagebox.showerror("Erro ao encerrar estrutura", str(exc), parent=self.winfo_toplevel())
                 return
+
+        try:
+            self._insert_structure_decision(int(sid), decision)
+        except Exception as exc:
+            self._safe_status(f"Erro ao registrar decisao: {exc}")
+            messagebox.showerror("Erro ao registrar decisao", str(exc), parent=self.winfo_toplevel())
+            return
 
         msg = f"Decisao registrada para ID {sid}: {label} ({decision})"
         self._safe_status(msg)
