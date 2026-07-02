@@ -1,0 +1,97 @@
+ATT\tests\conftest.py:19: sys.path.insert(0, str(PROJECT_ROOT))
+ATT\tests\conftest.py:22: sys.path.insert(0, str(_ATT_ROOT))
+ATT\tests\conftest.py:61: def insert(self, *a):            pass
+ATT\tests\conftest.py:74: # Treeview / Listbox / Text
+ATT\tests\conftest.py:75: def heading(self, *a, **kw):     return self
+ATT\tests\conftest.py:76: def column(self, *a, **kw):      return self
+ATT\tests\conftest.py:77: def insert(self, *a, **kw):      return ""
+ATT\tests\conftest.py:152: class _FakeTreeview(_FakeWidget):
+ATT\tests\conftest.py:153: def heading(self, col, **kw): return self
+ATT\tests\conftest.py:154: def column(self, col, **kw):  return self
+ATT\tests\conftest.py:155: def insert(self, parent, index, **kw): return f"I{id(self)}"
+ATT\tests\conftest.py:234: ttk.Treeview      = _FakeTreeview
+ATT\tests\test_payoff_chart.py:30: sys.path.insert(0, PROJECT_ROOT)
+ATT\tests\test_structure_editor_integration.py:111: def insert(self, *a, **kw): pass
+ATT\tests\test_structure_editor_integration.py:115: def heading(self, *a, **kw): pass
+ATT\tests\test_structure_editor_integration.py:116: def column(self, *a, **kw): pass
+ATT\tests\test_structure_editor_integration.py:165: _sub_mock.Treeview   = _Widget
+ATT\tests\test_ui_data_migration.py:8: sys.path.insert(0, str(PROJECT_ROOT))
+db\reader.py:59: WHERE {ref.db_column()} = ? AND timestamp = ?
+db\reader.py:68: WHERE {ref.db_column()} = ? AND timestamp = (
+db\reader.py:69: SELECT MAX(timestamp) FROM payoff_curve_points WHERE {ref.db_column()} = ?
+db\reader.py:130: WHERE {ref.db_column()} = ? AND timestamp >= ?
+db\writer.py:130: WHERE {ref.db_column()} = ?
+db\writer.py:147: WHERE {ref.db_column()} = ?
+scripts\import_legacy_structure_legs.py:11: sys.path.insert(0, str(ROOT_DIR))
+scripts\import_rtd_option_quotes_wide_csv.py:12: sys.path.insert(0, str(PROJECT_ROOT))
+scripts\run_derived_pipeline.py:10: sys.path.insert(0, str(PROJECT_ROOT))
+scripts\validate_derived_db.py:16: sys.path.insert(0, str(PROJECT_ROOT))
+src\domain\refs\structure_ref.py:7: db_column() retorna coluna correta conforme disponibilidade
+src\domain\refs\structure_ref.py:12: - db_column() retorna 'structure_id' se disponível, 'aba' como fallback
+src\domain\refs\structure_ref.py:125: def db_column(self) -> str:
+src\domain\refs\structure_ref.py:137: Retorna o valor correspondente à coluna retornada por db_column().
+src\domain\refs\structure_ref.py:138: Usar em conjunto com db_column() para montar queries parametrizadas.
+src\domain\refs\structure_ref.py:144: return self.db_column(), self.db_value()
+UI\components\decisions_grid.py:20: self._setup_treeview()
+UI\components\decisions_grid.py:23: def _setup_treeview(self):
+UI\components\decisions_grid.py:35: self.tree = ttk.Treeview(
+UI\components\decisions_grid.py:43: self.tree.heading("timestamp", text="Data/Hora")
+UI\components\decisions_grid.py:44: self.tree.heading("structure_id", text="Estrutura")
+UI\components\decisions_grid.py:45: self.tree.heading("decision", text="Decisão")
+UI\components\decisions_grid.py:46: self.tree.heading("level", text="Nível")
+UI\components\decisions_grid.py:47: self.tree.heading("ratio", text="Ratio %")
+UI\components\decisions_grid.py:48: self.tree.heading("dte", text="DTE")
+UI\components\decisions_grid.py:49: self.tree.heading("pl_atual", text="PL Atual")
+UI\components\decisions_grid.py:50: self.tree.heading("pl_max", text="PL Máx")
+UI\components\decisions_grid.py:53: self.tree.column("timestamp", width=140, anchor="center")
+UI\components\decisions_grid.py:54: self.tree.column("structure_id", width=100, anchor="center")
+UI\components\decisions_grid.py:55: self.tree.column("decision", width=100, anchor="center")
+UI\components\decisions_grid.py:56: self.tree.column("level", width=50, anchor="center")
+UI\components\decisions_grid.py:57: self.tree.column("ratio", width=80, anchor="center")
+UI\components\decisions_grid.py:58: self.tree.column("dte", width=50, anchor="center")
+UI\components\decisions_grid.py:59: self.tree.column("pl_atual", width=80, anchor="e")
+UI\components\decisions_grid.py:60: self.tree.column("pl_max", width=80, anchor="e")
+UI\components\decisions_grid.py:63: self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+UI\components\decisions_grid.py:126: self.tree.insert(
+UI\components\details_panel.py:682: self.why_text.insert("1.0", formatted)
+UI\components\details_panel.py:684: self.why_text.insert("1.0", str(why_payload))
+UI\components\details_panel.py:686: self.why_text.insert("1.0", "Sem rationale disponível")
+UI\components\structure_editor_dialog.py:160: # Treeview de legs
+UI\components\structure_editor_dialog.py:168: self._leg_tree = ttk.Treeview(
+UI\components\structure_editor_dialog.py:176: self._leg_tree.heading(col, text=hdr_text)
+UI\components\structure_editor_dialog.py:177: self._leg_tree.column(col, width=w, anchor=tk.CENTER, stretch=(col == "expiry"))
+UI\components\structure_editor_dialog.py:293: self._leg_tree.insert("", "end", iid=str(i - 1), values=(
+UI\components\structures_list_panel.py:18: _tree           ttk.Treeview
+UI\components\structures_list_panel.py:103: """Treeview + scrollbar."""
+UI\components\structures_list_panel.py:107: self._tree = ttk.Treeview(
+UI\components\structures_list_panel.py:116: self._tree.heading(col, text=header,
+UI\components\structures_list_panel.py:118: self._tree.column(
+UI\components\structures_list_panel.py:130: self._tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+UI\components\structures_list_panel.py:191: self._tree.insert(
+UI\components\structures_list_panel.py:242: # Callbacks da Treeview
+UI\components\terminal_vwap_payoff_dark_panel.py:162: "Dark.Treeview",
+UI\components\terminal_vwap_payoff_dark_panel.py:170: "Dark.Treeview.Heading",
+UI\components\terminal_vwap_payoff_dark_panel.py:176: "Dark.Treeview",
+UI\components\terminal_vwap_payoff_dark_panel.py:340: self.legs_table = ttk.Treeview(
+UI\components\terminal_vwap_payoff_dark_panel.py:344: style="Dark.Treeview",
+UI\components\terminal_vwap_payoff_dark_panel.py:368: self.legs_table.heading(col, text=title)
+UI\components\terminal_vwap_payoff_dark_panel.py:369: self.legs_table.column(col, width=widths[col], anchor="center")
+UI\components\terminal_vwap_payoff_dark_panel.py:978: self.legs_table.insert(
+UI\components\terminal_vwap_payoff_dark_panel.py:997: self.alerts_box.insert("end", "- " + alert + "\n")
+UI\components\terminal_vwap_payoff_panel.py:219: self._structures_tree = ttk.Treeview(
+UI\components\terminal_vwap_payoff_panel.py:237: self._structures_tree.heading(column, text=text)
+UI\components\terminal_vwap_payoff_panel.py:238: self._structures_tree.column(
+UI\components\terminal_vwap_payoff_panel.py:351: self._legs_tree = ttk.Treeview(parent, columns=columns, show="headings")
+UI\components\terminal_vwap_payoff_panel.py:366: self._legs_tree.heading(column, text=text)
+UI\components\terminal_vwap_payoff_panel.py:367: self._legs_tree.column(column, width=width, anchor=anchor)
+UI\components\terminal_vwap_payoff_panel.py:387: self._payoff_tree = ttk.Treeview(parent, columns=columns, show="headings")
+UI\components\terminal_vwap_payoff_panel.py:389: self._payoff_tree.heading("underlying_price", text="Spot")
+UI\components\terminal_vwap_payoff_panel.py:390: self._payoff_tree.heading("result", text="Resultado")
+UI\components\terminal_vwap_payoff_panel.py:392: self._payoff_tree.column("underlying_price", width=120, anchor="e")
+UI\components\terminal_vwap_payoff_panel.py:393: self._payoff_tree.column("result", width=140, anchor="e")
+UI\components\terminal_vwap_payoff_panel.py:466: self._structures_tree.insert(
+UI\components\terminal_vwap_payoff_panel.py:495: self._legs_tree.insert("", "end", iid=str(index), values=row)
+UI\components\terminal_vwap_payoff_panel.py:503: self._payoff_tree.insert("", "end", iid=str(index), values=row)
+UI\components\terminal_vwap_payoff_panel.py:526: self._warnings_text.insert("1.0", text)
+UI\main_window.py:651: txt.insert("end", "Nenhuma estrutura selecionada.")
+UI\main_window.py:674: txt.insert("end", "\n".join(lines))

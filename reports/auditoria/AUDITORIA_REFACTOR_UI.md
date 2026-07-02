@@ -380,3 +380,138 @@ Conclusão:
 - Ainda não há segurança completa para eliminar a UI atual sem antes consolidar os pontos de entrada, componentes, ações e conexões reais.
 - A próxima etapa deve ser a tabela mestre da UI atual e o plano de substituição por fases.
 
+
+## 14. Auditoria visual da UI atual com base nos prints
+
+Foram analisados prints da interface atual antes da substituição do layout.
+
+Esta análise visual foi adicionada aos relatórios:
+
+- reports/ui_visual_audit/01_prints_visual_controls.md
+- reports/ui_visual_audit/02_code_concordance_visual_terms.txt
+- reports/ui_visual_audit/03_menus.txt
+- reports/ui_visual_audit/03_buttons.txt
+- reports/ui_visual_audit/03_combos.txt
+- reports/ui_visual_audit/03_tabs_notebooks.txt
+- reports/ui_visual_audit/03_tables.txt
+- reports/ui_visual_audit/03_bindings.txt
+- reports/ui_visual_audit/03_matplotlib.txt
+- reports/ui_visual_audit/03_services_controllers.txt
+
+### 14.1. Controles visuais identificados
+
+A UI atual contém os seguintes blocos funcionais:
+
+- Menu superior:
+  - Arquivo
+  - Ferramentas
+  - Ajuda
+
+- Painel de filtros:
+  - Período De/Até
+  - Estrutura
+  - Decisão
+  - Level >=
+  - DTE <=
+  - Aplicar
+  - Limpar
+  - Indicador de filtros aplicados
+
+- Tabela de decisões:
+  - Data/Hora
+  - Estrutura
+  - Decisão
+  - Nível
+  - Ratio %
+  - DTE
+  - PL Atual
+  - PL Máx
+
+- Abas principais:
+  - Detalhes da Decisão
+  - Curva de Payoff
+  - Estruturas
+  - Terminal VWAP Payoff
+
+- Ações de payoff:
+  - Limpar Comparação
+  - Fixar Curva A
+  - Exportar PNG
+  - Interações padrão da toolbar Matplotlib
+
+- Ações de estruturas:
+  - + Nova
+  - Editar
+  - Duplicar
+  - Arquivar
+  - Filtro por status
+  - Busca
+
+- Ações do Terminal VWAP Payoff:
+  - Atualizar
+  - Carregar
+  - Subabas Resumo, Legs, Payoff e Avisos
+
+- Ação operacional:
+  - Recalcular esta estrutura
+
+### 14.2. Diretriz de preservação funcional
+
+A substituição visual não poderá remover implicitamente:
+
+- filtros de decisões
+- seleção de decisões
+- detalhamento de decisão
+- rationale/why JSON
+- recalcular estrutura
+- curva de payoff
+- comparação por Curva A
+- exportação PNG
+- CRUD/arquivamento de estruturas
+- terminal VWAP Payoff
+- resumo de VWAP
+- legs
+- payoff
+- avisos
+- mensagens de status
+
+Qualquer remoção deve ser decisão explícita, documentada e testada.
+
+### 14.3. Relação com o novo layout
+
+O layout de referência AppFinanceiraVwap.py continua sendo apenas referência visual.
+
+Elementos aproveitáveis:
+
+- barra lateral fixa
+- painel retrátil de estruturas
+- área principal de análise
+- blocos para VWAP e Payoff
+- rodapé/tabela de pernas
+- foco operacional após seleção de estrutura
+
+Elementos proibidos na implementação real:
+
+- banco fictício
+- simulação de mercado
+- simulação de payoff
+- cálculo de regra de negócio dentro da UI
+- fonte operacional fora dos services/controllers existentes
+
+### 14.4. Próxima etapa autorizada
+
+Após conferência dos relatórios de auditoria visual, a próxima etapa poderá ser a preparação do novo shell visual em paralelo.
+
+A UI atual ainda não deve ser eliminada diretamente.
+
+Sequência recomendada:
+
+1. Criar novo layout em paralelo.
+2. Conectar painel de estruturas aos services/controllers existentes.
+3. Conectar painel de payoff aos contratos existentes.
+4. Conectar painel VWAP/Terminal aos services existentes.
+5. Preservar filtros e tabela de decisões ou realocá-los no novo layout.
+6. Validar manualmente.
+7. Rodar testes.
+8. Trocar entrypoint somente após equivalência funcional mínima.
+

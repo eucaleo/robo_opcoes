@@ -1,0 +1,28 @@
+ATT\tests\test_payoff_chart.py:65: with patch("UI.components.payoff_chart.FigureCanvasTkAgg"), \
+ATT\tests\test_payoff_chart.py:66: patch("UI.components.payoff_chart.NavigationToolbar2Tk"), \
+ATT\tests\test_structure_editor_integration.py:222: if not hasattr(mpl_tk, "FigureCanvasTkAgg"):
+ATT\tests\test_structure_editor_integration.py:223: mpl_tk.FigureCanvasTkAgg    = MagicMock
+ATT\tests\test_structure_editor_integration.py:224: mpl_tk.NavigationToolbar2Tk = MagicMock
+UI\components\payoff_chart.py:6: from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+UI\components\payoff_chart.py:81: top, text="Exportar PNG", command=self.export_png
+UI\components\payoff_chart.py:97: self.ax = self.fig.add_subplot(111)
+UI\components\payoff_chart.py:99: self.canvas = FigureCanvasTkAgg(self.fig, master=self)
+UI\components\payoff_chart.py:103: self.toolbar = NavigationToolbar2Tk(self.canvas, top, pack_toolbar=False)
+UI\components\payoff_chart.py:231: self.fig.savefig(file_path, dpi=150, bbox_inches="tight")
+UI\components\payoff_chart.py:316: self.ax.plot(xs, ys, color="#1f77b4", linewidth=2, label=main_label)
+UI\components\payoff_chart.py:332: self.ax.plot(
+UI\components\payoff_chart.py:345: self.ax.axhline(0, color="gray", linewidth=1, alpha=0.7)
+UI\components\payoff_chart.py:359: self.ax.axvline(
+UI\components\payoff_chart.py:395: self.ax.axvline(bx, color="green", linestyle=":", linewidth=1, alpha=0.85)
+UI\components\terminal_vwap_payoff_dark_panel.py:29: from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+UI\components\terminal_vwap_payoff_dark_panel.py:145: self.canvas_vwap: Optional[FigureCanvasTkAgg] = None
+UI\components\terminal_vwap_payoff_dark_panel.py:146: self.canvas_payoff: Optional[FigureCanvasTkAgg] = None
+UI\components\terminal_vwap_payoff_dark_panel.py:1034: ax = fig.add_subplot(111)
+UI\components\terminal_vwap_payoff_dark_panel.py:1067: ax.plot(
+UI\components\terminal_vwap_payoff_dark_panel.py:1077: ax.plot(
+UI\components\terminal_vwap_payoff_dark_panel.py:1102: self.canvas_vwap = FigureCanvasTkAgg(fig, master=self.frame_vwap)
+UI\components\terminal_vwap_payoff_dark_panel.py:1116: ax.plot(xs, ys, color=color, linewidth=2.0)
+UI\components\terminal_vwap_payoff_dark_panel.py:1117: ax.axhline(0, color="#666666", linewidth=1.0)
+UI\components\terminal_vwap_payoff_dark_panel.py:1121: ax.axvline(be, color=YELLOW, linestyle="--", linewidth=0.8, alpha=0.8)
+UI\components\terminal_vwap_payoff_dark_panel.py:1138: self.canvas_payoff = FigureCanvasTkAgg(fig, master=self.frame_payoff)
+UI\main_window.py:21: # FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import

@@ -1,0 +1,137 @@
+ATT\tests\conftest.py:141: class _FakeButton(_FakeWidget):   pass
+ATT\tests\conftest.py:231: ttk.Button        = _FakeButton
+scripts\refresh_rtd_symbol_to_option_quotes.py:215: refresh_command = [
+scripts\refresh_rtd_symbol_to_option_quotes.py:247: import_command = [
+tools\fix_structure_side_panel_patch.py:39: "        btn_add = ctk.CTkButton(\n"
+tools\fix_structure_side_panel_patch.py:46: "            command=self.new_structure,\n"
+tools\fix_structure_side_panel_patch.py:75: "        btn_add = ctk.CTkButton(\n"
+tools\patch_structure_side_panel.py:190: f'{body_indent}btn_add = ctk.CTkButton(',
+tools\patch_structure_side_panel.py:197: f'{body_indent}    command=self.new_structure,',
+tools\patch_structure_side_panel.py:249: if "command=self.reload_structures" in line:
+tools\patch_structure_side_panel.py:254: print("Aviso: nao encontrei command=self.reload_structures para inserir botoes fixos da rail.")
+tools\patch_structure_side_panel.py:271: f"{indent}self.btn_new_fixed = ctk.CTkButton(",
+tools\patch_structure_side_panel.py:280: f"{indent}    command=self.new_structure,",
+tools\patch_structure_side_panel.py:284: f"{indent}self.btn_struct_actions = ctk.CTkButton(",
+tools\patch_structure_side_panel.py:293: f"{indent}    command=self._render_structure_actions,",
+tools\patch_structure_side_panel.py:390: def _side_button(self, text: str, color: str, hover: str, command) -> None:
+tools\patch_structure_side_panel.py:391: button = ctk.CTkButton(
+tools\patch_structure_side_panel.py:398: command=command,
+tools\patch_structure_side_panel.py:438: self._side_button(
+tools\patch_structure_side_panel.py:442: command=self.recalculate_selected_structure,
+tools\patch_structure_side_panel.py:446: self._side_button(
+tools\patch_structure_side_panel.py:450: command=self.edit_selected_structure,
+tools\patch_structure_side_panel.py:452: self._side_button(
+tools\patch_structure_side_panel.py:456: command=self.duplicate_selected_structure,
+tools\patch_structure_side_panel.py:458: self._side_button(
+tools\patch_structure_side_panel.py:462: command=self.archive_selected_structure,
+tools\patch_structure_side_panel.py:466: self._side_button(
+tools\patch_structure_side_panel.py:470: command=lambda: self._register_structure_decision("HOLD"),
+tools\patch_structure_side_panel.py:472: self._side_button(
+tools\patch_structure_side_panel.py:476: command=self._render_adjust_structure_block,
+tools\patch_structure_side_panel.py:478: self._side_button(
+tools\patch_structure_side_panel.py:482: command=lambda: self._register_structure_decision("CLOSE"),
+tools\patch_structure_side_panel.py:485: self._side_button(
+tools\patch_structure_side_panel.py:489: command=self._render_structures_list,
+tools\patch_structure_side_panel.py:526: self._side_button(
+tools\patch_structure_side_panel.py:530: command=self.edit_selected_structure,
+tools\patch_structure_side_panel.py:532: self._side_button(
+tools\patch_structure_side_panel.py:536: command=self.duplicate_selected_structure,
+tools\patch_structure_side_panel.py:538: self._side_button(
+tools\patch_structure_side_panel.py:542: command=lambda: self._register_structure_decision("ADJUST"),
+tools\patch_structure_side_panel.py:544: self._side_button(
+tools\patch_structure_side_panel.py:548: command=self._render_structure_actions,
+UI\components\decisions_grid.py:73: v_scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
+UI\components\decisions_grid.py:74: self.tree.configure(yscrollcommand=v_scrollbar.set)
+UI\components\decisions_grid.py:76: h_scrollbar = ttk.Scrollbar(self, orient="horizontal", command=self.tree.xview)
+UI\components\decisions_grid.py:77: self.tree.configure(xscrollcommand=h_scrollbar.set)
+UI\components\details_panel.py:625: self.btn_recalculate = ttk.Button(
+UI\components\details_panel.py:628: command=self._on_recalculate_click,
+UI\components\filters_panel.py:82: self.apply_btn = ttk.Button(
+UI\components\filters_panel.py:83: btn_frame, text="Aplicar", command=self._apply_filters
+UI\components\filters_panel.py:87: self.reset_btn = ttk.Button(
+UI\components\filters_panel.py:88: btn_frame, text="Limpar", command=self.reset_filters
+UI\components\payoff_chart.py:80: self.btn_export = ttk.Button(
+UI\components\payoff_chart.py:81: top, text="Exportar PNG", command=self.export_png
+UI\components\payoff_chart.py:85: self.btn_fix_curve = ttk.Button(
+UI\components\payoff_chart.py:86: top, text="Fixar Curva A", command=self.fix_current_curve
+UI\components\payoff_chart.py:90: self.btn_clear_comparison = ttk.Button(
+UI\components\payoff_chart.py:91: top, text="Limpar Comparação", command=self.clear_comparison
+UI\components\structure_editor_dialog.py:155: ttk.Button(leg_toolbar, text="+ Leg",    command=self._cmd_add_leg).pack(side="left", padx=2)
+UI\components\structure_editor_dialog.py:156: ttk.Button(leg_toolbar, text="Remover",  command=self._cmd_remove_leg).pack(side="left", padx=2)
+UI\components\structure_editor_dialog.py:157: ttk.Button(leg_toolbar, text="▲",        command=lambda: self._cmd_move_leg(-1)).pack(side="left", padx=1)
+UI\components\structure_editor_dialog.py:158: ttk.Button(leg_toolbar, text="▼",        command=lambda: self._cmd_move_leg(+1)).pack(side="left", padx=1)
+UI\components\structure_editor_dialog.py:179: leg_vsb = ttk.Scrollbar(leg_frame, orient="vertical", command=self._leg_tree.yview)
+UI\components\structure_editor_dialog.py:180: self._leg_tree.configure(yscrollcommand=leg_vsb.set)
+UI\components\structure_editor_dialog.py:192: ttk.Button(btn_bar, text="Cancelar",      command=self.destroy).pack(side="right", padx=4)
+UI\components\structure_editor_dialog.py:193: ttk.Button(btn_bar, text="[SAVE] Salvar", command=self._cmd_save).pack(side="right", padx=4)
+UI\components\structure_editor_dialog.py:245: ttk.Button(
+UI\components\structure_editor_dialog.py:248: command=self._cmd_fill_leg_from_rtd,
+UI\components\structure_editor_dialog.py:251: ttk.Button(
+UI\components\structure_editor_dialog.py:254: command=self._cmd_apply_leg,
+UI\components\structures_list_panel.py:99: ttk.Button(toolbar, text="", width=3,
+UI\components\structures_list_panel.py:100: command=self.load).pack(side="left")
+UI\components\structures_list_panel.py:117: command=lambda c=col: self._sort_by(c))
+UI\components\structures_list_panel.py:122: vsb = ttk.Scrollbar(frame, orient="vertical",   command=self._tree.yview)
+UI\components\structures_list_panel.py:123: hsb = ttk.Scrollbar(frame, orient="horizontal", command=self._tree.xview)
+UI\components\structures_list_panel.py:124: self._tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+UI\components\structures_list_panel.py:148: ttk.Button(btn_bar, text=label, command=cmd).pack(
+UI\components\terminal_vwap_payoff_dark_panel.py:196: self.btn_toggle = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:204: command=self.toggle_structures_panel,
+UI\components\terminal_vwap_payoff_dark_panel.py:208: self.btn_reload_fixed = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:217: command=self.reload_structures,
+UI\components\terminal_vwap_payoff_dark_panel.py:221: self.btn_new_fixed = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:230: command=self.new_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:234: self.btn_struct_actions = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:243: command=self._render_structure_actions,
+UI\components\terminal_vwap_payoff_dark_panel.py:247: self.btn_open_fixed = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:256: command=self.toggle_structures_panel,
+UI\components\terminal_vwap_payoff_dark_panel.py:511: btn_add = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:518: command=self.new_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:531: btn_reload = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:537: command=self.reload_structures,
+UI\components\terminal_vwap_payoff_dark_panel.py:563: btn = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:571: command=lambda s=structure: self.select_structure(s),
+UI\components\terminal_vwap_payoff_dark_panel.py:1184: def _side_button(self, text: str, color: str, hover: str, command) -> None:
+UI\components\terminal_vwap_payoff_dark_panel.py:1185: button = ctk.CTkButton(
+UI\components\terminal_vwap_payoff_dark_panel.py:1192: command=command,
+UI\components\terminal_vwap_payoff_dark_panel.py:1232: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1236: command=self.recalculate_selected_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:1240: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1244: command=self.edit_selected_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:1246: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1250: command=self.duplicate_selected_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:1252: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1256: command=self.archive_selected_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:1260: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1264: command=lambda: self._register_structure_decision("HOLD"),
+UI\components\terminal_vwap_payoff_dark_panel.py:1266: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1270: command=self._render_adjust_structure_block,
+UI\components\terminal_vwap_payoff_dark_panel.py:1272: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1276: command=lambda: self._register_structure_decision("CLOSE"),
+UI\components\terminal_vwap_payoff_dark_panel.py:1279: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1283: command=self._render_structures_list,
+UI\components\terminal_vwap_payoff_dark_panel.py:1320: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1324: command=self.edit_selected_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:1326: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1330: command=self.duplicate_selected_structure,
+UI\components\terminal_vwap_payoff_dark_panel.py:1332: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1336: command=lambda: self._register_structure_decision("ADJUST"),
+UI\components\terminal_vwap_payoff_dark_panel.py:1338: self._side_button(
+UI\components\terminal_vwap_payoff_dark_panel.py:1342: command=self._render_structure_actions,
+UI\components\terminal_vwap_payoff_panel.py:206: ttk.Button(
+UI\components\terminal_vwap_payoff_panel.py:209: command=self.reload_structures,
+UI\components\terminal_vwap_payoff_panel.py:212: ttk.Button(
+UI\components\terminal_vwap_payoff_panel.py:215: command=self.load_selected_structure,
+UI\components\terminal_vwap_payoff_panel.py:248: command=self._structures_tree.yview,
+UI\components\terminal_vwap_payoff_panel.py:250: self._structures_tree.configure(yscrollcommand=vsb.set)
+UI\components\terminal_vwap_payoff_panel.py:369: vsb = ttk.Scrollbar(parent, orient="vertical", command=self._legs_tree.yview)
+UI\components\terminal_vwap_payoff_panel.py:370: self._legs_tree.configure(yscrollcommand=vsb.set)
+UI\components\terminal_vwap_payoff_panel.py:395: vsb = ttk.Scrollbar(parent, orient="vertical", command=self._payoff_tree.yview)
+UI\components\terminal_vwap_payoff_panel.py:396: self._payoff_tree.configure(yscrollcommand=vsb.set)
+UI\main_window.py:134: file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+UI\main_window.py:136: file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+UI\main_window.py:138: file_menu.add_command(label="Sair", command=self.root.quit)
+UI\main_window.py:143: tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+UI\main_window.py:144: tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+UI\main_window.py:146: tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+UI\main_window.py:151: help_menu.add_command(label="Sobre", command=self.show_about)

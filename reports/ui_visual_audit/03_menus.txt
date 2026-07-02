@@ -1,0 +1,51 @@
+ATT\checks\check_cleanup_residuals.py:140: log("FAIL", "Arquivos residuais proibidos ainda versionados:")
+ATT\checks\check_cleanup_residuals.py:143: raise AssertionError(f"{len(set(violations))} arquivo(s) residual(is) encontrado(s)")
+ATT\checks\check_cleanup_residuals.py:145: log("OK", "Nenhum arquivo residual proibido versionado")
+ATT\checks\check_cleanup_residuals.py:202: log("FAIL", "scripts/ contém arquivos fora da allowlist operacional:")
+ATT\checks\check_cleanup_residuals.py:205: raise AssertionError(f"{len(unexpected)} arquivo(s) inesperado(s) em scripts/")
+ATT\checks\check_cleanup_residuals.py:221: log("FAIL", "Arquivos temporarios antigos ainda versionados em ATT/tests:")
+ATT\checks\check_cleanup_residuals.py:224: raise AssertionError(f"{len(patch_tests)} arquivo(s) temporario(s) antigo(s) encontrado(s)")
+ATT\checks\check_cleanup_residuals.py:226: log("OK", "Nenhum arquivo temporario antigo versionado em ATT/tests")
+ATT\tests\test_structure_editor_dialog.py:373: def test_arquivo_existe(self):
+ATT\tests\test_structure_editor_dialog.py:419: self.skipTest("arquivo nao encontrado")
+ATT\tests\test_structure_editor_integration.py:324: def test_main_window_arquivo_existe(self):
+ATT\tests\test_structure_editor_integration.py:330: def test_structure_editor_dialog_arquivo_existe(self):
+ATT\tests\test_structures_archive_wiring.py:1: # Testes de wiring do arquivo de estruturas
+ATT\tests\test_structures_archive_wiring.py:40: def test_arquivo_existe(self):
+ATT\tests\test_structures_archive_wiring.py:55: # _cmd_archive é o método de arquivo no painel
+ATT\tests\test_structures_archive_wiring.py:117: def test_main_window_arquivo_existe(self):
+controllers\terminal_vwap_payoff_controller.py:9: - não acessar Excel, RTD bruto, CSV antigo ou arquivos operacionais.
+scripts\apply_fase9_atomic_create.py:12: raise SystemExit(f"[ERRO] Arquivo não encontrado: {path}")
+scripts\apply_fase9_atomic_create.py:37: Arquivos alterados:
+scripts\apply_fase9_update_tests_atomic_create.py:11: raise SystemExit(f"[ERRO] Arquivo não encontrado: {path}")
+scripts\check_rota_desenvolvimento.py:274: print(f"Commit vazio ou sem alteração de arquivos: {'SIM' if is_empty else 'NÃO'}")
+scripts\check_rota_desenvolvimento.py:277: print("Arquivos alterados no commit:")
+scripts\check_rota_desenvolvimento.py:279: print(files if files else "(nenhum arquivo alterado)")
+scripts\refresh_rtd_symbol_to_option_quotes.py:6: symbol -> arquivo temporário de símbolos -> refresh_rtd_option_quotes_excel.ps1
+scripts\refresh_rtd_symbol_to_option_quotes.py:147: help="Não remove os arquivos temporários de símbolo/CSV.",
+scripts\validate_derived_db.py:48: print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
+tools\audit_rtd_ui_flow.py:225: print("Arquivo não encontrado.")
+tools\audit_rtd_ui_flow.py:253: print("Arquivo:", inspect.getsourcefile(obj))
+tools\fix_structure_side_panel_patch.py:6: raise SystemExit(f"Arquivo nao encontrado: {path}")
+tools\patch_structure_side_panel.py:60: "Nao encontrei automaticamente o arquivo alvo. Rode novamente assim:\n"
+tools\patch_structure_side_panel.py:61: "TARGET_FILE=caminho/do/arquivo.py python tools/patch_structure_side_panel.py"
+tools\patch_structure_side_panel.py:703: print(f"Arquivo alvo: {target}")
+UI\components\details_panel.py:55: - se o painel tiver db_path/_db_path explícito, usa esse arquivo;
+UI\components\details_panel.py:57: - fallback final: raiz do projeto inferida pelo arquivo atual.
+UI\main_window.py:128: menubar = tk.Menu(self.root)
+UI\main_window.py:131: # Menu Arquivo
+UI\main_window.py:132: file_menu = tk.Menu(menubar, tearoff=0)
+UI\main_window.py:133: menubar.add_cascade(label="Arquivo", menu=file_menu)
+UI\main_window.py:134: file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+UI\main_window.py:136: file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+UI\main_window.py:138: file_menu.add_command(label="Sair", command=self.root.quit)
+UI\main_window.py:140: # Menu Ferramentas
+UI\main_window.py:141: tools_menu = tk.Menu(menubar, tearoff=0)
+UI\main_window.py:142: menubar.add_cascade(label="Ferramentas", menu=tools_menu)
+UI\main_window.py:143: tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+UI\main_window.py:144: tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+UI\main_window.py:146: tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+UI\main_window.py:148: # Menu Ajuda
+UI\main_window.py:149: help_menu = tk.Menu(menubar, tearoff=0)
+UI\main_window.py:150: menubar.add_cascade(label="Ajuda", menu=help_menu)
+UI\main_window.py:151: help_menu.add_command(label="Sobre", command=self.show_about)
