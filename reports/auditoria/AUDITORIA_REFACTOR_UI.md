@@ -1262,3 +1262,55 @@ Nao altera:
 ### 29.3. Proximo passo
 
 Ler o inventario gerado, classificar lacunas e definir o menor patch seguro para equivalencia parcial de decisoes no modo dark.
+
+## 30. Classificacao das lacunas de decisoes no modo dark
+
+Foi criada classificacao das lacunas de decisoes no modo dark a partir do inventario dirigido.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/12_classificacao_lacunas_decisoes_dark.md
+
+### 30.1. Resultado
+
+O modo dark ainda nao possui equivalencia funcional de decisoes.
+
+Foram classificados como ausentes no modo dark:
+
+- filtros de decisoes
+- tabela/listagem de decisoes
+- selecao de decisao
+- detalhe da decisao
+- rationale/why JSON no fluxo dark
+- payoff acionado a partir de selecao de decisao
+
+### 30.2. Componentes reaproveitaveis
+
+A classificacao indica reaproveitamento provavel de componentes ja existentes:
+
+- UI.components.filters_panel.FiltersPanel
+- UI.components.decisions_grid.DecisionsGrid
+- UI.components.details_panel.DetailsPanel
+- fluxo de dados usado pelo shell moderno em UI/modern/main_window.py
+
+### 30.3. Decisao de seguranca
+
+A proxima etapa autorizada pode ser patch funcional minimo no modo dark para adicionar filtros, tabela e detalhe de decisoes.
+
+Restricoes do patch futuro:
+
+- nao criar regra de negocio na UI
+- nao alterar banco
+- nao alterar repositories, services ou controllers sem necessidade comprovada
+- nao trocar entrypoint principal
+- nao eliminar a UI atual
+- manter o modo dark como UI moderna paralela
+
+### 30.4. Proximo passo
+
+Aplicar patch pequeno e restrito para equivalencia parcial de decisoes no modo dark, iniciando por:
+
+- filtros
+- tabela/listagem
+- selecao
+- detalhe
