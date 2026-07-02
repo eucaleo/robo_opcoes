@@ -15,6 +15,8 @@ from tkinter import messagebox
 
 import customtkinter as ctk
 
+from UI.modern.theme import CUSTOMTKINTER_APPEARANCE_MODE, CUSTOMTKINTER_COLOR_THEME
+
 from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
 
 
@@ -28,8 +30,8 @@ class ModernDarkWindow:
     """
 
     def __init__(self) -> None:
-        ctk.set_appearance_mode("Dark")
-        ctk.set_default_color_theme("blue")
+        ctk.set_appearance_mode(CUSTOMTKINTER_APPEARANCE_MODE)
+        ctk.set_default_color_theme(CUSTOMTKINTER_COLOR_THEME)
 
         self.root = ctk.CTk()
         self.root.title("Terminal de Análise Avançada - VWAP & Opções")

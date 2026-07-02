@@ -795,3 +795,69 @@ Validações obrigatórias após o patch:
 - python -m py_compile UI/modern/__main__.py UI/modern/app.py UI/modern/theme.py UI/modern/dark_window.py
 - python -m UI.modern --info
 - python -m UI.modern
+
+## 18. Centralização inicial dos tokens de tema CustomTkinter
+
+Foi executada a primeira alteração de código da rodada de tema da UI moderna.
+
+### 18.1. Arquivos alterados
+
+Arquivos alterados:
+
+- UI/modern/theme.py
+- UI/modern/dark_window.py
+
+### 18.2. Escopo da alteração
+
+A alteração foi restrita a tokens visuais de inicialização do CustomTkinter.
+
+Foram centralizados em UI/modern/theme.py:
+
+- modo de aparência do CustomTkinter;
+- tema base do CustomTkinter.
+
+O modo dark passou a consumir estes tokens, em vez de literais diretos.
+
+### 18.3. Restrições preservadas
+
+A alteração não modificou:
+
+- layout funcional;
+- callbacks;
+- consultas de banco;
+- controllers;
+- services;
+- repositories;
+- regra de negócio;
+- textos operacionais;
+- contratos canônicos.
+
+### 18.4. Validações obrigatórias
+
+Validações executadas nesta rodada:
+
+- python -m py_compile UI/modern/__main__.py UI/modern/app.py UI/modern/theme.py UI/modern/dark_window.py
+- python -m UI.modern --info
+- python -m UI.modern
+
+Resultado observado:
+
+- diagnóstico do launcher moderno funcionando;
+- abertura da UI moderna em modo dark;
+- manutenção do carregamento de estruturas reais;
+- ausência de regressão visual ou funcional perceptível.
+
+### 18.5. Decisão de continuidade
+
+A próxima etapa não é trocar a UI atual.
+
+A próxima etapa recomendada é validar manualmente a equivalência parcial do modo dark contra o mapa criado em:
+
+- reports/ui_modern_equivalence/01_mapa_equivalencia_funcional_ui_moderna.md
+
+Prioridade da próxima rodada:
+
+- confirmar visualmente o que já existe no modo dark;
+- separar funções preservadas, ausentes e realocadas;
+- só depois iniciar implementação funcional faltante por blocos pequenos.
+

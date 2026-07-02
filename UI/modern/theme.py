@@ -11,6 +11,11 @@ from __future__ import annotations
 from typing import Dict, Literal
 
 
+
+# CustomTkinter runtime theme
+CUSTOMTKINTER_APPEARANCE_MODE = "Dark"
+CUSTOMTKINTER_COLOR_THEME = "blue"
+
 ThemeName = Literal["dark", "clean"]
 
 
