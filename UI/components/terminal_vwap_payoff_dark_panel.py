@@ -1256,7 +1256,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         button.pack(fill="x", padx=10, pady=4)
 
 
-    def _render_structure_actions(self) -> None:
+    def _render_structure_actions(self, notice: Optional[str] = None) -> None:
         structure = self._require_selected_structure()
         if not structure:
             self._render_structures_list()
@@ -1289,6 +1289,20 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             anchor="w",
         )
         info.pack(fill="x", padx=10, pady=10)
+
+        if notice:
+            notice_frame = ctk.CTkFrame(self.side, fg_color="#064E3B", corner_radius=8)
+            notice_frame.pack(fill="x", padx=10, pady=(8, 0))
+
+            notice_label = ctk.CTkLabel(
+                notice_frame,
+                text=notice,
+                text_color=TEXT,
+                justify="left",
+                anchor="w",
+                wraplength=210,
+            )
+            notice_label.pack(fill="x", padx=10, pady=8)
 
         self._side_section_title("PAYOFF")
         self._side_button(
@@ -1357,6 +1371,8 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         name = structure.get("name")
         asset = structure.get("underlying_asset")
 
+        self._safe_status(f"Modo de ajuste aberto: ID {sid}")
+
         title = ctk.CTkLabel(
             self.side,
             text="AJUSTAR ESTRUTURA",
@@ -1377,6 +1393,19 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             anchor="w",
         )
         info.pack(fill="x", padx=10, pady=10)
+
+        notice_frame = ctk.CTkFrame(self.side, fg_color="#78350F", corner_radius=8)
+        notice_frame.pack(fill="x", padx=10, pady=(8, 0))
+
+        notice = ctk.CTkLabel(
+            notice_frame,
+            text="Modo de ajuste aberto. Edite as pernas, duplique para ajuste ou registre a decisao ADJUST.",
+            text_color=TEXT,
+            justify="left",
+            anchor="w",
+            wraplength=210,
+        )
+        notice.pack(fill="x", padx=10, pady=8)
 
         self._side_section_title("ACAO")
         self._side_button(
@@ -1466,25 +1495,73 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                 except Exception:
                     pass
 
-                self._render_structure_actions()
+                self._render_structure_actions(notice=f"Estrutura ID {sid} atualizada.")
         except Exception as exc:
             messagebox.showerror("Erro ao editar estrutura", str(exc), parent=self.winfo_toplevel())
 
 
     def duplicate_selected_structure(self) -> None:
-        try:
-            if hasattr(self, "_cmd_duplicate"):
-                self._cmd_duplicate()
-                self.reload_structures()
-                self._safe_status("Estrutura duplicada")
-                return
+        structure = self._require_selected_structure()
+        if not structure:
+            return
 
-            messagebox.showinfo(
-                "Duplicar estrutura",
-                "Metodo _cmd_duplicate nao encontrado neste componente.",
+        if StructuresRepository is None:
+            messagebox.showerror(
+                "Repositorio indisponivel",
+                "StructuresRepository nao foi encontrado.",
                 parent=self.winfo_toplevel(),
             )
+            return
+
+        sid = structure.get("id")
+
+        try:
+            repo = StructuresRepository(self._get_db_path())
+            src = repo.get_structure(sid)
+
+            if src is None:
+                messagebox.showerror(
+                    "Duplicar estrutura",
+                    "Nao foi possivel carregar a estrutura selecionada.",
+                    parent=self.winfo_toplevel(),
+                )
+                return
+
+            new_id = repo.create_structure({
+                "name": f"{src.get('name') or 'Estrutura'} (copia)",
+                "underlying_asset": src.get("underlying_asset"),
+                "alias_legacy_aba": src.get("alias_legacy_aba"),
+                "status": "active",
+                "notes": src.get("notes"),
+            })
+
+            legs_copy = [
+                {
+                    k: v
+                    for k, v in leg.items()
+                    if k not in ("id", "structure_id", "created_at", "updated_at")
+                }
+                for leg in src.get("legs", [])
+            ]
+
+            if legs_copy:
+                repo.replace_legs(new_id, legs_copy)
+
+            self.reload_structures()
+
+            duplicated = repo.get_structure(new_id)
+            if duplicated:
+                self.select_structure(duplicated)
+                self._render_structure_actions(
+                    notice=f"Estrutura duplicada com sucesso. Nova ID {new_id}."
+                )
+            else:
+                self._render_structures_list()
+
+            self._safe_status(f"Estrutura duplicada: ID {new_id}")
+
         except Exception as exc:
+            self._safe_status(f"Erro ao duplicar estrutura: {exc}")
             messagebox.showerror("Erro ao duplicar estrutura", str(exc), parent=self.winfo_toplevel())
 
 
@@ -1511,8 +1588,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             self._render_charts(market, payoff_points, asset)
             self._render_alerts(market, payoff_points, legs)
 
+            msg = f"Payoff recalculado com sucesso para ID {sid}."
             self._safe_status(f"Payoff recalculado: ID {sid}")
+            self._render_structure_actions(notice=msg)
         except Exception as exc:
+            self._safe_status(f"Erro ao recalcular payoff: {exc}")
             messagebox.showerror("Erro ao recalcular payoff", str(exc), parent=self.winfo_toplevel())
 
 
@@ -1531,20 +1611,32 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             )
             return
 
-        ok = messagebox.askyesno(
-            "Arquivar",
-            f"Deseja arquivar a estrutura ID {sid}?",
-            parent=self.winfo_toplevel(),
-        )
-        if not ok:
-            return
-
         try:
             repo = StructuresRepository(self._get_db_path())
+            src = repo.get_structure(sid) or structure
+            name = src.get("name") or f"ID {sid}"
+
+            if src.get("status") == "archived":
+                msg = f"Estrutura '{name}' ja esta arquivada."
+                self._safe_status(msg)
+                self._render_structure_actions(notice=msg)
+                messagebox.showinfo("Arquivar", msg, parent=self.winfo_toplevel())
+                return
+
+            ok = messagebox.askyesno(
+                "Arquivar",
+                f"Arquivar '{name}'?\nA estrutura ficara oculta e nao sera deletada.",
+                parent=self.winfo_toplevel(),
+            )
+            if not ok:
+                self._safe_status("Arquivamento cancelado")
+                self._render_structure_actions(notice="Arquivamento cancelado.")
+                return
+
             repo.archive_structure(sid)
 
             self.selected_structure = None
-            self._safe_status(f"Arquivada ID {sid}")
+            self._safe_status(f"Estrutura arquivada: ID {sid}")
             self.reload_structures()
             self._render_structures_list()
 
@@ -1552,7 +1644,15 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                 self.header.configure(
                     text="Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff"
                 )
+
+            messagebox.showinfo(
+                "Arquivar",
+                f"Estrutura '{name}' arquivada com sucesso.",
+                parent=self.winfo_toplevel(),
+            )
+
         except Exception as exc:
+            self._safe_status(f"Erro ao arquivar estrutura: {exc}")
             messagebox.showerror("Erro ao arquivar estrutura", str(exc), parent=self.winfo_toplevel())
 
 
@@ -1562,9 +1662,49 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             return
 
         sid = structure.get("id")
+        name = structure.get("name") or f"ID {sid}"
         label = decision_label(decision)
 
-        self._safe_status(f"Decisao para ID {sid}: {label} ({decision})")
-        self._render_structure_actions()
+        if decision == "CLOSE":
+            current_status = str(structure.get("status") or "").strip().lower()
+            if current_status == "archived":
+                msg = f"Estrutura ID {sid} ja esta encerrada/arquivada."
+                self._safe_status(msg)
+                self._render_structure_actions(notice=msg)
+                return
+
+            ok = messagebox.askyesno(
+                "Encerrar estrutura",
+                f"Encerrar '{name}'?\nA estrutura sera marcada como arquivada.",
+                parent=self.winfo_toplevel(),
+            )
+            if not ok:
+                self._safe_status("Encerramento cancelado")
+                return
+
+            try:
+                repo = StructuresRepository(self._get_db_path())
+                repo.archive_structure(int(sid))
+
+                msg = f"Decisao registrada para ID {sid}: {label} ({decision}). Estrutura encerrada."
+                self._safe_status(msg)
+                self.reload_structures()
+
+                try:
+                    self._load_structure(int(sid))
+                    self._render_structure_actions(notice=msg)
+                except Exception:
+                    self._render_structures_list()
+
+                return
+            except Exception as exc:
+                self._safe_status(f"Erro ao encerrar estrutura: {exc}")
+                messagebox.showerror("Erro ao encerrar estrutura", str(exc), parent=self.winfo_toplevel())
+                return
+
+        msg = f"Decisao registrada para ID {sid}: {label} ({decision})"
+        self._safe_status(msg)
+        self._render_structure_actions(notice=msg)
     # END AUTO STRUCTURE SIDE ACTIONS
+
 

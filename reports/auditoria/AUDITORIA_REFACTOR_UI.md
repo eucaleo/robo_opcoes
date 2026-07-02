@@ -1093,3 +1093,33 @@ A validacao encontrou acoes funcionais, acoes parciais e falhas a corrigir.
 ### 26.5. Decisao
 
 A proxima etapa deve aplicar patch funcional minimo restrito ao painel dark.
+
+## 27. Patch funcional das acoes laterais de estruturas no painel dark
+
+Foi aplicado patch funcional minimo nas acoes laterais de estruturas da UI moderna dark.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/10_patch_acoes_laterais_estruturas_dark_panel.md
+
+### 27.1. Correcoes
+
+- duplicacao implementada localmente com StructuresRepository
+- feedback visual adicionado para recalculo e decisoes
+- bloco de ajuste tornou-se visualmente explicito
+- arquivamento recebeu validacao e feedback adicional
+- decisao CLOSE passou a arquivar a estrutura via StructuresRepository.archive_structure
+
+### 27.2. Decisao de seguranca
+
+O patch ficou restrito aos arquivos do painel dark e seu espelho ui.
+
+### 27.3. Validacao
+
+- py_compile executado nos caminhos UI e ui
+- validacao manual executada na UI moderna dark
+- estruturas encerradas deixaram de aparecer em list_structures padrao
+
+### 27.4. Proximo passo
+
+Registrar checkpoint git do patch validado.
