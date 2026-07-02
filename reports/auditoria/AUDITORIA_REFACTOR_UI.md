@@ -1314,3 +1314,114 @@ Aplicar patch pequeno e restrito para equivalencia parcial de decisoes no modo d
 - tabela/listagem
 - selecao
 - detalhe
+
+## 31. Historico de decisoes no painel dark
+
+Foi implementado e validado o historico de decisoes operacionais por estrutura no painel dark da UI moderna.
+
+Relatorio gerado:
+
+- reports/ui_modern_equivalence/13_historico_decisoes_dark_panel.md
+
+### 31.1. Objetivo
+
+Registrar e exibir, no fluxo operacional da estrutura selecionada, as ultimas decisoes tomadas pelo usuario.
+
+Decisoes cobertas:
+
+- HOLD / Manter
+- ADJUST / Ajustar
+- CLOSE / Encerrar
+
+### 31.2. Arquivo alterado
+
+Arquivo alterado nesta rodada:
+
+- UI/components/terminal_vwap_payoff_dark_panel.py
+
+### 31.3. Persistencia criada
+
+Foi criada, quando inexistente, a tabela:
+
+- structure_decisions
+
+Campos principais:
+
+- id
+- structure_id
+- decision
+- label
+- note
+- created_at
+
+Tambem foi criado indice por structure_id para consulta do historico.
+
+### 31.4. Resultado funcional
+
+O painel dark passou a:
+
+- registrar decisao operacional por estrutura;
+- salvar label amigavel;
+- salvar data e hora local;
+- exibir bloco ULTIMAS DECISOES no painel lateral;
+- manter o comportamento de CLOSE arquivando a estrutura;
+- manter o modo dark como UI moderna paralela.
+
+### 31.5. Validacao
+
+Validacao manual executada:
+
+- python -m UI.modern
+
+Resultado observado:
+
+- UI moderna abriu em modo dark;
+- estruturas reais foram carregadas;
+- estrutura ID 2 foi carregada;
+- decisao HOLD foi registrada;
+- historico apareceu na interface com data e hora;
+- registro foi confirmado em dados/app.db na tabela structure_decisions.
+
+Registro confirmado:
+
+- structure_id: 2
+- decision: HOLD
+- label: Manter
+- created_at: 2026-07-02 11:07:16
+
+### 31.6. Commit funcional associado
+
+Commit:
+
+- 2830b8c Adiciona historico de decisoes no painel dark
+
+### 31.7. Decisao de seguranca
+
+A alteracao nao encerra a equivalencia funcional completa de decisoes registrada na secao 30.
+
+Continuam pendentes:
+
+- filtros globais de decisoes;
+- tabela/listagem global de decisoes;
+- selecao de decisao;
+- detalhe da decisao;
+- rationale/why JSON;
+- payoff acionado a partir de decisao selecionada.
+
+### 31.8. Proxima frente recomendada
+
+A proxima frente deve continuar a secao 30.4, agora considerando que o historico operacional por estrutura ja existe.
+
+Frente recomendada:
+
+- equivalencia parcial de decisoes no modo dark
+
+Escopo inicial:
+
+- adicionar bloco/listagem global de decisoes no modo dark;
+- reutilizar componentes existentes quando possivel;
+- preservar filtros, tabela, selecao e detalhe;
+- nao alterar banco sem necessidade;
+- nao eliminar a UI atual;
+- nao trocar entrypoint principal;
+- nao recriar regra de negocio na UI.
