@@ -42,11 +42,11 @@ Validação manual aprovada na UI moderna dark.\n
 
 Foi implementada e registrada a exportacao CSV da listagem filtrada de decisoes no modo dark.
 
-### 35.1. Objetivo
+### 40.1. Objetivo
 
 Permitir que a visao atual da aba Decisoes no modo dark seja exportada para CSV, respeitando a listagem filtrada exibida ao usuario.
 
-### 35.2. Resultado funcional
+### 40.2. Resultado funcional
 
 A UI moderna dark passou a oferecer exportacao CSV associada ao fluxo de decisoes.
 
@@ -58,7 +58,7 @@ A funcionalidade preserva o escopo da camada visual:
 - nao substitui a UI atual;
 - nao troca o entrypoint principal.
 
-### 35.3. Commits e tags associados
+### 40.3. Commits e tags associados
 
 Commits associados:
 
@@ -74,11 +74,11 @@ Tags associadas:
 
 Foi implementado e registrado o detalhe enriquecido de decisao na aba Decisoes do modo dark.
 
-### 36.1. Objetivo
+### 41.1. Objetivo
 
 Melhorar a leitura operacional da decisao selecionada, exibindo mais campos relevantes sem recriar regra de negocio na UI.
 
-### 36.2. Resultado funcional
+### 41.2. Resultado funcional
 
 O detalhe da decisao no modo dark passou a apresentar informacoes mais completas da decisao selecionada, mantendo o fluxo paralelo da UI moderna.
 
@@ -92,7 +92,7 @@ A alteracao preserva:
 - repositories;
 - UI atual como caminho principal.
 
-### 36.3. Commits e tags associados
+### 41.3. Commits e tags associados
 
 Commits associados:
 
@@ -276,9 +276,9 @@ Revisar o relatorio tecnico e, se confirmado, abrir patch funcional minimo para 
 
 ---
 
-## 35. Filtros simples e estabilizacao da selecao de decisoes no modo dark
+## 40. Filtros simples e estabilizacao da selecao de decisoes no modo dark
 
-### 35.1. Objetivo
+### 40.1. Objetivo
 
 Avancar a equivalencia parcial da aba Decisoes no modo dark, adicionando filtros simples e corrigindo problemas operacionais de selecao, detalhe e mensagens de status.
 
@@ -290,7 +290,7 @@ Esta rodada continua a evolucao iniciada nas secoes anteriores sobre:
 - carregamento da estrutura da decisao no Terminal VWAP;
 - busca por estrutura ativa.
 
-### 35.2. Restricoes preservadas
+### 40.2. Restricoes preservadas
 
 As alteracoes desta rodada preservaram as restricoes arquiteturais do projeto:
 
@@ -303,7 +303,7 @@ As alteracoes desta rodada preservaram as restricoes arquiteturais do projeto:
 - nao houve alteracao em repositories, services ou controllers;
 - os contratos canonicos foram preservados.
 
-### 35.3. Inventario e classificacao de filtros avancados
+### 40.3. Inventario e classificacao de filtros avancados
 
 Antes da implementacao dos filtros simples, foram registradas etapas documentais de inventario e classificacao dos filtros avancados de decisoes no modo dark.
 
@@ -323,7 +323,7 @@ Decisao registrada:
 - a proxima entrega funcional deveria ser pequena;
 - o primeiro passo funcional seria adicionar filtros simples de baixo risco.
 
-### 35.4. Implementacao de filtros simples
+### 40.4. Implementacao de filtros simples
 
 Foi implementada evolucao funcional no componente:
 
@@ -349,7 +349,7 @@ Tag associada:
 
 - checkpoint-modern-decisions-simple-filters-dark
 
-### 35.5. Correcao de detalhe sem selecao
+### 40.5. Correcao de detalhe sem selecao
 
 Foi corrigido comportamento no qual o painel de detalhe poderia ser acessado em situacao sem selecao valida.
 
@@ -368,7 +368,7 @@ Tag associada:
 
 - checkpoint-modern-decisions-simple-filters-dark-selection-fix
 
-### 35.6. Dedupe de status de selecao
+### 40.6. Dedupe de status de selecao
 
 Foi corrigido excesso de mensagens repetidas de status quando a mesma decisao era selecionada repetidamente.
 
@@ -390,7 +390,7 @@ Tag associada:
 
 - checkpoint-modern-decisions-dark-dedupe-selection-status
 
-### 35.7. Centralizacao do status de selecao
+### 40.7. Centralizacao do status de selecao
 
 Foi aplicada refatoracao pequena para centralizar o controle de status de selecao em helper dedicado.
 
@@ -417,7 +417,7 @@ Tag associada:
 
 - checkpoint-modern-decisions-dark-selection-status-helper
 
-### 35.8. Inicializacao explicita do estado de status
+### 40.8. Inicializacao explicita do estado de status
 
 Foi inicializado explicitamente no construtor o estado interno usado para deduplicar status de selecao.
 
@@ -439,7 +439,7 @@ Tag associada:
 
 - checkpoint-modern-decisions-dark-selection-status-state
 
-### 35.9. Validacoes executadas
+### 40.9. Validacoes executadas
 
 Validacoes executadas ao longo da rodada:
 
@@ -461,7 +461,7 @@ Resultados observados:
 - Terminal VWAP recebeu a estrutura carregada;
 - mensagens duplicadas consecutivas de mesma selecao foram evitadas.
 
-### 35.10. Estado atual apos a rodada
+### 40.10. Estado atual apos a rodada
 
 Checkpoint atual da main:
 
@@ -481,7 +481,7 @@ A aba Decisoes do modo dark possui agora equivalencia parcial mais robusta:
 - carregamento da estrutura no Terminal VWAP;
 - controle de status sem repeticao consecutiva.
 
-### 35.11. Pendencia tecnica identificada
+### 40.11. Pendencia tecnica identificada
 
 Foi identificada uma pendencia pequena de robustez:
 
@@ -500,9 +500,9 @@ Proxima correcao recomendada:
 - aplicar apenas em UI/components/decisions_dark_panel.py;
 - validar com py_compile e python -m UI.modern.
 
-## 36. Rota alinhada para a proxima frente
+## 41. Rota alinhada para a proxima frente
 
-### 36.1. Proxima frente recomendada
+### 41.1. Proxima frente recomendada
 
 Frente recomendada:
 
@@ -518,7 +518,7 @@ Objetivo:
 - garantir que _last_decision_status_text tambem seja limpo;
 - preservar comportamento visual e funcional atual.
 
-### 36.2. Restricoes da proxima frente
+### 41.2. Restricoes da proxima frente
 
 A proxima frente nao deve:
 
@@ -532,7 +532,7 @@ A proxima frente nao deve:
 - trocar entrypoint;
 - eliminar UI atual.
 
-### 36.3. Validacoes obrigatorias da proxima frente
+### 41.3. Validacoes obrigatorias da proxima frente
 
 Validacoes obrigatorias:
 
@@ -556,4 +556,3 @@ Resultado esperado:
 - selecao limpa corretamente;
 - status continua sem duplicacao consecutiva;
 - carregamento de estrutura permanece funcional.
-
