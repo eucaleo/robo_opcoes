@@ -1415,3 +1415,5 @@ Critério de aceite:
 - TerminalVWAPPayoffDarkPanel: quebra de _setup_layout em helpers privados de grade, rail, side panel, main panel, header, KPIs, charts, painel inferior, tabela de pernas e avisos, preservando layout e comportamento funcional.
 
 - TerminalVWAPPayoffDarkPanel: quebra dos renderizadores laterais de estruturas, ações, ajuste e histórico de decisões em helpers privados menores, preservando callbacks, textos, status e comportamento visual.
+
+- TerminalVWAPPayoffDarkPanel: quebra de _build_rail_panel em helpers privados menores, preservando composição visual do rail, comandos existentes e comportamento operacional.
