@@ -3884,3 +3884,149 @@ Comandos obrigatorios apos o inventario:
 ### 54.7. Proximo passo
 
 Selecionar o metodo mais seguro do ranking atual e executar refactor interno minimo, com validacao por py_compile e novo registro neste documento canonico.
+# Triagem formal da fatia Decisoes dark panel
+
+## Decisao
+
+A frente UI completa permanece aberta.
+
+A fatia `Decisoes no modo dark` pode ser considerada em estado de **equivalencia parcial operacional**, desde que as validacoes tecnicas finais continuem aprovadas.
+
+Esta decisao nao autoriza:
+
+- eliminar a UI atual;
+- trocar o entrypoint principal;
+- alterar banco de dados;
+- alterar regra de negocio;
+- declarar equivalencia funcional completa da UI moderna dark.
+
+## Escopo encerravel nesta fatia
+
+A equivalencia parcial operacional da aba Decisoes no modo dark cobre:
+
+- consulta/listagem de decisoes;
+- filtro simples/busca textual;
+- selecao de decisao;
+- leitura de detalhe textual enriquecido;
+- copia do detalhe;
+- exportacao CSV da listagem filtrada;
+- carregamento/acionamento da estrutura associada no Terminal VWAP;
+- robustez basica das acoes dependentes de selecao/status.
+
+## Reclassificacoes formais
+
+### 1. Criterio de encerramento global
+
+Itens que afirmam que a UI atual ainda nao deve ser eliminada permanecem verdadeiros, mas sao classificados como criterio global de substituicao da UI, nao como bloqueio para encerrar a fatia parcial de Decisoes.
+
+Classificacao:
+
+`CRITERIO_GLOBAL_UI`
+
+### 2. Filtros avancados de decisoes
+
+Itens sobre filtros avancados, ordenacao visual, estados vazios, contagem filtrada versus total e ergonomia dos botoes sao reclassificados como proximas frentes pequenas.
+
+Classificacao:
+
+`BACKLOG_MELHORIA_UI_DECISOES`
+
+### 3. Rationale/why JSON
+
+Itens sobre `rationale/why JSON` ficam reclassificados como melhoria de detalhamento/equivalencia futura, salvo se for definido como requisito obrigatorio de equivalencia completa.
+
+Classificacao:
+
+`BACKLOG_MELHORIA_UI_DECISOES`
+
+### 4. Divergencia dados/app.db versus dados/derived.db
+
+A divergencia observada entre banco canonico moderno e banco volatil legado deve ser tratada em frente propria de banco/dados/pipeline.
+
+Classificacao:
+
+`BANCO_DADOS_PIPELINE`
+
+### 5. Terminal VWAP, payoff e UIDataModel
+
+Itens sobre Terminal VWAP, payoff curve, `UI/models/ui_data.py` e refatoracoes tecnicas de payoff ficam fora do escopo desta branch de Decisoes dark panel.
+
+Classificacao:
+
+`FORA_ESCOPO_BRANCH_DECISOES_DARK`
+
+### 6. Relatorios historicos superados
+
+Relatorios anteriores que indicavam ausencia total de filtros, tabela, selecao e detalhe em Decisoes dark foram parcialmente superados por implementacoes posteriores registradas na auditoria.
+
+Classificacao:
+
+`HISTORICO_SUPERADO_PARCIALMENTE`
+
+## Pendencias que ainda podem bloquear esta fatia
+
+Antes de considerar a fatia pronta para commit/merge, validar:
+
+- py_compile dos arquivos alterados;
+- git diff --check;
+- smoke manual da aba Decisoes;
+- selecao vazia/invalida nao quebra botoes dependentes;
+- copia/exportacao/status funcionam;
+- carregamento de estrutura associada funciona;
+- nao houve alteracao em banco, regra de negocio, services, repositories ou entrypoint principal.
+
+## Conclusao
+
+A branch atual nao deve tentar resolver toda a frente UI.
+
+O caminho recomendado e encerrar documentalmente apenas a fatia `Decisoes dark panel - equivalencia parcial operacional`, deixando os demais itens como backlog, banco/pipeline, criterio global ou fora de escopo.
+
+---
+
+## Checkpoint final - Decisoes dark panel equivalencia parcial operacional
+
+### Resultado tecnico
+
+Validacoes executadas:
+
+    python -m py_compile UI/components/decisions_dark_panel.py UI/modern/dark_window.py UI/components/terminal_vwap_payoff_dark_panel.py UI/models/ui_data.py
+    git diff --check
+
+Resultado:
+
+- py_compile: aprovado sem erros.
+- git diff --check: aprovado; houve apenas aviso de conversao LF/CRLF no documento de auditoria.
+
+### Verificacao estrutural dos callbacks
+
+Foi verificada a presenca dos fluxos relevantes:
+
+- selecao de decisao;
+- validacao de indice selecionado;
+- copia de detalhe;
+- carregamento da estrutura associada;
+- duplicacao de estrutura;
+- arquivamento de estrutura;
+- recalculo de payoff;
+- registro das decisoes ADJUST e CLOSE;
+- mensagens operacionais via _safe_status.
+
+### Decisao de encerramento da fatia
+
+A fatia Decisoes dark panel fica classificada como:
+
+    EQUIVALENCIA_PARCIAL_OPERACIONAL
+
+Esta classificacao nao encerra a frente UI completa e nao autoriza substituir a UI atual.
+
+### Itens reclassificados fora do bloqueio desta fatia
+
+- filtros avancados de decisoes: BACKLOG_MELHORIA_UI_DECISOES;
+- rationale/why JSON: BACKLOG_MELHORIA_UI_DECISOES;
+- divergencia dados/app.db versus dados/derived.db: BANCO_DADOS_PIPELINE;
+- Terminal VWAP/payoff/UIDataModel: FORA_ESCOPO_BRANCH_DECISOES_DARK;
+- relatorios historicos antigos de ausencia total: HISTORICO_SUPERADO_PARCIALMENTE.
+
+### Conclusao operacional
+
+A branch atual deve ser encerrada como entrega parcial e restrita de Decisoes no modo dark, mantendo a UI atual como caminho principal e preservando banco de dados, regra de negocio, entrypoint, services, repositories e contratos canonicos.
