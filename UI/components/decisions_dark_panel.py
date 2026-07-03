@@ -75,10 +75,20 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self.on_status(message)
 
     def _build_layout(self) -> None:
+        self._configure_layout_grid()
+        header = self._build_header_frame()
+        self._build_header_actions(header)
+        self._build_search_section(header)
+        self._build_filters_section(header)
+        self._build_list_section()
+        self._build_detail_section()
+
+    def _configure_layout_grid(self) -> None:
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=2)
         self.grid_rowconfigure(1, weight=1)
 
+    def _build_header_frame(self) -> ctk.CTkFrame:
         header = ctk.CTkFrame(self, fg_color="#111827")
         header.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=(10, 6))
         header.grid_columnconfigure(0, weight=1)
@@ -94,6 +104,9 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         title.grid(row=0, column=0, sticky="w", padx=12, pady=10)
 
+        return header
+
+    def _build_header_actions(self, header: ctk.CTkFrame) -> None:
         self.load_structure_btn = ctk.CTkButton(
             header,
             text="Carregar estrutura no Terminal",
@@ -121,6 +134,23 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         refresh_btn.grid(row=0, column=3, sticky="e", padx=(4, 12), pady=10)
 
+    def _build_search_section(self, header: ctk.CTkFrame) -> None:
+        self.search_entry = ctk.CTkEntry(
+            header,
+            placeholder_text="Buscar por decisão, ID ou nome da estrutura ativa...",
+            height=32,
+        )
+        self.search_entry.grid(
+            row=1,
+            column=0,
+            columnspan=4,
+            sticky="ew",
+            padx=(12, 12),
+            pady=(0, 10),
+        )
+        self.search_entry.bind("<KeyRelease>", self._on_search_changed)
+
+    def _build_filters_section(self, header: ctk.CTkFrame) -> None:
         filters_frame = ctk.CTkFrame(header, fg_color="#0f172a")
         filters_frame.grid(row=2, column=0, columnspan=4, sticky="ew", padx=12, pady=(0, 10))
         filters_frame.grid_columnconfigure(6, weight=1)
@@ -185,14 +215,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         self.filter_summary_label.grid(row=0, column=6, sticky="e", padx=(0, 10), pady=8)
 
-        self.search_entry = ctk.CTkEntry(
-            header,
-            placeholder_text="Buscar por decisão, ID ou nome da estrutura ativa...",
-            height=32,
-        )
-        self.search_entry.grid(row=1, column=0, columnspan=4, sticky="ew", padx=(12, 12), pady=(0, 10))
-        self.search_entry.bind("<KeyRelease>", self._on_search_changed)
-
+    def _build_list_section(self) -> None:
         self.list_frame = ctk.CTkScrollableFrame(
             self,
             fg_color="#020617",
@@ -201,6 +224,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         self.list_frame.grid(row=1, column=0, sticky="nsew", padx=(10, 5), pady=(0, 10))
 
+    def _build_detail_section(self) -> None:
         detail_frame = ctk.CTkFrame(self, fg_color="#020617")
         detail_frame.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=(0, 10))
         detail_frame.grid_columnconfigure(0, weight=1)

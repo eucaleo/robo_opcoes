@@ -1399,3 +1399,5 @@ Critério de aceite:
 - exportação CSV continua funcionando.
 
 - DecisionsDarkPanel: busca unificada por decisão, ID e nome; limpeza consolidada em um único botão.
+
+- DecisionsDarkPanel: _build_layout dividido em helpers privados de grade, cabeçalho, ações, busca, filtros, listagem e detalhe.
