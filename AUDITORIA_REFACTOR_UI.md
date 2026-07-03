@@ -939,3 +939,96 @@ Resultado esperado:
 - selecao manual continua informando a decisao selecionada;
 - filtros com resultado informam quantidade exibida;
 - detalhe, copia, exportacao e carregamento de estrutura continuam operacionais.
+
+---
+
+## 47. Silenciamento de filtro limpo em estado neutro na aba Decisoes dark
+
+### 47.1. Objetivo
+
+Evitar ruido de status na aba Decisoes da UI moderna dark quando a tela esta apenas renderizando em estado neutro, sem filtros ativos.
+
+### 47.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 47.3. Implementacao realizada
+
+A rotina de aplicacao de filtro passou a aceitar um parametro opcional:
+
+- `announce_clear`
+
+Esse parametro controla se a mensagem de filtros limpos deve ser emitida quando nao existem filtros ativos.
+
+### 47.4. Comportamento ajustado
+
+A mensagem:
+
+- `Filtros limpos: X decisões de estruturas ativas`
+
+passa a ser emitida apenas em acoes explicitas de limpeza, como:
+
+- limpar busca;
+- limpar filtros avancados.
+
+### 47.5. Estado neutro preservado
+
+Quando a tela apenas carrega, recarrega ou re-renderiza sem filtros ativos, a UI deixa de emitir a mensagem de filtros limpos.
+
+Isso reduz ruido operacional apos reload e evita status redundante logo depois da mensagem de decisoes carregadas.
+
+### 47.6. Comportamentos preservados
+
+Foram preservados:
+
+- filtro aplicado com resultado;
+- filtro sem resultado;
+- filtro invalido;
+- selecao automatica silenciosa;
+- selecao manual com status;
+- detalhe da decisao;
+- copia de detalhe;
+- carregamento de estrutura no Terminal VWAP.
+
+### 47.7. Restricoes preservadas
+
+A frente preservou:
+
+- regra de negocio;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- entrypoint principal;
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela.
+
+### 47.8. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- confirmar que o carregamento inicial nao mostra filtros limpos;
+- aplicar filtro com resultado;
+- limpar filtros pelo botao;
+- confirmar que a limpeza explicita informa filtros limpos;
+- aplicar filtro sem resultado;
+- aplicar filtro invalido;
+- selecionar manualmente decisao;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 47.9. Resultado esperado
+
+Resultado esperado:
+
+- estado neutro sem filtros nao polui o status;
+- limpeza explicita continua comunicada;
+- feedback de filtros permanece rastreavel;
+- operacoes da aba Decisoes dark continuam funcionais.

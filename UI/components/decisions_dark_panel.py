@@ -337,11 +337,11 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             more.pack(fill="x", padx=8, pady=8)
 
     def _on_search_changed(self, _event=None) -> None:
-        self._apply_filter(render=True)
+        self._apply_filter(render=True, announce_clear=True)
 
     def _clear_search(self) -> None:
         self.search_entry.delete(0, "end")
-        self._apply_filter(render=True)
+        self._apply_filter(render=True, announce_clear=True)
 
     def _apply_advanced_filters(self, _event=None) -> None:
         self._apply_filter(render=True)
@@ -529,7 +529,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         # Se nao houver campo de status, assume ativa para preservar compatibilidade.
         return True
 
-    def _apply_filter(self, render: bool = True) -> None:
+    def _apply_filter(self, render: bool = True, announce_clear: bool = False) -> None:
         query = self._entry_text("search_entry").lower()
         decision_query = self._entry_text("decision_filter_entry").lower()
         level_min, level_min_valid = self._parse_float_filter("level_min_filter_entry")
@@ -615,7 +615,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                         f"Filtro aplicado: {len(self.filtered_decisions)} de "
                         f"{len(active_decisions)} decisões de estruturas ativas"
                     )
-                else:
+                elif announce_clear:
                     self._status_filter_result(
                         f"Filtros limpos: {len(active_decisions)} decisões de estruturas ativas"
                     )
