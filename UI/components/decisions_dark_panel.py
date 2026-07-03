@@ -155,6 +155,12 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         filters_frame.grid(row=2, column=0, columnspan=4, sticky="ew", padx=12, pady=(0, 10))
         filters_frame.grid_columnconfigure(6, weight=1)
 
+        self._build_level_filter_controls(filters_frame)
+        self._build_dte_filter_controls(filters_frame)
+        self._build_filter_action_buttons(filters_frame)
+        self._build_filter_summary(filters_frame)
+
+    def _build_level_filter_controls(self, filters_frame: ctk.CTkFrame) -> None:
         level_filter_label = ctk.CTkLabel(
             filters_frame,
             text="Level mín.",
@@ -171,6 +177,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.level_min_filter_entry.grid(row=0, column=1, sticky="w", padx=(0, 8), pady=8)
         self.level_min_filter_entry.bind("<Return>", self._apply_advanced_filters)
 
+    def _build_dte_filter_controls(self, filters_frame: ctk.CTkFrame) -> None:
         dte_filter_label = ctk.CTkLabel(
             filters_frame,
             text="DTE máx.",
@@ -187,6 +194,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.dte_max_filter_entry.grid(row=0, column=3, sticky="w", padx=(0, 8), pady=8)
         self.dte_max_filter_entry.bind("<Return>", self._apply_advanced_filters)
 
+    def _build_filter_action_buttons(self, filters_frame: ctk.CTkFrame) -> None:
         apply_filters_btn = ctk.CTkButton(
             filters_frame,
             text="Aplicar",
@@ -207,6 +215,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         clear_filters_btn.grid(row=0, column=5, sticky="e", padx=(0, 8), pady=8)
 
+    def _build_filter_summary(self, filters_frame: ctk.CTkFrame) -> None:
         self.filter_summary_label = ctk.CTkLabel(
             filters_frame,
             text="Filtros: sem dados carregados.",

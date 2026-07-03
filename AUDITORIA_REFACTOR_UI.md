@@ -1401,3 +1401,5 @@ Critério de aceite:
 - DecisionsDarkPanel: busca unificada por decisão, ID e nome; limpeza consolidada em um único botão.
 
 - DecisionsDarkPanel: _build_layout dividido em helpers privados de grade, cabeçalho, ações, busca, filtros, listagem e detalhe.
+
+- DecisionsDarkPanel: seção de filtros dividida em helpers privados para controles de level, DTE, botões e resumo.
