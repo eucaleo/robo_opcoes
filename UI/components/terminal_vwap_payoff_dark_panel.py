@@ -676,46 +676,72 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
     def _load_legs(self, structure_id: Any) -> List[Dict[str, Any]]:
         conn = self._connect()
         try:
-            schema = self._tables_cols(conn)
-            table = self._find_legs_table(schema)
+            schema, table = self._load_legs_schema(conn)
             if not table:
                 return []
 
-            cols = schema[table]
-            sid_col = _first_col(cols, ["structure_id", "id_structure", "estrutura_id"])
-            symbol_col = _first_col(cols, ["symbol", "simbolo", "ticker"])
-            side_col = _first_col(cols, ["position_side", "side", "lado"])
-            type_col = _first_col(cols, ["option_type", "type", "tipo"])
-            strike_col = _first_col(cols, ["strike", "exercise_price"])
-            exp_col = _first_col(cols, ["expiration_date", "expiration", "vencimento"])
-            qty_col = _first_col(cols, ["quantity", "qty", "qtd", "quantidade"])
-            prem_col = _first_col(cols, ["premium", "premio", "price", "preco"])
-            mult_col = _first_col(cols, ["multiplier", "multiplicador"])
-
-            if not sid_col:
+            cols = self._resolve_legs_columns(schema, table)
+            if not cols["sid_col"]:
                 return []
 
-            select_parts = [
-                f"{_q(symbol_col)} AS symbol" if symbol_col else "NULL AS symbol",
-                f"{_q(side_col)} AS position_side" if side_col else "NULL AS position_side",
-                f"{_q(type_col)} AS option_type" if type_col else "NULL AS option_type",
-                f"{_q(strike_col)} AS strike" if strike_col else "NULL AS strike",
-                f"{_q(exp_col)} AS expiration_date" if exp_col else "NULL AS expiration_date",
-                f"{_q(qty_col)} AS quantity" if qty_col else "NULL AS quantity",
-                f"{_q(prem_col)} AS premium" if prem_col else "NULL AS premium",
-                f"{_q(mult_col)} AS multiplier" if mult_col else "NULL AS multiplier",
-            ]
-
-            sql = (
-                f"SELECT {', '.join(select_parts)} "
-                f"FROM {_q(table)} "
-                f"WHERE {_q(sid_col)} = ?"
+            select_parts = self._build_legs_select_parts(cols)
+            rows = self._fetch_legs_rows(
+                conn,
+                table,
+                cols["sid_col"],
+                select_parts,
+                structure_id,
             )
-            rows = conn.execute(sql, (structure_id,)).fetchall()
 
             return [dict(row) for row in rows]
         finally:
             conn.close()
+
+    def _load_legs_schema(self, conn: Any) -> tuple[Dict[str, Any], Any]:
+        schema = self._tables_cols(conn)
+        table = self._find_legs_table(schema)
+        return schema, table
+
+    def _resolve_legs_columns(self, schema: Dict[str, Any], table: str) -> Dict[str, Any]:
+        cols = schema[table]
+        return {
+            "sid_col": _first_col(cols, ["structure_id", "id_structure", "estrutura_id"]),
+            "symbol_col": _first_col(cols, ["symbol", "simbolo", "ticker"]),
+            "side_col": _first_col(cols, ["position_side", "side", "lado"]),
+            "type_col": _first_col(cols, ["option_type", "type", "tipo"]),
+            "strike_col": _first_col(cols, ["strike", "exercise_price"]),
+            "exp_col": _first_col(cols, ["expiration_date", "expiration", "vencimento"]),
+            "qty_col": _first_col(cols, ["quantity", "qty", "qtd", "quantidade"]),
+            "prem_col": _first_col(cols, ["premium", "premio", "price", "preco"]),
+            "mult_col": _first_col(cols, ["multiplier", "multiplicador"]),
+        }
+
+    def _build_legs_select_parts(self, cols: Dict[str, Any]) -> List[str]:
+        return [
+            f"{_q(cols['symbol_col'])} AS symbol" if cols["symbol_col"] else "NULL AS symbol",
+            f"{_q(cols['side_col'])} AS position_side" if cols["side_col"] else "NULL AS position_side",
+            f"{_q(cols['type_col'])} AS option_type" if cols["type_col"] else "NULL AS option_type",
+            f"{_q(cols['strike_col'])} AS strike" if cols["strike_col"] else "NULL AS strike",
+            f"{_q(cols['exp_col'])} AS expiration_date" if cols["exp_col"] else "NULL AS expiration_date",
+            f"{_q(cols['qty_col'])} AS quantity" if cols["qty_col"] else "NULL AS quantity",
+            f"{_q(cols['prem_col'])} AS premium" if cols["prem_col"] else "NULL AS premium",
+            f"{_q(cols['mult_col'])} AS multiplier" if cols["mult_col"] else "NULL AS multiplier",
+        ]
+
+    def _fetch_legs_rows(
+        self,
+        conn: Any,
+        table: str,
+        sid_col: str,
+        select_parts: List[str],
+        structure_id: Any,
+    ) -> List[Any]:
+        sql = (
+            f"SELECT {', '.join(select_parts)} "
+            f"FROM {_q(table)} "
+            f"WHERE {_q(sid_col)} = ?"
+        )
+        return conn.execute(sql, (structure_id,)).fetchall()
 
     def _load_market(self, asset: Any) -> Dict[str, Any]:
         result = {
