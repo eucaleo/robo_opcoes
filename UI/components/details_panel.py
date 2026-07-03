@@ -113,53 +113,48 @@ class DetailsPanel(ttk.LabelFrame):
         - se esse DB explícito não existe, retorna None;
         - só usa fallback em bancos default quando não há DB explícito na instância.
         """
-        import sqlite3
-        from pathlib import Path
-
         sid = self._resolve_structure_key(structure_id)
         sid_text = str(sid)
 
-        def _safe_path(value):
-            if value is None:
-                return None
-            try:
-                if callable(value):
-                    value = value()
-            except TypeError:
-                return None
-            if value is None:
-                return None
-            try:
-                return Path(value)
-            except TypeError:
-                return None
+        for db_path in self._snapshot_candidate_db_paths():
+            ts = self._latest_snapshot_timestamp_in_db(db_path, sid, sid_text)
+            if ts is not None:
+                return ts
 
-        def _looks_like_db_path(name, path):
-            low_name = str(name).lower()
-            try:
-                suffix = Path(path).suffix.lower()
-            except Exception:
-                suffix = ""
+        return None
 
-            return (
-                suffix in {".db", ".sqlite", ".sqlite3"}
-                or "db" in low_name
-                or "database" in low_name
-                or "sqlite" in low_name
-            )
+    def _snapshot_candidate_db_paths(self):
+        explicit_paths = self._explicit_instance_db_paths()
 
-        candidates = []
+        if explicit_paths:
+            return self._unique_paths(explicit_paths)
+
+        return self._unique_paths(self._default_snapshot_db_paths())
+
+    def _explicit_instance_db_paths(self):
+        instance_dict = getattr(self, "__dict__", {}) or {}
+        ordered_names = self._ordered_instance_db_attribute_names(instance_dict)
+
         primary_explicit = []
         derived_explicit = []
 
-        # 1) Caminhos explicitamente configurados NA INSTÂNCIA.
-        #
-        # Regra crítica:
-        # se existe raw/app DB explícito, usa SOMENTE ele.
-        # Não pode cair para derived.db quando o raw/app não existe.
-        instance_dict = getattr(self, "__dict__", {}) or {}
+        for name in ordered_names:
+            path = self._safe_db_path(instance_dict.get(name))
+            if path is None or not self._looks_like_db_path(name, path):
+                continue
 
-        preferred_instance_names = [
+            if self._is_derived_db_path(name, path):
+                derived_explicit.append(path)
+            else:
+                primary_explicit.append(path)
+
+        if primary_explicit:
+            return primary_explicit
+
+        return derived_explicit
+
+    def _ordered_instance_db_attribute_names(self, instance_dict):
+        preferred_names = [
             "_raw_db_path",
             "raw_db_path",
             "_app_db_path",
@@ -176,231 +171,179 @@ class DetailsPanel(ttk.LabelFrame):
             "derived_db_path",
         ]
 
-        ordered_instance_names = []
-        for name in preferred_instance_names:
-            if name in instance_dict and name not in ordered_instance_names:
-                ordered_instance_names.append(name)
+        ordered_names = []
+        for name in preferred_names:
+            if name in instance_dict and name not in ordered_names:
+                ordered_names.append(name)
 
         for name in instance_dict:
-            if name not in ordered_instance_names:
-                ordered_instance_names.append(name)
+            if name not in ordered_names:
+                ordered_names.append(name)
 
-        for name in ordered_instance_names:
-            value = instance_dict.get(name)
-            p = _safe_path(value)
-            if p is None:
-                continue
-            if not _looks_like_db_path(name, p):
-                continue
+        return ordered_names
 
-            low_name = str(name).lower()
-            low_path = str(p).lower()
+    def _default_snapshot_db_paths(self):
+        candidates = []
 
-            is_derived = (
-                "derived" in low_name
-                or "deriv" in low_name
-                or low_path.endswith("derived.db")
-                or "derived.db" in low_path
-            )
+        for name in self._class_level_db_attribute_names():
+            try:
+                attr = getattr(self, name, None)
+            except Exception:
+                attr = None
 
-            if is_derived:
-                derived_explicit.append(p)
-            else:
-                primary_explicit.append(p)
+            path = self._safe_db_path(attr)
+            if path is not None and self._looks_like_db_path(name, path):
+                candidates.append(path)
 
-        if primary_explicit:
-            candidates = primary_explicit
-        elif derived_explicit:
-            candidates = derived_explicit
-        else:
-            # 2) Sem DB explícito na instância: agora sim pode usar defaults.
-            class_level_names = [
-                "_derived_db_path",
-                "derived_db_path",
-                "_raw_db_path",
-                "raw_db_path",
-                "_app_db_path",
-                "app_db_path",
-                "_db_path",
-                "db_path",
-                "_database_path",
-                "database_path",
-                "_sqlite_path",
-                "sqlite_path",
-                "_db_file",
-                "db_file",
-            ]
+        project_root = self._snapshot_project_root()
+        candidates.extend(self._well_known_snapshot_db_paths(project_root))
+        candidates.extend(self._glob_snapshot_db_paths(project_root))
 
-            for name in class_level_names:
-                try:
-                    attr = getattr(self, name, None)
-                except Exception:
-                    attr = None
+        return candidates
 
-                p = _safe_path(attr)
-                if p is not None and _looks_like_db_path(name, p):
-                    candidates.append(p)
+    def _class_level_db_attribute_names(self):
+        return [
+            "_derived_db_path",
+            "derived_db_path",
+            "_raw_db_path",
+            "raw_db_path",
+            "_app_db_path",
+            "app_db_path",
+            "_db_path",
+            "db_path",
+            "_database_path",
+            "database_path",
+            "_sqlite_path",
+            "sqlite_path",
+            "_db_file",
+            "db_file",
+        ]
 
-            project_root = getattr(self, "_project_root", None)
-            if project_root is not None:
-                project_root = Path(project_root)
-            else:
-                project_root = Path(__file__).resolve().parents[2]
+    def _snapshot_project_root(self):
+        from pathlib import Path
 
-            candidates.extend(
-                [
-                    project_root / "app.db",
-                    project_root / "app2.db",
-                    project_root / "derived.db",
-                    project_root / "dados" / "app.db",
-                    project_root / "dados" / "app2.db",
-                    project_root / "dados" / "derived.db",
-                ]
-            )
+        project_root = getattr(self, "_project_root", None)
+        if project_root is not None:
+            return Path(project_root)
 
-            for base in [project_root, project_root / "dados"]:
-                try:
-                    candidates.extend(sorted(base.glob("*.db")))
-                except Exception:
-                    pass
+        return Path(__file__).resolve().parents[2]
 
-        # Remove duplicados preservando ordem.
+    def _well_known_snapshot_db_paths(self, project_root):
+        return [
+            project_root / "app.db",
+            project_root / "app2.db",
+            project_root / "derived.db",
+            project_root / "dados" / "app.db",
+            project_root / "dados" / "app2.db",
+            project_root / "dados" / "derived.db",
+        ]
+
+    def _glob_snapshot_db_paths(self, project_root):
+        candidates = []
+
+        for base in [project_root, project_root / "dados"]:
+            try:
+                candidates.extend(sorted(base.glob("*.db")))
+            except Exception:
+                pass
+
+        return candidates
+
+    def _safe_db_path(self, value):
+        from pathlib import Path
+
+        if value is None:
+            return None
+
+        try:
+            if callable(value):
+                value = value()
+        except TypeError:
+            return None
+
+        if value is None:
+            return None
+
+        try:
+            return Path(value)
+        except TypeError:
+            return None
+
+    def _looks_like_db_path(self, name, path):
+        from pathlib import Path
+
+        low_name = str(name).lower()
+        try:
+            suffix = Path(path).suffix.lower()
+        except Exception:
+            suffix = ""
+
+        return (
+            suffix in {".db", ".sqlite", ".sqlite3"}
+            or "db" in low_name
+            or "database" in low_name
+            or "sqlite" in low_name
+        )
+
+    def _is_derived_db_path(self, name, path):
+        low_name = str(name).lower()
+        low_path = str(path).lower()
+
+        return (
+            "derived" in low_name
+            or "deriv" in low_name
+            or low_path.endswith("derived.db")
+            or "derived.db" in low_path
+        )
+
+    def _unique_paths(self, paths):
         unique = []
         seen = set()
-        for p in candidates:
+
+        for path in paths:
+            key = self._path_identity(path)
+            if key in seen:
+                continue
+
+            seen.add(key)
+            unique.append(path)
+
+        return unique
+
+    def _path_identity(self, path):
+        try:
+            return str(path.resolve()) if path.exists() else str(path)
+        except Exception:
+            return str(path)
+
+    def _latest_snapshot_timestamp_in_db(self, db_path, sid, sid_text):
+        import sqlite3
+
+        if not db_path.exists():
+            return None
+
+        try:
+            con = sqlite3.connect(str(db_path))
             try:
-                key = str(p.resolve()) if p.exists() else str(p)
-            except Exception:
-                key = str(p)
-            if key not in seen:
-                seen.add(key)
-                unique.append(p)
+                return self._latest_snapshot_timestamp_in_connection(con, sid, sid_text)
+            finally:
+                con.close()
+        except sqlite3.Error:
+            return None
 
-        def q(identifier):
-            return '"' + str(identifier).replace('"', '""') + '"'
+    def _latest_snapshot_timestamp_in_connection(self, con, sid, sid_text):
+        cur = con.cursor()
+        tables = self._snapshot_ordered_table_names(cur)
 
-        def table_names(cur):
-            rows = cur.execute(
-                """
-                SELECT name
-                FROM sqlite_master
-                WHERE type = 'table'
-                  AND name NOT LIKE 'sqlite_%'
-                """
-            ).fetchall()
-            return [r[0] for r in rows]
+        for table in tables:
+            ts = self._latest_snapshot_timestamp_in_table(cur, table, sid, sid_text)
+            if ts is not None:
+                return ts
 
-        def columns_for(cur, table):
-            rows = cur.execute(f"PRAGMA table_info({q(table)})").fetchall()
-            return [r[1] for r in rows]
+        return None
 
-        def looks_like_structure_col(col):
-            low = str(col).lower()
-            return (
-                low == "structure_id"
-                or low == "id_structure"
-                or low == "estrutura_id"
-                or low == "id_estrutura"
-                or low.endswith("_structure_id")
-                or low.endswith("_estrutura_id")
-            )
-
-        def timestamp_score(col):
-            low = str(col).lower()
-
-            priority = {
-                "timestamp": 100,
-                "snapshot_timestamp": 99,
-                "snapshot_ts": 98,
-                "created_at": 97,
-                "updated_at": 96,
-                "ts": 95,
-                "datetime": 94,
-                "date": 93,
-                "data_hora": 92,
-            }
-
-            if low in priority:
-                return priority[low]
-
-            if "timestamp" in low:
-                return 90
-            if "snapshot" in low and ("time" in low or "date" in low or "ts" in low):
-                return 89
-            if low.endswith("_ts"):
-                return 88
-            if "created" in low:
-                return 87
-            if "updated" in low:
-                return 86
-            if "time" in low:
-                return 85
-            if "date" in low:
-                return 84
-            if "data" in low:
-                return 83
-
-            return 0
-
-        def latest_in_table(cur, table):
-            cols = columns_for(cur, table)
-            if not cols:
-                return None
-
-            structure_cols = [c for c in cols if looks_like_structure_col(c)]
-
-            if not structure_cols:
-                for c in cols:
-                    low = str(c).lower()
-                    if low in {"structure", "estrutura"}:
-                        structure_cols.append(c)
-
-            if not structure_cols:
-                return None
-
-            ts_cols = sorted(
-                [c for c in cols if timestamp_score(c) > 0],
-                key=timestamp_score,
-                reverse=True,
-            )
-
-            if not ts_cols:
-                ignored = {str(c).lower() for c in structure_cols}
-                ignored.update(
-                    {
-                        "id",
-                        "structure_id",
-                        "id_structure",
-                        "estrutura_id",
-                        "id_estrutura",
-                    }
-                )
-                ts_cols = [c for c in cols if str(c).lower() not in ignored]
-
-            best = None
-
-            for s_col in structure_cols:
-                for ts_col in ts_cols:
-                    try:
-                        row = cur.execute(
-                            f"""
-                            SELECT MAX({q(ts_col)})
-                            FROM {q(table)}
-                            WHERE {q(s_col)} = ?
-                               OR CAST({q(s_col)} AS TEXT) = ?
-                            """,
-                            (sid, sid_text),
-                        ).fetchone()
-                    except sqlite3.Error:
-                        continue
-
-                    if row and row[0] is not None:
-                        value = str(row[0])
-                        if best is None or value > best:
-                            best = value
-
-            return best
-
+    def _snapshot_ordered_table_names(self, cur):
+        tables = self._table_names(cur)
         preferred = [
             "robo_legs_snapshot",
             "robo_snapshot",
@@ -411,32 +354,206 @@ class DetailsPanel(ttk.LabelFrame):
             "payoff_curve_points",
         ]
 
-        for db_path in unique:
-            if not db_path.exists():
-                continue
+        ordered = []
+        for table in preferred:
+            if table in tables and table not in ordered:
+                ordered.append(table)
 
-            try:
-                con = sqlite3.connect(str(db_path))
-                try:
-                    cur = con.cursor()
-                    tables = table_names(cur)
+        for table in tables:
+            if table not in ordered:
+                ordered.append(table)
 
-                    ordered = []
-                    for t in preferred:
-                        if t in tables and t not in ordered:
-                            ordered.append(t)
-                    for t in tables:
-                        if t not in ordered:
-                            ordered.append(t)
+        return ordered
 
-                    for table in ordered:
-                        ts = latest_in_table(cur, table)
-                        if ts is not None:
-                            return ts
-                finally:
-                    con.close()
-            except sqlite3.Error:
-                continue
+    def _table_names(self, cur):
+        rows = cur.execute(
+            """
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name NOT LIKE 'sqlite_%'
+            """
+        ).fetchall()
+        return [row[0] for row in rows]
+
+    def _table_columns(self, cur, table):
+        rows = cur.execute(
+            f"PRAGMA table_info({self._quote_sql_identifier(table)})"
+        ).fetchall()
+        return [row[1] for row in rows]
+
+    def _quote_sql_identifier(self, identifier):
+        return '"' + str(identifier).replace('"', '""') + '"'
+
+    def _latest_snapshot_timestamp_in_table(self, cur, table, sid, sid_text):
+        cols = self._table_columns(cur, table)
+        if not cols:
+            return None
+
+        structure_cols = self._structure_columns(cols)
+        if not structure_cols:
+            return None
+
+        timestamp_cols = self._timestamp_columns(cols, structure_cols)
+        return self._best_timestamp_for_structure(
+            cur,
+            table,
+            structure_cols,
+            timestamp_cols,
+            sid,
+            sid_text,
+        )
+
+    def _structure_columns(self, cols):
+        structure_cols = [
+            col
+            for col in cols
+            if self._looks_like_structure_column(col)
+        ]
+
+        if structure_cols:
+            return structure_cols
+
+        return [
+            col
+            for col in cols
+            if str(col).lower() in {"structure", "estrutura"}
+        ]
+
+    def _looks_like_structure_column(self, col):
+        low = str(col).lower()
+        return (
+            low == "structure_id"
+            or low == "id_structure"
+            or low == "estrutura_id"
+            or low == "id_estrutura"
+            or low.endswith("_structure_id")
+            or low.endswith("_estrutura_id")
+        )
+
+    def _timestamp_columns(self, cols, structure_cols):
+        timestamp_cols = sorted(
+            [
+                col
+                for col in cols
+                if self._timestamp_column_score(col) > 0
+            ],
+            key=self._timestamp_column_score,
+            reverse=True,
+        )
+
+        if timestamp_cols:
+            return timestamp_cols
+
+        return self._fallback_timestamp_columns(cols, structure_cols)
+
+    def _timestamp_column_score(self, col):
+        low = str(col).lower()
+
+        priority = {
+            "timestamp": 100,
+            "snapshot_timestamp": 99,
+            "snapshot_ts": 98,
+            "created_at": 97,
+            "updated_at": 96,
+            "ts": 95,
+            "datetime": 94,
+            "date": 93,
+            "data_hora": 92,
+        }
+
+        if low in priority:
+            return priority[low]
+
+        if "timestamp" in low:
+            return 90
+        if "snapshot" in low and ("time" in low or "date" in low or "ts" in low):
+            return 89
+        if low.endswith("_ts"):
+            return 88
+        if "created" in low:
+            return 87
+        if "updated" in low:
+            return 86
+        if "time" in low:
+            return 85
+        if "date" in low:
+            return 84
+        if "data" in low:
+            return 83
+
+        return 0
+
+    def _fallback_timestamp_columns(self, cols, structure_cols):
+        ignored = {str(col).lower() for col in structure_cols}
+        ignored.update(
+            {
+                "id",
+                "structure_id",
+                "id_structure",
+                "estrutura_id",
+                "id_estrutura",
+            }
+        )
+
+        return [
+            col
+            for col in cols
+            if str(col).lower() not in ignored
+        ]
+
+    def _best_timestamp_for_structure(
+        self,
+        cur,
+        table,
+        structure_cols,
+        timestamp_cols,
+        sid,
+        sid_text,
+    ):
+        best = None
+
+        for structure_col in structure_cols:
+            for timestamp_col in timestamp_cols:
+                value = self._max_timestamp_for_structure_column(
+                    cur,
+                    table,
+                    structure_col,
+                    timestamp_col,
+                    sid,
+                    sid_text,
+                )
+                if value is not None and (best is None or value > best):
+                    best = value
+
+        return best
+
+    def _max_timestamp_for_structure_column(
+        self,
+        cur,
+        table,
+        structure_col,
+        timestamp_col,
+        sid,
+        sid_text,
+    ):
+        import sqlite3
+
+        try:
+            row = cur.execute(
+                f"""
+                SELECT MAX({self._quote_sql_identifier(timestamp_col)})
+                FROM {self._quote_sql_identifier(table)}
+                WHERE {self._quote_sql_identifier(structure_col)} = ?
+                   OR CAST({self._quote_sql_identifier(structure_col)} AS TEXT) = ?
+                """,
+                (sid, sid_text),
+            ).fetchone()
+        except sqlite3.Error:
+            return None
+
+        if row and row[0] is not None:
+            return str(row[0])
 
         return None
 
@@ -451,138 +568,76 @@ class DetailsPanel(ttk.LabelFrame):
     # ------------------------------------------------------------------
 
     def _setup_widgets(self):
+        self._configure_details_panel_grid()
+        self._setup_basic_info_frame()
+        self._setup_metrics_frame()
+        self._setup_operational_frame()
+        self._setup_why_json_frame()
+        self._setup_audit_actions_frame()
+
+    def _configure_details_panel_grid(self):
         self.grid_rowconfigure(3, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
-        # Informações Básicas
-        basic_frame = ttk.LabelFrame(self, text="Informações Básicas", padding=5)
-        basic_frame.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 5))
-        basic_frame.grid_columnconfigure(1, weight=1)
-        basic_frame.grid_columnconfigure(3, weight=1)
-
-        ttk.Label(basic_frame, text="Timestamp:").grid(
-            row=0, column=0, sticky="w", padx=(0, 5)
-        )
-        self.timestamp_label = ttk.Label(
-            basic_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.timestamp_label.grid(row=0, column=1, sticky="ew", padx=(0, 10))
-
-        ttk.Label(basic_frame, text="Estrutura:").grid(
-            row=0, column=2, sticky="w", padx=(0, 5)
-        )
-        self.structure_label = ttk.Label(
-            basic_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.structure_label.grid(row=0, column=3, sticky="ew")
-
-        ttk.Label(basic_frame, text="Decisão:").grid(
-            row=1, column=0, sticky="w", padx=(0, 5)
-        )
-        self.decision_label = ttk.Label(
-            basic_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.decision_label.grid(row=1, column=1, sticky="ew", padx=(0, 10))
-
-        ttk.Label(basic_frame, text="Nível:").grid(
-            row=1, column=2, sticky="w", padx=(0, 5)
-        )
-        self.level_label = ttk.Label(
-            basic_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.level_label.grid(row=1, column=3, sticky="ew")
-
-        # Métricas Financeiras
-        metrics_frame = ttk.LabelFrame(self, text="Métricas Financeiras", padding=5)
-        metrics_frame.grid(row=1, column=0, columnspan=2, sticky="ew", pady=5)
-        metrics_frame.grid_columnconfigure(1, weight=1)
-        metrics_frame.grid_columnconfigure(3, weight=1)
-
-        ttk.Label(metrics_frame, text="PL Atual:").grid(
-            row=0, column=0, sticky="w", padx=(0, 5)
-        )
-        self.pl_atual_label = ttk.Label(
-            metrics_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.pl_atual_label.grid(row=0, column=1, sticky="ew", padx=(0, 10))
-
-        ttk.Label(metrics_frame, text="PL Máximo:").grid(
-            row=0, column=2, sticky="w", padx=(0, 5)
-        )
-        self.pl_max_label = ttk.Label(
-            metrics_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.pl_max_label.grid(row=0, column=3, sticky="ew")
-
-        ttk.Label(metrics_frame, text="Ratio:").grid(
-            row=1, column=0, sticky="w", padx=(0, 5)
-        )
-        self.ratio_label = ttk.Label(
-            metrics_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.ratio_label.grid(row=1, column=1, sticky="ew", padx=(0, 10))
-
-        ttk.Label(metrics_frame, text="DTE Mín:").grid(
-            row=1, column=2, sticky="w", padx=(0, 5)
-        )
-        self.dte_label = ttk.Label(
-            metrics_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.dte_label.grid(row=1, column=3, sticky="ew")
-
-        ttk.Label(metrics_frame, text="Spot Ref:").grid(
-            row=2, column=0, sticky="w", padx=(0, 5)
-        )
-        self.spot_ref_label = ttk.Label(
-            metrics_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.spot_ref_label.grid(row=2, column=1, sticky="ew", padx=(0, 10))
-
-        ttk.Label(metrics_frame, text="Breakevens:").grid(
-            row=2, column=2, sticky="w", padx=(0, 5)
-        )
-        self.breakevens_label = ttk.Label(
-            metrics_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.breakevens_label.grid(row=2, column=3, sticky="ew")
-
-        # Estado Operacional
-        operational_frame = ttk.LabelFrame(self, text="Estado Operacional", padding=5)
-        operational_frame.grid(row=2, column=0, columnspan=2, sticky="ew", pady=5)
-        operational_frame.grid_columnconfigure(1, weight=1)
-        operational_frame.grid_columnconfigure(3, weight=1)
-
-        ttk.Label(operational_frame, text="Eventos aplicados:").grid(
-            row=0, column=0, sticky="w", padx=(0, 5)
-        )
-        self.operational_events_applied_label = ttk.Label(
-            operational_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.operational_events_applied_label.grid(
-            row=0, column=1, sticky="ew", padx=(0, 10)
+    def _setup_basic_info_frame(self):
+        frame = self._create_two_column_label_frame(
+            "Informações Básicas",
+            row=0,
+            pady=(0, 5),
         )
 
-        ttk.Label(operational_frame, text="Cancelados ignorados:").grid(
-            row=0, column=2, sticky="w", padx=(0, 5)
-        )
-        self.operational_cancelled_ignored_label = ttk.Label(
-            operational_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.operational_cancelled_ignored_label.grid(
-            row=0, column=3, sticky="ew"
+        self._add_value_field(frame, "Timestamp:", "timestamp_label", 0, 0)
+        self._add_value_field(frame, "Estrutura:", "structure_label", 0, 2, value_padx=0)
+        self._add_value_field(frame, "Decisão:", "decision_label", 1, 0)
+        self._add_value_field(frame, "Nível:", "level_label", 1, 2, value_padx=0)
+
+    def _setup_metrics_frame(self):
+        frame = self._create_two_column_label_frame(
+            "Métricas Financeiras",
+            row=1,
+            pady=5,
         )
 
-        ttk.Label(operational_frame, text="Status:").grid(
-            row=1, column=0, sticky="w", padx=(0, 5)
-        )
-        self.operational_status_label = ttk.Label(
-            operational_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.operational_status_label.grid(
-            row=1, column=1, columnspan=3, sticky="ew"
+        self._add_value_field(frame, "PL Atual:", "pl_atual_label", 0, 0)
+        self._add_value_field(frame, "PL Máximo:", "pl_max_label", 0, 2, value_padx=0)
+        self._add_value_field(frame, "Ratio:", "ratio_label", 1, 0)
+        self._add_value_field(frame, "DTE Mín:", "dte_label", 1, 2, value_padx=0)
+        self._add_value_field(frame, "Spot Ref:", "spot_ref_label", 2, 0)
+        self._add_value_field(frame, "Breakevens:", "breakevens_label", 2, 2, value_padx=0)
+
+    def _setup_operational_frame(self):
+        frame = self._create_two_column_label_frame(
+            "Estado Operacional",
+            row=2,
+            pady=5,
         )
 
-        # Rationale JSON
+        self._add_value_field(
+            frame,
+            "Eventos aplicados:",
+            "operational_events_applied_label",
+            0,
+            0,
+        )
+        self._add_value_field(
+            frame,
+            "Cancelados ignorados:",
+            "operational_cancelled_ignored_label",
+            0,
+            2,
+            value_padx=0,
+        )
+        self._add_value_field(
+            frame,
+            "Status:",
+            "operational_status_label",
+            1,
+            0,
+            columnspan=3,
+            value_padx=0,
+        )
+
+    def _setup_why_json_frame(self):
         json_frame = ttk.LabelFrame(self, text="Rationale / Why JSON", padding=5)
         json_frame.grid(row=3, column=0, columnspan=2, sticky="nsew", pady=(5, 0))
         json_frame.grid_rowconfigure(0, weight=1)
@@ -597,28 +652,71 @@ class DetailsPanel(ttk.LabelFrame):
         )
         self.why_text.grid(row=0, column=0, sticky="nsew")
 
-        # Auditoria & Ações
-        audit_frame = ttk.LabelFrame(self, text="Auditoria & Ações", padding=5)
-        audit_frame.grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
-        audit_frame.grid_columnconfigure(1, weight=1)
-        audit_frame.grid_columnconfigure(3, weight=1)
+    def _setup_audit_actions_frame(self):
+        audit_frame = self._create_two_column_label_frame(
+            "Auditoria & Ações",
+            row=4,
+            pady=5,
+        )
 
-        ttk.Label(audit_frame, text="Fonte:").grid(
-            row=0, column=0, sticky="w", padx=(0, 5)
+        self._add_value_field(audit_frame, "Fonte:", "source_label", 0, 0)
+        self._add_value_field(
+            audit_frame,
+            "Created At:",
+            "created_at_label",
+            0,
+            2,
+            value_padx=0,
         )
-        self.source_label = ttk.Label(
-            audit_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.source_label.grid(row=0, column=1, sticky="ew", padx=(0, 10))
+        self._setup_recalculate_actions(audit_frame)
 
-        ttk.Label(audit_frame, text="Created At:").grid(
-            row=0, column=2, sticky="w", padx=(0, 5)
-        )
-        self.created_at_label = ttk.Label(
-            audit_frame, text="N/A", background="white", relief="sunken"
-        )
-        self.created_at_label.grid(row=0, column=3, sticky="ew")
+    def _create_two_column_label_frame(self, title, row, pady):
+        frame = ttk.LabelFrame(self, text=title, padding=5)
+        frame.grid(row=row, column=0, columnspan=2, sticky="ew", pady=pady)
+        frame.grid_columnconfigure(1, weight=1)
+        frame.grid_columnconfigure(3, weight=1)
+        return frame
 
+    def _add_value_field(
+        self,
+        frame,
+        label_text,
+        attr_name,
+        row,
+        label_column,
+        columnspan=1,
+        value_padx=(0, 10),
+    ):
+        if value_padx == 0:
+            value_padx = 0
+
+        value_column = label_column + 1
+
+        ttk.Label(frame, text=label_text).grid(
+            row=row,
+            column=label_column,
+            sticky="w",
+            padx=(0, 5),
+        )
+
+        value_label = ttk.Label(
+            frame,
+            text="N/A",
+            background="white",
+            relief="sunken",
+        )
+        value_label.grid(
+            row=row,
+            column=value_column,
+            columnspan=columnspan,
+            sticky="ew",
+            padx=value_padx,
+        )
+
+        setattr(self, attr_name, value_label)
+        return value_label
+
+    def _setup_recalculate_actions(self, audit_frame):
         actions_frame = ttk.Frame(audit_frame)
         actions_frame.grid(row=1, column=0, columnspan=4, sticky="ew", pady=(5, 0))
 
@@ -630,7 +728,9 @@ class DetailsPanel(ttk.LabelFrame):
         self.btn_recalculate.pack(side="left", padx=(0, 10))
 
         self.lbl_recalc_status = ttk.Label(
-            actions_frame, text="", foreground="gray"
+            actions_frame,
+            text="",
+            foreground="gray",
         )
         self.lbl_recalc_status.pack(side="left")
 
@@ -641,54 +741,80 @@ class DetailsPanel(ttk.LabelFrame):
     def update_decision(self, decision_data: Dict):
         self._current_decision = dict(decision_data) if decision_data else None
 
+        self._update_basic_decision_labels(decision_data)
+        self._update_financial_decision_labels(decision_data)
+        self._update_decision_why_text(decision_data)
+        self._reset_decision_audit_state()
+        self._refresh_decision_operational_state(decision_data)
+
+    def _update_basic_decision_labels(self, decision_data: Dict):
         self.timestamp_label.config(text=decision_data.get("timestamp", "N/A"))
 
         # alteracao_36: structure_id é autoritativo; aba removido
-        structure_id = decision_data.get("structure_id") or "N/A"
+        structure_id = self._decision_structure_id_for_details(decision_data)
         self.structure_label.config(text=str(structure_id))
 
         self.decision_label.config(text=decision_data.get("decision", "N/A"))
         self.level_label.config(text=str(decision_data.get("level", "N/A")))
 
+    def _decision_structure_id_for_details(self, decision_data: Dict):
+        return decision_data.get("structure_id") or "N/A"
+
+    def _update_financial_decision_labels(self, decision_data: Dict):
         self._format_currency_label(self.pl_atual_label, decision_data.get("pl_atual"))
         self._format_currency_label(self.pl_max_label, decision_data.get("pl_max"))
 
-        ratio = decision_data.get("pl_pct_of_max")
         self.ratio_label.config(
-            text=f"{ratio * 100:.1f}%" if ratio is not None else "N/A"
+            text=self._format_ratio_text(decision_data.get("pl_pct_of_max"))
+        )
+        self.dte_label.config(text=str(decision_data.get("dte_min", "N/A")))
+        self.spot_ref_label.config(
+            text=self._format_spot_reference_text(decision_data)
         )
 
-        self.dte_label.config(text=str(decision_data.get("dte_min", "N/A")))
+    def _format_ratio_text(self, ratio):
+        return f"{ratio * 100:.1f}%" if ratio is not None else "N/A"
 
+    def _format_spot_reference_text(self, decision_data: Dict):
         spot_ref = decision_data.get("spot_reference") or decision_data.get("spot_ref")
-        if spot_ref is not None:
-            try:
-                self.spot_ref_label.config(text=f"{float(spot_ref):.2f}")
-            except Exception:
-                self.spot_ref_label.config(text=str(spot_ref))
-        else:
-            self.spot_ref_label.config(text="N/A")
 
+        if spot_ref is None:
+            return "N/A"
+
+        try:
+            return f"{float(spot_ref):.2f}"
+        except Exception:
+            return str(spot_ref)
+
+    def _update_decision_why_text(self, decision_data: Dict):
         why_payload = decision_data.get("why") or decision_data.get("why_json")
         self.why_text.delete("1.0", tk.END)
-        if why_payload:
-            try:
-                if isinstance(why_payload, str):
-                    formatted = json.dumps(
-                        json.loads(why_payload), indent=2, ensure_ascii=False
-                    )
-                else:
-                    formatted = json.dumps(why_payload, indent=2, ensure_ascii=False)
-                self.why_text.insert("1.0", formatted)
-            except Exception:
-                self.why_text.insert("1.0", str(why_payload))
-        else:
-            self.why_text.insert("1.0", "Sem rationale disponível")
+        self.why_text.insert("1.0", self._format_why_payload_text(why_payload))
 
+    def _format_why_payload_text(self, why_payload):
+        if not why_payload:
+            return "Sem rationale disponível"
+
+        try:
+            if isinstance(why_payload, str):
+                return json.dumps(
+                    json.loads(why_payload),
+                    indent=2,
+                    ensure_ascii=False,
+                )
+
+            return json.dumps(why_payload, indent=2, ensure_ascii=False)
+        except Exception:
+            return str(why_payload)
+
+    def _reset_decision_audit_state(self):
         self.source_label.config(text="N/A")
         self.created_at_label.config(text="N/A")
         self.lbl_recalc_status.config(text="", foreground="gray")
         self._clear_operational_state()
+
+    def _refresh_decision_operational_state(self, decision_data: Dict):
+        structure_id = self._decision_structure_id_for_details(decision_data)
 
         if structure_id != "N/A":
             self._refresh_operational_state_for_structure(structure_id)
@@ -766,53 +892,71 @@ class DetailsPanel(ttk.LabelFrame):
         """
         Atualiza os widgets de Estado Operacional.
 
-        Aceita o formato retornado por StructureEventsService.apply_events_to_structure:
-        {
-            "legs": [...],
-            "operational_state": {
-                "events_applied": int,
-                "events_ignored_cancelled": int,
-                "is_closed": bool,
-            }
-        }
-
-        Também aceita formatos legados/testes com:
-        - is_closed no topo;
-        - applied_events;
-        - ignored_events.
+        Aceita o formato retornado por StructureEventsService.apply_events_to_structure
+        e formatos legados/testes com is_closed no topo, applied_events e ignored_events.
         """
         if not isinstance(effective_structure, dict):
             self._clear_operational_state()
             return
 
+        values = self._operational_state_values(effective_structure)
+        self._apply_operational_state_values(values)
+
+    def _operational_state_values(self, effective_structure: Dict[str, Any]):
+        state = self._operational_state_dict(effective_structure)
+
+        return {
+            "applied": self._operational_applied_count(effective_structure, state),
+            "ignored": self._operational_ignored_count(effective_structure, state),
+            "status": self._operational_status_text(effective_structure, state),
+        }
+
+    def _operational_state_dict(self, effective_structure: Dict[str, Any]):
         state = effective_structure.get("operational_state")
-        if not isinstance(state, dict):
-            state = {}
 
+        if isinstance(state, dict):
+            return state
+
+        return {}
+
+    def _operational_applied_count(self, effective_structure: Dict[str, Any], state: Dict[str, Any]):
         applied = state.get("events_applied")
+
         if applied is None and isinstance(effective_structure.get("applied_events"), list):
-            applied = len(effective_structure.get("applied_events") or [])
+            return len(effective_structure.get("applied_events") or [])
 
+        return applied
+
+    def _operational_ignored_count(self, effective_structure: Dict[str, Any], state: Dict[str, Any]):
         ignored = state.get("events_ignored_cancelled")
-        if ignored is None and isinstance(effective_structure.get("ignored_events"), list):
-            ignored = len(effective_structure.get("ignored_events") or [])
 
+        if ignored is None and isinstance(effective_structure.get("ignored_events"), list):
+            return len(effective_structure.get("ignored_events") or [])
+
+        return ignored
+
+    def _operational_status_text(self, effective_structure: Dict[str, Any], state: Dict[str, Any]):
         is_closed = state.get("is_closed", effective_structure.get("is_closed"))
 
         if is_closed is True:
-            status_text = "Encerrada"
-        elif is_closed is False:
-            status_text = "Aberta"
-        else:
-            status_text = "N/A"
+            return "Encerrada"
 
+        if is_closed is False:
+            return "Aberta"
+
+        return "N/A"
+
+    def _apply_operational_state_values(self, values):
         self.operational_events_applied_label.config(
-            text=str(applied) if applied is not None else "N/A"
+            text=self._display_count_or_na(values["applied"])
         )
         self.operational_cancelled_ignored_label.config(
-            text=str(ignored) if ignored is not None else "N/A"
+            text=self._display_count_or_na(values["ignored"])
         )
-        self.operational_status_label.config(text=status_text)
+        self.operational_status_label.config(text=values["status"])
+
+    def _display_count_or_na(self, value):
+        return str(value) if value is not None else "N/A"
 
     def _fetch_effective_structure_local(self, structure_id) -> Optional[Dict[str, Any]]:
         """
@@ -1044,55 +1188,82 @@ class DetailsPanel(ttk.LabelFrame):
     # ------------------------------------------------------------------
 
     def _on_recalculate_click(self):
+        structure_id = self._selected_recalculate_structure_id()
+        if not structure_id:
+            return
+
+        if self._recalculate_already_in_progress(structure_id):
+            return
+
+        signature = self._compute_recalc_signature(structure_id)
+        if self._recalculate_snapshot_unchanged(signature):
+            return
+
+        self._start_recalculate_callback(structure_id, signature)
+
+    def _selected_recalculate_structure_id(self):
         decision = self._current_decision
         if not decision:
             self.lbl_recalc_status.config(
-                text="Nenhuma decisão selecionada", foreground="red"
+                text="Nenhuma decisão selecionada",
+                foreground="red",
             )
-            return
+            return None
 
         # alteracao_36: structure_id é único identificador
         structure_id = decision.get("structure_id")
         if not structure_id:
             self.lbl_recalc_status.config(
-                text="Estrutura não identificada", foreground="red"
+                text="Estrutura não identificada",
+                foreground="red",
+            )
+            return None
+
+        return structure_id
+
+    def _recalculate_already_in_progress(self, structure_id):
+        if not getattr(self, "_recalc_in_progress", False):
+            return False
+
+        self._set_recalc_ui_state(
+            True,
+            msg=f"Recalc já em andamento ({structure_id})",
+            color="orange",
+        )
+        return True
+
+    def _recalculate_snapshot_unchanged(self, signature):
+        if self._last_recalc_signature != signature or signature[1] is None:
+            return False
+
+        self._set_recalc_ui_state(
+            False,
+            msg="Snapshot não mudou; recálculo desnecessário",
+            color="gray",
+        )
+        return True
+
+    def _start_recalculate_callback(self, structure_id, signature):
+        if not callable(getattr(self, "_on_recalculate_cb", None)):
+            self.lbl_recalc_status.config(
+                text="Recalc indisponível: callback não configurado",
+                foreground="red",
             )
             return
 
-        if getattr(self, "_recalc_in_progress", False):
-            self._set_recalc_ui_state(
-                True,
-                msg=f"Recalc já em andamento ({structure_id})",
-                color="orange",
-            )
-            return
+        self._set_recalc_ui_state(
+            True,
+            msg=f"Recalculando {structure_id}...",
+            color="blue",
+        )
 
-        sig = self._compute_recalc_signature(structure_id)
-        if self._last_recalc_signature == sig and sig[1] is not None:
+        try:
+            self._on_recalculate_cb(structure_id)
+            self._last_recalc_signature = signature
+        except Exception as exc:
             self._set_recalc_ui_state(
                 False,
-                msg="Snapshot não mudou; recálculo desnecessário",
-                color="gray",
+                msg="Erro ao iniciar recálculo",
+                color="red",
             )
-            return
-
-        if callable(getattr(self, "_on_recalculate_cb", None)):
-            self._set_recalc_ui_state(
-                True,
-                msg=f"Recalculando {structure_id}...",
-                color="blue",
-            )
-            try:
-                self._on_recalculate_cb(structure_id)
-                self._last_recalc_signature = sig
-            except Exception as e:
-                self._set_recalc_ui_state(
-                    False, msg="Erro ao iniciar recálculo", color="red"
-                )
-                print(f"[UI] Erro delegando recalc: {e}")
-            return
-
-        self.lbl_recalc_status.config(
-            text="Recalc indisponível: callback não configurado",
-            foreground="red",
-        )
+            print(f"[UI] Erro delegando recalc: {exc}")
