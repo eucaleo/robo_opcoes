@@ -265,7 +265,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self._render_rows()
 
             if self.filtered_decisions:
-                self._select_decision(0)
+                self._select_decision(0, notify_status=False)
                 if len(self.filtered_decisions) == len(self.decisions):
                     self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
                 else:
@@ -608,7 +608,17 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self._render_rows()
 
             if self.filtered_decisions:
-                self._select_decision(0)
+                self._select_decision(0, notify_status=False)
+
+                if self._has_active_filters():
+                    self._status_filter_result(
+                        f"Filtro aplicado: {len(self.filtered_decisions)} de "
+                        f"{len(active_decisions)} decisões de estruturas ativas"
+                    )
+                else:
+                    self._status_filter_result(
+                        f"Filtros limpos: {len(active_decisions)} decisões de estruturas ativas"
+                    )
             else:
                 self.load_structure_btn.configure(state="disabled")
                 if active_decisions:
@@ -619,6 +629,17 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 else:
                     self._set_detail_text("Nenhuma decisão de estrutura ativa encontrada.")
                     self._status_filter_result("Nenhuma decisão de estrutura ativa encontrada no modo dark")
+
+    def _has_active_filters(self) -> bool:
+        return any(
+            self._entry_text(attr)
+            for attr in (
+                "search_entry",
+                "decision_filter_entry",
+                "level_min_filter_entry",
+                "dte_max_filter_entry",
+            )
+        )
 
     def _decision_matches_filter(self, decision: Dict[str, Any], terms: List[str]) -> bool:
         blob = self._decision_search_blob(decision)
@@ -682,7 +703,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         self.on_load_structure(structure_id)
 
-    def _select_decision(self, index: int) -> None:
+    def _select_decision(self, index: int, notify_status: bool = True) -> None:
         if index < 0 or index >= len(self.filtered_decisions):
             return
 
@@ -713,7 +734,8 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
                 f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
             )
-        self._status_selected_decision(status_text)
+        if notify_status:
+            self._status_selected_decision(status_text)
 
     def _clear_selection(self) -> None:
         self.selected_index = None

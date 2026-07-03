@@ -853,3 +853,89 @@ Resultado esperado:
 - mensagens de selecao continuam funcionando;
 - resumo visual de filtros permanece preservado;
 - filtros, detalhe, copia, exportacao e carregamento de estrutura continuam operacionais.
+
+---
+
+## 46. Separacao entre selecao automatica e selecao manual na aba Decisoes dark
+
+### 46.1. Objetivo
+
+Reduzir ruido de status na aba Decisoes da UI moderna dark ao diferenciar selecoes automaticas feitas pela propria tela de selecoes manuais feitas pelo usuario.
+
+### 46.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 46.3. Implementacao realizada
+
+A rotina de selecao de decisao passou a aceitar um parametro opcional:
+
+- `notify_status`
+
+Quando esse parametro esta desabilitado, a decisao continua sendo selecionada internamente, com atualizacao de detalhe e botoes, mas sem emitir mensagem de status de selecao.
+
+### 46.4. Selecoes automaticas ajustadas
+
+Passaram a usar selecao silenciosa:
+
+- selecao da primeira decisao apos reload;
+- selecao da primeira decisao apos aplicacao de filtro com resultado.
+
+Isso evita repeticoes como mensagens consecutivas de decisao selecionada quando a propria UI apenas esta mantendo uma selecao valida.
+
+### 46.5. Selecao manual preservada
+
+A selecao acionada pelo usuario na lista continua usando o comportamento padrao:
+
+- atualiza detalhe;
+- habilita acoes relacionadas;
+- emite status de decisao selecionada.
+
+### 46.6. Feedback de filtro com resultado
+
+Foi adicionado um helper para identificar filtros ativos:
+
+- `_has_active_filters`
+
+Com isso, filtros com resultado passam a emitir status de filtro, sem depender de uma mensagem indireta de selecao automatica.
+
+### 46.7. Restricoes preservadas
+
+A frente preservou:
+
+- regra de negocio;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- entrypoint principal;
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela.
+
+### 46.8. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- recarregar dados;
+- aplicar filtro com resultado;
+- aplicar filtro sem resultado;
+- limpar filtros;
+- selecionar manualmente uma decisao;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 46.9. Resultado esperado
+
+Resultado esperado:
+
+- reload e filtros deixam de repetir status de decisao selecionada por selecao automatica;
+- selecao manual continua informando a decisao selecionada;
+- filtros com resultado informam quantidade exibida;
+- detalhe, copia, exportacao e carregamento de estrutura continuam operacionais.
