@@ -1203,3 +1203,85 @@ Resultado esperado:
 - filtros nao restritivos passam a indicar que nao houve reducao;
 - status da aba Decisoes dark fica mais informativo;
 - operacoes da aba permanecem funcionais.
+
+---
+
+## 50. Centralizacao do status de resultado de filtros na aba Decisoes dark
+
+### 50.1. Objetivo
+
+Melhorar a organizacao interna da aba Decisoes da UI moderna dark centralizando a montagem do status de resultado de filtros em um metodo dedicado.
+
+### 50.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 50.3. Ajuste realizado
+
+Foi criado o metodo:
+
+- `_status_filter_summary`
+
+Esse metodo concentra a decisao de qual mensagem emitir apos aplicacao de filtros com resultado.
+
+### 50.4. Comportamentos preservados
+
+Foram preservadas as mensagens para:
+
+- filtro aplicado com reducao de resultados;
+- filtro aplicado sem reducao de resultados;
+- limpeza explicita de filtros;
+- estado neutro silencioso quanto a filtros limpos.
+
+### 50.5. Reducao de complexidade local
+
+A rotina `_apply_filter` deixou de conter diretamente o bloco aninhado de decisao de status para filtros com resultado.
+
+Com isso, `_apply_filter` permanece focada em:
+
+- ler filtros;
+- validar filtros numericos;
+- montar lista filtrada;
+- renderizar linhas;
+- selecionar automaticamente quando aplicavel;
+- delegar o feedback consolidado.
+
+### 50.6. Escopo preservado
+
+A frente nao altera:
+
+- regra de negocio;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- contratos canonicos;
+- entrypoint principal;
+- UI atual como caminho principal.
+
+### 50.7. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- aplicar filtro que reduza resultados;
+- aplicar filtro que nao reduza resultados;
+- aplicar filtro sem resultado;
+- limpar filtros explicitamente;
+- selecionar decisao manualmente;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 50.8. Resultado esperado
+
+Resultado esperado:
+
+- comportamento visual inalterado;
+- status de filtros preservado;
+- codigo mais legivel;
+- decisao de status concentrada em metodo dedicado.

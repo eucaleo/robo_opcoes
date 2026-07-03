@@ -610,21 +610,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             if self.filtered_decisions:
                 self._select_decision(0, notify_status=False)
 
-                if self._has_active_filters():
-                    if len(self.filtered_decisions) == len(active_decisions):
-                        self._status_filter_result(
-                            f"Filtro aplicado sem reduzir resultados: "
-                            f"{len(active_decisions)} decisões de estruturas ativas"
-                        )
-                    else:
-                        self._status_filter_result(
-                            f"Filtro aplicado: {len(self.filtered_decisions)} de "
-                            f"{len(active_decisions)} decisões de estruturas ativas"
-                        )
-                elif announce_clear:
-                    self._status_filter_result(
-                        f"Filtros limpos: {len(active_decisions)} decisões de estruturas ativas"
-                    )
+                self._status_filter_summary(active_decisions, announce_clear)
             else:
                 self.load_structure_btn.configure(state="disabled")
                 if active_decisions:
@@ -646,6 +632,30 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 "dte_max_filter_entry",
             )
         )
+
+    def _status_filter_summary(
+        self,
+        active_decisions: List[Dict[str, Any]],
+        announce_clear: bool,
+    ) -> None:
+        active_count = len(active_decisions)
+        filtered_count = len(self.filtered_decisions)
+
+        if self._has_active_filters():
+            if filtered_count == active_count:
+                self._status_filter_result(
+                    f"Filtro aplicado sem reduzir resultados: "
+                    f"{active_count} decisões de estruturas ativas"
+                )
+            else:
+                self._status_filter_result(
+                    f"Filtro aplicado: {filtered_count} de "
+                    f"{active_count} decisões de estruturas ativas"
+                )
+        elif announce_clear:
+            self._status_filter_result(
+                f"Filtros limpos: {active_count} decisões de estruturas ativas"
+            )
 
     def _decision_matches_filter(self, decision: Dict[str, Any], terms: List[str]) -> bool:
         blob = self._decision_search_blob(decision)
