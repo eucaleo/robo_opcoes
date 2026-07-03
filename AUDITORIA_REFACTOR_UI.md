@@ -1405,3 +1405,5 @@ Critério de aceite:
 - DecisionsDarkPanel: seção de filtros dividida em helpers privados para controles de level, DTE, botões e resumo.
 
 - DecisionsDarkPanel: _render_rows dividido em helpers privados para limpeza, estado vazio, renderização de linhas e aviso de limite.
+
+- DecisionsDarkPanel: consolidação dos métodos grandes restantes (reload, índice de estruturas, heurística de estrutura ativa, busca, exportação CSV e detalhe textual) em helpers privados menores, preservando comportamento funcional.

@@ -273,46 +273,69 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
     def reload_decisions(self) -> None:
         try:
-            if hasattr(self.data_model, "refresh"):
-                self.data_model.refresh()
-
-            decisions = self.data_model.get_decisions()
-            self.decisions = list(decisions or [])
-            self._clear_selection()
-            self._last_filter_status_text = None
-            self._refresh_structure_index()
-            self._apply_filter(render=False)
-
-            self._render_rows()
-
-            if self.filtered_decisions:
-                self._select_decision(0, notify_status=False)
-                if len(self.filtered_decisions) == len(self.decisions):
-                    self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
-                else:
-                    self._status_filter_result(
-                        f"{len(self.filtered_decisions)} de {len(self.decisions)} decisões exibidas"
-                    )
-            elif self.decisions:
-                self.load_structure_btn.configure(state="disabled")
-                self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
-                self._status_filter_result(
-                    f"Filtro sem resultados: 0 de {len(self.decisions)} decisões exibidas"
-                )
-            else:
-                self.load_structure_btn.configure(state="disabled")
-                self._set_detail_text("Nenhuma decisão encontrada.")
-                self._status("Nenhuma decisão encontrada no modo dark")
-
+            self._load_decisions_from_model()
+            self._prepare_reloaded_decisions_view()
+            self._render_reloaded_decisions_state()
         except Exception as exc:
-            self.decisions = []
-            self.filtered_decisions = []
-            self.structure_index = {}
-            self.active_structure_ids = set()
-            self._clear_selection()
-            self._render_rows()
-            self._set_detail_text(f"Erro ao carregar decisões:\n\n{exc}")
-            self._status(f"Erro ao carregar decisões: {exc}")
+            self._handle_decisions_load_error(exc)
+
+    def _load_decisions_from_model(self) -> None:
+        if hasattr(self.data_model, "refresh"):
+            self.data_model.refresh()
+
+        decisions = self.data_model.get_decisions()
+        self.decisions = list(decisions or [])
+
+    def _prepare_reloaded_decisions_view(self) -> None:
+        self._clear_selection()
+        self._last_filter_status_text = None
+        self._refresh_structure_index()
+        self._apply_filter(render=False)
+        self._render_rows()
+
+    def _render_reloaded_decisions_state(self) -> None:
+        if self.filtered_decisions:
+            self._render_reloaded_filtered_decisions_state()
+            return
+
+        if self.decisions:
+            self._render_reloaded_empty_filter_state()
+            return
+
+        self._render_reloaded_empty_decisions_state()
+
+    def _render_reloaded_filtered_decisions_state(self) -> None:
+        self._select_decision(0, notify_status=False)
+
+        if len(self.filtered_decisions) == len(self.decisions):
+            self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
+            return
+
+        self._status_filter_result(
+            f"{len(self.filtered_decisions)} de {len(self.decisions)} decisões exibidas"
+        )
+
+    def _render_reloaded_empty_filter_state(self) -> None:
+        self.load_structure_btn.configure(state="disabled")
+        self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
+        self._status_filter_result(
+            f"Filtro sem resultados: 0 de {len(self.decisions)} decisões exibidas"
+        )
+
+    def _render_reloaded_empty_decisions_state(self) -> None:
+        self.load_structure_btn.configure(state="disabled")
+        self._set_detail_text("Nenhuma decisão encontrada.")
+        self._status("Nenhuma decisão encontrada no modo dark")
+
+    def _handle_decisions_load_error(self, exc: Exception) -> None:
+        self.decisions = []
+        self.filtered_decisions = []
+        self.structure_index = {}
+        self.active_structure_ids = set()
+        self._clear_selection()
+        self._render_rows()
+        self._set_detail_text(f"Erro ao carregar decisões:\n\n{exc}")
+        self._status(f"Erro ao carregar decisões: {exc}")
 
     def _render_rows(self) -> None:
         self._clear_list_rows()
@@ -485,22 +508,28 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         - filtrar somente decisoes de estruturas ativas;
         - permitir busca por ID ou nome da estrutura.
         """
-        structures: List[Dict[str, Any]] = []
+        structures = self._load_structures_for_decision_filter()
+        self._reset_structure_filter_index()
+        self._index_structures_for_decision_filter(structures)
+        self._apply_decision_structure_fallback_if_needed(structures)
 
-        if self.get_structures:
-            try:
-                structures = list(self.get_structures() or [])
-            except Exception as exc:
-                self._status(f"Erro ao carregar estruturas para filtro de decisões: {exc}")
-                structures = []
+    def _load_structures_for_decision_filter(self) -> List[Dict[str, Any]]:
+        if not self.get_structures:
+            return []
 
+        try:
+            return list(self.get_structures() or [])
+        except Exception as exc:
+            self._status(f"Erro ao carregar estruturas para filtro de decisões: {exc}")
+            return []
+
+    def _reset_structure_filter_index(self) -> None:
         self.structure_index = {}
         self.active_structure_ids = set()
 
+    def _index_structures_for_decision_filter(self, structures: List[Dict[str, Any]]) -> None:
         for structure in structures:
-            structure_id = structure.get("id")
-            if structure_id is None:
-                structure_id = structure.get("structure_id") or structure.get("aba")
+            structure_id = self._structure_filter_id(structure)
 
             if structure_id is None:
                 continue
@@ -511,27 +540,64 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             if self._is_active_structure(structure):
                 self.active_structure_ids.add(key)
 
+    def _structure_filter_id(self, structure: Dict[str, Any]) -> Any:
+        structure_id = structure.get("id")
+
+        if structure_id is not None:
+            return structure_id
+
+        return structure.get("structure_id") or structure.get("aba")
+
+    def _apply_decision_structure_fallback_if_needed(
+        self,
+        structures: List[Dict[str, Any]],
+    ) -> None:
         # Fallback seguro: se nao houver informacao de estruturas, nao bloqueia a lista.
-        if not structures:
-            ids = {
-                str(decision.get("structure_id") or decision.get("aba"))
-                for decision in self.decisions
-                if decision.get("structure_id") is not None or decision.get("aba") is not None
-            }
-            self.active_structure_ids = ids
+        if structures:
+            return
+
+        self.active_structure_ids = {
+            str(decision.get("structure_id") or decision.get("aba"))
+            for decision in self.decisions
+            if decision.get("structure_id") is not None or decision.get("aba") is not None
+        }
 
     def _is_active_structure(self, structure: Dict[str, Any]) -> bool:
         """
         Heuristica defensiva para identificar estrutura ativa sem depender
         de um unico nome de campo.
         """
+        active_flag_key = self._active_structure_flag_key(structure)
+
+        if active_flag_key is not None:
+            return self._is_enabled_active_flag(structure.get(active_flag_key))
+
+        status = self._structure_status_value(structure)
+
+        if status:
+            return not self._is_inactive_structure_status(status)
+
+        # Se nao houver campo de status, assume ativa para preservar compatibilidade.
+        return True
+
+    def _active_structure_flag_key(self, structure: Dict[str, Any]) -> Any:
         for key in ("active", "is_active", "ativo", "enabled"):
             if key in structure:
-                value = structure.get(key)
-                if isinstance(value, str):
-                    return value.strip().lower() not in {"0", "false", "falso", "no", "nao", "não"}
-                return bool(value)
+                return key
 
+        return None
+
+    def _is_enabled_active_flag(self, value: Any) -> bool:
+        if isinstance(value, str):
+            normalized = value.strip().lower()
+            return normalized not in self._inactive_active_flag_values()
+
+        return bool(value)
+
+    def _inactive_active_flag_values(self) -> set:
+        return {"0", "false", "falso", "no", "nao", "não"}
+
+    def _structure_status_value(self, structure: Dict[str, Any]) -> str:
         status = (
             structure.get("status")
             or structure.get("state")
@@ -539,33 +605,30 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             or structure.get("situação")
             or ""
         )
+        return str(status).strip().lower() if status else ""
 
-        if status:
-            normalized = str(status).strip().lower()
-            inactive_values = {
-                "inactive",
-                "inativo",
-                "inativa",
-                "closed",
-                "fechado",
-                "fechada",
-                "encerrado",
-                "encerrada",
-                "finalizado",
-                "finalizada",
-                "archived",
-                "arquivado",
-                "arquivada",
-                "deleted",
-                "removido",
-                "removida",
-                "cancelado",
-                "cancelada",
-            }
-            return normalized not in inactive_values
-
-        # Se nao houver campo de status, assume ativa para preservar compatibilidade.
-        return True
+    def _is_inactive_structure_status(self, status: str) -> bool:
+        inactive_values = {
+            "inactive",
+            "inativo",
+            "inativa",
+            "closed",
+            "fechado",
+            "fechada",
+            "encerrado",
+            "encerrada",
+            "finalizado",
+            "finalizada",
+            "archived",
+            "arquivado",
+            "arquivada",
+            "deleted",
+            "removido",
+            "removida",
+            "cancelado",
+            "cancelada",
+        }
+        return status in inactive_values
 
     def _free_search_text(self) -> str:
         search_var = getattr(self, "search_var", None)
@@ -783,40 +846,58 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         """
         structure_id = self._decision_structure_id(decision)
         structure = self.structure_index.get(structure_id, {})
-
         parts: List[str] = [structure_id]
 
-        for key in (
-            "decision",
-            "decisao",
-            "decisão",
-            "action",
-            "acao",
-            "ação",
-            "signal",
-            "sinal",
-        ):
-            if key in decision and decision.get(key) is not None:
-                parts.append(str(decision.get(key)))
-
-        for key in (
-            "name",
-            "nome",
-            "label",
-            "title",
-            "titulo",
-            "título",
-            "description",
-            "descricao",
-            "descrição",
-            "structure_name",
-            "nome_estrutura",
-            "estrutura",
-        ):
-            if key in structure and structure.get(key) is not None:
-                parts.append(str(structure.get(key)))
+        self._append_decision_search_values(parts, decision)
+        self._append_structure_search_values(parts, structure)
 
         return " ".join(parts).lower()
+
+    def _append_decision_search_values(self, parts: List[str], decision: Dict[str, Any]) -> None:
+        self._append_available_search_values(
+            parts,
+            decision,
+            (
+                "decision",
+                "decisao",
+                "decisão",
+                "action",
+                "acao",
+                "ação",
+                "signal",
+                "sinal",
+            ),
+        )
+
+    def _append_structure_search_values(self, parts: List[str], structure: Dict[str, Any]) -> None:
+        self._append_available_search_values(
+            parts,
+            structure,
+            (
+                "name",
+                "nome",
+                "label",
+                "title",
+                "titulo",
+                "título",
+                "description",
+                "descricao",
+                "descrição",
+                "structure_name",
+                "nome_estrutura",
+                "estrutura",
+            ),
+        )
+
+    def _append_available_search_values(
+        self,
+        parts: List[str],
+        source: Dict[str, Any],
+        keys: tuple,
+    ) -> None:
+        for key in keys:
+            if key in source and source.get(key) is not None:
+                parts.append(str(source.get(key)))
 
     def _load_selected_structure(self) -> None:
         if self.selected_index is None:
@@ -907,28 +988,52 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self._status("Detalhe da decisão copiado para a área de transferência")
 
     def _export_filtered_csv(self) -> None:
-        if not self.filtered_decisions:
-            self._status("Nenhuma decisão exibida para exportar")
-            messagebox.showinfo(
-                "Exportar CSV",
-                "Não há decisões exibidas para exportar.",
-            )
+        if not self._can_export_filtered_csv():
             return
 
+        file_path = self._ask_filtered_csv_path()
+
+        if not file_path:
+            self._status("Exportação CSV cancelada")
+            return
+
+        try:
+            self._write_filtered_csv(file_path)
+            self._show_filtered_csv_export_success(file_path)
+        except Exception as exc:
+            self._show_filtered_csv_export_error(exc)
+
+    def _can_export_filtered_csv(self) -> bool:
+        if self.filtered_decisions:
+            return True
+
+        self._status("Nenhuma decisão exibida para exportar")
+        messagebox.showinfo(
+            "Exportar CSV",
+            "Não há decisões exibidas para exportar.",
+        )
+        return False
+
+    def _ask_filtered_csv_path(self) -> str:
         default_name = f"decisoes_dark_filtradas_{datetime.now():%Y%m%d_%H%M%S}.csv"
 
-        file_path = filedialog.asksaveasfilename(
+        return filedialog.asksaveasfilename(
             title="Exportar decisões filtradas",
             defaultextension=".csv",
             initialfile=default_name,
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
         )
 
-        if not file_path:
-            self._status("Exportação CSV cancelada")
-            return
+    def _write_filtered_csv(self, file_path: str) -> None:
+        with open(file_path, "w", newline="", encoding="utf-8-sig") as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=self._filtered_csv_fieldnames())
+            writer.writeheader()
 
-        fieldnames = [
+            for index, decision in enumerate(self.filtered_decisions, start=1):
+                writer.writerow(self._decision_export_row(decision, index))
+
+    def _filtered_csv_fieldnames(self) -> List[str]:
+        return [
             "export_index",
             "timestamp",
             "created_at",
@@ -948,26 +1053,20 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             "raw_json",
         ]
 
-        try:
-            with open(file_path, "w", newline="", encoding="utf-8-sig") as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-                writer.writeheader()
+    def _show_filtered_csv_export_success(self, file_path: str) -> None:
+        total = len(self.filtered_decisions)
+        self._status(f"{total} decisões exportadas em CSV")
+        messagebox.showinfo(
+            "Exportar CSV",
+            f"{total} decisões exportadas com sucesso.\n\n{file_path}",
+        )
 
-                for index, decision in enumerate(self.filtered_decisions, start=1):
-                    writer.writerow(self._decision_export_row(decision, index))
-
-            total = len(self.filtered_decisions)
-            self._status(f"{total} decisões exportadas em CSV")
-            messagebox.showinfo(
-                "Exportar CSV",
-                f"{total} decisões exportadas com sucesso.\n\n{file_path}",
-            )
-        except Exception as exc:
-            self._status(f"Erro ao exportar CSV: {exc}")
-            messagebox.showerror(
-                "Erro ao exportar CSV",
-                f"Não foi possível exportar o CSV.\n\n{exc}",
-            )
+    def _show_filtered_csv_export_error(self, exc: Exception) -> None:
+        self._status(f"Erro ao exportar CSV: {exc}")
+        messagebox.showerror(
+            "Erro ao exportar CSV",
+            f"Não foi possível exportar o CSV.\n\n{exc}",
+        )
 
     def _decision_export_row(self, decision: Dict[str, Any], index: int) -> Dict[str, Any]:
         structure_id = decision.get("structure_id")
@@ -1158,10 +1257,23 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
     def _format_detail(self, decision: Dict[str, Any]) -> str:
         lines = [self._format_detail_header(decision)]
+        used = self._detail_used_fields()
 
-        structure_id = self._decision_structure_id(decision)
+        rationale_payload = decision.get("rationale")
+        why_payload = decision.get("why") or decision.get("why_json")
 
-        used = {
+        self._append_detail_rationale_sections(
+            lines,
+            used,
+            rationale_payload,
+            why_payload,
+        )
+        self._append_detail_extra_fields(lines, decision, used)
+
+        return "\n".join(lines).strip() or "Decisão sem dados detalhados."
+
+    def _detail_used_fields(self) -> set:
+        return {
             "timestamp",
             "created_at",
             "structure_id",
@@ -1176,22 +1288,21 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             "spot_ref",
         }
 
-        rationale_payload = decision.get("rationale")
+    def _append_detail_rationale_sections(
+        self,
+        lines: List[str],
+        used: set,
+        rationale_payload: Any,
+        why_payload: Any,
+    ) -> None:
         if rationale_payload:
             used.add("rationale")
-            lines.append("")
-            lines.append("Rationale")
-            lines.append("---------")
-            lines.append(self._format_json_like(rationale_payload))
+            self._append_detail_payload_section(lines, "Rationale", "---------", rationale_payload)
 
-        why_payload = decision.get("why") or decision.get("why_json")
         if why_payload:
             used.add("why")
             used.add("why_json")
-            lines.append("")
-            lines.append("Rationale / why")
-            lines.append("---------------")
-            lines.append(self._format_json_like(why_payload))
+            self._append_detail_payload_section(lines, "Rationale / why", "---------------", why_payload)
 
         if not rationale_payload and not why_payload:
             lines.append("")
@@ -1199,20 +1310,39 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             lines.append("---------------")
             lines.append("Sem rationale disponível.")
 
+    def _append_detail_payload_section(
+        self,
+        lines: List[str],
+        title: str,
+        separator: str,
+        payload: Any,
+    ) -> None:
+        lines.append("")
+        lines.append(title)
+        lines.append(separator)
+        lines.append(self._format_json_like(payload))
+
+    def _append_detail_extra_fields(
+        self,
+        lines: List[str],
+        decision: Dict[str, Any],
+        used: set,
+    ) -> None:
         extra = {
             key: value
             for key, value in sorted(decision.items())
             if key not in used
         }
 
-        if extra:
-            lines.append("")
-            lines.append("Campos adicionais / raw")
-            lines.append("-----------------------")
-            for key, value in extra.items():
-                lines.append(f"- {key}: {self._format_json_like(value)}")
+        if not extra:
+            return
 
-        return "\n".join(lines).strip() or "Decisão sem dados detalhados."
+        lines.append("")
+        lines.append("Campos adicionais / raw")
+        lines.append("-----------------------")
+
+        for key, value in extra.items():
+            lines.append(f"- {key}: {self._format_json_like(value)}")
 
     def _format_json_like(self, value: Any) -> str:
         if isinstance(value, (dict, list)):
