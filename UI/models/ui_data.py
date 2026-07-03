@@ -254,99 +254,162 @@ class UIDataModel:
             self.refresh()
 
         c = self._consolidations_cols
+        pl_pct_expr = self._decision_pl_pct_expr(c)
+        select_parts = self._decision_select_parts(c, pl_pct_expr)
+        subq = self._decision_subquery(select_parts)
 
-        # Expressão para pl_pct_of_max
-        if c.get("pl_pct_of_max"):
-            pl_pct_expr = c["pl_pct_of_max"]
-        elif c.get("ratio"):
-            pl_pct_expr = c["ratio"]
-        elif c.get("pl_atual") and c.get("pl_max"):
-            pl_pct_expr = (
-                f"CASE WHEN {c['pl_max']} IS NULL OR {c['pl_max']} = 0 "
-                f"THEN NULL ELSE ({c['pl_atual']} * 1.0 / {c['pl_max']}) END"
+        where, params = self._build_decisions_where(filters)
+        where_sql = f"WHERE {' AND '.join(where)}" if where else ""
+        sql = self._build_decisions_sql(subq, where_sql)
+
+        rows = self._fetch_decision_rows(sql, params)
+        return [self._normalize_decision_row(row) for row in rows]
+
+    def _decision_pl_pct_expr(self, cols: Dict[str, str]) -> str:
+        if cols.get("pl_pct_of_max"):
+            return cols["pl_pct_of_max"]
+
+        if cols.get("ratio"):
+            return cols["ratio"]
+
+        if cols.get("pl_atual") and cols.get("pl_max"):
+            return (
+                f"CASE WHEN {cols['pl_max']} IS NULL OR {cols['pl_max']} = 0 "
+                f"THEN NULL ELSE ({cols['pl_atual']} * 1.0 / {cols['pl_max']}) END"
             )
-        else:
-            pl_pct_expr = "NULL"
 
-        # patch_3a: deriva aba <-> structure_id quando coluna física ausente
-        select_parts = []
-        for alias in [
+        return "NULL"
+
+    def _decision_select_parts(
+        self,
+        cols: Dict[str, str],
+        pl_pct_expr: str,
+    ) -> List[str]:
+        select_parts = [
+            self._decision_select_expr(cols, alias)
+            for alias in self._decision_base_aliases()
+        ]
+        select_parts.append(f"({pl_pct_expr}) AS pl_pct_of_max")
+        return select_parts
+
+    def _decision_base_aliases(self) -> List[str]:
+        return [
             "timestamp", "structure_id", "aba", "decision", "level",
             "dte_min", "why", "why_json", "pl_atual", "pl_max", "spot_ref",
-        ]:
-            src = c.get(alias)
-            if src:
-                select_parts.append(f"{src} AS {alias}")
-            elif alias == "aba":
-                sid_src = c.get("structure_id")
-                if sid_src:
-                    select_parts.append(f"CAST({sid_src} AS TEXT) AS aba")
-                else:
-                    select_parts.append("NULL AS aba")
-            elif alias == "structure_id":
-                aba_src = c.get("aba")
-                if aba_src:
-                    select_parts.append(
-                        f"CASE WHEN CAST({aba_src} AS TEXT) GLOB '[0-9]*' "
-                        f"THEN CAST({aba_src} AS INTEGER) ELSE NULL END AS structure_id"
-                    )
-                else:
-                    select_parts.append("NULL AS structure_id")
-            else:
-                select_parts.append(f"NULL AS {alias}")
+        ]
 
-        select_parts.append(f"({pl_pct_expr}) AS pl_pct_of_max")
+    def _decision_select_expr(self, cols: Dict[str, str], alias: str) -> str:
+        src = cols.get(alias)
+        if src:
+            return f"{src} AS {alias}"
 
-        subq = f"(SELECT {', '.join(select_parts)} FROM {self._consolidations_table}) t"
+        if alias == "aba":
+            return self._decision_aba_select_expr(cols)
 
-        where = []
-        params = []
-        if filters:
-            if filters.get("date_from"):
-                try:
-                    dt_from = datetime.strptime(filters["date_from"], "%Y-%m-%d")
-                    where.append("t.timestamp >= ?")
-                    params.append(dt_from.strftime("%Y-%m-%d 00:00:00"))
-                except Exception:
-                    pass
+        if alias == "structure_id":
+            return self._decision_structure_id_select_expr(cols)
 
-            if filters.get("date_to"):
-                try:
-                    dt_to = datetime.strptime(filters["date_to"], "%Y-%m-%d")
-                    where.append("t.timestamp <= ?")
-                    params.append(dt_to.strftime("%Y-%m-%d 23:59:59"))
-                except Exception:
-                    pass
+        return f"NULL AS {alias}"
 
-            structure_filter = filters.get("structure_id")
-            if structure_filter is not None:
-                try:
-                    where.append("t.structure_id = ?")
-                    params.append(int(structure_filter))
-                except (TypeError, ValueError) as exc:
-                    raise ValueError(
-                        f"structure_id deve ser inteiro; recebido: {structure_filter!r}"
-                    ) from exc
+    def _decision_aba_select_expr(self, cols: Dict[str, str]) -> str:
+        sid_src = cols.get("structure_id")
+        if sid_src:
+            return f"CAST({sid_src} AS TEXT) AS aba"
+        return "NULL AS aba"
 
-            aba_filter = filters.get("aba")
-            if aba_filter is not None:
-                where.append("t.aba = ?")
-                params.append(str(aba_filter))
+    def _decision_structure_id_select_expr(self, cols: Dict[str, str]) -> str:
+        aba_src = cols.get("aba")
+        if aba_src:
+            return (
+                f"CASE WHEN CAST({aba_src} AS TEXT) GLOB '[0-9]*' "
+                f"THEN CAST({aba_src} AS INTEGER) ELSE NULL END AS structure_id"
+            )
+        return "NULL AS structure_id"
 
-            if filters.get("decision"):
-                where.append("t.decision = ?")
-                params.append(filters["decision"])
+    def _decision_subquery(self, select_parts: List[str]) -> str:
+        return f"(SELECT {', '.join(select_parts)} FROM {self._consolidations_table}) t"
 
-            if filters.get("level_min"):
-                where.append("t.level >= ?")
-                params.append(int(filters["level_min"]))
+    def _build_decisions_where(
+        self,
+        filters: Optional[Dict],
+    ) -> Tuple[List[str], List[Any]]:
+        where: List[str] = []
+        params: List[Any] = []
 
-            if filters.get("dte_max"):
-                where.append("t.dte_min <= ?")
-                params.append(int(filters["dte_max"]))
+        if not filters:
+            return where, params
 
-        where_sql = f"WHERE {' AND '.join(where)}" if where else ""
-        sql = f"""
+        self._append_decision_date_filters(filters, where, params)
+        self._append_decision_structure_filter(filters, where, params)
+        self._append_decision_simple_filters(filters, where, params)
+
+        return where, params
+
+    def _append_decision_date_filters(
+        self,
+        filters: Dict,
+        where: List[str],
+        params: List[Any],
+    ) -> None:
+        if filters.get("date_from"):
+            try:
+                dt_from = datetime.strptime(filters["date_from"], "%Y-%m-%d")
+                where.append("t.timestamp >= ?")
+                params.append(dt_from.strftime("%Y-%m-%d 00:00:00"))
+            except Exception:
+                pass
+
+        if filters.get("date_to"):
+            try:
+                dt_to = datetime.strptime(filters["date_to"], "%Y-%m-%d")
+                where.append("t.timestamp <= ?")
+                params.append(dt_to.strftime("%Y-%m-%d 23:59:59"))
+            except Exception:
+                pass
+
+    def _append_decision_structure_filter(
+        self,
+        filters: Dict,
+        where: List[str],
+        params: List[Any],
+    ) -> None:
+        structure_filter = filters.get("structure_id")
+        if structure_filter is None:
+            return
+
+        try:
+            where.append("t.structure_id = ?")
+            params.append(int(structure_filter))
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"structure_id deve ser inteiro; recebido: {structure_filter!r}"
+            ) from exc
+
+    def _append_decision_simple_filters(
+        self,
+        filters: Dict,
+        where: List[str],
+        params: List[Any],
+    ) -> None:
+        aba_filter = filters.get("aba")
+        if aba_filter is not None:
+            where.append("t.aba = ?")
+            params.append(str(aba_filter))
+
+        if filters.get("decision"):
+            where.append("t.decision = ?")
+            params.append(filters["decision"])
+
+        if filters.get("level_min"):
+            where.append("t.level >= ?")
+            params.append(int(filters["level_min"]))
+
+        if filters.get("dte_max"):
+            where.append("t.dte_min <= ?")
+            params.append(int(filters["dte_max"]))
+
+    def _build_decisions_sql(self, subq: str, where_sql: str) -> str:
+        return f"""
             SELECT
                 t.timestamp, t.structure_id, t.aba, t.decision, t.level,
                 t.pl_pct_of_max, t.dte_min, t.why, t.why_json,
@@ -356,47 +419,51 @@ class UIDataModel:
             ORDER BY t.timestamp DESC
         """
 
-        # ✅ CORREÇÃO: conn criada AQUI, antes de ser usada
+    def _fetch_decision_rows(self, sql: str, params: List[Any]) -> List[Row]:
+        # alteracao_36_E: conn local por chamada, sempre fechada.
         conn = self._connect()
         try:
-            rows = conn.execute(sql, params).fetchall()
+            return conn.execute(sql, params).fetchall()
         finally:
-            conn.close()  # ✅ sempre fechada, mesmo em erro
+            conn.close()
 
-        result = []
-        for r in rows:
-            item = dict(r)
+    def _normalize_decision_row(self, row: Row) -> Dict:
+        item = dict(row)
+        self._normalize_decision_structure_fields(item)
+        self._normalize_decision_why(item)
+        return item
 
-            if item.get("structure_id") is None and item.get("aba") is not None:
-                try:
-                    item["structure_id"] = int(item["aba"])
-                except (TypeError, ValueError):
-                    pass
+    def _normalize_decision_structure_fields(self, item: Dict) -> None:
+        if item.get("structure_id") is None and item.get("aba") is not None:
+            try:
+                item["structure_id"] = int(item["aba"])
+            except (TypeError, ValueError):
+                pass
 
-            if item.get("aba") is None and item.get("structure_id") is not None:
-                item["aba"] = str(item["structure_id"])
+        if item.get("aba") is None and item.get("structure_id") is not None:
+            item["aba"] = str(item["structure_id"])
 
-            # Normalizar why
-            why_val = item.get("why")
-            why_json_val = item.get("why_json")
-            if isinstance(why_val, str):
-                try:
-                    item["why"] = json.loads(why_val)
-                except Exception:
-                    pass
-            elif why_val is None and why_json_val is not None:
-                try:
-                    item["why"] = (
-                        json.loads(why_json_val)
-                        if isinstance(why_json_val, str)
-                        else why_json_val
-                    )
-                except Exception:
-                    item["why"] = why_json_val
+    def _normalize_decision_why(self, item: Dict) -> None:
+        why_val = item.get("why")
+        why_json_val = item.get("why_json")
 
-            result.append(item)
+        if isinstance(why_val, str):
+            try:
+                item["why"] = json.loads(why_val)
+            except Exception:
+                pass
+            return
 
-        return result
+        if why_val is None and why_json_val is not None:
+            item["why"] = self._parse_decision_why_json(why_json_val)
+
+    def _parse_decision_why_json(self, why_json_val: Any) -> Any:
+        try:
+            if isinstance(why_json_val, str):
+                return json.loads(why_json_val)
+            return why_json_val
+        except Exception:
+            return why_json_val
 
     def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
         """
