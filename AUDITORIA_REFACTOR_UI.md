@@ -1431,3 +1431,194 @@ Critério de aceite:
 - Nota técnica: durante validação manual foi observada divergência existente entre dados/app.db e dados/derived.db; estruturas/decisões gravadas pelo fluxo moderno podem não aparecer em consultas realizadas contra o banco volátil legado derived.db. Correção arquitetural deve ser tratada em etapa própria de consolidação do banco canônico.
 
 - TerminalVWAPPayoffDarkPanel: quebra de archive_selected_structure em helpers privados para carregamento da estrutura, resolução do nome, detecção de arquivamento prévio, confirmação, cancelamento, arquivamento via repositório, atualização visual e mensagem de sucesso, preservando fluxo, mensagens, status, renderização e tratamento de erro.
+
+---
+
+## 35. Refatoracao tecnica de metodos longos da UI
+
+Foi executada uma rodada de refatoracao tecnica focada em reduzir metodos longos da camada UI, sem alterar comportamento funcional, layout, banco de dados, regra de negocio ou contratos publicos.
+
+### 35.1. Objetivo
+
+Reduzir blocos grandes de codigo em arquivos ja envolvidos na frente moderna/dark, melhorando:
+
+- legibilidade;
+- manutencao;
+- isolamento de responsabilidades;
+- testabilidade;
+- controle de risco em proximas alteracoes.
+
+A rodada seguiu a diretriz de nao criar divida tecnica, especialmente em areas relacionadas a payoff, decisoes e mercado vivo.
+
+### 35.2. Arquivos alterados
+
+Arquivos alterados nesta rodada:
+
+- UI/components/payoff_chart.py
+- UI/models/ui_data.py
+
+### 35.3. Refatoracao do fluxo de renderizacao do grafico de payoff
+
+Foi refatorado o fluxo de renderizacao do grafico de payoff.
+
+Commit associado:
+
+- e68842a refactor(ui): split payoff chart rendering flow
+
+Arquivo alterado:
+
+- UI/components/payoff_chart.py
+
+Escopo:
+
+- dividir o metodo grande de desenho do grafico em helpers menores;
+- preservar o comportamento visual;
+- preservar comparacao de curvas;
+- preservar spot_ref;
+- preservar breakevens;
+- preservar anotacoes e titulo;
+- preservar exportacao e integracao com Matplotlib.
+
+Resultado:
+
+- fluxo principal ficou mais legivel;
+- responsabilidades de desenho foram separadas;
+- o arquivo deixou de aparecer no ranking de funcoes/metodos com 50+ linhas.
+
+### 35.4. Refatoracao do fluxo de consulta de decisoes
+
+Foi refatorado o metodo UIDataModel.get_decisions.
+
+Commit associado:
+
+- bb88c11 refactor(ui): split decisions query flow
+
+Arquivo alterado:
+
+- UI/models/ui_data.py
+
+Escopo:
+
+- separar montagem da expressao pl_pct_of_max;
+- separar montagem dos campos do SELECT;
+- preservar derivacao compativel entre structure_id e aba;
+- separar montagem da subquery;
+- separar filtros de data;
+- separar filtro de estrutura;
+- separar filtros simples;
+- separar construcao final do SQL;
+- separar execucao da consulta;
+- separar normalizacao das linhas retornadas.
+
+Resultado:
+
+- UIDataModel.get_decisions deixou de concentrar todo o fluxo em um unico metodo longo;
+- o contrato de retorno foi preservado;
+- a conexao local por chamada continuou sendo fechada corretamente;
+- o metodo deixou de aparecer no ranking de funcoes/metodos com 50+ linhas.
+
+### 35.5. Validacoes executadas
+
+Validacoes executadas apos a refatoracao de UI/models/ui_data.py:
+
+- python -m py_compile UI/models/ui_data.py
+- git diff --check
+- git diff --stat
+- git diff -- UI/models/ui_data.py
+
+Resultado observado:
+
+- compilacao Python aprovada;
+- git diff --check sem apontar erro;
+- alteracao revisada antes do commit;
+- backup temporario removido apos commit.
+
+### 35.6. Commit da rodada
+
+Commit registrado:
+
+- bb88c11 refactor(ui): split decisions query flow
+
+Alteracao registrada pelo Git:
+
+- 1 arquivo alterado
+- 188 insercoes
+- 121 delecoes
+
+### 35.7. Estado atual do ranking de metodos longos
+
+Apos as refatoracoes, get_decisions nao aparece mais no ranking de funcoes/metodos com 50+ linhas.
+
+Ranking atual observado:
+
+- 123 linhas | UI\models\ui_data.py | UIDataModel.get_payoff_curve_info | 543-665
+- 81 linhas | UI\main_window.py | MainWindow.recalculate_structure | 355-435
+- 80 linhas | UI\components\filters_panel.py | FiltersPanel._setup_widgets | 15-94
+- 79 linhas | UI\components\structure_editor_dialog.py | StructureEditorDialog._cmd_fill_leg_from_rtd | 499-577
+- 77 linhas | UI\components\structure_editor_dialog.py | StructureEditorDialog._build_ui | 117-193
+- 74 linhas | UI\main_window.py | MainWindow._start_payoff_load | 199-272
+- 74 linhas | UI\models\ui_data.py | UIDataModel.get_payoff_curve | 468-541
+- 73 linhas | UI\modern\main_window.py | ModernMainWindow._start_payoff_load | 356-428
+- 67 linhas | UI\modern\main_window.py | ModernMainWindow.recalculate_structure | 625-691
+- 65 linhas | UI\main_window.py | MainWindow.refresh_data | 274-338
+- 62 linhas | UI\components\structure_editor_dialog.py | StructureEditorDialog._refresh_rtd_symbol_on_demand | 411-472
+- 62 linhas | UI\components\terminal_vwap_payoff_panel.py | TerminalVWAPPayoffPanel._build_summary_tab | 276-337
+- 61 linhas | UI\main_window.py | MainWindow._setup_layout | 64-124
+- 61 linhas | UI\components\structure_editor_dialog.py | StructureEditorDialog._build_leg_form | 195-255
+- 61 linhas | UI\modern\main_window.py | ModernMainWindow.refresh_data | 491-551
+- 57 linhas | UI\components\terminal_vwap_payoff_panel.py | TerminalVWAPPayoffPanel._build_left_panel | 199-255
+- 57 linhas | UI\modern\main_window.py | ModernMainWindow.worker | 370-426
+- 53 linhas | UI\main_window.py | MainWindow.run_pipeline | 437-489
+- 53 linhas | UI\main_window.py | MainWindow._setup_terminal_vwap_payoff_tab | 698-750
+
+### 35.8. Decisao de seguranca
+
+Esta rodada foi tecnica e nao funcional.
+
+Nao foram alterados:
+
+- banco de dados;
+- schema;
+- regra de negocio;
+- layout operacional;
+- entrypoint principal;
+- contratos canonicos;
+- comportamento esperado da UI;
+- modo dark como UI moderna paralela;
+- diretriz de manter a UI atual ate equivalencia funcional minima.
+
+### 35.9. Proxima frente recomendada
+
+A proxima frente tecnica recomendada e continuar em UI/models/ui_data.py, pois ainda existem dois metodos longos no mesmo arquivo.
+
+Prioridade recomendada:
+
+1. UIDataModel.get_payoff_curve_info
+2. UIDataModel.get_payoff_curve
+
+Motivo:
+
+- get_payoff_curve_info possui 123 linhas;
+- get_payoff_curve possui 74 linhas;
+- ambos estao relacionados ao fluxo de payoff;
+- refatorar esses metodos melhora a base usada pela UI atual, shell moderno e modo dark.
+
+Escopo recomendado para get_payoff_curve_info:
+
+- separar inicializacao de cache e metadados;
+- separar consulta canonica em payoff_curve_points;
+- separar fallback para timestamp mais recente;
+- separar consulta alternativa quando aplicavel;
+- separar montagem dos pontos;
+- separar atualizacao do objeto info;
+- separar persistencia em cache.
+
+Restricoes preservadas para a proxima frente:
+
+- nao alterar banco;
+- nao alterar regra de negocio;
+- nao alterar layout;
+- nao trocar entrypoint;
+- nao eliminar UI atual;
+- manter commits pequenos e rastreaveis;
+- validar com py_compile, git diff --check e ranking de metodos longos.
