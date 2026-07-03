@@ -1032,3 +1032,82 @@ Resultado esperado:
 - limpeza explicita continua comunicada;
 - feedback de filtros permanece rastreavel;
 - operacoes da aba Decisoes dark continuam funcionais.
+
+---
+
+## 48. Correcao do anuncio explicito de limpeza de filtros na aba Decisoes dark
+
+### 48.1. Objetivo
+
+Corrigir a separacao entre mudanca normal de filtro e acao explicita de limpeza na aba Decisoes da UI moderna dark.
+
+### 48.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 48.3. Ajuste realizado
+
+A rotina de alteracao textual da busca voltou a aplicar filtro sem anunciar limpeza:
+
+- `_on_search_changed`
+
+A rotina de limpeza explicita dos filtros avancados passou a anunciar limpeza:
+
+- `_clear_advanced_filters`
+
+### 48.4. Comportamento esperado
+
+Com o ajuste:
+
+- digitar ou alterar busca apenas aplica filtro;
+- limpar busca pelo botao comunica filtros limpos;
+- limpar filtros avancados pelo botao comunica filtros limpos;
+- carregamento neutro permanece silencioso quanto a filtros limpos.
+
+### 48.5. Motivo da correcao
+
+A frente anterior introduziu corretamente o parametro `announce_clear`, mas o uso precisava ficar restrito a acoes explicitas de limpeza.
+
+Isso evita que uma simples alteracao de texto na busca seja interpretada como limpeza completa de filtros.
+
+### 48.6. Restricoes preservadas
+
+A frente preservou:
+
+- regra de negocio;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- entrypoint principal;
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela.
+
+### 48.7. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- confirmar carregamento neutro sem mensagem de filtros limpos;
+- digitar busca com resultado;
+- limpar busca pelo botao;
+- limpar filtros avancados pelo botao;
+- aplicar filtro invalido;
+- selecionar decisao manualmente;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 48.8. Resultado esperado
+
+Resultado esperado:
+
+- anuncio de filtros limpos fica restrito a limpeza explicita;
+- busca textual continua responsiva;
+- filtros avancados comunicam limpeza corretamente;
+- status da aba Decisoes dark fica mais previsivel e menos ruidoso.

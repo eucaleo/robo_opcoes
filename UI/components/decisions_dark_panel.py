@@ -337,7 +337,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             more.pack(fill="x", padx=8, pady=8)
 
     def _on_search_changed(self, _event=None) -> None:
-        self._apply_filter(render=True, announce_clear=True)
+        self._apply_filter(render=True)
 
     def _clear_search(self) -> None:
         self.search_entry.delete(0, "end")
@@ -356,7 +356,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             if widget is not None:
                 widget.delete(0, "end")
 
-        self._apply_filter(render=True)
+        self._apply_filter(render=True, announce_clear=True)
 
     def _entry_text(self, attr: str) -> str:
         widget = getattr(self, attr, None)
