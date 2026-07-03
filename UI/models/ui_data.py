@@ -465,80 +465,150 @@ class UIDataModel:
         except Exception:
             return why_json_val
 
-    def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
-        """
-         alteracao_33: resolve chave via _structure_filter_col.
-        Aceita structure_id como inteiro ou string numerica ("7").
-        Strings nao-numericas lancam ValueError.
-        """
+    def _payoff_curve_cache_key(
+        self, structure_id: str, timestamp: str
+    ) -> Tuple[str, str]:
         ts_key = timestamp if timestamp is not None else "__latest__"
-        cache_key = (str(structure_id), ts_key)
+        return str(structure_id), ts_key
 
+    def _get_payoff_curve_from_cache(
+        self, cache_key: Tuple[str, str]
+    ) -> List[Dict] | None:
         if hasattr(self, "_payoff_cache") and cache_key in self._payoff_cache:
             cached = self._payoff_cache[cache_key]
             if isinstance(cached, list):
                 return cached
             if isinstance(cached, dict) and "points" in cached:
                 return cached["points"]
+        return None
 
+    def _ensure_payoff_curve_available(self) -> None:
         if not self._payoff_table:
             raise RuntimeError(
                 "Tabela de payoff não encontrada. Esperadas: "
                 + ", ".join(CANDIDATE_PAYOFF_TABLES)
             )
 
-        conn = self._connect()
-        p = self._payoff_cols
-
+    def _ensure_payoff_curve_columns(self, p: Dict[str, str]) -> None:
         required = ["timestamp", "spot", "pl"]
         if any(k not in p for k in required):
             raise RuntimeError(
                 f"Tabela {self._payoff_table} não possui colunas esperadas para payoff."
             )
 
-        #  alteracao_33: resolve coluna de estrutura
-        # alteracao_34: structure_id e sempre INTEGER
-        filter_col = self._structure_filter_col(p)
-        filter_val = self._resolve_structure_key(structure_id)
-
-        sql_exact = f"""
+    def _build_payoff_curve_exact_sql(
+        self, p: Dict[str, str], filter_col: str
+    ) -> str:
+        return f"""
             SELECT {p['spot']} AS spot, {p['pl']} AS pl
             FROM {self._payoff_table}
             WHERE {filter_col} = ? AND {p['timestamp']} = ?
             ORDER BY spot
         """
-        pts = conn.execute(sql_exact, (filter_val, timestamp)).fetchall()
-        if pts:
-            res = [dict(r) for r in pts]
-            self._cache_put(cache_key, res)
-            return res
 
-        # Fallback: timestamp mais recente
-        sql_ts = f"""
+    def _fetch_payoff_curve_exact_rows(
+        self,
+        conn,
+        p: Dict[str, str],
+        filter_col: str,
+        filter_val,
+        timestamp: str,
+    ):
+        sql_exact = self._build_payoff_curve_exact_sql(p, filter_col)
+        return conn.execute(sql_exact, (filter_val, timestamp)).fetchall()
+
+    def _build_payoff_curve_latest_timestamp_sql(
+        self, p: Dict[str, str], filter_col: str
+    ) -> str:
+        return f"""
             SELECT {p['timestamp']} AS ts
             FROM {self._payoff_table}
             WHERE {filter_col} = ?
             ORDER BY ts DESC
             LIMIT 1
         """
-        r = conn.execute(sql_ts, (filter_val,)).fetchone()
-        if not r:
-            self._cache_put(cache_key, [])
-            return []
 
-        ts_near = r["ts"]
-        pts2 = conn.execute(
-            f"""
-            SELECT {p['spot']} AS spot, {p['pl']} AS pl
-            FROM {self._payoff_table}
-            WHERE {filter_col} = ? AND {p['timestamp']} = ?
-            ORDER BY spot
-            """,
-            (filter_val, ts_near),
-        ).fetchall()
-        res = [dict(x) for x in pts2]
-        self._cache_put(cache_key, res)
-        return res
+    def _fetch_payoff_curve_latest_timestamp(
+        self, conn, p: Dict[str, str], filter_col: str, filter_val
+    ):
+        sql_ts = self._build_payoff_curve_latest_timestamp_sql(p, filter_col)
+        return conn.execute(sql_ts, (filter_val,)).fetchone()
+
+    def _payoff_curve_rows_to_dicts(self, rows) -> List[Dict]:
+        return [dict(row) for row in rows]
+
+    def _cache_payoff_curve_result(
+        self, cache_key: Tuple[str, str], result: List[Dict]
+    ) -> List[Dict]:
+        self._cache_put(cache_key, result)
+        return result
+
+    def _load_payoff_curve_fallback(
+        self,
+        conn,
+        p: Dict[str, str],
+        filter_col: str,
+        filter_val,
+        cache_key: Tuple[str, str],
+    ) -> List[Dict]:
+        row_ts = self._fetch_payoff_curve_latest_timestamp(
+            conn, p, filter_col, filter_val
+        )
+        if not row_ts:
+            return self._cache_payoff_curve_result(cache_key, [])
+
+        ts_near = row_ts["ts"]
+        rows = self._fetch_payoff_curve_exact_rows(
+            conn, p, filter_col, filter_val, ts_near
+        )
+        return self._cache_payoff_curve_result(
+            cache_key, self._payoff_curve_rows_to_dicts(rows)
+        )
+
+    def _load_payoff_curve_uncached(
+        self,
+        conn,
+        p: Dict[str, str],
+        structure_id: str,
+        timestamp: str,
+        cache_key: Tuple[str, str],
+    ) -> List[Dict]:
+        self._ensure_payoff_curve_columns(p)
+
+        filter_col = self._structure_filter_col(p)
+        filter_val = self._resolve_structure_key(structure_id)
+
+        rows = self._fetch_payoff_curve_exact_rows(
+            conn, p, filter_col, filter_val, timestamp
+        )
+        if rows:
+            return self._cache_payoff_curve_result(
+                cache_key, self._payoff_curve_rows_to_dicts(rows)
+            )
+
+        return self._load_payoff_curve_fallback(
+            conn, p, filter_col, filter_val, cache_key
+        )
+
+    def get_payoff_curve(self, structure_id: str, timestamp: str) -> List[Dict]:
+        """
+         alteracao_33: resolve chave via _structure_filter_col.
+        Aceita structure_id como inteiro ou string numerica ("7").
+        Strings nao-numericas lancam ValueError.
+        """
+        cache_key = self._payoff_curve_cache_key(structure_id, timestamp)
+        cached = self._get_payoff_curve_from_cache(cache_key)
+        if cached is not None:
+            return cached
+
+        self._ensure_payoff_curve_available()
+
+        conn = self._connect()
+        p = self._payoff_cols
+
+        return self._load_payoff_curve_uncached(
+            conn, p, structure_id, timestamp, cache_key
+        )
 
     def _ensure_payoff_table_loaded(self) -> None:
         if not self._payoff_table:
