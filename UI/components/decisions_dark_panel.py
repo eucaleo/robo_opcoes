@@ -12,6 +12,7 @@ Escopo intencionalmente pequeno:
 """
 
 from __future__ import annotations
+from dataclasses import dataclass
 
 import csv
 import json
@@ -20,6 +21,22 @@ from typing import Any, Callable, Dict, List, Optional
 from tkinter import filedialog, messagebox
 
 import customtkinter as ctk
+
+
+
+@dataclass(frozen=True)
+class _DecisionFilterState:
+    raw_search: str
+    terms: List[str]
+    decision_query: str
+    level_min: Optional[float]
+    level_min_valid: bool
+    dte_max: Optional[float]
+    dte_max_valid: bool
+
+    @property
+    def has_invalid_numeric_filter(self) -> bool:
+        return not self.level_min_valid or not self.dte_max_valid
 
 
 class DecisionsDarkPanel(ctk.CTkFrame):
@@ -529,98 +546,182 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         # Se nao houver campo de status, assume ativa para preservar compatibilidade.
         return True
 
-    def _apply_filter(self, render: bool = True, announce_clear: bool = False) -> None:
-        query = self._entry_text("search_entry").lower()
-        decision_query = self._entry_text("decision_filter_entry").lower()
+    def _free_search_text(self) -> str:
+        search_var = getattr(self, "search_var", None)
+        if search_var is not None:
+            try:
+                return str(search_var.get() or "").strip()
+            except Exception:
+                pass
+
+        for attr in ("search_entry", "search_box", "search_input"):
+            widget = getattr(self, attr, None)
+            if widget is None:
+                continue
+
+            try:
+                return str(widget.get() or "").strip()
+            except Exception:
+                continue
+
+        return ""
+
+    def _current_filter_state(self) -> _DecisionFilterState:
+        raw_search = self._free_search_text()
+        terms = [term for term in raw_search.lower().split() if term]
+
         level_min, level_min_valid = self._parse_float_filter("level_min_filter_entry")
         dte_max, dte_max_valid = self._parse_float_filter("dte_max_filter_entry")
 
-        self._clear_selection()
+        return _DecisionFilterState(
+            raw_search=raw_search,
+            terms=terms,
+            decision_query=self._entry_text("decision_filter_entry").lower(),
+            level_min=level_min,
+            level_min_valid=level_min_valid,
+            dte_max=dte_max,
+            dte_max_valid=dte_max_valid,
+        )
 
-        active_decisions = [
+    def _active_structure_decisions(self) -> List[Dict[str, Any]]:
+        return [
             decision
             for decision in self.decisions
             if self._decision_structure_id(decision) in self.active_structure_ids
         ]
 
-        if not level_min_valid or not dte_max_valid:
-            errors = []
-            if not level_min_valid:
-                errors.append("level mínimo deve ser numérico")
-            if not dte_max_valid:
-                errors.append("DTE máximo deve ser numérico")
+    def _filter_validation_error(self, state: _DecisionFilterState) -> Optional[str]:
+        invalid_filters = []
 
-            error_text = "; ".join(errors)
+        if not state.level_min_valid:
+            invalid_filters.append("level mín.")
+
+        if not state.dte_max_valid:
+            invalid_filters.append("DTE máx.")
+
+        if not invalid_filters:
+            return None
+
+        if len(invalid_filters) == 1:
+            return f"{invalid_filters[0]} inválido"
+
+        return f"{' e '.join(invalid_filters)} inválidos"
+
+    def _filter_decisions(
+        self,
+        decisions: List[Dict[str, Any]],
+        state: _DecisionFilterState,
+    ) -> List[Dict[str, Any]]:
+        filtered = list(decisions)
+
+        if state.terms:
+            filtered = self._filter_by_search_terms(filtered, state.terms)
+
+        if state.decision_query:
+            filtered = self._filter_by_decision_text(filtered, state.decision_query)
+
+        if state.level_min is not None:
+            filtered = self._filter_by_level_min(filtered, state.level_min)
+
+        if state.dte_max is not None:
+            filtered = self._filter_by_dte_max(filtered, state.dte_max)
+
+        return filtered
+
+    def _filter_by_search_terms(
+        self,
+        decisions: List[Dict[str, Any]],
+        terms: List[str],
+    ) -> List[Dict[str, Any]]:
+        return [
+            decision
+            for decision in decisions
+            if self._decision_matches_filter(decision, terms)
+        ]
+
+    def _filter_by_decision_text(
+        self,
+        decisions: List[Dict[str, Any]],
+        decision_query: str,
+    ) -> List[Dict[str, Any]]:
+        return [
+            decision
+            for decision in decisions
+            if decision_query in str(decision.get("decision") or "").lower()
+        ]
+
+    def _filter_by_level_min(
+        self,
+        decisions: List[Dict[str, Any]],
+        level_min: float,
+    ) -> List[Dict[str, Any]]:
+        filtered = []
+
+        for decision in decisions:
+            value = self._decision_numeric_value(decision, "level", "nivel", "nível")
+            if value is not None and value >= level_min:
+                filtered.append(decision)
+
+        return filtered
+
+    def _filter_by_dte_max(
+        self,
+        decisions: List[Dict[str, Any]],
+        dte_max: float,
+    ) -> List[Dict[str, Any]]:
+        filtered = []
+
+        for decision in decisions:
+            value = self._decision_numeric_value(decision, "dte_min", "dte", "DTE")
+            if value is not None and value <= dte_max:
+                filtered.append(decision)
+
+        return filtered
+
+    def _show_empty_filter_result(self, active_decisions: List[Dict[str, Any]]) -> None:
+        if active_decisions:
+            self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
+            self._status_filter_result(
+                f"Filtro sem resultados: 0 de {len(active_decisions)} decisões de estruturas ativas"
+            )
+            return
+
+        self._set_detail_text("Nenhuma decisão de estrutura ativa encontrada.")
+        self._status_filter_result("Nenhuma decisão de estrutura ativa encontrada no modo dark")
+
+    def _apply_filter(self, render: bool = True, announce_clear: bool = False) -> None:
+        state = self._current_filter_state()
+
+        self._clear_selection()
+
+        active_decisions = self._active_structure_decisions()
+        error_text = self._filter_validation_error(state)
+
+        if error_text:
             self.filtered_decisions = []
             self._update_filter_summary(0, len(active_decisions), error_text)
 
             if render:
                 self._render_rows()
-                self.load_structure_btn.configure(state="disabled")
-                self._set_detail_text(f"Filtro inválido: {error_text}.")
+                self._set_detail_text("Corrija os filtros numéricos para listar decisões.")
                 self._status_filter_result(f"Filtro inválido: {error_text}")
 
             return
 
-        filtered_decisions = active_decisions
-
-        if query:
-            terms = [term for term in query.split() if term]
-            filtered_decisions = [
-                decision
-                for decision in filtered_decisions
-                if self._decision_matches_filter(decision, terms)
-            ]
-
-        if decision_query:
-            filtered_decisions = [
-                decision
-                for decision in filtered_decisions
-                if decision_query in str(decision.get("decision") or "").lower()
-            ]
-
-        if level_min is not None:
-            filtered_decisions = [
-                decision
-                for decision in filtered_decisions
-                if (
-                    self._decision_numeric_value(decision, "level", "nivel", "nível")
-                    is not None
-                    and self._decision_numeric_value(decision, "level", "nivel", "nível") >= level_min
-                )
-            ]
-
-        if dte_max is not None:
-            filtered_decisions = [
-                decision
-                for decision in filtered_decisions
-                if (
-                    self._decision_numeric_value(decision, "dte_min", "dte", "DTE")
-                    is not None
-                    and self._decision_numeric_value(decision, "dte_min", "dte", "DTE") <= dte_max
-                )
-            ]
-
-        self.filtered_decisions = filtered_decisions
+        self.filtered_decisions = self._filter_decisions(active_decisions, state)
         self._update_filter_summary(len(self.filtered_decisions), len(active_decisions))
 
-        if render:
-            self._render_rows()
+        if not render:
+            return
 
-            if self.filtered_decisions:
-                self._select_decision(0, notify_status=False)
+        self._render_rows()
 
-                self._status_filter_summary(active_decisions, announce_clear)
-            else:
-                self.load_structure_btn.configure(state="disabled")
-                if active_decisions:
-                    self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
-                    self._status_filter_result(
-                        f"Filtro sem resultados: 0 de {len(active_decisions)} decisões de estruturas ativas"
-                    )
-                else:
-                    self._set_detail_text("Nenhuma decisão de estrutura ativa encontrada.")
-                    self._status_filter_result("Nenhuma decisão de estrutura ativa encontrada no modo dark")
+        if self.filtered_decisions:
+            self._select_decision(0, notify_status=False)
+            self._status_filter_summary(active_decisions, announce_clear)
+            return
+
+        self._show_empty_filter_result(active_decisions)
 
     def _has_active_filters(self) -> bool:
         return any(

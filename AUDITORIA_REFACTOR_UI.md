@@ -1363,3 +1363,37 @@ Resultado esperado:
 - mensagens de status preservadas;
 - texto de contagem de decisoes ativas centralizado;
 - codigo mais facil de manter.
+
+## Frente 53 — refactor agressivo interno da aba Decisões dark
+
+Bloco maior aplicado na branch refactor/decisions-dark-panel-large-block.
+
+Escopo:
+
+- criação de estado explícito para filtros da aba Decisões dark;
+- decomposição do pipeline de filtragem em helpers dedicados;
+- redução da responsabilidade direta de _apply_filter;
+- separação entre coleta de filtros, validação, filtragem e exibição de resultado vazio;
+- preservação do comportamento visual e dos contratos externos da aba.
+
+Arquivos impactados:
+
+- UI/components/decisions_dark_panel.py
+- AUDITORIA_REFACTOR_UI.md
+
+Validação esperada:
+
+    python -m py_compile UI/components/decisions_dark_panel.py
+    git diff --check
+    python -m UI.modern
+
+Critério de aceite:
+
+- aba Decisões dark carrega normalmente;
+- filtros continuam funcionando;
+- filtros numéricos inválidos exibem mensagem de erro;
+- limpar filtros restaura a listagem esperada;
+- seleção de decisão atualiza o detalhe;
+- copiar detalhe continua funcionando;
+- carregar estrutura continua funcionando;
+- exportação CSV continua funcionando.
