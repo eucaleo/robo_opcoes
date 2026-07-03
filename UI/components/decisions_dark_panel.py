@@ -234,12 +234,21 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.list_frame.grid(row=1, column=0, sticky="nsew", padx=(10, 5), pady=(0, 10))
 
     def _build_detail_section(self) -> None:
+        detail_frame = self._create_detail_frame()
+        self._create_detail_title(detail_frame)
+        self._create_copy_detail_button(detail_frame)
+        self._create_details_textbox(detail_frame)
+        self._set_detail_text("Nenhuma decisão selecionada.")
+
+    def _create_detail_frame(self):
         detail_frame = ctk.CTkFrame(self, fg_color="#020617")
         detail_frame.grid(row=1, column=1, sticky="nsew", padx=(5, 10), pady=(0, 10))
         detail_frame.grid_columnconfigure(0, weight=1)
         detail_frame.grid_columnconfigure(1, weight=0)
         detail_frame.grid_rowconfigure(1, weight=1)
+        return detail_frame
 
+    def _create_detail_title(self, detail_frame) -> None:
         detail_title = ctk.CTkLabel(
             detail_frame,
             text="Detalhe da decisão selecionada",
@@ -248,6 +257,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         detail_title.grid(row=0, column=0, sticky="w", padx=12, pady=(12, 6))
 
+    def _create_copy_detail_button(self, detail_frame) -> None:
         self.copy_detail_btn = ctk.CTkButton(
             detail_frame,
             text="Copiar detalhe",
@@ -260,6 +270,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         )
         self.copy_detail_btn.grid(row=0, column=1, sticky="e", padx=(4, 12), pady=(12, 6))
 
+    def _create_details_textbox(self, detail_frame) -> None:
         self.details_text = ctk.CTkTextbox(
             detail_frame,
             fg_color="#0f172a",
@@ -268,8 +279,14 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             border_color="#1f2937",
             wrap="word",
         )
-        self.details_text.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=12, pady=(0, 12))
-        self._set_detail_text("Nenhuma decisão selecionada.")
+        self.details_text.grid(
+            row=1,
+            column=0,
+            columnspan=2,
+            sticky="nsew",
+            padx=12,
+            pady=(0, 12),
+        )
 
     def reload_decisions(self) -> None:
         try:
@@ -473,12 +490,38 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             return
 
         if error:
-            self.filter_summary_label.configure(
-                text=f"Filtros inválidos: {error}",
-                text_color="#fca5a5",
-            )
+            self._show_filter_summary_error(error)
             return
 
+        self._show_filter_summary_counts(visible_count, active_count)
+
+    def _show_filter_summary_error(self, error: str) -> None:
+        self.filter_summary_label.configure(
+            text=f"Filtros inválidos: {error}",
+            text_color="#fca5a5",
+        )
+
+    def _show_filter_summary_counts(self, visible_count: int, active_count: int) -> None:
+        self.filter_summary_label.configure(
+            text=self._filter_summary_text(visible_count, active_count),
+            text_color="#9ca3af",
+        )
+
+    def _filter_summary_text(self, visible_count: int, active_count: int) -> str:
+        return (
+            f"Exibindo {visible_count} de {active_count} decisões ativas "
+            f"({len(self.decisions)} totais) — {self._filter_summary_suffix()}."
+        )
+
+    def _filter_summary_suffix(self) -> str:
+        active_filters = self._active_filter_summary_labels()
+
+        if not active_filters:
+            return "sem filtros avançados"
+
+        return "filtros: " + ", ".join(active_filters)
+
+    def _active_filter_summary_labels(self) -> List[str]:
         active_filters = []
 
         if self._entry_text("search_entry"):
@@ -490,17 +533,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         if self._entry_text("dte_max_filter_entry"):
             active_filters.append("DTE máx.")
 
-        suffix = "sem filtros avançados"
-        if active_filters:
-            suffix = "filtros: " + ", ".join(active_filters)
-
-        self.filter_summary_label.configure(
-            text=(
-                f"Exibindo {visible_count} de {active_count} decisões ativas "
-                f"({len(self.decisions)} totais) — {suffix}."
-            ),
-            text_color="#9ca3af",
-        )
+        return active_filters
 
     def _refresh_structure_index(self) -> None:
         """
@@ -761,29 +794,49 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
     def _apply_filter(self, render: bool = True, announce_clear: bool = False) -> None:
         state = self._current_filter_state()
-
         self._clear_selection()
 
         active_decisions = self._active_structure_decisions()
         error_text = self._filter_validation_error(state)
 
         if error_text:
-            self.filtered_decisions = []
-            self._update_filter_summary(0, len(active_decisions), error_text)
-
-            if render:
-                self._render_rows()
-                self._set_detail_text("Corrija os filtros numéricos para listar decisões.")
-                self._status_filter_result(f"Filtro inválido: {error_text}")
-
+            self._apply_invalid_filter_state(error_text, active_decisions, render)
             return
 
-        self.filtered_decisions = self._filter_decisions(active_decisions, state)
-        self._update_filter_summary(len(self.filtered_decisions), len(active_decisions))
+        self._apply_valid_filter_state(state, active_decisions)
+
+        if render:
+            self._render_filter_result(active_decisions, announce_clear)
+
+    def _apply_invalid_filter_state(
+        self,
+        error_text: str,
+        active_decisions: List[Dict[str, Any]],
+        render: bool,
+    ) -> None:
+        self.filtered_decisions = []
+        self._update_filter_summary(0, len(active_decisions), error_text)
 
         if not render:
             return
 
+        self._render_rows()
+        self._set_detail_text("Corrija os filtros numéricos para listar decisões.")
+        self._status_filter_result(f"Filtro inválido: {error_text}")
+
+    def _apply_valid_filter_state(
+        self,
+        state: Dict[str, Any],
+        active_decisions: List[Dict[str, Any]],
+    ) -> None:
+        self.filtered_decisions = self._filter_decisions(active_decisions, state)
+        self._update_filter_summary(len(self.filtered_decisions), len(active_decisions))
+
+    def _render_filter_result(
+        self,
+        active_decisions: List[Dict[str, Any]],
+        announce_clear: bool,
+    ) -> None:
         self._render_rows()
 
         if self.filtered_decisions:
@@ -922,38 +975,53 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.on_load_structure(structure_id)
 
     def _select_decision(self, index: int, notify_status: bool = True) -> None:
-        if index < 0 or index >= len(self.filtered_decisions):
+        if not self._is_valid_decision_index(index):
             return
 
         self.selected_index = index
+        self._highlight_selected_decision_row(index)
 
+        decision = self.filtered_decisions[index]
+        self._show_selected_decision_detail(decision)
+        self._update_load_structure_button_for_decision(decision)
+        self.copy_detail_btn.configure(state="normal")
+
+        if notify_status:
+            self._status_selected_decision(self._selected_decision_status_text(decision))
+
+    def _is_valid_decision_index(self, index: int) -> bool:
+        return 0 <= index < len(self.filtered_decisions)
+
+    def _highlight_selected_decision_row(self, index: int) -> None:
         for i, btn in enumerate(self._row_buttons):
             if i == index:
                 btn.configure(fg_color="#2563eb", hover_color="#1d4ed8")
             else:
                 btn.configure(fg_color="#111827", hover_color="#1f2937")
 
-        decision = self.filtered_decisions[index]
+    def _show_selected_decision_detail(self, decision: Dict[str, Any]) -> None:
         self._set_detail_text(self._format_detail(decision))
 
+    def _update_load_structure_button_for_decision(self, decision: Dict[str, Any]) -> None:
         structure_id = decision.get("structure_id") or decision.get("aba") or "N/A"
+
         if structure_id != "N/A" and self.on_load_structure:
             self.load_structure_btn.configure(state="normal")
-        else:
-            self.load_structure_btn.configure(state="disabled")
+            return
 
-        self.copy_detail_btn.configure(state="normal")
+        self.load_structure_btn.configure(state="disabled")
 
+    def _selected_decision_status_text(self, decision: Dict[str, Any]) -> str:
+        structure_id = decision.get("structure_id") or decision.get("aba") or "N/A"
         decision_text = decision.get("decision", "N/A")
+
         if len(self.filtered_decisions) == len(self.decisions):
-            status_text = f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}"
-        else:
-            status_text = (
-                f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
-                f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
-            )
-        if notify_status:
-            self._status_selected_decision(status_text)
+            return f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text}"
+
+        return (
+            f"Decisão selecionada: estrutura={structure_id}, decisão={decision_text} "
+            f"({len(self.filtered_decisions)} de {len(self.decisions)} exibidas)"
+        )
 
     def _clear_selection(self) -> None:
         self.selected_index = None
@@ -1216,44 +1284,58 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         return None
 
     def _format_detail_header(self, decision: Dict[str, Any]) -> str:
+        values = self._detail_header_values(decision)
+        return "\n".join(self._detail_header_lines(values))
+
+    def _detail_header_values(self, decision: Dict[str, Any]) -> Dict[str, Any]:
         structure_id = self._decision_structure_id(decision)
+
+        return {
+            "structure_id": structure_id,
+            "structure_display": self._detail_structure_display(structure_id),
+            "structure_status": self._structure_status_label(structure_id),
+            "timestamp": self._detail_value(decision, "timestamp"),
+            "created_at": self._detail_value(decision, "created_at"),
+            "decision_text": self._detail_value(decision, "decision"),
+            "level": self._detail_value(decision, "level"),
+            "pl_atual": self._detail_value(decision, "pl_atual"),
+            "pl_max": self._detail_value(decision, "pl_max"),
+            "ratio": self._detail_value(decision, "pl_pct_of_max"),
+            "dte_min": self._detail_value(decision, "dte_min"),
+            "spot_ref": self._detail_value(decision, "spot_reference", "spot_ref"),
+        }
+
+    def _detail_structure_display(self, structure_id: Any) -> str:
         structure_name = self._structure_name(structure_id)
         structure_display = str(structure_id) if structure_id is not None else "N/A"
 
         if structure_name:
-            structure_display = f"{structure_display} - {structure_name}"
+            return f"{structure_display} - {structure_name}"
 
-        timestamp = self._detail_value(decision, "timestamp")
-        created_at = self._detail_value(decision, "created_at")
-        decision_text = self._detail_value(decision, "decision")
-        level = self._detail_value(decision, "level")
+        return structure_display
 
-        pl_atual = self._detail_value(decision, "pl_atual")
-        pl_max = self._detail_value(decision, "pl_max")
-        ratio = self._detail_value(decision, "pl_pct_of_max")
-        dte_min = self._detail_value(decision, "dte_min")
-        spot_ref = self._detail_value(decision, "spot_reference", "spot_ref")
-
-        lines = [
+    def _detail_header_lines(self, values: Dict[str, Any]) -> List[str]:
+        return [
             "Resumo operacional",
             "------------------",
-            f"Estrutura: {structure_display}",
-            f"Status da estrutura: {self._structure_status_label(structure_id)}",
-            f"Decisão: {decision_text if decision_text is not None else 'N/A'}",
-            f"Nível: {level if level is not None else 'N/A'}",
-            f"Timestamp: {timestamp if timestamp is not None else 'N/A'}",
-            f"Criada em: {created_at if created_at is not None else 'N/A'}",
+            f"Estrutura: {values['structure_display']}",
+            f"Status da estrutura: {values['structure_status']}",
+            f"Decisão: {self._display_or_na(values['decision_text'])}",
+            f"Nível: {self._display_or_na(values['level'])}",
+            f"Timestamp: {self._display_or_na(values['timestamp'])}",
+            f"Criada em: {self._display_or_na(values['created_at'])}",
             "",
             "Métricas principais",
             "-------------------",
-            f"PL atual: {self._format_money_value(pl_atual)}",
-            f"PL máximo: {self._format_money_value(pl_max)}",
-            f"PL % do máximo: {self._format_percent_value(ratio)}",
-            f"DTE mínimo: {self._format_number_value(dte_min)}",
-            f"Spot referência: {self._format_number_value(spot_ref)}",
+            f"PL atual: {self._format_money_value(values['pl_atual'])}",
+            f"PL máximo: {self._format_money_value(values['pl_max'])}",
+            f"PL % do máximo: {self._format_percent_value(values['ratio'])}",
+            f"DTE mínimo: {self._format_number_value(values['dte_min'])}",
+            f"Spot referência: {self._format_number_value(values['spot_ref'])}",
         ]
 
-        return "\n".join(lines)
+    def _display_or_na(self, value: Any) -> Any:
+        return value if value is not None else "N/A"
 
     def _format_detail(self, decision: Dict[str, Any]) -> str:
         lines = [self._format_detail_header(decision)]
