@@ -528,9 +528,19 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             conn.close()
 
     def _render_structures_list(self) -> None:
-        for widget in self.side.winfo_children():
-            widget.destroy()
+        self._clear_side()
+        self._render_structures_list_actions()
+        self._render_structures_list_header()
 
+        scroll = self._build_structures_scroll()
+        if not self.structures:
+            self._render_empty_structures_message(scroll)
+            return
+
+        for structure in self.structures:
+            self._render_structure_list_item(scroll, structure)
+
+    def _render_structures_list_actions(self) -> None:
         btn_add = ctk.CTkButton(
             self.side,
             text="+ Nova Estrutura",
@@ -542,7 +552,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         btn_add.pack(fill="x", padx=10, pady=(8, 10))
 
-
+    def _render_structures_list_header(self) -> None:
         title = ctk.CTkLabel(
             self.side,
             text="ESTRUTURAS DISPONÍVEIS",
@@ -561,39 +571,40 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         btn_reload.pack(fill="x", padx=10, pady=(0, 8))
 
+    def _build_structures_scroll(self):
         scroll = ctk.CTkScrollableFrame(
             self.side,
             fg_color="transparent",
         )
         scroll.pack(fill="both", expand=True, padx=5, pady=5)
+        return scroll
 
-        if not self.structures:
-            lbl = ctk.CTkLabel(
-                scroll,
-                text="Nenhuma estrutura encontrada no app.db",
-                text_color=MUTED,
-                wraplength=210,
-            )
-            lbl.pack(fill="x", padx=8, pady=8)
-            return
+    def _render_empty_structures_message(self, parent) -> None:
+        lbl = ctk.CTkLabel(
+            parent,
+            text="Nenhuma estrutura encontrada no app.db",
+            text_color=MUTED,
+            wraplength=210,
+        )
+        lbl.pack(fill="x", padx=8, pady=8)
 
-        for structure in self.structures:
-            sid = structure.get("id")
-            name = structure.get("name")
-            asset = structure.get("underlying_asset")
-            status = structure.get("status")
+    def _render_structure_list_item(self, parent, structure: Dict[str, Any]) -> None:
+        sid = structure.get("id")
+        name = structure.get("name")
+        asset = structure.get("underlying_asset")
+        status = structure.get("status")
 
-            btn = ctk.CTkButton(
-                scroll,
-                text=f"ID {sid} | {asset}\n{name}\n{status}",
-                anchor="w",
-                height=66,
-                fg_color="#2B2B2B",
-                hover_color="#3D3D3D",
-                text_color=TEXT,
-                command=lambda s=structure: self.select_structure(s),
-            )
-            btn.pack(fill="x", pady=5, padx=5)
+        btn = ctk.CTkButton(
+            parent,
+            text=f"ID {sid} | {asset}\n{name}\n{status}",
+            anchor="w",
+            height=66,
+            fg_color="#2B2B2B",
+            hover_color="#3D3D3D",
+            text_color=TEXT,
+            command=lambda s=structure: self.select_structure(s),
+        )
+        btn.pack(fill="x", pady=5, padx=5)
 
     def select_structure(self, structure: Dict[str, Any]) -> None:
         self.selected_structure = dict(structure)
@@ -1356,59 +1367,71 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
     def _render_decision_history(self, sid: Any) -> None:
         self._side_section_title("ULTIMAS DECISOES")
+        box = self._build_decision_history_box()
 
+        try:
+            rows = self._load_structure_decisions(int(sid), limit=5)
+        except Exception as exc:
+            self._render_decision_history_error(box, exc)
+            return
+
+        if not rows:
+            self._render_empty_decision_history(box)
+            return
+
+        for row in rows:
+            self._render_decision_history_item(box, row)
+
+    def _build_decision_history_box(self):
         box = ctk.CTkFrame(
             self.side,
             fg_color=CARD_BG_2,
             corner_radius=8,
         )
         box.pack(fill="x", padx=10, pady=(0, 8))
+        return box
 
-        try:
-            rows = self._load_structure_decisions(int(sid), limit=5)
-        except Exception as exc:
-            label = ctk.CTkLabel(
-                box,
-                text=f"Historico indisponivel.\n{exc}",
-                text_color=YELLOW,
-                justify="left",
-                anchor="w",
-                wraplength=210,
-            )
-            label.pack(fill="x", padx=10, pady=8)
-            return
+    def _render_decision_history_error(self, parent, exc: Exception) -> None:
+        label = ctk.CTkLabel(
+            parent,
+            text=f"Historico indisponivel.\n{exc}",
+            text_color=YELLOW,
+            justify="left",
+            anchor="w",
+            wraplength=210,
+        )
+        label.pack(fill="x", padx=10, pady=8)
 
-        if not rows:
-            label = ctk.CTkLabel(
-                box,
-                text="Nenhuma decisao registrada para esta estrutura.",
-                text_color=MUTED,
-                justify="left",
-                anchor="w",
-                wraplength=210,
-            )
-            label.pack(fill="x", padx=10, pady=8)
-            return
+    def _render_empty_decision_history(self, parent) -> None:
+        label = ctk.CTkLabel(
+            parent,
+            text="Nenhuma decisao registrada para esta estrutura.",
+            text_color=MUTED,
+            justify="left",
+            anchor="w",
+            wraplength=210,
+        )
+        label.pack(fill="x", padx=10, pady=8)
 
-        for row in rows:
-            decision = str(row.get("decision") or "").upper()
-            label_text = row.get("label") or decision_label(decision)
-            created_at = row.get("created_at") or "--"
-            note = row.get("note") or ""
+    def _render_decision_history_item(self, parent, row: Dict[str, Any]) -> None:
+        decision = str(row.get("decision") or "").upper()
+        label_text = row.get("label") or decision_label(decision)
+        created_at = row.get("created_at") or "--"
+        note = row.get("note") or ""
 
-            text = f"{created_at}\n{label_text} ({decision})"
-            if note:
-                text += f"\n{note}"
+        text = f"{created_at}\n{label_text} ({decision})"
+        if note:
+            text += f"\n{note}"
 
-            item = ctk.CTkLabel(
-                box,
-                text=text,
-                text_color=TEXT,
-                justify="left",
-                anchor="w",
-                wraplength=210,
-            )
-            item.pack(fill="x", padx=10, pady=(8, 6))
+        item = ctk.CTkLabel(
+            parent,
+            text=text,
+            text_color=TEXT,
+            justify="left",
+            anchor="w",
+            wraplength=210,
+        )
+        item.pack(fill="x", padx=10, pady=(8, 6))
 
 
 
@@ -1421,45 +1444,66 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self._clear_side()
 
         sid = structure.get("id")
+        summary = self._format_active_structure_summary(structure)
+
+        self._render_side_panel_title("ESTRUTURA ATIVA")
+        self._render_side_info_card(summary)
+
+        if notice:
+            self._render_side_notice_card(notice, fg_color="#064E3B")
+
+        self._render_payoff_action_group()
+        self._render_structure_management_action_group()
+        self._render_structure_decision_action_group()
+
+        self._render_decision_history(sid)
+        self._render_back_to_structures_button()
+
+    def _format_active_structure_summary(self, structure: Dict[str, Any]) -> str:
+        sid = structure.get("id")
         name = structure.get("name")
         asset = structure.get("underlying_asset")
         status = structure.get("status")
+        return f"ID {sid}\n{name}\nAtivo: {asset}\nStatus: {status}"
 
+    def _render_side_panel_title(self, text: str) -> None:
         title = ctk.CTkLabel(
             self.side,
-            text="ESTRUTURA ATIVA",
+            text=text,
             text_color=MUTED,
             font=ctk.CTkFont(size=11, weight="bold"),
             anchor="w",
         )
         title.pack(fill="x", pady=(15, 8), padx=10)
 
+    def _render_side_info_card(self, text: str) -> None:
         info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
         info_frame.pack(fill="x", padx=10, pady=0)
 
         info = ctk.CTkLabel(
             info_frame,
-            text=f"ID {sid}\n{name}\nAtivo: {asset}\nStatus: {status}",
+            text=text,
             text_color=TEXT,
             justify="left",
             anchor="w",
         )
         info.pack(fill="x", padx=10, pady=10)
 
-        if notice:
-            notice_frame = ctk.CTkFrame(self.side, fg_color="#064E3B", corner_radius=8)
-            notice_frame.pack(fill="x", padx=10, pady=(8, 0))
+    def _render_side_notice_card(self, text: str, fg_color: str) -> None:
+        notice_frame = ctk.CTkFrame(self.side, fg_color=fg_color, corner_radius=8)
+        notice_frame.pack(fill="x", padx=10, pady=(8, 0))
 
-            notice_label = ctk.CTkLabel(
-                notice_frame,
-                text=notice,
-                text_color=TEXT,
-                justify="left",
-                anchor="w",
-                wraplength=210,
-            )
-            notice_label.pack(fill="x", padx=10, pady=8)
+        notice_label = ctk.CTkLabel(
+            notice_frame,
+            text=text,
+            text_color=TEXT,
+            justify="left",
+            anchor="w",
+            wraplength=210,
+        )
+        notice_label.pack(fill="x", padx=10, pady=8)
 
+    def _render_payoff_action_group(self) -> None:
         self._side_section_title("PAYOFF")
         self._side_button(
             text="Recalcular Payoff",
@@ -1468,6 +1512,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             command=self.recalculate_selected_structure,
         )
 
+    def _render_structure_management_action_group(self) -> None:
         self._side_section_title("ESTRUTURA")
         self._side_button(
             text="Editar pernas",
@@ -1488,6 +1533,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             command=self.archive_selected_structure,
         )
 
+    def _render_structure_decision_action_group(self) -> None:
         self._side_section_title("DECISAO")
         self._side_button(
             text="Manter",
@@ -1508,8 +1554,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             command=lambda: self._register_structure_decision("CLOSE"),
         )
 
-        self._render_decision_history(sid)
-
+    def _render_back_to_structures_button(self) -> None:
         self._side_button(
             text="Voltar para lista",
             color="#111827",
@@ -1526,45 +1571,27 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self._clear_side()
 
         sid = structure.get("id")
-        name = structure.get("name")
-        asset = structure.get("underlying_asset")
+        summary = self._format_adjust_structure_summary(structure)
 
         self._safe_status(f"Modo de ajuste aberto: ID {sid}")
+        self._render_side_panel_title("AJUSTAR ESTRUTURA")
+        self._render_side_info_card(summary)
+        self._render_adjust_structure_notice()
+        self._render_adjust_structure_actions()
 
-        title = ctk.CTkLabel(
-            self.side,
-            text="AJUSTAR ESTRUTURA",
-            text_color=MUTED,
-            font=ctk.CTkFont(size=11, weight="bold"),
-            anchor="w",
+    def _format_adjust_structure_summary(self, structure: Dict[str, Any]) -> str:
+        sid = structure.get("id")
+        name = structure.get("name")
+        asset = structure.get("underlying_asset")
+        return f"ID {sid}\n{name}\nAtivo: {asset}"
+
+    def _render_adjust_structure_notice(self) -> None:
+        self._render_side_notice_card(
+            "Modo de ajuste aberto. Edite as pernas, duplique para ajuste ou registre a decisao ADJUST.",
+            fg_color="#78350F",
         )
-        title.pack(fill="x", pady=(15, 8), padx=10)
 
-        info_frame = ctk.CTkFrame(self.side, fg_color=CARD_BG_2, corner_radius=8)
-        info_frame.pack(fill="x", padx=10, pady=0)
-
-        info = ctk.CTkLabel(
-            info_frame,
-            text=f"ID {sid}\n{name}\nAtivo: {asset}",
-            text_color=TEXT,
-            justify="left",
-            anchor="w",
-        )
-        info.pack(fill="x", padx=10, pady=10)
-
-        notice_frame = ctk.CTkFrame(self.side, fg_color="#78350F", corner_radius=8)
-        notice_frame.pack(fill="x", padx=10, pady=(8, 0))
-
-        notice = ctk.CTkLabel(
-            notice_frame,
-            text="Modo de ajuste aberto. Edite as pernas, duplique para ajuste ou registre a decisao ADJUST.",
-            text_color=TEXT,
-            justify="left",
-            anchor="w",
-            wraplength=210,
-        )
-        notice.pack(fill="x", padx=10, pady=8)
-
+    def _render_adjust_structure_actions(self) -> None:
         self._side_section_title("ACAO")
         self._side_button(
             text="Editar pernas",

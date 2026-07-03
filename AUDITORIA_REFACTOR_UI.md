@@ -1413,3 +1413,5 @@ Critério de aceite:
 - DetailsPanel: quebra inicial dos métodos grandes (_get_latest_snapshot_timestamp_for_structure, _setup_widgets, update_decision, update_operational_state e _on_recalculate_click), extraindo helpers privados menores e preservando regras de fallback de DB, estado operacional e recálculo.
 
 - TerminalVWAPPayoffDarkPanel: quebra de _setup_layout em helpers privados de grade, rail, side panel, main panel, header, KPIs, charts, painel inferior, tabela de pernas e avisos, preservando layout e comportamento funcional.
+
+- TerminalVWAPPayoffDarkPanel: quebra dos renderizadores laterais de estruturas, ações, ajuste e histórico de decisões em helpers privados menores, preservando callbacks, textos, status e comportamento visual.
