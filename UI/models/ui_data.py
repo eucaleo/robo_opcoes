@@ -121,50 +121,57 @@ class UIDataModel:
                 colmap[alias] = m
         self._consolidations_cols = colmap
 
-    def _build_payoff_colmap(self):
-        if not self._payoff_table:
-            self._payoff_cols = {}
-            return
+    def _payoff_colmap_missing_table(self) -> bool:
+        if self._payoff_table:
+            return False
+        self._payoff_cols = {}
+        return True
 
-        cols = self._inspect_columns(self._payoff_table)
-        colmap = {}
-
+    def _payoff_column_aliases(self):
         if self._payoff_table == "payoff_curve_points":
-            aliases = {
-                "spot":         ["point_spot"],
-                "pl":           ["point_pl"],
-                "timestamp":    ["timestamp"],
-                # alteracao_36_F: structure_id e opcional aqui --
-                # pode nao existir ainda se a migration ainda nao rodou.
-                # _structure_filter_col vai lancar RuntimeError com mensagem clara.
-                "structure_id": ["structure_id"],   #  alteracao_34: único identificador canônico
-            }
             print(f"[UI] Usando contrato canônico para {self._payoff_table}")
-        else:
-            aliases = PAYOFF_COLUMN_ALIASES
-            print(f"[UI] Usando aliases flexíveis para {self._payoff_table}")
+            return {
+                "spot": ["point_spot"],
+                "pl": ["point_pl"],
+                "timestamp": ["timestamp"],
+                "structure_id": ["structure_id"],
+            }
 
+        print(f"[UI] Usando aliases flexíveis para {self._payoff_table}")
+        return PAYOFF_COLUMN_ALIASES
+
+    def _build_colmap_from_aliases(self, cols, aliases):
+        colmap = {}
         for alias, candidates in aliases.items():
             m = _first_match(cols, candidates)
             if m:
                 colmap[alias] = m
-            # alteracao_36_F: nao lanca erro se structure_id ausente --
-            # isso ocorre antes da migration e e tratado em _structure_filter_col
+        return colmap
 
-        self._payoff_cols = colmap
-
+    def _ensure_required_payoff_colmap(self) -> None:
         if ("spot" not in self._payoff_cols) or ("pl" not in self._payoff_cols):
             raise RuntimeError(
                 f"Tabela {self._payoff_table} não apresenta colunas obrigatórias "
                 f"para payoff (point_spot/point_pl ou spot/pl)."
             )
 
-        # alteracao_36_F: aviso explicito quando structure_id ausente (pre-migration)
+    def _warn_missing_payoff_structure_id(self) -> None:
         if "structure_id" not in self._payoff_cols:
             print(
                 f"[UI] AVISO: {self._payoff_table} nao tem coluna structure_id. "
                 "Execute a migration (alteracao_36) para habilitar filtro canonico."
             )
+
+    def _build_payoff_colmap(self):
+        if self._payoff_colmap_missing_table():
+            return
+
+        cols = self._inspect_columns(self._payoff_table)
+        aliases = self._payoff_column_aliases()
+        self._payoff_cols = self._build_colmap_from_aliases(cols, aliases)
+
+        self._ensure_required_payoff_colmap()
+        self._warn_missing_payoff_structure_id()
 
     # ------------------------------------------------------------------
     #  alteracao_33: resolve a coluna de filtro por estrutura
