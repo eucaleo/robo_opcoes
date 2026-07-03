@@ -266,34 +266,55 @@ class PayoffChart(ttk.Frame):
         self._reset_axes()
 
         if not payoff_points:
-            self.ax.set_title("Sem dados de payoff")
-            self._safe_draw_idle()
-            self._last_breakevens = []
-            self._last_pl_at_spot_ref = None
-            return self.get_last_overlays()
+            return self._finish_empty_payoff_chart()
 
-        # ------------------------------------------------------------------
-        # Extrair xs / ys da curva principal
-        # ------------------------------------------------------------------
+        xs, ys = self._extract_curve_xy(payoff_points)
+        if not xs:
+            return self._finish_invalid_payoff_chart()
+
+        self._log_rebuilt_payoff_curve(xs, ys)
+        self._draw_main_payoff_curve(xs, ys, decision_data, overlay_curve)
+        self._draw_overlay_curve(overlay_curve)
+        self.ax.axhline(0, color="gray", linewidth=1, alpha=0.7)
+
+        spot_ref = self._extract_spot_ref(decision_data)
+        self._draw_spot_ref(xs, ys, spot_ref)
+
+        bks = self._draw_breakevens(xs, ys)
+        self._last_breakevens = bks
+
+        title = self._build_payoff_chart_title(decision_data, overlay_curve)
+        self.ax.set_title(title)
+        self.ax.legend(loc="best")
+        self._safe_draw_idle()
+        return self.get_last_overlays()
+
+    def _finish_empty_payoff_chart(self) -> Dict:
+        self.ax.set_title("Sem dados de payoff")
+        self._safe_draw_idle()
+        self._last_breakevens = []
+        self._last_pl_at_spot_ref = None
+        return self.get_last_overlays()
+
+    def _finish_invalid_payoff_chart(self) -> Dict:
+        payoff_info("ERROR: não consegui extrair xs/ys de payoff_points.")
+        return self._finish_empty_payoff_chart()
+
+    def _extract_curve_xy(self, points: List[Dict]) -> Tuple[List[float], List[float]]:
         xs: List[float] = []
         ys: List[float] = []
 
-        for p in payoff_points:
-            x, y = self._extract_xy(p)
+        for point in points:
+            x, y = self._extract_xy(point)
             try:
                 xs.append(float(x))
                 ys.append(float(y))
             except Exception:
                 continue
 
-        if not xs:
-            payoff_info("ERROR: não consegui extrair xs/ys de payoff_points.")
-            self.ax.set_title("Sem dados de payoff")
-            self._safe_draw_idle()
-            self._last_breakevens = []
-            self._last_pl_at_spot_ref = None
-            return self.get_last_overlays()
+        return xs, ys
 
+    def _log_rebuilt_payoff_curve(self, xs: List[float], ys: List[float]) -> None:
         payoff_debug(
             f"rebuilt xs: min={min(xs):.2f}, max={max(xs):.2f}, len={len(xs)}"
         )
@@ -301,136 +322,139 @@ class PayoffChart(ttk.Frame):
             f"rebuilt ys: min={min(ys):.6f}, max={max(ys):.6f}, len={len(ys)}"
         )
 
-        # ------------------------------------------------------------------
-        # Label da curva principal (B quando há overlay, senão "Payoff")
-        # ------------------------------------------------------------------
-        if overlay_curve and decision_data:
-            sid = (
-                decision_data.get("structure_id")
-                or decision_data.get("aba", "")
-            )
-            main_label = f"B: {sid}"
-        else:
-            main_label = "Payoff"
-
+    def _draw_main_payoff_curve(
+        self,
+        xs: List[float],
+        ys: List[float],
+        decision_data: Optional[Dict],
+        overlay_curve: Optional[Dict],
+    ) -> None:
+        main_label = self._main_curve_label(decision_data, overlay_curve)
         self.ax.plot(xs, ys, color="#1f77b4", linewidth=2, label=main_label)
 
-        # ------------------------------------------------------------------
-        # Curva A (overlay fixado)
-        # ------------------------------------------------------------------
-        if overlay_curve:
-            overlay_xs: List[float] = []
-            overlay_ys: List[float] = []
-            for point in overlay_curve["points"]:
-                try:
-                    x, y = self._extract_xy(point)
-                    overlay_xs.append(float(x))
-                    overlay_ys.append(float(y))
-                except Exception:
-                    continue
-            if overlay_xs:
-                self.ax.plot(
-                    overlay_xs,
-                    overlay_ys,
-                    color=overlay_curve["color"],
-                    linewidth=2,
-                    linestyle="--",
-                    alpha=0.8,
-                    label=overlay_curve["label"],
-                )
+    def _main_curve_label(
+        self,
+        decision_data: Optional[Dict],
+        overlay_curve: Optional[Dict],
+    ) -> str:
+        if overlay_curve and decision_data:
+            sid = decision_data.get("structure_id") or decision_data.get("aba", "")
+            return f"B: {sid}"
+        return "Payoff"
 
-        # ------------------------------------------------------------------
-        # Linha PL = 0
-        # ------------------------------------------------------------------
-        self.ax.axhline(0, color="gray", linewidth=1, alpha=0.7)
+    def _draw_overlay_curve(self, overlay_curve: Optional[Dict]) -> None:
+        if not overlay_curve:
+            return
 
-        # ------------------------------------------------------------------
-        # Spot Ref
-        # ------------------------------------------------------------------
-        spot_ref: Optional[float] = None
-        if decision_data:
-            raw = decision_data.get("spot_ref") or decision_data.get("spot_reference")
-            try:
-                spot_ref = float(raw) if raw is not None else None
-            except Exception:
-                spot_ref = None
+        overlay_xs, overlay_ys = self._extract_curve_xy(overlay_curve["points"])
+        if not overlay_xs:
+            return
 
-        if spot_ref is not None:
-            self.ax.axvline(
-                spot_ref,
-                color="#ff7f0e",
-                linestyle="--",
-                linewidth=1.5,
-                label="Spot Ref",
-            )
-            pl_ref = self._interp_y_at_x(xs, ys, spot_ref)
-            self._last_pl_at_spot_ref = pl_ref
-            if pl_ref is not None:
-                self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
-                self.ax.annotate(
-                    f"Spot Ref: {_fmt_number_br(spot_ref, 2)}\n"
-                    f"PL: {_fmt_currency_br(pl_ref, 2)}",
-                    xy=(spot_ref, pl_ref),
-                    xytext=(8, 8),
-                    textcoords="offset points",
-                    fontsize=8,
-                    color="#ff7f0e",
-                    bbox=dict(
-                        boxstyle="round,pad=0.2",
-                        fc="white",
-                        ec="#ff7f0e",
-                        alpha=0.8,
-                    ),
-                )
-        else:
+        self.ax.plot(
+            overlay_xs,
+            overlay_ys,
+            color=overlay_curve["color"],
+            linewidth=2,
+            linestyle="--",
+            alpha=0.8,
+            label=overlay_curve["label"],
+        )
+
+    def _extract_spot_ref(self, decision_data: Optional[Dict]) -> Optional[float]:
+        if not decision_data:
+            return None
+
+        raw = decision_data.get("spot_ref") or decision_data.get("spot_reference")
+        try:
+            return float(raw) if raw is not None else None
+        except Exception:
+            return None
+
+    def _draw_spot_ref(
+        self,
+        xs: List[float],
+        ys: List[float],
+        spot_ref: Optional[float],
+    ) -> None:
+        if spot_ref is None:
             self._last_pl_at_spot_ref = None
+            return
 
-        # ------------------------------------------------------------------
-        # Breakevens (só da curva principal)
-        # ------------------------------------------------------------------
+        self.ax.axvline(
+            spot_ref,
+            color="#ff7f0e",
+            linestyle="--",
+            linewidth=1.5,
+            label="Spot Ref",
+        )
+        pl_ref = self._interp_y_at_x(xs, ys, spot_ref)
+        self._last_pl_at_spot_ref = pl_ref
+
+        if pl_ref is not None:
+            self._annotate_spot_ref(spot_ref, pl_ref)
+
+    def _annotate_spot_ref(self, spot_ref: float, pl_ref: float) -> None:
+        self.ax.scatter([spot_ref], [pl_ref], s=45, color="#ff7f0e", zorder=5)
+        self.ax.annotate(
+            f"Spot Ref: {_fmt_number_br(spot_ref, 2)}\n"
+            f"PL: {_fmt_currency_br(pl_ref, 2)}",
+            xy=(spot_ref, pl_ref),
+            xytext=(8, 8),
+            textcoords="offset points",
+            fontsize=8,
+            color="#ff7f0e",
+            bbox=dict(
+                boxstyle="round,pad=0.2",
+                fc="white",
+                ec="#ff7f0e",
+                alpha=0.8,
+            ),
+        )
+
+    def _draw_breakevens(self, xs: List[float], ys: List[float]) -> List[float]:
         bks = self._find_breakevens(xs, ys)
-        self._last_breakevens = bks
 
         for bx in bks:
-            self.ax.axvline(bx, color="green", linestyle=":", linewidth=1, alpha=0.85)
-            self.ax.scatter([bx], [0], s=30, color="green", zorder=6)
-            self.ax.annotate(
-                f"BE {_fmt_number_br(bx, 2)}",
-                xy=(bx, 0),
-                xytext=(0, 10),
-                textcoords="offset points",
-                ha="center",
-                fontsize=8,
-                color="green",
-                bbox=dict(
-                    boxstyle="round,pad=0.15",
-                    fc="white",
-                    ec="green",
-                    alpha=0.75,
-                ),
-            )
+            self._draw_breakeven_marker(bx)
 
-        # ------------------------------------------------------------------
-        # Título
-        # ------------------------------------------------------------------
+        return bks
+
+    def _draw_breakeven_marker(self, bx: float) -> None:
+        self.ax.axvline(bx, color="green", linestyle=":", linewidth=1, alpha=0.85)
+        self.ax.scatter([bx], [0], s=30, color="green", zorder=6)
+        self.ax.annotate(
+            f"BE {_fmt_number_br(bx, 2)}",
+            xy=(bx, 0),
+            xytext=(0, 10),
+            textcoords="offset points",
+            ha="center",
+            fontsize=8,
+            color="green",
+            bbox=dict(
+                boxstyle="round,pad=0.15",
+                fc="white",
+                ec="green",
+                alpha=0.75,
+            ),
+        )
+
+    def _build_payoff_chart_title(
+        self,
+        decision_data: Optional[Dict],
+        overlay_curve: Optional[Dict],
+    ) -> str:
         if decision_data:
-            sid = (
-                decision_data.get("structure_id")
-                or decision_data.get("aba", "")
-            )
+            sid = decision_data.get("structure_id") or decision_data.get("aba", "")
             dec = decision_data.get("decision", "")
             title = f"Payoff -- {sid} [{dec}]"
             if overlay_curve:
                 title += f" vs {overlay_curve['label']}"
-        elif overlay_curve:
-            title = "Curva de Payoff -- Comparação"
-        else:
-            title = "Curva de Payoff"
+            return title
 
-        self.ax.set_title(title)
-        self.ax.legend(loc="best")
-        self._safe_draw_idle()
-        return self.get_last_overlays()
+        if overlay_curve:
+            return "Curva de Payoff -- Comparação"
+
+        return "Curva de Payoff"
 
     # ------------------------------------------------------------------
     # Utilitários de extração e interpolação
