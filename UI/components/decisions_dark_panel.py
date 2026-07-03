@@ -640,22 +640,22 @@ class DecisionsDarkPanel(ctk.CTkFrame):
     ) -> None:
         active_count = len(active_decisions)
         filtered_count = len(self.filtered_decisions)
+        active_label = self._active_decisions_label(active_count)
 
         if self._has_active_filters():
             if filtered_count == active_count:
                 self._status_filter_result(
-                    f"Filtro aplicado sem reduzir resultados: "
-                    f"{active_count} decisões de estruturas ativas"
+                    f"Filtro aplicado sem reduzir resultados: {active_label}"
                 )
             else:
                 self._status_filter_result(
-                    f"Filtro aplicado: {filtered_count} de "
-                    f"{active_count} decisões de estruturas ativas"
+                    f"Filtro aplicado: {filtered_count} de {active_label}"
                 )
         elif announce_clear:
-            self._status_filter_result(
-                f"Filtros limpos: {active_count} decisões de estruturas ativas"
-            )
+            self._status_filter_result(f"Filtros limpos: {active_label}")
+
+    def _active_decisions_label(self, count: int) -> str:
+        return f"{count} decisões de estruturas ativas"
 
     def _decision_matches_filter(self, decision: Dict[str, Any], terms: List[str]) -> bool:
         blob = self._decision_search_blob(decision)

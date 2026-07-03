@@ -1285,3 +1285,81 @@ Resultado esperado:
 - status de filtros preservado;
 - codigo mais legivel;
 - decisao de status concentrada em metodo dedicado.
+
+---
+
+## 51. Centralizacao do rotulo de decisoes ativas na aba Decisoes dark
+
+### 51.1. Objetivo
+
+Melhorar a manutencao dos textos de status da aba Decisoes da UI moderna dark centralizando o rotulo de contagem de decisoes de estruturas ativas.
+
+### 51.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 51.3. Ajuste realizado
+
+Foi criado o metodo:
+
+- `_active_decisions_label`
+
+Esse metodo retorna o texto padronizado usado nas mensagens de status relacionadas a filtros:
+
+- `X decisões de estruturas ativas`
+
+### 51.4. Comportamento preservado
+
+Foram preservadas as mensagens funcionais para:
+
+- filtro aplicado com reducao;
+- filtro aplicado sem reducao;
+- limpeza explicita de filtros.
+
+### 51.5. Motivo da mudanca
+
+Antes do ajuste, o trecho `decisões de estruturas ativas` aparecia repetido dentro da montagem do status de filtros.
+
+A centralizacao reduz duplicidade e facilita ajustes futuros de texto sem alterar a regra de filtragem.
+
+### 51.6. Escopo preservado
+
+A frente nao altera:
+
+- regra de negocio;
+- filtros;
+- selecao automatica;
+- selecao manual;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- contratos canonicos;
+- entrypoint principal;
+- UI atual como caminho principal.
+
+### 51.7. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- aplicar filtro que reduza resultados;
+- aplicar filtro que nao reduza resultados;
+- limpar filtros explicitamente;
+- selecionar decisao manualmente;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 51.8. Resultado esperado
+
+Resultado esperado:
+
+- comportamento visual inalterado;
+- mensagens de status preservadas;
+- texto de contagem de decisoes ativas centralizado;
+- codigo mais facil de manter.
