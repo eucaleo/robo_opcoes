@@ -744,7 +744,26 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         return conn.execute(sql, (structure_id,)).fetchall()
 
     def _load_market(self, asset: Any) -> Dict[str, Any]:
-        result = {
+        result = self._empty_market_result()
+        asset = self._normalize_market_asset(asset)
+
+        if not asset:
+            return result
+
+        conn = self._connect()
+        try:
+            query = self._build_market_query(conn)
+            if not query:
+                return result
+
+            rows = conn.execute(query["sql"], (asset,)).fetchall()
+            return self._market_result_from_rows(result, rows, query)
+
+        finally:
+            conn.close()
+
+    def _empty_market_result(self) -> Dict[str, Any]:
+        return {
             "current_price": None,
             "vwap": None,
             "bid": None,
@@ -762,129 +781,158 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             "vwap_source": None,
         }
 
+    def _normalize_market_asset(self, asset: Any) -> str:
         asset = str(asset or "").strip().upper()
         if not asset or asset == "N/A":
-            return result
+            return ""
+        return asset
 
-        conn = self._connect()
-        try:
-            schema = self._tables_cols(conn)
+    def _build_market_query(self, conn: Any) -> Dict[str, Any]:
+        table = "rtd_underlying_quotes"
+        schema = self._tables_cols(conn)
+        if table not in schema:
+            return {}
 
-            table = "rtd_underlying_quotes"
-            if table not in schema:
-                return result
+        colmap = self._market_column_map(schema[table])
+        if not colmap.get("asset") or not colmap.get("current_price"):
+            return {}
 
-            cols = schema[table]
+        select_parts = self._market_select_parts(colmap)
+        order_sql = self._market_order_sql(colmap)
 
-            ativo_col = _first_col(
+        sql = (
+            f"SELECT {', '.join(select_parts)} "
+            f"FROM {_q(table)} "
+            f"WHERE UPPER(CAST({_q(colmap['asset'])} AS TEXT)) = UPPER(?)"
+            f"{order_sql} "
+            f"LIMIT 200"
+        )
+
+        return {
+            "sql": sql,
+            "table": table,
+            "has_vwap": bool(colmap.get("vwap")),
+        }
+
+    def _market_column_map(self, cols: Sequence[str]) -> Dict[str, Any]:
+        return {
+            "asset": _first_col(
                 cols,
                 ["ativo", "underlying_asset", "asset", "ticker", "symbol"],
-            )
-            price_col = _first_col(
+            ),
+            "current_price": _first_col(
                 cols,
                 ["ultimo_preco", "current_price", "preco_atual", "price", "last_price", "last"],
-            )
-            vwap_col = _first_col(
-                cols,
-                ["vwap", "vwap_price", "preco_medio"],
-            )
-            bid_col = _first_col(cols, ["bid"])
-            ask_col = _first_col(cols, ["ask"])
-            close_col = _first_col(cols, ["close_price", "close", "fechamento"])
-            prev_close_col = _first_col(
+            ),
+            "vwap": _first_col(cols, ["vwap", "vwap_price", "preco_medio"]),
+            "bid": _first_col(cols, ["bid"]),
+            "ask": _first_col(cols, ["ask"]),
+            "close_price": _first_col(cols, ["close_price", "close", "fechamento"]),
+            "prev_close": _first_col(
                 cols,
                 ["prev_close", "previous_close", "fechamento_anterior"],
-            )
-            open_col = _first_col(cols, ["open_price", "open", "abertura"])
-            high_col = _first_col(cols, ["high_price", "high", "maxima"])
-            low_col = _first_col(cols, ["low_price", "low", "minima"])
-            volume_col = _first_col(cols, ["volume"])
-            change_col = _first_col(
+            ),
+            "open_price": _first_col(cols, ["open_price", "open", "abertura"]),
+            "high_price": _first_col(cols, ["high_price", "high", "maxima"]),
+            "low_price": _first_col(cols, ["low_price", "low", "minima"]),
+            "volume": _first_col(cols, ["volume"]),
+            "change_percent": _first_col(
                 cols,
                 ["change_percent", "variation_percent", "variacao_percentual"],
-            )
-            ts_col = _first_col(
+            ),
+            "updated_at": _first_col(
                 cols,
                 ["updated_at", "created_at", "timestamp", "datetime", "dt_ref"],
-            )
-            id_col = _first_col(cols, ["id"])
+            ),
+            "id": _first_col(cols, ["id"]),
+        }
 
-            if not ativo_col or not price_col:
-                return result
+    def _market_select_parts(self, colmap: Dict[str, Any]) -> List[str]:
+        specs = [
+            ("current_price", "current_price"),
+            ("vwap", "vwap"),
+            ("bid", "bid"),
+            ("ask", "ask"),
+            ("close_price", "close_price"),
+            ("prev_close", "prev_close"),
+            ("open_price", "open_price"),
+            ("high_price", "high_price"),
+            ("low_price", "low_price"),
+            ("volume", "volume"),
+            ("change_percent", "change_percent"),
+            ("updated_at", "updated_at"),
+        ]
 
-            select_parts = [
-                f"{_q(price_col)} AS current_price",
-                f"{_q(vwap_col)} AS vwap" if vwap_col else "NULL AS vwap",
-                f"{_q(bid_col)} AS bid" if bid_col else "NULL AS bid",
-                f"{_q(ask_col)} AS ask" if ask_col else "NULL AS ask",
-                f"{_q(close_col)} AS close_price" if close_col else "NULL AS close_price",
-                f"{_q(prev_close_col)} AS prev_close" if prev_close_col else "NULL AS prev_close",
-                f"{_q(open_col)} AS open_price" if open_col else "NULL AS open_price",
-                f"{_q(high_col)} AS high_price" if high_col else "NULL AS high_price",
-                f"{_q(low_col)} AS low_price" if low_col else "NULL AS low_price",
-                f"{_q(volume_col)} AS volume" if volume_col else "NULL AS volume",
-                f"{_q(change_col)} AS change_percent" if change_col else "NULL AS change_percent",
-                f"{_q(ts_col)} AS updated_at" if ts_col else "NULL AS updated_at",
-            ]
+        parts = []
+        for key, alias in specs:
+            col = colmap.get(key)
+            parts.append(f"{_q(col)} AS {alias}" if col else f"NULL AS {alias}")
+        return parts
 
-            order_parts = []
-            if ts_col:
-                order_parts.append(f"{_q(ts_col)} DESC")
-            if id_col:
-                order_parts.append(f"{_q(id_col)} DESC")
+    def _market_order_sql(self, colmap: Dict[str, Any]) -> str:
+        order_parts = []
 
-            order_sql = ""
-            if order_parts:
-                order_sql = " ORDER BY " + ", ".join(order_parts)
+        if colmap.get("updated_at"):
+            order_parts.append(f"{_q(colmap['updated_at'])} DESC")
+        if colmap.get("id"):
+            order_parts.append(f"{_q(colmap['id'])} DESC")
 
-            sql = (
-                f"SELECT {', '.join(select_parts)} "
-                f"FROM {_q(table)} "
-                f"WHERE UPPER(CAST({_q(ativo_col)} AS TEXT)) = UPPER(?)"
-                f"{order_sql} "
-                f"LIMIT 200"
-            )
+        if not order_parts:
+            return ""
 
-            rows = conn.execute(sql, (asset,)).fetchall()
-            if not rows:
-                return result
+        return " ORDER BY " + ", ".join(order_parts)
 
-            first = dict(rows[0])
-
-            result["current_price"] = first.get("current_price")
-            result["vwap"] = first.get("vwap")
-            result["bid"] = first.get("bid")
-            result["ask"] = first.get("ask")
-            result["close_price"] = first.get("close_price")
-            result["prev_close"] = first.get("prev_close")
-            result["open_price"] = first.get("open_price")
-            result["high_price"] = first.get("high_price")
-            result["low_price"] = first.get("low_price")
-            result["volume"] = first.get("volume")
-            result["change_percent"] = first.get("change_percent")
-            result["updated_at"] = first.get("updated_at")
-            result["source_table"] = table
-            result["vwap_source"] = table if vwap_col else None
-
-            series = []
-            for idx, row in enumerate(reversed(rows)):
-                r = dict(row)
-                price = _to_float(r.get("current_price"))
-                vwap = _to_float(r.get("vwap"))
-                if price is not None or vwap is not None:
-                    series.append(
-                        {
-                            "x": idx + 1,
-                            "price": price,
-                            "vwap": vwap,
-                        }
-                    )
-
-            result["series"] = series
+    def _market_result_from_rows(
+        self,
+        result: Dict[str, Any],
+        rows: Any,
+        query: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        if not rows:
             return result
 
-        finally:
-            conn.close()
+        first = dict(rows[0])
+        market_fields = [
+            "current_price",
+            "vwap",
+            "bid",
+            "ask",
+            "close_price",
+            "prev_close",
+            "open_price",
+            "high_price",
+            "low_price",
+            "volume",
+            "change_percent",
+            "updated_at",
+        ]
+
+        for field in market_fields:
+            result[field] = first.get(field)
+
+        result["source_table"] = query["table"]
+        result["vwap_source"] = query["table"] if query.get("has_vwap") else None
+        result["series"] = self._market_series_from_rows(rows)
+        return result
+
+    def _market_series_from_rows(self, rows: Any) -> List[Dict[str, Any]]:
+        series = []
+
+        for idx, row in enumerate(reversed(rows)):
+            r = dict(row)
+            price = _to_float(r.get("current_price"))
+            vwap = _to_float(r.get("vwap"))
+
+            if price is not None or vwap is not None:
+                series.append(
+                    {
+                        "x": idx + 1,
+                        "price": price,
+                        "vwap": vwap,
+                    }
+                )
+
+        return series
 
     def _load_payoff_points(
         self,
@@ -1717,40 +1765,54 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         if not structure:
             return
 
-        if StructureEditorDialog is None:
-            messagebox.showerror(
-                "Editor indisponivel",
-                "StructureEditorDialog nao foi encontrado.",
-                parent=self.winfo_toplevel(),
-            )
+        if not self._is_structure_editor_available():
             return
 
         sid = structure.get("id")
 
         try:
             db_path = self._get_db_path()
-            dlg = StructureEditorDialog(
-                self.winfo_toplevel(),
-                structure_id=sid,
-                db_path=db_path,
-            )
-            self.wait_window(dlg)
+            dlg = self._open_structure_editor(sid, db_path)
 
             if getattr(dlg, "saved", False):
-                self._safe_status(f"Estrutura ID {sid} atualizada")
-                self.reload_structures()
+                self._handle_structure_editor_saved(sid, db_path)
 
-                try:
-                    repo = StructuresRepository(db_path)
-                    updated = repo.get_structure(sid)
-                    if updated:
-                        self.select_structure(updated)
-                except Exception:
-                    pass
-
-                self._render_structure_actions(notice=f"Estrutura ID {sid} atualizada.")
         except Exception as exc:
             messagebox.showerror("Erro ao editar estrutura", str(exc), parent=self.winfo_toplevel())
+
+    def _is_structure_editor_available(self) -> bool:
+        if StructureEditorDialog is not None:
+            return True
+
+        messagebox.showerror(
+            "Editor indisponivel",
+            "StructureEditorDialog nao foi encontrado.",
+            parent=self.winfo_toplevel(),
+        )
+        return False
+
+    def _open_structure_editor(self, sid: Any, db_path: str) -> Any:
+        dlg = StructureEditorDialog(
+            self.winfo_toplevel(),
+            structure_id=sid,
+            db_path=db_path,
+        )
+        self.wait_window(dlg)
+        return dlg
+
+    def _handle_structure_editor_saved(self, sid: Any, db_path: str) -> None:
+        self._safe_status(f"Estrutura ID {sid} atualizada")
+        self.reload_structures()
+
+        try:
+            repo = StructuresRepository(db_path)
+            updated = repo.get_structure(sid)
+            if updated:
+                self.select_structure(updated)
+        except Exception:
+            pass
+
+        self._render_structure_actions(notice=f"Estrutura ID {sid} atualizada.")
 
 
     def duplicate_selected_structure(self) -> None:
@@ -1962,48 +2024,80 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         if not structure:
             return
 
+        raw_decision = str(decision or "").strip().upper()
         sid = structure.get("id")
         name = structure.get("name") or f"ID {sid}"
-        label = decision_label(decision)
+        label = decision_label(raw_decision)
 
-        if decision == "CLOSE":
-            current_status = str(structure.get("status") or "").strip().lower()
-            if current_status == "archived":
-                msg = f"Estrutura ID {sid} ja esta encerrada/arquivada."
-                self._safe_status(msg)
-                self._render_structure_actions(notice=msg)
-                return
-
-            ok = messagebox.askyesno(
-                "Encerrar estrutura",
-                f"Encerrar '{name}'?\nA estrutura sera marcada como arquivada.",
-                parent=self.winfo_toplevel(),
+        if raw_decision == "CLOSE":
+            self._register_close_structure_decision(
+                structure,
+                sid,
+                name,
+                raw_decision,
+                label,
             )
-            if not ok:
-                self._safe_status("Encerramento cancelado")
-                return
+            return
 
-            try:
-                repo = StructuresRepository(self._get_db_path())
-                repo.archive_structure(int(sid))
-                self._insert_structure_decision(int(sid), decision)
+        self._register_regular_structure_decision(sid, raw_decision, label)
 
-                msg = f"Decisao registrada para ID {sid}: {label} ({decision}). Estrutura encerrada."
-                self._safe_status(msg)
-                self.reload_structures()
+    def _register_close_structure_decision(
+        self,
+        structure: Dict[str, Any],
+        sid: Any,
+        name: str,
+        decision: str,
+        label: str,
+    ) -> None:
+        current_status = str(structure.get("status") or "").strip().lower()
+        if current_status == "archived":
+            msg = f"Estrutura ID {sid} ja esta encerrada/arquivada."
+            self._safe_status(msg)
+            self._render_structure_actions(notice=msg)
+            return
 
-                try:
-                    self._load_structure(int(sid))
-                    self._render_structure_actions(notice=msg)
-                except Exception:
-                    self._render_structures_list()
+        if not self._is_structures_repository_available():
+            return
 
-                return
-            except Exception as exc:
-                self._safe_status(f"Erro ao encerrar estrutura: {exc}")
-                messagebox.showerror("Erro ao encerrar estrutura", str(exc), parent=self.winfo_toplevel())
-                return
+        if not self._confirm_close_structure(name):
+            self._safe_status("Encerramento cancelado")
+            return
 
+        try:
+            repo = StructuresRepository(self._get_db_path())
+            repo.archive_structure(int(sid))
+            self._insert_structure_decision(int(sid), decision)
+
+            msg = f"Decisao registrada para ID {sid}: {label} ({decision}). Estrutura encerrada."
+            self._handle_closed_structure_decision_saved(sid, msg)
+
+        except Exception as exc:
+            self._safe_status(f"Erro ao encerrar estrutura: {exc}")
+            messagebox.showerror("Erro ao encerrar estrutura", str(exc), parent=self.winfo_toplevel())
+
+    def _confirm_close_structure(self, name: str) -> bool:
+        return messagebox.askyesno(
+            "Encerrar estrutura",
+            f"Encerrar '{name}'?\nA estrutura sera marcada como arquivada.",
+            parent=self.winfo_toplevel(),
+        )
+
+    def _handle_closed_structure_decision_saved(self, sid: Any, msg: str) -> None:
+        self._safe_status(msg)
+        self.reload_structures()
+
+        try:
+            self._load_structure(int(sid))
+            self._render_structure_actions(notice=msg)
+        except Exception:
+            self._render_structures_list()
+
+    def _register_regular_structure_decision(
+        self,
+        sid: Any,
+        decision: str,
+        label: str,
+    ) -> None:
         try:
             self._insert_structure_decision(int(sid), decision)
         except Exception as exc:
