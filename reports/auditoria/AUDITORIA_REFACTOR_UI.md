@@ -3816,3 +3816,71 @@ Restricoes preservadas para a proxima frente:
 - Observacao operacional:
   - uma tentativa anterior de patch corrompeu quebras de linha em `UI/models/ui_data.py`;
   - ela foi revertida com `git reset --hard HEAD~1` antes da reaplicacao correta.
+
+---
+
+## Frente 54 - Inventario do proximo refactor interno da UI
+
+Status: inventario concluido
+Data: 2026-07-03
+Branch: refactor/decisions-dark-panel-large-block
+Baseline: 9cd8632
+Relatorio: reports/ui_refactor/54_next_internal_refactor_inventory.txt
+
+### 54.1. Objetivo
+
+Identificar o proximo alvo seguro de refatoracao interna da UI apos a consolidacao do arquivo canonico de auditoria e apos o checkpoint de split do builder de colunas de payoff.
+
+### 54.2. Restricoes preservadas
+
+- nao alterar banco de dados
+- nao alterar contratos canonicos
+- nao alterar services, controllers ou repositories
+- nao trocar entrypoint principal
+- nao recriar regra de negocio na UI
+- nao editar copia de auditoria fora de reports/auditoria/AUDITORIA_REFACTOR_UI.md
+
+### 54.3. Inventario executado
+
+Foi gerado inventario AST dos metodos e funcoes sob UI/, priorizando candidatos longos e arquivos ja trabalhados na frente atual.
+
+Arquivo gerado:
+
+- reports/ui_refactor/54_next_internal_refactor_inventory.txt
+
+### 54.4. Top inicial de candidatos
+
+| linhas | arquivo | simbolo | inicio | fim |
+|---:|---|---|---:|---:|
+| 81 | UI/main_window.py | MainWindow.recalculate_structure | 355 | 435 |
+| 80 | UI/components/filters_panel.py | FiltersPanel._setup_widgets | 15 | 94 |
+| 79 | UI/components/structure_editor_dialog.py | StructureEditorDialog._cmd_fill_leg_from_rtd | 499 | 577 |
+| 77 | UI/components/structure_editor_dialog.py | StructureEditorDialog._build_ui | 117 | 193 |
+| 74 | UI/main_window.py | MainWindow._start_payoff_load | 199 | 272 |
+| 73 | UI/modern/main_window.py | ModernMainWindow._start_payoff_load | 356 | 428 |
+| 67 | UI/modern/main_window.py | ModernMainWindow.recalculate_structure | 625 | 691 |
+| 65 | UI/main_window.py | MainWindow.refresh_data | 274 | 338 |
+| 62 | UI/components/structure_editor_dialog.py | StructureEditorDialog._refresh_rtd_symbol_on_demand | 411 | 472 |
+| 62 | UI/components/terminal_vwap_payoff_panel.py | TerminalVWAPPayoffPanel._build_summary_tab | 276 | 337 |
+| 61 | UI/components/structure_editor_dialog.py | StructureEditorDialog._build_leg_form | 195 | 255 |
+| 61 | UI/main_window.py | MainWindow._setup_layout | 64 | 124 |
+| 61 | UI/modern/main_window.py | ModernMainWindow.refresh_data | 491 | 551 |
+| 57 | UI/components/terminal_vwap_payoff_panel.py | TerminalVWAPPayoffPanel._build_left_panel | 199 | 255 |
+| 57 | UI/modern/main_window.py | worker | 370 | 426 |
+
+### 54.5. Decisao de seguranca
+
+Nenhum codigo funcional foi alterado nesta etapa.
+
+A proxima alteracao deve ser escolhida a partir do ranking gerado, preferindo extracao de helpers privados pequenos, sem mudanca de assinatura publica e sem alteracao de comportamento.
+
+### 54.6. Validacoes executadas
+
+Comandos obrigatorios apos o inventario:
+
+- git status --short
+- git diff --check
+
+### 54.7. Proximo passo
+
+Selecionar o metodo mais seguro do ranking atual e executar refactor interno minimo, com validacao por py_compile e novo registro neste documento canonico.
