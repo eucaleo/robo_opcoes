@@ -816,6 +816,30 @@ class UIDataModel:
         payload = {"points": points, "info": info}
         self._cache_put(cache_key, payload)
 
+    def _load_uncached_payoff_curve_info(
+        self,
+        structure_id: str,
+        timestamp: str,
+        p: Dict[str, str],
+        filter_col: str,
+    ) -> Tuple[List[Dict], Dict]:
+        conn = self._connect_derived_threadsafe()
+
+        try:
+            filter_val = self._resolve_structure_key(structure_id)
+            info = self._build_payoff_curve_info(
+                structure_id, timestamp, filter_col, filter_val
+            )
+            points = self._load_payoff_curve_info_points(
+                conn, p, filter_col, filter_val, timestamp, info
+            )
+            return points, info
+        finally:
+            try:
+                conn.close()
+            except Exception:
+                pass
+
     def get_payoff_curve_info(
         self, structure_id: str, timestamp: str
     ) -> Tuple[List[Dict], Dict]:
@@ -835,21 +859,9 @@ class UIDataModel:
 
         p = self._payoff_cols
         filter_col = self._structure_filter_col(p)
-        conn = self._connect_derived_threadsafe()
-
-        try:
-            filter_val = self._resolve_structure_key(structure_id)
-            info = self._build_payoff_curve_info(
-                structure_id, timestamp, filter_col, filter_val
-            )
-            points = self._load_payoff_curve_info_points(
-                conn, p, filter_col, filter_val, timestamp, info
-            )
-        finally:
-            try:
-                conn.close()
-            except Exception:
-                pass
+        points, info = self._load_uncached_payoff_curve_info(
+            structure_id, timestamp, p, filter_col
+        )
 
         info["query_ms"] = int((time.time() - t0) * 1000)
         self._store_payoff_curve_info_cache(cache_key, points, info)
