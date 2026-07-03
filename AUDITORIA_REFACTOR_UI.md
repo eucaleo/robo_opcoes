@@ -1423,3 +1423,5 @@ Critério de aceite:
 - TerminalVWAPPayoffDarkPanel: quebra de _render_vwap_chart em helpers privados menores, preservando assinatura original, renderização visual do gráfico VWAP, dados carregados e comportamento operacional.
 
 - TerminalVWAPPayoffDarkPanel: quebra de _load_legs em helpers privados semânticos, preservando seleção da tabela de pernas, resolução de colunas, SQL, retornos vazios e fechamento da conexão.
+
+- TerminalVWAPPayoffDarkPanel: quebra de _calculate_payoff_from_legs em helpers privados para coleta de strikes, range de spot, pontos da curva e payoff por perna, preservando fórmula, sinais, prêmios, quantidades, multiplicadores e fallback sem strikes.
