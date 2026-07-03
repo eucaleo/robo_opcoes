@@ -156,3 +156,26 @@ Enquanto a frente UI nao estiver encerrada globalmente, devem permanecer preserv
 - entrypoint principal;
 - contratos canonicos;
 - UI atual como caminho principal.
+
+---
+
+## Referencia matriz global de equivalencia UI
+
+Data: 2026-07-03 16:07:55 -0300
+
+Foi criada a matriz global de equivalencia da UI em:
+
+    docs/MATRIZ_EQUIVALENCIA_UI.md
+
+A matriz passa a ser o documento de referencia para classificar telas e fluxos como:
+
+- CANONICA;
+- EQUIVALENTE;
+- EQUIVALENCIA_PARCIAL_OPERACIONAL;
+- EXPERIMENTAL;
+- PENDENTE;
+- FORA_ESCOPO.
+
+Regra operacional:
+
+A UI atual/canonica permanece como caminho principal ate que a matriz global esteja completa e validada.

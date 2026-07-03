@@ -4185,3 +4185,32 @@ Enquanto a frente UI nao estiver encerrada globalmente, devem permanecer preserv
 - entrypoint principal;
 - contratos canonicos;
 - UI atual como caminho principal.
+
+---
+
+## Checkpoint matriz global de equivalencia UI
+
+Data: 2026-07-03 16:07:55 -0300
+
+Branch: refactor/decisions-dark-panel-large-block
+
+Foi criada a matriz global de equivalencia da UI:
+
+    docs/MATRIZ_EQUIVALENCIA_UI.md
+
+### Motivo
+
+A frente UI possui entregas parciais e areas fora de escopo que nao devem ser confundidas com equivalencia global.
+
+Este checkpoint formaliza que:
+
+- Decisoes dark panel permanece como equivalencia parcial operacional;
+- Terminal VWAP permanece fora do escopo da branch de Decisoes;
+- payoff curve permanece fora do escopo da branch de Decisoes;
+- UIDataModel permanece fora do escopo da branch de Decisoes;
+- banco/dados/pipeline exigem auditoria propria;
+- UI canonica permanece preservada como caminho principal.
+
+### Proxima fatia recomendada
+
+Abrir inventario de abas e fluxos da UI para preencher a matriz com base em arquivos reais do projeto.
