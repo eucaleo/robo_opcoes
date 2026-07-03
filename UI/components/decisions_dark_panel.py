@@ -315,47 +315,65 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self._status(f"Erro ao carregar decisões: {exc}")
 
     def _render_rows(self) -> None:
+        self._clear_list_rows()
+
+        if self._render_empty_rows_message_if_needed():
+            return
+
+        visible = self.filtered_decisions[:300]
+        self._render_visible_rows(visible)
+        self._render_more_rows_notice(len(visible))
+
+    def _clear_list_rows(self) -> None:
         for child in self.list_frame.winfo_children():
             child.destroy()
 
         self._row_buttons = []
 
-        if not self.filtered_decisions:
-            empty_text = "Nenhuma decisão disponível."
-            if self.decisions:
-                empty_text = "Nenhuma decisão encontrada para o filtro atual."
+    def _render_empty_rows_message_if_needed(self) -> bool:
+        if self.filtered_decisions:
+            return False
 
-            empty = ctk.CTkLabel(
-                self.list_frame,
-                text=empty_text,
-                text_color="#9ca3af",
-            )
-            empty.pack(fill="x", padx=8, pady=8)
-            return
+        empty_text = "Nenhuma decisão disponível."
+        if self.decisions:
+            empty_text = "Nenhuma decisão encontrada para o filtro atual."
 
-        visible = self.filtered_decisions[:300]
+        empty = ctk.CTkLabel(
+            self.list_frame,
+            text=empty_text,
+            text_color="#9ca3af",
+        )
+        empty.pack(fill="x", padx=8, pady=8)
+        return True
 
+    def _render_visible_rows(self, visible) -> None:
         for index, decision in enumerate(visible):
-            btn = ctk.CTkButton(
-                self.list_frame,
-                text=self._format_row(decision, index),
-                anchor="w",
-                height=44,
-                fg_color="#111827",
-                hover_color="#1f2937",
-                text_color="#e5e7eb",
-                command=lambda i=index: self._select_decision(i),
-            )
+            btn = self._build_decision_row(decision, index)
             btn.pack(fill="x", padx=6, pady=3)
             self._row_buttons.append(btn)
 
-        if len(self.filtered_decisions) > len(visible):
-            more = ctk.CTkLabel(
-                self.list_frame,
-                text=f"Exibindo 300 de {len(self.filtered_decisions)} decisões filtradas.",
-                text_color="#fbbf24",
-            )
-            more.pack(fill="x", padx=8, pady=8)
+    def _build_decision_row(self, decision, index: int) -> ctk.CTkButton:
+        return ctk.CTkButton(
+            self.list_frame,
+            text=self._format_row(decision, index),
+            anchor="w",
+            height=44,
+            fg_color="#111827",
+            hover_color="#1f2937",
+            text_color="#e5e7eb",
+            command=lambda i=index: self._select_decision(i),
+        )
+
+    def _render_more_rows_notice(self, visible_count: int) -> None:
+        if len(self.filtered_decisions) <= visible_count:
+            return
+
+        more = ctk.CTkLabel(
+            self.list_frame,
+            text=f"Exibindo 300 de {len(self.filtered_decisions)} decisões filtradas.",
+            text_color="#fbbf24",
+        )
+        more.pack(fill="x", padx=8, pady=8)
 
     def _on_search_changed(self, _event=None) -> None:
         self._apply_filter(render=True)
