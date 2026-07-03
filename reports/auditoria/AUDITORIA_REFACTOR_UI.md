@@ -4339,3 +4339,36 @@ O checklist deve ser executado antes de qualquer nova alteracao funcional na are
 - UIDataModel fora do escopo da branch atual;
 - banco/dados/pipeline fora do escopo visual;
 - possiveis entrypoints preservados.
+
+---
+
+## Checkpoint template de registro de execucao do smoke de Decisoes
+
+Data: 2026-07-03 16:43:01 -0300
+
+Branch: refactor/decisions-dark-panel-large-block
+
+Commit base: 699779d
+
+Foi criado o template de registro de execucao do smoke manual da area Decisoes:
+
+    docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
+
+### Decisao
+
+Este checkpoint permanece documental.
+
+Nao houve alteracao de banco, regra de negocio, services, repositories, runtime de UI ou entrypoint principal.
+
+### Uso esperado
+
+O registro deve ser preenchido apos execucao do checklist de smoke manual.
+
+### Restricoes mantidas
+
+- UI canonica preservada;
+- Terminal VWAP fora do escopo da branch atual;
+- payoff curve fora do escopo da branch atual;
+- UIDataModel fora do escopo da branch atual;
+- banco/dados/pipeline fora do escopo visual;
+- possiveis entrypoints preservados.

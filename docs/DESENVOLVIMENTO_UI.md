@@ -250,3 +250,21 @@ Este checklist deve ser executado antes de novas alteracoes de runtime ou antes 
 Regra operacional:
 
 A UI canonica permanece preservada. A area Decisoes continua como equivalencia parcial operacional ate execucao e registro do smoke manual.
+
+---
+
+## Referencia template de registro de execucao do smoke de Decisoes
+
+Data: 2026-07-03 16:43:01 -0300
+
+Foi criado o template de registro de execucao do smoke manual da area Decisoes:
+
+    docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
+
+Este documento deve ser preenchido apos a execucao do checklist:
+
+    docs/SMOKE_MANUAL_DECISOES_UI.md
+
+Regra operacional:
+
+O preenchimento do registro nao declara equivalencia completa automaticamente. A UI canonica permanece preservada ate decisao explicita.

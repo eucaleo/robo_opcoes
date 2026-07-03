@@ -185,3 +185,15 @@ Foi criado o checklist de smoke manual da area Decisoes:
     docs/SMOKE_MANUAL_DECISOES_UI.md
 
 A area Decisoes permanece classificada como equivalencia parcial operacional ate execucao do checklist e registro de evidencias.
+
+---
+
+## Referencia template de registro de execucao do smoke de Decisoes
+
+Data: 2026-07-03 16:43:01 -0300
+
+Foi criado o template de registro de execucao do smoke manual da area Decisoes:
+
+    docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
+
+A area Decisoes permanece como equivalencia parcial operacional ate execucao do smoke, registro de evidencias e decisao explicita posterior.
