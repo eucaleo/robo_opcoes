@@ -629,3 +629,74 @@ Resultado esperado:
 - detalhe permanece funcional;
 - copia de detalhe permanece funcional;
 - carregamento de estrutura no Terminal VWAP permanece funcional.
+
+---
+
+## 43. Mapa de equivalencia atual da aba Decisoes dark
+
+### 43.1. Objetivo
+
+Registrar o estado atual da equivalencia parcial da aba Decisoes no modo dark apos as rodadas de filtros, detalhe, copia, exportacao, carregamento de estrutura e estabilizacao de selecao/status.
+
+### 43.2. Recursos ja cobertos no modo dark
+
+Recursos atualmente cobertos na UI moderna dark:
+
+- listagem global de decisoes;
+- carregamento de decisoes a partir do data model existente;
+- filtros simples de baixo risco;
+- selecao de decisao na tabela/listagem;
+- painel de detalhe enriquecido da decisao selecionada;
+- protecao contra detalhe sem selecao valida;
+- copia do detalhe da decisao para a area de transferencia;
+- exportacao CSV respeitando a listagem filtrada;
+- carregamento da estrutura associada no Terminal VWAP;
+- deduplicacao de mensagens consecutivas de status de selecao;
+- limpeza consistente de selecao e cache interno de status.
+
+### 43.3. Restricoes preservadas
+
+As rodadas recentes preservaram:
+
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela;
+- entrypoint principal existente;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- regra de negocio.
+
+### 43.4. Equivalencia parcial consolidada
+
+A aba Decisoes no modo dark atingiu equivalencia parcial operacional para consulta, filtro simples, leitura, copia, exportacao e acionamento da estrutura associada.
+
+Esta equivalencia ainda nao significa substituicao da UI atual.
+
+### 43.5. Pendencias candidatas para proximas frentes
+
+Pendencias candidatas, a serem tratadas apenas em frentes pequenas e isoladas:
+
+- revisar filtros avancados ainda nao implementados;
+- avaliar ordenacao visual da listagem;
+- revisar estados vazios e mensagens auxiliares;
+- avaliar indicadores de contagem filtrada versus total;
+- revisar ergonomia dos botoes de acao;
+- confirmar se ha diferencas relevantes em relacao a UI atual.
+
+### 43.6. Proxima direcao recomendada
+
+A proxima frente funcional recomendada deve ser pequena e de baixo risco.
+
+Candidata preferencial:
+
+- adicionar indicador textual de contagem filtrada versus total na aba Decisoes dark.
+
+Objetivo da candidata:
+
+- melhorar feedback operacional dos filtros;
+- nao alterar regra de negocio;
+- nao alterar repositories, services ou controllers;
+- manter escopo restrito a UI/components/decisions_dark_panel.py.
+
