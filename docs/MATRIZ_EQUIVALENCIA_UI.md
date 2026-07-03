@@ -159,3 +159,17 @@ Foi criada a classificacao inicial dos arquivos candidatos de UI por area:
 A classificacao devera ser usada para transformar o inventario bruto em uma matriz operacional por area, aba e fluxo.
 
 Esta classificacao ainda nao declara equivalencia completa.
+
+---
+
+## Referencia matriz cruzada de areas UI
+
+Data: 2026-07-03 16:33:19 -0300
+
+Foi criada a matriz cruzada de areas da UI:
+
+    docs/MATRIZ_CRUZADA_AREAS_UI.md
+
+A matriz cruzada passa a orientar a escolha das proximas fatias pequenas por risco, area e status.
+
+Esta matriz ainda nao declara equivalencia completa de nenhuma area.

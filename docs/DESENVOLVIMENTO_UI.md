@@ -211,3 +211,26 @@ Esta classificacao complementa o inventario inicial e deve orientar o preenchime
 Regra operacional:
 
 Arquivos classificados como possiveis entrypoints, banco, dados, services, repositories ou pipeline permanecem preservados ate auditoria propria.
+
+---
+
+## Referencia matriz cruzada de areas UI
+
+Data: 2026-07-03 16:33:19 -0300
+
+Foi criada a matriz cruzada de areas da UI:
+
+    docs/MATRIZ_CRUZADA_AREAS_UI.md
+
+A matriz cruza:
+
+- area;
+- arquivo;
+- status inicial;
+- risco;
+- evidencia;
+- proxima acao.
+
+Regra operacional:
+
+A matriz cruzada nao autoriza alteracao conjunta de areas. Cada proxima fatia deve escolher um escopo pequeno e preservar entrypoints, banco, dados, services, repositories e pipeline.

@@ -4278,3 +4278,33 @@ Nao houve alteracao de banco, regra de negocio, services, repositories ou entryp
 ### Proxima fatia recomendada
 
 Criar matriz cruzada de area x arquivos x status x risco x proxima acao.
+
+---
+
+## Checkpoint matriz cruzada de areas UI
+
+Data: 2026-07-03 16:33:19 -0300
+
+Branch: refactor/decisions-dark-panel-large-block
+
+Foi criada a matriz cruzada de areas da UI:
+
+    docs/MATRIZ_CRUZADA_AREAS_UI.md
+
+### Decisao
+
+Este checkpoint permanece documental/diagnostico.
+
+Nao houve alteracao de banco, regra de negocio, services, repositories ou entrypoint principal.
+
+### Areas protegidas
+
+- Terminal VWAP;
+- payoff curve;
+- UIDataModel;
+- banco/dados/pipeline;
+- possiveis entrypoints.
+
+### Proxima fatia recomendada
+
+Criar checklist de smoke manual para Decisoes, sem alterar codigo de runtime.
