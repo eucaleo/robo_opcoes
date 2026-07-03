@@ -145,3 +145,17 @@ Foi criado o inventario inicial de arquivos reais relacionados a UI:
 Este inventario passa a ser insumo para preencher a matriz por area, aba e fluxo.
 
 A classificacao da matriz ainda deve ser feita manualmente ou em fatias documentadas, pois a varredura estatica apenas identifica candidatos.
+
+---
+
+## Referencia classificacao inicial por area
+
+Data: 2026-07-03 16:29:46 -0300
+
+Foi criada a classificacao inicial dos arquivos candidatos de UI por area:
+
+    docs/CLASSIFICACAO_AREAS_UI.md
+
+A classificacao devera ser usada para transformar o inventario bruto em uma matriz operacional por area, aba e fluxo.
+
+Esta classificacao ainda nao declara equivalencia completa.

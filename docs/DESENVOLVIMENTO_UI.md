@@ -195,3 +195,19 @@ Este inventario deve ser usado para preencher a matriz global de equivalencia da
 Regra operacional:
 
 Nenhum arquivo identificado como possivel entrypoint deve ser alterado sem auditoria propria e plano de rollback.
+
+---
+
+## Referencia classificacao inicial dos arquivos UI por area
+
+Data: 2026-07-03 16:29:46 -0300
+
+Foi criada a classificacao inicial dos arquivos candidatos de UI por area:
+
+    docs/CLASSIFICACAO_AREAS_UI.md
+
+Esta classificacao complementa o inventario inicial e deve orientar o preenchimento da matriz global de equivalencia.
+
+Regra operacional:
+
+Arquivos classificados como possiveis entrypoints, banco, dados, services, repositories ou pipeline permanecem preservados ate auditoria propria.

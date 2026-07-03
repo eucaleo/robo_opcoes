@@ -4248,3 +4248,33 @@ Classificar os arquivos candidatos por area:
 - payoff curve;
 - UIDataModel;
 - banco/dados/pipeline fora de escopo da UI visual.
+
+---
+
+## Checkpoint classificacao inicial dos arquivos UI por area
+
+Data: 2026-07-03 16:29:46 -0300
+
+Branch: refactor/decisions-dark-panel-large-block
+
+Foi criada a classificacao inicial dos arquivos candidatos de UI por area:
+
+    docs/CLASSIFICACAO_AREAS_UI.md
+
+### Decisao
+
+Este checkpoint permanece documental/diagnostico.
+
+Nao houve alteracao de banco, regra de negocio, services, repositories ou entrypoint principal.
+
+### Areas preservadas
+
+- Terminal VWAP permanece fora do escopo da branch atual;
+- payoff curve permanece fora do escopo da branch atual;
+- UIDataModel permanece fora do escopo da branch atual;
+- banco/dados/pipeline permanecem fora do escopo visual;
+- possiveis entrypoints permanecem preservados.
+
+### Proxima fatia recomendada
+
+Criar matriz cruzada de area x arquivos x status x risco x proxima acao.
