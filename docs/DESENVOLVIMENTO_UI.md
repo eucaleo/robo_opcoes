@@ -179,3 +179,19 @@ A matriz passa a ser o documento de referencia para classificar telas e fluxos c
 Regra operacional:
 
 A UI atual/canonica permanece como caminho principal ate que a matriz global esteja completa e validada.
+
+---
+
+## Referencia inventario inicial de arquivos reais da UI
+
+Data: 2026-07-03 16:11:04 -0300
+
+Foi criado o inventario inicial de arquivos reais relacionados a UI:
+
+    docs/INVENTARIO_ARQUIVOS_UI.md
+
+Este inventario deve ser usado para preencher a matriz global de equivalencia da UI com base em arquivos concretos do repositorio.
+
+Regra operacional:
+
+Nenhum arquivo identificado como possivel entrypoint deve ser alterado sem auditoria propria e plano de rollback.

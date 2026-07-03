@@ -131,3 +131,17 @@ A UI moderna/dark so pode substituir a UI atual/canonica quando:
 Este documento nao encerra a frente UI.
 
 Ele cria a matriz inicial para orientar proximas fatias pequenas e impedir mistura de escopos.
+
+---
+
+## Referencia inventario inicial de arquivos reais
+
+Data: 2026-07-03 16:11:04 -0300
+
+Foi criado o inventario inicial de arquivos reais relacionados a UI:
+
+    docs/INVENTARIO_ARQUIVOS_UI.md
+
+Este inventario passa a ser insumo para preencher a matriz por area, aba e fluxo.
+
+A classificacao da matriz ainda deve ser feita manualmente ou em fatias documentadas, pois a varredura estatica apenas identifica candidatos.

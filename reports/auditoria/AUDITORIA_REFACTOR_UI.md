@@ -4214,3 +4214,37 @@ Este checkpoint formaliza que:
 ### Proxima fatia recomendada
 
 Abrir inventario de abas e fluxos da UI para preencher a matriz com base em arquivos reais do projeto.
+
+---
+
+## Checkpoint inventario inicial de arquivos reais da UI
+
+Data: 2026-07-03 16:11:04 -0300
+
+Branch: refactor/decisions-dark-panel-large-block
+
+Foi criado o inventario inicial de arquivos reais relacionados a UI:
+
+    docs/INVENTARIO_ARQUIVOS_UI.md
+
+### Decisao
+
+Este checkpoint permanece diagnostico/documental.
+
+Nao houve alteracao de banco, regra de negocio, services, repositories ou entrypoint principal.
+
+### Uso esperado
+
+O inventario deve apoiar as proximas fatias de classificacao da matriz global de equivalencia da UI.
+
+### Proxima fatia recomendada
+
+Classificar os arquivos candidatos por area:
+
+- UI canonica;
+- UI moderna/dark;
+- Decisoes;
+- Terminal VWAP;
+- payoff curve;
+- UIDataModel;
+- banco/dados/pipeline fora de escopo da UI visual.
