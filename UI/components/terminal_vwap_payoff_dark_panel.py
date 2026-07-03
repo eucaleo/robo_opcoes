@@ -1880,57 +1880,81 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
         sid = structure.get("id")
 
-        if StructuresRepository is None:
-            messagebox.showerror(
-                "Repositorio indisponivel",
-                "StructuresRepository nao foi encontrado.",
-                parent=self.winfo_toplevel(),
-            )
+        if not self._is_structures_repository_available():
             return
 
         try:
             repo = StructuresRepository(self._get_db_path())
-            src = repo.get_structure(sid) or structure
-            name = src.get("name") or f"ID {sid}"
+            src = self._load_structure_for_archive(repo, sid, structure)
+            name = self._structure_archive_name(src, sid)
 
-            if src.get("status") == "archived":
-                msg = f"Estrutura '{name}' ja esta arquivada."
-                self._safe_status(msg)
-                self._render_structure_actions(notice=msg)
-                messagebox.showinfo("Arquivar", msg, parent=self.winfo_toplevel())
+            if self._is_structure_already_archived(src):
+                self._handle_already_archived_structure(name)
                 return
 
-            ok = messagebox.askyesno(
-                "Arquivar",
-                f"Arquivar '{name}'?\nA estrutura ficara oculta e nao sera deletada.",
-                parent=self.winfo_toplevel(),
-            )
-            if not ok:
-                self._safe_status("Arquivamento cancelado")
-                self._render_structure_actions(notice="Arquivamento cancelado.")
+            if not self._confirm_archive_structure(name):
+                self._handle_archive_cancelled()
                 return
 
-            repo.archive_structure(sid)
-
-            self.selected_structure = None
-            self._safe_status(f"Estrutura arquivada: ID {sid}")
-            self.reload_structures()
-            self._render_structures_list()
-
-            if hasattr(self, "header"):
-                self.header.configure(
-                    text="Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff"
-                )
-
-            messagebox.showinfo(
-                "Arquivar",
-                f"Estrutura '{name}' arquivada com sucesso.",
-                parent=self.winfo_toplevel(),
-            )
+            self._archive_structure_in_repository(repo, sid)
+            self._refresh_after_structure_archive(sid)
+            self._show_archive_success(name)
 
         except Exception as exc:
             self._safe_status(f"Erro ao arquivar estrutura: {exc}")
             messagebox.showerror("Erro ao arquivar estrutura", str(exc), parent=self.winfo_toplevel())
+
+    def _load_structure_for_archive(
+        self,
+        repo: Any,
+        sid: Any,
+        fallback_structure: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        return repo.get_structure(sid) or fallback_structure
+
+    def _structure_archive_name(self, structure: Dict[str, Any], sid: Any) -> str:
+        return structure.get("name") or f"ID {sid}"
+
+    def _is_structure_already_archived(self, structure: Dict[str, Any]) -> bool:
+        return structure.get("status") == "archived"
+
+    def _handle_already_archived_structure(self, name: str) -> None:
+        msg = f"Estrutura '{name}' ja esta arquivada."
+        self._safe_status(msg)
+        self._render_structure_actions(notice=msg)
+        messagebox.showinfo("Arquivar", msg, parent=self.winfo_toplevel())
+
+    def _confirm_archive_structure(self, name: str) -> bool:
+        return messagebox.askyesno(
+            "Arquivar",
+            f"Arquivar '{name}'?\nA estrutura ficara oculta e nao sera deletada.",
+            parent=self.winfo_toplevel(),
+        )
+
+    def _handle_archive_cancelled(self) -> None:
+        self._safe_status("Arquivamento cancelado")
+        self._render_structure_actions(notice="Arquivamento cancelado.")
+
+    def _archive_structure_in_repository(self, repo: Any, sid: Any) -> None:
+        repo.archive_structure(sid)
+
+    def _refresh_after_structure_archive(self, sid: Any) -> None:
+        self.selected_structure = None
+        self._safe_status(f"Estrutura arquivada: ID {sid}")
+        self.reload_structures()
+        self._render_structures_list()
+
+        if hasattr(self, "header"):
+            self.header.configure(
+                text="Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff"
+            )
+
+    def _show_archive_success(self, name: str) -> None:
+        messagebox.showinfo(
+            "Arquivar",
+            f"Estrutura '{name}' arquivada com sucesso.",
+            parent=self.winfo_toplevel(),
+        )
 
 
     def _register_structure_decision(self, decision: str) -> None:

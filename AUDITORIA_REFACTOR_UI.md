@@ -1429,3 +1429,5 @@ Critério de aceite:
 - TerminalVWAPPayoffDarkPanel: quebra de duplicate_selected_structure em helpers privados para disponibilidade do repositório, carregamento da estrutura origem, criação da cópia, duplicação das pernas e atualização visual, preservando mensagens, status, seleção, cópia de payload e tratamento de erro.
 
 - Nota técnica: durante validação manual foi observada divergência existente entre dados/app.db e dados/derived.db; estruturas/decisões gravadas pelo fluxo moderno podem não aparecer em consultas realizadas contra o banco volátil legado derived.db. Correção arquitetural deve ser tratada em etapa própria de consolidação do banco canônico.
+
+- TerminalVWAPPayoffDarkPanel: quebra de archive_selected_structure em helpers privados para carregamento da estrutura, resolução do nome, detecção de arquivamento prévio, confirmação, cancelamento, arquivamento via repositório, atualização visual e mensagem de sucesso, preservando fluxo, mensagens, status, renderização e tratamento de erro.
