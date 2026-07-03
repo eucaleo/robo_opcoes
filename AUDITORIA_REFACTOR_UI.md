@@ -769,3 +769,87 @@ Resultado esperado:
 - estado sem selecao passa a ser tratado de forma defensiva;
 - filtros e detalhe permanecem operacionais;
 - nenhum contrato externo e alterado.
+
+---
+
+## 45. Consolidacao do feedback de filtros na aba Decisoes dark
+
+### 45.1. Objetivo
+
+Reduzir ruido operacional no status da UI moderna dark ao aplicar filtros na aba Decisoes, evitando repeticao consecutiva da mesma mensagem de filtro.
+
+### 45.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 45.3. Implementacao realizada
+
+Foi adicionado um estado interno especifico para mensagens de filtro:
+
+- `_last_filter_status_text`
+
+Tambem foi criado um helper dedicado:
+
+- `_status_filter_result`
+
+Esse helper centraliza o envio de mensagens relacionadas a filtro e evita repetir consecutivamente o mesmo texto.
+
+### 45.4. Separacao preservada entre selecao e filtro
+
+A frente manteve separados os fluxos de status:
+
+- `_status_selected_decision` continua dedicado a mensagens de selecao de decisao;
+- `_status_filter_result` passa a tratar mensagens de filtro, erro de filtro e ausencia de resultados.
+
+Essa separacao evita misturar dedupe de selecao com dedupe de filtros.
+
+### 45.5. Casos cobertos
+
+Passaram a usar o helper de feedback de filtro:
+
+- filtro invalido por campo numerico incorreto;
+- filtro sem resultados em decisoes de estruturas ativas;
+- ausencia de decisao de estrutura ativa;
+- resumo de decisoes exibidas apos reload com filtro aplicado;
+- filtro sem resultados apos reload.
+
+### 45.6. Restricoes preservadas
+
+A frente preservou:
+
+- regra de negocio;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- entrypoint principal;
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela.
+
+### 45.7. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- aplicar filtro sem resultado mais de uma vez;
+- confirmar que mensagens repetidas nao poluem o status;
+- aplicar filtro invalido;
+- limpar filtros;
+- selecionar decisao;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 45.8. Resultado esperado
+
+Resultado esperado:
+
+- mensagens consecutivas identicas de filtro deixam de ser repetidas;
+- mensagens de selecao continuam funcionando;
+- resumo visual de filtros permanece preservado;
+- filtros, detalhe, copia, exportacao e carregamento de estrutura continuam operacionais.

@@ -47,6 +47,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.active_structure_ids: set[str] = set()
         self.selected_index: Optional[int] = None
         self._last_decision_status_text: Optional[str] = None
+        self._last_filter_status_text: Optional[str] = None
         self._row_buttons: List[ctk.CTkButton] = []
 
         self._build_layout()
@@ -257,6 +258,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             decisions = self.data_model.get_decisions()
             self.decisions = list(decisions or [])
             self._clear_selection()
+            self._last_filter_status_text = None
             self._refresh_structure_index()
             self._apply_filter(render=False)
 
@@ -267,13 +269,13 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 if len(self.filtered_decisions) == len(self.decisions):
                     self._status(f"{len(self.decisions)} decisões carregadas no modo dark")
                 else:
-                    self._status(
+                    self._status_filter_result(
                         f"{len(self.filtered_decisions)} de {len(self.decisions)} decisões exibidas"
                     )
             elif self.decisions:
                 self.load_structure_btn.configure(state="disabled")
                 self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
-                self._status(
+                self._status_filter_result(
                     f"Filtro sem resultados: 0 de {len(self.decisions)} decisões exibidas"
                 )
             else:
@@ -556,7 +558,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 self._render_rows()
                 self.load_structure_btn.configure(state="disabled")
                 self._set_detail_text(f"Filtro inválido: {error_text}.")
-                self._status(f"Filtro inválido: {error_text}")
+                self._status_filter_result(f"Filtro inválido: {error_text}")
 
             return
 
@@ -611,12 +613,12 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 self.load_structure_btn.configure(state="disabled")
                 if active_decisions:
                     self._set_detail_text("Nenhuma decisão encontrada para o filtro atual.")
-                    self._status(
+                    self._status_filter_result(
                         f"Filtro sem resultados: 0 de {len(active_decisions)} decisões de estruturas ativas"
                     )
                 else:
                     self._set_detail_text("Nenhuma decisão de estrutura ativa encontrada.")
-                    self._status("Nenhuma decisão de estrutura ativa encontrada no modo dark")
+                    self._status_filter_result("Nenhuma decisão de estrutura ativa encontrada no modo dark")
 
     def _decision_matches_filter(self, decision: Dict[str, Any], terms: List[str]) -> bool:
         blob = self._decision_search_blob(decision)
@@ -721,6 +723,12 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         if status_text == getattr(self, "_last_decision_status_text", None):
             return
         self._last_decision_status_text = status_text
+        self._status(status_text)
+
+    def _status_filter_result(self, status_text: str) -> None:
+        if status_text == getattr(self, "_last_filter_status_text", None):
+            return
+        self._last_filter_status_text = status_text
         self._status(status_text)
 
     def _copy_selected_detail(self) -> None:
