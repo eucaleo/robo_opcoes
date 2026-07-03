@@ -700,3 +700,72 @@ Objetivo da candidata:
 - nao alterar repositories, services ou controllers;
 - manter escopo restrito a UI/components/decisions_dark_panel.py.
 
+---
+
+## 44. Robustez de acoes sem selecao na aba Decisoes dark
+
+### 44.1. Objetivo
+
+Reforcar a robustez das acoes dependentes de selecao na aba Decisoes do modo dark, evitando comparacoes invalidas quando o indice selecionado estiver ausente ou inconsistente.
+
+### 44.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 44.3. Implementacao realizada
+
+Foi criado um helper interno para validar o indice atualmente selecionado:
+
+- retorna o indice quando ele e inteiro e esta dentro dos limites da lista filtrada;
+- retorna vazio quando nao ha selecao valida.
+
+O helper passou a ser usado em:
+
+- atualizacao do estado do botao de copia de detalhe;
+- acao de copiar detalhe da decisao selecionada.
+
+### 44.4. Ganho operacional
+
+A aba Decisoes dark passa a tolerar melhor estados transitorios de UI, como:
+
+- selecao limpa;
+- filtro aplicado apos uma selecao anterior;
+- lista filtrada vazia;
+- acionamento defensivo de comando sem selecao valida.
+
+### 44.5. Restricoes preservadas
+
+A frente preservou:
+
+- regra de negocio;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- entrypoint principal;
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela.
+
+### 44.6. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- aplicar filtros com e sem resultado;
+- tentar copiar detalhe com selecao valida;
+- confirmar que copia sem selecao valida nao quebra a UI.
+
+### 44.7. Resultado esperado
+
+Resultado esperado:
+
+- copia de detalhe permanece funcional com selecao valida;
+- estado sem selecao passa a ser tratado de forma defensiva;
+- filtros e detalhe permanecem operacionais;
+- nenhum contrato externo e alterado.

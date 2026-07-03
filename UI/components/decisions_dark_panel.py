@@ -724,7 +724,9 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self._status(status_text)
 
     def _copy_selected_detail(self) -> None:
-        if self.selected_index < 0 or self.selected_index >= len(self.filtered_decisions):
+        selected_index = self._valid_selected_index()
+
+        if selected_index is None:
             self._status("Nenhuma decisão selecionada para copiar")
             return
 
@@ -1059,6 +1061,18 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         return str(value)
 
+    def _valid_selected_index(self) -> Optional[int]:
+        selected_index = self.selected_index
+
+        if (
+            isinstance(selected_index, int)
+            and selected_index >= 0
+            and selected_index < len(self.filtered_decisions)
+        ):
+            return selected_index
+
+        return None
+
     def _set_detail_text(self, text: str) -> None:
         self.details_text.configure(state="normal")
         self.details_text.delete("1.0", "end")
@@ -1066,10 +1080,5 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         self.details_text.configure(state="disabled")
 
         if hasattr(self, "copy_detail_btn"):
-            selected_index = self.selected_index
-            has_selection = (
-                isinstance(selected_index, int)
-                and selected_index >= 0
-                and selected_index < len(self.filtered_decisions)
-            )
+            has_selection = self._valid_selected_index() is not None
             self.copy_detail_btn.configure(state="normal" if has_selection else "disabled")
