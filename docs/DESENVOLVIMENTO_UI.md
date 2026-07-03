@@ -234,3 +234,19 @@ A matriz cruza:
 Regra operacional:
 
 A matriz cruzada nao autoriza alteracao conjunta de areas. Cada proxima fatia deve escolher um escopo pequeno e preservar entrypoints, banco, dados, services, repositories e pipeline.
+
+---
+
+## Referencia checklist de smoke manual para Decisoes
+
+Data: 2026-07-03 16:36:01 -0300
+
+Foi criado o checklist de smoke manual da area Decisoes:
+
+    docs/SMOKE_MANUAL_DECISOES_UI.md
+
+Este checklist deve ser executado antes de novas alteracoes de runtime ou antes de qualquer declaracao de equivalencia completa.
+
+Regra operacional:
+
+A UI canonica permanece preservada. A area Decisoes continua como equivalencia parcial operacional ate execucao e registro do smoke manual.

@@ -173,3 +173,15 @@ Foi criada a matriz cruzada de areas da UI:
 A matriz cruzada passa a orientar a escolha das proximas fatias pequenas por risco, area e status.
 
 Esta matriz ainda nao declara equivalencia completa de nenhuma area.
+
+---
+
+## Referencia checklist de smoke manual para Decisoes
+
+Data: 2026-07-03 16:36:01 -0300
+
+Foi criado o checklist de smoke manual da area Decisoes:
+
+    docs/SMOKE_MANUAL_DECISOES_UI.md
+
+A area Decisoes permanece classificada como equivalencia parcial operacional ate execucao do checklist e registro de evidencias.

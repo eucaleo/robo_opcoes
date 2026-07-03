@@ -4308,3 +4308,34 @@ Nao houve alteracao de banco, regra de negocio, services, repositories ou entryp
 ### Proxima fatia recomendada
 
 Criar checklist de smoke manual para Decisoes, sem alterar codigo de runtime.
+
+---
+
+## Checkpoint checklist de smoke manual para Decisoes
+
+Data: 2026-07-03 16:36:01 -0300
+
+Branch: refactor/decisions-dark-panel-large-block
+
+Foi criado o checklist de smoke manual da area Decisoes:
+
+    docs/SMOKE_MANUAL_DECISOES_UI.md
+
+### Decisao
+
+Este checkpoint permanece documental.
+
+Nao houve alteracao de banco, regra de negocio, services, repositories, runtime de UI ou entrypoint principal.
+
+### Uso esperado
+
+O checklist deve ser executado antes de qualquer nova alteracao funcional na area Decisoes.
+
+### Restricoes mantidas
+
+- UI canonica preservada;
+- Terminal VWAP fora do escopo da branch atual;
+- payoff curve fora do escopo da branch atual;
+- UIDataModel fora do escopo da branch atual;
+- banco/dados/pipeline fora do escopo visual;
+- possiveis entrypoints preservados.
