@@ -1397,3 +1397,5 @@ Critério de aceite:
 - copiar detalhe continua funcionando;
 - carregar estrutura continua funcionando;
 - exportação CSV continua funcionando.
+
+- DecisionsDarkPanel: busca unificada por decisão, ID e nome; limpeza consolidada em um único botão.

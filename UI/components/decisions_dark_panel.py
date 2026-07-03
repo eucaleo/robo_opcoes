@@ -28,7 +28,6 @@ import customtkinter as ctk
 class _DecisionFilterState:
     raw_search: str
     terms: List[str]
-    decision_query: str
     level_min: Optional[float]
     level_min_valid: bool
     dte_max: Optional[float]
@@ -124,31 +123,14 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
         filters_frame = ctk.CTkFrame(header, fg_color="#0f172a")
         filters_frame.grid(row=2, column=0, columnspan=4, sticky="ew", padx=12, pady=(0, 10))
-        filters_frame.grid_columnconfigure(1, weight=1)
-        filters_frame.grid_columnconfigure(8, weight=1)
-
-        decision_filter_label = ctk.CTkLabel(
-            filters_frame,
-            text="Decisão",
-            text_color="#d1d5db",
-        )
-        decision_filter_label.grid(row=0, column=0, sticky="w", padx=(10, 4), pady=8)
-
-        self.decision_filter_entry = ctk.CTkEntry(
-            filters_frame,
-            placeholder_text="Ex.: BUY, SELL, HOLD...",
-            height=30,
-            width=150,
-        )
-        self.decision_filter_entry.grid(row=0, column=1, sticky="ew", padx=(0, 8), pady=8)
-        self.decision_filter_entry.bind("<Return>", self._apply_advanced_filters)
+        filters_frame.grid_columnconfigure(6, weight=1)
 
         level_filter_label = ctk.CTkLabel(
             filters_frame,
             text="Level mín.",
             text_color="#d1d5db",
         )
-        level_filter_label.grid(row=0, column=2, sticky="w", padx=(0, 4), pady=8)
+        level_filter_label.grid(row=0, column=0, sticky="w", padx=(10, 4), pady=8)
 
         self.level_min_filter_entry = ctk.CTkEntry(
             filters_frame,
@@ -156,7 +138,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             height=30,
             width=70,
         )
-        self.level_min_filter_entry.grid(row=0, column=3, sticky="w", padx=(0, 8), pady=8)
+        self.level_min_filter_entry.grid(row=0, column=1, sticky="w", padx=(0, 8), pady=8)
         self.level_min_filter_entry.bind("<Return>", self._apply_advanced_filters)
 
         dte_filter_label = ctk.CTkLabel(
@@ -164,7 +146,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             text="DTE máx.",
             text_color="#d1d5db",
         )
-        dte_filter_label.grid(row=0, column=4, sticky="w", padx=(0, 4), pady=8)
+        dte_filter_label.grid(row=0, column=2, sticky="w", padx=(0, 4), pady=8)
 
         self.dte_max_filter_entry = ctk.CTkEntry(
             filters_frame,
@@ -172,7 +154,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             height=30,
             width=70,
         )
-        self.dte_max_filter_entry.grid(row=0, column=5, sticky="w", padx=(0, 8), pady=8)
+        self.dte_max_filter_entry.grid(row=0, column=3, sticky="w", padx=(0, 8), pady=8)
         self.dte_max_filter_entry.bind("<Return>", self._apply_advanced_filters)
 
         apply_filters_btn = ctk.CTkButton(
@@ -182,18 +164,18 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             height=30,
             command=self._apply_advanced_filters,
         )
-        apply_filters_btn.grid(row=0, column=6, sticky="e", padx=(0, 6), pady=8)
+        apply_filters_btn.grid(row=0, column=4, sticky="e", padx=(0, 6), pady=8)
 
         clear_filters_btn = ctk.CTkButton(
             filters_frame,
-            text="Limpar filtros",
+            text="Limpar tudo",
             width=110,
             height=30,
             fg_color="#374151",
             hover_color="#4b5563",
             command=self._clear_advanced_filters,
         )
-        clear_filters_btn.grid(row=0, column=7, sticky="e", padx=(0, 8), pady=8)
+        clear_filters_btn.grid(row=0, column=5, sticky="e", padx=(0, 8), pady=8)
 
         self.filter_summary_label = ctk.CTkLabel(
             filters_frame,
@@ -201,26 +183,15 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             text_color="#9ca3af",
             anchor="e",
         )
-        self.filter_summary_label.grid(row=0, column=8, sticky="e", padx=(0, 10), pady=8)
+        self.filter_summary_label.grid(row=0, column=6, sticky="e", padx=(0, 10), pady=8)
 
         self.search_entry = ctk.CTkEntry(
             header,
-            placeholder_text="Buscar por ID ou nome da estrutura ativa...",
+            placeholder_text="Buscar por decisão, ID ou nome da estrutura ativa...",
             height=32,
         )
-        self.search_entry.grid(row=1, column=0, columnspan=3, sticky="ew", padx=(12, 4), pady=(0, 10))
+        self.search_entry.grid(row=1, column=0, columnspan=4, sticky="ew", padx=(12, 12), pady=(0, 10))
         self.search_entry.bind("<KeyRelease>", self._on_search_changed)
-
-        clear_search_btn = ctk.CTkButton(
-            header,
-            text="Limpar",
-            width=120,
-            height=32,
-            fg_color="#374151",
-            hover_color="#4b5563",
-            command=self._clear_search,
-        )
-        clear_search_btn.grid(row=1, column=3, sticky="e", padx=(4, 12), pady=(0, 10))
 
         self.list_frame = ctk.CTkScrollableFrame(
             self,
@@ -356,22 +327,24 @@ class DecisionsDarkPanel(ctk.CTkFrame):
     def _on_search_changed(self, _event=None) -> None:
         self._apply_filter(render=True)
 
-    def _clear_search(self) -> None:
-        self.search_entry.delete(0, "end")
-        self._apply_filter(render=True, announce_clear=True)
 
     def _apply_advanced_filters(self, _event=None) -> None:
         self._apply_filter(render=True)
 
     def _clear_advanced_filters(self) -> None:
         for attr in (
-            "decision_filter_entry",
+            "search_entry",
             "level_min_filter_entry",
             "dte_max_filter_entry",
         ):
             widget = getattr(self, attr, None)
-            if widget is not None:
+            if widget is None:
+                continue
+
+            try:
                 widget.delete(0, "end")
+            except Exception:
+                continue
 
         self._apply_filter(render=True, announce_clear=True)
 
@@ -435,10 +408,7 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         active_filters = []
 
         if self._entry_text("search_entry"):
-            active_filters.append("estrutura")
-
-        if self._entry_text("decision_filter_entry"):
-            active_filters.append("decisão")
+            active_filters.append("busca")
 
         if self._entry_text("level_min_filter_entry"):
             active_filters.append("level mín.")
@@ -576,7 +546,6 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         return _DecisionFilterState(
             raw_search=raw_search,
             terms=terms,
-            decision_query=self._entry_text("decision_filter_entry").lower(),
             level_min=level_min,
             level_min_valid=level_min_valid,
             dte_max=dte_max,
@@ -617,9 +586,6 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         if state.terms:
             filtered = self._filter_by_search_terms(filtered, state.terms)
 
-        if state.decision_query:
-            filtered = self._filter_by_decision_text(filtered, state.decision_query)
-
         if state.level_min is not None:
             filtered = self._filter_by_level_min(filtered, state.level_min)
 
@@ -639,16 +605,6 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             if self._decision_matches_filter(decision, terms)
         ]
 
-    def _filter_by_decision_text(
-        self,
-        decisions: List[Dict[str, Any]],
-        decision_query: str,
-    ) -> List[Dict[str, Any]]:
-        return [
-            decision
-            for decision in decisions
-            if decision_query in str(decision.get("decision") or "").lower()
-        ]
 
     def _filter_by_level_min(
         self,
@@ -728,7 +684,6 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self._entry_text(attr)
             for attr in (
                 "search_entry",
-                "decision_filter_entry",
                 "level_min_filter_entry",
                 "dte_max_filter_entry",
             )
@@ -770,7 +725,8 @@ class DecisionsDarkPanel(ctk.CTkFrame):
 
     def _decision_search_blob(self, decision: Dict[str, Any]) -> str:
         """
-        Busca intencionalmente restrita:
+        Busca unificada:
+        - decisão;
         - ID da estrutura;
         - nome/rotulo/descricao da estrutura.
         """
@@ -778,6 +734,19 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         structure = self.structure_index.get(structure_id, {})
 
         parts: List[str] = [structure_id]
+
+        for key in (
+            "decision",
+            "decisao",
+            "decisão",
+            "action",
+            "acao",
+            "ação",
+            "signal",
+            "sinal",
+        ):
+            if key in decision and decision.get(key) is not None:
+                parts.append(str(decision.get(key)))
 
         for key in (
             "name",
