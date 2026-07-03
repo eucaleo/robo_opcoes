@@ -540,6 +540,205 @@ class UIDataModel:
         self._cache_put(cache_key, res)
         return res
 
+    def _ensure_payoff_table_loaded(self) -> None:
+        if not self._payoff_table:
+            self.refresh()
+
+    def _payoff_curve_info_cache_key(
+        self, structure_id: str, timestamp: str
+    ) -> Tuple[str, str]:
+        ts_key = timestamp if timestamp is not None else "__latest__"
+        return str(structure_id), ts_key
+
+    def _get_payoff_curve_info_from_cache(
+        self, cache_key: Tuple[str, str]
+    ) -> Tuple[List[Dict], Dict] | None:
+        cached = self._cache_get(cache_key)
+        if (
+            cached is not None
+            and isinstance(cached, dict)
+            and "points" in cached
+            and "info" in cached
+        ):
+            return cached.get("points", []), cached.get("info", {})
+        return None
+
+    def _build_payoff_curve_info(
+        self,
+        structure_id: str,
+        timestamp: str,
+        filter_col: str,
+        filter_val: Any,
+    ) -> Dict[str, Any]:
+        return {
+            "structure_id": structure_id,
+            "aba": structure_id,
+            "requested_timestamp": timestamp,
+            "used_timestamp": timestamp,
+            "fallback": False,
+            "source_table": self._payoff_table,
+            "filter_col": filter_col,
+            "filter_val": filter_val,
+            "count_points": 0,
+            "created_at": None,
+            "meta_json": None,
+        }
+
+    def _load_payoff_curve_info_points(
+        self,
+        conn,
+        p: Dict[str, str],
+        filter_col: str,
+        filter_val: Any,
+        timestamp: str,
+        info: Dict[str, Any],
+    ) -> List[Dict]:
+        if self._payoff_table == "payoff_curve_points":
+            return self._load_canonical_payoff_curve_info_points(
+                conn, filter_col, filter_val, timestamp, info
+            )
+
+        return self._load_legacy_payoff_curve_info_points(
+            conn, p, filter_col, filter_val, timestamp, info
+        )
+
+    def _canonical_payoff_curve_extra_cols(self) -> str:
+        extra_cols = ""
+        if "meta_json" in self._inspect_columns("payoff_curve_points"):
+            extra_cols = ", meta_json, created_at"
+        return extra_cols
+
+    def _fetch_canonical_payoff_curve_points(
+        self,
+        conn,
+        filter_col: str,
+        filter_val: Any,
+        timestamp: str,
+        extra_cols: str,
+    ):
+        sql = (
+            f"SELECT point_spot AS spot, point_pl AS pl{extra_cols} "
+            f"FROM payoff_curve_points "
+            f"WHERE {filter_col} = ? AND timestamp = ? "
+            f"ORDER BY point_spot"
+        )
+        return conn.execute(sql, (filter_val, timestamp)).fetchall()
+
+    def _fetch_latest_canonical_payoff_timestamp(
+        self, conn, filter_col: str, filter_val: Any
+    ):
+        row_ts = conn.execute(
+            f"SELECT timestamp FROM payoff_curve_points "
+            f"WHERE {filter_col} = ? ORDER BY timestamp DESC LIMIT 1",
+            (filter_val,),
+        ).fetchone()
+        if row_ts and row_ts["timestamp"]:
+            return row_ts["timestamp"]
+        return None
+
+    def _rows_to_payoff_points(self, rows) -> List[Dict]:
+        return [{"spot": r["spot"], "pl": r["pl"]} for r in rows]
+
+    def _apply_canonical_payoff_curve_metadata(
+        self, rows, extra_cols: str, info: Dict[str, Any]
+    ) -> None:
+        if rows and extra_cols:
+            info["created_at"] = rows[0]["created_at"]
+            info["meta_json"] = rows[0]["meta_json"]
+
+    def _load_canonical_payoff_curve_info_points(
+        self,
+        conn,
+        filter_col: str,
+        filter_val: Any,
+        timestamp: str,
+        info: Dict[str, Any],
+    ) -> List[Dict]:
+        extra_cols = self._canonical_payoff_curve_extra_cols()
+        rows = self._fetch_canonical_payoff_curve_points(
+            conn, filter_col, filter_val, timestamp, extra_cols
+        )
+
+        if not rows:
+            used_ts = self._fetch_latest_canonical_payoff_timestamp(
+                conn, filter_col, filter_val
+            )
+            if used_ts:
+                info["used_timestamp"] = used_ts
+                info["fallback"] = True
+                rows = self._fetch_canonical_payoff_curve_points(
+                    conn, filter_col, filter_val, used_ts, extra_cols
+                )
+
+        points = self._rows_to_payoff_points(rows)
+        info["count_points"] = len(points)
+        self._apply_canonical_payoff_curve_metadata(rows, extra_cols, info)
+        return points
+
+    def _ensure_legacy_payoff_curve_columns(self, p: Dict[str, str]) -> None:
+        required = ["timestamp", "spot", "pl"]
+        if any(k not in p for k in required):
+            raise RuntimeError(
+                f"Tabela {self._payoff_table} não possui colunas esperadas."
+            )
+
+    def _build_legacy_payoff_curve_exact_sql(
+        self, p: Dict[str, str], filter_col: str
+    ) -> str:
+        return (
+            f"SELECT {p['spot']} AS spot, {p['pl']} AS pl "
+            f"FROM {self._payoff_table} "
+            f"WHERE {filter_col} = ? AND {p['timestamp']} = ? "
+            f"ORDER BY spot"
+        )
+
+    def _fetch_latest_legacy_payoff_timestamp(
+        self, conn, p: Dict[str, str], filter_col: str, filter_val: Any
+    ):
+        sql_ts = (
+            f"SELECT {p['timestamp']} AS ts FROM {self._payoff_table} "
+            f"WHERE {filter_col} = ? ORDER BY ts DESC LIMIT 1"
+        )
+        rts = conn.execute(sql_ts, (filter_val,)).fetchone()
+        if rts and rts["ts"]:
+            return rts["ts"]
+        return None
+
+    def _load_legacy_payoff_curve_info_points(
+        self,
+        conn,
+        p: Dict[str, str],
+        filter_col: str,
+        filter_val: Any,
+        timestamp: str,
+        info: Dict[str, Any],
+    ) -> List[Dict]:
+        self._ensure_legacy_payoff_curve_columns(p)
+        sql_exact = self._build_legacy_payoff_curve_exact_sql(p, filter_col)
+        rows = conn.execute(sql_exact, (filter_val, timestamp)).fetchall()
+
+        if not rows:
+            used_ts = self._fetch_latest_legacy_payoff_timestamp(
+                conn, p, filter_col, filter_val
+            )
+            if used_ts:
+                info["used_timestamp"] = used_ts
+                info["fallback"] = True
+                rows = conn.execute(sql_exact, (filter_val, used_ts)).fetchall()
+
+        points = self._rows_to_payoff_points(rows)
+        info["count_points"] = len(points)
+        return points
+
+    def _store_payoff_curve_info_cache(
+        self,
+        cache_key: Tuple[str, str],
+        points: List[Dict],
+        info: Dict[str, Any],
+    ) -> None:
+        payload = {"points": points, "info": info}
+        self._cache_put(cache_key, payload)
+
     def get_payoff_curve_info(
         self, structure_id: str, timestamp: str
     ) -> Tuple[List[Dict], Dict]:
@@ -550,109 +749,25 @@ class UIDataModel:
         import time
 
         t0 = time.time()
+        self._ensure_payoff_table_loaded()
 
-        if not self._payoff_table:
-            self.refresh()
-
-        ts_key = timestamp if timestamp is not None else "__latest__"
-        cache_key = (str(structure_id), ts_key)
-        cached = self._cache_get(cache_key)
-
-        if (
-            cached is not None
-            and isinstance(cached, dict)
-            and "points" in cached
-            and "info" in cached
-        ):
-            return cached.get("points", []), cached.get("info", {})
+        cache_key = self._payoff_curve_info_cache_key(structure_id, timestamp)
+        cached = self._get_payoff_curve_info_from_cache(cache_key)
+        if cached is not None:
+            return cached
 
         p = self._payoff_cols
-        #  alteracao_33: resolve coluna + valor de filtro
-        # alteracao_34: structure_id e sempre INTEGER
         filter_col = self._structure_filter_col(p)
-
         conn = self._connect_derived_threadsafe()
+
         try:
             filter_val = self._resolve_structure_key(structure_id)
-            info: Dict[str, Any] = {
-                "structure_id": structure_id,
-                "aba": structure_id,   #  patch_3a: aba espelha structure_id (compat)
-                "requested_timestamp": timestamp,
-                "used_timestamp": timestamp,
-                "fallback": False,
-                "source_table": self._payoff_table,
-                "filter_col": filter_col,       #  alteracao_33: auditoria
-                "filter_val": filter_val,       #  alteracao_33: auditoria
-                "count_points": 0,
-                "created_at": None,
-                "meta_json": None,
-            }
-
-            if self._payoff_table == "payoff_curve_points":
-                # Contrato canônico: colunas fixas, só muda o filtro
-                extra_cols = ""
-                if "meta_json" in self._inspect_columns("payoff_curve_points"):
-                    extra_cols = ", meta_json, created_at"
-
-                sql = (
-                    f"SELECT point_spot AS spot, point_pl AS pl{extra_cols} "
-                    f"FROM payoff_curve_points "
-                    f"WHERE {filter_col} = ? AND timestamp = ? "
-                    f"ORDER BY point_spot"
-                )
-                rows = conn.execute(sql, (filter_val, timestamp)).fetchall()
-                used_ts = timestamp
-
-                if not rows:
-                    row_ts = conn.execute(
-                        f"SELECT timestamp FROM payoff_curve_points "
-                        f"WHERE {filter_col} = ? ORDER BY timestamp DESC LIMIT 1",
-                        (filter_val,),
-                    ).fetchone()
-                    if row_ts and row_ts["timestamp"]:
-                        used_ts = row_ts["timestamp"]
-                        info["used_timestamp"] = used_ts
-                        info["fallback"] = True
-                        rows = conn.execute(sql, (filter_val, used_ts)).fetchall()
-
-                points = [{"spot": r["spot"], "pl": r["pl"]} for r in rows]
-                info["count_points"] = len(points)
-
-                if rows and extra_cols:
-                    info["created_at"] = rows[0]["created_at"]
-                    info["meta_json"] = rows[0]["meta_json"]
-
-            else:
-                required = ["timestamp", "spot", "pl"]
-                if any(k not in p for k in required):
-                    raise RuntimeError(
-                        f"Tabela {self._payoff_table} não possui colunas esperadas."
-                    )
-
-                sql_exact = (
-                    f"SELECT {p['spot']} AS spot, {p['pl']} AS pl "
-                    f"FROM {self._payoff_table} "
-                    f"WHERE {filter_col} = ? AND {p['timestamp']} = ? "
-                    f"ORDER BY spot"
-                )
-                rows = conn.execute(sql_exact, (filter_val, timestamp)).fetchall()
-                used_ts = timestamp
-
-                if not rows:
-                    sql_ts = (
-                        f"SELECT {p['timestamp']} AS ts FROM {self._payoff_table} "
-                        f"WHERE {filter_col} = ? ORDER BY ts DESC LIMIT 1"
-                    )
-                    rts = conn.execute(sql_ts, (filter_val,)).fetchone()
-                    if rts and rts["ts"]:
-                        used_ts = rts["ts"]
-                        info["used_timestamp"] = used_ts
-                        info["fallback"] = True
-                        rows = conn.execute(sql_exact, (filter_val, used_ts)).fetchall()
-
-                points = [{"spot": r["spot"], "pl": r["pl"]} for r in rows]
-                info["count_points"] = len(points)
-
+            info = self._build_payoff_curve_info(
+                structure_id, timestamp, filter_col, filter_val
+            )
+            points = self._load_payoff_curve_info_points(
+                conn, p, filter_col, filter_val, timestamp, info
+            )
         finally:
             try:
                 conn.close()
@@ -660,8 +775,7 @@ class UIDataModel:
                 pass
 
         info["query_ms"] = int((time.time() - t0) * 1000)
-        payload = {"points": points, "info": info}
-        self._cache_put(cache_key, payload)
+        self._store_payoff_curve_info_cache(cache_key, points, info)
         return points, info
 
     def export_to_csv(self, data: List[Dict], filename: str):
