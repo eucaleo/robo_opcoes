@@ -1425,3 +1425,7 @@ Critério de aceite:
 - TerminalVWAPPayoffDarkPanel: quebra de _load_legs em helpers privados semânticos, preservando seleção da tabela de pernas, resolução de colunas, SQL, retornos vazios e fechamento da conexão.
 
 - TerminalVWAPPayoffDarkPanel: quebra de _calculate_payoff_from_legs em helpers privados para coleta de strikes, range de spot, pontos da curva e payoff por perna, preservando fórmula, sinais, prêmios, quantidades, multiplicadores e fallback sem strikes.
+
+- TerminalVWAPPayoffDarkPanel: quebra de duplicate_selected_structure em helpers privados para disponibilidade do repositório, carregamento da estrutura origem, criação da cópia, duplicação das pernas e atualização visual, preservando mensagens, status, seleção, cópia de payload e tratamento de erro.
+
+- Nota técnica: durante validação manual foi observada divergência existente entre dados/app.db e dados/derived.db; estruturas/decisões gravadas pelo fluxo moderno podem não aparecer em consultas realizadas contra o banco volátil legado derived.db. Correção arquitetural deve ser tratada em etapa própria de consolidação do banco canônico.

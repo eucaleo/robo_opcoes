@@ -1758,64 +1758,88 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         if not structure:
             return
 
-        if StructuresRepository is None:
-            messagebox.showerror(
-                "Repositorio indisponivel",
-                "StructuresRepository nao foi encontrado.",
-                parent=self.winfo_toplevel(),
-            )
+        if not self._is_structures_repository_available():
             return
 
         sid = structure.get("id")
 
         try:
             repo = StructuresRepository(self._get_db_path())
-            src = repo.get_structure(sid)
+            src = self._load_structure_for_duplication(repo, sid)
 
             if src is None:
-                messagebox.showerror(
-                    "Duplicar estrutura",
-                    "Nao foi possivel carregar a estrutura selecionada.",
-                    parent=self.winfo_toplevel(),
-                )
                 return
 
-            new_id = repo.create_structure({
-                "name": f"{src.get('name') or 'Estrutura'} (copia)",
-                "underlying_asset": src.get("underlying_asset"),
-                "alias_legacy_aba": src.get("alias_legacy_aba"),
-                "status": "active",
-                "notes": src.get("notes"),
-            })
-
-            legs_copy = [
-                {
-                    k: v
-                    for k, v in leg.items()
-                    if k not in ("id", "structure_id", "created_at", "updated_at")
-                }
-                for leg in src.get("legs", [])
-            ]
-
-            if legs_copy:
-                repo.replace_legs(new_id, legs_copy)
-
-            self.reload_structures()
-
-            duplicated = repo.get_structure(new_id)
-            if duplicated:
-                self.select_structure(duplicated)
-                self._render_structure_actions(
-                    notice=f"Estrutura duplicada com sucesso. Nova ID {new_id}."
-                )
-            else:
-                self._render_structures_list()
+            new_id = self._create_duplicate_structure(repo, src)
+            self._duplicate_structure_legs(repo, src, new_id)
+            self._refresh_after_structure_duplication(repo, new_id)
 
             self._safe_status(f"Estrutura duplicada: ID {new_id}")
 
         except Exception as exc:
             self._safe_status(f"Erro ao duplicar estrutura: {exc}")
             messagebox.showerror("Erro ao duplicar estrutura", str(exc), parent=self.winfo_toplevel())
+
+    def _is_structures_repository_available(self) -> bool:
+        if StructuresRepository is not None:
+            return True
+
+        messagebox.showerror(
+            "Repositorio indisponivel",
+            "StructuresRepository nao foi encontrado.",
+            parent=self.winfo_toplevel(),
+        )
+        return False
+
+    def _load_structure_for_duplication(self, repo: Any, sid: Any) -> Any:
+        src = repo.get_structure(sid)
+
+        if src is not None:
+            return src
+
+        messagebox.showerror(
+            "Duplicar estrutura",
+            "Nao foi possivel carregar a estrutura selecionada.",
+            parent=self.winfo_toplevel(),
+        )
+        return None
+
+    def _create_duplicate_structure(self, repo: Any, src: Dict[str, Any]) -> Any:
+        return repo.create_structure({
+            "name": f"{src.get('name') or 'Estrutura'} (copia)",
+            "underlying_asset": src.get("underlying_asset"),
+            "alias_legacy_aba": src.get("alias_legacy_aba"),
+            "status": "active",
+            "notes": src.get("notes"),
+        })
+
+    def _duplicate_structure_legs(self, repo: Any, src: Dict[str, Any], new_id: Any) -> None:
+        legs_copy = self._build_duplicate_legs_payload(src)
+
+        if legs_copy:
+            repo.replace_legs(new_id, legs_copy)
+
+    def _build_duplicate_legs_payload(self, src: Dict[str, Any]) -> List[Dict[str, Any]]:
+        return [
+            {
+                k: v
+                for k, v in leg.items()
+                if k not in ("id", "structure_id", "created_at", "updated_at")
+            }
+            for leg in src.get("legs", [])
+        ]
+
+    def _refresh_after_structure_duplication(self, repo: Any, new_id: Any) -> None:
+        self.reload_structures()
+
+        duplicated = repo.get_structure(new_id)
+        if duplicated:
+            self.select_structure(duplicated)
+            self._render_structure_actions(
+                notice=f"Estrutura duplicada com sucesso. Nova ID {new_id}."
+            )
+        else:
+            self._render_structures_list()
 
 
     def recalculate_selected_structure(self) -> None:
