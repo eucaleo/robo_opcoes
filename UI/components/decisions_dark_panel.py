@@ -611,10 +611,16 @@ class DecisionsDarkPanel(ctk.CTkFrame):
                 self._select_decision(0, notify_status=False)
 
                 if self._has_active_filters():
-                    self._status_filter_result(
-                        f"Filtro aplicado: {len(self.filtered_decisions)} de "
-                        f"{len(active_decisions)} decisões de estruturas ativas"
-                    )
+                    if len(self.filtered_decisions) == len(active_decisions):
+                        self._status_filter_result(
+                            f"Filtro aplicado sem reduzir resultados: "
+                            f"{len(active_decisions)} decisões de estruturas ativas"
+                        )
+                    else:
+                        self._status_filter_result(
+                            f"Filtro aplicado: {len(self.filtered_decisions)} de "
+                            f"{len(active_decisions)} decisões de estruturas ativas"
+                        )
                 elif announce_clear:
                     self._status_filter_result(
                         f"Filtros limpos: {len(active_decisions)} decisões de estruturas ativas"

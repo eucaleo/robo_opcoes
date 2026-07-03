@@ -1111,3 +1111,95 @@ Resultado esperado:
 - busca textual continua responsiva;
 - filtros avancados comunicam limpeza corretamente;
 - status da aba Decisoes dark fica mais previsivel e menos ruidoso.
+
+---
+
+## 49. Clarificacao de filtro ativo sem reducao de resultados na aba Decisoes dark
+
+### 49.1. Objetivo
+
+Melhorar a clareza operacional do status de filtros na aba Decisoes da UI moderna dark quando existe filtro ativo, mas ele nao reduz a quantidade de decisoes exibidas.
+
+### 49.2. Arquivo alterado
+
+Arquivo alterado:
+
+- UI/components/decisions_dark_panel.py
+
+### 49.3. Ajuste realizado
+
+O feedback de filtro aplicado passou a diferenciar dois cenarios:
+
+- filtro ativo que reduz a lista;
+- filtro ativo que mantem todas as decisoes de estruturas ativas visiveis.
+
+### 49.4. Comportamento anterior
+
+Antes do ajuste, um filtro ativo que retornava todos os itens emitia mensagem no mesmo formato de um filtro realmente restritivo:
+
+- `Filtro aplicado: 8 de 8 decisões de estruturas ativas`
+
+Embora correta, a mensagem nao deixava claro que o filtro nao reduziu a lista.
+
+### 49.5. Comportamento novo
+
+Quando o filtro ativo nao reduz os resultados, a mensagem passa a ser:
+
+- `Filtro aplicado sem reduzir resultados: X decisões de estruturas ativas`
+
+Quando o filtro reduz resultados, permanece:
+
+- `Filtro aplicado: X de Y decisões de estruturas ativas`
+
+### 49.6. Comportamentos preservados
+
+Foram preservados:
+
+- filtro com reducao de resultados;
+- filtro sem resultados;
+- filtro invalido;
+- limpeza explicita de filtros;
+- estado neutro silencioso quanto a filtros limpos;
+- selecao automatica silenciosa;
+- selecao manual com status;
+- copia de detalhe;
+- carregamento de estrutura no Terminal VWAP.
+
+### 49.7. Restricoes preservadas
+
+A frente preservou:
+
+- regra de negocio;
+- contratos canonicos;
+- repositories;
+- services;
+- controllers;
+- banco de dados;
+- entrypoint principal;
+- UI atual como caminho principal;
+- modo dark como UI moderna paralela.
+
+### 49.8. Validacoes obrigatorias
+
+Validacoes recomendadas:
+
+- compilar UI/components/decisions_dark_panel.py;
+- executar git diff --check;
+- abrir UI moderna dark;
+- abrir aba Decisoes;
+- aplicar filtro que reduza resultados;
+- aplicar filtro ativo que mantenha todos os resultados;
+- aplicar filtro sem resultado;
+- limpar filtros explicitamente;
+- selecionar decisao manualmente;
+- copiar detalhe;
+- carregar estrutura no Terminal VWAP.
+
+### 49.9. Resultado esperado
+
+Resultado esperado:
+
+- filtros restritivos continuam indicando X de Y decisoes;
+- filtros nao restritivos passam a indicar que nao houve reducao;
+- status da aba Decisoes dark fica mais informativo;
+- operacoes da aba permanecem funcionais.
