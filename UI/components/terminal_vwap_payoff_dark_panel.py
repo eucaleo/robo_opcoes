@@ -180,11 +180,25 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
 
     def _setup_layout(self) -> None:
+        self._configure_layout_grid()
+        self._build_rail_panel()
+        self._build_side_panel()
+        self._build_main_panel()
+        self._build_main_header()
+        self._build_kpi_panel()
+        self._build_chart_panels()
+        self._build_bottom_panel()
+        self._build_legs_table()
+        self._build_alerts_box()
+        self._render_empty_charts()
+
+    def _configure_layout_grid(self) -> None:
         self.grid_columnconfigure(0, weight=0)
         self.grid_columnconfigure(1, weight=0)
         self.grid_columnconfigure(2, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
+    def _build_rail_panel(self) -> None:
         self.rail = ctk.CTkFrame(
             self,
             width=70,
@@ -258,6 +272,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         self.btn_open_fixed.pack(pady=6, padx=10)
 
+    def _build_side_panel(self) -> None:
         self.side = ctk.CTkFrame(
             self,
             width=255,
@@ -267,6 +282,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.side.grid(row=0, column=1, sticky="nsew")
         self.side.grid_propagate(False)
 
+    def _build_main_panel(self) -> None:
         self.main = ctk.CTkFrame(
             self,
             fg_color=DARK_BG,
@@ -276,6 +292,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.main.grid_rowconfigure(2, weight=3)
         self.main.grid_rowconfigure(3, weight=1)
 
+    def _build_main_header(self) -> None:
         self.header = ctk.CTkLabel(
             self.main,
             text="Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff",
@@ -284,6 +301,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         self.header.grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 12))
 
+    def _build_kpi_panel(self) -> None:
         self.kpi_frame = ctk.CTkFrame(
             self.main,
             fg_color="transparent",
@@ -298,6 +316,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self._create_kpi("minmax", "Min / Máx", "N/A", 4)
         self._create_kpi("be", "Break-even", "N/A", 5)
 
+    def _build_chart_panels(self) -> None:
         self.frame_vwap = ctk.CTkFrame(
             self.main,
             fg_color=CARD_BG,
@@ -312,6 +331,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         self.frame_payoff.grid(row=2, column=1, sticky="nsew", padx=(10, 0), pady=5)
 
+    def _build_bottom_panel(self) -> None:
         self.bottom = ctk.CTkFrame(
             self.main,
             fg_color=CARD_BG,
@@ -338,6 +358,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         self.alerts_title.grid(row=0, column=1, sticky="w", padx=12, pady=(8, 4))
 
+    def _build_legs_table(self) -> None:
         self.legs_table = ttk.Treeview(
             self.bottom,
             columns=("n", "symbol", "side", "type", "strike", "expiration", "qty", "premium"),
@@ -345,6 +366,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             style="Dark.Treeview",
             height=7,
         )
+
         headers = {
             "n": "#",
             "symbol": "Símbolo",
@@ -365,12 +387,14 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             "qty": 90,
             "premium": 90,
         }
+
         for col, title in headers.items():
             self.legs_table.heading(col, text=title)
             self.legs_table.column(col, width=widths[col], anchor="center")
 
         self.legs_table.grid(row=1, column=0, sticky="nsew", padx=(12, 6), pady=(0, 12))
 
+    def _build_alerts_box(self) -> None:
         self.alerts_box = ctk.CTkTextbox(
             self.bottom,
             fg_color=CARD_BG_2,
@@ -380,8 +404,6 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
         self.alerts_box.grid(row=1, column=1, sticky="nsew", padx=(6, 12), pady=(0, 12))
         self._set_alerts(["Nenhuma estrutura selecionada."])
-
-        self._render_empty_charts()
 
     def _create_kpi(self, key: str, title: str, value: str, column: int) -> None:
         card = ctk.CTkFrame(
