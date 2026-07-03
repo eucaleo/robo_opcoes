@@ -1102,11 +1102,18 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self._render_payoff_chart(payoff_points)
 
     def _render_vwap_chart(self, market: Dict[str, Any], asset: Any) -> None:
+        ax, fig, series = self._render_vwap_chart_stage_1(market)
+        self._render_vwap_chart_stage_2(ax, series, asset)
+        self._render_vwap_chart_stage_3(ax, fig)
+
+    def _render_vwap_chart_stage_1(self, market):
         self._clear_canvas("canvas_vwap")
 
         fig, ax = self._figure()
         series = market.get("series") or []
+        return ax, fig, series
 
+    def _render_vwap_chart_stage_2(self, ax, series, asset) -> None:
         if series:
             xs = [p["x"] for p in series]
             prices = [p.get("price") for p in series]
@@ -1144,6 +1151,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                 fontsize=11,
             )
 
+    def _render_vwap_chart_stage_3(self, ax, fig) -> None:
         ax.set_title("Preço atual do ativo-base vs VWAP", color=MUTED, fontsize=10)
         ax.set_xlabel("Amostras", color=MUTED, fontsize=8)
         ax.set_ylabel("Preço", color=MUTED, fontsize=8)
@@ -1151,6 +1159,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.canvas_vwap = FigureCanvasTkAgg(fig, master=self.frame_vwap)
         self.canvas_vwap.draw()
         self.canvas_vwap.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
 
     def _render_payoff_chart(self, points: List[Dict[str, float]]) -> None:
         self._clear_canvas("canvas_payoff")

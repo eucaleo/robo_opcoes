@@ -1419,3 +1419,5 @@ Critério de aceite:
 - TerminalVWAPPayoffDarkPanel: quebra de _build_rail_panel em helpers privados menores, preservando composição visual do rail, comandos existentes e comportamento operacional.
 
 - TerminalVWAPPayoffDarkPanel: normalização semântica dos helpers do rail, removendo helpers genéricos part_* e preservando composição visual, comandos e comportamento operacional.
+
+- TerminalVWAPPayoffDarkPanel: quebra de _render_vwap_chart em helpers privados menores, preservando assinatura original, renderização visual do gráfico VWAP, dados carregados e comportamento operacional.
