@@ -200,18 +200,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
     def _build_rail_panel(self) -> None:
         self._build_rail_container()
-        self._build_rail_brand_block()
-        self._build_rail_primary_actions()
-        self._build_rail_structure_actions()
-        self._build_rail_refresh_actions()
-        self._build_rail_spacer()
-        self._build_rail_fixed_actions()
-        self._build_rail_panel_part_8()
-        self._build_rail_panel_part_9()
-        self._build_rail_panel_part_10()
-        self._build_rail_panel_part_11()
-        self._build_rail_panel_part_12()
-        self._build_rail_panel_part_13()
+        self._build_rail_toggle_button()
+        self._build_rail_reload_button()
+        self._build_rail_new_button()
+        self._build_rail_actions_button()
+        self._build_rail_open_button()
 
     def _build_rail_container(self) -> None:
         self.rail = ctk.CTkFrame(
@@ -220,90 +213,77 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             corner_radius=0,
             fg_color=RAIL_BG,
         )
-
-    def _build_rail_brand_block(self) -> None:
         self.rail.grid(row=0, column=0, sticky="nsew")
-
-    def _build_rail_primary_actions(self) -> None:
         self.rail.grid_propagate(False)
 
-    def _build_rail_structure_actions(self) -> None:
+    def _build_rail_toggle_button(self) -> None:
         self.btn_toggle = ctk.CTkButton(
             self.rail,
             text="☰\n\nID",
             width=50,
-            height=62,
-            fg_color=GREEN,
-            hover_color="#059669",
+            height=58,
+            fg_color="#111827",
+            hover_color="#1F2937",
+            text_color=TEXT,
             font=ctk.CTkFont(size=14, weight="bold"),
             command=self.toggle_structures_panel,
         )
-
-    def _build_rail_refresh_actions(self) -> None:
         self.btn_toggle.pack(pady=(20, 8), padx=10)
 
-    def _build_rail_spacer(self) -> None:
+    def _build_rail_reload_button(self) -> None:
         self.btn_reload_fixed = ctk.CTkButton(
             self.rail,
             text="↻",
             width=50,
-            height=42,
-            fg_color=CARD_BG_2,
-            hover_color=BLUE,
-            text_color=TEXT,
+            height=44,
+            fg_color="#111827",
+            hover_color="#1F2937",
+            text_color=BLUE,
             font=ctk.CTkFont(size=18, weight="bold"),
             command=self.reload_structures,
         )
-
-    def _build_rail_fixed_actions(self) -> None:
         self.btn_reload_fixed.pack(pady=6, padx=10)
 
-    def _build_rail_panel_part_8(self) -> None:
+    def _build_rail_new_button(self) -> None:
         self.btn_new_fixed = ctk.CTkButton(
             self.rail,
             text="+",
             width=50,
-            height=42,
-            fg_color=GREEN,
-            hover_color="#059669",
+            height=44,
+            fg_color="#064E3B",
+            hover_color="#065F46",
             text_color=TEXT,
             font=ctk.CTkFont(size=22, weight="bold"),
             command=self.new_structure,
         )
-
-    def _build_rail_panel_part_9(self) -> None:
         self.btn_new_fixed.pack(pady=6, padx=10)
 
-    def _build_rail_panel_part_10(self) -> None:
+    def _build_rail_actions_button(self) -> None:
         self.btn_struct_actions = ctk.CTkButton(
             self.rail,
             text="Acoes",
             width=50,
-            height=42,
-            fg_color=CARD_BG_2,
-            hover_color=BLUE,
+            height=44,
+            fg_color="#312E81",
+            hover_color="#3730A3",
             text_color=TEXT,
             font=ctk.CTkFont(size=11, weight="bold"),
             command=self._render_structure_actions,
         )
-
-    def _build_rail_panel_part_11(self) -> None:
         self.btn_struct_actions.pack(pady=6, padx=10)
 
-    def _build_rail_panel_part_12(self) -> None:
+    def _build_rail_open_button(self) -> None:
         self.btn_open_fixed = ctk.CTkButton(
             self.rail,
             text="ID",
             width=50,
-            height=42,
-            fg_color=CARD_BG_2,
-            hover_color=GREEN,
-            text_color=TEXT,
+            height=44,
+            fg_color="#1F2937",
+            hover_color="#374151",
+            text_color=MUTED,
             font=ctk.CTkFont(size=13, weight="bold"),
             command=self.toggle_structures_panel,
         )
-
-    def _build_rail_panel_part_13(self) -> None:
         self.btn_open_fixed.pack(pady=6, padx=10)
 
 
