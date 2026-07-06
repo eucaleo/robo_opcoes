@@ -495,3 +495,93 @@ A branch atual nao deve tentar resolver toda a UI.
 A branch atual deve apenas consolidar a separacao entre encerrados, pendencias e criterios de continuidade.
 A fatia Decisoes dark panel permanece como entrega parcial operacional, pendente de validacao posterior por smoke manual registrado.
 A frente UI completa permanece aberta.
+
+<!-- FECHAMENTO_DOCUMENTAL_DECISIONS_DARK_PANEL_2026_07_06 -->
+
+## 13. Fechamento documental da branch Decisoes dark panel
+
+Data: 2026-07-06
+
+Branch: `refactor/decisions-dark-panel-large-block`
+
+### 13.1. Situacao documental
+
+A consolidacao documental da branch atual foi concluida como controle de rota da fatia Decisoes dark panel.
+
+Esta conclusao documental nao declara encerramento global da frente UI e nao declara equivalencia completa da UI moderna dark.
+
+A UI atual permanece como caminho principal.
+
+### 13.2. Evidencias registradas
+
+Foram registrados e publicados os seguintes pontos de controle:
+
+- separacao entre frentes encerradas e pendencias remanescentes;
+- reclassificacao de referencias de smoke manual como validacao legada quando nao forem bloqueadoras;
+- remocao do smoke manual como bloqueador documental previo da lista de pendencias da UI de Decisoes;
+- normalizacao versionada de line endings via `.gitattributes`;
+- checkpoint local de evolucao da branch em `docs/DESENVOLVIMENTO_UI.md`;
+- limpeza de whitespace do checkpoint documental.
+
+### 13.3. Commits de referencia desta consolidacao
+
+- `3dbe277` - `docs(ui): reinicia reports com controle consolidado da auditoria`
+- `0bd8b82` - `docs: remove smoke manual blocker from decisions UI pending list`
+- `e54f90b` - `docs: reclassify smoke manual references as legacy validation`
+- `d2a95ee` - `chore: normalize repository line endings`
+- `66ff4c8` - `docs: record decisions ui refactor checkpoint`
+- `e92395d` - `docs: clean decisions ui checkpoint whitespace`
+
+### 13.4. Decisao de rota
+
+A fase documental da branch atual fica considerada consolidada para fins de continuidade operacional.
+
+A proxima fase autorizada nao e desenvolvimento funcional amplo.
+
+A proxima fase autorizada e a validacao da fatia Decisoes dark panel por smoke manual registrado.
+
+### 13.5. Escopo permitido da proxima fase
+
+A proxima fase deve validar apenas a fatia Decisoes dark panel, incluindo:
+
+- abertura da UI pelo caminho atual do projeto;
+- acesso a aba ou painel de Decisoes;
+- listagem de decisoes;
+- filtros simples existentes;
+- detalhe da decisao;
+- copia, quando aplicavel;
+- exportacao CSV, quando aplicavel;
+- carregamento de estrutura associada, quando aplicavel;
+- comportamento sem selecao;
+- comportamento com dados ausentes;
+- mensagens de status;
+- validacao visual em dark mode.
+
+### 13.6. Escopos ainda proibidos nesta branch
+
+Permanece nao autorizado nesta branch:
+
+- eliminar a UI atual;
+- trocar o entrypoint principal;
+- alterar banco;
+- alterar schema;
+- alterar regra de negocio;
+- alterar services;
+- alterar repositories;
+- alterar controllers;
+- alterar pipeline;
+- sincronizar `app.db` com `derived.db`;
+- sincronizar `derived.db` com `app.db`;
+- resolver Terminal VWAP fora do carregamento a partir de Decisoes;
+- resolver payoff fora de comportamento ja validado;
+- declarar equivalencia global da UI moderna dark.
+
+### 13.7. Proxima acao obrigatoria
+
+Executar smoke manual da fatia Decisoes dark panel e registrar a evidencia no documento de controle apropriado.
+
+Documento indicado:
+
+- `docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md`
+
+Somente apos esse registro deve ser decidida qualquer correcao funcional ou melhoria visual adicional.
