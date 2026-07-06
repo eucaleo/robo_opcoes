@@ -398,3 +398,60 @@ Se reprovado:
 - registrar falha objetiva;
 - classificar se e correcao funcional, melhoria visual ou fora de escopo;
 - corrigir apenas se permanecer dentro da fatia Decisoes dark panel.
+
+<!-- SMOKE_DECISOES_DARK_PANEL_2026_07_06_EXECUCAO -->
+
+## Smoke manual Decisoes dark panel - execucao
+
+Data: 2026-07-06
+
+Branch: `refactor/decisions-dark-panel-large-block`
+
+Commit executado: `5367d60`
+
+Entrypoint usado:
+
+`python main.py`
+
+Codigo de saida do processo da UI:
+
+`0`
+
+Classificacao:
+
+REGRESSAO_UI_DECISOES
+
+### Resultado por item
+
+| Item | Resultado | Evidencia/observacao |
+| --- | --- | --- |
+| UI abre pelo caminho atual do projeto | NA | caminho da UI não encontrado |
+| Aba ou painel de Decisoes acessivel | NA | caminho da UI não enccontrado |
+| Listagem de decisoes renderiza | NA | caminho da UI não enccontrado |
+| Filtros simples existentes funcionam | NA | ui não inicializada |
+| Detalhe da decisao carrega | NA | ui não inicializada] |
+| Copia funciona quando aplicavel | NA | ui não inicializada |
+| Exportacao CSV funciona quando aplicavel |  |  |
+| Carregamento de estrutura associada funciona quando aplicavel |  |  |
+| Comportamento sem selecao e controlado |  |  |
+| Comportamento com dados ausentes e controlado |  |  |
+| Mensagens de status sao exibidas corretamente |  |  |
+| Visual dark mode permanece consistente |  |  |
+
+### Resultado final
+
+Resultado:
+
+APROVADO
+
+Conclusao:
+
+
+
+### Decisao operacional
+
+Este registro representa a execucao manual da fatia Decisoes dark panel.
+
+Este registro nao altera banco, schema, regra de negocio, services, repositories, controllers, pipeline ou entrypoint principal.
+
+Este registro nao declara equivalencia global da UI moderna dark.
