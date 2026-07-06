@@ -455,3 +455,61 @@ Este registro representa a execucao manual da fatia Decisoes dark panel.
 Este registro nao altera banco, schema, regra de negocio, services, repositories, controllers, pipeline ou entrypoint principal.
 
 Este registro nao declara equivalencia global da UI moderna dark.
+
+<!-- RETIFICACAO_SMOKE_DECISOES_DARK_PANEL_2026_07_06 -->
+
+## Retificacao do smoke manual Decisoes dark panel
+
+Data: 2026-07-06
+
+Branch: `refactor/decisions-dark-panel-large-block`
+
+Commit retificado: `5f8fe5c`
+
+Commit da retificacao: `5f8fe5c`
+
+Classificacao:
+
+REGRESSAO_UI_DECISOES
+
+### Motivo da retificacao
+
+O registro anterior nao pode ser mantido como APROVADO porque a propria evidencia registrada informa que a UI nao foi inicializada ou que o caminho da UI nao foi encontrado.
+
+Tambem houve itens sem preenchimento de resultado e conclusao final vazia.
+
+### Decisao
+
+O smoke registrado no commit `5f8fe5c` fica reclassificado como:
+
+INVALIDO_COMO_APROVACAO
+
+Resultado operacional corrigido:
+
+REPROVADO_POR_NAO_INICIALIZACAO_DA_UI
+
+### Evidencias que motivaram a retificacao
+
+- `UI abre pelo caminho atual do projeto` registrado como `NA` com observacao `caminho da UI nao encontrado`;
+- itens seguintes registrados como `NA` por UI nao inicializada;
+- itens finais ficaram sem resultado preenchido;
+- conclusao objetiva ficou vazia;
+- a aprovacao automatica foi indevida para este cenario.
+
+### Proxima acao autorizada
+
+Criar acionador clicavel na raiz do projeto para facilitar a inicializacao da UI sem depender diretamente do Git Bash.
+
+Essa acao nao deve alterar:
+
+- `main.py`;
+- entrypoint principal;
+- banco;
+- schema;
+- regra de negocio;
+- services;
+- repositories;
+- controllers;
+- pipeline.
+
+Depois do acionador, o smoke manual deve ser executado novamente.
