@@ -297,3 +297,104 @@ Mesmo apos o preenchimento deste registro:
 - UIDataModel permanece fora do escopo desta branch;
 - banco/dados/pipeline permanecem fora do escopo visual;
 - possiveis entrypoints permanecem preservados.
+
+<!-- SMOKE_DECISOES_DARK_PANEL_2026_07_06_PREPARACAO -->
+
+## Smoke manual Decisoes dark panel - preparacao
+
+Data: 2026-07-06
+
+Branch: `refactor/decisions-dark-panel-large-block`
+
+Commit base: `c41a3f1`
+
+Classificacao:
+
+REGRESSAO_UI_DECISOES
+
+Status deste registro:
+
+PENDENTE_EXECUCAO_MANUAL
+
+### Decisao de rota
+
+Este registro prepara a execucao do smoke manual da fatia Decisoes dark panel.
+
+Este registro nao declara aprovacao, encerramento global da UI ou equivalencia completa da UI moderna dark.
+
+A UI atual permanece como caminho principal.
+
+### Escopo autorizado para o smoke
+
+Validar apenas a fatia Decisoes dark panel:
+
+- abertura da UI pelo caminho atual do projeto;
+- acesso a aba ou painel de Decisoes;
+- listagem de decisoes;
+- filtros simples existentes;
+- detalhe da decisao;
+- copia, quando aplicavel;
+- exportacao CSV, quando aplicavel;
+- carregamento de estrutura associada, quando aplicavel;
+- comportamento sem selecao;
+- comportamento com dados ausentes;
+- mensagens de status;
+- validacao visual em dark mode.
+
+### Escopos proibidos durante este smoke
+
+Nao alterar durante este smoke:
+
+- banco;
+- schema;
+- regra de negocio;
+- services;
+- repositories;
+- controllers;
+- pipeline;
+- entrypoint principal;
+- Terminal VWAP fora do carregamento a partir de Decisoes;
+- payoff fora de comportamento ja validado.
+
+### Checklist de execucao manual
+
+Preencher cada item apos executar a UI.
+
+| Item | Resultado | Evidencia/observacao |
+| --- | --- | --- |
+| UI abre pelo caminho atual do projeto | PENDENTE | |
+| Aba ou painel de Decisoes acessivel | PENDENTE | |
+| Listagem de decisoes renderiza | PENDENTE | |
+| Filtros simples existentes funcionam | PENDENTE | |
+| Detalhe da decisao carrega | PENDENTE | |
+| Copia funciona quando aplicavel | PENDENTE | |
+| Exportacao CSV funciona quando aplicavel | PENDENTE | |
+| Carregamento de estrutura associada funciona quando aplicavel | PENDENTE | |
+| Comportamento sem selecao e controlado | PENDENTE | |
+| Comportamento com dados ausentes e controlado | PENDENTE | |
+| Mensagens de status sao exibidas corretamente | PENDENTE | |
+| Visual dark mode permanece consistente | PENDENTE | |
+
+### Resultado final do smoke
+
+Resultado:
+
+PENDENTE
+
+Conclusao:
+
+Aguardando execucao manual.
+
+### Decisao apos smoke
+
+Se aprovado:
+
+- registrar resultado como APROVADO;
+- commitar o registro;
+- decidir se a fatia Decisoes dark panel pode sair de pendencia operacional parcial.
+
+Se reprovado:
+
+- registrar falha objetiva;
+- classificar se e correcao funcional, melhoria visual ou fora de escopo;
+- corrigir apenas se permanecer dentro da fatia Decisoes dark panel.
