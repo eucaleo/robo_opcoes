@@ -102,7 +102,7 @@ Itens:
 
 Esta frente nao deve ser corrigida dentro de branch visual de Decisoes.
 
-#### 5. Regressao e smoke manual da UI
+#### 5. Regressao e validacao automatizada da UI
 
 Classificacao:
 
@@ -131,7 +131,7 @@ Ordem sugerida:
 2. concluir documentacao das pendencias por classificacao;
 3. abrir frentes pequenas e separadas por area;
 4. evitar misturar banco, regra de negocio, services e UI visual na mesma branch;
-5. validar cada fatia com py_compile, git diff --check e smoke manual;
+5. validar cada fatia com py_compile, git diff --check e testes automatizados/execucao assistida com acesso ao sistema;
 6. somente discutir substituicao da UI atual apos matriz global de equivalencia.
 
 ### Decisao operacional
@@ -237,31 +237,31 @@ A matriz cruzada nao autoriza alteracao conjunta de areas. Cada proxima fatia de
 
 ---
 
-## Referencia checklist de smoke manual para Decisoes
+## Referencia legada do checklist de smoke manual para Decisoes
 
 Data: 2026-07-03 16:36:01 -0300
 
-Foi criado o checklist de smoke manual da area Decisoes:
+O checklist de smoke manual da area Decisoes foi mantido apenas como registro legado:
 
     docs/SMOKE_MANUAL_DECISOES_UI.md
 
-Este checklist deve ser executado antes de novas alteracoes de runtime ou antes de qualquer declaracao de equivalencia completa.
+Este checklist permanece apenas como referencia historica e nao deve bloquear novas alteracoes; a validacao atual deve ocorrer por testes automatizados e/ou execucao assistida com acesso ao sistema.
 
 Regra operacional:
 
-A UI canonica permanece preservada. A area Decisoes continua como equivalencia parcial operacional ate execucao e registro do smoke manual.
+A UI canonica permanece preservada. A area Decisoes nao depende mais de smoke manual como bloqueador documental; a validacao atual deve ocorrer por testes automatizados e/ou execucao assistida com acesso ao sistema.
 
 ---
 
-## Referencia template de registro de execucao do smoke de Decisoes
+## Referencia legada do template de registro de execucao do smoke de Decisoes
 
 Data: 2026-07-03 16:43:01 -0300
 
-Foi criado o template de registro de execucao do smoke manual da area Decisoes:
+O template de registro de execucao do smoke manual da area Decisoes foi mantido apenas como registro legado:
 
     docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
 
-Este documento deve ser preenchido apos a execucao do checklist:
+Este documento permanece como referencia historica do antigo fluxo de checklist:
 
     docs/SMOKE_MANUAL_DECISOES_UI.md
 

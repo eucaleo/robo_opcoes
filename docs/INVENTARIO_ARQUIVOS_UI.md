@@ -282,7 +282,7 @@ Cada candidato ainda precisa ser classificado na matriz global como:
 2. Arquivos de banco/dados/pipeline nao devem ser misturados com refactor visual.
 3. Areas Terminal VWAP, payoff curve e UIDataModel exigem auditoria propria.
 4. A UI canonica permanece preservada ate decisao explicita.
-5. Este inventario nao substitui smoke manual.
+5. Este inventario nao substitui testes automatizados, revisao tecnica ou execucao assistida com acesso ao sistema.
 
 ## Proxima acao recomendada
 

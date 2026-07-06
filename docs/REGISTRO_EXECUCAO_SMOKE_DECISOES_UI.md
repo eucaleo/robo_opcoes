@@ -1,3 +1,10 @@
+# Status: LEGADO
+
+Este documento foi mantido como registro historico. Ele nao deve ser usado como bloqueador operacional atual.
+A validacao da area Decisoes deve ocorrer por testes automatizados e/ou execucao assistida com acesso ao sistema.
+
+---
+
 # Registro de Execucao do Smoke Manual - UI Decisoes
 
 Data de criacao do template: 2026-07-03 16:43:01 -0300
@@ -8,7 +15,7 @@ Commit base: 699779d
 
 ## Objetivo
 
-Este documento deve ser preenchido apos a execucao do checklist de smoke manual da area Decisoes.
+Este documento permanece como referencia historica do antigo checklist de smoke manual da area Decisoes.
 
 Checklist relacionado:
 

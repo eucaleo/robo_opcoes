@@ -1,3 +1,10 @@
+# Status: LEGADO
+
+Este documento foi mantido como registro historico. Ele nao deve ser usado como bloqueador operacional atual.
+A validacao da area Decisoes deve ocorrer por testes automatizados e/ou execucao assistida com acesso ao sistema.
+
+---
+
 # Checklist de Smoke Manual da UI - Decisoes
 
 Data: 2026-07-03 16:36:02 -0300
