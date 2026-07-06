@@ -268,3 +268,35 @@ Este documento permanece como referencia historica do antigo fluxo de checklist:
 Regra operacional:
 
 O preenchimento do registro nao declara equivalencia completa automaticamente. A UI canonica permanece preservada ate decisao explicita.
+
+<!-- CHECKPOINT_REFATOR_DECISIONS_DARK_PANEL_LARGE_BLOCK_2026_07_06 -->
+
+## Checkpoint local — refactor/decisions-dark-panel-large-block
+
+Data: 2026-07-06  
+Branch: `refactor/decisions-dark-panel-large-block`
+
+### Evolução já consolidada nesta frente
+
+- A branch foi reiniciada a partir do controle consolidado da auditoria de UI.
+- As referências a smoke manual foram reclassificadas como validação legada, sem função de bloqueio operacional.
+- A lista de pendências da UI de decisões deixou de tratar smoke manual como bloqueador obrigatório.
+- O repositório passou a ter normalização versionada de line endings via `.gitattributes`, reduzindo avisos recorrentes de LF/CRLF.
+- O remoto `origin/refactor/decisions-dark-panel-large-block` está atualizado até o commit `d2a95ee`.
+
+### Commits de referência
+
+- `3dbe277` — `docs(ui): reinicia reports com controle consolidado da auditoria`
+- `0bd8b82` — `docs: remove smoke manual blocker from decisions UI pending list`
+- `e54f90b` — `docs: reclassify smoke manual references as legacy validation`
+- `d2a95ee` — `chore: normalize repository line endings`
+
+### Decisão operacional
+
+Antes de abrir nova correção nesta branch, consultar este checkpoint para evitar refazimentos, especialmente sobre:
+
+- smoke manual;
+- validações legadas;
+- pendências documentais da UI de decisões;
+- normalização de line endings.
+
