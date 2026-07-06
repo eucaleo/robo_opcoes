@@ -513,3 +513,93 @@ Essa acao nao deve alterar:
 - pipeline.
 
 Depois do acionador, o smoke manual deve ser executado novamente.
+
+<!-- SMOKE_DECISOES_DARK_PANEL_2026_07_06_EXECUCAO_CORRIGIDA_APROVADA -->
+
+## Smoke manual Decisoes dark panel - execucao corrigida aprovada
+
+Data: 2026-07-06
+
+Branch:
+
+    refactor/decisions-dark-panel-large-block
+
+Commit base executado:
+
+    644f73c
+
+Entrypoint correto usado:
+
+    python -m UI.modern
+
+Iniciador rapido validado:
+
+    INICIAR_UI_ROBO_OPCOES.cmd
+
+Classificacao:
+
+    REGRESSAO_UI_DECISOES
+
+### Contexto
+
+A execucao anterior registrada neste documento foi retificada porque nao inicializava a UI moderna pelo caminho correto.
+
+A execucao corrigida foi realizada usando o entrypoint correto da UI moderna dark:
+
+    python -m UI.modern
+
+Tambem foi corrigido e validado o iniciador rapido da raiz do projeto:
+
+    INICIAR_UI_ROBO_OPCOES.cmd
+
+### Evidencia observada no console
+
+    [ModernApp] Abrindo UI moderna mode='dark' theme='dark' module='UI.modern.dark_window'
+    [UI] Usando derived DB: C:\Users\eucal\projeto\dados\derived.db
+    [ModernDarkUI] 5 estruturas carregadas
+    [UI] Usando contrato canonico para payoff_curve_points
+    [ModernDarkUI] 8 decisoes carregadas no modo dark
+    [ModernDarkUI] Estrutura carregada: ID 2
+    [ModernDarkUI] Dados recarregados
+    [ModernDarkUI] Decisao selecionada: estrutura=3, decisao=HOLD
+    [ModernDarkUI] Estrutura 3 carregada a partir da decisao
+
+### Resultado por item
+
+| Item | Resultado | Evidencia/observacao |
+| --- | --- | --- |
+| UI moderna inicializa pelo entrypoint correto | APROVADO | Execucao confirmada com python -m UI.modern |
+| Modo dark inicializa | APROVADO | Console registrou mode dark e theme dark |
+| Banco derivado e carregado | APROVADO | Console registrou uso de dados derived.db |
+| Estruturas carregam | APROVADO | Console registrou 5 estruturas carregadas |
+| Decisoes carregam no modo dark | APROVADO | Console registrou 8 decisoes carregadas no modo dark |
+| Selecao de decisao funciona | APROVADO | Console registrou decisao selecionada estrutura 3 HOLD |
+| Estrutura associada a decisao carrega | APROVADO | Console registrou estrutura 3 carregada a partir da decisao |
+| Recarregamento de dados funciona | APROVADO | Console registrou dados recarregados |
+| Contrato canonico de payoff permanece usado | APROVADO | Console registrou contrato canonico para payoff_curve_points |
+| Iniciador rapido da raiz valida sem abrir UI | APROVADO | INICIAR_UI_ROBO_OPCOES.cmd --check retornou OK |
+| Execucao sem erros visiveis | APROVADO | Operador confirmou sistema funcional, sem erros e sem problemas |
+
+### Resultado final
+
+Resultado:
+
+    APROVADO
+
+Conclusao:
+
+    Smoke manual da fatia Decisoes dark panel aprovado apos uso do entrypoint correto da UI moderna.
+
+    A retificacao anterior permanece valida como historico da tentativa invalida.
+
+    Esta secao registra a execucao corrigida e aprovada.
+
+### Decisao operacional
+
+A fatia Decisoes dark panel fica validada operacionalmente por smoke manual nesta branch.
+
+A correcao tambem deixa disponivel um iniciador rapido na raiz do projeto, apontando para o comando funcional:
+
+    python -m UI.modern
+
+Esta validacao nao altera banco, schema, regra de negocio, services, repositories, controllers, pipeline ou entrypoint principal da API.
