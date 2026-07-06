@@ -304,9 +304,13 @@ Mesmo apos o preenchimento deste registro:
 
 Data: 2026-07-06
 
-Branch: `refactor/decisions-dark-panel-large-block`
+Branch:
 
-Commit base: `c41a3f1`
+    refactor/decisions-dark-panel-large-block
+
+Commit base:
+
+    c41a3f1
 
 Classificacao:
 
@@ -405,17 +409,21 @@ Se reprovado:
 
 Data: 2026-07-06
 
-Branch: `refactor/decisions-dark-panel-large-block`
+Branch:
 
-Commit executado: `5367d60`
+    refactor/decisions-dark-panel-large-block
+
+Commit executado:
+
+    5367d60
 
 Entrypoint usado:
 
-`python main.py`
+    python main.py
 
 Codigo de saida do processo da UI:
 
-`0`
+    0
 
 Classificacao:
 
@@ -462,11 +470,17 @@ Este registro nao declara equivalencia global da UI moderna dark.
 
 Data: 2026-07-06
 
-Branch: `refactor/decisions-dark-panel-large-block`
+Branch:
 
-Commit retificado: `5f8fe5c`
+    refactor/decisions-dark-panel-large-block
 
-Commit da retificacao: `5f8fe5c`
+Commit retificado:
+
+    5f8fe5c
+
+Commit da retificacao:
+
+    5f8fe5c
 
 Classificacao:
 
@@ -480,7 +494,7 @@ Tambem houve itens sem preenchimento de resultado e conclusao final vazia.
 
 ### Decisao
 
-O smoke registrado no commit `5f8fe5c` fica reclassificado como:
+O smoke registrado no commit 5f8fe5c fica reclassificado como:
 
 INVALIDO_COMO_APROVACAO
 
@@ -490,8 +504,8 @@ REPROVADO_POR_NAO_INICIALIZACAO_DA_UI
 
 ### Evidencias que motivaram a retificacao
 
-- `UI abre pelo caminho atual do projeto` registrado como `NA` com observacao `caminho da UI nao encontrado`;
-- itens seguintes registrados como `NA` por UI nao inicializada;
+- UI abre pelo caminho atual do projeto registrado como NA com observacao caminho da UI nao encontrado;
+- itens seguintes registrados como NA por UI nao inicializada;
 - itens finais ficaram sem resultado preenchido;
 - conclusao objetiva ficou vazia;
 - a aprovacao automatica foi indevida para este cenario.
@@ -502,7 +516,7 @@ Criar acionador clicavel na raiz do projeto para facilitar a inicializacao da UI
 
 Essa acao nao deve alterar:
 
-- `main.py`;
+- main.py;
 - entrypoint principal;
 - banco;
 - schema;
