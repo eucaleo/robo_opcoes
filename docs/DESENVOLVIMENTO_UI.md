@@ -273,7 +273,7 @@ O preenchimento do registro nao declara equivalencia completa automaticamente. A
 
 ## Checkpoint local — refactor/decisions-dark-panel-large-block
 
-Data: 2026-07-06  
+Data: 2026-07-06
 Branch: `refactor/decisions-dark-panel-large-block`
 
 ### Evolução já consolidada nesta frente
@@ -282,7 +282,7 @@ Branch: `refactor/decisions-dark-panel-large-block`
 - As referências a smoke manual foram reclassificadas como validação legada, sem função de bloqueio operacional.
 - A lista de pendências da UI de decisões deixou de tratar smoke manual como bloqueador obrigatório.
 - O repositório passou a ter normalização versionada de line endings via `.gitattributes`, reduzindo avisos recorrentes de LF/CRLF.
-- O remoto `origin/refactor/decisions-dark-panel-large-block` está atualizado até o commit `d2a95ee`.
+- O checkpoint foi consolidado a partir do commit `d2a95ee`, com registro documental publicado em `66ff4c8`.
 
 ### Commits de referência
 
@@ -290,6 +290,7 @@ Branch: `refactor/decisions-dark-panel-large-block`
 - `0bd8b82` — `docs: remove smoke manual blocker from decisions UI pending list`
 - `e54f90b` — `docs: reclassify smoke manual references as legacy validation`
 - `d2a95ee` — `chore: normalize repository line endings`
+- `66ff4c8` — `docs: record decisions ui refactor checkpoint`
 
 ### Decisão operacional
 
@@ -299,4 +300,3 @@ Antes de abrir nova correção nesta branch, consultar este checkpoint para evit
 - validações legadas;
 - pendências documentais da UI de decisões;
 - normalização de line endings.
-
