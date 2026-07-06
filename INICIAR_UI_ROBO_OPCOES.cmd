@@ -1,16 +1,19 @@
 @echo off
 setlocal
 
-title Robo Opcoes - UI
+title Robo Opcoes - UI Moderna Dark
 
 cd /d "%~dp0"
 
 echo ================================================
-echo Robo Opcoes - Inicializador da UI
+echo Robo Opcoes - UI Moderna Dark
 echo ================================================
 echo.
-echo Diretorio do projeto:
+echo Diretorio:
 echo %CD%
+echo.
+echo Comando:
+echo python -m UI.modern
 echo.
 
 if /I "%~1"=="--check" goto CHECK_ONLY
@@ -18,26 +21,26 @@ if /I "%~1"=="--check" goto CHECK_ONLY
 call :resolve_python
 if errorlevel 1 goto FAIL
 
-if not exist "main.py" (
-    echo ERRO: main.py nao encontrado na raiz do projeto.
-    echo Este acionador deve permanecer na raiz do repositorio.
+if not exist "UI\modern\__main__.py" (
+    echo ERRO: UI\modern\__main__.py nao encontrado.
+    echo.
+    echo Este arquivo .cmd precisa ficar na raiz do projeto.
     goto FAIL
 )
 
-echo Iniciando UI pelo entrypoint principal preservado:
-echo python main.py
+echo Iniciando sistema...
 echo.
 
-"%PY_EXE%" %PY_ARGS% main.py
+"%PY_EXE%" %PY_ARGS% -m UI.modern
 set "EXIT_CODE=%ERRORLEVEL%"
 
 echo.
 echo ================================================
-echo UI encerrada com codigo: %EXIT_CODE%
+echo Sistema encerrado com codigo: %EXIT_CODE%
 echo ================================================
 echo.
-echo Pressione qualquer tecla para fechar esta janela.
-pause >nul
+echo Pressione qualquer tecla para fechar.
+pause >NUL
 
 exit /b %EXIT_CODE%
 
@@ -45,14 +48,19 @@ exit /b %EXIT_CODE%
 call :resolve_python
 if errorlevel 1 exit /b 1
 
-if not exist "main.py" (
-    echo ERRO: main.py nao encontrado.
+if not exist "UI\modern\__main__.py" (
+    echo ERRO: UI\modern\__main__.py nao encontrado.
     exit /b 1
 )
 
-echo OK: acionador validado.
+if not exist "UI\modern\app.py" (
+    echo ERRO: UI\modern\app.py nao encontrado.
+    exit /b 1
+)
+
+echo OK: iniciador validado.
 echo Python selecionado: %PY_EXE% %PY_ARGS%
-echo Entrypoint preservado: main.py
+echo Comando usado: python -m UI.modern
 exit /b 0
 
 :resolve_python
@@ -65,14 +73,14 @@ if exist ".venv\Scripts\python.exe" (
     exit /b 0
 )
 
-where python >nul 2>nul
+where python >NUL 2>&1
 if not errorlevel 1 (
     set "PY_EXE=python"
     set "PY_ARGS="
     exit /b 0
 )
 
-where py >nul 2>nul
+where py >NUL 2>&1
 if not errorlevel 1 (
     set "PY_EXE=py"
     set "PY_ARGS=-3"
@@ -80,12 +88,17 @@ if not errorlevel 1 (
 )
 
 echo ERRO: Python nao encontrado.
-echo Instale Python ou ative o ambiente virtual do projeto.
+echo.
+echo Tente rodar manualmente:
+echo python -m UI.modern
+echo.
+echo Ou verifique se o Python esta instalado no PATH.
 exit /b 1
 
 :FAIL
 echo.
-echo Falha ao iniciar a UI.
-echo Pressione qualquer tecla para fechar esta janela.
-pause >nul
+echo Falha ao iniciar o sistema.
+echo.
+echo Pressione qualquer tecla para fechar.
+pause >NUL
 exit /b 1
