@@ -59,24 +59,7 @@ DOCUMENTACAO_DE_CONTROLE
 
 ## 4. Pendencias da fatia Decisoes dark panel
 
-### 4.1. Smoke manual ainda nao executado nesta etapa
-
-O smoke manual ainda deve ser executado, mas nao deve ser o primeiro passo desta nova analise.
-
-Arquivos relacionados:
-
-- docs/SMOKE_MANUAL_DECISOES_UI.md
-- docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
-
-Classificacao:
-
-REGRESSAO_UI_DECISOES
-
-Status:
-
-PENDENTE_PARA_ETAPA_POSTERIOR
-
-### 4.2. Backlog de melhorias da aba Decisoes
+### 4.1. Backlog de melhorias da aba Decisoes
 
 Itens remanescentes:
 
