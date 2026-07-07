@@ -462,12 +462,57 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             self.structures = self._load_structures()
         except Exception as exc:
             self.structures = []
+            self._render_empty_active_structure_view()
             self._render_structures_list()
             self._safe_status(f"Erro ao carregar estruturas: {exc}")
             return
 
         self._render_structures_list()
         self._safe_status(f"{len(self.structures)} estruturas carregadas")
+
+    def _render_empty_active_structure_view(self) -> None:
+        self.selected_structure = None
+
+        if hasattr(self, "header"):
+            self.header.configure(
+                text="Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff"
+            )
+
+        default_kpis = {
+            "preco": "N/A",
+            "vwap": "N/A",
+            "diff": "N/A",
+            "pontos": "0",
+            "minmax": "N/A",
+            "be": "N/A",
+        }
+
+        labels = getattr(self, "kpi_labels", {}) or {}
+        for key, value in default_kpis.items():
+            label = labels.get(key)
+            if label is None:
+                continue
+
+            try:
+                label.configure(text=value)
+            except Exception:
+                pass
+
+        render_calls = (
+            ("_render_legs", ([],)),
+            ("_render_alerts", ({}, [], [])),
+            ("_render_empty_charts", ()),
+        )
+
+        for method_name, args in render_calls:
+            method = getattr(self, method_name, None)
+            if not callable(method):
+                continue
+
+            try:
+                method(*args)
+            except Exception:
+                pass
 
     def _connect(self) -> sqlite3.Connection:
         db = Path(self.db_path)

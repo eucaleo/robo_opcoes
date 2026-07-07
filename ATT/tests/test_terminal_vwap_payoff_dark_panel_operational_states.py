@@ -130,6 +130,77 @@ def test_reload_structures_handles_load_error_as_empty_state_without_tk():
     ]
 
 
+def test_reload_structures_load_error_clears_active_structure_view_without_tk():
+    instance = make_dark_panel_instance()
+    instance.selected_structure = {"id": 99, "name": "Estrutura antiga"}
+    instance.structures = [{"id": 99, "name": "Estrutura antiga"}]
+
+    class FakeHeader:
+        def __init__(self):
+            self.text = None
+
+        def configure(self, **kwargs):
+            self.text = kwargs.get("text")
+
+    class FakeLabel:
+        def __init__(self):
+            self.text = None
+
+        def configure(self, **kwargs):
+            self.text = kwargs.get("text")
+
+    instance.header = FakeHeader()
+    instance.kpi_labels = {
+        "preco": FakeLabel(),
+        "vwap": FakeLabel(),
+        "diff": FakeLabel(),
+        "pontos": FakeLabel(),
+        "minmax": FakeLabel(),
+        "be": FakeLabel(),
+    }
+    instance.rendered_legs = None
+    instance.rendered_alerts = None
+    instance.empty_charts_calls = 0
+
+    def fail_loading_structures():
+        raise RuntimeError("falha simulada")
+
+    def render_legs(legs):
+        instance.rendered_legs = legs
+
+    def render_alerts(market, payoff_points, legs):
+        instance.rendered_alerts = (market, payoff_points, legs)
+
+    def render_empty_charts():
+        instance.empty_charts_calls += 1
+
+    instance._load_structures = fail_loading_structures
+    instance._render_legs = render_legs
+    instance._render_alerts = render_alerts
+    instance._render_empty_charts = render_empty_charts
+
+    instance.reload_structures()
+
+    assert instance.selected_structure is None
+    assert instance.structures == []
+    assert instance.render_list_calls == 1
+    assert instance.header.text == (
+        "Selecione uma estrutura no menu lateral para carregar a VWAP e Payoff"
+    )
+    assert {key: label.text for key, label in instance.kpi_labels.items()} == {
+        "preco": "N/A",
+        "vwap": "N/A",
+        "diff": "N/A",
+        "pontos": "0",
+        "minmax": "N/A",
+        "be": "N/A",
+    }
+    assert instance.rendered_legs == []
+    assert instance.rendered_alerts == ({}, [], [])
+    assert instance.empty_charts_calls == 1
+    assert instance.status_calls == ["Erro ao carregar estruturas: falha simulada"]
+
+
 def test_require_selected_structure_reports_clear_status_without_tk(captured_warnings):
     instance = make_dark_panel_instance()
 
