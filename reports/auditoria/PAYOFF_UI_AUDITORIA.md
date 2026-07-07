@@ -148,3 +148,29 @@ A frente permanece em auditoria documental.
 A presenca de arquivos em controller, services, domain e banco confirma que qualquer correcao funcional deve ser precedida de reclassificacao.
 
 Nesta etapa nao houve alteracao funcional.
+
+<!-- CHECKLIST_SMOKE_PAYOFF_UI_2026_07_06 -->
+
+## 9. Checklist de smoke Payoff UI
+
+Data:
+
+    2026-07-06 22:18:40
+
+Documento gerado:
+
+    docs/CHECKLIST_SMOKE_PAYOFF_UI.md
+
+Resultado:
+
+    CHECKLIST_SMOKE_DOCUMENTAL
+
+Decisao:
+
+Foi criado checklist manual minimo para validar abertura, renderizacao, interacao minima e encerramento da area Payoff UI.
+
+A frente permanece sem patch funcional.
+
+Proximo passo recomendado:
+
+    Executar smoke manual e preencher docs/REGISTRO_EXECUCAO_SMOKE_PAYOFF_UI.md
