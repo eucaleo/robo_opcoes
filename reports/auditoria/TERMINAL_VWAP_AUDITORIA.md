@@ -1452,3 +1452,33 @@ Proxima acao autorizada:
 Criterio para parar:
 
     Se a validacao exigir alteracao de banco, pipeline, regra de negocio, services, repositories ou controllers, parar e reclassificar antes de qualquer patch.
+
+<!-- PREPARACAO_SMOKE_TERMINAL_VWAP_2026_07_06 -->
+
+## 14. Preparacao do smoke manual Terminal VWAP
+
+Data: 2026-07-06
+
+Documento de roteiro:
+
+    docs/SMOKE_MANUAL_TERMINAL_VWAP_UI.md
+
+Documento de registro de execucao:
+
+    docs/REGISTRO_EXECUCAO_SMOKE_TERMINAL_VWAP_UI.md
+
+Commit base:
+
+    a19cbf1
+
+Status:
+
+    PENDENTE_EXECUCAO_MANUAL
+
+Componente principal provavel:
+
+    UI/components/terminal_vwap_payoff_dark_panel.py
+
+Decisao:
+
+    Smoke manual observacional preparado. Proxima acao autorizada e abrir a UI pelo caminho atual do projeto e preencher o registro de execucao.
