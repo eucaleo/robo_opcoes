@@ -33,6 +33,14 @@ MODES: Dict[str, str] = {
 }
 
 
+
+def _env_default(name: str, fallback: str, allowed: set[str]) -> str:
+    value = os.environ.get(name, "").strip().lower()
+    if value in allowed:
+        return value
+    return fallback
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="python -m UI.modern",
@@ -42,14 +50,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--mode",
         choices=sorted(MODES),
-        default="dark",
+        default=_env_default("MYHUB_UI_MODE", "dark", {"dark", "shell"}),
         help="Modo de inicialização da UI moderna. Padrão: dark.",
     )
 
     parser.add_argument(
         "--theme",
         choices=["dark", "clean"],
-        default="dark",
+        default=_env_default("MYHUB_UI_THEME", "dark", {"dark", "clean"}),
         help=(
             "Tema desejado. Neste estágio, o tema é propagado para o runtime "
             "e prepara a convergência futura dos componentes."
