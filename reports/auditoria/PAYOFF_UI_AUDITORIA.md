@@ -112,3 +112,39 @@ Documento de inventario relacionado:
 Documento de smoke preparado:
 
     docs/REGISTRO_EXECUCAO_SMOKE_PAYOFF_UI.md
+
+<!-- MAPA_PAYOFF_UI_2026_07_06 -->
+
+## 8. Mapa inicial de arquivos Payoff UI
+
+Data:
+
+    2026-07-06 22:10:24
+
+Documento gerado:
+
+    docs/MAPA_ARQUIVOS_PAYOFF_UI.md
+
+Resultado:
+
+    MAPA_INICIAL_CLASSIFICADO
+
+Resumo:
+
+- UI: 3
+- TESTE: 6
+- CONTROLLER: 1
+- SERVICE: 4
+- DOMAIN: 2
+- BANCO_MIGRATION: 1
+- DOCUMENTACAO: 6
+- SCRIPT_PYTHON: 1
+- OUTRO: 0
+
+Decisao:
+
+A frente permanece em auditoria documental.
+
+A presenca de arquivos em controller, services, domain e banco confirma que qualquer correcao funcional deve ser precedida de reclassificacao.
+
+Nesta etapa nao houve alteracao funcional.
