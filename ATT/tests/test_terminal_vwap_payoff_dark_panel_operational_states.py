@@ -112,6 +112,24 @@ def captured_warnings(monkeypatch):
     return calls
 
 
+def test_reload_structures_handles_load_error_as_empty_state_without_tk():
+    instance = make_dark_panel_instance()
+    instance.structures = [{"id": 1, "name": "Estrutura antiga"}]
+
+    def fail_loading_structures():
+        raise FileNotFoundError("Banco app.db nao encontrado")
+
+    instance._load_structures = fail_loading_structures
+
+    instance.reload_structures()
+
+    assert instance.structures == []
+    assert instance.render_list_calls == 1
+    assert instance.status_calls == [
+        "Erro ao carregar estruturas: Banco app.db nao encontrado"
+    ]
+
+
 def test_require_selected_structure_reports_clear_status_without_tk(captured_warnings):
     instance = make_dark_panel_instance()
 

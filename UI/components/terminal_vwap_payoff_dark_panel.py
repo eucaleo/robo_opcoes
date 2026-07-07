@@ -458,9 +458,16 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             self._render_structures_list()
 
     def reload_structures(self) -> None:
-        self.structures = self._load_structures()
+        try:
+            self.structures = self._load_structures()
+        except Exception as exc:
+            self.structures = []
+            self._render_structures_list()
+            self._safe_status(f"Erro ao carregar estruturas: {exc}")
+            return
+
         self._render_structures_list()
-        self.on_status(f"{len(self.structures)} estruturas carregadas")
+        self._safe_status(f"{len(self.structures)} estruturas carregadas")
 
     def _connect(self) -> sqlite3.Connection:
         db = Path(self.db_path)
