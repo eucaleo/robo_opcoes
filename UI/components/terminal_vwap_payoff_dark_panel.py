@@ -1371,14 +1371,26 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
     def _require_selected_structure(self):
         structure = getattr(self, "selected_structure", None)
-        if not structure:
-            messagebox.showwarning(
-                "Estrutura",
-                "Selecione uma estrutura antes de executar esta acao.",
-                parent=self.winfo_toplevel(),
-            )
-            return None
-        return structure
+        if structure:
+            return structure
+
+        message = (
+            "Nenhuma estrutura selecionada. "
+            "Selecione uma estrutura no menu lateral antes de executar esta acao."
+        )
+        self._safe_status(message)
+
+        try:
+            parent = self.winfo_toplevel()
+        except Exception:
+            parent = None
+
+        messagebox.showwarning(
+            "Estrutura",
+            message,
+            parent=parent,
+        )
+        return None
 
 
     def _side_section_title(self, text: str) -> None:
