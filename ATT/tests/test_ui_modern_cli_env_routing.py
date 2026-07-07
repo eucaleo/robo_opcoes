@@ -57,3 +57,18 @@ def test_python_m_ui_modern_info_cli_arguments_override_environment():
     assert "mode: dark" in result.stdout
     assert "theme: dark" in result.stdout
     assert "module: UI.modern.dark_window" in result.stdout
+
+
+def test_python_m_ui_modern_info_ignores_invalid_environment_values():
+    result = run_ui_modern_info_with_env(
+        {
+            "MYHUB_UI_MODE": "banana",
+            "MYHUB_UI_THEME": "neon",
+        }
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "[ModernApp] Informações do launcher moderno" in result.stdout
+    assert "mode: dark" in result.stdout
+    assert "theme: dark" in result.stdout
+    assert "module: UI.modern.dark_window" in result.stdout
