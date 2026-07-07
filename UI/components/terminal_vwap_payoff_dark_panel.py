@@ -1393,6 +1393,40 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         return None
 
 
+    def _require_active_selected_structure(self, action_label: str) -> Optional[Dict[str, Any]]:
+        structure = self._require_selected_structure()
+        if not structure:
+            return None
+
+        if self._is_structure_already_archived(structure):
+            self._handle_archived_structure_action_blocked(structure, action_label)
+            return None
+
+        return structure
+
+    def _handle_archived_structure_action_blocked(
+        self,
+        structure: Dict[str, Any],
+        action_label: str,
+    ) -> None:
+        sid = structure.get("id")
+        msg = (
+            f"Estrutura ID {sid} esta encerrada/arquivada. "
+            f"Acao bloqueada: {action_label}."
+        )
+        self._safe_status(msg)
+
+        try:
+            parent = self.winfo_toplevel()
+        except Exception:
+            parent = None
+
+        messagebox.showwarning(
+            "Estrutura arquivada",
+            msg,
+            parent=parent,
+        )
+
     def _side_section_title(self, text: str) -> None:
         label = ctk.CTkLabel(
             self.side,
@@ -1692,7 +1726,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
 
     def _render_adjust_structure_block(self) -> None:
-        structure = self._require_selected_structure()
+        structure = self._require_active_selected_structure("ajustar estrutura")
         if not structure:
             return
 
@@ -1773,7 +1807,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
 
     def edit_selected_structure(self) -> None:
-        structure = self._require_selected_structure()
+        structure = self._require_active_selected_structure("editar pernas")
         if not structure:
             return
 
@@ -1917,7 +1951,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
 
     def recalculate_selected_structure(self) -> None:
-        structure = self._require_selected_structure()
+        structure = self._require_active_selected_structure("recalcular payoff")
         if not structure:
             return
 
@@ -1990,7 +2024,15 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         return structure.get("name") or f"ID {sid}"
 
     def _is_structure_already_archived(self, structure: Dict[str, Any]) -> bool:
-        return structure.get("status") == "archived"
+        status = str(structure.get("status") or "").strip().lower()
+        return status in {
+            "archived",
+            "closed",
+            "encerrada",
+            "encerrado",
+            "arquivada",
+            "arquivado",
+        }
 
     def _handle_already_archived_structure(self, name: str) -> None:
         msg = f"Estrutura '{name}' ja esta arquivada."
@@ -2041,6 +2083,13 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         name = structure.get("name") or f"ID {sid}"
         label = decision_label(raw_decision)
 
+        if raw_decision != "CLOSE" and self._is_structure_already_archived(structure):
+            self._handle_archived_structure_action_blocked(
+                structure,
+                f"registrar decisao {raw_decision}",
+            )
+            return
+
         if raw_decision == "CLOSE":
             self._register_close_structure_decision(
                 structure,
@@ -2061,8 +2110,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         decision: str,
         label: str,
     ) -> None:
-        current_status = str(structure.get("status") or "").strip().lower()
-        if current_status == "archived":
+        if self._is_structure_already_archived(structure):
             msg = f"Estrutura ID {sid} ja esta encerrada/arquivada."
             self._safe_status(msg)
             self._render_structure_actions(notice=msg)

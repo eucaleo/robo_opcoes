@@ -203,3 +203,193 @@ def test_operational_actions_stop_safely_without_selected_structure(
         "Selecione uma estrutura no menu lateral antes de executar esta acao."
     ]
     assert len(captured_warnings) == 1
+
+
+@pytest.mark.parametrize(
+    "status",
+    [
+        "archived",
+        "ARCHIVED",
+        " archived ",
+        "closed",
+        "encerrada",
+        "encerrado",
+        "arquivada",
+        "arquivado",
+    ],
+)
+def test_archived_structure_status_variants_are_detected(status):
+    instance = make_dark_panel_instance()
+
+    assert instance._is_structure_already_archived({"status": status}) is True
+
+
+@pytest.mark.parametrize(
+    ("method_name", "args", "blocked_action"),
+    [
+        ("edit_selected_structure", (), "editar pernas"),
+        ("recalculate_selected_structure", (), "recalcular payoff"),
+        ("_render_adjust_structure_block", (), "ajustar estrutura"),
+        ("_register_structure_decision", ("HOLD",), "registrar decisao HOLD"),
+        ("_register_structure_decision", ("ADJUST",), "registrar decisao ADJUST"),
+    ],
+)
+def test_archived_structure_blocks_sensitive_operational_actions(
+    captured_warnings,
+    method_name,
+    args,
+    blocked_action,
+):
+    instance = make_dark_panel_instance()
+    instance.selected_structure = {
+        "id": 77,
+        "name": "Condor arquivada",
+        "underlying_asset": "PETR4",
+        "status": "archived",
+    }
+
+    def fail_if_called(*_args, **_kwargs):
+        pytest.fail("Acao sensivel nao deveria continuar com estrutura arquivada.")
+
+    instance._is_structure_editor_available = fail_if_called
+    instance._load_legs = fail_if_called
+    instance._load_market = fail_if_called
+    instance._calculate_payoff_from_legs = fail_if_called
+    instance._insert_structure_decision = fail_if_called
+
+    getattr(instance, method_name)(*args)
+
+    assert instance.clear_side_calls == 0
+    assert instance.status_calls == [
+        f"Estrutura ID 77 esta encerrada/arquivada. Acao bloqueada: {blocked_action}."
+    ]
+    assert captured_warnings == [
+        {
+            "title": "Estrutura arquivada",
+            "message": (
+                f"Estrutura ID 77 esta encerrada/arquivada. "
+                f"Acao bloqueada: {blocked_action}."
+            ),
+            "parent": None,
+        }
+    ]
+
+
+def test_close_decision_on_archived_structure_uses_already_closed_flow(captured_warnings):
+    instance = make_dark_panel_instance()
+    instance.selected_structure = {
+        "id": 88,
+        "name": "Borboleta encerrada",
+        "underlying_asset": "VALE3",
+        "status": "archived",
+    }
+    render_notices = []
+
+    def fail_if_called(*_args, **_kwargs):
+        pytest.fail("Encerramento ja arquivado nao deveria acessar repositorio ou banco.")
+
+    def render_structure_actions(notice=None):
+        render_notices.append(notice)
+
+    instance._is_structures_repository_available = fail_if_called
+    instance._insert_structure_decision = fail_if_called
+    instance._render_structure_actions = render_structure_actions
+
+    instance._register_structure_decision("CLOSE")
+
+    assert instance.status_calls == [
+        "Estrutura ID 88 ja esta encerrada/arquivada."
+    ]
+    assert render_notices == [
+        "Estrutura ID 88 ja esta encerrada/arquivada."
+    ]
+    assert captured_warnings == []
+
+
+def test_duplicate_archived_structure_is_allowed(monkeypatch, captured_warnings):
+    instance = make_dark_panel_instance()
+    instance.selected_structure = {
+        "id": 99,
+        "name": "Condor encerrada",
+        "underlying_asset": "PETR4",
+        "status": "archived",
+    }
+
+    selected = []
+    rendered_notices = []
+    replaced_legs = []
+
+    source = {
+        "id": 99,
+        "name": "Condor encerrada",
+        "underlying_asset": "PETR4",
+        "alias_legacy_aba": "PETR",
+        "status": "archived",
+        "notes": "original",
+        "legs": [
+            {
+                "id": 1,
+                "structure_id": 99,
+                "symbol": "PETRG100",
+                "qty": 10,
+                "created_at": "x",
+                "updated_at": "y",
+            }
+        ],
+    }
+    duplicated = {
+        "id": 100,
+        "name": "Condor encerrada (copia)",
+        "underlying_asset": "PETR4",
+        "status": "active",
+        "legs": [],
+    }
+
+    class FakeRepo:
+        def __init__(self, db_path):
+            self.db_path = db_path
+
+        def get_structure(self, sid):
+            if sid == 99:
+                return source
+            if sid == 100:
+                return duplicated
+            return None
+
+        def create_structure(self, payload):
+            assert payload["name"] == "Condor encerrada (copia)"
+            assert payload["status"] == "active"
+            return 100
+
+        def replace_legs(self, sid, legs):
+            replaced_legs.append((sid, legs))
+
+    monkeypatch.setattr(dark_panel, "StructuresRepository", FakeRepo)
+
+    instance._is_structures_repository_available = lambda: True
+    instance._get_db_path = lambda: "fake.db"
+    instance.reload_structures = lambda: None
+    instance.select_structure = lambda structure: selected.append(structure)
+    instance._render_structure_actions = lambda notice=None: rendered_notices.append(notice)
+
+    instance.duplicate_selected_structure()
+
+    assert selected == [duplicated]
+    assert rendered_notices == [
+        "Estrutura duplicada com sucesso. Nova ID 100."
+    ]
+    assert replaced_legs == [
+        (
+            100,
+            [
+                {
+                    "symbol": "PETRG100",
+                    "qty": 10,
+                }
+            ],
+        )
+    ]
+    assert instance.status_calls == [
+        "Estrutura duplicada: ID 100"
+    ]
+    assert captured_warnings == []
