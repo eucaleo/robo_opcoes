@@ -385,3 +385,73 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload
     assert window.status_var.get() == (
         "Erro ao recarregar estruturas para decisão 7: falha ao recarregar terminal"
     )
+
+
+def test_modern_dark_window_load_structure_from_decision_handles_terminal_select_failure(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [{"id": 7, "name": "Estrutura com falha"}]
+            self.reload_count = 0
+            self.selected_attempts = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_attempts.append(structure)
+            raise RuntimeError("falha ao selecionar terminal")
+
+    class FakeDecisionsDarkPanel:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def pack(self, *args, **kwargs):
+            pass
+
+    class FakeTabs:
+        def __init__(self):
+            self.set_calls = []
+
+        def set(self, tab_name):
+            self.set_calls.append(tab_name)
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_attempts == [{"id": 7, "name": "Estrutura com falha"}]
+    assert window.tabs.set_calls == []
+    assert window.status_var.get() == (
+        "Erro ao selecionar estrutura 7: falha ao selecionar terminal"
+    )
+
