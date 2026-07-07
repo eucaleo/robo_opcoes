@@ -17,6 +17,8 @@ import customtkinter as ctk
 
 from UI.modern.theme import CUSTOMTKINTER_APPEARANCE_MODE, CUSTOMTKINTER_COLOR_THEME
 
+from UI.modern.smoke_mode import install_smoke_shutdown_if_requested
+
 from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
 from UI.components.decisions_dark_panel import DecisionsDarkPanel
 from UI.models.ui_data import UIDataModel
@@ -189,6 +191,7 @@ class ModernDarkWindow:
         )
 
     def run(self) -> None:
+        install_smoke_shutdown_if_requested(self.root)
         self.root.mainloop()
 
 
