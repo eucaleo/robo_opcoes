@@ -325,3 +325,63 @@ def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fa
     assert window.status_var.get() == (
         "Erro ao recarregar estruturas para decisões: falha no terminal"
     )
+
+
+def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload_failure(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            raise RuntimeError("falha ao recarregar terminal")
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    class FakeDecisionsDarkPanel:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def pack(self, *args, **kwargs):
+            pass
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+
+    window = module.ModernDarkWindow()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == []
+    assert window.status_var.get() == (
+        "Erro ao recarregar estruturas para decisão 7: falha ao recarregar terminal"
+    )

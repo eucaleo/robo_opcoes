@@ -155,7 +155,22 @@ class ModernDarkWindow:
                 structures = []
 
             if not structures and hasattr(self.panel, "reload_structures"):
-                self.panel.reload_structures()
+                try:
+                    self.panel.reload_structures()
+                except Exception as exc:
+                    self.set_status(
+                        f"Erro ao recarregar estruturas para decisão {structure_id}: {exc}"
+                    )
+                    messagebox.showwarning(
+                        "Estruturas indisponíveis",
+                        (
+                            "Não foi possível recarregar as estruturas do Terminal VWAP.\n\n"
+                            f"Erro: {exc}"
+                        ),
+                        parent=self.root,
+                    )
+                    return
+
                 structures = getattr(self.panel, "structures", []) or []
 
             selected = None
@@ -173,7 +188,16 @@ class ModernDarkWindow:
                 )
                 return
 
-            self.panel.select_structure(selected)
+            try:
+                self.panel.select_structure(selected)
+            except Exception as exc:
+                self.set_status(f"Erro ao selecionar estrutura {structure_id}: {exc}")
+                messagebox.showerror(
+                    "Erro ao selecionar estrutura",
+                    str(exc),
+                    parent=self.root,
+                )
+                return
 
             try:
                 self.tabs.set("Terminal VWAP")
