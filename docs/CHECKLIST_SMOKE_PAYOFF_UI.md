@@ -139,3 +139,35 @@ O proximo passo recomendado e executar o smoke manual e preencher docs/REGISTRO_
 Resultado desta etapa:
 
     CHECKLIST_SMOKE_PAYOFF_UI_GERADO_SEM_PATCH_FUNCIONAL
+
+<!-- SMOKE_PAYOFF_UI_MODERNA_2026_07_07 -->
+
+## Diretriz obrigatoria para execucao do smoke
+
+O smoke Payoff UI desta frente deve ser executado na UI moderna.
+
+Comando autorizado:
+
+    python -m UI.modern
+
+O comando run_ui.py nao deve ser usado como smoke principal desta frente, pois abre a UI antiga.
+
+A UI antiga fica congelada para desenvolvimento evolutivo nesta frente. Ela pode ser consultada apenas como referencia visual ou historica, sem receber correcao como alvo principal.
+
+Itens obrigatorios do smoke na UI moderna:
+
+- abrir a UI moderna por python -m UI.modern;
+- confirmar que a janela moderna abre sem erro fatal;
+- localizar o acesso a Payoff ou Terminal VWAP Payoff na UI moderna;
+- validar se a area de Payoff esta visivel;
+- validar comportamento sem estrutura selecionada;
+- validar carregamento de estrutura ou decisao quando disponivel;
+- validar carregamento da curva de payoff quando disponivel;
+- validar mensagens de status;
+- registrar qualquer erro no terminal;
+- registrar lacunas visiveis da UI moderna;
+- nao declarar aprovado com base na UI antiga.
+
+Resultado esperado:
+
+Aprovacao, reprovacao ou aprovacao parcial devem refletir somente a UI moderna.

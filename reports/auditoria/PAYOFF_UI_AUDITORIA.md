@@ -174,3 +174,44 @@ A frente permanece sem patch funcional.
 Proximo passo recomendado:
 
     Executar smoke manual e preencher docs/REGISTRO_EXECUCAO_SMOKE_PAYOFF_UI.md
+
+<!-- DECISAO_ROTA_UI_MODERNA_PAYOFF_2026_07_07 -->
+
+## Decisao de rota para Payoff UI
+
+Data: 2026-07-07
+
+A auditoria Payoff UI passa a considerar a UI moderna como alvo correto de validacao e continuidade.
+
+Comando operacional da UI moderna:
+
+    python -m UI.modern
+
+A UI antiga nao deve receber desenvolvimento evolutivo nesta frente.
+
+Esta decisao nao implica exclusao imediata da UI antiga. A UI antiga permanece apenas como legado preservado enquanto a equivalencia e a substituicao segura nao forem concluidas.
+
+Fica bloqueado nesta frente:
+
+- corrigir visual ou fluxo Payoff na UI antiga como se fosse alvo principal;
+- usar run_ui.py como smoke principal da UI moderna;
+- validar Payoff pela UI antiga e declarar sucesso da UI moderna;
+- misturar correcao da UI antiga com auditoria da UI moderna;
+- trocar banco, schema, regra de negocio, services, repositories, controllers ou pipeline.
+
+Fica permitido nesta frente:
+
+- auditar Payoff na UI moderna;
+- validar abertura por python -m UI.modern;
+- identificar lacunas entre UI antiga e UI moderna;
+- registrar falhas visiveis da UI moderna;
+- propor patch minimo somente depois de evidencia registrada;
+- manter UI antiga sem desenvolvimento evolutivo.
+
+Criterio operacional:
+
+Se uma correcao for necessaria para Payoff UI, primeiro deve ser confirmado se o problema ocorre na UI moderna. Se o problema existir apenas na UI antiga, nao deve ser corrigido nesta frente, salvo decisao documental posterior.
+
+Status:
+
+ROTA AJUSTADA PARA UI MODERNA
