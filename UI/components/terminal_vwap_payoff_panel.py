@@ -18,8 +18,39 @@ O painel consome somente ViewModel normalizado.
 from __future__ import annotations
 
 import tkinter as tk
+from collections.abc import Mapping
 from tkinter import ttk, messagebox
 from typing import Any, Callable
+
+
+def _as_mapping(value: Any) -> dict[str, Any]:
+    if isinstance(value, Mapping):
+        return dict(value)
+
+    return {}
+
+
+def _iter_mappings(value: Any) -> list[dict[str, Any]]:
+    if value is None:
+        return []
+
+    if isinstance(value, Mapping):
+        return []
+
+    if isinstance(value, (str, bytes)):
+        return []
+
+    try:
+        iterator = iter(value)
+    except TypeError:
+        return []
+
+    rows: list[dict[str, Any]] = []
+    for item in iterator:
+        if isinstance(item, Mapping):
+            rows.append(dict(item))
+
+    return rows
 
 
 def _to_float(value: Any) -> float | None:
@@ -78,9 +109,10 @@ def _format_percent_br(value: Any, decimals: int = 2) -> str:
 
 
 def _extract_leg_table_rows(viewmodel: dict[str, Any]) -> list[tuple[str, ...]]:
+    viewmodel = _as_mapping(viewmodel)
     rows: list[tuple[str, ...]] = []
 
-    for leg in viewmodel.get("legs") or []:
+    for leg in _iter_mappings(viewmodel.get("legs")):
         rows.append(
             (
                 _safe_text(leg.get("leg_order")),
@@ -102,8 +134,9 @@ def _extract_payoff_table_rows(
     *,
     limit: int | None = None,
 ) -> list[tuple[str, str]]:
-    payoff = viewmodel.get("payoff") or {}
-    points = payoff.get("points") or []
+    viewmodel = _as_mapping(viewmodel)
+    payoff = _as_mapping(viewmodel.get("payoff"))
+    points = _iter_mappings(payoff.get("points"))
 
     if limit is not None:
         points = points[:limit]
@@ -121,9 +154,10 @@ def _extract_payoff_table_rows(
 
 
 def _summarize_viewmodel(viewmodel: dict[str, Any]) -> dict[str, str]:
-    structure = viewmodel.get("structure") or {}
-    market = viewmodel.get("market") or {}
-    payoff = viewmodel.get("payoff") or {}
+    viewmodel = _as_mapping(viewmodel)
+    structure = _as_mapping(viewmodel.get("structure"))
+    market = _as_mapping(viewmodel.get("market"))
+    payoff = _as_mapping(viewmodel.get("payoff"))
 
     return {
         "structure_id": _safe_text(structure.get("structure_id")),
@@ -418,7 +452,7 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
             )
             return
 
-        self._structures = list(structures or [])
+        self._structures = _iter_mappings(structures)
         self._render_structures()
         self._set_status(f"{len(self._structures)} estruturas disponíveis no terminal")
 
@@ -437,6 +471,10 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
             return
 
         structure_id = structure.get("structure_id")
+        if not _safe_text(structure_id, ""):
+            self._set_status("Estrutura selecionada sem ID válido")
+            return
+
         self.load_structure(structure_id)
 
     def load_structure(self, structure_id: Any) -> None:
@@ -462,7 +500,7 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
         for item in self._structures_tree.get_children():
             self._structures_tree.delete(item)
 
-        for index, structure in enumerate(self._structures):
+        for index, structure in enumerate(_iter_mappings(self._structures)):
             self._structures_tree.insert(
                 "",
                 "end",
@@ -477,7 +515,7 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
             )
 
     def render_viewmodel(self, viewmodel: dict[str, Any]) -> None:
-        self._current_viewmodel = dict(viewmodel or {})
+        self._current_viewmodel = _as_mapping(viewmodel)
 
         summary = _summarize_viewmodel(self._current_viewmodel)
         for key, var in self._summary_vars.items():
@@ -502,7 +540,7 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
         for index, row in enumerate(rows):
             self._payoff_tree.insert("", "end", iid=str(index), values=row)
 
-        payoff = viewmodel.get("payoff") or {}
+        payoff = _as_mapping(_as_mapping(viewmodel).get("payoff"))
         self._payoff_summary_var.set(
             "Pontos: {points} | Mín: {min_result} | Máx: {max_result} | BE: {be}".format(
                 points=_safe_text(payoff.get("points_count")),
@@ -516,8 +554,16 @@ class TerminalVWAPPayoffPanel(ttk.Frame):
         )
 
     def _render_warnings(self, viewmodel: dict[str, Any]) -> None:
-        meta = viewmodel.get("meta") or {}
-        warnings = meta.get("warnings") or []
+        viewmodel = _as_mapping(viewmodel)
+        meta = _as_mapping(viewmodel.get("meta"))
+        raw_warnings = meta.get("warnings")
+
+        if isinstance(raw_warnings, (list, tuple, set)):
+            warnings = [_safe_text(item) for item in raw_warnings if _safe_text(item, "")]
+        elif _safe_text(raw_warnings, ""):
+            warnings = [_safe_text(raw_warnings)]
+        else:
+            warnings = []
 
         text = "\n".join(f"- {item}" for item in warnings) if warnings else "Sem avisos."
 
