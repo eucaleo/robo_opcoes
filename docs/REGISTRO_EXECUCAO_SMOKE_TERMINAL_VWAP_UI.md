@@ -16,7 +16,7 @@ Classificacao:
 
 Status:
 
-    PENDENTE_EXECUCAO_MANUAL
+    CONCLUIDO_VALIDACAO_MINIMA
 
 ## 1. Escopo executado
 
@@ -187,38 +187,40 @@ Preencher manualmente depois de abrir a UI.
 
 Resultado final:
 
-    PENDENTE
+    APROVADO_COM_RESSALVA_OPERACIONAL
 
 Horario de inicio:
 
-    PENDENTE
+    2026-07-06 21:37:58
 
 Horario de fim:
 
-    PENDENTE
+    2026-07-06 21:50:42
 
 Operador:
 
-    PENDENTE
+    Carlos Rubio
 
 ## 5. Falhas encontradas
 
-PENDENTE
+Nenhuma falha visivel observada na abertura operacional minima.
 
 ## 6. Ressalvas
 
-PENDENTE
+Nao houve smoke manual detalhado item a item. A conclusao registra somente abertura operacional minima da UI, sem problema visivel e sem alteracao funcional.
 
 ## 7. Evidencias
 
-PENDENTE
+Relato do operador: sistema abriu normalmente, nenhuma alteracao ou problema visivel observado.
 
 ## 8. Decisao de continuidade
 
-PENDENTE
+Frente Terminal VWAP UI considerada concluida nesta etapa de auditoria e validacao operacional minima. Nao houve patch funcional.
 
 ## 9. Observacao de controle
 
 Este registro foi criado antes da execucao manual.
+
+A execucao manual detalhada nao foi realizada por decisao operacional. Foi registrada validacao minima de abertura da UI sem problema visivel.
 
 Nao houve alteracao funcional nesta etapa.

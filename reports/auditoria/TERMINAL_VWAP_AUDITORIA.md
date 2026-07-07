@@ -1482,3 +1482,49 @@ Componente principal provavel:
 Decisao:
 
     Smoke manual observacional preparado. Proxima acao autorizada e abrir a UI pelo caminho atual do projeto e preencher o registro de execucao.
+
+<!-- CONCLUSAO_VALIDACAO_MINIMA_TERMINAL_VWAP_2026_07_06 -->
+
+## 15. Conclusao da validacao minima Terminal VWAP
+
+Data: 2026-07-06
+
+Horario de conclusao:
+
+    2026-07-06 21:50:42
+
+Branch:
+
+    audit/terminal-vwap-ui
+
+Commit base validado:
+
+    9597613
+
+Resultado:
+
+    APROVADO_COM_RESSALVA_OPERACIONAL
+
+Status:
+
+    CONCLUIDO_VALIDACAO_MINIMA
+
+Registro atualizado:
+
+    docs/REGISTRO_EXECUCAO_SMOKE_TERMINAL_VWAP_UI.md
+
+Relato do operador:
+
+    Sistema abriu normalmente, sem alteracao e sem problema visivel observado.
+
+Ressalva:
+
+    Nao houve smoke manual detalhado item a item. Esta conclusao registra validacao operacional minima de abertura da UI.
+
+Decisao:
+
+    Frente Terminal VWAP UI concluida nesta etapa de auditoria e controle, sem patch funcional.
+
+Garantia de escopo:
+
+    Nao houve alteracao em banco, schema, pipeline, regra de negocio, services, repositories, controllers ou entrypoint principal.
