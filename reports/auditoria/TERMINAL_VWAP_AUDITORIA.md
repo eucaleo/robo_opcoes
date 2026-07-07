@@ -1210,3 +1210,245 @@ Classificacao:
 Proxima acao recomendada:
 
     Identificar o componente principal do Terminal VWAP e montar roteiro de smoke manual especifico.
+
+<!-- CLASSIFICACAO_ESTRUTURAL_TERMINAL_VWAP_2026_07_06 -->
+
+## 10. Classificacao estrutural inicial do Terminal VWAP
+
+Data: 2026-07-06
+
+Metodo:
+
+    Busca textual local em arquivos reais, seguida de classificacao por caminho, score e leitura estrutural de Python via AST.
+
+Resultado:
+
+    Arquivos relacionados encontrados fora da propria auditoria: 57
+    Arquivos de componentes UI encontrados: 2
+    Arquivos de modelo UI encontrados: 0
+
+### 10.1. Componente principal provavel
+
+Arquivo:
+
+    UI/components/terminal_vwap_payoff_dark_panel.py
+
+Classificacao:
+
+    UI_COMPONENT
+
+Justificativa:
+
+    Arquivo em UI/components com maior aderencia textual ao Terminal VWAP.
+
+Classes encontradas no componente principal:
+
+- linha 129: TerminalVWAPPayoffDarkPanel
+
+Funcoes e metodos encontrados no componente principal:
+
+- linha 59: _q
+- linha 63: _norm
+- linha 67: _first_col
+- linha 75: _to_float
+- linha 99: _money
+- linha 106: _number
+- linha 122: decision_label
+- linha 130: __init__
+- linha 155: _setup_style
+- linha 182: _setup_layout
+- linha 195: _configure_layout_grid
+- linha 201: _build_rail_panel
+- linha 209: _build_rail_container
+- linha 219: _build_rail_toggle_button
+- linha 233: _build_rail_reload_button
+- linha 247: _build_rail_new_button
+- linha 261: _build_rail_actions_button
+- linha 275: _build_rail_open_button
+- linha 290: _build_side_panel
+- linha 300: _build_main_panel
+- linha 310: _build_main_header
+- linha 319: _build_kpi_panel
+- linha 334: _build_chart_panels
+- linha 349: _build_bottom_panel
+- linha 376: _build_legs_table
+- linha 412: _build_alerts_box
+- linha 423: _create_kpi
+- linha 449: toggle_structures_panel
+- linha 460: reload_structures
+- linha 465: _connect
+- linha 473: _tables_cols
+- linha 485: _find_structures_table
+- linha 505: _load_structures
+- linha 545: _render_structures_list
+- linha 558: _render_structures_list_actions
+- linha 570: _render_structures_list_header
+- linha 589: _build_structures_scroll
+- linha 597: _render_empty_structures_message
+- linha 606: _render_structure_list_item
+- linha 624: select_structure
+- linha 655: _find_legs_table
+- linha 676: _load_legs
+- linha 700: _load_legs_schema
+- linha 705: _resolve_legs_columns
+- linha 719: _build_legs_select_parts
+- linha 731: _fetch_legs_rows
+- linha 746: _load_market
+- linha 765: _empty_market_result
+- linha 784: _normalize_market_asset
+- linha 790: _build_market_query
+- linha 817: _market_column_map
+- linha 850: _market_select_parts
+- linha 872: _market_order_sql
+- linha 885: _market_result_from_rows
+- linha 918: _market_series_from_rows
+- linha 937: _load_payoff_points
+- linha 947: _load_persisted_payoff_points
+- linha 981: _calculate_payoff_from_legs
+- linha 990: _collect_payoff_strikes
+- linha 994: _calculate_payoff_spot_range
+- linha 1002: _calculate_payoff_points_for_range
+- linha 1022: _calculate_leg_payoff
+- linha 1043: _is_short_payoff_leg
+- linha 1051: _breakevens
+- linha 1074: _update_kpis
+- linha 1114: _render_legs
+- linha 1134: _set_alerts
+- linha 1141: _render_alerts
+- linha 1163: _clear_canvas
+- linha 1172: _figure
+- linha 1183: _render_empty_charts
+- linha 1187: _render_charts
+- linha 1196: _render_vwap_chart
+- linha 1201: _render_vwap_chart_stage_1
+- linha 1208: _render_vwap_chart_stage_2
+- linha 1246: _render_vwap_chart_stage_3
+- linha 1256: _render_payoff_chart
+- linha 1295: _build_payoff_export_button
+- linha 1315: export_payoff_png
+- linha 1354: _safe_status
+- demais metodos omitidos nesta visao: 54
+
+Imports observados no componente principal:
+
+- UI.components.structure_editor_dialog
+- __future__
+- customtkinter
+- math
+- matplotlib.backends.backend_tkagg
+- matplotlib.figure
+- pathlib
+- repositories.structures_repository
+- sqlite3
+- tkinter
+- typing
+
+### 10.2. Arquivos UI candidatos
+
+- UI/components/terminal_vwap_payoff_dark_panel.py | categoria: UI_COMPONENT | score: 1622 | ocorrencias: 122
+- UI/components/terminal_vwap_payoff_panel.py | categoria: UI_COMPONENT | score: 1554 | ocorrencias: 54
+- UI/main_window.py | categoria: UI | score: 348 | ocorrencias: 48
+- UI/modern/main_window.py | categoria: UI | score: 339 | ocorrencias: 39
+- UI/modern/dark_window.py | categoria: UI | score: 332 | ocorrencias: 32
+
+### 10.3. Documentos e reports relacionados
+
+- docs/ui_terminal_vwap_payoff_plano.md | categoria: DOCUMENTACAO | score: 686 | ocorrencias: 186
+- docs/auditoria_ui_terminal_vwap_payoff.md | categoria: DOCUMENTACAO | score: 684 | ocorrencias: 184
+- docs/MATRIZ_CRUZADA_AREAS_UI.md | categoria: DOCUMENTACAO | score: 342 | ocorrencias: 342
+- docs/CLASSIFICACAO_AREAS_UI.md | categoria: DOCUMENTACAO | score: 210 | ocorrencias: 210
+- docs/INVENTARIO_ARQUIVOS_UI.md | categoria: DOCUMENTACAO | score: 162 | ocorrencias: 162
+- reports/auditoria/UI_PENDENCIAS_REMANESCENTES.md | categoria: REPORT_HISTORICO | score: 42 | ocorrencias: 42
+- reports/auditoria/UI_FRENTES_ENCERRADAS.md | categoria: REPORT_HISTORICO | score: 21 | ocorrencias: 21
+- docs/DESENVOLVIMENTO_UI.md | categoria: DOCUMENTACAO | score: 9 | ocorrencias: 9
+- docs/MATRIZ_EQUIVALENCIA_UI.md | categoria: DOCUMENTACAO | score: 6 | ocorrencias: 6
+- docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md | categoria: DOCUMENTACAO | score: 6 | ocorrencias: 6
+
+## 11. Separacao inicial de responsabilidades
+
+### 11.1. Area UI
+
+Arquivos classificados como UI ou componente UI devem ser tratados apenas para validacao visual e operacional nesta fase.
+
+Permitido:
+
+- observar renderizacao do Terminal VWAP;
+- observar navegacao;
+- observar mensagens de status;
+- observar acoes disponiveis;
+- registrar falhas visuais ou operacionais;
+- preparar smoke manual.
+
+Nao permitido nesta etapa:
+
+- alterar comportamento funcional;
+- alterar banco;
+- alterar pipeline;
+- alterar regra de negocio;
+- alterar services, repositories ou controllers.
+
+### 11.2. Area de dados
+
+Qualquer dependencia de dados deve ser registrada como observacao.
+Se a validacao exigir alteracao de banco, schema, pipeline, service, repository ou controller, a acao deve parar e ser reclassificada.
+
+### 11.3. Payoff
+
+Se o Terminal VWAP depender visualmente de payoff, a observacao pode ser registrada.
+Correcoes de payoff devem permanecer fora desta frente, salvo comportamento ja validado e estritamente necessario para smoke observacional.
+
+## 12. Roteiro minimo de smoke manual Terminal VWAP
+
+Classificacao:
+
+    REGRESSAO_UI
+
+Tipo de validacao:
+
+    smoke manual observacional
+
+Pre-condicoes:
+
+- branch audit/terminal-vwap-ui ativa;
+- arvore Git limpa;
+- UI aberta pelo caminho atual do projeto;
+- nenhuma alteracao em banco, schema, pipeline, services, repositories ou controllers.
+
+Checklist:
+
+1. Abrir a UI pelo entrypoint atual do projeto.
+2. Confirmar que a UI atual continua sendo o caminho principal.
+3. Acessar a area ou painel Terminal VWAP.
+4. Confirmar carregamento inicial sem excecao visivel.
+5. Validar presenca de estruturas quando houver dados.
+6. Validar comportamento quando nao houver estrutura selecionada.
+7. Validar fluxo de selecao de estrutura.
+8. Validar exibicao de pernas associadas quando aplicavel.
+9. Validar comportamento sem pernas associadas.
+10. Validar alertas visiveis quando aplicavel.
+11. Validar KPIs visiveis quando aplicavel.
+12. Validar graficos visiveis quando aplicavel.
+13. Validar estados vazios.
+14. Validar mensagens de status.
+15. Validar botoes e acoes operacionais sem selecao.
+16. Validar botoes e acoes operacionais com selecao.
+17. Validar navegacao de ida e volta entre Decisoes e Terminal VWAP, se existir carregamento associado.
+18. Validar dark mode sem quebra visual evidente.
+19. Registrar evidencias minimas.
+20. Registrar pendencias encontradas sem aplicar patch imediato.
+
+Resultado esperado para encerramento desta etapa:
+
+    Roteiro de smoke definido e pronto para execucao manual controlada.
+
+## 13. Decisao de continuidade
+
+A auditoria estrutural inicial nao autoriza patch funcional amplo.
+
+Proxima acao autorizada:
+
+    Executar smoke manual observacional do Terminal VWAP e registrar evidencia neste documento ou em documento de controle ja existente, sem criar nova frente desnecessaria.
+
+Criterio para parar:
+
+    Se a validacao exigir alteracao de banco, pipeline, regra de negocio, services, repositories ou controllers, parar e reclassificar antes de qualquer patch.
