@@ -12,6 +12,11 @@ def test_python_m_ui_modern_delegates_to_app_main(monkeypatch):
         return 0
 
     monkeypatch.setattr(app, "main", fake_main)
+    monkeypatch.setitem(sys.modules, "UI.modern.app", app)
+
+    modern_package = sys.modules.get("UI.modern")
+    if modern_package is not None:
+        monkeypatch.setattr(modern_package, "app", app, raising=False)
     monkeypatch.setattr(sys, "argv", ["python -m UI.modern"])
 
     try:
@@ -31,6 +36,11 @@ def test_python_m_ui_modern_propagates_app_main_exit_code(monkeypatch):
         return 17
 
     monkeypatch.setattr(app, "main", fake_main)
+    monkeypatch.setitem(sys.modules, "UI.modern.app", app)
+
+    modern_package = sys.modules.get("UI.modern")
+    if modern_package is not None:
+        monkeypatch.setattr(modern_package, "app", app, raising=False)
     monkeypatch.setattr(sys, "argv", ["python -m UI.modern"])
 
     try:
