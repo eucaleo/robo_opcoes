@@ -502,7 +502,7 @@ A frente UI completa permanece aberta.
 
 Data: 2026-07-06
 
-Branch: `refactor/decisions-dark-panel-large-block`
+Branch: refactor/decisions-dark-panel-large-block
 
 ### 13.1. Situacao documental
 
@@ -519,18 +519,18 @@ Foram registrados e publicados os seguintes pontos de controle:
 - separacao entre frentes encerradas e pendencias remanescentes;
 - reclassificacao de referencias de smoke manual como validacao legada quando nao forem bloqueadoras;
 - remocao do smoke manual como bloqueador documental previo da lista de pendencias da UI de Decisoes;
-- normalizacao versionada de line endings via `.gitattributes`;
-- checkpoint local de evolucao da branch em `docs/DESENVOLVIMENTO_UI.md`;
+- normalizacao versionada de line endings via .gitattributes;
+- checkpoint local de evolucao da branch em docs/DESENVOLVIMENTO_UI.md;
 - limpeza de whitespace do checkpoint documental.
 
 ### 13.3. Commits de referencia desta consolidacao
 
-- `3dbe277` - `docs(ui): reinicia reports com controle consolidado da auditoria`
-- `0bd8b82` - `docs: remove smoke manual blocker from decisions UI pending list`
-- `e54f90b` - `docs: reclassify smoke manual references as legacy validation`
-- `d2a95ee` - `chore: normalize repository line endings`
-- `66ff4c8` - `docs: record decisions ui refactor checkpoint`
-- `e92395d` - `docs: clean decisions ui checkpoint whitespace`
+- 3dbe277 - docs(ui): reinicia reports com controle consolidado da auditoria
+- 0bd8b82 - docs: remove smoke manual blocker from decisions UI pending list
+- e54f90b - docs: reclassify smoke manual references as legacy validation
+- d2a95ee - chore: normalize repository line endings
+- 66ff4c8 - docs: record decisions ui refactor checkpoint
+- e92395d - docs: clean decisions ui checkpoint whitespace
 
 ### 13.4. Decisao de rota
 
@@ -570,8 +570,8 @@ Permanece nao autorizado nesta branch:
 - alterar repositories;
 - alterar controllers;
 - alterar pipeline;
-- sincronizar `app.db` com `derived.db`;
-- sincronizar `derived.db` com `app.db`;
+- sincronizar app.db com derived.db;
+- sincronizar derived.db com app.db;
 - resolver Terminal VWAP fora do carregamento a partir de Decisoes;
 - resolver payoff fora de comportamento ja validado;
 - declarar equivalencia global da UI moderna dark.
@@ -582,6 +582,62 @@ Executar smoke manual da fatia Decisoes dark panel e registrar a evidencia no do
 
 Documento indicado:
 
-- `docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md`
+- docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
 
 Somente apos esse registro deve ser decidida qualquer correcao funcional ou melhoria visual adicional.
+
+<!-- ATUALIZACAO_POS_SMOKE_DECISOES_2026_07_06 -->
+
+## 14. Atualizacao pos smoke Decisoes dark panel
+
+Data: 2026-07-06
+
+Branch de origem concluida:
+
+    refactor/decisions-dark-panel-large-block
+
+Commit final validado:
+
+    ef7d17d
+
+### 14.1. Situacao da fatia Decisoes dark panel
+
+A fatia Decisoes dark panel foi validada operacionalmente por smoke manual registrado.
+
+O registro aprovado esta em:
+
+    docs/REGISTRO_EXECUCAO_SMOKE_DECISOES_UI.md
+
+Resultado:
+
+    APROVADO
+
+Esta conclusao vale apenas para a fatia Decisoes dark panel.
+
+Nao declara equivalencia global da UI moderna dark.
+
+Nao encerra a frente UI completa.
+
+### 14.2. Pendencias que permanecem abertas
+
+Permanecem abertas as pendencias globais ja classificadas neste documento, incluindo:
+
+- matriz global de equivalencia UI;
+- regressao UI completa;
+- Terminal VWAP;
+- payoff;
+- UIDataModel;
+- banco, dados e pipeline;
+- plano de encerramento global da UI.
+
+### 14.3. Proxima fase aberta
+
+A proxima fase operacional passa a ser auditoria propria de Terminal VWAP.
+
+Classificacao:
+
+    REGRESSAO_UI
+
+Escopo inicial:
+
+    auditoria documental e inventario de validacao, sem alteracao funcional ampla.
