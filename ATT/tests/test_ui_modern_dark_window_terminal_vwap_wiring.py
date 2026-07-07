@@ -268,3 +268,60 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
 
     assert terminal_panel.reload_count == 1
     assert result == [{"id": 11, "name": "Estrutura recarregada"}]
+
+
+
+def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fails(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            raise RuntimeError("falha no terminal")
+
+    class FakeDecisionsDarkPanel:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def pack(self, *args, **kwargs):
+            pass
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+
+    window = module.ModernDarkWindow()
+
+    result = window._get_structures_for_decisions()
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert result == []
+    assert terminal_panel.reload_count == 1
+    assert window.status_var.get() == (
+        "Erro ao recarregar estruturas para decisões: falha no terminal"
+    )

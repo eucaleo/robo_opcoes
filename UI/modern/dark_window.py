@@ -122,16 +122,26 @@ class ModernDarkWindow:
         Fornece as estruturas carregadas no Terminal VWAP para a aba Decisões.
         Usado para restringir a busca a ID/nome e somente estruturas ativas.
         """
-        structures = getattr(self.panel, "structures", None)
+        try:
+            structures = getattr(self.panel, "structures", None)
 
-        if structures is None:
-            structures = []
+            if structures is None:
+                structures = []
 
-        if not structures and hasattr(self.panel, "reload_structures"):
-            self.panel.reload_structures()
-            structures = getattr(self.panel, "structures", []) or []
+            if not structures and hasattr(self.panel, "reload_structures"):
+                try:
+                    self.panel.reload_structures()
+                except Exception as exc:
+                    self.set_status(f"Erro ao recarregar estruturas para decisões: {exc}")
+                    return []
 
-        return list(structures or [])
+                structures = getattr(self.panel, "structures", []) or []
+
+            return list(structures or [])
+
+        except Exception as exc:
+            self.set_status(f"Erro ao obter estruturas para decisões: {exc}")
+            return []
 
     def _load_structure_from_decision(self, structure_id) -> None:
         """
