@@ -133,6 +133,30 @@ def patch_common_runtime(monkeypatch, module, app_db):
     monkeypatch.setattr(module.messagebox, "showerror", lambda *args, **kwargs: None)
 
 
+class SpyTabs:
+    def __init__(self):
+        self.set_calls = []
+
+    def set(self, tab_name):
+        self.set_calls.append(tab_name)
+
+
+def make_fake_messagebox():
+    class FakeMessagebox:
+        warning_calls = []
+        error_calls = []
+
+        @classmethod
+        def showwarning(cls, *args, **kwargs):
+            cls.warning_calls.append((args, kwargs))
+
+        @classmethod
+        def showerror(cls, *args, **kwargs):
+            cls.error_calls.append((args, kwargs))
+
+    return FakeMessagebox
+
+
 def test_modern_dark_window_wires_terminal_vwap_and_decisions(monkeypatch, tmp_path):
     module = import_dark_window_with_safe_stubs(monkeypatch)
 
@@ -249,12 +273,7 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
             self.reload_count += 1
             self.structures = [{"id": 11, "name": "Estrutura recarregada"}]
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def pack(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -268,3 +287,1500 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
 
     assert terminal_panel.reload_count == 1
     assert result == [{"id": 11, "name": "Estrutura recarregada"}]
+
+
+
+def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fails(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            raise RuntimeError("falha no terminal")
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+
+    window = module.ModernDarkWindow()
+
+    result = window._get_structures_for_decisions()
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert result == []
+    assert terminal_panel.reload_count == 1
+    assert window.status_var.get() == (
+        "Erro ao recarregar estruturas para decisões: falha no terminal"
+    )
+
+
+def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload_failure(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            raise RuntimeError("falha ao recarregar terminal")
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+
+    window = module.ModernDarkWindow()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == []
+    assert window.status_var.get() == (
+        "Erro ao recarregar estruturas para decisão 7: falha ao recarregar terminal"
+    )
+
+
+def test_modern_dark_window_load_structure_from_decision_handles_terminal_select_failure(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [{"id": 7, "name": "Estrutura com falha"}]
+            self.reload_count = 0
+            self.selected_attempts = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_attempts.append(structure)
+            raise RuntimeError("falha ao selecionar terminal")
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_attempts == [{"id": 7, "name": "Estrutura com falha"}]
+    assert window.tabs.set_calls == []
+    assert window.status_var.get() == (
+        "Erro ao selecionar estrutura 7: falha ao selecionar terminal"
+    )
+
+def test_modern_dark_window_load_structure_from_decision_selects_existing_structure(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 7, "name": "Estrutura alvo"},
+                {"id": 8, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [{"id": 7, "name": "Estrutura alvo"}]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_reloads_empty_structures_and_selects(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            self.structures = [
+                {"id": 7, "name": "Estrutura recarregada"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura recarregada"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_warns_when_structure_missing_after_reload(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            self.structures = [
+                {"id": 8, "name": "Outra estrutura"},
+                {"id": 9, "name": "Mais uma estrutura"},
+            ]
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == []
+    assert window.tabs.set_calls == []
+    assert len(FakeMessagebox.warning_calls) == 1
+    assert FakeMessagebox.error_calls == []
+    assert "7" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_warns_when_reload_fails(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            raise RuntimeError("falha ao recarregar estruturas")
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == []
+    assert window.tabs.set_calls == []
+    assert len(FakeMessagebox.warning_calls) == 1
+
+    warning_args, warning_kwargs = FakeMessagebox.warning_calls[0]
+
+    assert warning_args[0] == "Estruturas indisponíveis"
+    assert "Não foi possível recarregar" in warning_args[1]
+    assert "falha ao recarregar estruturas" in warning_args[1]
+    assert "parent" in warning_kwargs
+    assert FakeMessagebox.error_calls == []
+
+    status = window.status_var.get()
+
+    assert "recarregar" in status.lower()
+    assert "estrutura" in status.lower()
+
+def test_modern_dark_window_load_structure_from_decision_accepts_integer_structure_id(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 7, "name": "Estrutura inteira"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura inteira"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_matches_string_structure_id_with_integer_input(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": "7", "name": "Estrutura com ID texto"},
+                {"id": "9", "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": "7", "name": "Estrutura com ID texto"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_reloads_empty_structures_before_selecting(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            self.structures = [
+                {"id": 7, "name": "Estrutura recarregada"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura recarregada"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_warns_when_reloaded_structure_is_missing(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            self.structures = [
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == []
+    assert window.tabs.set_calls == []
+    assert len(FakeMessagebox.warning_calls) == 1
+    assert FakeMessagebox.error_calls == []
+
+    warning_args, warning_kwargs = FakeMessagebox.warning_calls[0]
+
+    assert "7" in warning_args[1]
+    assert "parent" in warning_kwargs
+    assert "7" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_skips_structures_without_id(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"name": "Estrutura sem ID"},
+                {"id": 7, "name": "Estrutura correta"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_selects_first_matching_structure_id(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 7, "name": "Primeira estrutura"},
+                {"id": 7, "name": "Estrutura duplicada"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Primeira estrutura"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_warns_when_loaded_structure_is_missing(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 3, "name": "Estrutura existente"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == []
+    assert window.tabs.set_calls == []
+    assert len(FakeMessagebox.warning_calls) == 1
+    assert FakeMessagebox.error_calls == []
+
+    warning_args, warning_kwargs = FakeMessagebox.warning_calls[0]
+
+    assert "7" in warning_args[1]
+    assert "parent" in warning_kwargs
+    assert "7" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_skips_invalid_structure_ids(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": None, "name": "Estrutura com ID nulo"},
+                {"id": "abc", "name": "Estrutura com ID inválido"},
+                {"id": 7, "name": "Estrutura correta"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_matches_numeric_string_id_from_integer(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": "3", "name": "Estrutura existente"},
+                {"id": "7", "name": "Estrutura correta"},
+                {"id": "9", "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": "7", "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_matches_id_with_surrounding_spaces(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 3, "name": "Estrutura existente"},
+                {"id": 7, "name": "Estrutura correta"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(" 7 ")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert "Estrutura" in window.status_var.get()
+    assert "7" in window.status_var.get()
+    assert "carregada a partir da decisão" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_numeric_id(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 3, "name": "Estrutura existente"},
+                {"id": 7, "name": "Estrutura correta"},
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("007")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert "Estrutura" in window.status_var.get()
+    assert "7" in window.status_var.get()
+    assert "carregada a partir da decisão" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_structure_id(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": "003", "name": "Estrutura existente"},
+                {"id": "007", "name": "Estrutura correta"},
+                {"id": "009", "name": "Outra estrutura"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": "007", "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert "Estrutura" in window.status_var.get()
+    assert "7" in window.status_var.get()
+    assert "carregada a partir da decisão" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_skips_non_numeric_structure_ids(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": None, "name": "Estrutura sem id"},
+                {"id": "abc", "name": "Estrutura com id inválido"},
+                {"id": "007", "name": "Estrutura correta"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": "007", "name": "Estrutura correta"}
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
+    assert "Estrutura" in window.status_var.get()
+    assert "7" in window.status_var.get()
+    assert "carregada a partir da decisão" in window.status_var.get()
+
+def test_modern_dark_window_load_structure_from_decision_rejects_non_numeric_decision_id(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 7, "name": "Estrutura correta"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("abc")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == []
+    assert window.tabs.set_calls == []
+    assert FakeMessagebox.warning_calls == []
+    assert len(FakeMessagebox.error_calls) == 1
+
+def test_modern_dark_window_load_structure_from_decision_keeps_valid_selection_after_missing_structure(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 7, "name": "Estrutura válida"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            self.selected_structure = None
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+            self.selected_structure = structure
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+    selected_before_failure = terminal_panel.selected_structure
+
+    window._load_structure_from_decision(99)
+
+    assert selected_before_failure == {"id": 7, "name": "Estrutura válida"}
+    assert terminal_panel.selected_structure == selected_before_failure
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura válida"},
+    ]
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert len(FakeMessagebox.warning_calls) == 1
+    assert FakeMessagebox.error_calls == []
+
+
+def test_modern_dark_window_load_structure_from_decision_is_idempotent_when_already_selected(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = [
+                {"id": 7, "name": "Estrutura idempotente"},
+            ]
+            self.reload_count = 0
+            self.selected_structures = []
+            self.selected_structure = None
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+            self.selected_structure = structure
+
+    FakeDecisionsDarkPanel = PlaceholderWidget
+
+    FakeTabs = SpyTabs
+
+    FakeMessagebox = make_fake_messagebox()
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision(7)
+    window._load_structure_from_decision("007")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 0
+    assert terminal_panel.selected_structures == [
+        {"id": 7, "name": "Estrutura idempotente"},
+    ]
+    assert terminal_panel.selected_structure == {"id": 7, "name": "Estrutura idempotente"}
+    assert window.tabs.set_calls == ["Terminal VWAP"]
+    assert FakeMessagebox.warning_calls == []
+    assert FakeMessagebox.error_calls == []
