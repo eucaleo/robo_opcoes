@@ -1,4 +1,4 @@
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 from typing import Any
 
 from domain.position_side import normalize_position_side

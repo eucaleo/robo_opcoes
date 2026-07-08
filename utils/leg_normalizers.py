@@ -1,4 +1,4 @@
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 from datetime import datetime, timedelta
 from typing import Union, Optional
 import pandas as pd

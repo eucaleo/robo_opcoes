@@ -2,7 +2,7 @@
 """
 Reader para análise de dados derivados do SQLite.
 """
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 import sqlite3
 import json
 import pandas as pd

@@ -2,7 +2,7 @@
 """
 Writer para persistência de dados derivados no SQLite.
 """
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 import sqlite3
 import json
 from datetime import datetime

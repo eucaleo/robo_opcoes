@@ -29,13 +29,13 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 # alteracao_55: StructureRef
 try:
-    from src.domain.refs.structure_ref import StructureRef as _StructureRef
+    from domain.refs.structure_ref import StructureRef as _StructureRef
 except ImportError:
     _StructureRef = None  # type: ignore
 
 # Import canônico para type hints (usado nas assinaturas públicas)
 try:
-    from src.domain.refs.structure_ref import StructureRef
+    from domain.refs.structure_ref import StructureRef
 except ImportError:
     StructureRef = Any  # type: ignore
 

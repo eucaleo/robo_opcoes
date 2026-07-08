@@ -1,4 +1,4 @@
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 import json
 import sqlite3
 from pathlib import Path

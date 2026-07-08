@@ -13,7 +13,7 @@ from typing import Any, List, Optional
 
 from dto.robo_leg_dto import RoboLegDTO
 from repositories.robo_legs_repository import RoboLegsRepository, RoboLegsRepoConfig
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 from validators.leg_validator import validate_legs
 
 

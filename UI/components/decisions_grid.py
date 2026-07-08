@@ -1,5 +1,5 @@
 # UI/components/decisions_grid.py
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 import tkinter as tk
 from tkinter import ttk
 from typing import Dict, List, Optional, Callable

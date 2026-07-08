@@ -12,7 +12,7 @@ from typing import Optional, Tuple
 
 from infra.sqlite_conn import sqlite_conn
 from repositories._aba_resolver_mixin import AbaResolverMixin
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 from utils.leg_normalizers import parse_timestamp
 
 
