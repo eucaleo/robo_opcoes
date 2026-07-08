@@ -1055,3 +1055,91 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
     assert FakeMessagebox.warning_calls == []
     assert FakeMessagebox.error_calls == []
     assert window.status_var.get() == "Estrutura 7 carregada a partir da decisão"
+
+def test_modern_dark_window_load_structure_from_decision_warns_when_reloaded_structure_is_missing(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_dark_window_with_safe_stubs(monkeypatch)
+
+    app_db = tmp_path / "app.db"
+    app_db.write_text("", encoding="utf-8")
+
+    patch_common_runtime(monkeypatch, module, app_db)
+
+    class FakeUIDataModel:
+        pass
+
+    class FakeTerminalVWAPPayoffDarkPanel:
+        instances = []
+
+        def __init__(self, parent, db_path, on_status):
+            self.parent = parent
+            self.db_path = db_path
+            self.on_status = on_status
+            self.structures = []
+            self.reload_count = 0
+            self.selected_structures = []
+            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+
+        def pack(self, *args, **kwargs):
+            self.pack_args = (args, kwargs)
+
+        def reload_structures(self):
+            self.reload_count += 1
+            self.structures = [
+                {"id": 9, "name": "Outra estrutura"},
+            ]
+
+        def select_structure(self, structure):
+            self.selected_structures.append(structure)
+
+    class FakeDecisionsDarkPanel:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def pack(self, *args, **kwargs):
+            pass
+
+    class FakeTabs:
+        def __init__(self):
+            self.set_calls = []
+
+        def set(self, tab_name):
+            self.set_calls.append(tab_name)
+
+    class FakeMessagebox:
+        warning_calls = []
+        error_calls = []
+
+        @classmethod
+        def showwarning(cls, *args, **kwargs):
+            cls.warning_calls.append((args, kwargs))
+
+        @classmethod
+        def showerror(cls, *args, **kwargs):
+            cls.error_calls.append((args, kwargs))
+
+    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+
+    window = module.ModernDarkWindow()
+    window.tabs = FakeTabs()
+
+    window._load_structure_from_decision("7")
+
+    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+
+    assert terminal_panel.reload_count == 1
+    assert terminal_panel.selected_structures == []
+    assert window.tabs.set_calls == []
+    assert len(FakeMessagebox.warning_calls) == 1
+    assert FakeMessagebox.error_calls == []
+
+    warning_args, warning_kwargs = FakeMessagebox.warning_calls[0]
+
+    assert "7" in warning_args[1]
+    assert "parent" in warning_kwargs
+    assert "7" in window.status_var.get()
