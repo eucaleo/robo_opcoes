@@ -22,7 +22,7 @@ from typing import Optional
 
 #  Path canônico (mesmo padrão usado em todo o projeto) 
 _BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 )
 _APP_DB_DEFAULT = os.path.join(_BASE_DIR, "dados", "app.db")
 

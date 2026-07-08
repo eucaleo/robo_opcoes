@@ -1,7 +1,7 @@
 # UI/models/ui_data.py
 # alteracao_36_E: eliminar self._conn compartilhada
 # Toda conexao de leitura passa a ser por chamada (igual a _connect_derived_threadsafe)
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 import sqlite3
 from sqlite3 import Row
 from pathlib import Path

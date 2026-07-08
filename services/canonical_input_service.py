@@ -20,7 +20,7 @@ Contrato exigido pelo assemble_structure_market_input:
   }
 """
 
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 
 from typing import Any
 

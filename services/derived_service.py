@@ -20,7 +20,7 @@ from db.derived_repo import (
     insert_payoff_points,
     insert_structure_decision,
 )
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 
 
 # ------------------------------------------------------------------

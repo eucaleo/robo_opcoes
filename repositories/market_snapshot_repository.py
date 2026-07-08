@@ -12,7 +12,7 @@ import sqlite3
 from pathlib import Path
 from typing import Optional
 
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 
 from domain.market_snapshot import (
     LegMarketSnapshot,

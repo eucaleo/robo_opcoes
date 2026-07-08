@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Optional
 
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 from dto.robo_leg_dto import FonteType
 from dto.robo_legs_status_dto import DataFreshness, RoboLegsStatusDTO
 from repositories.robo_legs_repository import RoboLegsRepository

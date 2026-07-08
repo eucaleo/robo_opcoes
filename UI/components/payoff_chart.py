@@ -1,5 +1,5 @@
 # UI/components/payoff_chart.py
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 from matplotlib.ticker import FuncFormatter
 import json
 from matplotlib.figure import Figure

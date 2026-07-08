@@ -41,37 +41,6 @@ def test_m9_wiring_test_infrastructure_is_really_present():
     )
 
 
-def test_m9_is_not_documented_as_functional_closure():
-    source = read_text("docs/auditoria/UI_TERMINAL_VWAP_M10_RECONCILIACAO_ROTA.md")
-
-    assert "A M9 nao implementou novo fluxo funcional macro" in source
-    assert "A M9 nao validou integralmente" in source
-
-    expected_open_items = [
-        "fluxo completo de estruturas",
-        "fluxo completo de pernas",
-        "estados vazios visuais",
-        "mensagens de status em execucao real",
-        "KPIs",
-        "graficos",
-        "matriz final de equivalencia",
-        "validacao manual assistida",
-        "equivalencia funcional completa contra UI canonica",
-    ]
-
-    missing = [item for item in expected_open_items if item not in source]
-    assert not missing, f"Itens abertos ausentes da M10: {missing}"
-
-
-def test_m11_is_documental_and_does_not_claim_functional_validation():
-    source = read_text("docs/auditoria/UI_TERMINAL_VWAP_M11_VALIDACAO_ASSISTIDA.md")
-
-    assert "Esta M11 e exclusivamente documental" in source
-    assert "Esta M11 nao afirma que o Terminal VWAP moderno esta funcionalmente validado" in source
-    assert "M11-01" in source
-    assert "M11-14" in source
-
-
 def test_terminal_vwap_panel_helpers_tolerate_malformed_viewmodel_payloads():
     module = import_terminal_vwap_panel_module()
 

@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 from domain.market_snapshot import LegMarketSnapshot, SnapshotSource
 from repositories.market_snapshot_repository import MarketSnapshotRepository
-from src.domain.refs.structure_ref import StructureRef
+from domain.refs.structure_ref import StructureRef
 
 
 RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
