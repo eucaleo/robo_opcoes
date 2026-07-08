@@ -409,3 +409,17 @@ AUDITORIA_TERMINAL_VWAP
 Este documento foi promovido para `docs/auditoria/` porque a pasta `reports/` esta ignorada pelo Git e deve ser tratada como area local/temporaria de saidas.
 
 A partir desta auditoria, a documentacao de controle versionada da rota UI deve permanecer em `docs/auditoria/`.
+
+---
+
+## Adendo M10 - reconciliacao documental da rota
+
+Este documento representa a rota macro original da frente UI moderna e Terminal VWAP.
+
+Apos a evolucao da frente, foram mergeados incrementos e criados documentos especificos posteriores, incluindo M2, M3, M6, M7, M8 e M9.
+
+Portanto, qualquer trecho deste documento que indique M1, M2, M3, M4 ou M5 como integralmente pendente deve ser lido em conjunto com:
+
+    docs/auditoria/UI_TERMINAL_VWAP_M10_RECONCILIACAO_ROTA.md
+
+A M10 nao altera o historico original deste documento. Ela apenas registra o estado real reconciliado ate a PR M9.

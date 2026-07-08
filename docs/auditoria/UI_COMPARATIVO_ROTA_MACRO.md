@@ -445,3 +445,15 @@ CRITERIO_GLOBAL_UI
 Este documento foi promovido para `docs/auditoria/` porque a pasta `reports/` esta ignorada pelo Git e deve ser tratada como area local/temporaria de saidas.
 
 A partir desta auditoria, a documentacao de controle versionada da rota UI deve permanecer em `docs/auditoria/`.
+
+---
+
+## Adendo M10 - leitura reconciliada
+
+Este comparativo representa uma fotografia anterior da rota macro.
+
+Como a frente Terminal VWAP avancou com documentos e PRs posteriores, a leitura atualizada deve considerar o documento:
+
+    docs/auditoria/UI_TERMINAL_VWAP_M10_RECONCILIACAO_ROTA.md
+
+A M10 reconcilia o estado real ate M9 e diferencia consolidacao de infraestrutura de testes de fechamento funcional macro.
