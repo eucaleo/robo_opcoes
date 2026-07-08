@@ -133,6 +133,30 @@ def patch_common_runtime(monkeypatch, module, app_db):
     monkeypatch.setattr(module.messagebox, "showerror", lambda *args, **kwargs: None)
 
 
+class SpyTabs:
+    def __init__(self):
+        self.set_calls = []
+
+    def set(self, tab_name):
+        self.set_calls.append(tab_name)
+
+
+def make_fake_messagebox():
+    class FakeMessagebox:
+        warning_calls = []
+        error_calls = []
+
+        @classmethod
+        def showwarning(cls, *args, **kwargs):
+            cls.warning_calls.append((args, kwargs))
+
+        @classmethod
+        def showerror(cls, *args, **kwargs):
+            cls.error_calls.append((args, kwargs))
+
+    return FakeMessagebox
+
+
 def test_modern_dark_window_wires_terminal_vwap_and_decisions(monkeypatch, tmp_path):
     module = import_dark_window_with_safe_stubs(monkeypatch)
 
@@ -249,12 +273,7 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
             self.reload_count += 1
             self.structures = [{"id": 11, "name": "Estrutura recarregada"}]
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def pack(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -303,12 +322,7 @@ def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fa
             self.reload_count += 1
             raise RuntimeError("falha no terminal")
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def pack(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -363,12 +377,7 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
-
-        def pack(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -423,19 +432,9 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_select
             self.selected_attempts.append(structure)
             raise RuntimeError("falha ao selecionar terminal")
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
-
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
+    FakeTabs = SpyTabs
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -493,31 +492,11 @@ def test_modern_dark_window_load_structure_from_decision_selects_existing_struct
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -577,31 +556,11 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -663,31 +622,11 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_structure_mi
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -744,31 +683,11 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reload_fails
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -838,31 +757,11 @@ def test_modern_dark_window_load_structure_from_decision_accepts_integer_structu
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -923,31 +822,11 @@ def test_modern_dark_window_load_structure_from_decision_matches_string_structur
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1009,31 +888,11 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1094,31 +953,11 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reloaded_str
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1183,31 +1022,11 @@ def test_modern_dark_window_load_structure_from_decision_skips_structures_withou
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1269,31 +1088,11 @@ def test_modern_dark_window_load_structure_from_decision_selects_first_matching_
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1354,31 +1153,11 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_loaded_struc
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1443,31 +1222,11 @@ def test_modern_dark_window_load_structure_from_decision_skips_invalid_structure
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1529,31 +1288,11 @@ def test_modern_dark_window_load_structure_from_decision_matches_numeric_string_
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1615,31 +1354,11 @@ def test_modern_dark_window_load_structure_from_decision_matches_id_with_surroun
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1703,31 +1422,11 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_num
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1791,31 +1490,11 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_str
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1879,31 +1558,11 @@ def test_modern_dark_window_load_structure_from_decision_skips_non_numeric_struc
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -1965,31 +1624,11 @@ def test_modern_dark_window_load_structure_from_decision_rejects_non_numeric_dec
         def select_structure(self, structure):
             self.selected_structures.append(structure)
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -2048,31 +1687,11 @@ def test_modern_dark_window_load_structure_from_decision_keeps_valid_selection_a
             self.selected_structures.append(structure)
             self.selected_structure = structure
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
@@ -2138,31 +1757,11 @@ def test_modern_dark_window_load_structure_from_decision_is_idempotent_when_alre
             self.selected_structures.append(structure)
             self.selected_structure = structure
 
-    class FakeDecisionsDarkPanel:
-        def __init__(self, *args, **kwargs):
-            pass
+    FakeDecisionsDarkPanel = PlaceholderWidget
 
-        def pack(self, *args, **kwargs):
-            pass
+    FakeTabs = SpyTabs
 
-    class FakeTabs:
-        def __init__(self):
-            self.set_calls = []
-
-        def set(self, tab_name):
-            self.set_calls.append(tab_name)
-
-    class FakeMessagebox:
-        warning_calls = []
-        error_calls = []
-
-        @classmethod
-        def showwarning(cls, *args, **kwargs):
-            cls.warning_calls.append((args, kwargs))
-
-        @classmethod
-        def showerror(cls, *args, **kwargs):
-            cls.error_calls.append((args, kwargs))
+    FakeMessagebox = make_fake_messagebox()
 
     monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
     monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
