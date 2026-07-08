@@ -193,6 +193,24 @@ class ModernDarkWindow:
                 )
                 return
 
+            current_selection = None
+            for attr_name in ("selected_structure", "current_structure", "active_structure"):
+                current_selection = getattr(self.panel, attr_name, None)
+                if current_selection is not None:
+                    break
+
+            if current_selection is not None:
+                try:
+                    if isinstance(current_selection, dict):
+                        current_selection_id = current_selection.get("id")
+                    else:
+                        current_selection_id = getattr(current_selection, "id")
+
+                    if int(str(current_selection_id).strip()) == target:
+                        return
+                except (AttributeError, TypeError, ValueError):
+                    pass
+
             try:
                 self.panel.select_structure(selected)
             except Exception as exc:
