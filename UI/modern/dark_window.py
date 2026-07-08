@@ -122,35 +122,65 @@ class ModernDarkWindow:
         Fornece as estruturas carregadas no Terminal VWAP para a aba Decisões.
         Usado para restringir a busca a ID/nome e somente estruturas ativas.
         """
-        structures = getattr(self.panel, "structures", None)
+        try:
+            structures = getattr(self.panel, "structures", None)
 
-        if structures is None:
-            structures = []
+            if structures is None:
+                structures = []
 
-        if not structures and hasattr(self.panel, "reload_structures"):
-            self.panel.reload_structures()
-            structures = getattr(self.panel, "structures", []) or []
+            if not structures and hasattr(self.panel, "reload_structures"):
+                try:
+                    self.panel.reload_structures()
+                except Exception as exc:
+                    self.set_status(f"Erro ao recarregar estruturas para decisões: {exc}")
+                    return []
 
-        return list(structures or [])
+                structures = getattr(self.panel, "structures", []) or []
+
+            return list(structures or [])
+
+        except Exception as exc:
+            self.set_status(f"Erro ao obter estruturas para decisões: {exc}")
+            return []
 
     def _load_structure_from_decision(self, structure_id) -> None:
         """
         Carrega no Terminal VWAP a estrutura associada a uma decisão selecionada.
         """
         try:
-            target = str(structure_id)
+            target = int(str(structure_id).strip())
 
             structures = getattr(self.panel, "structures", None)
             if structures is None:
                 structures = []
 
             if not structures and hasattr(self.panel, "reload_structures"):
-                self.panel.reload_structures()
+                try:
+                    self.panel.reload_structures()
+                except Exception as exc:
+                    self.set_status(
+                        f"Erro ao recarregar estruturas para decisão {structure_id}: {exc}"
+                    )
+                    messagebox.showwarning(
+                        "Estruturas indisponíveis",
+                        (
+                            "Não foi possível recarregar as estruturas do Terminal VWAP.\n\n"
+                            f"Erro: {exc}"
+                        ),
+                        parent=self.root,
+                    )
+                    return
+
                 structures = getattr(self.panel, "structures", []) or []
 
             selected = None
             for structure in structures:
-                if str(structure.get("id")) == target:
+                try:
+                    candidate = int(str(structure.get("id")).strip())
+                except (TypeError, ValueError):
+                    continue
+
+                if candidate == target:
                     selected = structure
                     break
 
@@ -163,7 +193,34 @@ class ModernDarkWindow:
                 )
                 return
 
-            self.panel.select_structure(selected)
+            current_selection = None
+            for attr_name in ("selected_structure", "current_structure", "active_structure"):
+                current_selection = getattr(self.panel, attr_name, None)
+                if current_selection is not None:
+                    break
+
+            if current_selection is not None:
+                try:
+                    if isinstance(current_selection, dict):
+                        current_selection_id = current_selection.get("id")
+                    else:
+                        current_selection_id = getattr(current_selection, "id")
+
+                    if int(str(current_selection_id).strip()) == target:
+                        return
+                except (AttributeError, TypeError, ValueError):
+                    pass
+
+            try:
+                self.panel.select_structure(selected)
+            except Exception as exc:
+                self.set_status(f"Erro ao selecionar estrutura {structure_id}: {exc}")
+                messagebox.showerror(
+                    "Erro ao selecionar estrutura",
+                    str(exc),
+                    parent=self.root,
+                )
+                return
 
             try:
                 self.tabs.set("Terminal VWAP")
