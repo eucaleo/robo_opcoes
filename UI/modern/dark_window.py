@@ -147,8 +147,9 @@ class ModernDarkWindow:
         """
         Carrega no Terminal VWAP a estrutura associada a uma decisão selecionada.
         """
+        structure_id = str(structure_id).strip()
         try:
-            target = str(structure_id)
+            target = str(structure_id).strip()
 
             structures = getattr(self.panel, "structures", None)
             if structures is None:
@@ -175,7 +176,7 @@ class ModernDarkWindow:
 
             selected = None
             for structure in structures:
-                if str(structure.get("id")) == target:
+                if str(structure.get("id")).strip() == target:
                     selected = structure
                     break
 
