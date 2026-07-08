@@ -97,8 +97,6 @@ def import_dark_window_with_safe_stubs(monkeypatch):
 
     ui_data_module = types.ModuleType("UI.models.ui_data")
 
-    class FakeUIDataModel:
-        pass
 
     ui_data_module.UIDataModel = FakeUIDataModel
 
@@ -157,6 +155,26 @@ def make_fake_messagebox():
     return FakeMessagebox
 
 
+class FakeUIDataModel:
+    pass
+
+
+def patch_window_dependencies(
+    monkeypatch,
+    module,
+    terminal_panel,
+    decisions_panel=PlaceholderWidget,
+    messagebox=None,
+    data_model=FakeUIDataModel,
+):
+    monkeypatch.setattr(module, "UIDataModel", data_model)
+    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", terminal_panel)
+    monkeypatch.setattr(module, "DecisionsDarkPanel", decisions_panel)
+
+    if messagebox is not None:
+        monkeypatch.setattr(module, "messagebox", messagebox)
+
+
 def test_modern_dark_window_wires_terminal_vwap_and_decisions(monkeypatch, tmp_path):
     module = import_dark_window_with_safe_stubs(monkeypatch)
 
@@ -165,8 +183,6 @@ def test_modern_dark_window_wires_terminal_vwap_and_decisions(monkeypatch, tmp_p
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -217,9 +233,12 @@ def test_modern_dark_window_wires_terminal_vwap_and_decisions(monkeypatch, tmp_p
         def reload_decisions(self):
             self.reload_count += 1
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+    )
 
     window = module.ModernDarkWindow()
 
@@ -252,8 +271,6 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -275,9 +292,12 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
 
     FakeDecisionsDarkPanel = PlaceholderWidget
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+    )
 
     window = module.ModernDarkWindow()
 
@@ -301,8 +321,6 @@ def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fa
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -324,9 +342,12 @@ def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fa
 
     FakeDecisionsDarkPanel = PlaceholderWidget
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+    )
 
     window = module.ModernDarkWindow()
 
@@ -352,8 +373,6 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -379,9 +398,12 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload
 
     FakeDecisionsDarkPanel = PlaceholderWidget
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+    )
 
     window = module.ModernDarkWindow()
 
@@ -407,8 +429,6 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_select
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -436,9 +456,12 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_select
 
     FakeTabs = SpyTabs
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -465,8 +488,6 @@ def test_modern_dark_window_load_structure_from_decision_selects_existing_struct
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -498,10 +519,13 @@ def test_modern_dark_window_load_structure_from_decision_selects_existing_struct
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -528,8 +552,6 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -562,10 +584,13 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -594,8 +619,6 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_structure_mi
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -628,10 +651,13 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_structure_mi
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -658,8 +684,6 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reload_fails
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -689,10 +713,13 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reload_fails
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -730,8 +757,6 @@ def test_modern_dark_window_load_structure_from_decision_accepts_integer_structu
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -763,10 +788,13 @@ def test_modern_dark_window_load_structure_from_decision_accepts_integer_structu
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -795,8 +823,6 @@ def test_modern_dark_window_load_structure_from_decision_matches_string_structur
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -828,10 +854,13 @@ def test_modern_dark_window_load_structure_from_decision_matches_string_structur
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -860,8 +889,6 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -894,10 +921,13 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -926,8 +956,6 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reloaded_str
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -959,10 +987,13 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reloaded_str
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -994,8 +1025,6 @@ def test_modern_dark_window_load_structure_from_decision_skips_structures_withou
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1028,10 +1057,13 @@ def test_modern_dark_window_load_structure_from_decision_skips_structures_withou
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1060,8 +1092,6 @@ def test_modern_dark_window_load_structure_from_decision_selects_first_matching_
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1094,10 +1124,13 @@ def test_modern_dark_window_load_structure_from_decision_selects_first_matching_
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1126,8 +1159,6 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_loaded_struc
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1159,10 +1190,13 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_loaded_struc
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1194,8 +1228,6 @@ def test_modern_dark_window_load_structure_from_decision_skips_invalid_structure
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1228,10 +1260,13 @@ def test_modern_dark_window_load_structure_from_decision_skips_invalid_structure
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1260,8 +1295,6 @@ def test_modern_dark_window_load_structure_from_decision_matches_numeric_string_
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1294,10 +1327,13 @@ def test_modern_dark_window_load_structure_from_decision_matches_numeric_string_
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1326,8 +1362,6 @@ def test_modern_dark_window_load_structure_from_decision_matches_id_with_surroun
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1360,10 +1394,13 @@ def test_modern_dark_window_load_structure_from_decision_matches_id_with_surroun
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1394,8 +1431,6 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_num
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1428,10 +1463,13 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_num
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1462,8 +1500,6 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_str
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1496,10 +1532,13 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_str
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1530,8 +1569,6 @@ def test_modern_dark_window_load_structure_from_decision_skips_non_numeric_struc
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1564,10 +1601,13 @@ def test_modern_dark_window_load_structure_from_decision_skips_non_numeric_struc
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1598,8 +1638,6 @@ def test_modern_dark_window_load_structure_from_decision_rejects_non_numeric_dec
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1630,10 +1668,13 @@ def test_modern_dark_window_load_structure_from_decision_rejects_non_numeric_dec
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1659,8 +1700,6 @@ def test_modern_dark_window_load_structure_from_decision_keeps_valid_selection_a
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1693,10 +1732,13 @@ def test_modern_dark_window_load_structure_from_decision_keeps_valid_selection_a
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
@@ -1729,8 +1771,6 @@ def test_modern_dark_window_load_structure_from_decision_is_idempotent_when_alre
 
     patch_common_runtime(monkeypatch, module, app_db)
 
-    class FakeUIDataModel:
-        pass
 
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
@@ -1763,10 +1803,13 @@ def test_modern_dark_window_load_structure_from_decision_is_idempotent_when_alre
 
     FakeMessagebox = make_fake_messagebox()
 
-    monkeypatch.setattr(module, "UIDataModel", FakeUIDataModel)
-    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", FakeTerminalVWAPPayoffDarkPanel)
-    monkeypatch.setattr(module, "DecisionsDarkPanel", FakeDecisionsDarkPanel)
-    monkeypatch.setattr(module, "messagebox", FakeMessagebox)
+    patch_window_dependencies(
+        monkeypatch,
+        module,
+        FakeTerminalVWAPPayoffDarkPanel,
+        FakeDecisionsDarkPanel,
+        messagebox=FakeMessagebox,
+    )
 
     window = module.ModernDarkWindow()
     window.tabs = FakeTabs()
