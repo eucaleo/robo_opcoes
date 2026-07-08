@@ -15,12 +15,14 @@ from tkinter import messagebox
 
 import customtkinter as ctk
 
-from UI.modern.theme import CUSTOMTKINTER_APPEARANCE_MODE, CUSTOMTKINTER_COLOR_THEME
-
 from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
 from UI.components.decisions_dark_panel import DecisionsDarkPanel
 from UI.models.ui_data import UIDataModel
 
+
+# CustomTkinter runtime configuration for the modernDarkUI visual contract.
+CUSTOMTKINTER_APPEARANCE_MODE = "Dark"
+CUSTOMTKINTER_COLOR_THEME = "blue"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 APP_DB_PATH = PROJECT_ROOT / "dados" / "app.db"
