@@ -1,0 +1,45 @@
+===== DATA =====
+2026-07-09 08:15:22
+
+===== OBJETIVO =====
+Resumo agrupado dos identificadores Python contendo derived.
+
+===== RESUMO POR TOKEN =====
+categoria	ocorrencias	arquivos	token
+CANDIDATO_INTERNO_SNAKE_CASE	16	3	ensure_derived_tables
+CANDIDATO_INTERNO_SNAKE_CASE	11	3	connect_derived
+CANDIDATO_INTERNO_SNAKE_CASE	5	2	cleanup_derived
+CANDIDATO_INTERNO_SNAKE_CASE,TESTE_COMPATIBILIDADE	4	2	derived_db_path
+CANDIDATO_INTERNO_SNAKE_CASE	4	4	derived_repo
+CANDIDATO_INTERNO_SNAKE_CASE,TESTE_COMPATIBILIDADE	3	3	derived_service
+REVISAR_PASCAL_CAMEL_PUBLICO	3	2	DerivedPayoffPersistence
+CANDIDATO_INTERNO_SNAKE_CASE	2	1	_enrich_bid_ask_derived_fields
+CANDIDATO_INTERNO_SNAKE_CASE	2	1	_find_derived_db
+CANDIDATO_INTERNO_SNAKE_CASE	2	1	derived_db
+CANDIDATO_INTERNO_SNAKE_CASE	2	1	get_derived_connection
+CANDIDATO_INTERNO_SNAKE_CASE	2	1	get_derived_db_connection
+OK_ALIAS_LEGADO_CONFIG	1	1	DERIVED_DB_PATH
+CANDIDATO_INTERNO_SNAKE_CASE	1	1	derived_payoff_persistence
+REVISAR_PASCAL_CAMEL_PUBLICO	1	1	DerivedRepo
+REVISAR_PASCAL_CAMEL_PUBLICO	1	1	DerivedService
+
+===== CANDIDATOS A REVISAO FUTURA =====
+CANDIDATO_INTERNO_SNAKE_CASE | _enrich_bid_ask_derived_fields | services/structure_input_mapper.py:28, services/structure_input_mapper.py:80
+CANDIDATO_INTERNO_SNAKE_CASE | _find_derived_db | scripts/validate_derived_db.py:21, scripts/validate_derived_db.py:45
+CANDIDATO_INTERNO_SNAKE_CASE | cleanup_derived | scripts/run_derived_pipeline.py:53, scripts/run_derived_pipeline.py:56, services/derived_service.py:350, services/derived_service.py:528, services/derived_service.py:529
+CANDIDATO_INTERNO_SNAKE_CASE | connect_derived | db/config.py:19, scripts/run_derived_pipeline.py:23, scripts/run_derived_pipeline.py:26, services/derived_service.py:15, services/derived_service.py:152, services/derived_service.py:197, services/derived_service.py:294, services/derived_service.py:351, services/derived_service.py:363, services/derived_service.py:389, services/derived_service.py:412
+CANDIDATO_INTERNO_SNAKE_CASE | derived_db | db/derived_repo.py:221, db/derived_repo.py:222
+CANDIDATO_INTERNO_SNAKE_CASE | derived_db_path | UI/models/ui_data.py:50, UI/models/ui_data.py:51, UI/models/ui_data.py:52
+CANDIDATO_INTERNO_SNAKE_CASE | derived_payoff_persistence | services/canonical_pricing_facade.py:34
+CANDIDATO_INTERNO_SNAKE_CASE | derived_repo | db/writer.py:102, scripts/run_derived_pipeline.py:24, scripts/validate_derived_db.py:18, services/derived_service.py:16
+CANDIDATO_INTERNO_SNAKE_CASE | derived_service | scripts/run_derived_pipeline.py:53, services/derived_payoff_persistence.py:7
+CANDIDATO_INTERNO_SNAKE_CASE | ensure_derived_tables | db/derived_repo.py:204, db/derived_repo.py:684, db/derived_repo.py:722, db/derived_repo.py:761, db/derived_repo.py:778, db/derived_repo.py:813, db/derived_repo.py:846, db/derived_repo.py:876, db/derived_repo.py:906, db/derived_repo.py:918, db/schema.py:110, services/derived_service.py:153, services/derived_service.py:19, services/derived_service.py:198, services/derived_service.py:295, services/derived_service.py:352
+CANDIDATO_INTERNO_SNAKE_CASE | get_derived_connection | db/writer.py:102, db/writer.py:115
+CANDIDATO_INTERNO_SNAKE_CASE | get_derived_db_connection | domain/payoff_features.py:14, domain/payoff_features.py:212
+REVISAR_PASCAL_CAMEL_PUBLICO | DerivedPayoffPersistence | services/canonical_pricing_facade.py:34, services/canonical_pricing_facade.py:346, services/derived_payoff_persistence.py:12
+REVISAR_PASCAL_CAMEL_PUBLICO | DerivedRepo | db/derived_repo.py:213
+REVISAR_PASCAL_CAMEL_PUBLICO | DerivedService | services/derived_service.py:509
+
+===== DECISAO =====
+[OK] Sem bloqueio automatico.
+[OK] Usar este resumo para planejar renomeacoes pequenas e isoladas.

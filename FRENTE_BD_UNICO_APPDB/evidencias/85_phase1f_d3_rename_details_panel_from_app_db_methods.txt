@@ -1,0 +1,43 @@
+===== DATA =====
+2026-07-09 08:15:18
+
+===== OBJETIVO =====
+Renomear metodos privados em UI/components/details_panel.py.
+Trocar sufixo from_derived por from_app_db em leituras internas do banco app.
+Nao alterar classes publicas, modulos, aliases de config ou contratos de compatibilidade.
+
+===== ALVO =====
+UI/components/details_panel.py
+
+===== ALTERACOES =====
+_fetch_latest_decision_from_derived -> _fetch_latest_decision_from_app_db: 0 substituicao(oes)
+_fetch_payoff_points_from_derived -> _fetch_payoff_points_from_app_db: 0 substituicao(oes)
+_fetch_audit_info_from_derived -> _fetch_audit_info_from_app_db: 0 substituicao(oes)
+_refresh_current_from_derived -> _refresh_current_from_app_db: 0 substituicao(oes)
+
+===== CONTAGEM DE TOKENS RELEVANTES EM UI/components/details_panel.py =====
+_fetch_latest_decision_from_derived: 0
+_fetch_latest_decision_from_app_db: 2
+_fetch_payoff_points_from_derived: 0
+_fetch_payoff_points_from_app_db: 2
+_fetch_audit_info_from_derived: 0
+_fetch_audit_info_from_app_db: 2
+_refresh_current_from_derived: 0
+_refresh_current_from_app_db: 1
+DERIVED_DB_PATH: 0
+
+===== VERIFICACOES =====
+[OK] _fetch_latest_decision_from_derived ausente: True
+[OK] _fetch_latest_decision_from_app_db presente: True
+[OK] _fetch_payoff_points_from_derived ausente: True
+[OK] _fetch_payoff_points_from_app_db presente: True
+[OK] _fetch_audit_info_from_derived ausente: True
+[OK] _fetch_audit_info_from_app_db presente: True
+[OK] _refresh_current_from_derived ausente: True
+[OK] _refresh_current_from_app_db presente: True
+[OK] DERIVED_DB_PATH nao introduzido no arquivo: True
+
+===== DECISAO =====
+[OK] DetailsPanel usa from_app_db nos metodos privados migrados.
+[OK] Nenhum DERIVED_DB_PATH foi introduzido.
+[OK] Pode seguir para testes, compile e reauditoria.

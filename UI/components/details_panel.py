@@ -1019,7 +1019,7 @@ class DetailsPanel(ttk.LabelFrame):
         except Exception:
             label.config(text=str(value))
 
-    def _fetch_latest_decision_from_derived(
+    def _fetch_latest_decision_from_app_db(
         self, structure_id
     ) -> Optional[Dict[str, Any]]:
         """
@@ -1061,7 +1061,7 @@ class DetailsPanel(ttk.LabelFrame):
         finally:
             con.close()
 
-    def _fetch_payoff_points_from_derived(self, structure_id):
+    def _fetch_payoff_points_from_app_db(self, structure_id):
         """
         alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
         Legado aba removido.
@@ -1089,7 +1089,7 @@ class DetailsPanel(ttk.LabelFrame):
         finally:
             con.close()
 
-    def _fetch_audit_info_from_derived(self, structure_id) -> Dict[str, Any]:
+    def _fetch_audit_info_from_app_db(self, structure_id) -> Dict[str, Any]:
         """
         alteracao_36: filtra por structure_id (INTEGER).
         Legado aba removido.
@@ -1164,13 +1164,13 @@ class DetailsPanel(ttk.LabelFrame):
                 return y1 + t * (y2 - y1)
         return None
 
-    def _refresh_current_from_derived(self, structure_id):
+    def _refresh_current_from_app_db(self, structure_id):
         """Recarrega somente a estrutura atual do app.db e atualiza widgets."""
-        decision = self._fetch_latest_decision_from_derived(structure_id)
+        decision = self._fetch_latest_decision_from_app_db(structure_id)
         if decision:
             self.update_decision(decision)
 
-        pts = self._fetch_payoff_points_from_derived(structure_id)
+        pts = self._fetch_payoff_points_from_app_db(structure_id)
         breakevens = self._compute_breakevens_from_points(pts)
 
         spot_ref = None
@@ -1180,7 +1180,7 @@ class DetailsPanel(ttk.LabelFrame):
         pl_at_spot = self._compute_pl_at_spot(pts, spot_ref)
         self.update_breakevens(breakevens, pl_at_spot)
 
-        audit = self._fetch_audit_info_from_derived(structure_id)
+        audit = self._fetch_audit_info_from_app_db(structure_id)
         self.update_audit_info(audit)
 
     # ------------------------------------------------------------------
