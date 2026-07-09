@@ -1,0 +1,19 @@
+Resumo da auditoria
+
+Data: Tue May 12 10:26:13     2026
+Diretório: /c/users/eucal/projeto
+
+Total de arquivos:
+17946
+
+Total de diretórios:
+1622
+
+Total de configs localizadas:
+25
+
+Total de scripts localizados:
+31
+
+Total de ocorrências de legado:
+6842
