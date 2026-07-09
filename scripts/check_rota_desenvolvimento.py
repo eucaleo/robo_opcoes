@@ -386,11 +386,11 @@ def audit_scripts() -> None:
 
     candidates = [
         "scripts/db_locator.py",
-        "scripts/validate_derived_db.py",
+        "scripts/validate_app_db.py",
         "scripts/run_smoke_quick.py",
         "scripts/run_smoke_full.py",
         "run_derived_pipeline.py",
-        "validate_derived_db.py",
+        "validate_app_db.py",
     ]
 
     for rel in candidates:

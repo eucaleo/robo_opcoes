@@ -77,7 +77,7 @@ ALLOWED_SCRIPTS = {
     "scripts/purge_derived_snapshots.py",
     "scripts/repair_derived_db_consistency.py",
     "scripts/run_derived_pipeline.py",
-    "scripts/validate_derived_db.py",
+    "scripts/validate_app_db.py",
 }
 
 
