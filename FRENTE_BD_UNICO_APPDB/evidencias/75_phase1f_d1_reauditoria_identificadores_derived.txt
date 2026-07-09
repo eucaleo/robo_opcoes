@@ -1,0 +1,114 @@
+===== DATA =====
+2026-07-09 08:00:56
+
+===== OBJETIVO =====
+Auditar identificadores Python contendo derived, Derived ou DERIVED.
+Esta fase e apenas classificatoria; nao altera codigo operacional.
+Separar alias legado permitido, testes/compatibilidade e candidatos a migracao futura.
+
+===== ESCOPO OPERACIONAL =====
+ATT
+UI
+db
+domain
+repositories
+scripts
+services
+
+===== TOTAL PY VARREDOS =====
+163
+
+===== TOTAL DE OCORRENCIAS TOKEN NAME COM derived =====
+76
+
+===== CONTAGEM POR CATEGORIA =====
+CANDIDATO_INTERNO_SNAKE_CASE: 68
+OK_ALIAS_LEGADO_CONFIG: 1
+REVISAR_PASCAL_CAMEL_PUBLICO: 5
+TESTE_COMPATIBILIDADE: 2
+
+===== OCORRENCIAS DETALHADAS =====
+TESTE_COMPATIBILIDADE | ATT/tests/test_derived_service.py:3: derived_service | import services.derived_service as ds
+TESTE_COMPATIBILIDADE | ATT/tests/test_ui_data_migration.py:21: derived_db_path | m = UIDataModel(derived_db_path=str(DB_PATH))
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:50: _derived_db_path | def _derived_db_path(self) -> Path:
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:139: derived_explicit | derived_explicit = []
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:146: _is_derived_db_path | if self._is_derived_db_path(name, path):
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:147: derived_explicit | derived_explicit.append(path)
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:154: derived_explicit | return derived_explicit
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:288: _is_derived_db_path | def _is_derived_db_path(self, name, path):
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1022: _fetch_latest_decision_from_derived | def _fetch_latest_decision_from_derived(
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1030: _derived_db_path | db_path = self._derived_db_path()
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1064: _fetch_payoff_points_from_derived | def _fetch_payoff_points_from_derived(self, structure_id):
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1070: _derived_db_path | db_path = self._derived_db_path()
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1092: _fetch_audit_info_from_derived | def _fetch_audit_info_from_derived(self, structure_id) -> Dict[str, Any]:
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1098: _derived_db_path | db_path = self._derived_db_path()
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1167: _refresh_current_from_derived | def _refresh_current_from_derived(self, structure_id):
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1169: _fetch_latest_decision_from_derived | decision = self._fetch_latest_decision_from_derived(structure_id)
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1173: _fetch_payoff_points_from_derived | pts = self._fetch_payoff_points_from_derived(structure_id)
+CANDIDATO_INTERNO_SNAKE_CASE | UI/components/details_panel.py:1183: _fetch_audit_info_from_derived | audit = self._fetch_audit_info_from_derived(structure_id)
+CANDIDATO_INTERNO_SNAKE_CASE | UI/models/ui_data.py:50: derived_db_path | def __init__(self, app_db_path: Optional[Path] = None, derived_db_path: Optional[Path] = None):
+CANDIDATO_INTERNO_SNAKE_CASE | UI/models/ui_data.py:51: derived_db_path | if app_db_path is None and derived_db_path is not None:
+CANDIDATO_INTERNO_SNAKE_CASE | UI/models/ui_data.py:52: derived_db_path | app_db_path = derived_db_path
+OK_ALIAS_LEGADO_CONFIG | db/config.py:14: DERIVED_DB_PATH | DERIVED_DB_PATH = APP_DB_PATH
+CANDIDATO_INTERNO_SNAKE_CASE | db/config.py:19: connect_derived | def connect_derived() -> sqlite3.Connection:
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:204: ensure_derived_tables | def ensure_derived_tables(conn: sqlite3.Connection) -> None:
+REVISAR_PASCAL_CAMEL_PUBLICO | db/derived_repo.py:213: DerivedRepo | class DerivedRepo:
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:221: derived_db | def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:222: derived_db | self._db_path = derived_db or db_path
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:684: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:722: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:761: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:778: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:813: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:846: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:876: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:906: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/derived_repo.py:918: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | db/schema.py:110: ensure_derived_tables | def ensure_derived_tables(conn):
+CANDIDATO_INTERNO_SNAKE_CASE | db/writer.py:102: derived_repo | from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+CANDIDATO_INTERNO_SNAKE_CASE | db/writer.py:102: get_derived_connection | from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+CANDIDATO_INTERNO_SNAKE_CASE | db/writer.py:115: get_derived_connection | conn = get_derived_connection()
+CANDIDATO_INTERNO_SNAKE_CASE | domain/payoff_features.py:14: get_derived_db_connection | def get_derived_db_connection() -> sqlite3.Connection:
+CANDIDATO_INTERNO_SNAKE_CASE | domain/payoff_features.py:212: get_derived_db_connection | conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/run_derived_pipeline.py:23: connect_derived | from db.config import connect_derived
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/run_derived_pipeline.py:24: derived_repo | from db.derived_repo import validate_snapshot_consistency
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/run_derived_pipeline.py:26: connect_derived | conn = connect_derived()
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/run_derived_pipeline.py:53: cleanup_derived | from services.derived_service import cleanup_derived
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/run_derived_pipeline.py:53: derived_service | from services.derived_service import cleanup_derived
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/run_derived_pipeline.py:56: cleanup_derived | cleanup_derived(days_to_keep=30)
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/validate_derived_db.py:18: derived_repo | from db.derived_repo import validate_snapshot_consistency
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/validate_derived_db.py:21: _find_derived_db | def _find_derived_db() -> Path | None:
+CANDIDATO_INTERNO_SNAKE_CASE | scripts/validate_derived_db.py:45: _find_derived_db | db_path = _find_derived_db()
+REVISAR_PASCAL_CAMEL_PUBLICO | services/canonical_pricing_facade.py:34: DerivedPayoffPersistence | from services.derived_payoff_persistence import DerivedPayoffPersistence
+CANDIDATO_INTERNO_SNAKE_CASE | services/canonical_pricing_facade.py:34: derived_payoff_persistence | from services.derived_payoff_persistence import DerivedPayoffPersistence
+REVISAR_PASCAL_CAMEL_PUBLICO | services/canonical_pricing_facade.py:346: DerivedPayoffPersistence | payoff_persistence_port=DerivedPayoffPersistence(),
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_payoff_persistence.py:7: derived_service | from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+REVISAR_PASCAL_CAMEL_PUBLICO | services/derived_payoff_persistence.py:12: DerivedPayoffPersistence | class DerivedPayoffPersistence:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:15: connect_derived | from db.config import connect_app, connect_derived
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:16: derived_repo | from db.derived_repo import (
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:19: ensure_derived_tables | ensure_derived_tables,
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:152: connect_derived | with connect_derived() as conn:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:153: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:197: connect_derived | with connect_derived() as conn:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:198: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:294: connect_derived | with connect_derived() as conn:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:295: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:350: cleanup_derived | def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:351: connect_derived | with connect_derived() as conn:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:352: ensure_derived_tables | ensure_derived_tables(conn)
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:363: connect_derived | with connect_derived() as conn:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:389: connect_derived | with connect_derived() as conn:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:412: connect_derived | with connect_derived() as conn:
+REVISAR_PASCAL_CAMEL_PUBLICO | services/derived_service.py:509: DerivedService | class DerivedService:
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:528: cleanup_derived | def cleanup_derived(self, days_to_keep: int = 30):
+CANDIDATO_INTERNO_SNAKE_CASE | services/derived_service.py:529: cleanup_derived | return cleanup_derived(days_to_keep)
+CANDIDATO_INTERNO_SNAKE_CASE | services/structure_input_mapper.py:28: _enrich_bid_ask_derived_fields | def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+CANDIDATO_INTERNO_SNAKE_CASE | services/structure_input_mapper.py:80: _enrich_bid_ask_derived_fields | _enrich_bid_ask_derived_fields(mapped_leg)
+
+===== BLOQUEIOS =====
+Nenhum bloqueio encontrado.
+
+===== DECISAO =====
+[OK] Nenhum DERIVED_DB_PATH fora de db/config.py.
+[OK] Auditoria classificatoria concluida.
+[OK] Proxima fase pode escolher candidatos internos seguros para renomeacao controlada.

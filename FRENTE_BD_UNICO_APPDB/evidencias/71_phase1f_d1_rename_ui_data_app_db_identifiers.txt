@@ -1,0 +1,43 @@
+===== DATA =====
+2026-07-09 08:00:51
+
+===== OBJETIVO =====
+Renomear identificadores internos de UI/models/ui_data.py para app_db_path.
+Preservar compatibilidade do parametro legado derived_db_path no construtor.
+Nao renomear modulo, classe ou teste nesta fase.
+
+===== ALVO =====
+UI/models/ui_data.py
+
+===== ALTERACOES =====
+assinatura __init__ migrada para app_db_path com alias derived_db_path
+bloco de compatibilidade derived_db_path -> app_db_path inserido
+self.derived_db_path -> self.app_db_path: 5 substituicao(oes)
+Path(derived_db_path).resolve() -> Path(app_db_path).resolve(): 1 substituicao(oes)
+if derived_db_path -> if app_db_path: 1 substituicao(oes)
+_connect_derived_threadsafe -> _connect_app_threadsafe: 4 substituicao(oes)
+
+===== ERROS =====
+Nenhum.
+
+===== CONTAGEM DE TOKENS RELEVANTES EM UI/models/ui_data.py =====
+derived_db_path: 3
+app_db_path: 10
+_connect_derived_threadsafe: 0
+_connect_app_threadsafe: 2
+DERIVED_DB_PATH: 0
+
+===== VERIFICACOES =====
+[OK] arquivo alterado ou ja conforme: True
+[OK] self.derived_db_path ausente: True
+[OK] _connect_derived_threadsafe ausente: True
+[OK] self.app_db_path presente: True
+[OK] _connect_app_threadsafe presente: True
+[OK] assinatura compat app_db_path + derived_db_path presente: True
+[OK] bloco compatibilidade presente: True
+[OK] token DERIVED_DB_PATH nao introduzido: True
+
+===== DECISAO =====
+[OK] UIDataModel usa app_db_path internamente.
+[OK] Parametro legado derived_db_path preservado como compatibilidade.
+[OK] Pode seguir para testes e compile.
