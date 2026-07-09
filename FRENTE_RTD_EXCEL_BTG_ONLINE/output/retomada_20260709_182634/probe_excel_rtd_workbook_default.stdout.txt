@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "status": "ok",
+  "message": "workbook RTD localizado e amostra lida com sucesso",
+  "workbook_name": "LISTA_RTD.xlsm",
+  "workbook_full_name": "C:\\Users\\eucal\\projeto\\LISTA_RTD.xlsm",
+  "sheets": [
+    "RTD_OPTION_QUOTES",
+    "RTD-BTG LISTA"
+  ],
+  "selected_sheet": "RTD_OPTION_QUOTES",
+  "requested_sheet": null,
+  "headers": [
+    "codigo_opcao",
+    "ativo_base",
+    "call_put",
+    "strike",
+    "vencimento",
+    "ultimo_preco",
+    "ultima_quantidade",
+    "bid",
+    "ask",
+    "volume",
+    "iv",
+    "delta",
+    "gamma",
+    "theta",
+    "vega",
+    "vwap"
+  ],
+  "sample_rows": [
+    [
+      "PRIOT690",
+      "PRIO3",
+      "Put",
+      69.0,
+      46255.125,
+      11.88,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      -1.0,
+      0.0,
+      0.038,
+      0.0,
+      0.0
+    ]
+  ],
+  "row_count": 2,
+  "col_count": 16,
+  "workbooks_seen": [
+    "LISTA_RTD.xlsm"
+  ]
+}
