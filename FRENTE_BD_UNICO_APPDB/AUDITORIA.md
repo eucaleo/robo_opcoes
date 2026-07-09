@@ -421,3 +421,53 @@ Commit:
 
 - fase 5c adiciona contrato rtd tables app db
 
+
+## Atualizacao - Fase 5D
+
+Objetivo desta etapa:
+
+- remover tabela residual de backup/scope do app.db;
+- criar contrato permanente contra objetos residuais de backup, temp, tmp, scope, bak e old no schema do app.db;
+- garantir que o banco canonico dados/app.db permanece limpo;
+- executar contratos 5A, 5B, 5C e 5D em conjunto;
+- executar buscas proibitivas, compileall e pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB.
+
+Tabela residual removida:
+
+- rtd_option_quotes_backup_scope_20260626_184057
+
+Arquivo de teste contratual:
+
+- ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py
+
+Arquivos alterados:
+
+- dados/app.db
+- ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/141_phase5d_no_residual_backup_tables_app_db.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py -q
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado esperado:
+
+- contrato direcionado aprovado com 1 passed
+- contratos 5A, 5B, 5C e 5D aprovados em conjunto com 8 passed
+- buscas proibitivas sem ocorrencias operacionais
+- compileall aprovado
+- pytest completo aprovado
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente
+
+Commit:
+
+- fase 5d remove tabela backup residual app db
+
