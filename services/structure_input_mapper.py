@@ -25,7 +25,7 @@ def _to_float_or_none(value: Any) -> float | None:
         return None
 
 
-def _enrich_bid_ask_derived_fields(mapped_leg: dict[str, Any]) -> None:
+def _enrich_bid_ask_calculated_fields(mapped_leg: dict[str, Any]) -> None:
     bid = _to_float_or_none(mapped_leg.get("bid"))
     ask = _to_float_or_none(mapped_leg.get("ask"))
 
@@ -77,7 +77,7 @@ def _map_leg_to_structure_input(leg: dict[str, Any]) -> dict[str, Any]:
         if field in leg:
             mapped_leg[field] = leg[field]
 
-    _enrich_bid_ask_derived_fields(mapped_leg)
+    _enrich_bid_ask_calculated_fields(mapped_leg)
 
     return mapped_leg
 

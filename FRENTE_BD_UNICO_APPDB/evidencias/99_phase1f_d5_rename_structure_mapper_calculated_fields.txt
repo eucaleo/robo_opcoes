@@ -1,0 +1,29 @@
+===== DATA =====
+2026-07-09 08:23:57
+
+===== OBJETIVO =====
+Renomear helper privado em services/structure_input_mapper.py.
+Trocar _enrich_bid_ask_derived_fields por _enrich_bid_ask_calculated_fields.
+Usar calculated_fields para preservar semantica de campos calculados/enriquecidos.
+Nao alterar nomes de modulo, contratos publicos, aliases de config ou compatibilidade.
+
+===== ALVO =====
+services/structure_input_mapper.py
+
+===== ALTERACOES =====
+_enrich_bid_ask_derived_fields -> _enrich_bid_ask_calculated_fields: 2 substituicao(oes)
+
+===== CONTAGEM DE TOKENS RELEVANTES EM services/structure_input_mapper.py =====
+_enrich_bid_ask_derived_fields: 0
+_enrich_bid_ask_calculated_fields: 2
+DERIVED_DB_PATH: 0
+
+===== VERIFICACOES =====
+[OK] _enrich_bid_ask_derived_fields ausente: True
+[OK] _enrich_bid_ask_calculated_fields presente: True
+[OK] DERIVED_DB_PATH nao introduzido no arquivo: True
+
+===== DECISAO =====
+[OK] structure_input_mapper.py usa calculated_fields no helper privado migrado.
+[OK] Nenhum DERIVED_DB_PATH foi introduzido.
+[OK] Pode seguir para testes, compile e reauditoria.

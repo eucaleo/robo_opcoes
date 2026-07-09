@@ -1,0 +1,9 @@
+ M services/structure_input_mapper.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/100_phase1f_d5_pytest_direcionado.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/101_phase1f_d5_compileall.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/102_phase1f_d5_reauditoria_stdout.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/103_phase1f_d5_reauditoria_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/104_phase1f_d5_resumo_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/105_phase1f_d5_git_status.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/99_phase1f_d5_rename_structure_mapper_calculated_fields.txt
+?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d5_rename_structure_mapper_calculated_fields.py
