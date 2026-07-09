@@ -1,0 +1,41 @@
+===== DATA =====
+2026-07-09 08:54:03
+
+===== OBJETIVO =====
+Fase 1F-D.14: substituir uso operacional de connect_derived por connect_app em scripts/run_derived_pipeline.py.
+
+===== DIFF =====
+diff --git a/scripts/run_derived_pipeline.py b/scripts/run_derived_pipeline.py
+index 9e2c355..3921f81 100644
+--- a/scripts/run_derived_pipeline.py
++++ b/scripts/run_derived_pipeline.py
+@@ -20,10 +20,10 @@ except Exception:
+ 
+ def validate_final_consistency() -> bool:
+     """Valida consistência dos snapshots após processamento."""
+-    from db.config import connect_derived
++    from db.config import connect_app
+     from db.derived_repo import validate_snapshot_consistency
+     
+-    conn = connect_derived()
++    conn = connect_app()
+     try:
+         return validate_snapshot_consistency(conn)
+     finally:
+
+===== GREP connect_derived EM scripts/run_derived_pipeline.py =====
+
+===== COMPILEALL =====
+
+===== HELP RUN DERIVED PIPELINE =====
+usage: run_derived_pipeline.py [-h] [--no-cleanup]
+
+Run derived pipeline
+
+options:
+  -h, --help    show this help message and exit
+  --no-cleanup  N�o executar cleanup do app.db antes de validar
+
+===== GIT STATUS =====
+ M scripts/run_derived_pipeline.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/126_phase1f_d14_run_derived_pipeline_connect_app.txt
