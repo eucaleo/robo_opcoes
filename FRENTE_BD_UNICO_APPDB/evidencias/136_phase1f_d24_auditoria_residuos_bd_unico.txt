@@ -1,0 +1,221 @@
+===== DATA =====
+2026-07-09 09:58:41
+
+===== OBJETIVO =====
+Fase 1F-D.24: auditoria final dos residuos tecnicos de BD unico app.db.
+
+===== STATUS INICIAL =====
+?? FRENTE_BD_UNICO_APPDB/evidencias/136_phase1f_d24_auditoria_residuos_bd_unico.txt
+
+===== COMMITS RECENTES =====
+dedf69b fase 1f-d23 remove aliases derived_db
+64d82a9 fase 1f-d22 renomeia repair_app_db_consistency
+0e23a51 fase 1f-d21 atualiza referencias validate_app_db
+91ec12b fase 1f-d20 migra validate_app_db
+c0be9e4 fase 1f-d19 remove alias DERIVED_DB_PATH
+
+===== TOKENS TECNICOS PROIBIDOS =====
+UI/components/details_panel.py:171:            "derived_db_path",
+UI/components/details_panel.py:207:            "derived_db_path",
+
+===== NOMES DE ARQUIVO PROIBIDOS =====
+
+===== CAMINHOS FISICOS DERIVED.DB =====
+
+===== USOS VALIDOS DE APP.DB =====
+ATT/tests/test_legacy_structure_legs_importer_integration.py:183:        RoboLegsRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_legacy_structure_legs_reader.py:200:        RoboLegsRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_legacy_structure_legs_reader.py:245:        RoboLegsRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_robo_legs_repository.py:61:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:86:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:110:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:140:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_repository.py:165:    repo = RoboLegsRepository(RoboLegsRepoConfig(app_db_path=str(db_path)))
+ATT/tests/test_robo_legs_status_repository.py:33:        RoboLegsStatusRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_robo_legs_status_repository.py:53:        RoboLegsStatusRepoConfig(app_db_path=str(db_path))
+ATT/tests/test_structure_editor_integration.py:401:        mw._db_path = "dados/app.db"
+ATT/tests/test_structure_editor_integration.py:406:        self.assertEqual(kwargs.get("db_path"), "dados/app.db")
+ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(app_db_path=str(DB_PATH))
+ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:120:    monkeypatch.setattr(module, "APP_DB_PATH", app_db)
+UI/components/details_panel.py:11:    def __init__(self, parent, on_recalculate=None, app_db_path=None):
+UI/components/details_panel.py:14:        self._app_db_path = str(app_db_path) if app_db_path else None
+UI/components/details_panel.py:50:    def _app_db_path(self) -> Path:
+UI/components/details_panel.py:72:    def _operational_app_db_path(self) -> Path:
+UI/components/details_panel.py:76:        Importante: não usa self._db_path porque _app_db_path() já trata
+UI/components/details_panel.py:79:        if self._app_db_path:
+UI/components/details_panel.py:80:            return Path(self._app_db_path)
+UI/components/details_panel.py:146:            if self._is_app_db_path(name, path):
+UI/components/details_panel.py:160:            "_app_db_path",
+UI/components/details_panel.py:161:            "app_db_path",
+UI/components/details_panel.py:170:            "_app_db_path",
+UI/components/details_panel.py:206:            "_app_db_path",
+UI/components/details_panel.py:210:            "_app_db_path",
+UI/components/details_panel.py:211:            "app_db_path",
+UI/components/details_panel.py:288:    def _is_app_db_path(self, name, path):
+UI/components/details_panel.py:982:            app_db_path = self._operational_app_db_path()
+UI/components/details_panel.py:983:            structures_repo = StructuresRepository(app_db_path)
+UI/components/details_panel.py:984:            events_repo = StructureEventsRepository(app_db_path)
+UI/components/details_panel.py:1030:        db_path = self._app_db_path()
+UI/components/details_panel.py:1070:        db_path = self._app_db_path()
+UI/components/details_panel.py:1098:        db_path = self._app_db_path()
+UI/components/structure_editor_dialog.py:73:        db_path: str = "dados/app.db",
+UI/components/structure_editor_dialog.py:412:        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/app.db."""
+UI/components/terminal_vwap_payoff_dark_panel.py:14:O painel lê dados do banco dados/app.db com introspecção defensiva de schema.
+UI/main_window.py:101:            app_db_path=self._db_path,
+UI/main_window.py:717:                or "dados/app.db"
+UI/models/ui_data.py:9:from db.config import APP_DB_PATH
+UI/models/ui_data.py:50:    def __init__(self, app_db_path: Optional[Path] = None):
+UI/models/ui_data.py:51:        from db.config import APP_DB_PATH
+UI/models/ui_data.py:52:        self.app_db_path = (
+UI/models/ui_data.py:53:            Path(app_db_path).resolve()
+UI/models/ui_data.py:54:            if app_db_path
+UI/models/ui_data.py:55:            else Path(APP_DB_PATH).resolve()
+UI/models/ui_data.py:57:        print(f"[UI] Usando app DB: {self.app_db_path}")
+UI/models/ui_data.py:71:        if not self.app_db_path.exists():
+UI/models/ui_data.py:73:                f"Banco app.db nao encontrado em: {self.app_db_path}"
+UI/models/ui_data.py:75:        conn = sqlite3.connect(str(self.app_db_path))
+UI/modern/dark_window.py:28:APP_DB_PATH = PROJECT_ROOT / "dados" / "app.db"
+UI/modern/dark_window.py:68:        if not APP_DB_PATH.exists():
+UI/modern/dark_window.py:71:                f"Banco app.db não encontrado em:\n{APP_DB_PATH}",
+UI/modern/dark_window.py:83:            db_path=str(APP_DB_PATH),
+db/config.py:9:APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+db/config.py:12:    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+db/config.py:13:    return sqlite3.connect(str(APP_DB_PATH))
+db/derived_repo.py:227:    def __init__(self, db_path: str = "dados/app.db") -> None:
+db/init_db.py:14:    init_db("dados/app.db")
+db/init_db.py:15:    print("OK: banco inicializado em dados/app.db")
+db/migrations/add_structure_id_to_payoff_curve_points.py:8:    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/app.db
+db/migrations/add_structure_id_to_payoff_curve_points.py:127:    parser.add_argument("--db", default="dados/app.db")
+db/reader.py:17:    def __init__(self, db_path: str = "dados/app.db"):
+db/writer.py:15:    def __init__(self, db_path: str = "dados/app.db"):
+scripts/check_rota_desenvolvimento.py:340:        print("Estruturas 44-48 em dados/app.db:")
+scripts/import_legacy_structure_legs.py:48:        default="./dados/app.db",
+scripts/import_legacy_structure_legs.py:49:        help="Caminho do banco SQLite. Default: ./dados/app.db",
+scripts/import_legacy_structure_legs.py:77:        RoboLegsRepoConfig(app_db_path=args.db_path)
+scripts/purge_derived_snapshots.py:38:        default="dados/app.db",
+scripts/purge_derived_snapshots.py:39:        help="Caminho do app.db. Default: dados/app.db",
+scripts/refresh_rtd_symbol_to_option_quotes.py:10:    python scripts/refresh_rtd_symbol_to_option_quotes.py --symbol PETRS424 --db dados/app.db --visible --json
+scripts/refresh_rtd_symbol_to_option_quotes.py:114:        default="dados/app.db",
+scripts/refresh_rtd_symbol_to_option_quotes.py:115:        help="Caminho do banco SQLite. Padrão: dados/app.db",
+scripts/repair_app_db_consistency.py:49:        description="Repara inconsistências de snapshots em dados/app.db"
+scripts/repair_app_db_consistency.py:53:        default="dados/app.db",
+scripts/repair_app_db_consistency.py:54:        help="Caminho do app.db. Default: dados/app.db",
+scripts/validate_app_db.py:6:- usa APP_DB_PATH, se definido;
+scripts/validate_app_db.py:7:- caso contrario, usa dados/app.db a partir da raiz do projeto;
+scripts/validate_app_db.py:20:DEFAULT_APP_DB_PATH = PROJECT_ROOT / "dados" / "app.db"
+scripts/validate_app_db.py:23:def find_app_db_path() -> Path:
+scripts/validate_app_db.py:24:    env = os.environ.get("APP_DB_PATH")
+scripts/validate_app_db.py:27:    return DEFAULT_APP_DB_PATH.resolve()
+scripts/validate_app_db.py:31:    print(f"[INFO] APP_DB_PATH: {path}")
+scripts/validate_app_db.py:35:        print("       Defina APP_DB_PATH apontando para o arquivo correto.")
+scripts/validate_app_db.py:59:    path = find_app_db_path()
+services/canonical_pricing_facade.py:39:_DEFAULT_DB = Path("dados/app.db")
+services/pricing_execution_app_service.py:19:_DEFAULT_DB = Path("dados/app.db")
+
+===== INVENTARIO DERIVED SEMANTICO =====
+ATT/checks/check_cleanup_residuals.py:76:    "scripts/patch_derived_payoff_timestamp_consistency.sh",
+ATT/checks/check_cleanup_residuals.py:77:    "scripts/purge_derived_snapshots.py",
+ATT/checks/check_cleanup_residuals.py:79:    "scripts/run_derived_pipeline.py",
+ATT/checks/check_end_to_end.py:23:    ROOT_DIR / "db" / "derived_repo.py",
+ATT/checks/check_end_to_end.py:34:    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+ATT/checks/check_structures.py:32:    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+ATT/tests/test_derived_service.py:3:import services.derived_service as ds
+UI/components/details_panel.py:171:            "derived_db_path",
+UI/components/details_panel.py:207:            "derived_db_path",
+UI/components/details_panel.py:293:            "derived" in low_name
+UI/main_window.py:400:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+UI/main_window.py:402:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+UI/main_window.py:450:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+UI/main_window.py:452:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+db/derived_repo.py:1:# db/derived_repo.py
+db/derived_repo.py:9:  - Encapsula lógica em classe DerivedRepo (resolve alteracao_26 / alteracao_30)
+db/derived_repo.py:210:def ensure_derived_tables(conn: sqlite3.Connection) -> None:
+db/derived_repo.py:216:# DerivedRepo -- API canônica com gerenciamento próprio de conexão
+db/derived_repo.py:219:class DerivedRepo:
+db/derived_repo.py:690:    ensure_derived_tables(conn)
+db/derived_repo.py:728:    ensure_derived_tables(conn)
+db/derived_repo.py:767:    ensure_derived_tables(conn)
+db/derived_repo.py:784:    ensure_derived_tables(conn)
+db/derived_repo.py:819:    ensure_derived_tables(conn)
+db/derived_repo.py:852:    ensure_derived_tables(conn)
+db/derived_repo.py:882:    ensure_derived_tables(conn)
+db/derived_repo.py:912:    ensure_derived_tables(conn)
+db/derived_repo.py:924:    ensure_derived_tables(conn)
+db/schema.py:110:def ensure_derived_tables(conn):
+db/writer.py:91:        DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic()
+db/writer.py:97:            "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+db/writer.py:103:        from db.derived_repo import write_decision_snapshot_atomic
+scripts/check_rota_desenvolvimento.py:392:        "run_derived_pipeline.py",
+scripts/purge_derived_snapshots.py:64:    print("=== PURGE DERIVED SNAPSHOTS ===")
+scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+scripts/run_derived_pipeline.py:44:    parser = argparse.ArgumentParser(description="Run derived pipeline")
+scripts/run_derived_pipeline.py:53:    from services.derived_service import cleanup_derived
+scripts/run_derived_pipeline.py:56:        cleanup_derived(days_to_keep=30)
+services/canonical_pricing_facade.py:4:alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+services/canonical_pricing_facade.py:21:  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+services/canonical_pricing_facade.py:34:from services.derived_payoff_persistence import DerivedPayoffPersistence
+services/canonical_pricing_facade.py:330:                                                     DerivedPayoffPersistence.persist()
+services/canonical_pricing_facade.py:346:            payoff_persistence_port=DerivedPayoffPersistence(),
+services/derived_payoff_persistence.py:1:# services/derived_payoff_persistence.py
+services/derived_payoff_persistence.py:7:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:12:class DerivedPayoffPersistence:
+services/derived_payoff_persistence.py:19:      3. Persistir pontos no app.db via derived_service
+services/derived_payoff_persistence.py:33:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+services/derived_payoff_persistence.py:40:                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+services/derived_payoff_persistence.py:52:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+services/derived_payoff_persistence.py:60:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+services/derived_payoff_persistence.py:81:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+services/derived_payoff_persistence.py:88:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+services/derived_payoff_persistence.py:96:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+services/derived_payoff_persistence.py:166:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+services/derived_payoff_persistence.py:173:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+services/derived_service.py:2:# services/derived_service.py
+services/derived_service.py:16:from db.derived_repo import (
+services/derived_service.py:19:    ensure_derived_tables,
+services/derived_service.py:82:    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+services/derived_service.py:153:        ensure_derived_tables(conn)
+services/derived_service.py:198:        ensure_derived_tables(conn)
+services/derived_service.py:295:        ensure_derived_tables(conn)
+services/derived_service.py:350:def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
+services/derived_service.py:352:        ensure_derived_tables(conn)
+services/derived_service.py:504:# alteracao_65 -- DerivedService: fachada orientada a objetos
+services/derived_service.py:509:class DerivedService:
+services/derived_service.py:510:    """Fachada OO sobre as funcoes standalone do derived_service.
+services/derived_service.py:528:    def cleanup_derived(self, days_to_keep: int = 30):
+services/derived_service.py:529:        return cleanup_derived(days_to_keep)
+
+===== COMPILEALL =====
+Listing 'db'...
+Listing 'db\\migrations'...
+Listing 'scripts'...
+Listing 'services'...
+Listing 'ui'...
+Listing 'ui\\components'...
+Listing 'ui\\models'...
+Listing 'ui\\modern'...
+Listing 'UI'...
+Listing 'UI\\components'...
+Listing 'UI\\models'...
+Listing 'UI\\modern'...
+Listing 'ATT'...
+Listing 'ATT\\checks'...
+Listing 'ATT\\tests'...
+
+===== PYTEST =====
+
+[conftest] PROJECT_ROOT : C:\Users\eucal\projeto
+[conftest] DB_PATH      : C:\Users\eucal\projeto\dados\app.db
+[conftest] DB existe?   : True
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+.................................................................. [ 47%]
+........................................................................ [ 59%]
+........................................................................ [ 72%]
+.............ss......................................................... [ 84%]
+........................................................................ [ 96%]
+.....................                                                    [100%]
+589 passed, 2 skipped, 6 subtests passed in 32.80s
+
+===== STATUS FINAL =====
+?? FRENTE_BD_UNICO_APPDB/evidencias/136_phase1f_d24_auditoria_residuos_bd_unico.txt
