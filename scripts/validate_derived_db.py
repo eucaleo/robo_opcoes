@@ -18,7 +18,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from db.derived_repo import validate_snapshot_consistency
 
 
-def _find_derived_db() -> Path | None:
+def _find_app_db() -> Path | None:
     # 1) env (prioridade)
     env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
     if env:
@@ -42,7 +42,7 @@ def _find_derived_db() -> Path | None:
 def main() -> int:
     print("=== VALIDACAO DO BANCO APP.DB ===")
 
-    db_path = _find_derived_db()
+    db_path = _find_app_db()
     if not db_path:
         print("[ERROR] app.db nao encontrado.")
         print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
