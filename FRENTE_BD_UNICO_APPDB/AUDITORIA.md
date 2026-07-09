@@ -657,3 +657,37 @@ Commit:
 
 - fase 5g adiciona contrato absorcao funcional app db
 
+
+
+## Atualizacao - Fase 6
+
+Objetivo desta etapa:
+
+- executar validacao cumulativa dos contratos BD unico app.db apos conclusao da Fase 5G;
+- validar contratos 5A a 5G em conjunto;
+- executar compileall geral;
+- executar pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB;
+- registrar estado final da validacao cumulativa.
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/152_phase6_validacao_cumulativa_final.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py ATT/tests/test_bd_unico_derived_artifacts_in_app_db.py ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py ATT/tests/test_bd_unico_absorcao_funcional.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado obtido:
+
+- contratos 5A a 5G aprovados em conjunto com 17 passed;
+- compileall aprovado;
+- pytest completo aprovado com 606 passed, 2 skipped, 6 subtests passed;
+- temporarios de execucao removidos;
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente.
+
+Commit:
+
+- fase 6 valida cumulativamente contratos bd unico app db
