@@ -6,7 +6,7 @@ class PayoffPersistencePort(Protocol):
     """
     Contrato de persistência derivada (payoff + decisão).
 
-    Implementações devem gravar os dados no derived.db após
+    Implementações devem gravar os dados no app.db após
     uma execução de pricing bem-sucedida.
     """
 

@@ -2,7 +2,7 @@
 
 ## Estado inicial
 
-Frente criada para eliminar dados/derived.db e absorver suas responsabilidades válidas dentro de dados/app.db.
+Frente criada para eliminar dados/app.db e absorver suas responsabilidades válidas dentro de dados/app.db.
 
 ## Decisão arquitetural
 
@@ -10,7 +10,7 @@ O sistema terá apenas um banco físico:
 
 dados/app.db
 
-O banco dados/derived.db será eliminado como banco físico, referência, fallback, cache separado, origem, destino ou mecanismo auxiliar.
+O banco dados/app.db será eliminado como banco físico, referência, fallback, cache separado, origem, destino ou mecanismo auxiliar.
 
 ## Fase 0 - Inventário
 
@@ -27,7 +27,7 @@ FRENTE_BD_UNICO_APPDB/evidencias/
 ### Fase 0
 
 Objetivo:
-Mapear todas as referências a app.db, derived.db, RTD, repositórios, serviços, schemas, conexões SQLite, payoff, simulações, caches e testes.
+Mapear todas as referências a app.db, app.db, RTD, repositórios, serviços, schemas, conexões SQLite, payoff, simulações, caches e testes.
 
 Buscas executadas:
 Pendente.
@@ -64,7 +64,7 @@ Proxima acao:
 Analisar as evidencias e classificar os arquivos em:
 
 - migrar para app.db
-- remover dependencia de derived.db
+- remover dependencia de app.db
 - remover sync
 - remover fallback
 - corrigir testes
@@ -81,16 +81,16 @@ A Fase 0 foi analisada e a classificacao inicial foi registrada em:
 Principais conclusoes:
 
 - dados/app.db ja possui rtd_option_quotes e rtd_underlying_quotes.
-- dados/derived.db ainda existe fisicamente.
-- dados/derived.db ainda possui rtd_option_quotes, gerando duplicidade operacional.
-- dados/derived.db possui payoff_curve_points, que nao apareceu no schema atual de dados/app.db.
-- A remocao fisica de dados/derived.db ainda nao deve ser feita antes da decisao sobre payoff_curve_points e antes da remocao das dependencias de codigo.
+- dados/app.db ainda existe fisicamente.
+- dados/app.db ainda possui rtd_option_quotes, gerando duplicidade operacional.
+- dados/app.db possui payoff_curve_points, que nao apareceu no schema atual de dados/app.db.
+- A remocao fisica de dados/app.db ainda nao deve ser feita antes da decisao sobre payoff_curve_points e antes da remocao das dependencias de codigo.
 - A pasta docs/ aparece como untracked e sera removida na proxima rodada para concentrar a frente em FRENTE_BD_UNICO_APPDB/.
 
 Proxima acao planejada:
 
 - remover docs/ untracked
-- gerar busca focada em derived.db
+- gerar busca focada em app.db
 - iniciar o primeiro patch de codigo por configuracao central e RTD
 
 
@@ -111,9 +111,9 @@ Tambem foi criado o guardrail local:
 
 Objetivo do guardrail:
 
-- falhar enquanto ainda existirem referencias operacionais a `derived.db`;
+- falhar enquanto ainda existirem referencias operacionais a `app.db`;
 - excluir `dados/` e a propria frente de auditoria para evitar ruido;
-- servir como validacao final antes da remocao fisica de `dados/derived.db`.
+- servir como validacao final antes da remocao fisica de `dados/app.db`.
 
 Proxima etapa tecnica:
 
@@ -130,8 +130,8 @@ Foi iniciado o redirecionamento operacional para `dados/app.db`.
 Estrategia adotada:
 
 - manter nomes legados como `DERIVED_DB_PATH`, `derived_repo`, `derived_service` e afins por compatibilidade temporaria;
-- fazer esses pontos deixarem de apontar fisicamente para `dados/derived.db`;
-- priorizar rotas operacionais e testes que ainda recebiam caminho literal `dados/derived.db`;
+- fazer esses pontos deixarem de apontar fisicamente para `dados/app.db`;
+- priorizar rotas operacionais e testes que ainda recebiam caminho literal `dados/app.db`;
 - nao remover ainda arquivos legados, pois a remocao sera feita apenas depois da validacao funcional.
 
 Evidencias desta etapa:
@@ -146,7 +146,7 @@ Evidencias desta etapa:
 Proxima etapa:
 
 - analisar o diff real;
-- reduzir referencias semanticas a `derived.db`;
+- reduzir referencias semanticas a `app.db`;
 - decidir migração definitiva de `payoff_curve_points` para schema canonico dentro de `app.db`;
 - substituir a persistencia `DerivedPayoffPersistence` por porta orientada a `app.db`.
 
@@ -156,9 +156,9 @@ Foi executado o bootstrap/migracao das estruturas derivadas para `dados/app.db`.
 
 Objetivo:
 
-- tornar `app.db` funcionalmente equivalente ao antigo uso operacional de `derived.db`;
+- tornar `app.db` funcionalmente equivalente ao antigo uso operacional de `app.db`;
 - criar/validar tabelas derivadas no `app.db`;
-- importar dados existentes de `dados/derived.db`, quando disponivel;
+- importar dados existentes de `dados/app.db`, quando disponivel;
 - executar migration de `structure_id` em `payoff_curve_points`;
 - limpar registros derivados invalidos com `timestamp` nulo ou vazio.
 
@@ -190,7 +190,7 @@ Acoes executadas:
 
 - backup de `dados/app.db`;
 - adicao das colunas derivadas ausentes em `structure_decisions`;
-- merge de campos do antigo `dados/derived.db`;
+- merge de campos do antigo `dados/app.db`;
 - preenchimento de fallback para `timestamp`, `aba` e `level`;
 - criacao de indices por `structure_id/timestamp` e `aba/timestamp`.
 
@@ -208,7 +208,7 @@ Evidencias desta etapa:
 Objetivo desta etapa:
 
 - validar se `dados/app.db` ja consegue operar como fonte unica;
-- testar os fluxos direcionados com `dados/derived.db` temporariamente fora do caminho;
+- testar os fluxos direcionados com `dados/app.db` temporariamente fora do caminho;
 - mapear referencias remanescentes a nomes `derived*` antes de qualquer limpeza semantica ou remocao definitiva.
 
 Evidencias desta etapa:
@@ -223,7 +223,7 @@ Evidencias desta etapa:
 
 Objetivo desta etapa:
 
-- remover de forma controlada o arquivo fisico legado `dados/derived.db`;
+- remover de forma controlada o arquivo fisico legado `dados/app.db`;
 - preservar backup do banco legado em `FRENTE_BD_UNICO_APPDB/backups`;
 - validar que os testes direcionados continuam passando com `dados/app.db` como fonte unica;
 - manter evidencias do estado final dos bancos e das referencias semanticas remanescentes.
@@ -235,3 +235,19 @@ Evidencias desta etapa:
 - `FRENTE_BD_UNICO_APPDB/evidencias/38_phase1e_pytest_direcionado_normal.txt`
 - `FRENTE_BD_UNICO_APPDB/evidencias/39_phase1e_mapa_referencias_pos_remocao.txt`
 - `FRENTE_BD_UNICO_APPDB/evidencias/40_phase1e_git_status.txt`
+
+## Atualizacao - Fase 1F-A
+
+Objetivo desta etapa:
+
+- limpar referencias literais ao arquivo fisico legado `derived.db`;
+- substituir textos/caminhos literais para `app.db`;
+- preservar nomes tecnicos de compatibilidade, como `derived_db_path`, `derived_repo` e `derived_service`;
+- validar que a limpeza semantica nao quebra compilacao nem testes direcionados.
+
+Evidencias desta etapa:
+
+- `FRENTE_BD_UNICO_APPDB/evidencias/41_phase1f_semantic_cleanup_appdb_labels.txt`
+- `FRENTE_BD_UNICO_APPDB/evidencias/42_phase1f_mapa_referencias_pos_cleanup.txt`
+- `FRENTE_BD_UNICO_APPDB/evidencias/43_phase1f_pytest_direcionado.txt`
+- `FRENTE_BD_UNICO_APPDB/evidencias/44_phase1f_git_status.txt`

@@ -1,0 +1,53 @@
+===== DATA =====
+2026-07-08 22:47:56
+
+===== OBJETIVO =====
+Limpeza segura de textos/caminhos literais derived.db -> app.db.
+Nao renomeia APIs, modulos ou parametros derived_* nesta subfase.
+
+===== ALTERACOES =====
+[M] db/derived_repo.py
+[M] db/migrations/add_structure_id_to_payoff_curve_points.py
+[M] db/reader.py
+[M] db/writer.py
+[M] domain/payoff_features.py
+[M] FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+[M] FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md
+[M] FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py
+[M] FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py
+[M] FRENTE_BD_UNICO_APPDB/scripts/phase1c_complete_structure_decisions_appdb.py
+[M] FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py
+[M] FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py
+[M] FRENTE_BD_UNICO_APPDB/scripts/phase1f_semantic_cleanup_appdb_labels.py
+[M] repositories/rtd_option_quotes_repository.py
+[M] scripts/check_rota_desenvolvimento.py
+[M] scripts/purge_derived_snapshots.py
+[M] scripts/repair_derived_db_consistency.py
+[M] scripts/run_derived_pipeline.py
+[M] scripts/validate_derived_db.py
+[M] services/canonical_pricing_facade.py
+[M] services/derived_payoff_persistence.py
+[M] services/derived_service.py
+[M] services/payoff_persistence_port.py
+[M] UI/components/details_panel.py
+[M] UI/main_window.py
+[M] UI/models/ui_data.py
+
+changed_count: 26
+
+===== PY_COMPILE / COMPILEALL POS-LIMPEZA =====
+cmd: C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe -m compileall -q ATT UI db domain repositories scripts services
+
+returncode: 0
+
+===== PYTEST DIRECIONADO POS-LIMPEZA =====
+cmd: C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe -m pytest ATT/tests/test_ui_data_migration.py ATT/tests/test_structure_editor_integration.py ATT/tests/test_derived_service.py -q
+...................................................                      [100%]
+51 passed in 0.57s
+
+returncode: 0
+
+===== DECISAO =====
+[OK] Fase 1F-A aprovada.
+[OK] Limpeza semantica literal derived.db -> app.db preservada.
+[OK] backups locais em: C:\users\eucal\projeto\FRENTE_BD_UNICO_APPDB\backups_phase1f\phase1f_a_20260708_224756

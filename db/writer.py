@@ -1,6 +1,6 @@
 # db/writer.py
 """
-Writer para persistência de dados derivados no SQLite.
+Writer para persistência de dados consolidados no SQLite.
 """
 from domain.refs.structure_ref import StructureRef
 import sqlite3

@@ -49,7 +49,7 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _derived_db_path(self) -> Path:
         """
-        Caminho do derived.db.
+        Caminho do app.db.
 
         Compatibilidade para testes:
         - se o painel tiver db_path/_db_path explícito, usa esse arquivo;
@@ -74,7 +74,7 @@ class DetailsPanel(ttk.LabelFrame):
         Caminho do app.db usado para estado operacional.
 
         Importante: não usa self._db_path porque _derived_db_path() já trata
-        esse atributo como caminho do derived.db em testes/compatibilidade.
+        esse atributo como caminho do app.db em testes/compatibilidade.
         """
         if self._app_db_path:
             return Path(self._app_db_path)
@@ -232,7 +232,7 @@ class DetailsPanel(ttk.LabelFrame):
         return [
             project_root / "app.db",
             project_root / "app2.db",
-            project_root / "derived.db",
+            project_root / "app.db",
             project_root / "dados" / "app.db",
             project_root / "dados" / "app2.db",
             project_root / "dados" / "app.db",
@@ -292,8 +292,8 @@ class DetailsPanel(ttk.LabelFrame):
         return (
             "derived" in low_name
             or "deriv" in low_name
-            or low_path.endswith("derived.db")
-            or "derived.db" in low_path
+            or low_path.endswith("app.db")
+            or "app.db" in low_path
         )
 
     def _unique_paths(self, paths):
@@ -1121,7 +1121,7 @@ class DetailsPanel(ttk.LabelFrame):
             ).fetchone()["n"]
 
             return {
-                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+                "source_table": "app.db:structure_decisions / payoff_curve_points",
                 "created_at": created_at,
                 "count_points": n_points,
                 "fallback": False,
@@ -1165,7 +1165,7 @@ class DetailsPanel(ttk.LabelFrame):
         return None
 
     def _refresh_current_from_derived(self, structure_id):
-        """Recarrega somente a estrutura atual do derived.db e atualiza widgets."""
+        """Recarrega somente a estrutura atual do app.db e atualiza widgets."""
         decision = self._fetch_latest_decision_from_derived(structure_id)
         if decision:
             self.update_decision(decision)

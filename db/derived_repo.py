@@ -1,6 +1,6 @@
 # db/derived_repo.py
 """
-Repositório para operações com dados derivados (payoff e decisões).
+Repositório para operações com dados consolidados (payoff e decisões).
 Tabelas: payoff_curve_points, structure_decisions
 
 Contrato canônico payoff: point_spot / point_pl (opção B).
@@ -212,7 +212,7 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
 
 class DerivedRepo:
     """
-    Repositório canônico para derived.db.
+    Repositório canônico para app.db.
     alteracao_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
     alteracao_55: suporte a StructureRef como argumento aba.
     alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.

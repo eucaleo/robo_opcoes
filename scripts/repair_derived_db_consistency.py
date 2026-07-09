@@ -46,12 +46,12 @@ def validate_like_repo(con: sqlite3.Connection) -> tuple[bool, int, int]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Repara inconsistências de snapshots em dados/derived.db"
+        description="Repara inconsistências de snapshots em dados/app.db"
     )
     parser.add_argument(
         "--db",
         default="dados/app.db",
-        help="Caminho do derived.db. Default: dados/app.db",
+        help="Caminho do app.db. Default: dados/app.db",
     )
     parser.add_argument(
         "--max-delta-seconds",
@@ -296,10 +296,10 @@ def main() -> int:
         print(f"[INFO] Pontos removidos: {deleted_points}")
 
         if ok2:
-            print("[OK] derived.db consistente.")
+            print("[OK] app.db consistente.")
             return 0
 
-        print("[WARN] derived.db ainda inconsistente.")
+        print("[WARN] app.db ainda inconsistente.")
         return 1
 
     finally:

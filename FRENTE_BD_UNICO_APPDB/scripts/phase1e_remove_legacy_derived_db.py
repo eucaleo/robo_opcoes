@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path.cwd()
 APP_DB = ROOT / "dados" / "app.db"
-DERIVED_DB = ROOT / "dados" / "derived.db"
+DERIVED_DB = ROOT / "dados" / "app.db"
 
 EVID_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "evidencias"
 BACKUP_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "backups"
@@ -190,7 +190,7 @@ def main() -> int:
         app_ok = validate_appdb(fh)
 
         print(file=fh)
-        print("===== REMOCAO CONTROLADA derived.db =====", file=fh)
+        print("===== REMOCAO CONTROLADA app.db =====", file=fh)
         print(f"DERIVED_DB: {DERIVED_DB}", file=fh)
         print(f"exists_pre: {DERIVED_DB.exists()}", file=fh)
 
@@ -200,32 +200,32 @@ def main() -> int:
 
             shutil.move(str(DERIVED_DB), str(removed_target))
             moved = True
-            print(f"[OK] derived.db movido para backup: {removed_target}", file=fh)
+            print(f"[OK] app.db movido para backup: {removed_target}", file=fh)
         else:
-            print("[INFO] dados/derived.db ja nao existe.", file=fh)
+            print("[INFO] dados/app.db ja nao existe.", file=fh)
 
         print(f"exists_after_move: {DERIVED_DB.exists()}", file=fh)
 
         try:
             compile_cmd = [sys.executable, "-m", "py_compile"] + PY_COMPILE_FILES
-            compile_rc = run_cmd(compile_cmd, fh, "PY_COMPILE SEM derived.db")
+            compile_rc = run_cmd(compile_cmd, fh, "PY_COMPILE SEM app.db")
 
-            pytest_rc = run_cmd(PYTEST_CMD, fh, "PYTEST DIRECIONADO SEM derived.db")
+            pytest_rc = run_cmd(PYTEST_CMD, fh, "PYTEST DIRECIONADO SEM app.db")
 
             print(file=fh)
             print("===== DECISAO =====", file=fh)
 
             if app_ok and compile_rc == 0 and pytest_rc == 0 and not DERIVED_DB.exists():
                 print("[OK] Fase 1E aprovada.", file=fh)
-                print("[OK] dados/derived.db permanece removido do caminho operacional.", file=fh)
+                print("[OK] dados/app.db permanece removido do caminho operacional.", file=fh)
                 print(f"[OK] copia legado preservada em: {removed_target}", file=fh)
                 return 0
 
-            print("[ERRO] Fase 1E falhou. Restaurando dados/derived.db.", file=fh)
+            print("[ERRO] Fase 1E falhou. Restaurando dados/app.db.", file=fh)
 
             if moved and removed_target.exists():
                 shutil.move(str(removed_target), str(DERIVED_DB))
-                print("[OK] derived.db restaurado.", file=fh)
+                print("[OK] app.db restaurado.", file=fh)
 
             return 1
 
@@ -236,7 +236,7 @@ def main() -> int:
 
             if moved and removed_target.exists() and not DERIVED_DB.exists():
                 shutil.move(str(removed_target), str(DERIVED_DB))
-                print("[OK] derived.db restaurado apos exception.", file=fh)
+                print("[OK] app.db restaurado apos exception.", file=fh)
 
             return 1
 

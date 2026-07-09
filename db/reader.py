@@ -1,6 +1,6 @@
 # db/reader.py
 """
-Reader para análise de dados derivados do SQLite.
+Reader para análise de dados consolidados do SQLite.
 """
 from domain.refs.structure_ref import StructureRef
 import sqlite3

@@ -105,7 +105,7 @@ def compute_curve_features(
     """
     Computa features da curva de payoff.
 
-    Chave canônica : structure_id + reference_date   upsert no derived.db.
+    Chave canônica : structure_id + reference_date   upsert no app.db.
     timestamp + aba                rastreabilidade opcional (legado RTD).
     """
     pts = _as_sorted_points(points)

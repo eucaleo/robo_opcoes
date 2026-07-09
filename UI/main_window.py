@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 """
 UI Principal - Sistema de Derivados
-Carrega dados de derived.db e app.db para exibir decisões e payoffs
+Carrega dados de app.db e app.db para exibir decisões e payoffs
 """
 from UI.models.ui_data import UIDataModel
 from UI.components.payoff_chart import PayoffChart
@@ -511,7 +511,7 @@ Pipeline automático de payoff e decisões
 Camadas:
 * Excel RTD  CSV Bridge
 * Ingest Python  app.db
-* Domain Layer  derived.db
+* Domain Layer  app.db
 * UI Tkinter (esta interface)
 
 Baseline: executed_v1 + baseline_v1b"""

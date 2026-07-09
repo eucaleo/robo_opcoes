@@ -1,7 +1,7 @@
 from __future__ import annotations
 # services/derived_service.py
 """
-alteracao_30/alteracao_57c -- Servico de persistencia de dados derivados (payoff + decisoes).
+alteracao_30/alteracao_57c -- Servico de persistencia de dados consolidados (payoff + decisoes).
 alteracao_62           -- AbaResolverMixin extraído para repositories/_aba_resolver_mixin.py.
 alteracao_65           -- get_payoff_by_aba() removida da interface pública (standalone).
 """

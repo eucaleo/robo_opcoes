@@ -2,13 +2,13 @@
 
 ## Objetivo da frente
 
-Eliminar o banco dados/derived.db como banco físico do sistema e absorver todas as suas responsabilidades válidas dentro de dados/app.db.
+Eliminar o banco dados/app.db como banco físico do sistema e absorver todas as suas responsabilidades válidas dentro de dados/app.db.
 
 A arquitetura final será:
 
 dados/app.db = único banco físico do sistema.
 
-O sistema não terá mais dados/derived.db como banco físico, origem, destino, cache separado, fallback, banco auxiliar ou banco de sincronização.
+O sistema não terá mais dados/app.db como banco físico, origem, destino, cache separado, fallback, banco auxiliar ou banco de sincronização.
 
 ## Decisão arquitetural final
 
@@ -29,17 +29,17 @@ Este banco será responsável por:
 - Resultados derivados
 - Artefatos regeneráveis
 - Market snapshot, se existir e for usado
-- Qualquer função ainda válida que antes dependia de dados/derived.db
+- Qualquer função ainda válida que antes dependia de dados/app.db
 
 ## Situação perigosa que será eliminada
 
 Hoje existe ou pode existir duplicidade operacional entre:
 
 app.db.rtd_option_quotes
-derived.db.rtd_option_quotes
+app.db.rtd_option_quotes
 
 app.db.rtd_underlying_quotes
-derived.db.rtd_underlying_quotes
+app.db.rtd_underlying_quotes
 
 Essa situação será eliminada.
 
@@ -49,16 +49,16 @@ dados/app.db
 
 ## Regra principal da frente
 
-Não vamos apenas apagar dados/derived.db.
+Não vamos apenas apagar dados/app.db.
 
-Vamos eliminar o banco físico dados/derived.db e migrar para dados/app.db toda responsabilidade funcional ainda válida que dependia dele.
+Vamos eliminar o banco físico dados/app.db e migrar para dados/app.db toda responsabilidade funcional ainda válida que dependia dele.
 
 Portanto:
 
 rtd_option_quotes passa a existir e operar somente em dados/app.db.
 rtd_underlying_quotes passa a existir e operar somente em dados/app.db.
 Payoff, simulações, caches, resultados derivados e artefatos regeneráveis passam a operar em dados/app.db.
-Nenhum fluxo pode criar, consultar ou depender de dados/derived.db.
+Nenhum fluxo pode criar, consultar ou depender de dados/app.db.
 
 ## Regras explícitas para desenvolvimento
 
@@ -86,9 +86,9 @@ K) Criar arquivo de auditoria para ser atualizado com os testes, conclusões e c
 
 L) Não criar arquivos com blocos de crase no conteúdo.
 
-M) Não manter sincronização contínua derived.db para app.db.
+M) Não manter sincronização contínua app.db para app.db.
 
-N) Não manter sincronização app.db para derived.db.
+N) Não manter sincronização app.db para app.db.
 
 O) Não permitir dívida técnica. Para cotação viva isso é risco operacional.
 
@@ -98,51 +98,51 @@ P) Após testes, a arquitetura final aceita será um único banco físico: dados
 
 Fica proibido manter ou criar:
 
-- dados/derived.db
-- referência ativa a derived.db
-- banco físico auxiliar para dados derivados
-- fallback para derived.db
-- sincronização derived.db para app.db
-- sincronização app.db para derived.db
-- criação automática de derived.db
-- testes que dependam de derived.db
-- inicializadores que criem derived.db
-- constantes de caminho para derived.db
+- dados/app.db
+- referência ativa a app.db
+- banco físico auxiliar para dados consolidados
+- fallback para app.db
+- sincronização app.db para app.db
+- sincronização app.db para app.db
+- criação automática de app.db
+- testes que dependam de app.db
+- inicializadores que criem app.db
+- constantes de caminho para app.db
 - funções como get_derived_db_path, se existirem
-- qualquer leitura ou gravação operacional em derived.db
+- qualquer leitura ou gravação operacional em app.db
 
 ## O que deve ser absorvido pelo app.db
 
-Tudo que ainda for funcionalmente necessário e hoje depender de derived.db deverá ser migrado para app.db.
+Tudo que ainda for funcionalmente necessário e hoje depender de app.db deverá ser migrado para app.db.
 
 Exemplos:
 
 Origem antiga:
-derived.db.payoff_*
+app.db.payoff_*
 
 Destino novo:
 app.db.payoff_*
 
 Origem antiga:
-derived.db.simulation_*
+app.db.simulation_*
 
 Destino novo:
 app.db.simulation_*
 
 Origem antiga:
-derived.db.cache_*
+app.db.cache_*
 
 Destino novo:
 app.db.cache_*
 
 Origem antiga:
-derived.db.derived_*
+app.db.derived_*
 
 Destino novo:
 app.db.derived_*
 
 Origem antiga:
-derived.db.market_snapshot_*, se existir e for usado
+app.db.market_snapshot_*, se existir e for usado
 
 Destino novo:
 app.db.market_snapshot_*
@@ -153,7 +153,7 @@ Antes de qualquer alteração funcional, buscar tudo na raiz do projeto.
 
 Buscar por:
 
-- derived.db
+- app.db
 - app.db
 - derived_repo
 - derived_service
@@ -172,7 +172,7 @@ Buscar por:
 
 Objetivo:
 
-Saber exatamente o que depende de dados/derived.db e o que precisa ser absorvido por dados/app.db.
+Saber exatamente o que depende de dados/app.db e o que precisa ser absorvido por dados/app.db.
 
 ## Fase 1 - Classificação funcional
 
@@ -189,10 +189,10 @@ Criar ou manter no schema do app.db.
 Código de sincronização:
 Remover.
 
-Fallback para derived.db:
+Fallback para app.db:
 Remover.
 
-Inicialização de derived.db:
+Inicialização de app.db:
 Remover.
 
 Teste antigo:
@@ -206,7 +206,7 @@ Manter somente se não induzir desenvolvimento errado.
 
 ## Fase 2 - Migração de schema para app.db
 
-Tudo que for necessário do antigo derived.db deve passar a existir dentro do app.db.
+Tudo que for necessário do antigo app.db deve passar a existir dentro do app.db.
 
 Objetivo:
 
@@ -222,7 +222,7 @@ Garantir que app.db possua o schema necessário para absorver:
 
 Sem criar banco intermediário.
 
-Sem usar derived.db como etapa temporária.
+Sem usar app.db como etapa temporária.
 
 Sem sync.
 
@@ -257,32 +257,32 @@ Deve continuar exclusivamente em app.db.
 
 Eliminar:
 
-- constante de caminho para derived.db
+- constante de caminho para app.db
 - função get_derived_db_path
-- inicializador de derived.db
-- criação automática de dados/derived.db
-- fallback para derived.db
+- inicializador de app.db
+- criação automática de dados/app.db
+- fallback para app.db
 - sync entre bancos
-- testes que montam derived.db
-- fixtures que criam derived.db
-- documentação ativa que oriente uso de derived.db
+- testes que montam app.db
+- fixtures que criam app.db
+- documentação ativa que oriente uso de app.db
 
-Como foi definido sem backup, não haverá etapa de preservação do banco derived.db.
+Como foi definido sem backup, não haverá etapa de preservação do banco app.db.
 
 ## Fase 5 - Testes obrigatórios
 
 Criar testes para garantir que a decisão não volte a quebrar.
 
 Teste 1:
-Proibição estática de derived.db.
+Proibição estática de app.db.
 
 Validações:
 
-- derived.db não aparece em código produtivo
-- dados/derived.db não aparece em código produtivo
+- app.db não aparece em código produtivo
+- dados/app.db não aparece em código produtivo
 - não existe get_derived_db_path
 - não existe DERIVED_DB_PATH
-- não existe fallback para derived.db
+- não existe fallback para app.db
 
 Teste 2:
 app.db como único banco.
@@ -302,7 +302,7 @@ Validações:
 - rtd_option_quotes pertence ao app.db
 - rtd_underlying_quotes pertence ao app.db
 - runtime lê RTD do app.db
-- runtime não tenta derived.db
+- runtime não tenta app.db
 
 Teste 4:
 Derivados no app.db.
@@ -312,28 +312,28 @@ Validações:
 - payoff grava ou lê no app.db
 - simulações gravam ou leem no app.db
 - caches derivados gravam ou leem no app.db
-- nenhum desses fluxos cria derived.db
+- nenhum desses fluxos cria app.db
 
 Teste 5:
-Não criação física de derived.db.
+Não criação física de app.db.
 
 Validações:
 
-- executar inicializadores não cria dados/derived.db
-- executar fluxo de pricing não cria dados/derived.db
-- executar fluxo de payoff não cria dados/derived.db
-- executar fluxo de market snapshot não cria dados/derived.db
+- executar inicializadores não cria dados/app.db
+- executar fluxo de pricing não cria dados/app.db
+- executar fluxo de payoff não cria dados/app.db
+- executar fluxo de market snapshot não cria dados/app.db
 
 Teste 6:
-Absorção funcional do antigo derived.db.
+Absorção funcional do antigo app.db.
 
 Validações:
 
-- tabelas necessárias do antigo derived.db existem no app.db
+- tabelas necessárias do antigo app.db existem no app.db
 - repositórios derivados usam app.db
 - serviços derivados usam app.db
-- fluxos principais passam sem derived.db
-- após execução, dados/derived.db não existe
+- fluxos principais passam sem app.db
+- após execução, dados/app.db não existe
 
 ## Fase 6 - Execução cumulativa de testes
 
@@ -349,7 +349,7 @@ python -m pytest ATT/tests/test_bd_unico_no_physical_derived_db_creation.py -q
 python -m pytest ATT/tests/test_bd_unico_absorcao_funcional.py -q
 python -m pytest ATT/tests -q
 
-Se algum teste antigo ainda esperar derived.db, ele deve ser corrigido.
+Se algum teste antigo ainda esperar app.db, ele deve ser corrigido.
 
 Não marcar como skip para esconder dívida técnica.
 
@@ -380,13 +380,13 @@ A frente só estará concluída se todos os critérios abaixo forem verdadeiros:
 Banco físico único:
 dados/app.db
 
-dados/derived.db:
+dados/app.db:
 Eliminado.
 
-Criação automática de derived.db:
+Criação automática de app.db:
 Não existe.
 
-Fallback para derived.db:
+Fallback para app.db:
 Não existe.
 
 Sync entre bancos:
@@ -416,7 +416,7 @@ dados/app.db
 Artefatos derivados:
 dados/app.db
 
-Testes usando derived.db:
+Testes usando app.db:
 Corrigidos.
 
 Testes novos:
@@ -439,9 +439,9 @@ Um único banco físico para todo o sistema:
 
 dados/app.db
 
-O banco dados/derived.db será eliminado.
+O banco dados/app.db será eliminado.
 
-As funções válidas antes dependentes de derived.db serão absorvidas por app.db.
+As funções válidas antes dependentes de app.db serão absorvidas por app.db.
 
 Não haverá sincronização entre bancos.
 

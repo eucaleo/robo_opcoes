@@ -54,7 +54,7 @@ class UIDataModel:
             if derived_db_path
             else Path(DERIVED_DB_PATH).resolve()
         )
-        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+        print(f"[UI] Usando app DB: {self.derived_db_path}")
 
         # alteracao_36_E: self._conn REMOVIDO -- cada metodo abre sua propria conexao
         self._consolidations_table: Optional[str] = None
@@ -70,7 +70,7 @@ class UIDataModel:
     def _connect(self) -> sqlite3.Connection:
         if not self.derived_db_path.exists():
             raise FileNotFoundError(
-                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+                f"Banco app.db nao encontrado em: {self.derived_db_path}"
             )
         conn = sqlite3.connect(str(self.derived_db_path))
         conn.row_factory = sqlite3.Row
@@ -917,7 +917,7 @@ class UIDataModel:
             filter_info = "N/A"
 
         return (
-            f"derived.db: OK\n"
+            f"app.db: OK\n"
             f"Consolidações: {ctbl} (linhas: {cnt}, estruturas: {n_structures})\n"
             f"Timestamp mais recente: {last_ts}\n"
             f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Script para validar consistencia do banco derived.db
+Script para validar consistencia do banco app.db
 - Nao depende de get_derived_connection (que pode nao existir no seu layout)
-- Faz auto-discovery do caminho do derived.db
+- Faz auto-discovery do caminho do app.db
 """
 from __future__ import annotations
 
@@ -29,9 +29,9 @@ def _find_derived_db() -> Path | None:
     # 2) caminhos padrao comuns no repo
     candidates = [
         PROJECT_ROOT / "dados" / "app.db",
-        PROJECT_ROOT / "data" / "derived.db",
-        PROJECT_ROOT / "derived.db",
-        PROJECT_ROOT / "db" / "derived.db",
+        PROJECT_ROOT / "data" / "app.db",
+        PROJECT_ROOT / "app.db",
+        PROJECT_ROOT / "db" / "app.db",
     ]
     for p in candidates:
         if p.exists():
@@ -44,11 +44,11 @@ def main() -> int:
 
     db_path = _find_derived_db()
     if not db_path:
-        print("[ERROR] derived.db nao encontrado.")
+        print("[ERROR] app.db nao encontrado.")
         print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
         return 2
 
-    print(f"[INFO] Usando derived.db em: {db_path}")
+    print(f"[INFO] Usando app.db em: {db_path}")
 
     conn = sqlite3.connect(str(db_path))
     try:

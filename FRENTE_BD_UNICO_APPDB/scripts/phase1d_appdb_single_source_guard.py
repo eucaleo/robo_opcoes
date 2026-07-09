@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path.cwd()
 APP_DB = ROOT / "dados" / "app.db"
-DERIVED_DB = ROOT / "dados" / "derived.db"
+DERIVED_DB = ROOT / "dados" / "app.db"
 EVID_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "evidencias"
 BACKUP_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "backups"
 
@@ -130,7 +130,7 @@ def main() -> int:
     BACKUP_DIR.mkdir(parents=True, exist_ok=True)
 
     stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    quarantine = ROOT / "dados" / f"derived.db.quarantine_phase1d_{stamp}"
+    quarantine = ROOT / "dados" / f"app.db.quarantine_phase1d_{stamp}"
 
     with OUT.open("w", encoding="utf-8") as fh:
         print("===== DATA =====", file=fh)
@@ -139,7 +139,7 @@ def main() -> int:
 
         app_ok = validate_appdb(fh)
 
-        print("===== QUARENTENA derived.db =====", file=fh)
+        print("===== QUARENTENA app.db =====", file=fh)
         print(f"DERIVED_DB: {DERIVED_DB}", file=fh)
         print(f"exists_pre: {DERIVED_DB.exists()}", file=fh)
 
@@ -148,13 +148,13 @@ def main() -> int:
         if DERIVED_DB.exists():
             shutil.move(str(DERIVED_DB), str(quarantine))
             moved = True
-            print(f"[OK] derived.db movido temporariamente para: {quarantine}", file=fh)
+            print(f"[OK] app.db movido temporariamente para: {quarantine}", file=fh)
         else:
-            print("[INFO] derived.db ja nao existia.", file=fh)
+            print("[INFO] app.db ja nao existia.", file=fh)
 
         try:
             print(file=fh)
-            print("===== PYTEST SEM derived.db =====", file=fh)
+            print("===== PYTEST SEM app.db =====", file=fh)
             print("cmd:", " ".join(TEST_CMD), file=fh)
 
             proc = subprocess.run(
@@ -177,11 +177,11 @@ def main() -> int:
 
         finally:
             print(file=fh)
-            print("===== RESTAURANDO derived.db =====", file=fh)
+            print("===== RESTAURANDO app.db =====", file=fh)
 
             if moved and quarantine.exists():
                 shutil.move(str(quarantine), str(DERIVED_DB))
-                print("[OK] derived.db restaurado apos teste.", file=fh)
+                print("[OK] app.db restaurado apos teste.", file=fh)
             else:
                 print("[INFO] nada a restaurar.", file=fh)
 

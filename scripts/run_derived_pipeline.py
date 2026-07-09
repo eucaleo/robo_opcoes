@@ -45,7 +45,7 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--no-cleanup",
         action="store_true",
-        help="Não executar cleanup do derived.db antes de validar",
+        help="Não executar cleanup do app.db antes de validar",
     )
     args = parser.parse_args(argv)
 

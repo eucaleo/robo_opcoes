@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path.cwd()
 APP_DB = ROOT / "dados" / "app.db"
-DERIVED_DB = ROOT / "dados" / "derived.db"
+DERIVED_DB = ROOT / "dados" / "app.db"
 EVID_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "evidencias"
 BACKUP_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "backups"
 
@@ -201,7 +201,7 @@ def create_table_from_source_if_needed(
         return
 
     dst.execute(sql)
-    print(f"[OK] tabela criada no app.db a partir do derived.db: {table}", file=fh)
+    print(f"[OK] tabela criada no app.db a partir do app.db: {table}", file=fh)
 
 
 def copy_table_intersection(
@@ -251,10 +251,10 @@ def copy_table_intersection(
 
 def import_from_derived_db(fh) -> None:
     print(file=fh)
-    print("===== IMPORTANDO TABELAS DO derived.db PARA app.db =====", file=fh)
+    print("===== IMPORTANDO TABELAS DO app.db PARA app.db =====", file=fh)
 
     if not DERIVED_DB.exists():
-        print("[WARN] dados/derived.db nao existe; importacao ignorada.", file=fh)
+        print("[WARN] dados/app.db nao existe; importacao ignorada.", file=fh)
         return
 
     dst = connect(APP_DB)

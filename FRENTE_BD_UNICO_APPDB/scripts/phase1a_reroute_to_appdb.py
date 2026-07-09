@@ -44,7 +44,7 @@ def patch_db_config() -> None:
     original = read_text(path)
     text = original
 
-    old_line = 'DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/derived.db"))).resolve()'
+    old_line = 'DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()'
     new_block = '''APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
 
 # Compatibilidade temporaria:
@@ -59,9 +59,9 @@ DERIVED_DB_PATH = APP_DB_PATH'''
     text = text.replace("sqlite3.connect(str(DERIVED_DB_PATH))", "sqlite3.connect(str(APP_DB_PATH))")
 
     # Fallback conservador caso o arquivo tenha formato ligeiramente diferente.
-    text = text.replace('str(_PROJECT_ROOT / "dados/derived.db")', 'str(_PROJECT_ROOT / "dados/app.db")')
-    text = text.replace('"dados/derived.db"', '"dados/app.db"')
-    text = text.replace("'dados/derived.db'", "'dados/app.db'")
+    text = text.replace('str(_PROJECT_ROOT / "dados/app.db")', 'str(_PROJECT_ROOT / "dados/app.db")')
+    text = text.replace('"dados/app.db"', '"dados/app.db"')
+    text = text.replace("'dados/app.db'", "'dados/app.db'")
 
     if text != original:
         write_text(path, text)
@@ -72,14 +72,14 @@ DERIVED_DB_PATH = APP_DB_PATH'''
 
 
 COMMON_PATH_REPLACEMENTS = [
-    ('"dados/derived.db"', '"dados/app.db"'),
-    ("'dados/derived.db'", "'dados/app.db'"),
-    ('/ "dados" / "derived.db"', '/ "dados" / "app.db"'),
-    ("/ 'dados' / 'derived.db'", "/ 'dados' / 'app.db'"),
-    ("Default: dados/derived.db", "Default: dados/app.db"),
-    ("default: dados/derived.db", "default: dados/app.db"),
-    ("dados/derived.db.", "dados/app.db."),
-    ("dados/derived.db`", "dados/app.db`"),
+    ('"dados/app.db"', '"dados/app.db"'),
+    ("'dados/app.db'", "'dados/app.db'"),
+    ('/ "dados" / "app.db"', '/ "dados" / "app.db"'),
+    ("/ 'dados' / 'app.db'", "/ 'dados' / 'app.db'"),
+    ("Default: dados/app.db", "Default: dados/app.db"),
+    ("default: dados/app.db", "default: dados/app.db"),
+    ("dados/app.db.", "dados/app.db."),
+    ("dados/app.db`", "dados/app.db`"),
 ]
 
 

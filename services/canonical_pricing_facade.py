@@ -328,7 +328,7 @@ class CanonicalPricingFacade:
                                      PricingExecutionService.execute_payload()
                                              PricingExecutionPersistenceService.persist()
                                                      DerivedPayoffPersistence.persist()
-                                                             derived.db
+                                                             app.db
     """
 
     def __init__(
@@ -382,7 +382,7 @@ class CanonicalPricingFacade:
 
             duration_ms = int((time.perf_counter() - started_at) * 1000)
 
-            #  5. Persiste (app.db + derived.db via port) 
+            #  5. Persiste (app.db + app.db via port) 
             persisted = self._persister.persist_execution(
                 pricing_payload=pricing_payload,
                 result=engine_result,

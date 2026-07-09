@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path.cwd()
 APP_DB = ROOT / "dados" / "app.db"
-DERIVED_DB = ROOT / "dados" / "derived.db"
+DERIVED_DB = ROOT / "dados" / "app.db"
 EVID_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "evidencias"
 BACKUP_DIR = ROOT / "FRENTE_BD_UNICO_APPDB" / "backups"
 
@@ -161,14 +161,14 @@ def add_missing_columns(conn: sqlite3.Connection, fh) -> None:
 
 def merge_from_derived(app: sqlite3.Connection, fh) -> None:
     if not DERIVED_DB.exists():
-        print("[WARN] dados/derived.db nao existe; merge por origem ignorado.", file=fh)
+        print("[WARN] dados/app.db nao existe; merge por origem ignorado.", file=fh)
         return
 
     src = connect(DERIVED_DB)
 
     try:
         if not table_exists(src, "structure_decisions"):
-            print("[WARN] derived.db nao possui structure_decisions.", file=fh)
+            print("[WARN] app.db nao possui structure_decisions.", file=fh)
             return
 
         src_cols = set(columns(src, "structure_decisions"))
@@ -217,9 +217,9 @@ def merge_from_derived(app: sqlite3.Connection, fh) -> None:
                 )
                 """
             )
-            print("[OK] linhas existentes atualizadas por id a partir do derived.db", file=fh)
+            print("[OK] linhas existentes atualizadas por id a partir do app.db", file=fh)
 
-        # Insere linhas que existem no derived.db e nao existem no app.db.
+        # Insere linhas que existem no app.db e nao existem no app.db.
         insert_cols = ["id"] + common
         insert_cols = []
         for c in ["id"] + common:
@@ -235,7 +235,7 @@ def merge_from_derived(app: sqlite3.Connection, fh) -> None:
                 FROM src.structure_decisions
                 """
             )
-            print("[OK] linhas ausentes inseridas a partir do derived.db", file=fh)
+            print("[OK] linhas ausentes inseridas a partir do app.db", file=fh)
 
         app.commit()
 
