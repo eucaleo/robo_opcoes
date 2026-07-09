@@ -505,3 +505,50 @@ Commit:
 
 - fase 5d adiciona script limpeza residual app db
 
+
+## Atualizacao - Fase 5F
+
+Objetivo desta etapa:
+
+- criar contrato de nao criacao fisica de banco legado;
+- garantir que inicializadores selecionados criam apenas o banco canonico dados/app.db;
+- garantir que inicializadores selecionados nao criam banco fisico legado;
+- executar contratos 5A, 5B, 5C, 5D, 5E e 5F em conjunto;
+- executar buscas proibitivas, compileall e pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB.
+
+Arquivo de teste contratual:
+
+- ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py
+
+Arquivos alterados:
+
+- ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencias desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/147_phase5f_inventario_no_physical_derived_creation.txt
+- FRENTE_BD_UNICO_APPDB/evidencias/148_phase5f_no_legacy_physical_db_creation.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py -q
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py ATT/tests/test_bd_unico_derived_artifacts_in_app_db.py ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado esperado:
+
+- contrato 5F direcionado aprovado com 2 passed
+- contratos 5A a 5F aprovados em conjunto com 14 passed
+- buscas proibitivas sem ocorrencias operacionais
+- compileall aprovado
+- pytest completo aprovado
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente
+- nenhum banco fisico legado criado
+
+Commit:
+
+- fase 5f adiciona contrato no legacy physical db creation
+
