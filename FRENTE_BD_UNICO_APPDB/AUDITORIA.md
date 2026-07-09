@@ -330,3 +330,49 @@ Commit:
 
 - fase 5a adiciona contrato no derived db
 
+
+## Atualizacao - Fase 5B
+
+Objetivo desta etapa:
+
+- criar contrato do app.db como banco canonico unico;
+- garantir existencia fisica de dados/app.db;
+- garantir que db.config aponta para dados/app.db;
+- garantir que nao existam outros arquivos .db dentro de dados/;
+- executar contratos 5A e 5B em conjunto;
+- executar buscas proibitivas, compileall e pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB.
+
+Arquivo de teste contratual:
+
+- ATT/tests/test_bd_unico_app_db_contract.py
+
+Arquivos alterados:
+
+- ATT/tests/test_bd_unico_app_db_contract.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/139_phase5b_contrato_app_db_canonico.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_app_db_contract.py -q
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado esperado:
+
+- contrato direcionado aprovado com 3 passed
+- contratos 5A e 5B aprovados em conjunto com 5 passed
+- buscas proibitivas sem ocorrencias operacionais
+- compileall aprovado
+- pytest completo aprovado
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente
+
+Commit:
+
+- fase 5b adiciona contrato app db canonico
+
