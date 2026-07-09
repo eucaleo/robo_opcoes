@@ -1,0 +1,6 @@
+?? FRENTE_BD_UNICO_APPDB/evidencias/66_phase1f_d_auditoria_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/67_phase1f_d_resumo_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/68_phase1f_d_pytest_direcionado.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/69_phase1f_d_compileall.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/70_phase1f_d_git_status.txt
+?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d_audit_derived_identifiers.py
