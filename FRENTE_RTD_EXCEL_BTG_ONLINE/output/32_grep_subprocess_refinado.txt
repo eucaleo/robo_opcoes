@@ -1,0 +1,59 @@
+ATT\checks\check_cleanup_residuals.py:2:import subprocess
+ATT\checks\check_cleanup_residuals.py:89:result = subprocess.run(
+ATT\checks\check_cleanup_residuals.py:93:stdout=subprocess.PIPE,
+ATT\checks\check_cleanup_residuals.py:94:stderr=subprocess.PIPE,
+ATT\checks\check_cleanup_residuals.py:108:result = subprocess.run(
+ATT\checks\check_cleanup_residuals.py:112:stdout=subprocess.PIPE,
+ATT\checks\check_cleanup_residuals.py:113:stderr=subprocess.PIPE,
+ATT\checks\run_all_checks.py:2:import subprocess
+ATT\checks\run_all_checks.py:26:result = subprocess.run([sys.executable, str(script_path)], cwd=str(CHECKS_DIR.parent))
+ATT\tests\test_bd_unico_no_legacy_physical_db_creation.py:2:import subprocess
+ATT\tests\test_bd_unico_no_legacy_physical_db_creation.py:71:result = subprocess.run(
+ATT\tests\test_bd_unico_no_legacy_physical_db_creation.py:117:result = subprocess.run(
+ATT\tests\test_pricing_engine_stub.py:22:result = engine.run(pricing_payload)
+ATT\tests\test_pricing_engine_stub.py:50:engine.run({})
+ATT\tests\test_pricing_engine_stub.py:67:engine.run(pricing_payload)
+ATT\tests\test_pricing_execution_service.py:24:def run(self, pricing_payload):
+ATT\tests\test_ui_modern_moderndarkui_contract.py:2:import subprocess
+ATT\tests\test_ui_modern_moderndarkui_contract.py:11:return subprocess.run(
+db\migrations\add_structure_id_to_payoff_curve_points.py:80:def run(db_path: pathlib.Path):
+db\migrations\add_structure_id_to_payoff_curve_points.py:129:run(pathlib.Path(args.db))
+scripts\23_smoke_pricing_execution_orchestration_error.py:8:def run(self, pricing_payload):
+scripts\check_rota_desenvolvimento.py:6:import subprocess
+scripts\check_rota_desenvolvimento.py:66:def run(cmd: list[str], cwd: Path = ROOT, check: bool = False) -> str:
+scripts\check_rota_desenvolvimento.py:67:result = subprocess.run(
+scripts\check_rota_desenvolvimento.py:71:stdout=subprocess.PIPE,
+scripts\check_rota_desenvolvimento.py:72:stderr=subprocess.PIPE,
+scripts\check_rota_desenvolvimento.py:101:parents = run(["git", "show", "-s", "--format=%P", sha])
+scripts\check_rota_desenvolvimento.py:106:diff = run(["git", "diff", "--name-only", f"{first_parent}..{sha}"])
+scripts\check_rota_desenvolvimento.py:133:output = run([
+scripts\check_rota_desenvolvimento.py:151:output = run([
+scripts\check_rota_desenvolvimento.py:203:print(run(["git", "branch", "--show-current"]) or "(não identificado)")
+scripts\check_rota_desenvolvimento.py:207:status = run(["git", "status", "--short"])
+scripts\check_rota_desenvolvimento.py:212:print(run(["git", "log", "--oneline", "--decorate", "--date=short", "--format=%h %ad %d %s", "-20"]))
+scripts\check_rota_desenvolvimento.py:264:exists = run(["git", "cat-file", "-t", sha])
+scripts\check_rota_desenvolvimento.py:270:print(run(["git", "show", "-s", "--date=short", "--format=%h|%ad|%s|parents=%P", sha]))
+scripts\check_rota_desenvolvimento.py:278:files = run(["git", "diff", "--name-status", f"{sha}^..{sha}"])
+scripts\refresh_rtd_symbol_to_option_quotes.py:18:import subprocess
+scripts\refresh_rtd_symbol_to_option_quotes.py:32:completed = subprocess.run(
+scripts\refresh_rtd_symbol_to_option_quotes.py:42:except subprocess.TimeoutExpired as exc:
+scripts\refresh_rtd_symbol_to_option_quotes_fallback.py:4:import subprocess
+scripts\refresh_rtd_symbol_to_option_quotes_fallback.py:60:cp = subprocess.run(
+services\pricing_engine_stub.py:5:def run(self, pricing_payload: dict[str, Any]) -> dict[str, Any]:
+services\pricing_execution_service.py:31:result = self.pricing_engine.run(pricing_payload)
+UI\components\details_panel.py:859:"""Chamado pelo MainWindow ao finalizar o subprocess do pipeline."""
+UI\components\structure_editor_dialog.py:4:import subprocess
+UI\components\structure_editor_dialog.py:438:completed = subprocess.run(
+UI\components\structure_editor_dialog.py:448:except subprocess.TimeoutExpired:
+UI\main_window.py:376:import subprocess
+UI\main_window.py:404:res = subprocess.run(
+UI\main_window.py:423:except subprocess.TimeoutExpired:
+UI\main_window.py:425:except subprocess.CalledProcessError as e:
+UI\main_window.py:459:import subprocess
+UI\main_window.py:462:res = subprocess.run(
+UI\main_window.py:478:except subprocess.CalledProcessError as e:
+UI\main_window.py:752:def run(self):
+UI\main_window.py:759:app.run()
+UI\modern\app.py:72:result = module.run()
+UI\modern\dark_window.py:250:def run(self) -> None:
+UI\modern\dark_window.py:256:app.run()
