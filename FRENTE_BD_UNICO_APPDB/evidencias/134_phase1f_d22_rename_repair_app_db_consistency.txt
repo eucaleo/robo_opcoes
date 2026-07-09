@@ -1,0 +1,408 @@
+===== DATA =====
+2026-07-09 09:46:42
+
+===== OBJETIVO =====
+Fase 1F-D.22: renomear repair_derived_db_consistency.py para repair_app_db_consistency.py e atualizar referencias operacionais.
+
+===== DIFF SUMMARY =====
+
+===== DIFF =====
+diff --git a/ATT/checks/check_cleanup_residuals.py b/ATT/checks/check_cleanup_residuals.py
+index 75adfdd..7855068 100644
+--- a/ATT/checks/check_cleanup_residuals.py
++++ b/ATT/checks/check_cleanup_residuals.py
+@@ -75,7 +75,7 @@ ALLOWED_SCRIPTS = {
+     "scripts/import_legacy_structure_legs.py",
+     "scripts/patch_derived_payoff_timestamp_consistency.sh",
+     "scripts/purge_derived_snapshots.py",
+-    "scripts/repair_derived_db_consistency.py",
++    "scripts/repair_app_db_consistency.py",
+     "scripts/run_derived_pipeline.py",
+     "scripts/validate_app_db.py",
+ }
+
+===== EXECUCAO SCRIPT RENOMEADO DRY-RUN =====
+=== REPARO DE CONSISTENCIA DO APP.DB ===
+[INFO] DB: C:\Users\eucal\projeto\dados\app.db
+[INFO] Existe: True
+[DRY-RUN] Nenhuma alteração será aplicada.
+
+=== ESTADO INICIAL ===
+[INFO] Consistente: False
+[INFO] Decisões sem pontos: 3
+[INFO] Pontos sem decisão: 0
+
+=== ALINHAMENTOS ENCONTRADOS ===
+[INFO] Nenhum timestamp próximo para alinhar.
+[DRY-RUN] Decisões que seriam alinhadas: 0
+
+=== APOS ALINHAMENTO ===
+[INFO] Consistente: False
+[INFO] Decisões sem pontos: 3
+[INFO] Pontos sem decisão: 0
+
+=== ESTADO FINAL ===
+[INFO] Consistente: False
+[INFO] Decisões sem pontos: 3
+[INFO] Pontos sem decisão: 0
+[INFO] Decisões alinhadas: 0
+[INFO] Decisões removidas: 0
+[INFO] Pontos removidos: 0
+[WARN] app.db ainda inconsistente.
+
+===== GREP NOME ANTIGO repair_derived_db_consistency =====
+
+===== FIND NOMES DE ARQUIVO LEGADOS derived_db =====
+
+===== GREP TOKENS LEGADOS CRITICOS =====
+
+===== GREP RESIDUOS derived_db EM CONTEUDO =====
+ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(derived_db_path=str(DB_PATH))
+db/derived_repo.py:227:    def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+db/derived_repo.py:228:        self._db_path = derived_db or db_path
+
+===== CONTEUDO scripts/repair_app_db_consistency.py =====
+0001: #!/usr/bin/env python3
+0002: from __future__ import annotations
+0003: 
+0004: import argparse
+0005: import shutil
+0006: import sqlite3
+0007: from datetime import datetime
+0008: from pathlib import Path
+0009: 
+0010: 
+0011: def parse_ts(value: str) -> datetime:
+0012:     return datetime.fromisoformat(value.replace("Z", "+00:00"))
+0013: 
+0014: 
+0015: def validate_like_repo(con: sqlite3.Connection) -> tuple[bool, int, int]:
+0016:     cur = con.cursor()
+0017: 
+0018:     cur.execute("""
+0019:         SELECT d.aba, d.timestamp, COUNT(p.point_spot) AS point_count
+0020:         FROM structure_decisions d
+0021:         LEFT JOIN payoff_curve_points p
+0022:                ON d.aba = p.aba
+0023:               AND d.timestamp = p.timestamp
+0024:         GROUP BY d.aba, d.timestamp
+0025:         HAVING point_count = 0
+0026:     """)
+0027:     orphan_decisions = cur.fetchall()
+0028: 
+0029:     cur.execute("""
+0030:         SELECT p.aba, p.timestamp, COUNT(DISTINCT p.point_spot)
+0031:         FROM payoff_curve_points p
+0032:         LEFT JOIN structure_decisions d
+0033:                ON p.aba = d.aba
+0034:               AND p.timestamp = d.timestamp
+0035:         WHERE d.aba IS NULL
+0036:         GROUP BY p.aba, p.timestamp
+0037:     """)
+0038:     orphan_points = cur.fetchall()
+0039: 
+0040:     return (
+0041:         not orphan_decisions and not orphan_points,
+0042:         len(orphan_decisions),
+0043:         len(orphan_points),
+0044:     )
+0045: 
+0046: 
+0047: def main() -> int:
+0048:     parser = argparse.ArgumentParser(
+0049:         description="Repara inconsistências de snapshots em dados/app.db"
+0050:     )
+0051:     parser.add_argument(
+0052:         "--db",
+0053:         default="dados/app.db",
+0054:         help="Caminho do app.db. Default: dados/app.db",
+0055:     )
+0056:     parser.add_argument(
+0057:         "--max-delta-seconds",
+0058:         type=float,
+0059:         default=0.25,
+0060:         help="Delta máximo para alinhar decisão ao snapshot de pontos. Default: 0.25s",
+0061:     )
+0062:     parser.add_argument(
+0063:         "--apply",
+0064:         action="store_true",
+0065:         help="Aplica alterações. Sem isso roda em dry-run.",
+0066:     )
+0067:     parser.add_argument(
+0068:         "--dry-run",
+0069:         action="store_true",
+0070:         help="Modo simulação explícito. É o padrão quando --apply não é usado.",
+0071:     )
+0072:     parser.add_argument(
+0073:         "--prune-unmatched-decisions",
+0074:         action="store_true",
+0075:         help="Remove decisões que continuam sem pontos depois do alinhamento.",
+0076:     )
+0077:     parser.add_argument(
+0078:         "--prune-unmatched-points",
+0079:         action="store_true",
+0080:         help="Remove pontos que continuam sem decisão depois do alinhamento.",
+0081:     )
+0082:     args = parser.parse_args()
+0083: 
+0084:     if args.apply and args.dry_run:
+0085:         parser.error("use --apply ou --dry-run, não ambos")
+0086: 
+0087:     db = Path(args.db)
+0088: 
+0089:     print("=== REPARO DE CONSISTENCIA DO APP.DB ===")
+0090:     print(f"[INFO] DB: {db.resolve()}")
+0091:     print(f"[INFO] Existe: {db.exists()}")
+0092: 
+0093:     if not db.exists():
+0094:         print("[ERROR] Banco não encontrado.")
+0095:         return 2
+0096: 
+0097:     if args.apply:
+0098:         stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+0099:         backup = db.with_suffix(db.suffix + f".bak-{stamp}")
+0100:         shutil.copy2(db, backup)
+0101:         print(f"[INFO] Backup criado: {backup}")
+0102:     else:
+0103:         print("[DRY-RUN] Nenhuma alteração será aplicada.")
+0104: 
+0105:     con = sqlite3.connect(str(db))
+0106:     con.row_factory = sqlite3.Row
+0107: 
+0108:     try:
+0109:         ok0, od0, op0 = validate_like_repo(con)
+0110:         print()
+0111:         print("=== ESTADO INICIAL ===")
+0112:         print(f"[INFO] Consistente: {ok0}")
+0113:         print(f"[INFO] Decisões sem pontos: {od0}")
+0114:         print(f"[INFO] Pontos sem decisão: {op0}")
+0115: 
+0116:         points = con.execute("""
+0117:             SELECT
+0118:                 structure_id,
+0119:                 aba,
+0120:                 timestamp,
+0121:                 COUNT(*) AS n
+0122:             FROM payoff_curve_points
+0123:             GROUP BY structure_id, aba, timestamp
+0124:             ORDER BY structure_id, aba, timestamp
+0125:         """).fetchall()
+0126: 
+0127:         decisions = con.execute("""
+0128:             SELECT
+0129:                 id,
+0130:                 structure_id,
+0131:                 aba,
+0132:                 timestamp
+0133:             FROM structure_decisions
+0134:             ORDER BY structure_id, aba, timestamp
+0135:         """).fetchall()
+0136: 
+0137:         updates: list[tuple[str, int, float, str, str, int | None, str]] = []
+0138:         used_decision_ids: set[int] = set()
+0139: 
+0140:         for p in points:
+0141:             candidates = []
+0142:             for d in decisions:
+0143:                 if d["id"] in used_decision_ids:
+0144:                     continue
+0145:                 if d["aba"] != p["aba"]:
+0146:                     continue
+0147:                 if d["structure_id"] != p["structure_id"]:
+0148:                     continue
+0149: 
+0150:                 try:
+0151:                     delta = abs(
+0152:                         (
+0153:                             parse_ts(d["timestamp"]) - parse_ts(p["timestamp"])
+0154:                         ).total_seconds()
+0155:                     )
+0156:                 except Exception:
+0157:                     continue
+0158: 
+0159:                 if delta <= args.max_delta_seconds:
+0160:                     candidates.append((delta, d))
+0161: 
+0162:             if not candidates:
+0163:                 continue
+0164: 
+0165:             delta, nearest = min(candidates, key=lambda item: item[0])
+0166:             used_decision_ids.add(nearest["id"])
+0167: 
+0168:             if nearest["timestamp"] != p["timestamp"]:
+0169:                 updates.append(
+0170:                     (
+0171:                         p["timestamp"],
+0172:                         nearest["id"],
+0173:                         delta,
+0174:                         nearest["timestamp"],
+0175:                         p["timestamp"],
+0176:                         p["structure_id"],
+0177:                         p["aba"],
+0178:                     )
+0179:                 )
+0180: 
+0181:         print()
+0182:         print("=== ALINHAMENTOS ENCONTRADOS ===")
+0183:         if not updates:
+0184:             print("[INFO] Nenhum timestamp próximo para alinhar.")
+0185:         else:
+0186:             for _, decision_id, delta, old_ts, new_ts, sid, aba in updates:
+0187:                 print(
+0188:                     f"[MATCH] decision_id={decision_id} "
+0189:                     f"sid={sid} aba={aba} delta={delta:.6f}s"
+0190:                 )
+0191:                 print(f"        decisão antiga: {old_ts}")
+0192:                 print(f"        novo timestamp: {new_ts}")
+0193: 
+0194:         if args.apply:
+0195:             with con:
+0196:                 for new_ts, decision_id, *_rest in updates:
+0197:                     con.execute(
+0198:                         """
+0199:                         UPDATE structure_decisions
+0200:                            SET timestamp = ?
+0201:                          WHERE id = ?
+0202:                         """,
+0203:                         (new_ts, decision_id),
+0204:                     )
+0205:             print(f"[APPLY] Decisões alinhadas: {len(updates)}")
+0206:         else:
+0207:             print(f"[DRY-RUN] Decisões que seriam alinhadas: {len(updates)}")
+0208: 
+0209:         ok1, od1, op1 = validate_like_repo(con)
+0210:         print()
+0211:         print("=== APOS ALINHAMENTO ===")
+0212:         print(f"[INFO] Consistente: {ok1}")
+0213:         print(f"[INFO] Decisões sem pontos: {od1}")
+0214:         print(f"[INFO] Pontos sem decisão: {op1}")
+0215: 
+0216:         deleted_decisions = 0
+0217:         deleted_points = 0
+0218: 
+0219:         if args.prune_unmatched_decisions:
+0220:             rows = con.execute("""
+0221:                 SELECT d.id, d.structure_id, d.aba, d.timestamp
+0222:                 FROM structure_decisions d
+0223:                 LEFT JOIN payoff_curve_points p
+0224:                        ON d.aba = p.aba
+0225:                       AND d.timestamp = p.timestamp
+0226:                 WHERE p.aba IS NULL
+0227:                 GROUP BY d.id, d.structure_id, d.aba, d.timestamp
+0228:                 ORDER BY d.structure_id, d.aba, d.timestamp
+0229:             """).fetchall()
+0230: 
+0231:             print()
+0232:             print("=== DECISOES ORFAS A REMOVER ===")
+0233:             if not rows:
+0234:                 print("[INFO] Nenhuma decisão órfã.")
+0235:             else:
+0236:                 for r in rows:
+0237:                     print(dict(r))
+0238: 
+0239:             if args.apply and rows:
+0240:                 ids = [int(r["id"]) for r in rows]
+0241:                 placeholders = ",".join("?" for _ in ids)
+0242:                 with con:
+0243:                     cur = con.execute(
+0244:                         f"DELETE FROM structure_decisions WHERE id IN ({placeholders})",
+0245:                         ids,
+0246:                     )
+0247:                     deleted_decisions = cur.rowcount
+0248:                 print(f"[APPLY] Decisões órfãs removidas: {deleted_decisions}")
+0249:             elif rows:
+0250:                 print(f"[DRY-RUN] Decisões órfãs que seriam removidas: {len(rows)}")
+0251: 
+0252:         if args.prune_unmatched_points:
+0253:             rows = con.execute("""
+0254:                 SELECT p.structure_id, p.aba, p.timestamp, COUNT(*) AS n
+0255:                 FROM payoff_curve_points p
+0256:                 LEFT JOIN structure_decisions d
+0257:                        ON p.aba = d.aba
+0258:                       AND p.timestamp = d.timestamp
+0259:                 WHERE d.aba IS NULL
+0260:                 GROUP BY p.structure_id, p.aba, p.timestamp
+0261:                 ORDER BY p.structure_id, p.aba, p.timestamp
+0262:             """).fetchall()
+0263: 
+0264:             print()
+0265:             print("=== PONTOS ORFAOS A REMOVER ===")
+0266:             if not rows:
+0267:                 print("[INFO] Nenhum grupo de pontos órfão.")
+0268:             else:
+0269:                 for r in rows:
+0270:                     print(dict(r))
+0271: 
+0272:             if args.apply and rows:
+0273:                 with con:
+0274:                     cur = con.execute("""
+0275:                         DELETE FROM payoff_curve_points
+0276:                         WHERE NOT EXISTS (
+0277:                             SELECT 1
+0278:                             FROM structure_decisions d
+0279:                             WHERE d.aba = payoff_curve_points.aba
+0280:                               AND d.timestamp = payoff_curve_points.timestamp
+0281:                         )
+0282:                     """)
+0283:                     deleted_points = cur.rowcount
+0284:                 print(f"[APPLY] Pontos órfãos removidos: {deleted_points}")
+0285:             elif rows:
+0286:                 print(f"[DRY-RUN] Grupos de pontos órfãos que seriam removidos: {len(rows)}")
+0287: 
+0288:         ok2, od2, op2 = validate_like_repo(con)
+0289:         print()
+0290:         print("=== ESTADO FINAL ===")
+0291:         print(f"[INFO] Consistente: {ok2}")
+0292:         print(f"[INFO] Decisões sem pontos: {od2}")
+0293:         print(f"[INFO] Pontos sem decisão: {op2}")
+0294:         print(f"[INFO] Decisões alinhadas: {len(updates)}")
+0295:         print(f"[INFO] Decisões removidas: {deleted_decisions}")
+0296:         print(f"[INFO] Pontos removidos: {deleted_points}")
+0297: 
+0298:         if ok2:
+0299:             print("[OK] app.db consistente.")
+0300:             return 0
+0301: 
+0302:         print("[WARN] app.db ainda inconsistente.")
+0303:         return 1
+0304: 
+0305:     finally:
+0306:         con.close()
+0307: 
+0308: 
+0309: if __name__ == "__main__":
+0310:     raise SystemExit(main())
+
+===== COMPILEALL =====
+Listing 'db'...
+Listing 'db\\migrations'...
+Listing 'scripts'...
+Listing 'services'...
+Listing 'ui'...
+Listing 'ui\\components'...
+Listing 'ui\\models'...
+Listing 'ui\\modern'...
+Listing 'ATT'...
+Listing 'ATT\\checks'...
+Listing 'ATT\\tests'...
+
+===== PYTEST =====
+
+[conftest] PROJECT_ROOT : C:\Users\eucal\projeto
+[conftest] DB_PATH      : C:\Users\eucal\projeto\dados\app.db
+[conftest] DB existe?   : True
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+.................................................................. [ 47%]
+........................................................................ [ 59%]
+........................................................................ [ 72%]
+.............ss......................................................... [ 84%]
+........................................................................ [ 96%]
+.....................                                                    [100%]
+589 passed, 2 skipped, 6 subtests passed in 28.58s
+
+===== GIT STATUS =====
+ M ATT/checks/check_cleanup_residuals.py
+R  scripts/repair_derived_db_consistency.py -> scripts/repair_app_db_consistency.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/134_phase1f_d22_rename_repair_app_db_consistency.txt

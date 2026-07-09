@@ -75,7 +75,7 @@ ALLOWED_SCRIPTS = {
     "scripts/import_legacy_structure_legs.py",
     "scripts/patch_derived_payoff_timestamp_consistency.sh",
     "scripts/purge_derived_snapshots.py",
-    "scripts/repair_derived_db_consistency.py",
+    "scripts/repair_app_db_consistency.py",
     "scripts/run_derived_pipeline.py",
     "scripts/validate_app_db.py",
 }
