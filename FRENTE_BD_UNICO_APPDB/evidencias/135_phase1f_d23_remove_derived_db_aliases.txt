@@ -1,0 +1,96 @@
+===== DATA =====
+2026-07-09 09:55:11
+
+===== OBJETIVO =====
+Fase 1F-D.23: remover aliases/parâmetros residuais derived_db e derived_db_path.
+
+===== DIFF =====
+diff --git a/ATT/tests/test_ui_data_migration.py b/ATT/tests/test_ui_data_migration.py
+index 6494ad9..6379980 100644
+--- a/ATT/tests/test_ui_data_migration.py
++++ b/ATT/tests/test_ui_data_migration.py
+@@ -18,7 +18,7 @@ def model():
+         f"  Esperado     : {DB_PATH}\n"
+         f"  PROJECT_ROOT : {PROJECT_ROOT}\n"
+     )
+-    m = UIDataModel(derived_db_path=str(DB_PATH))
++    m = UIDataModel(app_db_path=str(DB_PATH))
+     m.refresh()
+     return m
+ 
+diff --git a/db/derived_repo.py b/db/derived_repo.py
+index 886be0c..e545b6e 100644
+--- a/db/derived_repo.py
++++ b/db/derived_repo.py
+@@ -224,8 +224,8 @@ class DerivedRepo:
+     alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
+     """
+ 
+-    def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+-        self._db_path = derived_db or db_path
++    def __init__(self, db_path: str = "dados/app.db") -> None:
++        self._db_path = db_path
+         self._bootstrap()
+ 
+     # ------------------------------------------------------------------
+
+===== GREP RESIDUOS derived_db =====
+
+===== GREP TOKENS LEGADOS CRITICOS =====
+
+===== FIND NOMES DE ARQUIVO LEGADOS =====
+
+===== TRECHOS RELEVANTES =====
+
+===== db\derived_repo.py =====
+0227:     def __init__(self, db_path: str = "dados/app.db") -> None:
+
+===== ui\models\ui_data.py =====
+0049: class UIDataModel:
+0050:     def __init__(self, app_db_path: Optional[Path] = None):
+0052:         self.app_db_path = (
+0053:             Path(app_db_path).resolve()
+0054:             if app_db_path
+0057:         print(f"[UI] Usando app DB: {self.app_db_path}")
+0071:         if not self.app_db_path.exists():
+0073:                 f"Banco app.db nao encontrado em: {self.app_db_path}"
+0075:         conn = sqlite3.connect(str(self.app_db_path))
+
+===== ATT\tests\test_ui_data_migration.py =====
+0011: from UI.models.ui_data import UIDataModel
+0021:     m = UIDataModel(app_db_path=str(DB_PATH))
+
+===== COMPILEALL =====
+Listing 'db'...
+Listing 'db\\migrations'...
+Listing 'scripts'...
+Listing 'services'...
+Listing 'ui'...
+Listing 'ui\\components'...
+Listing 'ui\\models'...
+Listing 'ui\\modern'...
+Listing 'ATT'...
+Listing 'ATT\\checks'...
+Listing 'ATT\\tests'...
+
+===== PYTEST =====
+
+[conftest] PROJECT_ROOT : C:\Users\eucal\projeto
+[conftest] DB_PATH      : C:\Users\eucal\projeto\dados\app.db
+[conftest] DB existe?   : True
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+.................................................................. [ 47%]
+........................................................................ [ 59%]
+........................................................................ [ 72%]
+.............ss......................................................... [ 84%]
+........................................................................ [ 96%]
+.....................                                                    [100%]
+589 passed, 2 skipped, 6 subtests passed in 33.46s
+
+===== GIT STATUS =====
+ M ATT/tests/test_ui_data_migration.py
+ M UI/models/ui_data.py
+ M db/derived_repo.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/135_phase1f_d23_remove_derived_db_aliases.txt

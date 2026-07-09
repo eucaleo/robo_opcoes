@@ -47,9 +47,7 @@ def _first_match(cols: List[str], candidates: List[str]) -> Optional[str]:
     return None
 
 class UIDataModel:
-    def __init__(self, app_db_path: Optional[Path] = None, derived_db_path: Optional[Path] = None):
-        if app_db_path is None and derived_db_path is not None:
-            app_db_path = derived_db_path
+    def __init__(self, app_db_path: Optional[Path] = None):
         from db.config import APP_DB_PATH
         self.app_db_path = (
             Path(app_db_path).resolve()

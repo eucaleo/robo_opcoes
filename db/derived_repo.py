@@ -224,8 +224,8 @@ class DerivedRepo:
     alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
     """
 
-    def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
-        self._db_path = derived_db or db_path
+    def __init__(self, db_path: str = "dados/app.db") -> None:
+        self._db_path = db_path
         self._bootstrap()
 
     # ------------------------------------------------------------------
