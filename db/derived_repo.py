@@ -51,11 +51,6 @@ def get_app_db_connection() -> sqlite3.Connection:
     """Retorna conexao para o banco unico da aplicacao app.db."""
     return connect_app()
 
-
-def get_derived_connection() -> sqlite3.Connection:
-    """Alias legado preservado temporariamente para compatibilidade."""
-    return get_app_db_connection()
-
 def _unwrap_aba(aba_or_ref) -> str:
     """
     alteracao_56: aceita str ou StructureRef no parâmetro 'aba'.
