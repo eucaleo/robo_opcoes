@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from db.config import connect_app
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -44,6 +45,16 @@ PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 # ---------------------------------------------------------------------------
 # alteracao_56: helper de compatibilidade StructureRef -> str
 # ---------------------------------------------------------------------------
+
+
+def get_app_db_connection() -> sqlite3.Connection:
+    """Retorna conexao para o banco unico da aplicacao app.db."""
+    return connect_app()
+
+
+def get_derived_connection() -> sqlite3.Connection:
+    """Alias legado preservado temporariamente para compatibilidade."""
+    return get_app_db_connection()
 
 def _unwrap_aba(aba_or_ref) -> str:
     """
