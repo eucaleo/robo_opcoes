@@ -13,7 +13,7 @@ Evidencias: FRENTE_RTD_EXCEL_BTG_ONLINE/output/excel_rtd_reader_20260709_183928
 
 Criada a camada:
 
-app/services/excel_rtd_reader.py
+services/excel_rtd_reader.py
 
 Criado o teste operacional:
 
@@ -44,4 +44,36 @@ A camada reutilizavel de leitura RTD Excel foi criada e validada contra a planil
 Proximo passo previsto:
 
 Integrar esta camada ao snapshot atual, ainda sem historico temporal e sem candles.
+
+
+## Correcao arquitetural - services canonico
+
+Data/hora: 09/07/2026 18:49:41
+Branch: refactor/bd-unico-appdb
+
+### Problema identificado
+
+O leitor reutilizavel RTD Excel havia sido criado em:
+
+app/services/excel_rtd_reader.py
+
+Porem a pasta nativa/canonica de services do sistema ja existe desde o inicio em:
+
+services/
+
+### Correcao executada
+
+O arquivo foi movido para:
+
+services/excel_rtd_reader.py
+
+O import do teste operacional foi corrigido para:
+
+from services.excel_rtd_reader import read_excel_rtd_options_as_dict
+
+A pasta app/services foi removida para evitar duplicidade arquitetural.
+
+### Decisao arquitetural
+
+A partir desta correcao, a frente RTD Excel deve reutilizar a pasta canonica services/ e nao criar nova arvore app/services/.
 

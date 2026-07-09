@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 
-from app.services.excel_rtd_reader import read_excel_rtd_options_as_dict
+from services.excel_rtd_reader import read_excel_rtd_options_as_dict
 
 
 def main():
