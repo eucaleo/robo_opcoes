@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gc
 import inspect
 import sqlite3
 import tempfile
@@ -152,8 +153,11 @@ def _columns(conn: sqlite3.Connection, table_name: str) -> set[str]:
 def test_app_db_contem_tabelas_funcionais_absorvidas() -> None:
     assert APP_DB.exists(), "dados/app.db deve existir como banco canonico unico"
 
-    with sqlite3.connect(APP_DB) as conn:
+    conn = sqlite3.connect(APP_DB)
+    try:
         existing_tables = _table_names(conn)
+    finally:
+        conn.close()
 
     missing_tables = REQUIRED_TABLES - existing_tables
     assert not missing_tables, (
@@ -165,7 +169,8 @@ def test_app_db_contem_tabelas_funcionais_absorvidas() -> None:
 def test_app_db_contem_colunas_e_indices_funcionais_absorvidos() -> None:
     assert APP_DB.exists(), "dados/app.db deve existir como banco canonico unico"
 
-    with sqlite3.connect(APP_DB) as conn:
+    conn = sqlite3.connect(APP_DB)
+    try:
         for table_name, required_columns in REQUIRED_COLUMNS.items():
             existing_columns = _columns(conn, table_name)
             missing_columns = required_columns - existing_columns
@@ -175,6 +180,8 @@ def test_app_db_contem_colunas_e_indices_funcionais_absorvidos() -> None:
             )
 
         existing_indexes = _index_names(conn)
+    finally:
+        conn.close()
 
     missing_indexes = REQUIRED_INDEXES - existing_indexes
     assert not missing_indexes, (
@@ -197,7 +204,8 @@ def test_repositorio_consolidado_grava_payoff_e_decisao_na_conexao_fornecida() -
         canonical_dir.mkdir(parents=True, exist_ok=True)
         canonical_db = canonical_dir / "app.db"
 
-        with sqlite3.connect(canonical_db) as conn:
+        conn = sqlite3.connect(canonical_db)
+        try:
             repo._apply_schema(conn)
 
             points = [
@@ -278,7 +286,15 @@ def test_repositorio_consolidado_grava_payoff_e_decisao_na_conexao_fornecida() -
                 (timestamp, aba),
             ).fetchone()[0]
 
-        db_files = sorted(path.relative_to(tmp_root).as_posix() for path in tmp_root.rglob("*.db"))
+        finally:
+            conn.close()
+
+        gc.collect()
+
+        db_files = sorted(
+            path.relative_to(tmp_root).as_posix()
+            for path in tmp_root.rglob("*.db")
+        )
 
     assert payoff_count == 3
     assert decision_count == 1
