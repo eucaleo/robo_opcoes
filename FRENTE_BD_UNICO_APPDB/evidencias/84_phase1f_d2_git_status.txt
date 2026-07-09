@@ -1,0 +1,9 @@
+ M UI/components/details_panel.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/78_phase1f_d2_rename_details_panel_app_db_path_identifiers.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/79_phase1f_d2_pytest_direcionado.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/80_phase1f_d2_compileall.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/81_phase1f_d2_reauditoria_stdout.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/82_phase1f_d2_reauditoria_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/83_phase1f_d2_resumo_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/84_phase1f_d2_git_status.txt
+?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d2_rename_details_panel_app_db_path_identifiers.py

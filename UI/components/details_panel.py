@@ -47,7 +47,7 @@ class DetailsPanel(ttk.LabelFrame):
     # ------------------------------------------------------------------
 
 
-    def _derived_db_path(self) -> Path:
+    def _app_db_path(self) -> Path:
         """
         Caminho do app.db.
 
@@ -73,7 +73,7 @@ class DetailsPanel(ttk.LabelFrame):
         """
         Caminho do app.db usado para estado operacional.
 
-        Importante: não usa self._db_path porque _derived_db_path() já trata
+        Importante: não usa self._db_path porque _app_db_path() já trata
         esse atributo como caminho do app.db em testes/compatibilidade.
         """
         if self._app_db_path:
@@ -136,22 +136,22 @@ class DetailsPanel(ttk.LabelFrame):
         ordered_names = self._ordered_instance_db_attribute_names(instance_dict)
 
         primary_explicit = []
-        derived_explicit = []
+        app_explicit = []
 
         for name in ordered_names:
             path = self._safe_db_path(instance_dict.get(name))
             if path is None or not self._looks_like_db_path(name, path):
                 continue
 
-            if self._is_derived_db_path(name, path):
-                derived_explicit.append(path)
+            if self._is_app_db_path(name, path):
+                app_explicit.append(path)
             else:
                 primary_explicit.append(path)
 
         if primary_explicit:
             return primary_explicit
 
-        return derived_explicit
+        return app_explicit
 
     def _ordered_instance_db_attribute_names(self, instance_dict):
         preferred_names = [
@@ -167,7 +167,7 @@ class DetailsPanel(ttk.LabelFrame):
             "sqlite_path",
             "_db_file",
             "db_file",
-            "_derived_db_path",
+            "_app_db_path",
             "derived_db_path",
         ]
 
@@ -203,7 +203,7 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _class_level_db_attribute_names(self):
         return [
-            "_derived_db_path",
+            "_app_db_path",
             "derived_db_path",
             "_raw_db_path",
             "raw_db_path",
@@ -285,7 +285,7 @@ class DetailsPanel(ttk.LabelFrame):
             or "sqlite" in low_name
         )
 
-    def _is_derived_db_path(self, name, path):
+    def _is_app_db_path(self, name, path):
         low_name = str(name).lower()
         low_path = str(path).lower()
 
@@ -1027,7 +1027,7 @@ class DetailsPanel(ttk.LabelFrame):
         Legado aba removido.
         """
         sid = self._resolve_structure_key(structure_id)
-        db_path = self._derived_db_path()
+        db_path = self._app_db_path()
         con = sqlite3.connect(str(db_path))
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -1067,7 +1067,7 @@ class DetailsPanel(ttk.LabelFrame):
         Legado aba removido.
         """
         sid = self._resolve_structure_key(structure_id)
-        db_path = self._derived_db_path()
+        db_path = self._app_db_path()
         con = sqlite3.connect(str(db_path))
         con.row_factory = sqlite3.Row
         cur = con.cursor()
@@ -1095,7 +1095,7 @@ class DetailsPanel(ttk.LabelFrame):
         Legado aba removido.
         """
         sid = self._resolve_structure_key(structure_id)
-        db_path = self._derived_db_path()
+        db_path = self._app_db_path()
         con = sqlite3.connect(str(db_path))
         con.row_factory = sqlite3.Row
         cur = con.cursor()

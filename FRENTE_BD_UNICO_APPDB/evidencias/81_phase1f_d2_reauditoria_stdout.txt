@@ -1,0 +1,3 @@
+[OK] Fase 1F-D auditoria de identificadores derived concluida.
+Gerado: FRENTE_BD_UNICO_APPDB/evidencias/66_phase1f_d_auditoria_identificadores_derived.txt
+Gerado: FRENTE_BD_UNICO_APPDB/evidencias/67_phase1f_d_resumo_identificadores_derived.txt
