@@ -471,3 +471,37 @@ Commit:
 
 - fase 5d remove tabela backup residual app db
 
+
+## Correcao - Fase 5D
+
+Motivo da correcao:
+
+- dados/app.db pertence ao diretorio dados/, que e ignorado pelo Git;
+- portanto, a remocao fisica da tabela residual no banco local nao deve ser versionada diretamente;
+- foi criado script rastreavel para reaplicar a limpeza da tabela residual quando necessario.
+
+Arquivo criado:
+
+- scripts/drop_residual_backup_tables_app_db.py
+
+Tabela residual tratada pelo script:
+
+- rtd_option_quotes_backup_scope_20260626_184057
+
+Validacoes executadas:
+
+- PYTHONDONTWRITEBYTECODE=1 python scripts/drop_residual_backup_tables_app_db.py
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py -q
+- python -m compileall scripts/drop_residual_backup_tables_app_db.py
+
+Resultado esperado:
+
+- script executado sem erro;
+- contratos 5A, 5B, 5C e 5D aprovados com 8 passed;
+- sem __pycache__ ou .pytest_cache remanescentes;
+- dados/app.db permanece nao versionado.
+
+Commit:
+
+- fase 5d adiciona script limpeza residual app db
+
