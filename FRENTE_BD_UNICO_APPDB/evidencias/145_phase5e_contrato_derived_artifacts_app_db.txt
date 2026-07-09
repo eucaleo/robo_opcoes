@@ -1,0 +1,25 @@
+===== DATA =====
+2026-07-09 11:39:33
+
+===== OBJETIVO =====
+Fase 5E: contrato de artefatos derivados exclusivamente no dados/app.db.
+
+===== STATUS GIT ANTES =====
+?? ATT/tests/test_bd_unico_derived_artifacts_in_app_db.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/143_phase5e_inventario_derivados_app_db.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/144_phase5e_inventario_complementar_derivados_app_db.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/145_phase5e_contrato_derived_artifacts_app_db.txt
+
+===== TESTE 5E ISOLADO =====
+....                                                                     [100%]
+4 passed in 0.95s
+
+===== CONTRATOS 5A 5B 5C 5D 5E =====
+............                                                             [100%]
+12 passed in 1.52s
+
+===== STATUS GIT DEPOIS =====
+?? ATT/tests/test_bd_unico_derived_artifacts_in_app_db.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/143_phase5e_inventario_derivados_app_db.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/144_phase5e_inventario_complementar_derivados_app_db.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/145_phase5e_contrato_derived_artifacts_app_db.txt
