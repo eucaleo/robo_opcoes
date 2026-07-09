@@ -1,0 +1,53 @@
+===== DATA =====
+2026-07-09 09:14:22
+
+===== OBJETIVO =====
+Fase 1F-D.17: remover alias legado connect_derived de db/config.py apos migrar consumidores operacionais para connect_app.
+
+===== DIFF =====
+diff --git a/db/config.py b/db/config.py
+index d00d186..8bbc652 100644
+--- a/db/config.py
++++ b/db/config.py
+@@ -15,7 +15,3 @@ DERIVED_DB_PATH = APP_DB_PATH
+ def connect_app() -> sqlite3.Connection:
+     APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+     return sqlite3.connect(str(APP_DB_PATH))
+-
+-def connect_derived() -> sqlite3.Connection:
+-    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+-    return sqlite3.connect(str(APP_DB_PATH))
+
+===== GREP connect_derived|get_derived_connection EM CODIGO OPERACIONAL =====
+scripts/validate_derived_db.py:4:- Nao depende de get_derived_connection (que pode nao existir no seu layout)
+
+===== GREP CONFIG APP_DB_PATH/DERIVED_DB_PATH/connect_app =====
+db/config.py:8:APP_DB_PATH     = Path(os.getenv("APP_DB_PATH",     str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+db/config.py:10:APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+db/config.py:13:# Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+db/config.py:14:DERIVED_DB_PATH = APP_DB_PATH
+db/config.py:15:def connect_app() -> sqlite3.Connection:
+db/config.py:16:    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+db/config.py:17:    return sqlite3.connect(str(APP_DB_PATH))
+
+===== COMPILEALL =====
+
+===== PYTEST =====
+
+[conftest] PROJECT_ROOT : C:\Users\eucal\projeto
+[conftest] DB_PATH      : C:\Users\eucal\projeto\dados\app.db
+[conftest] DB existe?   : True
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+.................................................................. [ 47%]
+........................................................................ [ 59%]
+........................................................................ [ 72%]
+.............ss......................................................... [ 84%]
+........................................................................ [ 96%]
+.....................                                                    [100%]
+589 passed, 2 skipped, 6 subtests passed in 31.44s
+
+===== GIT STATUS =====
+ M db/config.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/129_phase1f_d17_remove_connect_derived_alias.txt

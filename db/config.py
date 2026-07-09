@@ -15,7 +15,3 @@ DERIVED_DB_PATH = APP_DB_PATH
 def connect_app() -> sqlite3.Connection:
     APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     return sqlite3.connect(str(APP_DB_PATH))
-
-def connect_derived() -> sqlite3.Connection:
-    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    return sqlite3.connect(str(APP_DB_PATH))
