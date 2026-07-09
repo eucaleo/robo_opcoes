@@ -691,3 +691,64 @@ Resultado obtido:
 Commit:
 
 - fase 6 valida cumulativamente contratos bd unico app db
+
+
+## Atualizacao - Fase 7 - Auditoria final e aceite
+
+Objetivo desta etapa:
+
+- consolidar auditoria final da frente BD unico app.db;
+- validar criterios de aceite final;
+- confirmar banco fisico unico em dados/;
+- confirmar execucao cumulativa dos contratos 5A a 5G;
+- executar compileall geral;
+- executar pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB;
+- registrar estado final da frente.
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/153_phase7_auditoria_aceite_final.txt
+
+Validacoes executadas:
+
+- git status --short
+- git log --oneline -n 15
+- find dados -maxdepth 1 -type f -name "*.db" | sort
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py ATT/tests/test_bd_unico_derived_artifacts_in_app_db.py ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py ATT/tests/test_bd_unico_absorcao_funcional.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado obtido:
+
+- banco fisico unico encontrado em dados/: dados/app.db;
+- contratos 5A a 5G aprovados em conjunto com 17 passed;
+- compileall aprovado;
+- pytest completo aprovado com 606 passed, 2 skipped, 6 subtests passed;
+- temporarios de execucao removidos;
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente.
+
+Criterios de aceite final:
+
+- banco fisico unico: atendido, dados/app.db;
+- banco legado separado: eliminado como arquivo fisico operacional;
+- criacao automatica de banco legado: protegida por contrato;
+- fallback para banco legado: proibido por contrato;
+- sync entre bancos: eliminado;
+- RTD de opcoes no app.db: validado por contrato;
+- RTD de ativo objeto no app.db: validado por contrato;
+- payoff, simulacoes, caches e artefatos derivados no app.db: validado por contrato;
+- objetos residuais de backup no schema canonico: protegidos por contrato;
+- testes cumulativos: passando;
+- auditoria: atualizada;
+- temporarios de execucao: removidos.
+
+Conclusao:
+
+- a frente BD unico app.db foi validada com sucesso;
+- a arquitetura final aceita permanece com um unico banco fisico do sistema: dados/app.db;
+- nao ha pendencia funcional registrada nesta etapa final.
+
+Commit:
+
+- fase 7 fecha auditoria final bd unico app db
