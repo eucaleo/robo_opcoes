@@ -99,7 +99,8 @@ class PayoffWriter:
             stacklevel=2
         )
         
-        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+        from db.config import connect_app
+        from db.derived_repo import write_decision_snapshot_atomic
         
         decision_dict = {
             "decision": decision,
@@ -112,7 +113,7 @@ class PayoffWriter:
             "why": why
         }
         
-        conn = get_derived_connection()
+        conn = connect_app()
         try:
             return write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
         finally:
