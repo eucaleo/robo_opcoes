@@ -12,7 +12,7 @@ import sqlite3
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from db.config import connect_app, connect_derived
+from db.config import connect_app
 from db.derived_repo import (
     cleanup_old_decisions,
     cleanup_old_payoff_data,
@@ -149,7 +149,7 @@ def _merge_meta(
 # ------------------------------------------------------------------
 
 def init_db():
-    with connect_derived() as conn:
+    with connect_app() as conn:
         ensure_derived_tables(conn)
 
 
@@ -194,7 +194,7 @@ def save_payoff_curve(
         "structure_id": resolved_sid,
     }
 
-    with connect_derived() as conn:
+    with connect_app() as conn:
         ensure_derived_tables(conn)
         return insert_payoff_points(
             conn=conn,
@@ -291,7 +291,7 @@ def save_decision(
         },
     }
 
-    with connect_derived() as conn:
+    with connect_app() as conn:
         ensure_derived_tables(conn)
         return insert_structure_decision(
             conn=conn,
@@ -348,7 +348,7 @@ def save_decision_from_canonical_payload(
 # ------------------------------------------------------------------
 
 def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
-    with connect_derived() as conn:
+    with connect_app() as conn:
         ensure_derived_tables(conn)
         deleted_payoff = cleanup_old_payoff_data(conn, days_to_keep=days_to_keep)
         deleted_dec    = cleanup_old_decisions(conn, days_to_keep=days_to_keep)
@@ -360,7 +360,7 @@ def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
 # ------------------------------------------------------------------
 
 def get_all_payoff_curves():
-    with connect_derived() as conn:
+    with connect_app() as conn:
         cursor = conn.cursor()
         cursor.execute("""
             SELECT timestamp, aba, point_spot, point_pl, meta_json
@@ -386,7 +386,7 @@ def get_payoff_by_structure_id(structure_id: int):
     """
     ref = StructureRef.from_id(structure_id)
     col, val = ref.db_pair()
-    with connect_derived() as conn:
+    with connect_app() as conn:
         cursor = conn.cursor()
         cursor.execute(
             f"""
@@ -409,7 +409,7 @@ def get_payoff_by_structure_id(structure_id: int):
 
 
 def get_recent_decisions():
-    with connect_derived() as conn:
+    with connect_app() as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
 
