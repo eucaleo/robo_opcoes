@@ -552,3 +552,52 @@ Commit:
 
 - fase 5f adiciona contrato no legacy physical db creation
 
+
+## Atualizacao - Fase 5G
+
+Objetivo desta etapa:
+
+- criar contrato de absorcao funcional do antigo banco legado no banco canonico dados/app.db;
+- garantir que tabelas funcionais absorvidas existem no schema canonico;
+- garantir que colunas e indices funcionais esperados permanecem no dados/app.db;
+- validar escrita de payoff e decisao estrutural por repositorio consolidado usando conexao fornecida;
+- garantir que a operacao contratual cria apenas dados/app.db em ambiente isolado;
+- executar contratos 5A, 5B, 5C, 5D, 5E, 5F e 5G em conjunto;
+- executar buscas proibitivas, compileall e pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB.
+
+Arquivo de teste contratual:
+
+- ATT/tests/test_bd_unico_absorcao_funcional.py
+
+Arquivos alterados:
+
+- ATT/tests/test_bd_unico_absorcao_funcional.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencias desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/149_phase5g_inventario_absorcao_funcional.txt
+- FRENTE_BD_UNICO_APPDB/evidencias/150_phase5g_contrato_absorcao_funcional.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_absorcao_funcional.py -q
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py ATT/tests/test_bd_unico_no_residual_backup_tables_app_db.py ATT/tests/test_bd_unico_derived_artifacts_in_app_db.py ATT/tests/test_bd_unico_no_legacy_physical_db_creation.py ATT/tests/test_bd_unico_absorcao_funcional.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado esperado:
+
+- contrato 5G direcionado aprovado com 3 passed
+- contratos 5A a 5G aprovados em conjunto
+- buscas proibitivas sem ocorrencias operacionais
+- compileall aprovado
+- pytest completo aprovado
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente
+- operacao contratual isolada criando apenas dados/app.db
+
+Commit:
+
+- fase 5g adiciona contrato absorcao funcional app db
+
