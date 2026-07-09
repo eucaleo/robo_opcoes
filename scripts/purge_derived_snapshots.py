@@ -35,8 +35,8 @@ def main() -> int:
     )
     parser.add_argument(
         "--db",
-        default="dados/derived.db",
-        help="Caminho do derived.db. Default: dados/derived.db",
+        default="dados/app.db",
+        help="Caminho do derived.db. Default: dados/app.db",
     )
     parser.add_argument(
         "--all",

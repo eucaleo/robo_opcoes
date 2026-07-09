@@ -24,7 +24,7 @@ MODULE_CANDIDATES = [
 ]
 
 DB_CANDIDATES = [
-    ROOT_DIR / "dados" / "derived.db",
+    ROOT_DIR / "dados" / "app.db",
     ROOT_DIR / "dados" / "app.db",
 ]
 

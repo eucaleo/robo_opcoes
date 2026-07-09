@@ -28,7 +28,7 @@ def _find_derived_db() -> Path | None:
 
     # 2) caminhos padrao comuns no repo
     candidates = [
-        PROJECT_ROOT / "dados" / "derived.db",
+        PROJECT_ROOT / "dados" / "app.db",
         PROJECT_ROOT / "data" / "derived.db",
         PROJECT_ROOT / "derived.db",
         PROJECT_ROOT / "db" / "derived.db",

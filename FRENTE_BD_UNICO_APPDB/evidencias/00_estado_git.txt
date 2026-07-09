@@ -1,0 +1,19 @@
+===== DATA =====
+Wed Jul  8 22:23:26     2026
+
+===== PWD =====
+/c/users/eucal/projeto
+
+===== BRANCH =====
+refactor/bd-unico-appdb
+
+===== HEAD =====
+9208ae7 Consolida CalculationOrchestrator como orquestrador canonico (#24)
+
+===== STATUS =====
+?? FRENTE_BD_UNICO_APPDB/
+?? docs/
+
+===== REMOTES =====
+origin	https://github.com/eucaleo/robo_opcoes.git (fetch)
+origin	https://github.com/eucaleo/robo_opcoes.git (push)

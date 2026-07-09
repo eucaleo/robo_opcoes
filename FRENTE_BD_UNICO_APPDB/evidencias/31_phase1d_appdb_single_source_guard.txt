@@ -1,0 +1,47 @@
+===== DATA =====
+2026-07-08 22:41:21
+
+===== VALIDACAO APPDB =====
+APP_DB: C:\users\eucal\projeto\dados\app.db
+exists: True
+structures.exists: True
+structures.count: 5
+structures.columns: ['id', 'name', 'underlying_asset', 'alias_legacy_aba', 'status', 'notes', 'created_at', 'updated_at']
+
+structure_legs.exists: True
+structure_legs.count: 16
+structure_legs.columns: ['id', 'structure_id', 'position_side', 'option_type', 'symbol', 'strike', 'expiration_date', 'quantity', 'premium', 'multiplier', 'leg_order', 'notes', 'created_at', 'updated_at']
+structure_legs.structure_id_null: 0
+
+structure_decisions.exists: True
+structure_decisions.count: 11
+structure_decisions.columns: ['id', 'structure_id', 'decision', 'label', 'note', 'created_at', 'timestamp', 'aba', 'level', 'pl_atual', 'pl_max', 'pl_pct_of_max', 'dte_min', 'why_json', 'spot_ref', 'meta_json', 'why']
+structure_decisions.timestamp_null_or_empty: 0
+structure_decisions.structure_id_null: 0
+
+payoff_curve_points.exists: True
+payoff_curve_points.count: 808
+payoff_curve_points.columns: ['timestamp', 'aba', 'structure_id', 'spot_ref', 'point_spot', 'point_pl', 'meta_json', 'created_at']
+payoff_curve_points.timestamp_null_or_empty: 0
+payoff_curve_points.structure_id_null: 0
+
+rtd_option_quotes.exists: True
+rtd_option_quotes.count: 9
+rtd_option_quotes.columns: ['id', 'codigo_opcao', 'ativo_base', 'call_put', 'strike', 'vencimento', 'ultimo_preco', 'ultima_quantidade', 'bid', 'ask', 'volume', 'iv', 'delta', 'gamma', 'theta', 'vega', 'source', 'raw_json', 'updated_at', 'created_at', 'vwap']
+
+===== QUARENTENA derived.db =====
+DERIVED_DB: C:\users\eucal\projeto\dados\derived.db
+exists_pre: True
+[OK] derived.db movido temporariamente para: C:\users\eucal\projeto\dados\derived.db.quarantine_phase1d_20260708_224121
+
+===== PYTEST SEM derived.db =====
+cmd: C:\Users\eucal\AppData\Local\Programs\Python\Python313\python.exe -m pytest ATT/tests/test_ui_data_migration.py ATT/tests/test_structure_editor_integration.py ATT/tests/test_derived_service.py -q
+...................................................                      [100%]
+51 passed in 0.57s
+
+returncode: 0
+[OK] APPDB validado como fonte unica para testes direcionados.
+
+===== RESTAURANDO derived.db =====
+[OK] derived.db restaurado apos teste.
+exists_pos: True

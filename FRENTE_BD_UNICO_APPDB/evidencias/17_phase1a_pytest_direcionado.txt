@@ -1,0 +1,157 @@
+===== DATA =====
+Wed Jul  8 22:33:17     2026
+
+===== PYTEST DIRECIONADO =====
+.........F..FFFF...................................                      [100%]
+================================== FAILURES ===================================
+________________________ test_decisions_tem_timestamp _________________________
+
+decisions = [{'aba': '2', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'CLOSE', 'dte_min': None, 'level': None, ...}]
+
+    def test_decisions_tem_timestamp(decisions):
+        for d in decisions:
+            assert "timestamp" in d, f"Faltou 'timestamp' no dict: {d}"
+>           assert d["timestamp"], "timestamp não pode ser vazio ou None"
+E           AssertionError: timestamp não pode ser vazio ou None
+E           assert None
+
+ATT\tests\test_ui_data_migration.py:123: AssertionError
+____________________ test_payoff_curve_info_retorna_dados _____________________
+
+model = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>
+non_empty_decisions = [{'aba': '2', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'CLOSE', 'dte_min': None, 'level': None, ...}]
+
+    def test_payoff_curve_info_retorna_dados(model, non_empty_decisions):
+        d0 = non_empty_decisions[0]
+>       pts, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ATT\tests\test_ui_data_migration.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+UI\models\ui_data.py:861: in get_payoff_curve_info
+    filter_col = self._structure_filter_col(p)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>, colmap = {}
+
+    def _structure_filter_col(self, colmap: Dict[str, str]) -> str:
+        """
+        alteracao_34: retorna apenas o nome da coluna structure_id.
+        Branch aba removido -- schemas sem structure_id nao sao mais suportados.
+        """
+        if colmap.get("structure_id"):
+            return colmap["structure_id"]
+>       raise RuntimeError(
+            "Coluna 'structure_id' nao encontrada no colmap. "
+            "Execute a migration do alteracao_33 antes de continuar."
+        )
+E       RuntimeError: Coluna 'structure_id' nao encontrada no colmap. Execute a migration do alteracao_33 antes de continuar.
+
+UI\models\ui_data.py:187: RuntimeError
+___________________ test_payoff_curve_info_tem_structure_id ___________________
+
+model = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>
+non_empty_decisions = [{'aba': '2', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'CLOSE', 'dte_min': None, 'level': None, ...}]
+
+    def test_payoff_curve_info_tem_structure_id(model, non_empty_decisions):
+        d0 = non_empty_decisions[0]
+>       _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ATT\tests\test_ui_data_migration.py:179: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+UI\models\ui_data.py:861: in get_payoff_curve_info
+    filter_col = self._structure_filter_col(p)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>, colmap = {}
+
+    def _structure_filter_col(self, colmap: Dict[str, str]) -> str:
+        """
+        alteracao_34: retorna apenas o nome da coluna structure_id.
+        Branch aba removido -- schemas sem structure_id nao sao mais suportados.
+        """
+        if colmap.get("structure_id"):
+            return colmap["structure_id"]
+>       raise RuntimeError(
+            "Coluna 'structure_id' nao encontrada no colmap. "
+            "Execute a migration do alteracao_33 antes de continuar."
+        )
+E       RuntimeError: Coluna 'structure_id' nao encontrada no colmap. Execute a migration do alteracao_33 antes de continuar.
+
+UI\models\ui_data.py:187: RuntimeError
+___________________ test_payoff_curve_info_aba_continuidade ___________________
+
+model = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>
+non_empty_decisions = [{'aba': '2', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'CLOSE', 'dte_min': None, 'level': None, ...}]
+
+    def test_payoff_curve_info_aba_continuidade(model, non_empty_decisions):
+        d0 = non_empty_decisions[0]
+>       _, info = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ATT\tests\test_ui_data_migration.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+UI\models\ui_data.py:861: in get_payoff_curve_info
+    filter_col = self._structure_filter_col(p)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>, colmap = {}
+
+    def _structure_filter_col(self, colmap: Dict[str, str]) -> str:
+        """
+        alteracao_34: retorna apenas o nome da coluna structure_id.
+        Branch aba removido -- schemas sem structure_id nao sao mais suportados.
+        """
+        if colmap.get("structure_id"):
+            return colmap["structure_id"]
+>       raise RuntimeError(
+            "Coluna 'structure_id' nao encontrada no colmap. "
+            "Execute a migration do alteracao_33 antes de continuar."
+        )
+E       RuntimeError: Coluna 'structure_id' nao encontrada no colmap. Execute a migration do alteracao_33 antes de continuar.
+
+UI\models\ui_data.py:187: RuntimeError
+____________________ test_payoff_curve_info_pontos_validos ____________________
+
+model = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>
+non_empty_decisions = [{'aba': '2', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'HOLD', 'dte_min': None, 'level': None, ...}, {'aba': '6', 'decision': 'CLOSE', 'dte_min': None, 'level': None, ...}]
+
+    def test_payoff_curve_info_pontos_validos(model, non_empty_decisions):
+        d0 = non_empty_decisions[0]
+>       pts, _ = model.get_payoff_curve_info(d0["structure_id"], d0["timestamp"])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ATT\tests\test_ui_data_migration.py:194: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+UI\models\ui_data.py:861: in get_payoff_curve_info
+    filter_col = self._structure_filter_col(p)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <UI.models.ui_data.UIDataModel object at 0x000002555F8BBA10>, colmap = {}
+
+    def _structure_filter_col(self, colmap: Dict[str, str]) -> str:
+        """
+        alteracao_34: retorna apenas o nome da coluna structure_id.
+        Branch aba removido -- schemas sem structure_id nao sao mais suportados.
+        """
+        if colmap.get("structure_id"):
+            return colmap["structure_id"]
+>       raise RuntimeError(
+            "Coluna 'structure_id' nao encontrada no colmap. "
+            "Execute a migration do alteracao_33 antes de continuar."
+        )
+E       RuntimeError: Coluna 'structure_id' nao encontrada no colmap. Execute a migration do alteracao_33 antes de continuar.
+
+UI\models\ui_data.py:187: RuntimeError
+=========================== short test summary info ===========================
+FAILED ATT/tests/test_ui_data_migration.py::test_decisions_tem_timestamp - As...
+FAILED ATT/tests/test_ui_data_migration.py::test_payoff_curve_info_retorna_dados
+FAILED ATT/tests/test_ui_data_migration.py::test_payoff_curve_info_tem_structure_id
+FAILED ATT/tests/test_ui_data_migration.py::test_payoff_curve_info_aba_continuidade
+FAILED ATT/tests/test_ui_data_migration.py::test_payoff_curve_info_pontos_validos
+5 failed, 46 passed in 0.96s

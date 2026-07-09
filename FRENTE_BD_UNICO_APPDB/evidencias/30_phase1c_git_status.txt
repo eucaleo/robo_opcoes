@@ -1,0 +1,40 @@
+===== DATA =====
+Wed Jul  8 22:38:58     2026
+
+ M ATT/checks/check_end_to_end.py
+ M ATT/checks/check_structures.py
+ M ATT/tests/conftest.py
+ M ATT/tests/test_structure_editor_integration.py
+ M ATT/tests/test_ui_data_migration.py
+ M UI/components/details_panel.py
+ M UI/components/structure_editor_dialog.py
+ M db/config.py
+ M db/derived_repo.py
+ M db/migrations/add_structure_id_to_payoff_curve_points.py
+ M db/reader.py
+ M db/writer.py
+ M domain/payoff_features.py
+ M repositories/rtd_option_quotes_repository.py
+ M scripts/purge_derived_snapshots.py
+ M scripts/repair_derived_db_consistency.py
+ M scripts/validate_derived_db.py
+?? FRENTE_BD_UNICO_APPDB/
+
+ ATT/checks/check_end_to_end.py                           | 2 +-
+ ATT/checks/check_structures.py                           | 2 +-
+ ATT/tests/conftest.py                                    | 2 +-
+ ATT/tests/test_structure_editor_integration.py           | 4 ++--
+ ATT/tests/test_ui_data_migration.py                      | 2 +-
+ UI/components/details_panel.py                           | 4 ++--
+ UI/components/structure_editor_dialog.py                 | 6 +++---
+ db/config.py                                             | 6 +++---
+ db/derived_repo.py                                       | 2 +-
+ db/migrations/add_structure_id_to_payoff_curve_points.py | 2 +-
+ db/reader.py                                             | 2 +-
+ db/writer.py                                             | 2 +-
+ domain/payoff_features.py                                | 2 +-
+ repositories/rtd_option_quotes_repository.py             | 2 +-
+ scripts/purge_derived_snapshots.py                       | 4 ++--
+ scripts/repair_derived_db_consistency.py                 | 4 ++--
+ scripts/validate_derived_db.py                           | 2 +-
+ 17 files changed, 25 insertions(+), 25 deletions(-)

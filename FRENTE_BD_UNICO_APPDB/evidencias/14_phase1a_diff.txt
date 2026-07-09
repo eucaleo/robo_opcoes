@@ -1,0 +1,308 @@
+===== DATA =====
+Wed Jul  8 22:33:05     2026
+
+===== STATUS =====
+ M ATT/checks/check_end_to_end.py
+ M ATT/checks/check_structures.py
+ M ATT/tests/conftest.py
+ M ATT/tests/test_structure_editor_integration.py
+ M ATT/tests/test_ui_data_migration.py
+ M UI/components/details_panel.py
+ M UI/components/structure_editor_dialog.py
+ M db/config.py
+ M db/derived_repo.py
+ M db/migrations/add_structure_id_to_payoff_curve_points.py
+ M db/reader.py
+ M db/writer.py
+ M domain/payoff_features.py
+ M repositories/rtd_option_quotes_repository.py
+ M scripts/purge_derived_snapshots.py
+ M scripts/repair_derived_db_consistency.py
+ M scripts/validate_derived_db.py
+?? FRENTE_BD_UNICO_APPDB/
+
+===== DIFF RESUMIDO =====
+ ATT/checks/check_end_to_end.py                           | 2 +-
+ ATT/checks/check_structures.py                           | 2 +-
+ ATT/tests/conftest.py                                    | 2 +-
+ ATT/tests/test_structure_editor_integration.py           | 4 ++--
+ ATT/tests/test_ui_data_migration.py                      | 2 +-
+ UI/components/details_panel.py                           | 4 ++--
+ UI/components/structure_editor_dialog.py                 | 6 +++---
+ db/config.py                                             | 6 +++---
+ db/derived_repo.py                                       | 2 +-
+ db/migrations/add_structure_id_to_payoff_curve_points.py | 2 +-
+ db/reader.py                                             | 2 +-
+ db/writer.py                                             | 2 +-
+ domain/payoff_features.py                                | 2 +-
+ repositories/rtd_option_quotes_repository.py             | 2 +-
+ scripts/purge_derived_snapshots.py                       | 4 ++--
+ scripts/repair_derived_db_consistency.py                 | 4 ++--
+ scripts/validate_derived_db.py                           | 2 +-
+ 17 files changed, 25 insertions(+), 25 deletions(-)
+
+===== DIFF COMPLETO DOS ALVOS =====
+diff --git a/ATT/checks/check_end_to_end.py b/ATT/checks/check_end_to_end.py
+index 160ad2d..c2a7875 100644
+--- a/ATT/checks/check_end_to_end.py
++++ b/ATT/checks/check_end_to_end.py
+@@ -27,7 +27,7 @@ MODULE_CANDIDATES = [
+ 
+ DB_FILES = [
+     ROOT_DIR / "dados" / "app.db",
+-    ROOT_DIR / "dados" / "derived.db",
++    ROOT_DIR / "dados" / "app.db",
+ ]
+ 
+ SCRIPT_CANDIDATES = [
+diff --git a/ATT/checks/check_structures.py b/ATT/checks/check_structures.py
+index a852f6d..e788fcd 100644
+--- a/ATT/checks/check_structures.py
++++ b/ATT/checks/check_structures.py
+@@ -24,7 +24,7 @@ MODULE_CANDIDATES = [
+ ]
+ 
+ DB_CANDIDATES = [
+-    ROOT_DIR / "dados" / "derived.db",
++    ROOT_DIR / "dados" / "app.db",
+     ROOT_DIR / "dados" / "app.db",
+ ]
+ 
+diff --git a/ATT/tests/conftest.py b/ATT/tests/conftest.py
+index b19c036..f7b3019 100644
+--- a/ATT/tests/conftest.py
++++ b/ATT/tests/conftest.py
+@@ -21,7 +21,7 @@ if str(PROJECT_ROOT) not in sys.path:
+ if str(_ATT_ROOT) not in sys.path:
+     sys.path.insert(0, str(_ATT_ROOT))
+ 
+-DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
++DB_PATH = PROJECT_ROOT / "dados" / "app.db"
+ 
+ print(f"\n[conftest] PROJECT_ROOT : {PROJECT_ROOT}")
+ print(f"[conftest] DB_PATH      : {DB_PATH}")
+diff --git a/ATT/tests/test_structure_editor_integration.py b/ATT/tests/test_structure_editor_integration.py
+index abef184..4e5e4c0 100644
+--- a/ATT/tests/test_structure_editor_integration.py
++++ b/ATT/tests/test_structure_editor_integration.py
+@@ -398,12 +398,12 @@ class TestOnStructureEditRequestCriar(unittest.TestCase):
+ 
+     def test_db_path_repassado_ao_dialog(self):
+         mw, mw_mod = _make_main_window()
+-        mw._db_path = "dados/derived.db"
++        mw._db_path = "dados/app.db"
+         dlg = _make_dialog(); dlg.saved = False
+         with patch.object(mw_mod, "StructureEditorDialog", return_value=dlg) as mock_cls:
+             mw._on_structure_edit_request(structure_id=None)
+         _, kwargs = mock_cls.call_args
+-        self.assertEqual(kwargs.get("db_path"), "dados/derived.db")
++        self.assertEqual(kwargs.get("db_path"), "dados/app.db")
+ 
+ 
+ class TestOnStructureEditRequestEditar(unittest.TestCase):
+diff --git a/ATT/tests/test_ui_data_migration.py b/ATT/tests/test_ui_data_migration.py
+index cb1cefa..6494ad9 100644
+--- a/ATT/tests/test_ui_data_migration.py
++++ b/ATT/tests/test_ui_data_migration.py
+@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ if str(PROJECT_ROOT) not in sys.path:
+     sys.path.insert(0, str(PROJECT_ROOT))
+ 
+-DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
++DB_PATH = PROJECT_ROOT / "dados" / "app.db"
+ from UI.models.ui_data import UIDataModel
+ 
+ 
+diff --git a/UI/components/details_panel.py b/UI/components/details_panel.py
+index b83363c..25033d0 100644
+--- a/UI/components/details_panel.py
++++ b/UI/components/details_panel.py
+@@ -67,7 +67,7 @@ class DetailsPanel(ttk.LabelFrame):
+         else:
+             project_root = Path(project_root)
+ 
+-        return project_root / "dados" / "derived.db"
++        return project_root / "dados" / "app.db"
+ 
+     def _operational_app_db_path(self) -> Path:
+         """
+@@ -235,7 +235,7 @@ class DetailsPanel(ttk.LabelFrame):
+             project_root / "derived.db",
+             project_root / "dados" / "app.db",
+             project_root / "dados" / "app2.db",
+-            project_root / "dados" / "derived.db",
++            project_root / "dados" / "app.db",
+         ]
+ 
+     def _glob_snapshot_db_paths(self, project_root):
+diff --git a/UI/components/structure_editor_dialog.py b/UI/components/structure_editor_dialog.py
+index a350cec..622c784 100644
+--- a/UI/components/structure_editor_dialog.py
++++ b/UI/components/structure_editor_dialog.py
+@@ -409,7 +409,7 @@ class StructureEditorDialog(tk.Toplevel):
+ 
+ 
+     def _refresh_rtd_symbol_on_demand(self, codigo_opcao: str) -> tuple[bool, str]:
+-        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/derived.db."""
++        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/app.db."""
+         symbol = str(codigo_opcao or "").strip().upper()
+ 
+         if not symbol:
+@@ -417,7 +417,7 @@ class StructureEditorDialog(tk.Toplevel):
+ 
+         project_root = Path(__file__).resolve().parents[2]
+         script_path = project_root / "scripts" / "refresh_rtd_symbol_to_option_quotes_fallback.py"
+-        db_path = project_root / "dados" / "derived.db"
++        db_path = project_root / "dados" / "app.db"
+ 
+         if not script_path.exists():
+             return False, f"Script RTD nao encontrado: {script_path}"
+@@ -475,7 +475,7 @@ class StructureEditorDialog(tk.Toplevel):
+         """Cria/lazily retorna o service de preenchimento de leg via RTD."""
+         if self._rtd_leg_enrichment_service is None:
+             project_root = Path(__file__).resolve().parents[2]
+-            rtd_db_path = project_root / "dados" / "derived.db"
++            rtd_db_path = project_root / "dados" / "app.db"
+             rtd_repo = RtdOptionQuotesRepository(rtd_db_path)
+             self._rtd_leg_enrichment_service = StructureLegRtdEnrichmentService(
+                 rtd_repo
+diff --git a/db/config.py b/db/config.py
+index 81d09d9..4e11142 100644
+--- a/db/config.py
++++ b/db/config.py
+@@ -6,12 +6,12 @@ import sqlite3
+ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ 
+ APP_DB_PATH     = Path(os.getenv("APP_DB_PATH",     str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+-DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/derived.db"))).resolve()
++DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+ 
+ def connect_app() -> sqlite3.Connection:
+     APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+     return sqlite3.connect(str(APP_DB_PATH))
+ 
+ def connect_derived() -> sqlite3.Connection:
+-    DERIVED_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+-    return sqlite3.connect(str(DERIVED_DB_PATH))
++    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
++    return sqlite3.connect(str(APP_DB_PATH))
+diff --git a/db/derived_repo.py b/db/derived_repo.py
+index 59db3a4..405f63f 100644
+--- a/db/derived_repo.py
++++ b/db/derived_repo.py
+@@ -218,7 +218,7 @@ class DerivedRepo:
+     alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
+     """
+ 
+-    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
++    def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+         self._db_path = derived_db or db_path
+         self._bootstrap()
+ 
+diff --git a/db/migrations/add_structure_id_to_payoff_curve_points.py b/db/migrations/add_structure_id_to_payoff_curve_points.py
+index 91d2551..2b8861d 100644
+--- a/db/migrations/add_structure_id_to_payoff_curve_points.py
++++ b/db/migrations/add_structure_id_to_payoff_curve_points.py
+@@ -124,6 +124,6 @@ def run(db_path: pathlib.Path):
+ 
+ if __name__ == "__main__":
+     parser = argparse.ArgumentParser()
+-    parser.add_argument("--db", default="dados/derived.db")
++    parser.add_argument("--db", default="dados/app.db")
+     args = parser.parse_args()
+     run(pathlib.Path(args.db))
+diff --git a/db/reader.py b/db/reader.py
+index 603bbb6..f00b36a 100644
+--- a/db/reader.py
++++ b/db/reader.py
+@@ -14,7 +14,7 @@ from pathlib import Path
+ class PayoffReader:
+     """Leitor para análise de pontos do payoff curve e decisões estruturais."""
+ 
+-    def __init__(self, db_path: str = "dados/derived.db"):
++    def __init__(self, db_path: str = "dados/app.db"):
+         self.db_path = Path(db_path)
+ 
+     def _get_connection(self):
+diff --git a/db/writer.py b/db/writer.py
+index 35acaf6..a835396 100644
+--- a/db/writer.py
++++ b/db/writer.py
+@@ -12,7 +12,7 @@ from pathlib import Path
+ class PayoffWriter:
+     """Escritor para pontos do payoff curve e decisões estruturais."""
+     
+-    def __init__(self, db_path: str = "dados/derived.db"):
++    def __init__(self, db_path: str = "dados/app.db"):
+         self.db_path = Path(db_path)
+         self.db_path.parent.mkdir(parents=True, exist_ok=True)
+         self._init_db()
+diff --git a/domain/payoff_features.py b/domain/payoff_features.py
+index a908849..95b7ee2 100644
+--- a/domain/payoff_features.py
++++ b/domain/payoff_features.py
+@@ -12,7 +12,7 @@ Patch 24: chave de upsert migrada de (timestamp, aba)
+ 
+ 
+ def get_derived_db_connection() -> sqlite3.Connection:
+-    db_path = Path("dados/derived.db").resolve()
++    db_path = Path("dados/app.db").resolve()
+     return sqlite3.connect(str(db_path))
+ 
+ 
+diff --git a/repositories/rtd_option_quotes_repository.py b/repositories/rtd_option_quotes_repository.py
+index 9883ca5..8b6046d 100644
+--- a/repositories/rtd_option_quotes_repository.py
++++ b/repositories/rtd_option_quotes_repository.py
+@@ -19,7 +19,7 @@ class RtdOptionQuotesRepository:
+     - dados/derived.db: cache RTD e dados derivados
+     """
+ 
+-    def __init__(self, db_path: str | Path = "dados/derived.db") -> None:
++    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
+         self.db_path = Path(db_path)
+ 
+     def _connect(self) -> sqlite3.Connection:
+diff --git a/scripts/purge_derived_snapshots.py b/scripts/purge_derived_snapshots.py
+index 4ac015e..b375a66 100644
+--- a/scripts/purge_derived_snapshots.py
++++ b/scripts/purge_derived_snapshots.py
+@@ -35,8 +35,8 @@ def main() -> int:
+     )
+     parser.add_argument(
+         "--db",
+-        default="dados/derived.db",
+-        help="Caminho do derived.db. Default: dados/derived.db",
++        default="dados/app.db",
++        help="Caminho do derived.db. Default: dados/app.db",
+     )
+     parser.add_argument(
+         "--all",
+diff --git a/scripts/repair_derived_db_consistency.py b/scripts/repair_derived_db_consistency.py
+index 29feab0..8d846a4 100644
+--- a/scripts/repair_derived_db_consistency.py
++++ b/scripts/repair_derived_db_consistency.py
+@@ -50,8 +50,8 @@ def main() -> int:
+     )
+     parser.add_argument(
+         "--db",
+-        default="dados/derived.db",
+-        help="Caminho do derived.db. Default: dados/derived.db",
++        default="dados/app.db",
++        help="Caminho do derived.db. Default: dados/app.db",
+     )
+     parser.add_argument(
+         "--max-delta-seconds",
+diff --git a/scripts/validate_derived_db.py b/scripts/validate_derived_db.py
+index a8aaac2..2dc6221 100644
+--- a/scripts/validate_derived_db.py
++++ b/scripts/validate_derived_db.py
+@@ -28,7 +28,7 @@ def _find_derived_db() -> Path | None:
+ 
+     # 2) caminhos padrao comuns no repo
+     candidates = [
+-        PROJECT_ROOT / "dados" / "derived.db",
++        PROJECT_ROOT / "dados" / "app.db",
+         PROJECT_ROOT / "data" / "derived.db",
+         PROJECT_ROOT / "derived.db",
+         PROJECT_ROOT / "db" / "derived.db",

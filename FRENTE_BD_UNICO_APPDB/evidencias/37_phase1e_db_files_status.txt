@@ -1,0 +1,12 @@
+===== DATA =====
+Wed Jul  8 22:44:26     2026
+
+===== ARQUIVOS DB =====
+-rw-r--r-- 1 eucal 197609 1.2M Jul  8 22:38 dados/app.db
+
+derived.db exists?
+NAO - dados/derived.db removido do caminho operacional
+
+===== BACKUPS FASE 1E =====
+-rw-r--r-- 1 eucal 197609 3.1M Jun 30 14:25 FRENTE_BD_UNICO_APPDB/backups/derived_legacy_backup_pre_phase1e_20260708_224422.db
+-rw-r--r-- 1 eucal 197609 3.1M Jun 30 14:25 FRENTE_BD_UNICO_APPDB/backups/derived_legacy_removed_phase1e_20260708_224422.db

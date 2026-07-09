@@ -67,7 +67,7 @@ class DetailsPanel(ttk.LabelFrame):
         else:
             project_root = Path(project_root)
 
-        return project_root / "dados" / "derived.db"
+        return project_root / "dados" / "app.db"
 
     def _operational_app_db_path(self) -> Path:
         """
@@ -235,7 +235,7 @@ class DetailsPanel(ttk.LabelFrame):
             project_root / "derived.db",
             project_root / "dados" / "app.db",
             project_root / "dados" / "app2.db",
-            project_root / "dados" / "derived.db",
+            project_root / "dados" / "app.db",
         ]
 
     def _glob_snapshot_db_paths(self, project_root):

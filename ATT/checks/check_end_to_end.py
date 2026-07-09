@@ -27,7 +27,7 @@ MODULE_CANDIDATES = [
 
 DB_FILES = [
     ROOT_DIR / "dados" / "app.db",
-    ROOT_DIR / "dados" / "derived.db",
+    ROOT_DIR / "dados" / "app.db",
 ]
 
 SCRIPT_CANDIDATES = [

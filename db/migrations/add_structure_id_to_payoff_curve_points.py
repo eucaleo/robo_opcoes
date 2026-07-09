@@ -124,6 +124,6 @@ def run(db_path: pathlib.Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--db", default="dados/derived.db")
+    parser.add_argument("--db", default="dados/app.db")
     args = parser.parse_args()
     run(pathlib.Path(args.db))

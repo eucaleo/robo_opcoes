@@ -101,3 +101,4 @@ LISTA_RTD.xlsm
 _local_scripts_fase7/
 reports/
 spikes/
+FRENTE_BD_UNICO_APPDB/backups/*.db

@@ -409,7 +409,7 @@ class StructureEditorDialog(tk.Toplevel):
 
 
     def _refresh_rtd_symbol_on_demand(self, codigo_opcao: str) -> tuple[bool, str]:
-        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/derived.db."""
+        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/app.db."""
         symbol = str(codigo_opcao or "").strip().upper()
 
         if not symbol:
@@ -417,7 +417,7 @@ class StructureEditorDialog(tk.Toplevel):
 
         project_root = Path(__file__).resolve().parents[2]
         script_path = project_root / "scripts" / "refresh_rtd_symbol_to_option_quotes_fallback.py"
-        db_path = project_root / "dados" / "derived.db"
+        db_path = project_root / "dados" / "app.db"
 
         if not script_path.exists():
             return False, f"Script RTD nao encontrado: {script_path}"
@@ -475,7 +475,7 @@ class StructureEditorDialog(tk.Toplevel):
         """Cria/lazily retorna o service de preenchimento de leg via RTD."""
         if self._rtd_leg_enrichment_service is None:
             project_root = Path(__file__).resolve().parents[2]
-            rtd_db_path = project_root / "dados" / "derived.db"
+            rtd_db_path = project_root / "dados" / "app.db"
             rtd_repo = RtdOptionQuotesRepository(rtd_db_path)
             self._rtd_leg_enrichment_service = StructureLegRtdEnrichmentService(
                 rtd_repo

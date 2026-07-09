@@ -19,7 +19,7 @@ class RtdOptionQuotesRepository:
     - dados/derived.db: cache RTD e dados derivados
     """
 
-    def __init__(self, db_path: str | Path = "dados/derived.db") -> None:
+    def __init__(self, db_path: str | Path = "dados/app.db") -> None:
         self.db_path = Path(db_path)
 
     def _connect(self) -> sqlite3.Connection:

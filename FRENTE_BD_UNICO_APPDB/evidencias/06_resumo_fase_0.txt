@@ -1,0 +1,21 @@
+===== RESUMO DAS EVIDENCIAS GERADAS =====
+
+FRENTE_BD_UNICO_APPDB/evidencias/00_estado_git.txt
+FRENTE_BD_UNICO_APPDB/evidencias/01_bancos_e_diretorios.txt
+FRENTE_BD_UNICO_APPDB/evidencias/02_inventario_textual_geral.txt
+FRENTE_BD_UNICO_APPDB/evidencias/03_inventario_codigo_e_testes.txt
+FRENTE_BD_UNICO_APPDB/evidencias/04_schema_sqlite.txt
+FRENTE_BD_UNICO_APPDB/evidencias/05_classificacao_preliminar.txt
+FRENTE_BD_UNICO_APPDB/evidencias/06_resumo_fase_0.txt
+FRENTE_BD_UNICO_APPDB/evidencias/criacao_estrutura_frente.txt
+
+===== CONTAGEM DE OCORRENCIAS PRINCIPAIS =====
+
+derived.db: 653
+app.db: 1066
+rtd_option_quotes: 693
+rtd_underlying_quotes: 84
+
+===== STATUS FINAL =====
+?? FRENTE_BD_UNICO_APPDB/
+?? docs/

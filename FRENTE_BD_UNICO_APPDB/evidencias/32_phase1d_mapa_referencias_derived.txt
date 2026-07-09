@@ -1,0 +1,148 @@
+===== DATA =====
+Wed Jul  8 22:41:25     2026
+
+===== derived.db =====
+./ATT/checks/check_cleanup_residuals.py:78:    "scripts/repair_derived_db_consistency.py",
+./ATT/checks/check_cleanup_residuals.py:80:    "scripts/validate_derived_db.py",
+./ATT/checks/check_end_to_end.py:35:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/checks/check_structures.py:34:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(derived_db_path=str(DB_PATH))
+./db/derived_repo.py:215:    Repositório canônico para derived.db.
+./db/derived_repo.py:221:    def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+./db/derived_repo.py:222:        self._db_path = derived_db or db_path
+./db/migrations/add_structure_id_to_payoff_curve_points.py:8:    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/derived.db
+./domain/payoff_features.py:14:def get_derived_db_connection() -> sqlite3.Connection:
+./domain/payoff_features.py:108:    Chave canônica : structure_id + reference_date   upsert no derived.db.
+./domain/payoff_features.py:212:    conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+./repositories/rtd_option_quotes_repository.py:19:    - dados/derived.db: cache RTD e dados derivados
+./scripts/check_rota_desenvolvimento.py:313:        DADOS_DIR / "derived.db",
+./scripts/check_rota_desenvolvimento.py:389:        "scripts/validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:393:        "validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:420:        "- Se derived.db validar e os smokes existirem/passarem, aí sim avaliar avanço para a próxima fase da rota.\n"
+./scripts/purge_derived_snapshots.py:34:        description="Remove snapshots derivados antigos/inválidos do derived.db"
+./scripts/purge_derived_snapshots.py:39:        help="Caminho do derived.db. Default: dados/app.db",
+./scripts/repair_derived_db_consistency.py:49:        description="Repara inconsistências de snapshots em dados/derived.db"
+./scripts/repair_derived_db_consistency.py:54:        help="Caminho do derived.db. Default: dados/app.db",
+./scripts/repair_derived_db_consistency.py:299:            print("[OK] derived.db consistente.")
+./scripts/repair_derived_db_consistency.py:302:        print("[WARN] derived.db ainda inconsistente.")
+./scripts/run_derived_pipeline.py:48:        help="Não executar cleanup do derived.db antes de validar",
+./scripts/validate_derived_db.py:3:Script para validar consistencia do banco derived.db
+./scripts/validate_derived_db.py:5:- Faz auto-discovery do caminho do derived.db
+./scripts/validate_derived_db.py:21:def _find_derived_db() -> Path | None:
+./scripts/validate_derived_db.py:32:        PROJECT_ROOT / "data" / "derived.db",
+./scripts/validate_derived_db.py:33:        PROJECT_ROOT / "derived.db",
+./scripts/validate_derived_db.py:34:        PROJECT_ROOT / "db" / "derived.db",
+./scripts/validate_derived_db.py:45:    db_path = _find_derived_db()
+./scripts/validate_derived_db.py:47:        print("[ERROR] derived.db nao encontrado.")
+./scripts/validate_derived_db.py:51:    print(f"[INFO] Usando derived.db em: {db_path}")
+./services/canonical_pricing_facade.py:331:                                                             derived.db
+./services/canonical_pricing_facade.py:385:            #  5. Persiste (app.db + derived.db via port) 
+./services/derived_payoff_persistence.py:19:      3. Persistir pontos no derived.db via derived_service
+./services/payoff_persistence_port.py:9:    Implementações devem gravar os dados no derived.db após
+./UI/components/details_panel.py:50:    def _derived_db_path(self) -> Path:
+./UI/components/details_panel.py:52:        Caminho do derived.db.
+./UI/components/details_panel.py:76:        Importante: não usa self._db_path porque _derived_db_path() já trata
+./UI/components/details_panel.py:77:        esse atributo como caminho do derived.db em testes/compatibilidade.
+./UI/components/details_panel.py:146:            if self._is_derived_db_path(name, path):
+./UI/components/details_panel.py:170:            "_derived_db_path",
+./UI/components/details_panel.py:171:            "derived_db_path",
+./UI/components/details_panel.py:206:            "_derived_db_path",
+./UI/components/details_panel.py:207:            "derived_db_path",
+./UI/components/details_panel.py:235:            project_root / "derived.db",
+./UI/components/details_panel.py:288:    def _is_derived_db_path(self, name, path):
+./UI/components/details_panel.py:295:            or low_path.endswith("derived.db")
+./UI/components/details_panel.py:296:            or "derived.db" in low_path
+./UI/components/details_panel.py:1030:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:1070:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:1098:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:1124:                "source_table": "derived.db:structure_decisions / payoff_curve_points",
+./UI/components/details_panel.py:1168:        """Recarrega somente a estrutura atual do derived.db e atualiza widgets."""
+./UI/main_window.py:5:Carrega dados de derived.db e app.db para exibir decisões e payoffs
+./UI/main_window.py:514:* Domain Layer  derived.db
+./UI/models/ui_data.py:50:    def __init__(self, derived_db_path: Optional[Path] = None):
+./UI/models/ui_data.py:52:        self.derived_db_path = (
+./UI/models/ui_data.py:53:            Path(derived_db_path).resolve()
+./UI/models/ui_data.py:54:            if derived_db_path
+./UI/models/ui_data.py:57:        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+./UI/models/ui_data.py:71:        if not self.derived_db_path.exists():
+./UI/models/ui_data.py:73:                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+./UI/models/ui_data.py:75:        conn = sqlite3.connect(str(self.derived_db_path))
+./UI/models/ui_data.py:920:            f"derived.db: OK\n"
+
+===== DERIVED_DB =====
+./db/config.py:9:DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+./scripts/validate_derived_db.py:23:    env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
+./scripts/validate_derived_db.py:48:        print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
+./UI/models/ui_data.py:9:from db.config import DERIVED_DB_PATH
+./UI/models/ui_data.py:51:        from db.config import DERIVED_DB_PATH
+./UI/models/ui_data.py:55:            else Path(DERIVED_DB_PATH).resolve()
+
+===== derived_db =====
+./ATT/checks/check_cleanup_residuals.py:78:    "scripts/repair_derived_db_consistency.py",
+./ATT/checks/check_cleanup_residuals.py:80:    "scripts/validate_derived_db.py",
+./ATT/checks/check_end_to_end.py:35:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/checks/check_structures.py:34:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/tests/test_ui_data_migration.py:21:    m = UIDataModel(derived_db_path=str(DB_PATH))
+./db/derived_repo.py:221:    def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+./db/derived_repo.py:222:        self._db_path = derived_db or db_path
+./domain/payoff_features.py:14:def get_derived_db_connection() -> sqlite3.Connection:
+./domain/payoff_features.py:212:    conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+./scripts/check_rota_desenvolvimento.py:389:        "scripts/validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:393:        "validate_derived_db.py",
+./scripts/validate_derived_db.py:21:def _find_derived_db() -> Path | None:
+./scripts/validate_derived_db.py:45:    db_path = _find_derived_db()
+./UI/components/details_panel.py:50:    def _derived_db_path(self) -> Path:
+./UI/components/details_panel.py:76:        Importante: não usa self._db_path porque _derived_db_path() já trata
+./UI/components/details_panel.py:146:            if self._is_derived_db_path(name, path):
+./UI/components/details_panel.py:170:            "_derived_db_path",
+./UI/components/details_panel.py:171:            "derived_db_path",
+./UI/components/details_panel.py:206:            "_derived_db_path",
+./UI/components/details_panel.py:207:            "derived_db_path",
+./UI/components/details_panel.py:288:    def _is_derived_db_path(self, name, path):
+./UI/components/details_panel.py:1030:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:1070:        db_path = self._derived_db_path()
+./UI/components/details_panel.py:1098:        db_path = self._derived_db_path()
+./UI/models/ui_data.py:50:    def __init__(self, derived_db_path: Optional[Path] = None):
+./UI/models/ui_data.py:52:        self.derived_db_path = (
+./UI/models/ui_data.py:53:            Path(derived_db_path).resolve()
+./UI/models/ui_data.py:54:            if derived_db_path
+./UI/models/ui_data.py:57:        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+./UI/models/ui_data.py:71:        if not self.derived_db_path.exists():
+./UI/models/ui_data.py:73:                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+./UI/models/ui_data.py:75:        conn = sqlite3.connect(str(self.derived_db_path))
+
+===== derived_repo =====
+./ATT/checks/check_end_to_end.py:23:    ROOT_DIR / "db" / "derived_repo.py",
+./db/derived_repo.py:1:# db/derived_repo.py
+./db/writer.py:91:        DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic()
+./db/writer.py:97:            "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+./db/writer.py:102:        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+./scripts/run_derived_pipeline.py:24:    from db.derived_repo import validate_snapshot_consistency
+./scripts/validate_derived_db.py:18:from db.derived_repo import validate_snapshot_consistency
+./services/derived_service.py:16:from db.derived_repo import (
+./services/derived_service.py:82:    Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+
+===== derived_service =====
+./ATT/tests/test_derived_service.py:3:import services.derived_service as ds
+./scripts/run_derived_pipeline.py:53:    from services.derived_service import cleanup_derived
+./services/derived_payoff_persistence.py:7:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+./services/derived_payoff_persistence.py:19:      3. Persistir pontos no derived.db via derived_service
+./services/derived_service.py:2:# services/derived_service.py
+./services/derived_service.py:510:    """Fachada OO sobre as funcoes standalone do derived_service.
+
+===== run_derived / validate_derived / repair_derived / purge_derived =====
+./ATT/checks/check_cleanup_residuals.py:77:    "scripts/purge_derived_snapshots.py",
+./ATT/checks/check_cleanup_residuals.py:78:    "scripts/repair_derived_db_consistency.py",
+./ATT/checks/check_cleanup_residuals.py:79:    "scripts/run_derived_pipeline.py",
+./ATT/checks/check_cleanup_residuals.py:80:    "scripts/validate_derived_db.py",
+./ATT/checks/check_end_to_end.py:34:    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+./ATT/checks/check_end_to_end.py:35:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./ATT/checks/check_structures.py:32:    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+./ATT/checks/check_structures.py:34:    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:389:        "scripts/validate_derived_db.py",
+./scripts/check_rota_desenvolvimento.py:392:        "run_derived_pipeline.py",
+./scripts/check_rota_desenvolvimento.py:393:        "validate_derived_db.py",
+./UI/main_window.py:400:                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py:402:                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+./UI/main_window.py:450:            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+./UI/main_window.py:452:                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
