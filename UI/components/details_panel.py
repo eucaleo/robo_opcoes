@@ -168,7 +168,6 @@ class DetailsPanel(ttk.LabelFrame):
             "_db_file",
             "db_file",
             "_app_db_path",
-            "derived_db_path",
         ]
 
         ordered_names = []
@@ -204,7 +203,6 @@ class DetailsPanel(ttk.LabelFrame):
     def _class_level_db_attribute_names(self):
         return [
             "_app_db_path",
-            "derived_db_path",
             "_raw_db_path",
             "raw_db_path",
             "_app_db_path",

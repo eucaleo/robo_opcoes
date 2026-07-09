@@ -251,3 +251,38 @@ Evidencias desta etapa:
 - `FRENTE_BD_UNICO_APPDB/evidencias/42_phase1f_mapa_referencias_pos_cleanup.txt`
 - `FRENTE_BD_UNICO_APPDB/evidencias/43_phase1f_pytest_direcionado.txt`
 - `FRENTE_BD_UNICO_APPDB/evidencias/44_phase1f_git_status.txt`
+
+## Atualizacao - Fase 1F-D.25
+
+Objetivo desta etapa:
+
+- remover residuos tecnicos proibidos derivados de derived_db_path em UI/components/details_panel.py;
+- garantir que nao existam tokens tecnicos proibidos relacionados a banco derivado fisico;
+- garantir que nao existam referencias a caminho fisico derived.db;
+- validar compilacao e testes completos antes do commit.
+
+Arquivos alterados:
+
+- UI/components/details_panel.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/137_phase1f_d25_remove_details_panel_derived_db_path.txt
+
+Buscas obrigatorias:
+
+- tokens tecnicos proibidos: derived_db, derived_db_path, DERIVED_DB_PATH, connect_derived, get_derived_connection
+- nomes de arquivo proibidos: validate_derived, repair_derived, derived_db
+- caminhos fisicos proibidos: derived.db, dados/derived, dados\\derived
+
+Resultado esperado:
+
+- buscas proibitivas sem ocorrencias
+- compileall aprovado
+- pytest completo aprovado
+
+Commit:
+
+- fase 1f-d25 remove derived_db_path do details panel
+
