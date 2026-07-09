@@ -1,3 +1,0 @@
-?? FRENTE_BD_UNICO_APPDB/evidencias/121_phase1f_d11_auditoria_consumidores_appdb_derived.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/122_phase1f_d11_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d11_auditar_consumidores_appdb_derived.py

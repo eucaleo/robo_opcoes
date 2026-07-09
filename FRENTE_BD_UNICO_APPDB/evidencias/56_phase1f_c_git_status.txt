@@ -1,8 +1,0 @@
- M FRENTE_BD_UNICO_APPDB/evidencias/45_phase1f_b_auditoria_literal_derived_db.txt
- M FRENTE_BD_UNICO_APPDB/evidencias/46_phase1f_b_mapa_identificadores_derived.txt
- M db/config.py
-?? FRENTE_BD_UNICO_APPDB/evidencias/53_phase1f_c_appdb_canonical_aliases.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/54_phase1f_c_pytest_direcionado.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/55_phase1f_c_compileall.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/56_phase1f_c_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py

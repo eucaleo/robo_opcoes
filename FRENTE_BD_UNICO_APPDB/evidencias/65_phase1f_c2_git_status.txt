@@ -1,9 +1,0 @@
- M FRENTE_BD_UNICO_APPDB/evidencias/45_phase1f_b_auditoria_literal_derived_db.txt
- M FRENTE_BD_UNICO_APPDB/evidencias/46_phase1f_b_mapa_identificadores_derived.txt
- M UI/models/ui_data.py
-?? FRENTE_BD_UNICO_APPDB/evidencias/61_phase1f_c2_migrate_app_db_path_imports.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/62_phase1f_c2_remaining_derived_db_path_tokens.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/63_phase1f_c2_pytest_direcionado.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/64_phase1f_c2_compileall.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/65_phase1f_c2_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py

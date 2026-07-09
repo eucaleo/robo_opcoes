@@ -1,9 +1,0 @@
- M UI/models/ui_data.py
-?? FRENTE_BD_UNICO_APPDB/evidencias/71_phase1f_d1_rename_ui_data_app_db_identifiers.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/72_phase1f_d1_pytest_direcionado.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/73_phase1f_d1_compileall.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/74_phase1f_d1_reauditoria_stdout.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/75_phase1f_d1_reauditoria_identificadores_derived.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/76_phase1f_d1_resumo_identificadores_derived.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/77_phase1f_d1_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py

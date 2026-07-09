@@ -1,3 +1,0 @@
-?? FRENTE_BD_UNICO_APPDB/evidencias/113_phase1f_d7_planejamento_proximas_renomeacoes_derived.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/114_phase1f_d7_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py

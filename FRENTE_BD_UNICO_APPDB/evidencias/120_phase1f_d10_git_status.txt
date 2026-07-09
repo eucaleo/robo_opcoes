@@ -1,4 +1,0 @@
- M db/derived_repo.py
-?? FRENTE_BD_UNICO_APPDB/evidencias/119_phase1f_d10_alias_get_app_db_connection.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/120_phase1f_d10_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d10_criar_alias_get_app_db_connection.py

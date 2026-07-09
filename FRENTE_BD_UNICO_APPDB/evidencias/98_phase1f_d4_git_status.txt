@@ -1,9 +1,0 @@
- M scripts/validate_derived_db.py
-?? FRENTE_BD_UNICO_APPDB/evidencias/92_phase1f_d4_rename_validate_script_find_app_db.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/93_phase1f_d4_pytest_direcionado.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/94_phase1f_d4_compileall.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/95_phase1f_d4_reauditoria_stdout.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/96_phase1f_d4_reauditoria_identificadores_derived.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/97_phase1f_d4_resumo_identificadores_derived.txt
-?? FRENTE_BD_UNICO_APPDB/evidencias/98_phase1f_d4_git_status.txt
-?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d4_rename_validate_script_find_app_db.py
