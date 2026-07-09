@@ -5,7 +5,6 @@ import sqlite3
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-APP_DB_PATH     = Path(os.getenv("APP_DB_PATH",     str(_PROJECT_ROOT / "dados/app.db"))).resolve()
 # Caminho canonico do banco unico da aplicacao.
 APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
 

@@ -1,0 +1,70 @@
+===== DATA =====
+2026-07-09 09:20:25
+
+===== OBJETIVO =====
+Fase 1F-D.18: remover duplicidade de APP_DB_PATH em db/config.py preservando APP_DB_PATH canonico e DERIVED_DB_PATH como alias legado.
+
+===== DIFF =====
+diff --git a/db/config.py b/db/config.py
+index 8bbc652..7f88877 100644
+--- a/db/config.py
++++ b/db/config.py
+@@ -5,7 +5,6 @@ import sqlite3
+ 
+ _PROJECT_ROOT = Path(__file__).resolve().parent.parent
+ 
+-APP_DB_PATH     = Path(os.getenv("APP_DB_PATH",     str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+ # Caminho canonico do banco unico da aplicacao.
+ APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+ 
+
+===== GREP CONFIG E LEGADOS =====
+db/config.py:9:APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+db/config.py:12:# Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+db/config.py:13:DERIVED_DB_PATH = APP_DB_PATH
+db/config.py:14:def connect_app() -> sqlite3.Connection:
+db/config.py:15:    APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+db/config.py:16:    return sqlite3.connect(str(APP_DB_PATH))
+scripts/validate_derived_db.py:4:- Nao depende de get_derived_connection (que pode nao existir no seu layout)
+scripts/validate_derived_db.py:23:    env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
+scripts/validate_derived_db.py:48:        print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
+
+===== CONTEUDO db/config.py =====
+0001: # db/config.py
+0002: import os
+0003: from pathlib import Path
+0004: import sqlite3
+0005: 
+0006: _PROJECT_ROOT = Path(__file__).resolve().parent.parent
+0007: 
+0008: # Caminho canonico do banco unico da aplicacao.
+0009: APP_DB_PATH = Path(os.getenv("APP_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+0010: 
+0011: # Alias legado preservado por compatibilidade temporaria.
+0012: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+0013: DERIVED_DB_PATH = APP_DB_PATH
+0014: def connect_app() -> sqlite3.Connection:
+0015:     APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+0016:     return sqlite3.connect(str(APP_DB_PATH))
+
+===== COMPILEALL =====
+
+===== PYTEST =====
+
+[conftest] PROJECT_ROOT : C:\Users\eucal\projeto
+[conftest] DB_PATH      : C:\Users\eucal\projeto\dados\app.db
+[conftest] DB existe?   : True
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+.................................................................. [ 47%]
+........................................................................ [ 59%]
+........................................................................ [ 72%]
+.............ss......................................................... [ 84%]
+........................................................................ [ 96%]
+.....................                                                    [100%]
+589 passed, 2 skipped, 6 subtests passed in 30.44s
+
+===== GIT STATUS =====
+ M db/config.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/130_phase1f_d18_remove_app_db_path_duplicado.txt
