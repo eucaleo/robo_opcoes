@@ -286,3 +286,47 @@ Commit:
 
 - fase 1f-d25 remove derived_db_path do details panel
 
+
+## Atualizacao - Fase 5A
+
+Objetivo desta etapa:
+
+- criar o contrato estatico de proibicao de banco derivado fisico;
+- impedir retorno de tokens tecnicos proibidos ligados ao banco derivado fisico;
+- impedir retorno de caminhos fisicos proibidos ligados ao banco derivado fisico;
+- impedir arquivos operacionais com nomes proibidos;
+- preservar a excecao unica do proprio arquivo contratual previsto no guia;
+- executar teste direcionado, compileall e pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB.
+
+Arquivo de teste contratual:
+
+- ATT/tests/test_bd_unico_no_derived_db_contract.py
+
+Arquivos alterados:
+
+- ATT/tests/test_bd_unico_no_derived_db_contract.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/138_phase5a_contrato_no_derived_db.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado esperado:
+
+- contrato direcionado aprovado com 2 passed
+- buscas proibitivas sem ocorrencias operacionais
+- compileall aprovado
+- pytest completo aprovado
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente
+
+Commit:
+
+- fase 5a adiciona contrato no derived db
+
