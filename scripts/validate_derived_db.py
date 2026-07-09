@@ -40,7 +40,7 @@ def _find_derived_db() -> Path | None:
 
 
 def main() -> int:
-    print("=== VALIDACAO DO BANCO DERIVED.DB ===")
+    print("=== VALIDACAO DO BANCO APP.DB ===")
 
     db_path = _find_derived_db()
     if not db_path:

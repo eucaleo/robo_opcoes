@@ -1,0 +1,74 @@
+===== DATA =====
+2026-07-08 22:53:51
+
+===== OBJETIVO =====
+Auditoria precisa usando busca literal fixa para derived.db.
+Separar referencias fisicas reais do arquivo legado de identificadores tecnicos derived_*.
+
+===== ESCOPO OPERACIONAL =====
+ATT
+UI
+db
+domain
+repositories
+scripts
+services
+
+===== ESCOPO TRANSICIONAL =====
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md
+FRENTE_BD_UNICO_APPDB/scripts/*.py
+
+===== CONTAGEM DE ARQUIVOS VARREDOS =====
+operacionais: 163
+transicionais: 11
+
+===== LITERAL EXATO derived.db EM CODIGO OPERACIONAL =====
+Nenhuma ocorrência encontrada.
+
+===== LITERAL EXATO derived.db EM ARTEFATOS TRANSICIONAIS =====
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:243: - limpar referencias literais ao arquivo fisico legado `derived.db`;
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:4: echo "===== GUARDRAIL: referencias a derived.db ====="
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:25:     echo "ERRO: ainda existem referencias operacionais a derived.db."
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:28:     echo "OK: nenhuma referencia operacional a derived.db encontrada no escopo analisado."
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:194:     op_literal_hits = find_literal_hits(operational_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:195:     tr_literal_hits = find_literal_hits(transitional_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:197:     op_ci_hits = find_case_insensitive_hits(operational_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:198:     tr_ci_hits = find_case_insensitive_hits(transitional_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:207:     report_45.append("Auditoria precisa usando busca literal fixa para derived.db.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:222:     report_45.append("===== LITERAL EXATO derived.db EM CODIGO OPERACIONAL =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:225:     report_45.append("===== LITERAL EXATO derived.db EM ARTEFATOS TRANSICIONAIS =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:228:     report_45.append("===== BUSCA CASE-INSENSITIVE derived.db EM CODIGO OPERACIONAL =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:231:     report_45.append("===== BUSCA CASE-INSENSITIVE derived.db EM ARTEFATOS TRANSICIONAIS =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:236:         report_45.append("[ATENCAO] Ainda existem referencias literais derived.db em codigo operacional.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:239:         report_45.append("[OK] Nenhuma referencia literal exata derived.db encontrada em codigo operacional.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:254:     report_46.append("Este mapa NAO indica dependencia fisica em derived.db por si so.")
+
+===== BUSCA CASE-INSENSITIVE derived.db EM CODIGO OPERACIONAL =====
+Nenhuma ocorrência encontrada.
+
+===== BUSCA CASE-INSENSITIVE derived.db EM ARTEFATOS TRANSICIONAIS =====
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:243: - limpar referencias literais ao arquivo fisico legado `derived.db`;
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:4: echo "===== GUARDRAIL: referencias a derived.db ====="
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:25:     echo "ERRO: ainda existem referencias operacionais a derived.db."
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:28:     echo "OK: nenhuma referencia operacional a derived.db encontrada no escopo analisado."
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:11:         'print("=== REPARO DE CONSISTENCIA DO DERIVED.DB ===")':
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:15:         'print("=== VALIDACAO DO BANCO DERIVED.DB ===")':
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:29:     lines.append("Limpar labels operacionais remanescentes contendo DERIVED.DB em maiusculo.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:73:     lines.append("[OK] Labels operacionais DERIVED.DB foram normalizados para APP.DB quando presentes.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:194:     op_literal_hits = find_literal_hits(operational_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:195:     tr_literal_hits = find_literal_hits(transitional_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:197:     op_ci_hits = find_case_insensitive_hits(operational_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:198:     tr_ci_hits = find_case_insensitive_hits(transitional_files, "derived.db")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:207:     report_45.append("Auditoria precisa usando busca literal fixa para derived.db.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:222:     report_45.append("===== LITERAL EXATO derived.db EM CODIGO OPERACIONAL =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:225:     report_45.append("===== LITERAL EXATO derived.db EM ARTEFATOS TRANSICIONAIS =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:228:     report_45.append("===== BUSCA CASE-INSENSITIVE derived.db EM CODIGO OPERACIONAL =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:231:     report_45.append("===== BUSCA CASE-INSENSITIVE derived.db EM ARTEFATOS TRANSICIONAIS =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:236:         report_45.append("[ATENCAO] Ainda existem referencias literais derived.db em codigo operacional.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:239:         report_45.append("[OK] Nenhuma referencia literal exata derived.db encontrada em codigo operacional.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:254:     report_46.append("Este mapa NAO indica dependencia fisica em derived.db por si so.")
+
+===== DECISAO =====
+[OK] Nenhuma referencia literal exata derived.db encontrada em codigo operacional.
+[OK] Ocorrencias derived_* remanescentes devem ser tratadas como nomes tecnicos/compatibilidade.

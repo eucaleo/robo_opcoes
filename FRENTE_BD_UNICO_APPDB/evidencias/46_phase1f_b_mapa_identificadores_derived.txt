@@ -1,0 +1,241 @@
+===== DATA =====
+2026-07-08 22:53:51
+
+===== OBJETIVO =====
+Mapa de identificadores tecnicos derived_* remanescentes apos Fase 1F-A.
+Este mapa NAO indica dependencia fisica em derived.db por si so.
+
+===== TOKENS MONITORADOS =====
+- derived_db
+- DERIVED_DB
+- derived_repo
+- derived_service
+- DerivedService
+- get_derived
+- cleanup_derived
+- validate_derived_db
+- repair_derived_db
+- purge_derived
+- run_derived_pipeline
+
+===== MAPA POR TOKEN =====
+
+----- derived_db -----
+count: 58
+ATT/checks/check_cleanup_residuals.py:78:     "scripts/repair_derived_db_consistency.py",
+ATT/checks/check_cleanup_residuals.py:80:     "scripts/validate_derived_db.py",
+ATT/checks/check_end_to_end.py:35:     ROOT_DIR / "Scripts" / "validate_derived_db.py",
+ATT/checks/check_structures.py:34:     ROOT_DIR / "Scripts" / "validate_derived_db.py",
+ATT/tests/test_ui_data_migration.py:21:     m = UIDataModel(derived_db_path=str(DB_PATH))
+UI/components/details_panel.py:50:     def _derived_db_path(self) -> Path:
+UI/components/details_panel.py:76:         Importante: não usa self._db_path porque _derived_db_path() já trata
+UI/components/details_panel.py:146:             if self._is_derived_db_path(name, path):
+UI/components/details_panel.py:170:             "_derived_db_path",
+UI/components/details_panel.py:171:             "derived_db_path",
+UI/components/details_panel.py:206:             "_derived_db_path",
+UI/components/details_panel.py:207:             "derived_db_path",
+UI/components/details_panel.py:288:     def _is_derived_db_path(self, name, path):
+UI/components/details_panel.py:1030:         db_path = self._derived_db_path()
+UI/components/details_panel.py:1070:         db_path = self._derived_db_path()
+UI/components/details_panel.py:1098:         db_path = self._derived_db_path()
+UI/models/ui_data.py:50:     def __init__(self, derived_db_path: Optional[Path] = None):
+UI/models/ui_data.py:52:         self.derived_db_path = (
+UI/models/ui_data.py:53:             Path(derived_db_path).resolve()
+UI/models/ui_data.py:54:             if derived_db_path
+UI/models/ui_data.py:57:         print(f"[UI] Usando app DB: {self.derived_db_path}")
+UI/models/ui_data.py:71:         if not self.derived_db_path.exists():
+UI/models/ui_data.py:73:                 f"Banco app.db nao encontrado em: {self.derived_db_path}"
+UI/models/ui_data.py:75:         conn = sqlite3.connect(str(self.derived_db_path))
+db/derived_repo.py:221:     def __init__(self, db_path: str = "dados/app.db", derived_db: Optional[str] = None) -> None:
+db/derived_repo.py:222:         self._db_path = derived_db or db_path
+domain/payoff_features.py:14: def get_derived_db_connection() -> sqlite3.Connection:
+domain/payoff_features.py:212:     conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+scripts/check_rota_desenvolvimento.py:389:         "scripts/validate_derived_db.py",
+scripts/check_rota_desenvolvimento.py:393:         "validate_derived_db.py",
+scripts/validate_derived_db.py:21: def _find_derived_db() -> Path | None:
+scripts/validate_derived_db.py:45:     db_path = _find_derived_db()
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:104: - `FRENTE_BD_UNICO_APPDB/evidencias/09_ocorrencias_focadas_derived_db.txt`
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:110: - `FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh`
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:233: - `FRENTE_BD_UNICO_APPDB/evidencias/36_phase1e_remove_legacy_derived_db.txt`
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:245: - preservar nomes tecnicos de compatibilidade, como `derived_db_path`, `derived_repo` e `derived_service`;
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:111: - funções como get_derived_db_path, se existirem
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:261: - função get_derived_db_path
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:283: - não existe get_derived_db_path
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:344: python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py -q
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:348: python -m pytest ATT/tests/test_bd_unico_no_physical_derived_db_creation.py -q
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:7:   "derived\.db|DERIVED_DB|derived_db|run_derived|validate_derived|repair_derived|purge_derived" \
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:103:     "scripts/repair_derived_db_consistency.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:104:     "scripts/validate_derived_db.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:252: def import_from_derived_db(fh) -> None:
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:341:         import_from_derived_db(fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:18: OUT = EVID_DIR / "36_phase1e_remove_legacy_derived_db.txt"
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:38:     "scripts/repair_derived_db_consistency.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:39:     "scripts/validate_derived_db.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:246:             print(f"derived_db_exists_final: {DERIVED_DB.exists()}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:10:     ROOT / "scripts" / "repair_derived_db_consistency.py": {
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:14:     ROOT / "scripts" / "validate_derived_db.py": {
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:77:     out = EVID / "49_phase1f_b1_clean_uppercase_derived_db_labels.txt"
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:58:     "derived_db",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:65:     "validate_derived_db",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:66:     "repair_derived_db",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:243:     (EVID / "45_phase1f_b_auditoria_literal_derived_db.txt").write_text(
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:285:     print("  FRENTE_BD_UNICO_APPDB/evidencias/45_phase1f_b_auditoria_literal_derived_db.txt")
+
+----- DERIVED_DB -----
+count: 44
+UI/models/ui_data.py:9: from db.config import DERIVED_DB_PATH
+UI/models/ui_data.py:51:         from db.config import DERIVED_DB_PATH
+UI/models/ui_data.py:55:             else Path(DERIVED_DB_PATH).resolve()
+db/config.py:9: DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+scripts/validate_derived_db.py:23:     env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
+scripts/validate_derived_db.py:48:         print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:132: - manter nomes legados como `DERIVED_DB_PATH`, `derived_repo`, `derived_service` e afins por compatibilidade temporaria;
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:284: - não existe DERIVED_DB_PATH
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:7:   "derived\.db|DERIVED_DB|derived_db|run_derived|validate_derived|repair_derived|purge_derived" \
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:47:     old_line = 'DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()'
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:51: # APIs legadas ainda importam DERIVED_DB_PATH/get_derived_connection,
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:53: DERIVED_DB_PATH = APP_DB_PATH'''
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:58:     text = text.replace("DERIVED_DB_PATH.parent.mkdir(parents=True, exist_ok=True)", "APP_DB_PATH.parent.mkdir(parents=True, exist_ok=True)")
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:59:     text = text.replace("sqlite3.connect(str(DERIVED_DB_PATH))", "sqlite3.connect(str(APP_DB_PATH))")
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:12: DERIVED_DB = ROOT / "dados" / "app.db"
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:256:     if not DERIVED_DB.exists():
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:261:     src = connect(DERIVED_DB)
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:264:         dst.execute(f"ATTACH DATABASE ? AS src", (str(DERIVED_DB),))
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:332:         dump_db(DERIVED_DB, "DERIVED_DB PRE", fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:350:         dump_db(DERIVED_DB, "DERIVED_DB POS", fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1c_complete_structure_decisions_appdb.py:11: DERIVED_DB = ROOT / "dados" / "app.db"
+FRENTE_BD_UNICO_APPDB/scripts/phase1c_complete_structure_decisions_appdb.py:163:     if not DERIVED_DB.exists():
+FRENTE_BD_UNICO_APPDB/scripts/phase1c_complete_structure_decisions_appdb.py:167:     src = connect(DERIVED_DB)
+FRENTE_BD_UNICO_APPDB/scripts/phase1c_complete_structure_decisions_appdb.py:200:         app.execute("ATTACH DATABASE ? AS src", (str(DERIVED_DB),))
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:13: DERIVED_DB = ROOT / "dados" / "app.db"
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:143:         print(f"DERIVED_DB: {DERIVED_DB}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:144:         print(f"exists_pre: {DERIVED_DB.exists()}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:148:         if DERIVED_DB.exists():
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:149:             shutil.move(str(DERIVED_DB), str(quarantine))
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:183:                 shutil.move(str(quarantine), str(DERIVED_DB))
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:188:             print(f"exists_pos: {DERIVED_DB.exists()}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:13: DERIVED_DB = ROOT / "dados" / "app.db"
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:194:         print(f"DERIVED_DB: {DERIVED_DB}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:195:         print(f"exists_pre: {DERIVED_DB.exists()}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:197:         if DERIVED_DB.exists():
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:198:             shutil.copy2(DERIVED_DB, copied_backup)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:201:             shutil.move(str(DERIVED_DB), str(removed_target))
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:207:         print(f"exists_after_move: {DERIVED_DB.exists()}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:218:             if app_ok and compile_rc == 0 and pytest_rc == 0 and not DERIVED_DB.exists():
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:227:                 shutil.move(str(removed_target), str(DERIVED_DB))
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:237:             if moved and removed_target.exists() and not DERIVED_DB.exists():
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:238:                 shutil.move(str(removed_target), str(DERIVED_DB))
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:246:             print(f"derived_db_exists_final: {DERIVED_DB.exists()}", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:59:     "DERIVED_DB",
+
+----- derived_repo -----
+count: 20
+ATT/checks/check_end_to_end.py:23:     ROOT_DIR / "db" / "derived_repo.py",
+db/derived_repo.py:1: # db/derived_repo.py
+db/writer.py:91:         DEPRECATED: Use db.derived_repo.write_decision_snapshot_atomic()
+db/writer.py:97:             "Use db.derived_repo.write_decision_snapshot_atomic() diretamente.",
+db/writer.py:102:         from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+scripts/run_derived_pipeline.py:24:     from db.derived_repo import validate_snapshot_consistency
+scripts/validate_derived_db.py:18: from db.derived_repo import validate_snapshot_consistency
+services/derived_service.py:16: from db.derived_repo import (
+services/derived_service.py:82:     Equivalente a _unwrap_aba do derived_repo, mas para a camada de servico.
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:132: - manter nomes legados como `DERIVED_DB_PATH`, `derived_repo`, `derived_service` e afins por compatibilidade temporaria;
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:245: - preservar nomes tecnicos de compatibilidade, como `derived_db_path`, `derived_repo` e `derived_service`;
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:158: - derived_repo
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:235: derived_repo.py:
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:90:     "db/derived_repo.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:164: def bootstrap_via_derived_repo(fh) -> None:
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:165:     print("===== BOOTSTRAP VIA db.derived_repo.DerivedRepo =====", file=fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:168:         from db.derived_repo import DerivedRepo
+FRENTE_BD_UNICO_APPDB/scripts/phase1b_bootstrap_appdb_derived_schema.py:340:         bootstrap_via_derived_repo(fh)
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:31:     "db/derived_repo.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:60:     "derived_repo",
+
+----- derived_service -----
+count: 14
+ATT/tests/test_derived_service.py:3: import services.derived_service as ds
+scripts/run_derived_pipeline.py:53:     from services.derived_service import cleanup_derived
+services/derived_payoff_persistence.py:7: from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+services/derived_payoff_persistence.py:19:       3. Persistir pontos no app.db via derived_service
+services/derived_service.py:2: # services/derived_service.py
+services/derived_service.py:510:     """Fachada OO sobre as funcoes standalone do derived_service.
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:132: - manter nomes legados como `DERIVED_DB_PATH`, `derived_repo`, `derived_service` e afins por compatibilidade temporaria;
+FRENTE_BD_UNICO_APPDB/AUDITORIA.md:245: - preservar nomes tecnicos de compatibilidade, como `derived_db_path`, `derived_repo` e `derived_service`;
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:159: - derived_service
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:238: derived_service.py:
+FRENTE_BD_UNICO_APPDB/scripts/phase1d_appdb_single_source_guard.py:26:     "ATT/tests/test_derived_service.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:48:     "ATT/tests/test_derived_service.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:61:     "derived_service",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_semantic_cleanup_appdb_labels.py:56:     "ATT/tests/test_derived_service.py",
+
+----- DerivedService -----
+count: 3
+services/derived_service.py:504: # alteracao_65 -- DerivedService: fachada orientada a objetos
+services/derived_service.py:509: class DerivedService:
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:62:     "DerivedService",
+
+----- get_derived -----
+count: 10
+db/writer.py:102:         from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+db/writer.py:115:         conn = get_derived_connection()
+domain/payoff_features.py:14: def get_derived_db_connection() -> sqlite3.Connection:
+domain/payoff_features.py:212:     conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+scripts/validate_derived_db.py:4: - Nao depende de get_derived_connection (que pode nao existir no seu layout)
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:111: - funções como get_derived_db_path, se existirem
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:261: - função get_derived_db_path
+FRENTE_BD_UNICO_APPDB/GUIA_DESENVOLVIMENTO.md:283: - não existe get_derived_db_path
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:51: # APIs legadas ainda importam DERIVED_DB_PATH/get_derived_connection,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:63:     "get_derived",
+
+----- cleanup_derived -----
+count: 6
+scripts/run_derived_pipeline.py:53:     from services.derived_service import cleanup_derived
+scripts/run_derived_pipeline.py:56:         cleanup_derived(days_to_keep=30)
+services/derived_service.py:350: def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
+services/derived_service.py:528:     def cleanup_derived(self, days_to_keep: int = 30):
+services/derived_service.py:529:         return cleanup_derived(days_to_keep)
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:64:     "cleanup_derived",
+
+----- validate_derived_db -----
+count: 9
+ATT/checks/check_cleanup_residuals.py:80:     "scripts/validate_derived_db.py",
+ATT/checks/check_end_to_end.py:35:     ROOT_DIR / "Scripts" / "validate_derived_db.py",
+ATT/checks/check_structures.py:34:     ROOT_DIR / "Scripts" / "validate_derived_db.py",
+scripts/check_rota_desenvolvimento.py:389:         "scripts/validate_derived_db.py",
+scripts/check_rota_desenvolvimento.py:393:         "validate_derived_db.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:104:     "scripts/validate_derived_db.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:39:     "scripts/validate_derived_db.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:14:     ROOT / "scripts" / "validate_derived_db.py": {
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:65:     "validate_derived_db",
+
+----- repair_derived_db -----
+count: 5
+ATT/checks/check_cleanup_residuals.py:78:     "scripts/repair_derived_db_consistency.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:103:     "scripts/repair_derived_db_consistency.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:38:     "scripts/repair_derived_db_consistency.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b1_clean_uppercase_derived_db_labels.py:10:     ROOT / "scripts" / "repair_derived_db_consistency.py": {
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:66:     "repair_derived_db",
+
+----- purge_derived -----
+count: 5
+ATT/checks/check_cleanup_residuals.py:77:     "scripts/purge_derived_snapshots.py",
+FRENTE_BD_UNICO_APPDB/scripts/check_no_derived_db_refs.sh:7:   "derived\.db|DERIVED_DB|derived_db|run_derived|validate_derived|repair_derived|purge_derived" \
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:102:     "scripts/purge_derived_snapshots.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:37:     "scripts/purge_derived_snapshots.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:67:     "purge_derived",
+
+----- run_derived_pipeline -----
+count: 9
+ATT/checks/check_cleanup_residuals.py:79:     "scripts/run_derived_pipeline.py",
+ATT/checks/check_end_to_end.py:34:     ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+ATT/checks/check_structures.py:32:     ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
+UI/main_window.py:400:                 script_path = project_root / "scripts" / "run_derived_pipeline.py"
+UI/main_window.py:402:                     script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+UI/main_window.py:450:             script_path = project_root / "scripts" / "run_derived_pipeline.py"
+UI/main_window.py:452:                 script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+scripts/check_rota_desenvolvimento.py:392:         "run_derived_pipeline.py",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:68:     "run_derived_pipeline",
+
+===== DECISAO =====
+[INFO] Identificadores derived_* permanecem como superficie tecnica legada/compatibilidade.
+[INFO] Proxima subfase deve decidir entre manter aliases ou renomear APIs em camadas controladas.

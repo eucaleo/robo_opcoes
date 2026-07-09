@@ -86,7 +86,7 @@ def main() -> int:
 
     db = Path(args.db)
 
-    print("=== REPARO DE CONSISTENCIA DO DERIVED.DB ===")
+    print("=== REPARO DE CONSISTENCIA DO APP.DB ===")
     print(f"[INFO] DB: {db.resolve()}")
     print(f"[INFO] Existe: {db.exists()}")
 
