@@ -1,0 +1,434 @@
+DB: dados\app.db
+
+PRAGMA integrity_check:
+ok
+
+TABELAS:
+index: idx_audit_log_action
+index: idx_audit_log_changed_at
+index: idx_audit_log_structure_id
+index: idx_decisions_aba_ts
+index: idx_decisions_ts
+index: idx_pricing_executions_created_at
+index: idx_pricing_executions_status
+index: idx_pricing_executions_structure_id
+index: idx_rtd_option_quotes_codigo_opcao
+index: idx_rtd_underlying_quotes_ativo
+index: idx_structure_decisions_aba_ts
+index: idx_structure_decisions_sid_ts
+index: idx_structure_decisions_structure_id
+index: idx_structure_events_event_date
+index: idx_structure_events_event_status
+index: idx_structure_events_event_type
+index: idx_structure_events_leg_id
+index: idx_structure_events_structure_date
+index: idx_structure_events_structure_id
+index: idx_structure_leg_snapshots_leg_id
+index: idx_structure_leg_snapshots_snapshot_id
+index: idx_structure_leg_snapshots_structure_id
+index: idx_structure_legs_structure_id
+index: idx_structure_legs_structure_id_leg_order
+index: idx_structure_snapshots_created_at
+index: idx_structure_snapshots_pricing_execution_id
+index: idx_structure_snapshots_reference_date
+index: idx_structure_snapshots_structure_created
+index: idx_structure_snapshots_structure_id
+index: idx_structures_alias_legacy_aba
+index: idx_structures_underlying_asset
+index: ix_payoff_structure_id
+index: sqlite_autoindex_rtd_option_quotes_1
+index: sqlite_autoindex_rtd_underlying_quotes_1
+index: ux_decision_snapshot
+index: ux_payoff_snapshot
+index: ux_structure_legs_structure_symbol_norm
+table: payoff_curve_points
+table: pricing_executions
+table: rtd_option_quotes
+table: rtd_underlying_quotes
+table: sqlite_sequence
+table: structure_audit_log
+table: structure_decisions
+table: structure_events
+table: structure_leg_snapshots
+table: structure_legs
+table: structure_snapshots
+table: structures
+
+SCHEMA:
+
+-- index: idx_audit_log_action
+CREATE INDEX idx_audit_log_action
+            ON structure_audit_log(action)
+            
+
+-- index: idx_audit_log_changed_at
+CREATE INDEX idx_audit_log_changed_at
+            ON structure_audit_log(changed_at)
+            
+
+-- index: idx_audit_log_structure_id
+CREATE INDEX idx_audit_log_structure_id
+            ON structure_audit_log(structure_id)
+            
+
+-- index: idx_decisions_aba_ts
+CREATE INDEX idx_decisions_aba_ts
+ON structure_decisions (aba, timestamp)
+
+
+-- index: idx_decisions_ts
+CREATE INDEX idx_decisions_ts
+ON structure_decisions (timestamp)
+
+
+-- index: idx_pricing_executions_created_at
+CREATE INDEX idx_pricing_executions_created_at
+            ON pricing_executions(created_at)
+            
+
+-- index: idx_pricing_executions_status
+CREATE INDEX idx_pricing_executions_status
+            ON pricing_executions(execution_status)
+            
+
+-- index: idx_pricing_executions_structure_id
+CREATE INDEX idx_pricing_executions_structure_id
+            ON pricing_executions(structure_id)
+            
+
+-- index: idx_rtd_option_quotes_codigo_opcao
+CREATE INDEX idx_rtd_option_quotes_codigo_opcao
+        ON rtd_option_quotes(codigo_opcao)
+    
+
+-- index: idx_rtd_underlying_quotes_ativo
+CREATE UNIQUE INDEX idx_rtd_underlying_quotes_ativo
+        ON rtd_underlying_quotes(ativo)
+        
+
+-- index: idx_structure_decisions_aba_ts
+CREATE INDEX idx_structure_decisions_aba_ts
+            ON structure_decisions (aba, timestamp)
+            
+
+-- index: idx_structure_decisions_sid_ts
+CREATE INDEX idx_structure_decisions_sid_ts
+            ON structure_decisions (structure_id, timestamp)
+            
+
+-- index: idx_structure_decisions_structure_id
+CREATE INDEX idx_structure_decisions_structure_id
+            ON structure_decisions(structure_id)
+            
+
+-- index: idx_structure_events_event_date
+CREATE INDEX idx_structure_events_event_date
+            ON structure_events(event_date)
+            
+
+-- index: idx_structure_events_event_status
+CREATE INDEX idx_structure_events_event_status
+            ON structure_events(event_status)
+            
+
+-- index: idx_structure_events_event_type
+CREATE INDEX idx_structure_events_event_type
+            ON structure_events(event_type)
+            
+
+-- index: idx_structure_events_leg_id
+CREATE INDEX idx_structure_events_leg_id
+            ON structure_events(leg_id)
+            
+
+-- index: idx_structure_events_structure_date
+CREATE INDEX idx_structure_events_structure_date
+            ON structure_events(structure_id, event_date)
+            
+
+-- index: idx_structure_events_structure_id
+CREATE INDEX idx_structure_events_structure_id
+            ON structure_events(structure_id)
+            
+
+-- index: idx_structure_leg_snapshots_leg_id
+CREATE INDEX idx_structure_leg_snapshots_leg_id
+            ON structure_leg_snapshots(leg_id)
+            
+
+-- index: idx_structure_leg_snapshots_snapshot_id
+CREATE INDEX idx_structure_leg_snapshots_snapshot_id
+            ON structure_leg_snapshots(snapshot_id)
+            
+
+-- index: idx_structure_leg_snapshots_structure_id
+CREATE INDEX idx_structure_leg_snapshots_structure_id
+            ON structure_leg_snapshots(structure_id)
+            
+
+-- index: idx_structure_legs_structure_id
+CREATE INDEX idx_structure_legs_structure_id
+            ON structure_legs(structure_id)
+            
+
+-- index: idx_structure_legs_structure_id_leg_order
+CREATE INDEX idx_structure_legs_structure_id_leg_order
+            ON structure_legs(structure_id, leg_order)
+            
+
+-- index: idx_structure_snapshots_created_at
+CREATE INDEX idx_structure_snapshots_created_at
+            ON structure_snapshots(created_at)
+            
+
+-- index: idx_structure_snapshots_pricing_execution_id
+CREATE INDEX idx_structure_snapshots_pricing_execution_id
+            ON structure_snapshots(pricing_execution_id)
+            
+
+-- index: idx_structure_snapshots_reference_date
+CREATE INDEX idx_structure_snapshots_reference_date
+            ON structure_snapshots(reference_date)
+            
+
+-- index: idx_structure_snapshots_structure_created
+CREATE INDEX idx_structure_snapshots_structure_created
+            ON structure_snapshots(structure_id, created_at)
+            
+
+-- index: idx_structure_snapshots_structure_id
+CREATE INDEX idx_structure_snapshots_structure_id
+            ON structure_snapshots(structure_id)
+            
+
+-- index: idx_structures_alias_legacy_aba
+CREATE INDEX idx_structures_alias_legacy_aba
+            ON structures(alias_legacy_aba)
+            
+
+-- index: idx_structures_underlying_asset
+CREATE INDEX idx_structures_underlying_asset
+            ON structures(underlying_asset)
+            
+
+-- index: ix_payoff_structure_id
+CREATE INDEX ix_payoff_structure_id
+ON payoff_curve_points (structure_id, timestamp)
+
+
+-- index: ux_decision_snapshot
+CREATE UNIQUE INDEX ux_decision_snapshot
+ON structure_decisions (timestamp, aba)
+
+
+-- index: ux_payoff_snapshot
+CREATE UNIQUE INDEX ux_payoff_snapshot
+ON payoff_curve_points (timestamp, aba, point_spot)
+
+
+-- index: ux_structure_legs_structure_symbol_norm
+CREATE UNIQUE INDEX ux_structure_legs_structure_symbol_norm
+ON structure_legs(structure_id, UPPER(TRIM(symbol)))
+
+-- table: payoff_curve_points
+CREATE TABLE payoff_curve_points (
+    timestamp    TEXT NOT NULL,
+    aba          TEXT NOT NULL,
+    structure_id INTEGER,
+    spot_ref     REAL,
+    point_spot   REAL NOT NULL,
+    point_pl     REAL NOT NULL,
+    meta_json    TEXT,
+    created_at   TEXT DEFAULT (datetime('now'))
+)
+
+-- table: pricing_executions
+CREATE TABLE pricing_executions (
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at        TEXT    NOT NULL,
+                structure_id      INTEGER,
+                underlying_asset  TEXT,
+                reference_date    TEXT,
+                execution_status  TEXT,
+                execution_engine  TEXT,
+                error_message     TEXT,
+                duration_ms       INTEGER,
+                number_of_legs    INTEGER,
+                total_quantity    INTEGER,
+                theoretical_value REAL,
+                pricing_payload   TEXT,
+                result            TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+
+-- table: rtd_option_quotes
+CREATE TABLE rtd_option_quotes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    codigo_opcao TEXT NOT NULL,
+    ativo_base TEXT,
+
+    call_put TEXT,
+    strike REAL,
+    vencimento TEXT,
+
+    ultimo_preco REAL,
+    ultima_quantidade REAL,
+
+    bid REAL,
+    ask REAL,
+    volume REAL,
+
+    iv REAL,
+    delta REAL,
+    gamma REAL,
+    theta REAL,
+    vega REAL,
+
+    source TEXT NOT NULL DEFAULT 'rtd_links',
+    raw_json TEXT,
+
+    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, "vwap" REAL,
+
+    UNIQUE(codigo_opcao)
+)
+
+-- table: rtd_underlying_quotes
+CREATE TABLE rtd_underlying_quotes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            ativo TEXT NOT NULL UNIQUE,
+            ultimo_preco REAL,
+            bid REAL,
+            ask REAL,
+            close_price REAL,
+            prev_close REAL,
+            open_price REAL,
+            high_price REAL,
+            low_price REAL,
+            volume REAL,
+            change_percent REAL,
+            source TEXT,
+            updated_at TEXT,
+            created_at TEXT
+        , vwap REAL)
+
+-- table: sqlite_sequence
+CREATE TABLE sqlite_sequence(name,seq)
+
+-- table: structure_audit_log
+CREATE TABLE structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+
+-- table: structure_decisions
+CREATE TABLE structure_decisions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                decision TEXT NOT NULL,
+                label TEXT,
+                note TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+            , "timestamp" TEXT, "aba" TEXT, "level" INTEGER, "pl_atual" REAL, "pl_max" REAL, "pl_pct_of_max" REAL, "dte_min" INTEGER, "why_json" TEXT, "spot_ref" REAL, "meta_json" TEXT, "why" TEXT)
+
+-- table: structure_events
+CREATE TABLE structure_events (
+                id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id   INTEGER NOT NULL,
+                leg_id         INTEGER,
+                event_type     TEXT    NOT NULL,
+                event_status   TEXT    NOT NULL DEFAULT 'registered',
+                event_date     TEXT    NOT NULL,
+                quantity       INTEGER,
+                price          REAL,
+                symbol         TEXT,
+                source         TEXT    NOT NULL DEFAULT 'manual',
+                notes          TEXT,
+                metadata_json  TEXT,
+                created_at     TEXT    NOT NULL,
+                updated_at     TEXT    NOT NULL,
+                FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE,
+                FOREIGN KEY (leg_id) REFERENCES structure_legs(id) ON DELETE SET NULL
+            )
+
+-- table: structure_leg_snapshots
+CREATE TABLE structure_leg_snapshots (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                snapshot_id      INTEGER NOT NULL,
+                structure_id     INTEGER NOT NULL,
+                leg_id           INTEGER,
+                leg_order        INTEGER,
+                position_side    TEXT,
+                option_type      TEXT,
+                symbol           TEXT,
+                strike           REAL,
+                expiration_date  TEXT,
+                quantity         INTEGER,
+                premium          REAL,
+                multiplier       REAL,
+                metrics_json     TEXT,
+                market_json      TEXT,
+                raw_json         TEXT,
+                FOREIGN KEY (snapshot_id) REFERENCES structure_snapshots(id) ON DELETE CASCADE,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+            )
+
+-- table: structure_legs
+CREATE TABLE structure_legs (
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id    INTEGER NOT NULL,
+                position_side   TEXT    NOT NULL,
+                option_type     TEXT    NOT NULL,
+                symbol          TEXT,
+                strike          REAL    NOT NULL,
+                expiration_date TEXT    NOT NULL,
+                quantity        INTEGER NOT NULL,
+                premium         REAL,
+                multiplier      REAL    NOT NULL DEFAULT 1,
+                leg_order       INTEGER NOT NULL,
+                notes           TEXT,
+                created_at      TEXT    NOT NULL,
+                updated_at      TEXT    NOT NULL,
+                FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE
+            )
+
+-- table: structure_snapshots
+CREATE TABLE structure_snapshots (
+                id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at            TEXT    NOT NULL,
+                structure_id          INTEGER NOT NULL,
+                pricing_execution_id  INTEGER,
+                underlying_asset      TEXT,
+                reference_date        TEXT,
+                snapshot_source       TEXT    NOT NULL DEFAULT 'system',
+                structure_json        TEXT    NOT NULL,
+                market_json           TEXT,
+                metrics_json          TEXT,
+                payoff_json           TEXT,
+                decision_json         TEXT,
+                alerts_json           TEXT,
+                operation_state_json  TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (pricing_execution_id) REFERENCES pricing_executions(id)
+            )
+
+-- table: structures
+CREATE TABLE structures (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                name             TEXT    NOT NULL,
+                underlying_asset TEXT    NOT NULL,
+                alias_legacy_aba TEXT,
+                status           TEXT    NOT NULL DEFAULT 'active',
+                notes            TEXT,
+                created_at       TEXT    NOT NULL,
+                updated_at       TEXT    NOT NULL
+            )

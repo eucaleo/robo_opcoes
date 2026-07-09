@@ -1,0 +1,12 @@
+payoff_curve_points	808
+pricing_executions	25
+rtd_option_quotes	9
+rtd_underlying_quotes	2
+sqlite_sequence	9
+structure_audit_log	53
+structure_decisions	11
+structure_events	0
+structure_leg_snapshots	228
+structure_legs	24
+structure_snapshots	57
+structures	9
