@@ -376,3 +376,48 @@ Commit:
 
 - fase 5b adiciona contrato app db canonico
 
+
+## Atualizacao - Fase 5C
+
+Objetivo desta etapa:
+
+- criar contrato das tabelas RTD no app.db;
+- garantir que a tabela rtd_option_quotes existe no banco canonico dados/app.db;
+- garantir que db.config.connect_app conecta no mesmo dados/app.db;
+- executar contratos 5A, 5B e 5C em conjunto;
+- executar buscas proibitivas, compileall e pytest completo;
+- remover temporarios de execucao criados fora de FRENTE_BD_UNICO_APPDB.
+
+Arquivo de teste contratual:
+
+- ATT/tests/test_bd_unico_rtd_tables_app_db.py
+
+Arquivos alterados:
+
+- ATT/tests/test_bd_unico_rtd_tables_app_db.py
+- FRENTE_BD_UNICO_APPDB/AUDITORIA.md
+
+Evidencia desta etapa:
+
+- FRENTE_BD_UNICO_APPDB/evidencias/140_phase5c_contrato_rtd_tables_app_db.txt
+
+Testes executados:
+
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_rtd_tables_app_db.py -q
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" python -m pytest ATT/tests/test_bd_unico_no_derived_db_contract.py ATT/tests/test_bd_unico_app_db_contract.py ATT/tests/test_bd_unico_rtd_tables_app_db.py -q
+- python -m compileall db scripts services ui UI ATT
+- PYTHONDONTWRITEBYTECODE=1 PYTEST_ADDOPTS="-p no:cacheprovider" pytest -q
+
+Resultado obtido:
+
+- contrato direcionado aprovado com 2 passed
+- contratos 5A, 5B e 5C aprovados em conjunto com 7 passed
+- compileall aprovado
+- pytest completo aprovado com 596 passed, 2 skipped, 6 subtests passed
+- buscas proibitivas sem ocorrencias operacionais
+- sem __pycache__ ou .pytest_cache remanescentes fora da frente
+
+Commit:
+
+- fase 5c adiciona contrato rtd tables app db
+
