@@ -1,0 +1,132 @@
+===== DATA =====
+2026-07-09 08:32:13
+
+===== OBJETIVO =====
+Auditar contrato de get_derived_connection antes de qualquer renomeacao.
+Esta fase nao altera codigo operacional.
+
+===== ALVOS AUDITADOS =====
+- connect_app
+- connect_app_db
+- connect_derived
+- get_app_db_connection
+- get_derived_connection
+
+===== DEFINICOES / IMPORTS / ASSIGNMENTS AST =====
+[DEF_FUNCTION] db/config.py:15 def connect_app(...):
+[DEF_FUNCTION] db/config.py:19 def connect_derived(...):
+[IMPORT_FROM] db/writer.py:102 from db.derived_repo import get_derived_connection
+[DEF_FUNCTION] domain/payoff_features.py:14 def get_app_db_connection(...):
+[IMPORT_FROM] FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/db/writer.py:102 from db.derived_repo import get_derived_connection
+[DEF_FUNCTION] FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:57 def connect_app(...):
+[IMPORT_FROM] FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/scripts/run_derived_pipeline.py:23 from db.config import connect_derived
+[IMPORT_FROM] FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:15 from db.config import connect_app
+[IMPORT_FROM] FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:15 from db.config import connect_derived
+[DEF_FUNCTION] FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:57 def connect_app(...):
+[IMPORT_FROM] scripts/run_derived_pipeline.py:23 from db.config import connect_derived
+[IMPORT_FROM] services/derived_service.py:15 from db.config import connect_app
+[IMPORT_FROM] services/derived_service.py:15 from db.config import connect_derived
+
+===== OCORRENCIAS TEXTUAIS =====
+
+--- connect_app: 19 ocorrencia(s) textual(is) ---
+db/config.py:15: def connect_app() -> sqlite3.Connection:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:57: def connect_app() -> sqlite3.Connection:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:103:     conn = connect_app()
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:15: from db.config import connect_app, connect_derived
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:37:         with connect_app() as conn:
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:57: def connect_app() -> sqlite3.Connection:
+FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:103:     conn = connect_app()
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py:28:     ("_connect_derived_threadsafe", "_connect_app_threadsafe"),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py:111:         "_connect_app_threadsafe presente": "_connect_app_threadsafe" in final_text,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py:149:         "_connect_app_threadsafe",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:67:     lines.append("Motivo: pode virar connect_app_db ou connect_app, mantendo connect_derived como alias legado temporario.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:16:     "connect_app_db",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:17:     "connect_app",
+services/derived_service.py:15: from db.config import connect_app, connect_derived
+services/derived_service.py:37:         with connect_app() as conn:
+UI/models/ui_data.py:3: # Toda conexao de leitura passa a ser por chamada (igual a _connect_app_threadsafe)
+UI/models/ui_data.py:828:         conn = self._connect_app_threadsafe()
+UI/models/ui_data.py:933:     # _connect_app_threadsafe agora e apenas alias de _connect
+UI/models/ui_data.py:934:     def _connect_app_threadsafe(self) -> sqlite3.Connection:
+
+--- connect_app_db: 2 ocorrencia(s) textual(is) ---
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:67:     lines.append("Motivo: pode virar connect_app_db ou connect_app, mantendo connect_derived como alias legado temporario.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:16:     "connect_app_db",
+
+--- connect_derived: 33 ocorrencia(s) textual(is) ---
+db/config.py:19: def connect_derived() -> sqlite3.Connection:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/scripts/run_derived_pipeline.py:23:     from db.config import connect_derived
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/scripts/run_derived_pipeline.py:26:     conn = connect_derived()
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:15: from db.config import connect_app, connect_derived
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:152:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:197:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:294:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:351:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:363:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:389:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/services/derived_service.py:412:     with connect_derived() as conn:
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/UI/models/ui_data.py:3: # Toda conexao de leitura passa a ser por chamada (igual a _connect_derived_threadsafe)
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/UI/models/ui_data.py:826:         conn = self._connect_derived_threadsafe()
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/UI/models/ui_data.py:931:     # _connect_derived_threadsafe agora e apenas alias de _connect
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/UI/models/ui_data.py:932:     def _connect_derived_threadsafe(self) -> sqlite3.Connection:
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py:28:     ("_connect_derived_threadsafe", "_connect_app_threadsafe"),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py:109:         "_connect_derived_threadsafe ausente": "_connect_derived_threadsafe" not in final_text,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d1_rename_ui_data_app_db_identifiers.py:148:         "_connect_derived_threadsafe",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:35:         ("connect_derived", 11, 3, "sensivel; funcao em db/config.py usada por scripts e servicos"),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:66:     lines.append("[CANDIDATO_COM_ALIAS] connect_derived")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:67:     lines.append("Motivo: pode virar connect_app_db ou connect_app, mantendo connect_derived como alias legado temporario.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:84:     lines.append("Alternativa segura: iniciar connect_derived com alias legado, se for aceitavel manter o token legado em db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:15:     "connect_derived",
+scripts/run_derived_pipeline.py:23:     from db.config import connect_derived
+scripts/run_derived_pipeline.py:26:     conn = connect_derived()
+services/derived_service.py:15: from db.config import connect_app, connect_derived
+services/derived_service.py:152:     with connect_derived() as conn:
+services/derived_service.py:197:     with connect_derived() as conn:
+services/derived_service.py:294:     with connect_derived() as conn:
+services/derived_service.py:351:     with connect_derived() as conn:
+services/derived_service.py:363:     with connect_derived() as conn:
+services/derived_service.py:389:     with connect_derived() as conn:
+services/derived_service.py:412:     with connect_derived() as conn:
+
+--- get_app_db_connection: 11 ocorrencia(s) textual(is) ---
+domain/payoff_features.py:14: def get_app_db_connection() -> sqlite3.Connection:
+domain/payoff_features.py:212:     conn = _conn_override if _conn_override is not None else get_app_db_connection()
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d6_rename_payoff_features_app_db_connection.py:17:     ("get_derived_db_connection", "get_app_db_connection"),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d6_rename_payoff_features_app_db_connection.py:59:         "get_app_db_connection presente": counts["get_app_db_connection"] >= 1,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d6_rename_payoff_features_app_db_connection.py:71:     lines.append("Trocar get_derived_db_connection por get_app_db_connection.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d6_rename_payoff_features_app_db_connection.py:84:         "get_app_db_connection",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d6_rename_payoff_features_app_db_connection.py:95:         lines.append("[OK] payoff_features.py usa get_app_db_connection no helper migrado.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:14:     "get_app_db_connection",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:147:     ga = hits["get_app_db_connection"]
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:150:         out.append("[INFO] get_derived_connection existe, mas nao foi encontrado get_app_db_connection.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:153:         out.append("[INFO] get_derived_connection e get_app_db_connection aparecem no codigo.")
+
+--- get_derived_connection: 19 ocorrencia(s) textual(is) ---
+db/writer.py:102:         from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+db/writer.py:115:         conn = get_derived_connection()
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/db/writer.py:102:         from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/db/writer.py:115:         conn = get_derived_connection()
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:51: # APIs legadas ainda importam DERIVED_DB_PATH/get_derived_connection,
+FRENTE_BD_UNICO_APPDB/backups_phase1f/phase1f_a_20260708_224756/scripts/validate_derived_db.py:4: - Nao depende de get_derived_connection (que pode nao existir no seu layout)
+FRENTE_BD_UNICO_APPDB/scripts/phase1a_reroute_to_appdb.py:51: # APIs legadas ainda importam DERIVED_DB_PATH/get_derived_connection,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:42:         ("get_derived_connection", 2, 1, "uso em db/writer.py; depende de contrato exportado por db.derived_repo"),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:78:     lines.append("[CANDIDATO_COM_ALIAS] get_derived_connection")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d7_planejar_proximas_renomeacoes_derived.py:83:     lines.append("Proxima fase mais segura: auditar contrato de get_derived_connection e decidir se ha funcao/alias equivalente app_db.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:10: OUT = EVID / "115_phase1f_d8_auditoria_get_derived_connection.txt"
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:13:     "get_derived_connection",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:116:     out.append("Auditar contrato de get_derived_connection antes de qualquer renomeacao.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:146:     gd = hits["get_derived_connection"]
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:150:         out.append("[INFO] get_derived_connection existe, mas nao foi encontrado get_app_db_connection.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:153:         out.append("[INFO] get_derived_connection e get_app_db_connection aparecem no codigo.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:154:         out.append("[RECOMENDACAO] Verificar se get_derived_connection ja pode ser reduzido a alias legado.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_d8_auditar_get_derived_connection.py:156:         out.append("[INFO] get_derived_connection nao foi encontrado em arquivos Python auditados.")
+scripts/validate_derived_db.py:4: - Nao depende de get_derived_connection (que pode nao existir no seu layout)
+
+===== ANALISE PRELIMINAR =====
+[INFO] get_derived_connection e get_app_db_connection aparecem no codigo.
+[RECOMENDACAO] Verificar se get_derived_connection ja pode ser reduzido a alias legado.
+
+===== DECISAO =====
+[OK] Auditoria concluida sem alteracao operacional.
+[PENDENTE] Decidir proxima fase com base nesta evidencia.
