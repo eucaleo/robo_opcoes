@@ -1,0 +1,35 @@
+===== DATA =====
+2026-07-09 07:48:59
+
+===== OBJETIVO =====
+Remover literal derived.db introduzido em comentario operacional de db/config.py.
+Atualizar tambem o script gerador da Fase 1F-C para nao reintroduzir o comentario antigo.
+Nao alterar comportamento de runtime.
+
+===== ARQUIVO: db/config.py =====
+[OK] Comentario com literal derived.db substituido.
+Antes: # Importante: DERIVED_DB_PATH nao aponta mais para derived.db; aponta para app.db.
+Depois: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+[OK] literal derived.db ausente no arquivo: True
+
+===== ARQUIVO: FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py =====
+[OK] Comentario com literal derived.db substituido.
+Antes: # Importante: DERIVED_DB_PATH nao aponta mais para derived.db; aponta para app.db.
+Depois: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+[ATENCAO] literal derived.db ausente no arquivo: False
+
+===== VERIFICACOES =====
+[OK] db/config.py sem literal derived.db: True
+[OK] APP_DB_PATH presente: True
+[OK] DERIVED_DB_PATH alias para APP_DB_PATH: True
+[OK] dados/app.db presente: True
+[OK] script 1F-C nao reintroduz comentario antigo: True
+
+===== ARQUIVOS ALTERADOS =====
+- db/config.py
+- FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py
+
+===== DECISAO =====
+[OK] Comentario operacional limpo.
+[OK] APP_DB_PATH permanece canonico e DERIVED_DB_PATH permanece alias legado.
+[OK] Auditoria pode ser reexecutada.

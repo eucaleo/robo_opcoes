@@ -1,0 +1,24 @@
+===== DATA =====
+2026-07-09 07:46:59
+
+===== OBJETIVO =====
+Introduzir APP_DB_PATH como nome canonico do banco unico em db/config.py.
+Preservar DERIVED_DB_PATH como alias legado apontando para APP_DB_PATH.
+Nao renomear modulos, arquivos, classes ou funcoes nesta subfase.
+
+===== ARQUIVO =====
+db/config.py
+
+[OK] Linha DERIVED_DB_PATH antiga substituida por bloco canonico APP_DB_PATH.
+
+===== VERIFICACOES =====
+[OK] APP_DB_PATH presente: True
+[OK] DERIVED_DB_PATH alias para APP_DB_PATH: True
+[OK] dados/app.db presente: True
+[FALHA] literal derived.db ausente: False
+
+===== ALTERACAO APLICADA =====
+sim
+
+===== DECISAO =====
+[BLOQUEIO] Verificacoes falharam. Revisar db/config.py antes de prosseguir.

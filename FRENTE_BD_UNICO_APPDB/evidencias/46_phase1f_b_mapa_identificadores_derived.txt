@@ -1,5 +1,5 @@
 ===== DATA =====
-2026-07-08 22:53:51
+2026-07-09 07:49:00
 
 ===== OBJETIVO =====
 Mapa de identificadores tecnicos derived_* remanescentes apos Fase 1F-A.
@@ -82,11 +82,12 @@ FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:243:     (EVI
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:285:     print("  FRENTE_BD_UNICO_APPDB/evidencias/45_phase1f_b_auditoria_literal_derived_db.txt")
 
 ----- DERIVED_DB -----
-count: 44
+count: 60
 UI/models/ui_data.py:9: from db.config import DERIVED_DB_PATH
 UI/models/ui_data.py:51:         from db.config import DERIVED_DB_PATH
 UI/models/ui_data.py:55:             else Path(DERIVED_DB_PATH).resolve()
-db/config.py:9: DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()
+db/config.py:13: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+db/config.py:14: DERIVED_DB_PATH = APP_DB_PATH
 scripts/validate_derived_db.py:23:     env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
 scripts/validate_derived_db.py:48:         print("        Defina DERIVED_DB_PATH (ou DERIVED_DB) apontando para o arquivo.")
 FRENTE_BD_UNICO_APPDB/AUDITORIA.md:132: - manter nomes legados como `DERIVED_DB_PATH`, `derived_repo`, `derived_service` e afins por compatibilidade temporaria;
@@ -127,6 +128,21 @@ FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:237:          
 FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:238:                 shutil.move(str(removed_target), str(DERIVED_DB))
 FRENTE_BD_UNICO_APPDB/scripts/phase1e_remove_legacy_derived_db.py:246:             print(f"derived_db_exists_final: {DERIVED_DB.exists()}", file=fh)
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:59:     "DERIVED_DB",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:12: OLD_COMMENT = "# Importante: DERIVED_DB_PATH nao aponta mais para derived.db; aponta para app.db."
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:13: NEW_COMMENT = "# Importante: DERIVED_DB_PATH aponta para o banco unico app.db."
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:69:         "DERIVED_DB_PATH alias para APP_DB_PATH": "DERIVED_DB_PATH = APP_DB_PATH" in config_text,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:91:         lines.append("[OK] APP_DB_PATH permanece canonico e DERIVED_DB_PATH permanece alias legado.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:13:     r'^DERIVED_DB_PATH\s*=\s*Path\(os\.getenv\("DERIVED_DB_PATH",\s*str\(_PROJECT_ROOT / "dados/app\.db"\)\)\)\.resolve\(\)\s*$',
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:21: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:22: DERIVED_DB_PATH = APP_DB_PATH'''
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:42:     lines.append("Preservar DERIVED_DB_PATH como alias legado apontando para APP_DB_PATH.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:60:     if "APP_DB_PATH" in text and "DERIVED_DB_PATH = APP_DB_PATH" in text:
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:61:         lines.append("[INFO] APP_DB_PATH e alias DERIVED_DB_PATH = APP_DB_PATH ja estavam presentes.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:68:             lines.append("[OK] Linha DERIVED_DB_PATH antiga substituida por bloco canonico APP_DB_PATH.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:75:         fallback_old = 'DERIVED_DB_PATH = Path(os.getenv("DERIVED_DB_PATH", str(_PROJECT_ROOT / "dados/app.db"))).resolve()'
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:94:         "DERIVED_DB_PATH alias para APP_DB_PATH": "DERIVED_DB_PATH = APP_DB_PATH" in final_text,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:110:         lines.append("[OK] DERIVED_DB_PATH permanece como alias legado para compatibilidade.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:111:         lines.append("[OK] Proxima etapa pode migrar imports internos controlados de DERIVED_DB_PATH para APP_DB_PATH.")
 
 ----- derived_repo -----
 count: 20

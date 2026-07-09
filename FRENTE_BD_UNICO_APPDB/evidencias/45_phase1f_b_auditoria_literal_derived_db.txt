@@ -1,5 +1,5 @@
 ===== DATA =====
-2026-07-08 22:53:51
+2026-07-09 07:49:00
 
 ===== OBJETIVO =====
 Auditoria precisa usando busca literal fixa para derived.db.
@@ -21,7 +21,7 @@ FRENTE_BD_UNICO_APPDB/scripts/*.py
 
 ===== CONTAGEM DE ARQUIVOS VARREDOS =====
 operacionais: 163
-transicionais: 11
+transicionais: 13
 
 ===== LITERAL EXATO derived.db EM CODIGO OPERACIONAL =====
 Nenhuma ocorrência encontrada.
@@ -43,6 +43,13 @@ FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:231:     repo
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:236:         report_45.append("[ATENCAO] Ainda existem referencias literais derived.db em codigo operacional.")
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:239:         report_45.append("[OK] Nenhuma referencia literal exata derived.db encontrada em codigo operacional.")
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:254:     report_46.append("Este mapa NAO indica dependencia fisica em derived.db por si so.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:12: OLD_COMMENT = "# Importante: DERIVED_DB_PATH nao aponta mais para derived.db; aponta para app.db."
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:31:         lines.append("[OK] Comentario com literal derived.db substituido.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:40:     has_literal = "derived.db" in final_text.lower()
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:42:     lines.append(f"{'[OK]' if not has_literal else '[ATENCAO]'} literal derived.db ausente no arquivo: {not has_literal}")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:55:     lines.append("Remover literal derived.db introduzido em comentario operacional de db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:67:         "db/config.py sem literal derived.db": "derived.db" not in config_text.lower(),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:96:         "literal derived.db ausente": "derived.db" not in final_text.lower(),
 
 ===== BUSCA CASE-INSENSITIVE derived.db EM CODIGO OPERACIONAL =====
 Nenhuma ocorrência encontrada.
@@ -68,6 +75,13 @@ FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:231:     repo
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:236:         report_45.append("[ATENCAO] Ainda existem referencias literais derived.db em codigo operacional.")
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:239:         report_45.append("[OK] Nenhuma referencia literal exata derived.db encontrada em codigo operacional.")
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:254:     report_46.append("Este mapa NAO indica dependencia fisica em derived.db por si so.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:12: OLD_COMMENT = "# Importante: DERIVED_DB_PATH nao aponta mais para derived.db; aponta para app.db."
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:31:         lines.append("[OK] Comentario com literal derived.db substituido.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:40:     has_literal = "derived.db" in final_text.lower()
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:42:     lines.append(f"{'[OK]' if not has_literal else '[ATENCAO]'} literal derived.db ausente no arquivo: {not has_literal}")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:55:     lines.append("Remover literal derived.db introduzido em comentario operacional de db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:67:         "db/config.py sem literal derived.db": "derived.db" not in config_text.lower(),
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:96:         "literal derived.db ausente": "derived.db" not in final_text.lower(),
 
 ===== DECISAO =====
 [OK] Nenhuma referencia literal exata derived.db encontrada em codigo operacional.
