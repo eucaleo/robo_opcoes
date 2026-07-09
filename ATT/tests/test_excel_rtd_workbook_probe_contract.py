@@ -135,6 +135,32 @@ def test_probe_respects_preferred_sheet_when_available():
     assert result.selected_sheet == "RTD_LINKS"
 
 
+def test_probe_returns_sheet_not_found_when_preferred_sheet_is_missing():
+    adapter = FakeExcelAdapter(
+        workbooks=[
+            {
+                "name": "LISTA_RTD.xlsm",
+                "full_name": "C:/LISTA_RTD.xlsm",
+                "sheets": ["RTD_OPTION_QUOTES", "RTD-BTG LISTA"],
+            }
+        ]
+    )
+
+    probe = ExcelRtdWorkbookProbe(
+        config=ExcelRtdWorkbookProbeConfig(preferred_sheet="RTD_LINKS"),
+        adapter=adapter,
+    )
+
+    result = probe.run()
+
+    assert result.ok is False
+    assert result.status == "sheet_not_found"
+    assert result.selected_sheet is None
+    assert result.requested_sheet == "RTD_LINKS"
+    assert result.sheets == ["RTD_OPTION_QUOTES", "RTD-BTG LISTA"]
+    assert adapter.read_calls == []
+
+
 def test_probe_returns_sheet_not_found_when_workbook_has_no_sheets():
     adapter = FakeExcelAdapter(
         workbooks=[

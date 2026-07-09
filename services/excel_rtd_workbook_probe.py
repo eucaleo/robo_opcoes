@@ -59,6 +59,7 @@ class ExcelRtdWorkbookProbeResult:
     workbook_full_name: str | None = None
     sheets: list[str] = field(default_factory=list)
     selected_sheet: str | None = None
+    requested_sheet: str | None = None
     headers: list[str] = field(default_factory=list)
     sample_rows: list[list[Any]] = field(default_factory=list)
     row_count: int | None = None
@@ -221,13 +222,22 @@ class ExcelRtdWorkbookProbe:
         selected_sheet = self._choose_sheet(sheets)
 
         if not selected_sheet:
+            requested_sheet = self.config.preferred_sheet
+            message = (
+                f"aba RTD solicitada nao encontrada: {requested_sheet}"
+                if requested_sheet
+                else "nenhuma aba disponivel para leitura"
+            )
+
             return ExcelRtdWorkbookProbeResult(
                 ok=False,
                 status="sheet_not_found",
-                message="nenhuma aba disponivel para leitura",
+                message=message,
                 workbook_name=str(selected.get("name") or ""),
                 workbook_full_name=str(selected.get("full_name") or ""),
                 sheets=sheets,
+                selected_sheet=None,
+                requested_sheet=requested_sheet,
                 workbooks_seen=workbooks_seen,
             )
 
@@ -247,6 +257,7 @@ class ExcelRtdWorkbookProbe:
                 workbook_full_name=str(selected.get("full_name") or ""),
                 sheets=sheets,
                 selected_sheet=selected_sheet,
+                requested_sheet=self.config.preferred_sheet,
                 workbooks_seen=workbooks_seen,
             )
         except Exception as exc:
@@ -258,6 +269,7 @@ class ExcelRtdWorkbookProbe:
                 workbook_full_name=str(selected.get("full_name") or ""),
                 sheets=sheets,
                 selected_sheet=selected_sheet,
+                requested_sheet=self.config.preferred_sheet,
                 workbooks_seen=workbooks_seen,
             )
 
@@ -269,6 +281,7 @@ class ExcelRtdWorkbookProbe:
             workbook_full_name=str(selected.get("full_name") or ""),
             sheets=sheets,
             selected_sheet=selected_sheet,
+            requested_sheet=self.config.preferred_sheet,
             headers=[str(h).strip() for h in sample.get("headers", [])],
             sample_rows=sample.get("rows", []),
             row_count=sample.get("row_count"),
@@ -299,6 +312,8 @@ class ExcelRtdWorkbookProbe:
             for sheet in sheets:
                 if sheet.casefold() == preferred.casefold():
                     return sheet
+
+            return None
 
         return sheets[0]
 
