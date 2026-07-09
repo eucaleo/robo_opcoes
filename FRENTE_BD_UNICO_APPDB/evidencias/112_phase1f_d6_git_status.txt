@@ -1,0 +1,9 @@
+ M domain/payoff_features.py
+?? FRENTE_BD_UNICO_APPDB/evidencias/106_phase1f_d6_rename_payoff_features_app_db_connection.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/107_phase1f_d6_pytest_direcionado.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/108_phase1f_d6_compileall.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/109_phase1f_d6_reauditoria_stdout.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/110_phase1f_d6_reauditoria_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/111_phase1f_d6_resumo_identificadores_derived.txt
+?? FRENTE_BD_UNICO_APPDB/evidencias/112_phase1f_d6_git_status.txt
+?? FRENTE_BD_UNICO_APPDB/scripts/phase1f_d6_rename_payoff_features_app_db_connection.py

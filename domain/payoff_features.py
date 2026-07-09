@@ -11,7 +11,7 @@ Patch 24: chave de upsert migrada de (timestamp, aba)
 """
 
 
-def get_derived_db_connection() -> sqlite3.Connection:
+def get_app_db_connection() -> sqlite3.Connection:
     db_path = Path("dados/app.db").resolve()
     return sqlite3.connect(str(db_path))
 
@@ -209,7 +209,7 @@ def upsert_curve_summary(
         )
 
     _owns_conn = _conn_override is None
-    conn = _conn_override if _conn_override is not None else get_derived_db_connection()
+    conn = _conn_override if _conn_override is not None else get_app_db_connection()
 
     try:
         cur = conn.cursor()
