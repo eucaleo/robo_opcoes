@@ -1,5 +1,5 @@
 ===== DATA =====
-2026-07-09 07:49:00
+2026-07-09 07:53:21
 
 ===== OBJETIVO =====
 Mapa de identificadores tecnicos derived_* remanescentes apos Fase 1F-A.
@@ -21,7 +21,7 @@ Este mapa NAO indica dependencia fisica em derived.db por si so.
 ===== MAPA POR TOKEN =====
 
 ----- derived_db -----
-count: 58
+count: 61
 ATT/checks/check_cleanup_residuals.py:78:     "scripts/repair_derived_db_consistency.py",
 ATT/checks/check_cleanup_residuals.py:80:     "scripts/validate_derived_db.py",
 ATT/checks/check_end_to_end.py:35:     ROOT_DIR / "Scripts" / "validate_derived_db.py",
@@ -80,12 +80,12 @@ FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:65:     "vali
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:66:     "repair_derived_db",
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:243:     (EVID / "45_phase1f_b_auditoria_literal_derived_db.txt").write_text(
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_b_precise_reference_audit.py:285:     print("  FRENTE_BD_UNICO_APPDB/evidencias/45_phase1f_b_auditoria_literal_derived_db.txt")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:47: def imports_derived_db_path_from_config(path: Path, text: str) -> bool:
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:144:         if not imports_derived_db_path_from_config(path, text):
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:201:     remaining_out = EVID / "62_phase1f_c2_remaining_derived_db_path_tokens.txt"
 
 ----- DERIVED_DB -----
-count: 60
-UI/models/ui_data.py:9: from db.config import DERIVED_DB_PATH
-UI/models/ui_data.py:51:         from db.config import DERIVED_DB_PATH
-UI/models/ui_data.py:55:             else Path(DERIVED_DB_PATH).resolve()
+count: 70
 db/config.py:13: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
 db/config.py:14: DERIVED_DB_PATH = APP_DB_PATH
 scripts/validate_derived_db.py:23:     env = os.environ.get("DERIVED_DB_PATH") or os.environ.get("DERIVED_DB") or os.environ.get("DERIVED_DB_FILE")
@@ -132,6 +132,19 @@ FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:12: OLD_COMMENT
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:13: NEW_COMMENT = "# Importante: DERIVED_DB_PATH aponta para o banco unico app.db."
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:69:         "DERIVED_DB_PATH alias para APP_DB_PATH": "DERIVED_DB_PATH = APP_DB_PATH" in config_text,
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_c1_clean_config_comment.py:91:         lines.append("[OK] APP_DB_PATH permanece canonico e DERIVED_DB_PATH permanece alias legado.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:57:                     if alias.name == "DERIVED_DB_PATH":
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:112:     report.append("Migrar imports internos controlados de DERIVED_DB_PATH para APP_DB_PATH.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:113:     report.append("Preservar DERIVED_DB_PATH apenas como alias legado em db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:152:             "DERIVED_DB_PATH",
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:160:     report.append("===== CANDIDATOS COM IMPORT DE DERIVED_DB_PATH A PARTIR DE db.config =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:185:         "DERIVED_DB_PATH alias legado preservado": "DERIVED_DB_PATH = APP_DB_PATH" in config_text,
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:199:         remaining_hits.extend(find_token_hits(path, "DERIVED_DB_PATH"))
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:207:     remaining_report.append("Listar tokens Python remanescentes DERIVED_DB_PATH em codigo operacional, exceto db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:208:     remaining_report.append("db/config.py e excecao esperada porque preserva alias legado DERIVED_DB_PATH = APP_DB_PATH.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:214:         remaining_report.append("Nenhum token DERIVED_DB_PATH remanescente fora de db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:218:     report.append("===== TOKENS DERIVED_DB_PATH REMANESCENTES FORA DE db/config.py =====")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:222:         report.append("Nenhum token DERIVED_DB_PATH remanescente fora de db/config.py.")
+FRENTE_BD_UNICO_APPDB/scripts/phase1f_c2_migrate_app_db_path_imports.py:228:         report.append("[OK] DERIVED_DB_PATH permanece somente como alias legado em db/config.py.")
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:13:     r'^DERIVED_DB_PATH\s*=\s*Path\(os\.getenv\("DERIVED_DB_PATH",\s*str\(_PROJECT_ROOT / "dados/app\.db"\)\)\)\.resolve\(\)\s*$',
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:21: # Importante: DERIVED_DB_PATH aponta para o banco unico app.db.
 FRENTE_BD_UNICO_APPDB/scripts/phase1f_c_appdb_canonical_aliases.py:22: DERIVED_DB_PATH = APP_DB_PATH'''

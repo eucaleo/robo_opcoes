@@ -6,7 +6,7 @@ import sqlite3
 from sqlite3 import Row
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from db.config import DERIVED_DB_PATH
+from db.config import APP_DB_PATH
 import json
 import csv
 from datetime import datetime
@@ -48,11 +48,11 @@ def _first_match(cols: List[str], candidates: List[str]) -> Optional[str]:
 
 class UIDataModel:
     def __init__(self, derived_db_path: Optional[Path] = None):
-        from db.config import DERIVED_DB_PATH
+        from db.config import APP_DB_PATH
         self.derived_db_path = (
             Path(derived_db_path).resolve()
             if derived_db_path
-            else Path(DERIVED_DB_PATH).resolve()
+            else Path(APP_DB_PATH).resolve()
         )
         print(f"[UI] Usando app DB: {self.derived_db_path}")
 

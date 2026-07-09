@@ -1,0 +1,9 @@
+===== DATA =====
+2026-07-09 07:53:19
+
+===== OBJETIVO =====
+Listar tokens Python remanescentes DERIVED_DB_PATH em codigo operacional, exceto db/config.py.
+db/config.py e excecao esperada porque preserva alias legado DERIVED_DB_PATH = APP_DB_PATH.
+
+===== RESULTADO =====
+Nenhum token DERIVED_DB_PATH remanescente fora de db/config.py.

@@ -1,5 +1,5 @@
 ===== DATA =====
-2026-07-09 07:49:00
+2026-07-09 07:53:21
 
 ===== OBJETIVO =====
 Auditoria precisa usando busca literal fixa para derived.db.
@@ -21,7 +21,7 @@ FRENTE_BD_UNICO_APPDB/scripts/*.py
 
 ===== CONTAGEM DE ARQUIVOS VARREDOS =====
 operacionais: 163
-transicionais: 13
+transicionais: 14
 
 ===== LITERAL EXATO derived.db EM CODIGO OPERACIONAL =====
 Nenhuma ocorrência encontrada.
