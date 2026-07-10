@@ -39,7 +39,6 @@ from typing import Optional
 from repositories.structures_repository import StructuresRepository
 from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
 from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
-from services.rtd_option_quotes_sync_service import sync_rtd_option_quotes_from_excel
 from domain.position_side import normalize_position_side
 
 
@@ -407,7 +406,12 @@ class StructureEditorDialog(tk.Toplevel):
 
 
     def _refresh_rtd_symbol_on_demand(self, codigo_opcao: str) -> tuple[bool, str]:
-        """Sincroniza o RTD Excel aberto diretamente, sem chamar script legado."""
+        """Valida se o simbolo existe no snapshot RTD centralizado.
+
+        A UI nao sincroniza Excel nem chama subprocessos. O botao Preencher via RTD
+        consome apenas a tabela rtd_option_quotes, que deve ser mantida atualizada
+        por processo externo ao fluxo da tela.
+        """
         symbol = str(codigo_opcao or "").strip().upper()
 
         if not symbol:
@@ -416,23 +420,17 @@ class StructureEditorDialog(tk.Toplevel):
         project_root = Path(__file__).resolve().parents[2]
         db_path = project_root / "dados" / "app.db"
 
-        result = sync_rtd_option_quotes_from_excel(db_path=db_path)
-
-        if not result.ok:
-            detail = result.error or "sem detalhe"
-            return False, f"Falha ao sincronizar RTD Excel: {detail}"
-
         repo = RtdOptionQuotesRepository(db_path)
         quote = repo.get_by_codigo(symbol)
 
         if quote is None:
             return (
                 False,
-                f"RTD sincronizado ({result.rows_upserted} linhas), "
-                f"mas nao encontrou cotacao para {symbol}.",
+                f"Cotacao RTD nao encontrada no snapshot centralizado para {symbol}. "
+                "Atualize o snapshot rtd_option_quotes e tente novamente.",
             )
 
-        return True, f"OK: RTD sincronizado ({result.rows_upserted} linhas)."
+        return True, f"OK: cotacao RTD encontrada no snapshot para {symbol}."
 
     def _get_rtd_leg_enrichment_service(self):
         """Cria/lazily retorna o service de preenchimento de leg via RTD."""

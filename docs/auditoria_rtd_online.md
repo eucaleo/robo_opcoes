@@ -69,3 +69,26 @@ Primeiro fechamento técnico da Fase 2:
 - Deduplicar resíduos legados de snapshot preservando a linha de maior id.
 - Normalizar símbolos existentes.
 - Testar o contrato físico do snapshot.
+
+## Fase 2.2 - UI consumindo apenas snapshot centralizado
+
+O fluxo do botao Preencher via RTD em StructureEditorDialog foi ajustado para
+nao sincronizar Excel diretamente e nao depender de subprocessos.
+
+Contrato operacional atual:
+
+    UI -> RtdOptionQuotesRepository -> StructureLegRtdEnrichmentService
+
+A tabela rtd_option_quotes passa a ser a unica fonte consultada pela tela para
+preenchimento de legs via RTD. A atualizacao dessa tabela fica fora do fluxo da UI,
+preservando separacao de responsabilidades:
+
+- produtor externo mantem o snapshot RTD atualizado
+- UI apenas consulta o snapshot
+- enrichment monta os dados da leg a partir do repositorio
+- ausencia de cotacao gera aviso orientando atualizar o snapshot
+
+Guardrail adicionado em teste para impedir reintroducao de:
+
+- rtd_option_quotes_sync_service na UI
+- sync_rtd_option_quotes_from_excel na UI
