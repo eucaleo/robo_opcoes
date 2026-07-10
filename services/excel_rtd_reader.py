@@ -16,6 +16,15 @@ from services.rtd_option_quotes_schema import (
     REQUIRED_OPTION_HEADERS,
     normalize_header,
 )
+
+from services.excel_rtd_com_access import (
+    find_open_workbook as _find_open_workbook,
+    find_worksheet as _find_worksheet,
+    get_active_excel_application,
+    iter_com_collection as _iter_com_collection,
+    list_workbook_names as _list_workbook_names,
+    list_worksheet_names as _list_worksheet_names,
+)
 NUMERIC_FIELDS = {
     "strike",
     "ultimo_preco",
