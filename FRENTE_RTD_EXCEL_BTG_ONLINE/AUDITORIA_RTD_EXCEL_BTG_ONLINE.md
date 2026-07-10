@@ -74,3 +74,76 @@ A UI não deve acessar COM diretamente. A UI deve consumir um payload pronto pro
 ### Teste criado
 
 - ATT/tests/test_excel_rtd_connection_status_presenter.py
+
+## Fase 1C - Menu Ajuda com Status RTD Excel
+
+### Objetivo
+
+Conectar o payload backend de status RTD Excel à UI moderna por meio do menu Ajuda.
+
+### Itens cobertos
+
+- Inclusão do item Ajuda > Status RTD Excel.
+- Chamada ao backend `get_excel_rtd_status_payload`.
+- Exibição via messagebox conforme severidade:
+  - ok: showinfo
+  - warning: showwarning
+  - error: showerror
+- Formatação amigável do resumo operacional.
+- Teste operacional com UI real em subprocess limpo e RTD/Excel real ativo.
+
+### Regra operacional validada
+
+A UI consome apenas o payload pronto do backend e não acessa COM diretamente. A validação operacional usa Excel/RTD real ativo.
+
+### Teste criado
+
+- ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py
+## Fase 1 - Detecção Excel COM e validação da planilha
+
+Data: 2026-07-10
+
+Resultado validado:
+
+- O arquivo C:\Users\eucal\projeto\LISTA_RTD.xlsm foi aberto via COM.
+- O Python passou a enxergar o workbook corretamente.
+- A aba RTD_OPTION_QUOTES foi encontrada.
+- Os cabeçalhos obrigatórios foram encontrados.
+- O teste ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py passou.
+
+Evidência:
+
+Workbooks: 1
+LISTA_RTD.xlsm C:\Users\eucal\projeto\LISTA_RTD.xlsm
+
+Cabeçalhos encontrados:
+
+codigo_opcao
+ativo_base
+call_put
+strike
+vencimento
+ultimo_preco
+ultima_quantidade
+bid
+ask
+volume
+iv
+delta
+gamma
+theta
+vega
+vwap
+
+Teste executado:
+
+pytest ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py -q
+
+Resultado:
+
+1 passed in 1.76s
+
+Conclusão:
+
+A integração COM funciona quando o LISTA_RTD.xlsm é aberto pela instância Excel controlada pelo Python. A próxima melhoria necessária é automatizar no sistema a abertura ou reutilização correta desse workbook.
+EOF
