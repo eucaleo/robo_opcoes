@@ -137,6 +137,18 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _explicit_instance_db_paths(self):
         instance_dict = getattr(self, "__dict__", {}) or {}
+
+        # No fluxo bd-unico-appdb, app_db_path recebido no construtor é
+        # autoridade máxima para consultas operacionais/snapshot.
+        explicit_app_path = self._safe_db_path(
+            instance_dict.get("_explicit_app_db_path")
+        )
+        if explicit_app_path is not None and self._looks_like_db_path(
+            "_explicit_app_db_path",
+            explicit_app_path,
+        ):
+            return [explicit_app_path]
+
         ordered_names = self._ordered_instance_db_attribute_names(instance_dict)
 
         primary_explicit = []
@@ -159,11 +171,10 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _ordered_instance_db_attribute_names(self, instance_dict):
         preferred_names = [
+            "_explicit_app_db_path",
+            "app_db_path",
             "_raw_db_path",
             "raw_db_path",
-            "_explicit_app_db_path",
-            "_app_db_path",
-            "app_db_path",
             "_db_path",
             "db_path",
             "_database_path",
@@ -172,7 +183,6 @@ class DetailsPanel(ttk.LabelFrame):
             "sqlite_path",
             "_db_file",
             "db_file",
-            "_app_db_path",
         ]
 
         ordered_names = []
@@ -187,70 +197,13 @@ class DetailsPanel(ttk.LabelFrame):
         return ordered_names
 
     def _default_snapshot_db_paths(self):
-        candidates = []
+        """
+        Caminho default canônico para snapshots.
 
-        for name in self._class_level_db_attribute_names():
-            try:
-                attr = getattr(self, name, None)
-            except Exception:
-                attr = None
-
-            path = self._safe_db_path(attr)
-            if path is not None and self._looks_like_db_path(name, path):
-                candidates.append(path)
-
-        project_root = self._snapshot_project_root()
-        candidates.extend(self._well_known_snapshot_db_paths(project_root))
-        candidates.extend(self._glob_snapshot_db_paths(project_root))
-
-        return candidates
-
-    def _class_level_db_attribute_names(self):
-        return [
-            "_explicit_app_db_path",
-            "_app_db_path",
-            "app_db_path",
-            "_raw_db_path",
-            "raw_db_path",
-            "_db_path",
-            "db_path",
-            "_database_path",
-            "database_path",
-            "_sqlite_path",
-            "sqlite_path",
-            "_db_file",
-            "db_file",
-        ]
-
-    def _snapshot_project_root(self):
-        from pathlib import Path
-
-        project_root = getattr(self, "_project_root", None)
-        if project_root is not None:
-            return Path(project_root)
-
-        return Path(__file__).resolve().parents[2]
-
-    def _well_known_snapshot_db_paths(self, project_root):
-        return [
-            project_root / "app.db",
-            project_root / "app2.db",
-            project_root / "app.db",
-            project_root / "dados" / "app.db",
-            project_root / "dados" / "app2.db",
-            project_root / "dados" / "app.db",
-        ]
-
-    def _glob_snapshot_db_paths(self, project_root):
-        candidates = []
-
-        for base in [project_root, project_root / "dados"]:
-            try:
-                candidates.extend(sorted(base.glob("*.db")))
-            except Exception:
-                pass
-
-        return candidates
+        No bd-unico-appdb, o fallback único é o app.db canônico
+        resolvido por _app_db_path().
+        """
+        return [self._app_db_path()]
 
     def _safe_db_path(self, value):
         from pathlib import Path
