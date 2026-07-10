@@ -200,7 +200,7 @@ class DetailsPanel(ttk.LabelFrame):
         """
         Caminho default canônico para snapshots.
 
-        No bd-unico-appdb, o fallback único é o app.db canônico
+        No bd-unico-appdb, o caminho único é o app.db canônico
         resolvido por _app_db_path().
         """
         return [self._app_db_path()]

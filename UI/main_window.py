@@ -2,7 +2,7 @@
 #!/usr/bin/env python3
 """
 UI Principal - Sistema de Derivados
-Carrega dados de app.db e app.db para exibir decisões e payoffs
+Carrega dados do app.db para exibir decisões e payoffs
 """
 from UI.models.ui_data import UIDataModel
 from UI.components.payoff_chart import PayoffChart

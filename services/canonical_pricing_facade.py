@@ -382,7 +382,7 @@ class CanonicalPricingFacade:
 
             duration_ms = int((time.perf_counter() - started_at) * 1000)
 
-            #  5. Persiste (app.db + app.db via port) 
+            #  5. Persiste no app.db via port 
             persisted = self._persister.persist_execution(
                 pricing_payload=pricing_payload,
                 result=engine_result,
