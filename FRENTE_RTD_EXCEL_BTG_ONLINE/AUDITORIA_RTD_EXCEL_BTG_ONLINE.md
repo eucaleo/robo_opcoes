@@ -50,3 +50,27 @@ O sistema não depende da posição física fixa das colunas. A validação usa 
 ### Teste criado
 
 - ATT/tests/test_excel_rtd_connection_status.py
+
+## Fase 1B - Payload de Status RTD Excel para UI
+
+### Objetivo
+
+Criar uma camada de apresentação backend para converter o status técnico RTD Excel em payload consumível pela UI.
+
+### Itens cobertos
+
+- Status consolidado em view model.
+- Payload serializável em dict.
+- Severidade operacional: ok, warning ou error.
+- Título amigável para exibição.
+- Mensagem técnica preservada.
+- Checks individuais para pywin32, Excel, workbook, aba e cabeçalhos.
+- Injeção de checker para teste sem Excel real.
+
+### Regra operacional validada
+
+A UI não deve acessar COM diretamente. A UI deve consumir um payload pronto produzido pelo backend.
+
+### Teste criado
+
+- ATT/tests/test_excel_rtd_connection_status_presenter.py
