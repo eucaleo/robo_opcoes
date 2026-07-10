@@ -177,99 +177,31 @@ def normalize_number(value: Any) -> Optional[float]:
 
 
 def normalize_date(value: Any) -> Optional[str]:
-    """Normaliza datas para o padrao brasileiro DD-MM-YYYY.
-
-    Escopo conservador: usado pelo leitor RTD Excel.
-
-    Regras:
-    - datetime/date Python -> DD-MM-YYYY
-    - serial numerico Excel/COM -> DD-MM-YYYY
-    - string numerica com serial Excel -> DD-MM-YYYY
-    - ISO YYYY-MM-DD -> DD-MM-YYYY
-    - BR DD-MM-YYYY ou DD/MM/YYYY -> DD-MM-YYYY
-    - US MM-DD-YYYY ou MM/DD/YYYY -> DD-MM-YYYY quando nao conflitar
-    - texto nao reconhecido -> retorna texto original
-    """
-    import datetime as _dt
-    import re as _re
-
-    def _format_date(date_value: _dt.date) -> str:
-        return date_value.strftime("%d-%m-%Y")
-
-    def _from_excel_serial(serial_value: float) -> Optional[str]:
-        # Excel/COM usa base 1899-12-30.
-        # A fracao representa horario; para vencimento, usamos apenas a data.
-        if not (20000 <= serial_value <= 80000):
-            return None
-
-        excel_epoch = _dt.datetime(1899, 12, 30)
-        date_value = (excel_epoch + _dt.timedelta(days=float(serial_value))).date()
-        return _format_date(date_value)
-
     if value is None:
         return None
 
-    if isinstance(value, _dt.datetime):
-        return _format_date(value.date())
+    if isinstance(value, dt.datetime):
+        return value.date().isoformat()
 
-    if isinstance(value, _dt.date):
-        return _format_date(value)
+    if isinstance(value, dt.date):
+        return value.isoformat()
 
-    if isinstance(value, bool):
-        return str(value)
+    text = str(value).strip()
 
-    if isinstance(value, (int, float)):
-        converted = _from_excel_serial(float(value))
-        if converted is not None:
-            return converted
-        return str(value)
-
-    raw = str(value).strip()
-    if not raw:
+    if not text:
         return None
 
-    lowered = raw.lower()
-    if lowered in {"none", "null", "nan", "nat"}:
+    if text.lower() in EMPTY_VALUES:
         return None
 
-    numeric_candidate = raw.replace(",", ".")
-    if _re.fullmatch(r"\d+(?:\.\d+)?", numeric_candidate):
-        converted = _from_excel_serial(float(numeric_candidate))
-        if converted is not None:
-            return converted
-
-    # Data compacta, ex.: 20260821 ou 21082026.
-    if _re.fullmatch(r"\d{8}", raw):
-        for fmt in ("%Y%m%d", "%d%m%Y"):
-            try:
-                return _format_date(_dt.datetime.strptime(raw, fmt).date())
-            except ValueError:
-                pass
-
-    # Remove horario em strings ISO ou similares.
-    date_part = raw.replace("T", " ").split(" ")[0].strip()
-
-    # Ordem proposital:
-    # 1. ISO
-    # 2. Brasil
-    # 3. EUA apenas quando a data BR nao for parseavel, ex.: 08/21/2026
-    formats = (
-        "%Y-%m-%d",
-        "%Y/%m/%d",
-        "%d-%m-%Y",
-        "%d/%m/%Y",
-        "%d.%m.%Y",
-        "%m-%d-%Y",
-        "%m/%d/%Y",
-    )
-
-    for fmt in formats:
+    for fmt in ("%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%d/%m/%y"):
         try:
-            return _format_date(_dt.datetime.strptime(date_part, fmt).date())
+            parsed = dt.datetime.strptime(text, fmt)
+            return parsed.date().isoformat()
         except ValueError:
             pass
 
-    return raw
+    return text
 
 
 def normalize_cell(field_name: str, value: Any) -> Any:

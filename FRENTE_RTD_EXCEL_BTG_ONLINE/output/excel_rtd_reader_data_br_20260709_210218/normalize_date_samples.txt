@@ -1,0 +1,11 @@
+serial_float: 46255.125 -> '21-08-2026'
+serial_string: '46255.125' -> '21-08-2026'
+iso: '2026-08-21' -> '21-08-2026'
+br_slash: '21/08/2026' -> '21-08-2026'
+br_hyphen: '21-08-2026' -> '21-08-2026'
+us_slash: '08/21/2026' -> '21-08-2026'
+us_hyphen: '08-21-2026' -> '21-08-2026'
+compact_iso: '20260821' -> '21-08-2026'
+compact_br: '21082026' -> '21-08-2026'
+none: None -> None
+OK: normalize_date converte os formatos testados para DD-MM-YYYY

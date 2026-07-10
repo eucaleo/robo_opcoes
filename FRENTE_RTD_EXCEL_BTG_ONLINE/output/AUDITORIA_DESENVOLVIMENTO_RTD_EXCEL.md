@@ -77,3 +77,41 @@ A pasta app/services foi removida para evitar duplicidade arquitetural.
 
 A partir desta correcao, a frente RTD Excel deve reutilizar a pasta canonica services/ e nao criar nova arvore app/services/.
 
+
+## Normalizacao brasileira de datas no leitor RTD Excel
+
+Data/hora: 09/07/2026 21:06:16
+Branch: refactor/bd-unico-appdb
+Evidencias: FRENTE_RTD_EXCEL_BTG_ONLINE/output/excel_rtd_reader_data_br_20260709_210218
+
+### Alteracao executada
+
+A funcao `normalize_date` em:
+
+`services/excel_rtd_reader.py`
+
+foi ajustada para normalizar datas do leitor RTD Excel para o padrao brasileiro:
+
+`DD-MM-YYYY`
+
+### Escopo conservador
+
+A alteracao foi limitada ao leitor RTD Excel, evitando mudancas globais no sistema.
+
+### Regras validadas
+
+- serial numerico Excel/COM, exemplo `46255.125`;
+- string numerica com serial Excel;
+- ISO `YYYY-MM-DD`;
+- brasileiro `DD/MM/YYYY`;
+- brasileiro `DD-MM-YYYY`;
+- americano `MM/DD/YYYY`, quando parseavel;
+- americano `MM-DD-YYYY`, quando parseavel.
+
+### Validacoes executadas
+
+- teste direto da funcao `normalize_date`;
+- teste operacional `scripts/test_excel_rtd_reader.py`;
+- busca nas evidencias por `vencimento` em formato serial;
+- busca nas evidencias por `vencimento` em formato brasileiro.
+
