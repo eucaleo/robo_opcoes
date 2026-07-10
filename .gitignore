@@ -101,3 +101,11 @@ LISTA_RTD.xlsm
 _local_scripts_fase7/
 reports/
 spikes/
+FRENTE_BD_UNICO_APPDB/backups/*.db
+FRENTE_BD_UNICO_APPDB/backups_phase1f/
+
+# Artefatos gerados da frente RTD Excel BTG Online
+FRENTE_RTD_EXCEL_BTG_ONLINE/output/
+FRENTE_RTD_EXCEL_BTG_ONLINE/**/project_search_hits.txt
+FRENTE_RTD_EXCEL_BTG_ONLINE/**/repo_scan_*.txt
+FRENTE_RTD_EXCEL_BTG_ONLINE/**/retomada_*/

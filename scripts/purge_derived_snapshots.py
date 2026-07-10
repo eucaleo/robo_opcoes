@@ -31,17 +31,17 @@ def count_table(con: sqlite3.Connection, table: str) -> int | None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Remove snapshots derivados antigos/inválidos do derived.db"
+        description="Remove snapshots consolidados antigos/inválidos do app.db"
     )
     parser.add_argument(
         "--db",
-        default="dados/derived.db",
-        help="Caminho do derived.db. Default: dados/derived.db",
+        default="dados/app.db",
+        help="Caminho do app.db. Default: dados/app.db",
     )
     parser.add_argument(
         "--all",
         action="store_true",
-        help="Remove todos os snapshots derivados.",
+        help="Remove todos os snapshots consolidados.",
     )
     parser.add_argument(
         "--older-than-hours",

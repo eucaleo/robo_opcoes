@@ -1,6 +1,6 @@
 # db/derived_repo.py
 """
-Repositório para operações com dados derivados (payoff e decisões).
+Repositório para operações com dados consolidados (payoff e decisões).
 Tabelas: payoff_curve_points, structure_decisions
 
 Contrato canônico payoff: point_spot / point_pl (opção B).
@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from db.config import connect_app
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -44,6 +45,11 @@ PayoffPoint = Union[Tuple[float, float], Dict[str, float]]
 # ---------------------------------------------------------------------------
 # alteracao_56: helper de compatibilidade StructureRef -> str
 # ---------------------------------------------------------------------------
+
+
+def get_app_db_connection() -> sqlite3.Connection:
+    """Retorna conexao para o banco unico da aplicacao app.db."""
+    return connect_app()
 
 def _unwrap_aba(aba_or_ref) -> str:
     """
@@ -212,14 +218,14 @@ def ensure_derived_tables(conn: sqlite3.Connection) -> None:
 
 class DerivedRepo:
     """
-    Repositório canônico para derived.db.
+    Repositório canônico para app.db.
     alteracao_34: assinaturas alinhadas com o smoke 70 (decision_dict auto-extrai timestamp/aba).
     alteracao_55: suporte a StructureRef como argumento aba.
     alteracao_56: correções de bugs em _apply_schema e INSERTs do payoff.
     """
 
-    def __init__(self, db_path: str = "dados/derived.db", derived_db: Optional[str] = None) -> None:
-        self._db_path = derived_db or db_path
+    def __init__(self, db_path: str = "dados/app.db") -> None:
+        self._db_path = db_path
         self._bootstrap()
 
     # ------------------------------------------------------------------

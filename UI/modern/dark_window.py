@@ -10,6 +10,9 @@ ao layout escuro das telas de referência.
 from __future__ import annotations
 
 import tkinter as tk
+from tkinter import messagebox
+
+from rtd_bridge.excel_rtd_connection_status_presenter import get_excel_rtd_status_payload
 from pathlib import Path
 from tkinter import messagebox
 
@@ -57,6 +60,8 @@ class ModernDarkWindow:
         app_menu.add_command(label="Sair", command=self.root.quit)
 
         help_menu = tk.Menu(menu_bar, tearoff=0)
+        help_menu.add_command(label="Status RTD Excel", command=self._show_excel_rtd_status)
+        help_menu.add_separator()
         help_menu.add_command(label="Sobre", command=self._show_about)
 
         menu_bar.add_cascade(label="Aplicação", menu=app_menu)
@@ -239,6 +244,23 @@ class ModernDarkWindow:
                 parent=self.root,
             )
 
+    def _show_excel_rtd_status(self) -> None:
+        """Exibe resumo operacional da conexão RTD/Excel."""
+        payload = get_excel_rtd_status_payload()
+        title = str(payload.get("title") or "Status RTD Excel")
+        message = _format_excel_rtd_status_message(payload)
+        severity = str(payload.get("severity") or "warning")
+
+        if severity == "ok":
+            messagebox.showinfo(title, message)
+            return
+
+        if severity == "warning":
+            messagebox.showwarning(title, message)
+            return
+
+        messagebox.showerror(title, message)
+
     def _show_about(self) -> None:
         messagebox.showinfo(
             "Sobre",
@@ -258,3 +280,52 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+def _format_excel_rtd_status_message(payload: dict) -> str:
+    """Formata payload RTD/Excel para exibição amigável em messagebox."""
+    lines: list[str] = []
+
+    main_message = str(payload.get("message") or "").strip()
+    if main_message:
+        lines.append(main_message)
+        lines.append("")
+
+    lines.append(f"Pronto para leitura: {_format_bool_pt_br(bool(payload.get('ready')))}")
+    lines.append(f"Severidade: {payload.get('severity') or 'indefinida'}")
+    lines.append(f"Workbook: {payload.get('workbook_name') or '-'}")
+    lines.append(f"Aba: {payload.get('worksheet_name') or '-'}")
+
+    workbook_full_name = payload.get("workbook_full_name")
+    if workbook_full_name:
+        lines.append(f"Arquivo: {workbook_full_name}")
+
+    checked_at = payload.get("checked_at")
+    if checked_at:
+        lines.append(f"Verificado em: {checked_at}")
+
+    missing_headers = payload.get("missing_headers") or []
+    if missing_headers:
+        lines.append("")
+        lines.append("Cabeçalhos ausentes:")
+        for header in missing_headers:
+            lines.append(f"- {header}")
+
+    checks = payload.get("checks") or []
+    if checks:
+        lines.append("")
+        lines.append("Checks:")
+        for check in checks:
+            label = check.get("label") if isinstance(check, dict) else ""
+            ok = check.get("ok") if isinstance(check, dict) else False
+            detail = check.get("detail") if isinstance(check, dict) else ""
+            lines.append(f"- {label}: {_format_bool_pt_br(bool(ok))} ({detail})")
+
+    return "\n".join(lines)
+
+
+def _format_bool_pt_br(value: bool) -> str:
+    if value:
+        return "Sim"
+
+    return "Não"
+

@@ -1,6 +1,6 @@
 # db/reader.py
 """
-Reader para análise de dados derivados do SQLite.
+Reader para análise de dados consolidados do SQLite.
 """
 from domain.refs.structure_ref import StructureRef
 import sqlite3
@@ -14,7 +14,7 @@ from pathlib import Path
 class PayoffReader:
     """Leitor para análise de pontos do payoff curve e decisões estruturais."""
 
-    def __init__(self, db_path: str = "dados/derived.db"):
+    def __init__(self, db_path: str = "dados/app.db"):
         self.db_path = Path(db_path)
 
     def _get_connection(self):

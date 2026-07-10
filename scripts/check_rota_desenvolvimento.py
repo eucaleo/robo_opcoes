@@ -310,7 +310,7 @@ def audit_databases() -> None:
 
     dbs = [
         DADOS_DIR / "app.db",
-        DADOS_DIR / "derived.db",
+        DADOS_DIR / "app.db",
     ]
 
     for db in dbs:
@@ -386,11 +386,11 @@ def audit_scripts() -> None:
 
     candidates = [
         "scripts/db_locator.py",
-        "scripts/validate_derived_db.py",
+        "scripts/validate_app_db.py",
         "scripts/run_smoke_quick.py",
         "scripts/run_smoke_full.py",
         "run_derived_pipeline.py",
-        "validate_derived_db.py",
+        "validate_app_db.py",
     ]
 
     for rel in candidates:
@@ -417,7 +417,7 @@ def main() -> None:
         "- Se Fase 7 só tiver commit vazio, registre como fechamento sem documento próprio.\n"
         "- Se Fase 8 tem commits técnicos após a auditoria, ela provavelmente está em andamento.\n"
         "- Se structure_legs já estiver populada para 44-48, a pendência central da Fase 8 pode ter sido tratada.\n"
-        "- Se derived.db validar e os smokes existirem/passarem, aí sim avaliar avanço para a próxima fase da rota.\n"
+        "- Se app.db validar e os smokes existirem/passarem, aí sim avaliar avanço para a próxima fase da rota.\n"
     )
 
 

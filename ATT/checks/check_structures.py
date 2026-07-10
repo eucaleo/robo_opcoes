@@ -24,14 +24,14 @@ MODULE_CANDIDATES = [
 ]
 
 DB_CANDIDATES = [
-    ROOT_DIR / "dados" / "derived.db",
+    ROOT_DIR / "dados" / "app.db",
     ROOT_DIR / "dados" / "app.db",
 ]
 
 SCRIPT_CANDIDATES = [
     ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
     ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
-    ROOT_DIR / "Scripts" / "validate_derived_db.py",
+    ROOT_DIR / "Scripts" / "validate_app_db.py",
 ]
 
 

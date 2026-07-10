@@ -21,7 +21,7 @@ if str(PROJECT_ROOT) not in sys.path:
 if str(_ATT_ROOT) not in sys.path:
     sys.path.insert(0, str(_ATT_ROOT))
 
-DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
+DB_PATH = PROJECT_ROOT / "dados" / "app.db"
 
 print(f"\n[conftest] PROJECT_ROOT : {PROJECT_ROOT}")
 print(f"[conftest] DB_PATH      : {DB_PATH}")

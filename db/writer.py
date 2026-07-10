@@ -1,6 +1,6 @@
 # db/writer.py
 """
-Writer para persistência de dados derivados no SQLite.
+Writer para persistência de dados consolidados no SQLite.
 """
 from domain.refs.structure_ref import StructureRef
 import sqlite3
@@ -12,7 +12,7 @@ from pathlib import Path
 class PayoffWriter:
     """Escritor para pontos do payoff curve e decisões estruturais."""
     
-    def __init__(self, db_path: str = "dados/derived.db"):
+    def __init__(self, db_path: str = "dados/app.db"):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
@@ -99,7 +99,8 @@ class PayoffWriter:
             stacklevel=2
         )
         
-        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+        from db.config import connect_app
+        from db.derived_repo import write_decision_snapshot_atomic
         
         decision_dict = {
             "decision": decision,
@@ -112,7 +113,7 @@ class PayoffWriter:
             "why": why
         }
         
-        conn = get_derived_connection()
+        conn = connect_app()
         try:
             return write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
         finally:

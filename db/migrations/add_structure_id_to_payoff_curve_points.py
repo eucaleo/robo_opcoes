@@ -5,7 +5,7 @@ e payoff_curve_summary, com backfill via structure_decisions.
 
 Uso:
     python db/migrations/add_structure_id_to_payoff_curve_points.py
-    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/derived.db
+    python db/migrations/add_structure_id_to_payoff_curve_points.py --db dados/app.db
 """
 
 import sqlite3
@@ -124,6 +124,6 @@ def run(db_path: pathlib.Path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--db", default="dados/derived.db")
+    parser.add_argument("--db", default="dados/app.db")
     args = parser.parse_args()
     run(pathlib.Path(args.db))

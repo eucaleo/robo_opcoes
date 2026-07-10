@@ -398,12 +398,12 @@ class TestOnStructureEditRequestCriar(unittest.TestCase):
 
     def test_db_path_repassado_ao_dialog(self):
         mw, mw_mod = _make_main_window()
-        mw._db_path = "dados/derived.db"
+        mw._db_path = "dados/app.db"
         dlg = _make_dialog(); dlg.saved = False
         with patch.object(mw_mod, "StructureEditorDialog", return_value=dlg) as mock_cls:
             mw._on_structure_edit_request(structure_id=None)
         _, kwargs = mock_cls.call_args
-        self.assertEqual(kwargs.get("db_path"), "dados/derived.db")
+        self.assertEqual(kwargs.get("db_path"), "dados/app.db")
 
 
 class TestOnStructureEditRequestEditar(unittest.TestCase):

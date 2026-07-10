@@ -7,7 +7,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-DB_PATH = PROJECT_ROOT / "dados" / "derived.db"
+DB_PATH = PROJECT_ROOT / "dados" / "app.db"
 from UI.models.ui_data import UIDataModel
 
 
@@ -18,7 +18,7 @@ def model():
         f"  Esperado     : {DB_PATH}\n"
         f"  PROJECT_ROOT : {PROJECT_ROOT}\n"
     )
-    m = UIDataModel(derived_db_path=str(DB_PATH))
+    m = UIDataModel(app_db_path=str(DB_PATH))
     m.refresh()
     return m
 

@@ -16,7 +16,7 @@ class DerivedPayoffPersistence:
     Responsabilidades:
       1. Montar o canonical_input a partir do pricing_payload
       2. Calcular a curva de payoff via domain/payoff.py
-      3. Persistir pontos no derived.db via derived_service
+      3. Persistir pontos no app.db via derived_service
       4. Persistir decisão básica derivada do resultado do engine
     """
 

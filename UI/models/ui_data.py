@@ -1,12 +1,12 @@
 # UI/models/ui_data.py
 # alteracao_36_E: eliminar self._conn compartilhada
-# Toda conexao de leitura passa a ser por chamada (igual a _connect_derived_threadsafe)
+# Toda conexao de leitura passa a ser por chamada (igual a _connect_app_threadsafe)
 from domain.refs.structure_ref import StructureRef
 import sqlite3
 from sqlite3 import Row
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from db.config import DERIVED_DB_PATH
+from db.config import APP_DB_PATH
 import json
 import csv
 from datetime import datetime
@@ -47,14 +47,14 @@ def _first_match(cols: List[str], candidates: List[str]) -> Optional[str]:
     return None
 
 class UIDataModel:
-    def __init__(self, derived_db_path: Optional[Path] = None):
-        from db.config import DERIVED_DB_PATH
-        self.derived_db_path = (
-            Path(derived_db_path).resolve()
-            if derived_db_path
-            else Path(DERIVED_DB_PATH).resolve()
+    def __init__(self, app_db_path: Optional[Path] = None):
+        from db.config import APP_DB_PATH
+        self.app_db_path = (
+            Path(app_db_path).resolve()
+            if app_db_path
+            else Path(APP_DB_PATH).resolve()
         )
-        print(f"[UI] Usando derived DB: {self.derived_db_path}")
+        print(f"[UI] Usando app DB: {self.app_db_path}")
 
         # alteracao_36_E: self._conn REMOVIDO -- cada metodo abre sua propria conexao
         self._consolidations_table: Optional[str] = None
@@ -68,11 +68,11 @@ class UIDataModel:
 
     # alteracao_36_E: _connect agora e sempre uma nova conexao por chamada
     def _connect(self) -> sqlite3.Connection:
-        if not self.derived_db_path.exists():
+        if not self.app_db_path.exists():
             raise FileNotFoundError(
-                f"Banco derived.db nao encontrado em: {self.derived_db_path}"
+                f"Banco app.db nao encontrado em: {self.app_db_path}"
             )
-        conn = sqlite3.connect(str(self.derived_db_path))
+        conn = sqlite3.connect(str(self.app_db_path))
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -823,7 +823,7 @@ class UIDataModel:
         p: Dict[str, str],
         filter_col: str,
     ) -> Tuple[List[Dict], Dict]:
-        conn = self._connect_derived_threadsafe()
+        conn = self._connect_app_threadsafe()
 
         try:
             filter_val = self._resolve_structure_key(structure_id)
@@ -917,7 +917,7 @@ class UIDataModel:
             filter_info = "N/A"
 
         return (
-            f"derived.db: OK\n"
+            f"app.db: OK\n"
             f"Consolidações: {ctbl} (linhas: {cnt}, estruturas: {n_structures})\n"
             f"Timestamp mais recente: {last_ts}\n"
             f"Tabela de payoff: {self._payoff_table if payoff_ok else 'NÃO ENCONTRADA'}\n"
@@ -928,8 +928,8 @@ class UIDataModel:
         self._cache_structures = []
         self._payoff_cache = {}
 
-    # _connect_derived_threadsafe agora e apenas alias de _connect
-    def _connect_derived_threadsafe(self) -> sqlite3.Connection:
+    # _connect_app_threadsafe agora e apenas alias de _connect
+    def _connect_app_threadsafe(self) -> sqlite3.Connection:
         return self._connect()
 
     def _cache_get(self, key: Tuple) -> Optional[Any]:

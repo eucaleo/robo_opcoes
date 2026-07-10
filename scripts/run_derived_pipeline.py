@@ -20,10 +20,10 @@ except Exception:
 
 def validate_final_consistency() -> bool:
     """Valida consistência dos snapshots após processamento."""
-    from db.config import connect_derived
+    from db.config import connect_app
     from db.derived_repo import validate_snapshot_consistency
     
-    conn = connect_derived()
+    conn = connect_app()
     try:
         return validate_snapshot_consistency(conn)
     finally:
@@ -45,7 +45,7 @@ def main(argv=None) -> int:
     parser.add_argument(
         "--no-cleanup",
         action="store_true",
-        help="Não executar cleanup do derived.db antes de validar",
+        help="Não executar cleanup do app.db antes de validar",
     )
     args = parser.parse_args(argv)
 
