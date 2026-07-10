@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import json
-import subprocess
-import sys
 from pathlib import Path
 # UI/components/structure_editor_dialog.py
 """
@@ -42,6 +39,7 @@ from typing import Optional
 from repositories.structures_repository import StructuresRepository
 from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
 from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
+from services.rtd_option_quotes_sync_service import sync_rtd_option_quotes_from_excel
 from domain.position_side import normalize_position_side
 
 
@@ -409,67 +407,32 @@ class StructureEditorDialog(tk.Toplevel):
 
 
     def _refresh_rtd_symbol_on_demand(self, codigo_opcao: str) -> tuple[bool, str]:
-        """Atualiza uma opcao via RTD/Excel e grava o cache em dados/app.db."""
+        """Sincroniza o RTD Excel aberto diretamente, sem chamar script legado."""
         symbol = str(codigo_opcao or "").strip().upper()
 
         if not symbol:
             return False, "Codigo da opcao vazio."
 
         project_root = Path(__file__).resolve().parents[2]
-        script_path = project_root / "scripts" / "refresh_rtd_symbol_to_option_quotes_fallback.py"
         db_path = project_root / "dados" / "app.db"
 
-        if not script_path.exists():
-            return False, f"Script RTD nao encontrado: {script_path}"
+        result = sync_rtd_option_quotes_from_excel(db_path=db_path)
 
-        cmd = [
-            sys.executable,
-            str(script_path),
-            "--symbol",
-            symbol,
-            "--db",
-            str(db_path),
-            "--wait-seconds",
-            "3",
-            "--json",
-        ]
+        if not result.ok:
+            detail = result.error or "sem detalhe"
+            return False, f"Falha ao sincronizar RTD Excel: {detail}"
 
-        try:
-            completed = subprocess.run(
-                cmd,
-                cwd=str(project_root),
-                text=True,
-                capture_output=True,
-                encoding="utf-8",
-                errors="replace",
-                timeout=20,
-                check=False,
+        repo = RtdOptionQuotesRepository(db_path)
+        quote = repo.get_by_codigo(symbol)
+
+        if quote is None:
+            return (
+                False,
+                f"RTD sincronizado ({result.rows_upserted} linhas), "
+                f"mas nao encontrou cotacao para {symbol}.",
             )
-        except subprocess.TimeoutExpired:
-            return False, f"Timeout ao atualizar RTD para {symbol}."
 
-        stdout = completed.stdout.strip()
-        stderr = completed.stderr.strip()
-
-        if completed.returncode != 0:
-            detail = stderr or stdout or "sem detalhe"
-            return False, f"Falha ao atualizar RTD para {symbol}: {detail}"
-
-        try:
-            data = json.loads(stdout)
-        except json.JSONDecodeError:
-            return False, f"RTD atualizou, mas retornou JSON invalido: {stdout[:500]}"
-
-        if data.get("status") != "ok":
-            errors = data.get("errors") or []
-            return False, f"RTD retornou erro para {symbol}: {errors}"
-
-        quote = data.get("quote")
-
-        if not quote:
-            return False, f"RTD executou, mas nao retornou cotacao para {symbol}."
-
-        return True, "OK"
+        return True, f"OK: RTD sincronizado ({result.rows_upserted} linhas)."
 
     def _get_rtd_leg_enrichment_service(self):
         """Cria/lazily retorna o service de preenchimento de leg via RTD."""
