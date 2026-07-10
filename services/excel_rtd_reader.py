@@ -282,47 +282,34 @@ def iter_rows_from_range(values: Any) -> Iterable[Sequence[Any]]:
 
 def get_excel_application() -> Any:
     try:
-        import win32com.client
-    except ImportError as exc:
-        raise ExcelRtdReaderError("pywin32_nao_disponivel") from exc
-
-    try:
-        return win32com.client.GetActiveObject("Excel.Application")
+        return get_active_excel_application()
     except Exception as exc:
-        raise ExcelRtdReaderError("excel_nao_esta_aberto_ou_nao_acessivel_via_com") from exc
+        raise ExcelRtdReaderError(f"Nao foi possivel obter instancia ativa do Excel: {exc}") from exc
 
 
 def find_workbook(excel: Any, workbook_name: str = DEFAULT_WORKBOOK_NAME) -> Any:
-    target = workbook_name.lower()
+    workbook = _find_open_workbook(excel, workbook_name)
 
-    for workbook in excel.Workbooks:
-        name = str(workbook.Name).lower()
-        if name == target:
-            return workbook
+    if workbook is not None:
+        return workbook
 
-    available = [str(workbook.Name) for workbook in excel.Workbooks]
+    available = _list_workbook_names(excel)
     raise ExcelRtdReaderError(
-        "workbook_nao_encontrado: "
-        + workbook_name
-        + " | workbooks_abertos="
-        + ", ".join(available)
+        f"Workbook '{workbook_name}' nao encontrado no Excel. "
+        f"Workbooks disponiveis: {available}"
     )
 
 
 def find_sheet(workbook: Any, sheet_name: str = DEFAULT_SHEET_NAME) -> Any:
-    target = sheet_name.lower()
+    sheet = _find_worksheet(workbook, sheet_name)
 
-    for sheet in workbook.Worksheets:
-        name = str(sheet.Name).lower()
-        if name == target:
-            return sheet
+    if sheet is not None:
+        return sheet
 
-    available = [str(sheet.Name) for sheet in workbook.Worksheets]
+    available = _list_worksheet_names(workbook)
     raise ExcelRtdReaderError(
-        "aba_nao_encontrada: "
-        + sheet_name
-        + " | abas_disponiveis="
-        + ", ".join(available)
+        f"Worksheet '{sheet_name}' nao encontrada no workbook. "
+        f"Worksheets disponiveis: {available}"
     )
 
 

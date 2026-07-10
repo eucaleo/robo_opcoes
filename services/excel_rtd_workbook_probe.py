@@ -17,8 +17,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Protocol
 
+from services.rtd_option_quotes_schema import DEFAULT_WORKBOOK_NAME
 
-DEFAULT_WORKBOOK_NAME = "LISTA_RTD.xlsm"
+
 
 
 class ExcelRtdProbeError(RuntimeError):
