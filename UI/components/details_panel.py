@@ -11,7 +11,7 @@ class DetailsPanel(ttk.LabelFrame):
     def __init__(self, parent, on_recalculate=None, app_db_path=None):
         super().__init__(parent)
         self._on_recalculate_cb = on_recalculate
-        self._app_db_path = str(app_db_path) if app_db_path else None
+        self._explicit_app_db_path = str(app_db_path) if app_db_path else None
         self._recalc_in_progress = False
         self._last_recalc_signature = None
         self._current_decision = None
@@ -51,11 +51,15 @@ class DetailsPanel(ttk.LabelFrame):
         """
         Caminho do app.db.
 
-        Compatibilidade para testes:
-        - se o painel tiver db_path/_db_path explícito, usa esse arquivo;
+        Ordem:
+        - usa app_db_path recebido no construtor;
+        - se houver db_path/_db_path explícito em testes/compatibilidade, usa esse arquivo;
         - caso contrário, respeita self._project_root quando definido;
         - fallback final: raiz do projeto inferida pelo arquivo atual.
         """
+        if self._explicit_app_db_path:
+            return Path(self._explicit_app_db_path)
+
         for attr in ("db_path", "_db_path", "database_path", "_database_path"):
             value = getattr(self, attr, None)
             if value and not callable(value):
@@ -76,8 +80,8 @@ class DetailsPanel(ttk.LabelFrame):
         Importante: não usa self._db_path porque _app_db_path() já trata
         esse atributo como caminho do app.db em testes/compatibilidade.
         """
-        if self._app_db_path:
-            return Path(self._app_db_path)
+        if self._explicit_app_db_path:
+            return Path(self._explicit_app_db_path)
 
         project_root = getattr(self, "_project_root", None)
         if project_root is None:
@@ -157,6 +161,7 @@ class DetailsPanel(ttk.LabelFrame):
         preferred_names = [
             "_raw_db_path",
             "raw_db_path",
+            "_explicit_app_db_path",
             "_app_db_path",
             "app_db_path",
             "_db_path",
@@ -202,11 +207,11 @@ class DetailsPanel(ttk.LabelFrame):
 
     def _class_level_db_attribute_names(self):
         return [
-            "_app_db_path",
-            "_raw_db_path",
-            "raw_db_path",
+            "_explicit_app_db_path",
             "_app_db_path",
             "app_db_path",
+            "_raw_db_path",
+            "raw_db_path",
             "_db_path",
             "db_path",
             "_database_path",
