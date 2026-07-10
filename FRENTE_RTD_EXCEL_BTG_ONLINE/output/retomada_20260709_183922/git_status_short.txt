@@ -1,2 +1,0 @@
-?? app/
-?? scripts/test_excel_rtd_reader.py
