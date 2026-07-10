@@ -4,30 +4,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-
-DEFAULT_WORKBOOK_NAME = "LISTA_RTD.xlsm"
-DEFAULT_WORKSHEET_NAME = "RTD_OPTION_QUOTES"
-
-REQUIRED_OPTION_QUOTE_HEADERS: tuple[str, ...] = (
-    "codigo_opcao",
-    "ativo_base",
-    "call_put",
-    "strike",
-    "vencimento",
-    "ultimo_preco",
-    "ultima_quantidade",
-    "bid",
-    "ask",
-    "volume",
-    "iv",
-    "delta",
-    "gamma",
-    "theta",
-    "vega",
-    "vwap",
+from services.rtd_option_quotes_schema import (
+    DEFAULT_SHEET_NAME,
+    DEFAULT_WORKBOOK_NAME,
+    REQUIRED_OPTION_HEADERS,
+    normalize_header,
 )
 
-
+DEFAULT_WORKSHEET_NAME = DEFAULT_SHEET_NAME
+REQUIRED_OPTION_QUOTE_HEADERS = tuple(REQUIRED_OPTION_HEADERS)
+_normalize_header = normalize_header
 @dataclass(frozen=True)
 class ExcelRtdConnectionStatus:
     pywin32_available: bool
@@ -255,12 +241,6 @@ def _iter_com_collection(collection: Any) -> list[Any]:
 
 def _normalize_workbook_name(value: Any) -> str:
     return _safe_str(value).strip().casefold()
-
-
-def _normalize_header(value: Any) -> str:
-    return _safe_str(value).strip().casefold()
-
-
 def _safe_getattr(obj: Any, name: str) -> Any:
     try:
         return getattr(obj, name)

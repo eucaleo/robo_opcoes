@@ -10,29 +10,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence
 
-
-DEFAULT_WORKBOOK_NAME = "LISTA_RTD.xlsm"
-DEFAULT_SHEET_NAME = "RTD_OPTION_QUOTES"
-
-REQUIRED_OPTION_HEADERS = [
-    "codigo_opcao",
-    "ativo_base",
-    "call_put",
-    "strike",
-    "vencimento",
-    "ultimo_preco",
-    "ultima_quantidade",
-    "bid",
-    "ask",
-    "volume",
-    "iv",
-    "delta",
-    "gamma",
-    "theta",
-    "vega",
-    "vwap",
-]
-
+from services.rtd_option_quotes_schema import (
+    DEFAULT_SHEET_NAME,
+    DEFAULT_WORKBOOK_NAME,
+    REQUIRED_OPTION_HEADERS,
+    normalize_header,
+)
 NUMERIC_FIELDS = {
     "strike",
     "ultimo_preco",
@@ -87,20 +70,6 @@ class ExcelRtdReadResult:
 
 class ExcelRtdReaderError(RuntimeError):
     pass
-
-
-def normalize_header(value: Any) -> str:
-    text = "" if value is None else str(value)
-    text = text.strip().lower()
-    text = text.replace("\ufeff", "")
-    text = re.sub(r"\s+", "_", text)
-    text = text.replace("-", "_")
-    text = text.replace(".", "_")
-    text = re.sub(r"[^a-z0-9_]+", "", text)
-    text = re.sub(r"_+", "_", text)
-    return text.strip("_")
-
-
 def normalize_symbol(value: Any) -> Optional[str]:
     if value is None:
         return None
