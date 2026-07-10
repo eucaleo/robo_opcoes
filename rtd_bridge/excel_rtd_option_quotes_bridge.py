@@ -1,3 +1,12 @@
+"""Bridge legado/manual para criar instancia isolada do Excel e consultar RTD.
+
+Atencao:
+- Usa DispatchEx para abrir uma instancia isolada do Excel.
+- Abre e fecha o workbook informado.
+- Nao deve ser usado pelo fluxo operacional principal da UI/status/sync.
+- O fluxo principal deve usar services.excel_rtd_com_access e services.excel_rtd_reader.
+"""
+
 from __future__ import annotations
 
 import time

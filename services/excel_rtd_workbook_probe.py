@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from services.rtd_option_quotes_schema import DEFAULT_WORKBOOK_NAME
+from services.excel_rtd_com_access import get_active_excel_application
 
 
 
@@ -71,21 +72,14 @@ class ExcelRtdWorkbookProbeResult:
 class Win32ExcelWorkbookAdapter:
     """Adaptador COM para Excel ja aberto.
 
-    Usa GetActiveObject, nao Dispatch, para evitar abrir uma nova instancia
+    Usa o nucleo central de acesso COM, baseado em GetActiveObject, para evitar abrir uma nova instancia
     escondida do Excel. Isso respeita a arquitetura da frente:
     corretora e Excel abertos antes do sistema.
     """
 
     def __init__(self) -> None:
         try:
-            import win32com.client  # type: ignore
-        except Exception as exc:  # pragma: no cover
-            raise ExcelRtdProbeError(f"win32com indisponivel: {exc}") from exc
-
-        self._win32com = win32com.client
-
-        try:
-            self._excel = self._win32com.GetActiveObject("Excel.Application")
+            self._excel = get_active_excel_application()
         except Exception as exc:  # pragma: no cover
             raise ExcelRtdProbeError(
                 "Excel nao esta aberto ou nao esta acessivel via COM"
