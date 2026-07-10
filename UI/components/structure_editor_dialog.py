@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from pathlib import Path
 # UI/components/structure_editor_dialog.py
 """
 StructureEditorDialog -- alteracao_10 / Fase 5
@@ -409,18 +408,14 @@ class StructureEditorDialog(tk.Toplevel):
         """Valida se o simbolo existe no snapshot RTD centralizado.
 
         A UI nao sincroniza Excel nem chama subprocessos. O botao Preencher via RTD
-        consome apenas a tabela rtd_option_quotes, que deve ser mantida atualizada
-        por processo externo ao fluxo da tela.
+        consome apenas a tabela rtd_option_quotes do banco recebido pelo dialogo.
         """
         symbol = str(codigo_opcao or "").strip().upper()
 
         if not symbol:
             return False, "Codigo da opcao vazio."
 
-        project_root = Path(__file__).resolve().parents[2]
-        db_path = project_root / "dados" / "app.db"
-
-        repo = RtdOptionQuotesRepository(db_path)
+        repo = RtdOptionQuotesRepository(self._db_path)
         quote = repo.get_by_codigo(symbol)
 
         if quote is None:
@@ -435,9 +430,7 @@ class StructureEditorDialog(tk.Toplevel):
     def _get_rtd_leg_enrichment_service(self):
         """Cria/lazily retorna o service de preenchimento de leg via RTD."""
         if self._rtd_leg_enrichment_service is None:
-            project_root = Path(__file__).resolve().parents[2]
-            rtd_db_path = project_root / "dados" / "app.db"
-            rtd_repo = RtdOptionQuotesRepository(rtd_db_path)
+            rtd_repo = RtdOptionQuotesRepository(self._db_path)
             self._rtd_leg_enrichment_service = StructureLegRtdEnrichmentService(
                 rtd_repo
             )

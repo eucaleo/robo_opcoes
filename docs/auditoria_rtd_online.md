@@ -92,3 +92,25 @@ Guardrail adicionado em teste para impedir reintroducao de:
 
 - rtd_option_quotes_sync_service na UI
 - sync_rtd_option_quotes_from_excel na UI
+
+## Fase 2.3 - UI respeitando db_path recebido pelo dialogo
+
+O fluxo RTD em StructureEditorDialog foi ajustado para usar o mesmo db_path
+recebido no construtor do dialogo.
+
+Contrato operacional atualizado:
+
+    StructureEditorDialog(db_path=...)
+        -> RtdOptionQuotesRepository(self._db_path)
+        -> StructureLegRtdEnrichmentService
+
+Com isso, a UI deixa de montar caminho fisico proprio para dados/app.db dentro
+dos metodos de RTD. O banco unico passa a ser definido pelo chamador do dialogo,
+mantendo consistencia com StructuresRepository e com a branch de consolidacao
+do app.db unico.
+
+Guardrail adicionado em teste para impedir reintroducao de:
+
+- Path(__file__).resolve().parents[2] na UI
+- project_root usado para montar banco RTD dentro do dialogo
+- RtdOptionQuotesRepository usando caminho diferente de self._db_path

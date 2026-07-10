@@ -30,3 +30,20 @@ def test_structure_editor_dialog_does_not_sync_rtd_excel_from_ui():
 
     assert "rtd_option_quotes_sync_service" not in source
     assert "sync_rtd_option_quotes_from_excel" not in source
+
+def test_structure_editor_dialog_rtd_uses_dialog_db_path():
+    """Fluxo RTD da UI deve respeitar o db_path recebido pelo dialogo."""
+    from pathlib import Path
+
+    source_path = (
+        Path(__file__).resolve().parents[2]
+        / "UI"
+        / "components"
+        / "structure_editor_dialog.py"
+    )
+    source = source_path.read_text(encoding="utf-8")
+
+    assert "Path(__file__).resolve().parents[2]" not in source
+    assert "project_root /" not in source
+    assert "RtdOptionQuotesRepository(self._db_path)" in source
+
