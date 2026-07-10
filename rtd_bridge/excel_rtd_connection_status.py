@@ -12,6 +12,7 @@ from services.rtd_option_quotes_schema import (
 )
 
 from services.excel_rtd_com_access import (
+    ExcelComUnavailableError,
     get_active_excel_application,
     iter_com_collection as _shared_iter_com_collection,
     safe_getattr as _shared_safe_getattr,
@@ -52,10 +53,103 @@ def check_excel_rtd_connection_status(
     required_headers: tuple[str, ...] = REQUIRED_OPTION_QUOTE_HEADERS,
     excel_app: Any | None = None,
 ) -> ExcelRtdConnectionStatus:
-    try:
-        return get_active_excel_application()
-    except Exception as exc:
-        raise ExcelRtdConnectionStatusError(f"Nao foi possivel obter instancia ativa do Excel: {exc}") from exc
+    if excel_app is None:
+        try:
+            excel_app = get_active_excel_application()
+        except ExcelComUnavailableError as exc:
+            return ExcelRtdConnectionStatus(
+                pywin32_available=False,
+                excel_running=False,
+                workbook_open=False,
+                worksheet_available=False,
+                required_headers_ok=False,
+                workbook_name=workbook_name,
+                worksheet_name=worksheet_name,
+                missing_headers=required_headers,
+                message=f"pywin32 indisponível: {exc}",
+            )
+        except Exception as exc:
+            return ExcelRtdConnectionStatus(
+                pywin32_available=True,
+                excel_running=False,
+                workbook_open=False,
+                worksheet_available=False,
+                required_headers_ok=False,
+                workbook_name=workbook_name,
+                worksheet_name=worksheet_name,
+                missing_headers=required_headers,
+                message=f"Excel não está aberto ou não foi encontrado via COM: {exc}",
+            )
+
+    workbook = _find_open_workbook(excel_app, workbook_name)
+
+    if workbook is None:
+        return ExcelRtdConnectionStatus(
+            pywin32_available=True,
+            excel_running=True,
+            workbook_open=False,
+            worksheet_available=False,
+            required_headers_ok=False,
+            workbook_name=workbook_name,
+            worksheet_name=worksheet_name,
+            missing_headers=required_headers,
+            message=f"Workbook obrigatório não está aberto: {workbook_name}",
+        )
+
+    workbook_full_name = _safe_str(_safe_getattr(workbook, "FullName"))
+    worksheet = _find_worksheet(workbook, worksheet_name)
+
+    if worksheet is None:
+        return ExcelRtdConnectionStatus(
+            pywin32_available=True,
+            excel_running=True,
+            workbook_open=True,
+            worksheet_available=False,
+            required_headers_ok=False,
+            workbook_name=workbook_name,
+            worksheet_name=worksheet_name,
+            workbook_full_name=workbook_full_name,
+            missing_headers=required_headers,
+            message=f"Aba obrigatória ausente no workbook {workbook_name}: {worksheet_name}",
+        )
+
+    detected_headers = _read_header_row(worksheet)
+    detected_set = set(detected_headers)
+    missing_headers = tuple(
+        header for header in required_headers if header not in detected_set
+    )
+
+    if missing_headers:
+        return ExcelRtdConnectionStatus(
+            pywin32_available=True,
+            excel_running=True,
+            workbook_open=True,
+            worksheet_available=True,
+            required_headers_ok=False,
+            workbook_name=workbook_name,
+            worksheet_name=worksheet_name,
+            workbook_full_name=workbook_full_name,
+            detected_headers=detected_headers,
+            missing_headers=missing_headers,
+            message=(
+                "Cabeçalho obrigatório ausente na aba "
+                f"{worksheet_name}: {missing_headers[0]}"
+            ),
+        )
+
+    return ExcelRtdConnectionStatus(
+        pywin32_available=True,
+        excel_running=True,
+        workbook_open=True,
+        worksheet_available=True,
+        required_headers_ok=True,
+        workbook_name=workbook_name,
+        worksheet_name=worksheet_name,
+        workbook_full_name=workbook_full_name,
+        detected_headers=detected_headers,
+        missing_headers=(),
+        message="RTD Excel pronto para leitura.",
+    )
 
 
 def _find_open_workbook(excel_app: Any, workbook_name: str) -> Any | None:
