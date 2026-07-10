@@ -73,6 +73,62 @@ CREATE TABLE IF NOT EXISTS rtd_option_quotes (
 """
 
 
+INDEX_DDL = [
+    """
+    CREATE INDEX IF NOT EXISTS idx_rtd_option_quotes_codigo_opcao
+    ON rtd_option_quotes(codigo_opcao)
+    """,
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS ux_rtd_option_quotes_codigo_opcao_normalized
+    ON rtd_option_quotes(UPPER(TRIM(codigo_opcao)))
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS idx_rtd_option_quotes_ativo_base
+    ON rtd_option_quotes(ativo_base)
+    """,
+]
+
+
+def deduplicate_normalized_symbols(conn: sqlite3.Connection) -> None:
+    """
+    Garante uma linha logica por codigo_opcao normalizado.
+
+    Como rtd_option_quotes e snapshot atual, duplicidades legadas por caixa
+    ou espaco podem ser removidas preservando a linha de maior id.
+    """
+    conn.execute(
+        """
+        DELETE FROM rtd_option_quotes
+        WHERE TRIM(COALESCE(codigo_opcao, '')) <> ''
+          AND id NOT IN (
+              SELECT MAX(id)
+              FROM rtd_option_quotes
+              WHERE TRIM(COALESCE(codigo_opcao, '')) <> ''
+              GROUP BY UPPER(TRIM(codigo_opcao))
+          )
+        """
+    )
+    conn.commit()
+
+
+def normalize_existing_symbols(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        UPDATE rtd_option_quotes
+        SET codigo_opcao = UPPER(TRIM(codigo_opcao))
+        WHERE codigo_opcao IS NOT NULL
+          AND codigo_opcao <> UPPER(TRIM(codigo_opcao))
+        """
+    )
+    conn.commit()
+
+
+def apply_indexes(conn: sqlite3.Connection) -> None:
+    for ddl in INDEX_DDL:
+        conn.execute(ddl)
+    conn.commit()
+
+
 def table_exists(conn: sqlite3.Connection, table_name: str) -> bool:
     row = conn.execute(
         """
@@ -125,6 +181,10 @@ def ensure_rtd_option_quotes_schema(db_path: Path | str) -> None:
 
         apply_additive_migrations(conn)
         validate_required_columns(conn)
+        deduplicate_normalized_symbols(conn)
+        normalize_existing_symbols(conn)
+        apply_indexes(conn)
+        validate_required_columns(conn)
 
 
 def main() -> int:
@@ -167,6 +227,10 @@ def main() -> int:
             print(f"[INFO] Adicionando coluna ausente: {column_name} {column_type}")
 
         apply_additive_migrations(conn)
+        validate_required_columns(conn)
+        deduplicate_normalized_symbols(conn)
+        normalize_existing_symbols(conn)
+        apply_indexes(conn)
         validate_required_columns(conn)
 
         count = conn.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}").fetchone()[0]
