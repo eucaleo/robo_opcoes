@@ -937,3 +937,54 @@ A Fase 6.4 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_4_REGRA_EXPLICITA_COBERTURA_20260713
+
+---
+
+## Fase 6.5 - Diagnostico das lacunas de cobertura
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_5_DIAGNOSTICO_LACUNAS_COBERTURA_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Diagnostico operacional nao destrutivo para investigar lacunas da regra explicita de cobertura definida na Fase 6.4.
+
+### Contexto
+
+A Fase 6.4 indicou melhor intervalo candidato de 1 minuto, com cobertura parcial de 10 linhas em 60 linhas do historico bruto.
+
+### Diagnosticos executados
+
+- Cobertura exata por chave e bucket.
+- Cobertura por simbolo.
+- Cobertura por data e simbolo.
+- Proximidade temporal ao candle mais proximo.
+- Pares esperados ausentes.
+- Pares extras em candles.
+- Amostras de lacunas.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_5_DIAGNOSTICO_LACUNAS_COBERTURA_20260713.md`
+- `ATT/patches/fase6_5_diagnostico_lacunas_cobertura_20260713.md`
+- `ATT/scripts/fase6_5_diagnostico_lacunas_cobertura_20260713.py`
+- `ATT/tests/test_fase6_5_coverage_gaps_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_5_diagnostico_lacunas_cobertura_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_5_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.5 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_5_DIAGNOSTICO_LACUNAS_COBERTURA_20260713
