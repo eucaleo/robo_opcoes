@@ -1346,3 +1346,53 @@ A Fase 6.12 nao executa limpeza real.
 A Fase 6.13, se executada, devera exigir confirmacao explicita, banco estavel, backup fisico valido e rollback disponivel.
 
 Marcador fim: FIM_AUDITORIA_FASE6_12_PREPARA_EXECUCAO_REAL_ROLLBACK_20260713
+
+---
+
+## Fase 6.13 - Execucao real controlada da limpeza intraday
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_13_EXECUCAO_REAL_LIMPEZA_CONTROLADA_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Execucao real controlada da limpeza dos registros intraday elegiveis.
+
+### Regularizacao
+
+O diagnostico read-only posterior indicou que a limpeza real ja havia sido executada, mas a execucao anterior terminou antes de gerar todos os artefatos finais.
+
+Esta regularizacao nao executou novo DELETE. Ela apenas confirmou o estado final, materializou WAL via checkpoint, gerou manifesto, relatorio, documentacao e testes.
+
+### Resultado
+
+- Limpeza real executada: sim.
+- Limpeza real aprovada: sim.
+- Novo DELETE durante regularizacao: nao.
+- Registros removidos: 60.
+- IDs elegiveis remanescentes: 0.
+- Banco alterado: sim.
+- SQLite integrity_check final: ok.
+- Rollback documentado: sim.
+- Backup primario da Fase 6.11 preservado.
+- Backup local pre-delete da Fase 6.13 preservado.
+- Candles preservados: sim.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_13_EXECUCAO_REAL_LIMPEZA_CONTROLADA_20260713.md`
+- `ATT/patches/fase6_13_execucao_real_limpeza_controlada_20260713.md`
+- `ATT/scripts/fase6_13_execucao_real_limpeza_controlada_20260713.py`
+- `ATT/tests/test_fase6_13_execucao_real_limpeza_controlada.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_13_execucao_real_limpeza_controlada_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_13_execucao_real_limpeza_controlada_20260713.json`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_13_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.13 fica regularizada e tecnicamente encerrada.
+
+A proxima etapa recomendada e a Fase 6.14 - validacao pos-limpeza, performance e ausencia de regressao.
+
+Marcador fim: FIM_AUDITORIA_FASE6_13_EXECUCAO_REAL_LIMPEZA_CONTROLADA_20260713
