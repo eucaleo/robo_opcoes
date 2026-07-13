@@ -988,3 +988,54 @@ A Fase 6.5 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_5_DIAGNOSTICO_LACUNAS_COBERTURA_20260713
+
+---
+
+## Fase 6.6 - Validacao de offset temporal de cobertura
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_6_VALIDACAO_OFFSET_TEMPORAL_COBERTURA_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Validacao operacional nao destrutiva para testar offsets temporais entre `captured_at` do historico bruto e `bucket_start` dos candles.
+
+### Contexto
+
+A Fase 6.5 indicou cobertura por simbolo e por data de 60/60, mas cobertura exata de bucket de apenas 10/60.
+
+A suspeita operacional e diferenca de fuso horario, especialmente offset de -3 horas entre timestamps do historico e buckets dos candles.
+
+### Diagnosticos executados
+
+- Teste de offsets horarios de -12 ate +12.
+- Comparacao por intervalo de candle.
+- Ranking de cobertura por offset.
+- Identificacao do melhor offset candidato.
+- Confirmacao de bloqueio de limpeza real.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_6_VALIDACAO_OFFSET_TEMPORAL_COBERTURA_20260713.md`
+- `ATT/patches/fase6_6_validacao_offset_temporal_cobertura_20260713.md`
+- `ATT/scripts/fase6_6_validacao_offset_temporal_cobertura_20260713.py`
+- `ATT/tests/test_fase6_6_temporal_offset_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_6_validacao_offset_temporal_cobertura_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_6_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.6 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_6_VALIDACAO_OFFSET_TEMPORAL_COBERTURA_20260713
