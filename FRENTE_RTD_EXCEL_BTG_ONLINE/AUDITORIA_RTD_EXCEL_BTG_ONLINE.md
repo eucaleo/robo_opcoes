@@ -814,3 +814,40 @@ A Fase 6.1 estabelece contrato e simulação obrigatória.
 A execução destrutiva permanece bloqueada até fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_1_CONTRATO_RETENCAO_DRY_RUN_20260713
+
+---
+
+## Fase 6.2 - Validação de cobertura dos candles antes de limpeza real
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_2_VALIDACAO_COBERTURA_CANDLES_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Validação operacional não destrutiva para comparar histórico intraday bruto e candles consolidados.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum dado removido.
+- Nenhum schema alterado.
+- Nenhuma compactação executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_2_VALIDACAO_COBERTURA_CANDLES_20260713.md`
+- `ATT/patches/fase6_2_validacao_cobertura_candles_20260713.md`
+- `ATT/scripts/fase6_2_validacao_cobertura_candles_20260713.py`
+- `ATT/tests/test_fase6_2_candle_coverage_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_2_validacao_cobertura_candles_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_2_pytest_20260713.txt`
+
+### Decisão
+
+A validação de cobertura não autoriza limpeza real.
+
+A execução destrutiva permanece bloqueada até fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_2_VALIDACAO_COBERTURA_CANDLES_20260713
