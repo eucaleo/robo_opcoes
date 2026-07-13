@@ -892,3 +892,48 @@ A Fase 6.3 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_3_MAPEAMENTO_SCHEMA_COBERTURA_20260713
+
+---
+
+## Fase 6.4 - Regra explicita de cobertura entre historico bruto e candles
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_4_REGRA_EXPLICITA_COBERTURA_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Validacao operacional nao destrutiva para transformar o mapeamento da Fase 6.3 em regra explicita de cobertura.
+
+### Regra avaliada
+
+- Historico: `rtd_option_quotes_intraday_history.codigo_opcao`
+- Candles: `rtd_option_quotes_intraday_candles.symbol`
+- Tempo historico: `rtd_option_quotes_intraday_history.captured_at`
+- Bucket candle: `rtd_option_quotes_intraday_candles.bucket_start`
+- Intervalo candle: `rtd_option_quotes_intraday_candles.interval_minutes`
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_4_REGRA_EXPLICITA_COBERTURA_20260713.md`
+- `ATT/patches/fase6_4_regra_explicita_cobertura_20260713.md`
+- `ATT/scripts/fase6_4_regra_explicita_cobertura_20260713.py`
+- `ATT/tests/test_fase6_4_explicit_coverage_rule_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_4_regra_explicita_cobertura_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_4_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.4 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_4_REGRA_EXPLICITA_COBERTURA_20260713
