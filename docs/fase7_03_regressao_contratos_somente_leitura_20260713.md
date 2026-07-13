@@ -233,3 +233,102 @@ Marcador:
 
     EVIDENCIA_AUDITORIA_TEXTUAL_FASE7_03_20260713
 
+
+## Evidencia de regressao focada da Fase 7.3
+
+Data: 13/07/2026
+
+Comandos executados:
+
+    py -m pytest \
+      ATT/tests/test_decision.py \
+      ATT/tests/test_fase7_alertas_decisao.py \
+      ATT/tests/test_fase7_snapshot_adapter.py \
+      -q
+
+    python -m pytest \
+      ATT/tests/test_decision.py \
+      ATT/tests/test_fase7_alertas_decisao.py \
+      ATT/tests/test_fase7_snapshot_adapter.py \
+      -q
+
+Resultado observado:
+
+    12 passed in 0.38s
+    12 passed in 0.38s
+
+Arquivos cobertos diretamente:
+
+    ATT/tests/test_decision.py
+    ATT/tests/test_fase7_alertas_decisao.py
+    ATT/tests/test_fase7_snapshot_adapter.py
+
+Classificacao:
+
+    Regressao focada Fase 7.3: aprovada
+    Ambientes Python testados: py e python
+    Falhas observadas: nenhuma
+    Working tree apos execucao: limpo
+
+Interpretacao:
+
+    A regressao focada dos contratos de decisao, alertas e adaptador de snapshot passou integralmente.
+    Os testes confirmam que a Fase 7.3 permanece restrita a comportamento de leitura, classificacao, alerta e decisao simulada.
+    Nao houve evidencia de envio de ordem real, integracao com broker, persistencia operacional ou dependencia obrigatoria de Excel COM nos contratos focados.
+
+Conclusao parcial:
+
+    A Fase 7.3 possui regressao focada aprovada em ambos os comandos Python utilizados no ambiente local.
+
+Marcador:
+
+    EVIDENCIA_REGRESSAO_FOCADA_FASE7_03_20260713
+
+## Observacao sobre regressao ampliada da pasta ATT/tests
+
+Data: 13/07/2026
+
+Comandos executados:
+
+    py -m pytest ATT/tests -q
+    python -m pytest ATT/tests -q
+
+Resultado observado:
+
+    2 failed, 899 passed, 2 skipped, 6 subtests passed
+    2 failed, 899 passed, 2 skipped, 6 subtests passed
+
+Falhas observadas:
+
+    ATT/tests/test_repository_generated_artifacts_guardrail.py::test_generated_rtd_output_artifacts_are_not_tracked
+    ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py::test_operational_dark_window_help_menu_and_live_excel_rtd_status
+
+Classificacao das falhas:
+
+    Falha 1:
+        Tipo: higiene de repositorio / artefatos gerados rastreados
+        Relacao direta com contrato Fase 7.3: nao evidenciada
+        Primeiro item observado: FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_10_manifesto_ids_elegiveis_20260713.json
+
+    Falha 2:
+        Tipo: dependencia ambiental operacional Excel COM / RTD
+        Relacao direta com contrato Fase 7.3: nao evidenciada
+        Mensagem observada: Excel nao encontrado
+        Condicao necessaria: Excel aberto com workbook LISTA_RTD.xlsm e aba RTD_OPTION_QUOTES
+
+Interpretacao:
+
+    A regressao ampliada da pasta ATT/tests nao ficou verde globalmente.
+    As duas falhas observadas nao indicam regressao direta nos contratos focados da Fase 7.3.
+    Uma falha aponta para artefatos gerados rastreados no repositorio.
+    A outra falha depende de ambiente operacional real com Excel COM e RTD ativos.
+
+Conclusao parcial:
+
+    A regressao ampliada foi executada e documentada com falhas externas ao escopo direto da Fase 7.3.
+    O sucesso da regressao focada permanece valido para os contratos de decisao, alertas e snapshot adapter.
+
+Marcador:
+
+    EVIDENCIA_REGRESSAO_AMPLIADA_COM_FALHAS_EXTERNAS_FASE7_03_20260713
+
