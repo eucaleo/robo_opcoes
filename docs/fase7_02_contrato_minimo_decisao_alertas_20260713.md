@@ -205,3 +205,29 @@ A Fase 7.2 fica aberta como etapa de consolidação do contrato mínimo de decis
 A implementação funcional permanece condicionada à validação dos contratos e dos testes existentes.
 
 Marcador fim: FIM_FASE7_02_CONTRATO_MINIMO_DECISAO_ALERTAS_20260713
+
+## Validação inicial executada
+
+Data: 13/07/2026
+
+Comando executado:
+
+    python -m pytest ATT/tests/test_decision.py ATT/tests/test_fase7_alertas_decisao.py ATT/tests/test_fase7_snapshot_adapter.py -q
+
+Resultado:
+
+    12 passed in 0.39s
+
+Interpretação:
+
+- O domínio de decisão possui baseline testável.
+- Os testes iniciais de alertas da Fase 7 estão reaproveitáveis.
+- O adapter de snapshot da Fase 7 possui baseline funcional.
+- Não houve evidência de execução automática de ordens reais.
+- Não houve integração com broker.
+- Não houve alteração de banco.
+
+Decisão:
+
+A Fase 7.2 pode avançar para auditoria técnica dos contratos reais existentes em código, mantendo bloqueada qualquer implementação de execução operacional real.
+
