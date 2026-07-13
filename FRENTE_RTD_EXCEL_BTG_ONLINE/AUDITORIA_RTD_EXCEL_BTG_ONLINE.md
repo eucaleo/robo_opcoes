@@ -1090,3 +1090,56 @@ A Fase 6.7 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_7_DIAGNOSTICO_COORTES_TEMPORAIS_COBERTURA_20260713
+
+---
+
+## Fase 6.8 - Validacao da regra canonica de timezone local
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_8_VALIDACAO_REGRA_CANONICA_TIMEZONE_LOCAL_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Validacao operacional nao destrutiva da regra canonica de normalizacao temporal para cobertura de candles.
+
+### Contexto
+
+A Fase 6.7 confirmou a existencia de coortes temporais:
+
+- registros com `captured_at` em UTC `+00:00`;
+- registros com `captured_at` em horario local `-03:00`.
+
+A regra correta e normalizar timestamps com timezone para `America/Sao_Paulo`, sem aplicar offset fixo indistintamente.
+
+### Regra validada
+
+- `captured_at` com timezone explicito: converter para `America/Sao_Paulo`.
+- `captured_at` sem timezone explicito: assumir horario local operacional.
+- `bucket_start` dos candles: tratar como horario local operacional.
+- Comparar por simbolo e bucket local arredondado pelo intervalo.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_8_VALIDACAO_REGRA_CANONICA_TIMEZONE_LOCAL_20260713.md`
+- `ATT/patches/fase6_8_validacao_regra_canonica_timezone_local_20260713.md`
+- `ATT/scripts/fase6_8_validacao_regra_canonica_timezone_local_20260713.py`
+- `ATT/tests/test_fase6_8_canonical_local_timezone_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_8_validacao_regra_canonica_timezone_local_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_8_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.8 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_8_VALIDACAO_REGRA_CANONICA_TIMEZONE_LOCAL_20260713
