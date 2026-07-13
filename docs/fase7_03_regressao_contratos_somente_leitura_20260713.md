@@ -156,3 +156,36 @@ Marcador inicial:
 
     INICIO_FASE7_03_REGRESSAO_CONTRATOS_SOMENTE_LEITURA_20260713
 
+
+## Evidencia inicial de regressao
+
+Data: 13/07/2026
+
+Comandos executados:
+
+    python -m pytest ATT/tests/test_decision.py ATT/tests/test_fase7_alertas_decisao.py ATT/tests/test_fase7_snapshot_adapter.py -q
+
+    py -m pytest ATT/tests/test_decision.py ATT/tests/test_fase7_alertas_decisao.py ATT/tests/test_fase7_snapshot_adapter.py -q
+
+Resultados observados:
+
+    12 passed in 0.43s
+    12 passed in 0.38s
+
+Interpretacao:
+
+    A regressao inicial confirmou estabilidade dos testes existentes de decisao, alertas e adapter.
+    A execucao confirmou que os contratos somente leitura seguem consistentes.
+    Nao houve indicio de execucao real.
+    Nao houve indicio de broker.
+    Nao houve indicio de roteamento operacional.
+    Nao houve indicio de alteracao de banco.
+
+Conclusao parcial:
+
+    A Fase 7.3 possui evidencia inicial valida de regressao somente leitura.
+
+Marcador:
+
+    EVIDENCIA_INICIAL_REGRESSAO_FASE7_03_20260713
+
