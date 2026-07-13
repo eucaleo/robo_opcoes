@@ -32,11 +32,13 @@ class TerminalVWAPPayoffAppService:
         market_snapshot_provider: Any | None = None,
         payoff_provider: Any | None = None,
         viewmodel_service: Any | None = None,
+        rtd_leg_enrichment_service: Any | None = None,
     ) -> None:
         self.structure_repository = structure_repository
         self.market_snapshot_provider = market_snapshot_provider
         self.payoff_provider = payoff_provider
         self.viewmodel_service = viewmodel_service or self._default_viewmodel_service()
+        self.rtd_leg_enrichment_service = rtd_leg_enrichment_service
 
     def build_for_structure_id(
         self,
@@ -51,6 +53,7 @@ class TerminalVWAPPayoffAppService:
         structure = self._load_structure(sid)
         if not structure:
             raise ValueError(f"structure not found: {sid}")
+        structure = self._with_repository_legs(sid, structure)
 
         market = self._load_market_snapshot(
             structure_id=sid,
@@ -133,6 +136,158 @@ class TerminalVWAPPayoffAppService:
             ),
         )
 
+
+    def _with_repository_legs(self, structure_id: int, structure: dict[str, Any]) -> dict[str, Any]:
+        """Enriquece a estrutura com legs vindas do repositório, quando disponíveis.
+
+        A UI não busca dados vivos aqui. Este método apenas monta a estrutura
+        operacional usando dados já persistidos/servidos pelo backend/repositórios.
+        """
+        if not isinstance(structure, dict):
+            return structure
+
+        existing_legs = structure.get("legs")
+        if isinstance(existing_legs, list) and existing_legs:
+            return structure
+
+        repository = self.structure_repository
+        if repository is None:
+            return structure
+
+        candidate_methods = (
+            "get_structure_legs",
+            "list_structure_legs",
+            "get_legs",
+            "list_legs",
+            "get_legs_by_structure_id",
+            "list_legs_by_structure_id",
+            "fetch_structure_legs",
+        )
+
+        legs = None
+
+        for method_name in candidate_methods:
+            method = getattr(repository, method_name, None)
+            if not callable(method):
+                continue
+
+            call_attempts = (
+                lambda: method(structure_id),
+                lambda: method(structure_id=structure_id),
+            )
+
+            for call in call_attempts:
+                try:
+                    result = call()
+                except TypeError:
+                    continue
+                except Exception:
+                    continue
+
+                if result:
+                    legs = result
+                    break
+
+            if legs:
+                break
+
+        if not legs:
+            return structure
+
+        normalized_legs = []
+        for leg in legs:
+            if isinstance(leg, dict):
+                normalized_legs.append(dict(leg))
+                continue
+
+            if hasattr(leg, "_asdict"):
+                normalized_legs.append(dict(leg._asdict()))
+                continue
+
+            if hasattr(leg, "__dict__"):
+                normalized_legs.append(
+                    {
+                        key: value
+                        for key, value in vars(leg).items()
+                        if not key.startswith("_")
+                    }
+                )
+                continue
+
+            normalized_legs.append(leg)
+
+        normalized_legs = self._enrich_repository_legs_from_rtd(normalized_legs)
+
+        enriched = dict(structure)
+        enriched["legs"] = normalized_legs
+        return enriched
+
+
+    def _enrich_repository_legs_from_rtd(
+        self,
+        legs: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        """Aplica enriquecimento RTD injetado às legs da estrutura.
+
+        O app service não acessa Excel/RTD real. Ele apenas usa um serviço
+        injetado, geralmente baseado em rtd_option_quotes já persistido.
+        """
+
+        service = self.rtd_leg_enrichment_service
+        if service is None:
+            return legs
+
+        for method_name in (
+            "enrich_legs",
+            "enrich_many",
+            "enrich_structure_legs",
+        ):
+            method = getattr(service, method_name, None)
+            if not callable(method):
+                continue
+
+            call_attempts = (
+                lambda: method(
+                    legs,
+                    strict=False,
+                    apply_live_price=True,
+                ),
+                lambda: method(legs),
+            )
+
+            for call in call_attempts:
+                try:
+                    result = call()
+                except TypeError:
+                    continue
+                except Exception:
+                    return legs
+
+                if isinstance(result, list):
+                    return result
+
+        enriched: list[dict[str, Any]] = []
+        for leg in legs:
+            if not isinstance(leg, dict):
+                enriched.append(leg)
+                continue
+
+            current = dict(leg)
+            for method_name in ("enrich_live_market_fields", "enrich"):
+                method = getattr(service, method_name, None)
+                if not callable(method):
+                    continue
+
+                try:
+                    current = method(current)
+                    break
+                except Exception:
+                    continue
+
+            enriched.append(current)
+
+        return enriched
+
     def _load_market_snapshot(
         self,
         *,
@@ -201,7 +356,7 @@ class TerminalVWAPPayoffAppService:
 
         canonical_input = {
             "structure": self._normalize_structure_for_payoff(structure),
-            "market": dict(market or {}),
+            "market": self._normalize_market_for_payoff(market),
             "meta": {
                 "source": "terminal_vwap_payoff_app_service",
                 "reference_date": reference_date,
@@ -209,6 +364,33 @@ class TerminalVWAPPayoffAppService:
         }
 
         return compute_payoff_from_canonical_input(canonical_input)
+
+
+    @staticmethod
+    def _normalize_market_for_payoff(market: dict[str, Any]) -> dict[str, Any]:
+        normalized = dict(market or {})
+
+        if "spot_price" not in normalized or normalized.get("spot_price") in (None, ""):
+            for key in (
+                "spot_price",
+                "current_price",
+                "underlying_price",
+                "last_price",
+                "preco_atual",
+            ):
+                value = normalized.get(key)
+                if value not in (None, ""):
+                    normalized["spot_price"] = value
+                    break
+
+        if "underlying_asset" not in normalized:
+            for key in ("asset", "ticker", "ativo", "ativo_base"):
+                value = normalized.get(key)
+                if value not in (None, ""):
+                    normalized["underlying_asset"] = value
+                    break
+
+        return normalized
 
     @staticmethod
     def _normalize_structure_for_payoff(structure: dict[str, Any]) -> dict[str, Any]:
@@ -256,18 +438,73 @@ class TerminalVWAPPayoffAppService:
             return []
 
         if isinstance(payoff, list):
-            return list(payoff)
-
-        if isinstance(payoff, dict):
-            points = (
+            raw_points = payoff
+        elif isinstance(payoff, dict):
+            raw_points = (
                 payoff.get("points")
                 or payoff.get("payoff_points")
                 or payoff.get("curve")
                 or []
             )
-            return list(points)
+        else:
+            raw_points = []
 
-        return []
+        points: list[dict[str, Any]] = []
+        for point in raw_points:
+            normalized = TerminalVWAPPayoffAppService._normalize_payoff_point(point)
+            if normalized is not None:
+                points.append(normalized)
+
+        return points
+
+    @staticmethod
+    def _normalize_payoff_point(point: Any) -> dict[str, Any] | None:
+        if isinstance(point, dict):
+            normalized = dict(point)
+
+            x_value = (
+                normalized.get("spot")
+                if normalized.get("spot") is not None
+                else normalized.get("underlying_price")
+            )
+            if x_value is None:
+                x_value = normalized.get("price")
+            if x_value is None:
+                x_value = normalized.get("x")
+
+            y_value = (
+                normalized.get("pl")
+                if normalized.get("pl") is not None
+                else normalized.get("result")
+            )
+            if y_value is None:
+                y_value = normalized.get("payoff")
+            if y_value is None:
+                y_value = normalized.get("profit_loss")
+            if y_value is None:
+                y_value = normalized.get("y")
+
+            if x_value is not None:
+                normalized.setdefault("spot", x_value)
+                normalized.setdefault("underlying_price", x_value)
+
+            if y_value is not None:
+                normalized.setdefault("pl", y_value)
+                normalized.setdefault("result", y_value)
+
+            return normalized
+
+        if isinstance(point, (tuple, list)) and len(point) >= 2:
+            x_value = point[0]
+            y_value = point[1]
+            return {
+                "spot": x_value,
+                "pl": y_value,
+                "underlying_price": x_value,
+                "result": y_value,
+            }
+
+        return None
 
     def _build_viewmodel(
         self,

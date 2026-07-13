@@ -187,7 +187,7 @@ def test_modern_dark_window_wires_terminal_vwap_and_decisions(monkeypatch, tmp_p
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -275,7 +275,7 @@ def test_modern_dark_window_get_structures_reloads_terminal_when_empty(monkeypat
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -325,7 +325,7 @@ def test_modern_dark_window_get_structures_returns_empty_when_terminal_reload_fa
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -377,7 +377,7 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_reload
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -433,7 +433,7 @@ def test_modern_dark_window_load_structure_from_decision_handles_terminal_select
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -492,7 +492,7 @@ def test_modern_dark_window_load_structure_from_decision_selects_existing_struct
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -556,7 +556,7 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -623,7 +623,7 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_structure_mi
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -688,7 +688,7 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reload_fails
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -761,7 +761,7 @@ def test_modern_dark_window_load_structure_from_decision_accepts_integer_structu
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -827,7 +827,7 @@ def test_modern_dark_window_load_structure_from_decision_matches_string_structur
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -893,7 +893,7 @@ def test_modern_dark_window_load_structure_from_decision_reloads_empty_structure
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -960,7 +960,7 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_reloaded_str
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1029,7 +1029,7 @@ def test_modern_dark_window_load_structure_from_decision_skips_structures_withou
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1096,7 +1096,7 @@ def test_modern_dark_window_load_structure_from_decision_selects_first_matching_
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1163,7 +1163,7 @@ def test_modern_dark_window_load_structure_from_decision_warns_when_loaded_struc
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1232,7 +1232,7 @@ def test_modern_dark_window_load_structure_from_decision_skips_invalid_structure
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1299,7 +1299,7 @@ def test_modern_dark_window_load_structure_from_decision_matches_numeric_string_
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1366,7 +1366,7 @@ def test_modern_dark_window_load_structure_from_decision_matches_id_with_surroun
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1435,7 +1435,7 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_num
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1504,7 +1504,7 @@ def test_modern_dark_window_load_structure_from_decision_matches_zero_padded_str
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1573,7 +1573,7 @@ def test_modern_dark_window_load_structure_from_decision_skips_non_numeric_struc
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1642,7 +1642,7 @@ def test_modern_dark_window_load_structure_from_decision_rejects_non_numeric_dec
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1704,7 +1704,7 @@ def test_modern_dark_window_load_structure_from_decision_keeps_valid_selection_a
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status
@@ -1775,7 +1775,7 @@ def test_modern_dark_window_load_structure_from_decision_is_idempotent_when_alre
     class FakeTerminalVWAPPayoffDarkPanel:
         instances = []
 
-        def __init__(self, parent, db_path, on_status):
+        def __init__(self, parent, db_path, on_status, app_service=None, **kwargs):
             self.parent = parent
             self.db_path = db_path
             self.on_status = on_status

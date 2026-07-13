@@ -3,7 +3,7 @@ from pathlib import Path
 
 from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
 from services.rtd_option_quotes_sync_service import (
-    sync_rtd_option_quotes_from_excel,
+    sync_rtd_option_quotes_from_existing_excel,
     sync_rtd_option_quotes_records,
 )
 
@@ -121,7 +121,7 @@ def test_sync_from_excel_uses_reader_result_without_real_excel(tmp_path: Path):
             ],
         }
 
-    result = sync_rtd_option_quotes_from_excel(
+    result = sync_rtd_option_quotes_from_existing_excel(
         db_path=db_path,
         reader_fn=fake_reader,
     )
@@ -157,7 +157,7 @@ def test_sync_from_excel_returns_controlled_error_when_reader_fails(tmp_path: Pa
             "error": "Excel fechado",
         }
 
-    result = sync_rtd_option_quotes_from_excel(
+    result = sync_rtd_option_quotes_from_existing_excel(
         db_path=db_path,
         reader_fn=fake_reader,
     )

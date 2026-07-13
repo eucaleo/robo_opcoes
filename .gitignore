@@ -109,3 +109,12 @@ FRENTE_RTD_EXCEL_BTG_ONLINE/output/
 FRENTE_RTD_EXCEL_BTG_ONLINE/**/project_search_hits.txt
 FRENTE_RTD_EXCEL_BTG_ONLINE/**/repo_scan_*.txt
 FRENTE_RTD_EXCEL_BTG_ONLINE/**/retomada_*/
+
+# Artefatos gerados RTD / auditoria / outputs locais
+FRENTE_RTD_EXCEL_BTG_ONLINE/*.md
+FRENTE_RTD_EXCEL_BTG_ONLINE/*.txt
+*.corrente.txt
+
+# Artefatos locais gerados pelo fluxo RTD Excel BTG
+/FRENTE_RTD_EXCEL_BTG_ONLINE/output/
+/FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE7_ALERTAS_DECISAO_RESULTADO.md

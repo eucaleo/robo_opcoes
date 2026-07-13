@@ -62,7 +62,7 @@ def sync_rtd_option_quotes_records(
     )
 
 
-def sync_rtd_option_quotes_from_excel(
+def sync_rtd_option_quotes_from_existing_excel(
     *,
     db_path: str | Path = "dados/app.db",
     workbook_name: str = DEFAULT_WORKBOOK_NAME,

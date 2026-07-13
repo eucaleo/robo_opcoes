@@ -184,3 +184,82 @@ def test_build_for_structure_id_validates_structure_id():
 
     with pytest.raises(ValueError, match="structure_id must be positive integer"):
         service.build_for_structure_id(0)
+
+
+
+def test_build_for_structure_id_uses_injected_rtd_enrichment_before_payoff():
+    class FakeRtdLegEnrichmentService:
+        def enrich_legs(self, legs, strict=False, apply_live_price=True):
+            enriched = []
+            for leg in legs:
+                new_leg = dict(leg)
+                new_leg["premium"] = 2.5
+                new_leg["source"] = "rtd_option_quotes"
+                new_leg["price_source"] = "rtd_option_quotes.ultimo_preco"
+                enriched.append(new_leg)
+            return enriched
+
+    structure = {
+        "structure_id": 8,
+        "name": "Estrutura RTD",
+        "underlying_asset": "BOVA11",
+        "legs": [],
+    }
+
+    class RepoWithLegs(FakeStructureRepository):
+        def get_structure_legs(self, structure_id):
+            return [
+                {
+                    "symbol": "BOVAE195",
+                    "position_side": "COMPRADO",
+                    "option_type": "CALL",
+                    "strike": 195.0,
+                    "quantity": 100,
+                    "premium": 1.25,
+                    "multiplier": 1.0,
+                }
+            ]
+
+    payoff_provider = FakePayoffProvider()
+    viewmodel_service = FakeViewModelService()
+
+    service = TerminalVWAPPayoffAppService(
+        structure_repository=RepoWithLegs(structure),
+        market_snapshot_provider=FakeMarketSnapshotProvider(),
+        payoff_provider=payoff_provider,
+        viewmodel_service=viewmodel_service,
+        rtd_leg_enrichment_service=FakeRtdLegEnrichmentService(),
+    )
+
+    service.build_for_structure_id(8)
+
+    payoff_leg = payoff_provider.calls[0]["structure"]["legs"][0]
+    assert payoff_leg["premium"] == 2.5
+    assert payoff_leg["source"] == "rtd_option_quotes"
+    assert payoff_leg["price_source"] == "rtd_option_quotes.ultimo_preco"
+
+
+def test_extract_payoff_points_normalizes_tuple_points_from_domain_payoff():
+    points = TerminalVWAPPayoffAppService._extract_payoff_points(
+        {
+            "points": [
+                (90.0, -100.0),
+                (100.0, 0.0),
+            ]
+        }
+    )
+
+    assert points == [
+        {
+            "spot": 90.0,
+            "pl": -100.0,
+            "underlying_price": 90.0,
+            "result": -100.0,
+        },
+        {
+            "spot": 100.0,
+            "pl": 0.0,
+            "underlying_price": 100.0,
+            "result": 0.0,
+        },
+    ]
