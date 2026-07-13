@@ -1438,3 +1438,50 @@ A Fase 6.14 fica encerrada tecnicamente.
 Proxima etapa recomendada: Fase 6.15 - encerramento da frente e consolidacao final.
 
 Marcador fim: FIM_AUDITORIA_FASE6_14_VALIDACAO_POS_LIMPEZA_PERFORMANCE_20260713
+
+---
+
+## Fase 6.15 - Encerramento da frente e consolidacao final
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_15_ENCERRAMENTO_FRENTE_CONSOLIDACAO_FINAL_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Encerramento tecnico da frente RTD Excel BTG Online - retencao e limpeza.
+
+### Resultado
+
+- Frente encerrada tecnicamente: sim.
+- Banco aberto em modo read-only.
+- Banco modificado nesta fase: nao.
+- Limpeza real consolidada: sim.
+- Registros removidos na Fase 6.13: 60.
+- IDs elegiveis remanescentes: 0.
+- Historico final limpo: sim.
+- Candles preservados: sim.
+- Total final de candles: 110.
+- SQLite integrity_check final: ok.
+- Performance validada na Fase 6.14: sim.
+- Ausencia de regressao: sim.
+- Rollback documentado: sim.
+- Pronto para revisao ou merge: sim.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_15_ENCERRAMENTO_FRENTE_CONSOLIDACAO_FINAL_20260713.md`
+- `ATT/patches/fase6_15_encerramento_frente_consolidacao_final_20260713.md`
+- `ATT/scripts/fase6_15_encerramento_frente_consolidacao_final_20260713.py`
+- `ATT/tests/test_fase6_15_encerramento_frente_consolidacao_final.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_15_encerramento_frente_consolidacao_final_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_15_encerramento_frente_consolidacao_final_20260713.json`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_15_pytest_20260713.txt`
+
+### Decisao
+
+A frente de retencao e limpeza da Fase 6 fica encerrada tecnicamente.
+
+Acao recomendada: revisao final e merge da branch de feature.
+
+Marcador fim: FIM_AUDITORIA_FASE6_15_ENCERRAMENTO_FRENTE_CONSOLIDACAO_FINAL_20260713
