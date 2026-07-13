@@ -231,3 +231,80 @@ Decisão:
 
 A Fase 7.2 pode avançar para auditoria técnica dos contratos reais existentes em código, mantendo bloqueada qualquer implementação de execução operacional real.
 
+
+## Auditoria de contratos reais existentes
+
+Data: 13/07/2026
+
+Arquivos auditados:
+
+    domain/decision.py
+    ATT/tests/test_decision.py
+    ATT/tests/test_fase7_alertas_decisao.py
+    ATT/tests/test_fase7_snapshot_adapter.py
+
+Resultado da auditoria focada:
+
+    Arquivos auditados: 4
+    Ocorrências úteis para Fase 7: 127
+    Ocorrências de risco de escopo nos arquivos focados: 0
+
+Classificação técnica do contrato de decisão:
+
+    Função: compute_decision_from_inputs
+    Natureza: decisão a partir de P&L atual, P&L máximo, DTE mínimo, spread médio e thresholds.
+    Saída: dicionário explicável com decision, level, ratio, pl_pct_of_max, why_json, why e alternatives.
+    Execução real: ausente.
+
+    Função: compute_decision_from_payoff
+    Natureza: decisão a partir de dicionário de payoff canônico.
+    Comportamento: trata payoff vazio ou inválido como HOLD com justificativa de erro.
+    Execução real: ausente.
+
+    Função: compute_decision_from_contract
+    Natureza: entrada canônica via CanonicalStructureMarketInput.
+    Comportamento: delega para decisão por payoff quando payoff é fornecido, ou por inputs quando não é.
+    Execução real: ausente.
+
+Classificação técnica do contrato de alertas:
+
+    Entidade: SnapshotMercado
+    Natureza: snapshot local de mercado usado para avaliação somente leitura.
+
+    Entidade: ParametrosAlerta
+    Natureza: parâmetros locais para regras de alerta, como spread máximo, volume mínimo e delta relevante de payoff.
+
+    Função: avaliar_snapshot
+    Natureza: avalia snapshot e gera alertas explicáveis.
+    Sinais cobertos pelos testes: preço acima do VWAP, cruzamento de alta do VWAP, spread anormal, liquidez baixa, payoff alterado e estrutura favorável.
+    Execução real: bloqueada pelo contrato de decisão dos testes, com permite_execucao falso.
+
+Classificação técnica do contrato de adapter:
+
+    Função: snapshot_mercado_from_rtd_option_quote
+    Natureza: converte linha de cotação RTD em SnapshotMercado local.
+
+    Função: avaliar_rtd_option_quote
+    Natureza: converte cotação RTD, avalia snapshot e preserva timestamp local.
+
+    Função: snapshot_mercado_from_leg_market_snapshot
+    Natureza: converte objeto similar a leg market snapshot sem depender diretamente do domínio operacional.
+
+Bloqueios técnicos observados:
+
+    Nenhuma ocorrência de envio de ordem real nos arquivos focados.
+    Nenhuma ocorrência de broker nos arquivos focados.
+    Nenhuma ocorrência de executor operacional nos arquivos focados.
+    Nenhuma ocorrência de roteamento de ordem nos arquivos focados.
+    Nenhuma dependência de Excel COM nos módulos testados de alerta e adapter.
+    Nenhuma dependência de subprocesso nos módulos testados de alerta e adapter.
+    Nenhuma alteração de banco envolvida.
+
+Conclusão da classificação:
+
+    O contrato mínimo existente da Fase 7.2 é de decisão explicável, alertas locais e adapter de snapshot.
+    A base atual é compatível com operação somente leitura.
+    A base atual não implementa execução automática real.
+    A base atual não integra broker.
+    A base atual pode avançar para fechamento documental da Fase 7.2 antes de qualquer ajuste em código.
+
