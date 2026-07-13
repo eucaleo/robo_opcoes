@@ -105,7 +105,6 @@ FRENTE_BD_UNICO_APPDB/backups/*.db
 FRENTE_BD_UNICO_APPDB/backups_phase1f/
 
 # Artefatos gerados da frente RTD Excel BTG Online
-FRENTE_RTD_EXCEL_BTG_ONLINE/output/
 FRENTE_RTD_EXCEL_BTG_ONLINE/**/project_search_hits.txt
 FRENTE_RTD_EXCEL_BTG_ONLINE/**/repo_scan_*.txt
 FRENTE_RTD_EXCEL_BTG_ONLINE/**/retomada_*/
@@ -116,5 +115,7 @@ FRENTE_RTD_EXCEL_BTG_ONLINE/*.txt
 *.corrente.txt
 
 # Artefatos locais gerados pelo fluxo RTD Excel BTG
-/FRENTE_RTD_EXCEL_BTG_ONLINE/output/
 /FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE7_ALERTAS_DECISAO_RESULTADO.md
+
+# Generated RTD/Excel operational output artifacts
+/FRENTE_RTD_EXCEL_BTG_ONLINE/output/
