@@ -189,3 +189,47 @@ Marcador:
 
     EVIDENCIA_INICIAL_REGRESSAO_FASE7_03_20260713
 
+
+## Evidencia de auditoria textual somente leitura
+
+Data: 13/07/2026
+
+Comando executado:
+
+    grep -RInE "broker|corretora|ordem real|ordem_real|send_order|place_order|execute_order|route_order|roteamento|executor|subprocess|win32com|xlwings|Dispatch|sqlite|postgres|mysql|sqlalchemy|INSERT|UPDATE|DELETE" \
+      domain/decision.py \
+      ATT/tests/test_decision.py \
+      ATT/tests/test_fase7_alertas_decisao.py \
+      ATT/tests/test_fase7_snapshot_adapter.py || true
+
+Resultado observado:
+
+    ATT/tests/test_fase7_alertas_decisao.py:110:            "win32com",
+    ATT/tests/test_fase7_alertas_decisao.py:112:            "xlwings",
+    ATT/tests/test_fase7_alertas_decisao.py:113:            "sqlite3",
+    ATT/tests/test_fase7_alertas_decisao.py:114:            "subprocess",
+    ATT/tests/test_fase7_snapshot_adapter.py:87:def test_adapter_nao_importa_dependencias_de_excel_com_ou_subprocesso():
+    ATT/tests/test_fase7_snapshot_adapter.py:91:        "win32com",
+    ATT/tests/test_fase7_snapshot_adapter.py:92:        "xlwings",
+    ATT/tests/test_fase7_snapshot_adapter.py:94:        "subprocess",
+
+Classificacao dos achados:
+
+    Achado operacional real: nao
+    Falso positivo documental/teste: sim
+    Necessita ajuste: nao
+
+Interpretacao:
+
+    As ocorrencias encontradas pertencem aos testes que validam ausencia de dependencias proibidas.
+    Nao foi identificado uso operacional real de broker, corretora, envio de ordem, roteamento, subprocesso, Excel COM obrigatorio ou banco de dados.
+    A auditoria textual reforca que os contratos avaliados permanecem em modo somente leitura.
+
+Conclusao parcial:
+
+    A Fase 7.3 possui evidencia textual valida de ausencia de integracao operacional real nos arquivos focados.
+
+Marcador:
+
+    EVIDENCIA_AUDITORIA_TEXTUAL_FASE7_03_20260713
+
