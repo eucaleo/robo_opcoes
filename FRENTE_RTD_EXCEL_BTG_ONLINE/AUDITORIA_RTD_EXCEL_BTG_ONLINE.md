@@ -1193,3 +1193,48 @@ A Fase 6.9 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_9_DRY_RUN_LIMPEZA_CANONICA_TIMEZONE_LOCAL_20260713
+
+---
+
+## Fase 6.10 - Plano de execucao controlada com backup
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_10_PLANO_EXECUCAO_CONTROLADA_BACKUP_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Plano operacional nao destrutivo para eventual limpeza futura.
+
+### Contexto
+
+A Fase 6.9 confirmou dry-run com 60/60 linhas elegiveis pela regra canonica local.
+
+A Fase 6.10 consolida os IDs elegiveis, registra hash do banco e formaliza backup obrigatorio antes de qualquer execucao destrutiva.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+- Backup obrigatorio registrado.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_10_PLANO_EXECUCAO_CONTROLADA_BACKUP_20260713.md`
+- `ATT/patches/fase6_10_plano_execucao_controlada_backup_20260713.md`
+- `ATT/scripts/fase6_10_plano_execucao_controlada_backup_20260713.py`
+- `ATT/tests/test_fase6_10_plano_execucao_controlada_backup_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_10_plano_execucao_controlada_backup_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_10_manifesto_ids_elegiveis_20260713.json`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_10_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.10 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada, com backup fisico obrigatorio.
+
+Marcador fim: FIM_AUDITORIA_FASE6_10_PLANO_EXECUCAO_CONTROLADA_BACKUP_20260713
