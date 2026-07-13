@@ -1143,3 +1143,53 @@ A Fase 6.8 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_8_VALIDACAO_REGRA_CANONICA_TIMEZONE_LOCAL_20260713
+
+---
+
+## Fase 6.9 - Dry-run de limpeza com timezone local canonico
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_9_DRY_RUN_LIMPEZA_CANONICA_TIMEZONE_LOCAL_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Dry-run operacional nao destrutivo para simular elegibilidade de limpeza usando a regra canonica de timezone local.
+
+### Contexto
+
+A Fase 6.8 validou cobertura completa com normalizacao para `America/Sao_Paulo`.
+
+A Fase 6.9 usa essa regra para classificar quais linhas do historico bruto estariam elegiveis para limpeza em uma fase futura.
+
+### Regra simulada
+
+- `captured_at` com timezone explicito: converter para `America/Sao_Paulo`.
+- `captured_at` sem timezone explicito: assumir horario local operacional.
+- `bucket_start` dos candles: tratar como horario local operacional.
+- Elegibilidade: existencia de candle com mesmo simbolo e mesmo bucket local.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_9_DRY_RUN_LIMPEZA_CANONICA_TIMEZONE_LOCAL_20260713.md`
+- `ATT/patches/fase6_9_dry_run_limpeza_canonica_timezone_local_20260713.md`
+- `ATT/scripts/fase6_9_dry_run_limpeza_canonica_timezone_local_20260713.py`
+- `ATT/tests/test_fase6_9_dry_run_canonical_local_timezone_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_9_dry_run_limpeza_canonica_timezone_local_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_9_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.9 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_9_DRY_RUN_LIMPEZA_CANONICA_TIMEZONE_LOCAL_20260713
