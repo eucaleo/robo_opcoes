@@ -40,6 +40,13 @@ try:
 except Exception:
     StructureEditorDialog = None
 
+try:
+    from services.rtd_option_quotes_intraday_candle_chart_service import (
+        RtdOptionQuotesIntradayCandleChartService,
+    )
+except Exception:
+    RtdOptionQuotesIntradayCandleChartService = None
+
 
 
 DARK_BG = "#121212"
@@ -132,11 +139,13 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         parent,
         db_path: str,
         on_status=None,
+        app_service=None,
     ) -> None:
         super().__init__(parent, fg_color=DARK_BG)
 
         self.db_path = str(db_path)
         self.on_status = on_status or (lambda _msg: None)
+        self._app_service = app_service
 
         self.menu_visible = True
         self.structures: List[Dict[str, Any]] = []
@@ -145,6 +154,12 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.canvas_vwap: Optional[FigureCanvasTkAgg] = None
         self.canvas_payoff: Optional[FigureCanvasTkAgg] = None
         self.fig_payoff: Optional[Figure] = None
+
+        self._intraday_candle_chart_service = (
+            RtdOptionQuotesIntradayCandleChartService(self.db_path)
+            if RtdOptionQuotesIntradayCandleChartService is not None
+            else None
+        )
 
         self.kpi_labels: Dict[str, ctk.CTkLabel] = {}
 
@@ -674,15 +689,19 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         btn.pack(fill="x", pady=5, padx=5)
 
     def select_structure(self, structure: Dict[str, Any]) -> None:
-        self.selected_structure = dict(structure)
+        viewmodel = self._build_operational_viewmodel(structure.get("id"))
+        payload = self._resolve_operational_payload(structure, viewmodel)
 
-        sid = structure.get("id")
-        name = structure.get("name")
-        asset = structure.get("underlying_asset")
+        operational_structure = payload["structure"]
+        legs = payload["legs"]
+        market = payload["market"]
+        payoff_points = payload["payoff_points"]
 
-        legs = self._load_legs(sid)
-        market = self._load_market(asset)
-        payoff_points = self._load_payoff_points(sid, legs)
+        self.selected_structure = dict(operational_structure)
+
+        sid = operational_structure.get("id")
+        name = operational_structure.get("name")
+        asset = operational_structure.get("underlying_asset")
 
         self.header.configure(
             text=f"Análise ativa: ID {sid} - {name} | Ativo: {asset}"
@@ -690,19 +709,138 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
         self._update_kpis(market, payoff_points)
         self._render_legs(legs)
-        self._render_charts(market, payoff_points, asset)
+        self._render_charts(market, payoff_points, asset, legs)
         self._render_alerts(market, payoff_points, legs)
 
         self.on_status(f"Estrutura carregada: ID {sid}")
 
         # Menu lateral fixo: não recolher automaticamente após carregar estrutura.
 
-
         try:
             self._render_structure_actions()
         except Exception as exc:
-            if hasattr(self, 'on_status'):
+            if hasattr(self, "on_status"):
                 self.on_status(f"Falha ao abrir painel de acoes: {exc}")
+
+    def _build_operational_viewmodel(self, structure_id: Any) -> Dict[str, Any]:
+        service = getattr(self, "_app_service", None)
+        if service is None or structure_id in (None, ""):
+            return {}
+
+        build = getattr(service, "build_for_structure_id", None)
+        if not callable(build):
+            return {}
+
+        try:
+            result = build(int(structure_id))
+        except Exception as exc:
+            self._safe_status(
+                f"Falha ao carregar viewmodel operacional da estrutura {structure_id}: {exc}"
+            )
+            return {}
+
+        return self._as_dict(result)
+
+    def _resolve_operational_payload(
+        self,
+        structure: Dict[str, Any],
+        viewmodel: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        base_structure = dict(structure or {})
+        vm_structure = self._first_dict_from(
+            viewmodel,
+            ("structure", "estrutura"),
+        )
+
+        operational_structure = {
+            **base_structure,
+            **vm_structure,
+        }
+
+        sid = operational_structure.get("id") or base_structure.get("id")
+        asset = (
+            operational_structure.get("underlying_asset")
+            or operational_structure.get("asset")
+            or base_structure.get("underlying_asset")
+            or base_structure.get("asset")
+        )
+
+        if sid is not None and not operational_structure.get("id"):
+            operational_structure["id"] = sid
+        if asset is not None and not operational_structure.get("underlying_asset"):
+            operational_structure["underlying_asset"] = asset
+
+        legs = self._first_list_from(
+            viewmodel,
+            ("legs", "structure_legs", "pernas"),
+        )
+        if not legs:
+            legs = self._as_list(vm_structure.get("legs"))
+        if not legs:
+            legs = self._load_legs(sid)
+
+        market = self._first_dict_from(
+            viewmodel,
+            ("market", "market_snapshot", "snapshot"),
+        )
+        if not market:
+            market = self._load_market(asset)
+
+        payoff_points = self._first_list_from(
+            viewmodel,
+            ("payoff_points", "points", "curve"),
+        )
+        if not payoff_points:
+            payoff = self._first_dict_from(viewmodel, ("payoff",))
+            payoff_points = self._first_list_from(
+                payoff,
+                ("points", "payoff_points", "curve"),
+            )
+        if not payoff_points:
+            payoff_points = self._load_payoff_points(sid, legs)
+
+        return {
+            "structure": operational_structure,
+            "legs": legs,
+            "market": market,
+            "payoff_points": payoff_points,
+        }
+
+    def _safe_status(self, message: str) -> None:
+        try:
+            self.on_status(message)
+        except Exception:
+            pass
+
+    @staticmethod
+    def _as_dict(value: Any) -> Dict[str, Any]:
+        return dict(value or {}) if isinstance(value, dict) else {}
+
+    @staticmethod
+    def _as_list(value: Any) -> List[Any]:
+        return list(value or []) if isinstance(value, list) else []
+
+    def _first_dict_from(
+        self,
+        source: Dict[str, Any],
+        keys: tuple[str, ...],
+    ) -> Dict[str, Any]:
+        for key in keys:
+            value = source.get(key) if isinstance(source, dict) else None
+            if isinstance(value, dict) and value:
+                return dict(value)
+        return {}
+
+    def _first_list_from(
+        self,
+        source: Dict[str, Any],
+        keys: tuple[str, ...],
+    ) -> List[Any]:
+        for key in keys:
+            value = source.get(key) if isinstance(source, dict) else None
+            if isinstance(value, list) and value:
+                return list(value)
+        return []
 
     def _find_legs_table(self, schema: Dict[str, List[str]]) -> Optional[str]:
         preferred = [
@@ -1241,9 +1379,96 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         market: Dict[str, Any],
         payoff_points: List[Dict[str, float]],
         asset: Any,
+        legs: Optional[List[Dict[str, Any]]] = None,
     ) -> None:
-        self._render_vwap_chart(market, asset)
+        market_for_chart = self._market_with_intraday_candle_series(
+            market,
+            asset,
+            legs or [],
+        )
+        self._render_vwap_chart(market_for_chart, asset)
         self._render_payoff_chart(payoff_points)
+
+    def _market_with_intraday_candle_series(
+        self,
+        market: Dict[str, Any],
+        asset: Any,
+        legs: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        enriched = dict(market or {})
+        series = self._load_intraday_candle_series(asset, legs)
+
+        if not series:
+            return enriched
+
+        enriched["series"] = series
+        enriched["series_source"] = "rtd_option_quotes_intraday_candles"
+
+        latest = series[-1]
+        if latest.get("price") is not None:
+            enriched["current_price"] = latest.get("price")
+        if latest.get("vwap") is not None:
+            enriched["vwap"] = latest.get("vwap")
+            enriched["vwap_source"] = "rtd_option_quotes_intraday_candles"
+
+        return enriched
+
+    def _load_intraday_candle_series(
+        self,
+        asset: Any,
+        legs: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        service = getattr(self, "_intraday_candle_chart_service", None)
+        if service is None:
+            return []
+
+        for symbol in self._intraday_candle_symbol_candidates(asset, legs):
+            try:
+                series = service.get_vwap_price_series(
+                    symbol=symbol,
+                    interval_minutes=1,
+                    limit=240,
+                )
+            except Exception:
+                series = []
+
+            if series:
+                return series
+
+        return []
+
+    def _intraday_candle_symbol_candidates(
+        self,
+        asset: Any,
+        legs: List[Dict[str, Any]],
+    ) -> List[str]:
+        candidates: List[str] = []
+
+        def add(value: Any) -> None:
+            if value is None:
+                return
+            text = str(value).strip()
+            if not text:
+                return
+            if text not in candidates:
+                candidates.append(text)
+
+        for leg in legs or []:
+            if not isinstance(leg, dict):
+                continue
+            for key in (
+                "symbol",
+                "codigo_opcao",
+                "option_symbol",
+                "code",
+                "codigo",
+                "ticker",
+            ):
+                add(leg.get(key))
+
+        add(asset)
+
+        return candidates
 
     def _render_vwap_chart(self, market: Dict[str, Any], asset: Any) -> None:
         ax, fig, series = self._render_vwap_chart_stage_1(market)
@@ -1257,7 +1482,103 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         series = market.get("series") or []
         return ax, fig, series
 
+
+    def _normalize_vwap_chart_series(self, series):
+        """Normaliza pontos do gráfico VWAP para o contrato interno da UI.
+
+        A renderização espera pontos com pelo menos:
+            {"x": ..., "price": ..., "vwap": ...}
+
+        Em runtime, alguns producers entregam chaves como time/timestamp,
+        close/last/price/value etc. Este adaptador evita KeyError e mantém
+        compatibilidade com os contratos antigos e novos.
+        """
+        normalized = []
+
+        def first_value(mapping, *keys):
+            for key in keys:
+                if key in mapping and mapping[key] is not None:
+                    return mapping[key]
+            return None
+
+        def maybe_float(value):
+            if value is None:
+                return None
+            try:
+                return float(value)
+            except Exception:
+                return value
+
+        for idx, point in enumerate(series or []):
+            if isinstance(point, dict):
+                x_value = first_value(
+                    point,
+                    "x",
+                    "time",
+                    "timestamp",
+                    "datetime",
+                    "date",
+                    "label",
+                    "minute",
+                    "created_at",
+                    "ts",
+                )
+                price_value = first_value(
+                    point,
+                    "price",
+                    "last",
+                    "last_price",
+                    "close",
+                    "value",
+                    "y",
+                    "spot",
+                    "underlying_price",
+                )
+                vwap_value = first_value(
+                    point,
+                    "vwap",
+                    "vwap_price",
+                    "avg_price",
+                    "average_price",
+                    "weighted_average_price",
+                )
+
+                if x_value is None:
+                    x_value = idx
+
+                if price_value is None and vwap_value is not None:
+                    price_value = vwap_value
+
+                if vwap_value is None and price_value is not None:
+                    vwap_value = price_value
+
+                if price_value is None and vwap_value is None:
+                    continue
+
+                normalized_point = dict(point)
+                normalized_point["x"] = x_value
+                normalized_point["price"] = maybe_float(price_value)
+                normalized_point["vwap"] = maybe_float(vwap_value)
+                normalized.append(normalized_point)
+                continue
+
+            if isinstance(point, (list, tuple)) and len(point) >= 2:
+                x_value = point[0]
+                price_value = point[1]
+                vwap_value = point[2] if len(point) >= 3 else price_value
+                normalized.append(
+                    {
+                        "x": x_value,
+                        "price": maybe_float(price_value),
+                        "vwap": maybe_float(vwap_value),
+                    }
+                )
+
+        return normalized
+
     def _render_vwap_chart_stage_2(self, ax, series, asset) -> None:
+        series = self._normalize_vwap_chart_series(series)
+
         if series:
             xs = [p["x"] for p in series]
             prices = [p.get("price") for p in series]
@@ -1283,18 +1604,18 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                 )
 
             ax.legend(loc="upper left", fontsize=8, frameon=False, labelcolor=TEXT)
-        else:
-            ax.text(
-                0.5,
-                0.5,
-                "VWAP do ativo-base indisponível no app.db",
-                color=MUTED,
-                ha="center",
-                va="center",
-                transform=ax.transAxes,
-                fontsize=11,
-            )
+            return
 
+        ax.text(
+            0.5,
+            0.5,
+            "VWAP do ativo-base indisponível no app.db",
+            color=MUTED,
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+            fontsize=11,
+        )
     def _render_vwap_chart_stage_3(self, ax, fig) -> None:
         ax.set_title("Preço atual do ativo-base vs VWAP", color=MUTED, fontsize=10)
         ax.set_xlabel("Amostras", color=MUTED, fontsize=8)
@@ -2008,13 +2329,21 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             return
 
         sid = structure.get("id")
-        name = structure.get("name")
-        asset = structure.get("underlying_asset")
 
         try:
-            legs = self._load_legs(sid)
-            market = self._load_market(asset)
-            payoff_points = self._calculate_payoff_from_legs(legs)
+            viewmodel = self._build_operational_viewmodel(sid)
+            payload = self._resolve_operational_payload(structure, viewmodel)
+
+            operational_structure = payload["structure"]
+            legs = payload["legs"]
+            market = payload["market"]
+            payoff_points = payload["payoff_points"]
+
+            self.selected_structure = dict(operational_structure)
+
+            sid = operational_structure.get("id") or sid
+            name = operational_structure.get("name")
+            asset = operational_structure.get("underlying_asset")
 
             self.header.configure(
                 text=f"Analise ativa: ID {sid} - {name} | Ativo: {asset} | Payoff recalculado"
@@ -2022,7 +2351,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
             self._update_kpis(market, payoff_points)
             self._render_legs(legs)
-            self._render_charts(market, payoff_points, asset)
+            self._render_charts(market, payoff_points, asset, legs)
             self._render_alerts(market, payoff_points, legs)
 
             msg = f"Payoff recalculado com sucesso para ID {sid}."

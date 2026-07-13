@@ -146,4 +146,37 @@ Resultado:
 Conclusão:
 
 A integração COM funciona quando o LISTA_RTD.xlsm é aberto pela instância Excel controlada pelo Python. A próxima melhoria necessária é automatizar no sistema a abertura ou reutilização correta desse workbook.
-EOF
+---
+
+## Registro documental — Encerramento e refatoração
+
+**Data:** 10/07/2026  
+**Branch:** feature/rtd-excel-online-fase1  
+**Tipo:** Registro documental e refatoração de rota
+
+### Arquivos registrados
+
+- 80_CONCLUSAO_DE_ETAPA_E_DIRETRIZ_DE_REFATORACAO_RTD_EXCEL_BTG_ONLINE.md
+- EXCEL_RTD_BTG_ONLINE REESTRUTURADO.md
+
+### Resultado
+
+- Documento 80 criado para encerramento da etapa anterior.
+- Documento reestruturado criado para orientar as fases daqui pra frente.
+- Arquitetura principal consolidada como Excel RTD vivo contínuo.
+- RTD_OPTION_QUOTES reposicionada como bridge auxiliar.
+- SQLite mantido como persistência oficial.
+- Execução automática de ordens mantida fora do escopo.
+- Próxima ação definida: iniciar Fase 1 com auditoria, teste e commit ao final.
+
+### Teste documental
+
+- Arquivos presentes na pasta da frente.
+- Documento reestruturado revisado em PDF.
+- Escopo mantido conforme orientação: fases e aplicações daqui pra frente.
+- Sem alteração de código nesta etapa.
+
+### Status
+
+ENCERRADO PARA REGISTRO DOCUMENTAL.
+

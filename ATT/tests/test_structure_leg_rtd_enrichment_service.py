@@ -142,3 +142,59 @@ def test_enrich_leg_raises_value_error_when_rtd_quote_has_missing_required_field
                 "quantity": 100,
             }
         )
+
+
+
+def test_enrich_legs_applies_live_rtd_price_without_mutating_original_leg():
+    repo = FakeRtdOptionQuotesRepository(
+        {
+            "BOVAE195": {
+                "codigo_opcao": "BOVAE195",
+                "ativo_base": "BOVA11",
+                "call_put": "CALL",
+                "strike": 195.0,
+                "vencimento": "2026-12-18",
+                "ultimo_preco": 2.5,
+                "bid": 2.4,
+                "ask": 2.6,
+                "vwap": 2.45,
+                "delta": 0.51,
+            }
+        }
+    )
+    service = StructureLegRtdEnrichmentService(repo)
+
+    original = {
+        "symbol": "bovae195",
+        "position_side": "COMPRADO",
+        "quantity": 100,
+        "premium": 1.25,
+    }
+
+    enriched = service.enrich_legs([original])
+
+    assert original["premium"] == 1.25
+    assert enriched[0]["symbol"] == "BOVAE195"
+    assert enriched[0]["premium"] == 2.5
+    assert enriched[0]["entry_premium"] == 1.25
+    assert enriched[0]["current_price"] == 2.5
+    assert enriched[0]["price_source"] == "rtd_option_quotes.ultimo_preco"
+    assert enriched[0]["source"] == "rtd_option_quotes"
+    assert enriched[0]["option_type"] == "CALL"
+    assert enriched[0]["strike"] == 195.0
+    assert enriched[0]["underlying_asset"] == "BOVA11"
+
+
+def test_enrich_legs_is_tolerant_when_quote_is_missing():
+    service = StructureLegRtdEnrichmentService(FakeRtdOptionQuotesRepository({}))
+
+    original = {
+        "symbol": "BOVAE999",
+        "position_side": "COMPRADO",
+        "quantity": 100,
+        "premium": 1.25,
+    }
+
+    enriched = service.enrich_legs([original])
+
+    assert enriched == [original]

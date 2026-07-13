@@ -113,6 +113,77 @@ def find_open_workbook(excel_app: Any, workbook_name: str) -> Any:
     return None
 
 
+def resolve_workbook_path(
+    workbook_name: str,
+    workbook_path: str | Path | None = None,
+) -> Path:
+    if workbook_path is not None:
+        path = Path(workbook_path)
+    else:
+        path = Path(workbook_name)
+
+    if path.is_absolute():
+        return path
+
+    project_root = Path(__file__).resolve().parents[1]
+    candidates = [
+        Path.cwd() / path,
+        project_root / path,
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    return candidates[0]
+
+
+def open_workbook(excel_app: Any, workbook_path: str | Path) -> Any:
+    path = Path(workbook_path)
+
+    if not path.exists():
+        raise ExcelComAccessError(f"Workbook nao encontrado no disco: {path}")
+
+    workbooks = safe_getattr(excel_app, "Workbooks")
+    open_method = safe_getattr(workbooks, "Open")
+
+    if not callable(open_method):
+        raise ExcelComAccessError("Excel.Workbooks.Open indisponivel via COM")
+
+    try:
+        return open_method(str(path))
+    except Exception as exc:
+        raise ExcelComAccessError(
+            f"Falha ao abrir workbook via Excel COM: {path}: {exc}"
+        ) from exc
+
+
+def get_or_open_workbook(
+    excel_app: Any,
+    workbook_name: str,
+    workbook_path: str | Path | None = None,
+) -> Any:
+    workbook = find_open_workbook(excel_app, workbook_name)
+
+    if workbook is not None:
+        return workbook
+
+    path = resolve_workbook_path(workbook_name, workbook_path)
+    opened = open_workbook(excel_app, path)
+
+    workbook = find_open_workbook(excel_app, workbook_name)
+
+    if workbook is not None:
+        return workbook
+
+    if opened is not None:
+        return opened
+
+    raise ExcelComAccessError(
+        f"Workbook aberto, mas nao localizado no Excel: {workbook_name}"
+    )
+
+
 def list_workbook_names(excel_app: Any) -> list[str]:
     workbooks = safe_getattr(excel_app, "Workbooks")
     return [

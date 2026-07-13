@@ -12,8 +12,10 @@ from services.rtd_option_quotes_schema import (
 )
 
 from services.excel_rtd_com_access import (
+    ExcelComAccessError,
     ExcelComUnavailableError,
     get_active_excel_application,
+    get_or_open_workbook,
     iter_com_collection as _shared_iter_com_collection,
     safe_getattr as _shared_safe_getattr,
     safe_str as _shared_safe_str,
@@ -53,6 +55,8 @@ def check_excel_rtd_connection_status(
     required_headers: tuple[str, ...] = REQUIRED_OPTION_QUOTE_HEADERS,
     excel_app: Any | None = None,
 ) -> ExcelRtdConnectionStatus:
+    excel_app_was_injected = excel_app is not None
+
     if excel_app is None:
         try:
             excel_app = get_active_excel_application()
@@ -82,6 +86,40 @@ def check_excel_rtd_connection_status(
             )
 
     workbook = _find_open_workbook(excel_app, workbook_name)
+
+    if workbook is None and not excel_app_was_injected:
+        try:
+            workbook = get_or_open_workbook(excel_app, workbook_name)
+        except ExcelComAccessError as exc:
+            return ExcelRtdConnectionStatus(
+                pywin32_available=True,
+                excel_running=True,
+                workbook_open=False,
+                worksheet_available=False,
+                required_headers_ok=False,
+                workbook_name=workbook_name,
+                worksheet_name=worksheet_name,
+                missing_headers=required_headers,
+                message=(
+                    "Workbook obrigatório não está aberto e não pôde ser aberto: "
+                    f"{exc}"
+                ),
+            )
+        except Exception as exc:
+            return ExcelRtdConnectionStatus(
+                pywin32_available=True,
+                excel_running=True,
+                workbook_open=False,
+                worksheet_available=False,
+                required_headers_ok=False,
+                workbook_name=workbook_name,
+                worksheet_name=worksheet_name,
+                missing_headers=required_headers,
+                message=(
+                    "Workbook obrigatório não está aberto e falhou ao abrir: "
+                    f"{exc}"
+                ),
+            )
 
     if workbook is None:
         return ExcelRtdConnectionStatus(
