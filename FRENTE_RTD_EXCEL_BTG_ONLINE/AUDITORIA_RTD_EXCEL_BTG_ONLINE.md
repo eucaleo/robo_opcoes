@@ -1039,3 +1039,54 @@ A Fase 6.6 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_6_VALIDACAO_OFFSET_TEMPORAL_COBERTURA_20260713
+
+---
+
+## Fase 6.7 - Diagnostico de coortes temporais de cobertura
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_7_DIAGNOSTICO_COORTES_TEMPORAIS_COBERTURA_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Diagnostico operacional nao destrutivo para classificar linhas do historico bruto por offset temporal de cobertura.
+
+### Contexto
+
+A Fase 6.6 validou o offset `-3h` como melhor candidato global, cobrindo 50/60 linhas.
+
+As 10 linhas restantes sugerem coorte temporal separada, possivelmente com timestamp ja armazenado em horario local ou com timezone explicito.
+
+### Diagnosticos executados
+
+- Classificacao linha a linha por offsets de -12h ate +12h.
+- Identificacao de offsets que cobrem cada linha.
+- Escolha de offset preferencial por linha.
+- Distribuicao por presenca de timezone explicito.
+- Confirmacao de bloqueio de limpeza real.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_7_DIAGNOSTICO_COORTES_TEMPORAIS_COBERTURA_20260713.md`
+- `ATT/patches/fase6_7_diagnostico_coortes_temporais_cobertura_20260713.md`
+- `ATT/scripts/fase6_7_diagnostico_coortes_temporais_cobertura_20260713.py`
+- `ATT/tests/test_fase6_7_temporal_cohorts_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_7_diagnostico_coortes_temporais_cobertura_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_7_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.7 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_7_DIAGNOSTICO_COORTES_TEMPORAIS_COBERTURA_20260713
