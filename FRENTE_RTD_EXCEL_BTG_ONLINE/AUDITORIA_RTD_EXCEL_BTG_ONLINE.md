@@ -1238,3 +1238,60 @@ A Fase 6.10 nao autoriza limpeza real.
 A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada, com backup fisico obrigatorio.
 
 Marcador fim: FIM_AUDITORIA_FASE6_10_PLANO_EXECUCAO_CONTROLADA_BACKUP_20260713
+
+---
+
+## Fase 6.11 - Backup fisico controlado
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_11_BACKUP_FISICO_CONTROLADO_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Criacao de backup fisico local validado antes de qualquer limpeza real.
+
+### Contexto
+
+A Fase 6.10 consolidou plano controlado com:
+
+- 60 IDs elegiveis;
+- 0 IDs bloqueados;
+- SHA256 do banco de referencia;
+- backup obrigatorio;
+- limpeza real nao aprovada.
+
+### Resultado
+
+A Fase 6.11 cria e valida copia fisica local do banco `dados/app.db`.
+
+### Guardrails preservados
+
+- Nenhum registro removido.
+- Banco original nao alterado.
+- Backup validado por SHA256.
+- Backup validado por SQLite integrity_check.
+- Arquivo `.db` de backup nao versionado no Git.
+- Limpeza real ainda bloqueada.
+
+### Artefatos versionados
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_11_BACKUP_FISICO_CONTROLADO_20260713.md`
+- `ATT/patches/fase6_11_backup_fisico_controlado_20260713.md`
+- `ATT/scripts/fase6_11_backup_fisico_controlado_20260713.py`
+- `ATT/tests/test_fase6_11_backup_fisico_controlado.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_11_backup_fisico_controlado_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_11_backup_fisico_controlado_20260713.json`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_11_pytest_20260713.txt`
+
+### Artefato local nao versionado
+
+- `backups_local/fase6_11_backup_fisico_controlado_20260713/app_fase6_11_backup_fisico_controlado_20260713.db`
+
+### Decisao
+
+A Fase 6.11 nao autoriza limpeza real.
+
+A proxima fase, se aprovada explicitamente, podera preparar o script de execucao real com rollback documentado.
+
+Marcador fim: FIM_AUDITORIA_FASE6_11_BACKUP_FISICO_CONTROLADO_20260713
