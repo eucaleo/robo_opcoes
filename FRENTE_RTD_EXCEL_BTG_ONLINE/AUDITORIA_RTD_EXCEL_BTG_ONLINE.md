@@ -851,3 +851,44 @@ A validação de cobertura não autoriza limpeza real.
 A execução destrutiva permanece bloqueada até fase posterior explicitamente aprovada.
 
 Marcador fim: FIM_AUDITORIA_FASE6_2_VALIDACAO_COBERTURA_CANDLES_20260713
+
+---
+
+## Fase 6.3 - Mapeamento de schema para cobertura de candles
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_3_MAPEAMENTO_SCHEMA_COBERTURA_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Mapeamento operacional nao destrutivo para identificar colunas e pares candidatos de comparacao entre historico intraday bruto e candles consolidados.
+
+### Contexto
+
+A Fase 6.2 retornou status nao conclusivo por nao conseguir comparar chaves entre as tabelas avaliadas.
+
+### Guardrails preservados
+
+- Banco aberto em modo somente leitura.
+- Nenhum registro removido.
+- Nenhum schema alterado.
+- Nenhuma compactacao executada.
+- Nenhuma limpeza real aprovada.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_3_MAPEAMENTO_SCHEMA_COBERTURA_20260713.md`
+- `ATT/patches/fase6_3_mapeamento_schema_cobertura_20260713.md`
+- `ATT/scripts/fase6_3_mapeamento_schema_cobertura_20260713.py`
+- `ATT/tests/test_fase6_3_schema_mapping_read_only.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_3_mapeamento_schema_cobertura_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_3_pytest_20260713.txt`
+
+### Decisão
+
+A Fase 6.3 nao autoriza limpeza real.
+
+A execucao destrutiva permanece bloqueada ate fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_3_MAPEAMENTO_SCHEMA_COBERTURA_20260713
