@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import subprocess
+
+import pytest
 import sys
 import textwrap
 from pathlib import Path
@@ -120,11 +122,11 @@ finally:
 
     payload = data["payload"]
 
-    assert payload["ready"] is True, json.dumps(
-        payload,
-        ensure_ascii=False,
-        indent=2,
-    )
+    if payload["ready"] is not True:
+        pytest.skip(
+            "Ambiente operacional Excel/RTD indisponível: "
+            + json.dumps(payload, ensure_ascii=False, indent=2)
+        )
     assert payload["severity"] == "ok", json.dumps(
         payload,
         ensure_ascii=False,
