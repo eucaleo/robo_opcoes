@@ -1,0 +1,91 @@
+{
+  "phase": "6.14",
+  "generated_at_utc": "2026-07-13T17:45:09+00:00",
+  "nature": "validacao_pos_limpeza_performance_ausencia_regressao",
+  "database": {
+    "path": "dados/app.db",
+    "open_mode": "read_only",
+    "sha256_before": "fa51a7602b6dcc0b66a9f998816c3377872c3131c81c7a5b6ae11f41bc6cfc74",
+    "sha256_after": "fa51a7602b6dcc0b66a9f998816c3377872c3131c81c7a5b6ae11f41bc6cfc74",
+    "sha256_unchanged": true,
+    "sqlite_integrity": "ok",
+    "database_modified": false
+  },
+  "phase_6_13_reference": {
+    "manifest": "FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_13_execucao_real_limpeza_controlada_20260713.json",
+    "real_cleanup_executed": true,
+    "regularization_only": true,
+    "records_removed": 60,
+    "candles_preserved": true,
+    "phase_6_13_status": "REGULARIZADA_POS_EXECUCAO"
+  },
+  "post_cleanup_validation": {
+    "history_table": "rtd_option_quotes_intraday_history",
+    "history_total": 0,
+    "expected_history_total": 0,
+    "eligible_ids_checked": 60,
+    "eligible_ids_remaining": 0,
+    "candles_table": "rtd_option_quotes_intraday_candles",
+    "candles_total": 110,
+    "expected_candles_total": 110,
+    "history_schema_columns": [
+      "id",
+      "captured_at",
+      "codigo_opcao",
+      "bid",
+      "ask",
+      "last",
+      "vwap",
+      "volume",
+      "source_updated_at",
+      "raw_payload_json",
+      "created_at"
+    ],
+    "candles_schema_columns": [
+      "id",
+      "interval_minutes",
+      "bucket_start",
+      "symbol",
+      "open_price",
+      "high_price",
+      "low_price",
+      "close_price",
+      "vwap",
+      "bid",
+      "ask",
+      "spread",
+      "volume_delta",
+      "updates_count",
+      "price_source",
+      "created_at",
+      "updated_at"
+    ]
+  },
+  "performance": {
+    "threshold_ms": 2000.0,
+    "measurements_ms": {
+      "integrity_check_ms": 10.148599976673722,
+      "history_total_ms": 0.08539995178580284,
+      "candles_total_ms": 0.05340005736798048,
+      "eligible_ids_remaining_ms": 0.18780003301799297
+    },
+    "max_elapsed_ms": 10.148599976673722,
+    "performance_ok": true
+  },
+  "regression_checks": {
+    "integrity_ok": true,
+    "history_clean": true,
+    "eligible_ids_absent": true,
+    "candles_preserved": true,
+    "database_hash_unchanged": true,
+    "no_write_operation_performed": true
+  },
+  "decision": {
+    "phase_6_14_status": "APROVADA",
+    "post_cleanup_validated": true,
+    "performance_validated": true,
+    "regression_absent": true,
+    "database_modified": false,
+    "next_phase_recommended": "Fase 6.15 - encerramento da frente e consolidacao final"
+  }
+}

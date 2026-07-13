@@ -1396,3 +1396,45 @@ A Fase 6.13 fica regularizada e tecnicamente encerrada.
 A proxima etapa recomendada e a Fase 6.14 - validacao pos-limpeza, performance e ausencia de regressao.
 
 Marcador fim: FIM_AUDITORIA_FASE6_13_EXECUCAO_REAL_LIMPEZA_CONTROLADA_20260713
+
+---
+
+## Fase 6.14 - Validacao pos-limpeza, performance e ausencia de regressao
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_14_VALIDACAO_POS_LIMPEZA_PERFORMANCE_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Validacao read-only do estado pos-limpeza apos a Fase 6.13.
+
+### Resultado
+
+- Banco aberto em modo read-only.
+- Banco modificado nesta fase: nao.
+- Historico limpo: sim.
+- IDs elegiveis remanescentes: 0.
+- Candles preservados: sim.
+- Total de candles: 110.
+- SQLite integrity_check: ok.
+- Performance validada: sim.
+- Ausencia de regressao: sim.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_14_VALIDACAO_POS_LIMPEZA_PERFORMANCE_20260713.md`
+- `ATT/patches/fase6_14_validacao_pos_limpeza_performance_20260713.md`
+- `ATT/scripts/fase6_14_validacao_pos_limpeza_performance_20260713.py`
+- `ATT/tests/test_fase6_14_validacao_pos_limpeza_performance.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_14_validacao_pos_limpeza_performance_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_14_validacao_pos_limpeza_performance_20260713.json`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_14_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.14 fica encerrada tecnicamente.
+
+Proxima etapa recomendada: Fase 6.15 - encerramento da frente e consolidacao final.
+
+Marcador fim: FIM_AUDITORIA_FASE6_14_VALIDACAO_POS_LIMPEZA_PERFORMANCE_20260713
