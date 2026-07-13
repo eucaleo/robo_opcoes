@@ -1295,3 +1295,54 @@ A Fase 6.11 nao autoriza limpeza real.
 A proxima fase, se aprovada explicitamente, podera preparar o script de execucao real com rollback documentado.
 
 Marcador fim: FIM_AUDITORIA_FASE6_11_BACKUP_FISICO_CONTROLADO_20260713
+
+---
+
+## Fase 6.12 - Preparacao da execucao real controlada com rollback
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_12_PREPARA_EXECUCAO_REAL_ROLLBACK_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Preparacao read-only da execucao real controlada com rollback documentado.
+
+### Contexto
+
+A Fase 6.10 gerou plano controlado com 60 IDs elegiveis, 0 bloqueados, backup obrigatorio e limpeza real nao aprovada.
+
+A Fase 6.11 criou backup fisico local, validado por SHA256 e SQLite integrity_check, sem versionar o arquivo `.db`.
+
+### Resultado
+
+A Fase 6.12 valida o pre-flight para fase posterior, documenta rollback e confirma que a limpeza real ainda permanece bloqueada.
+
+### Guardrails preservados
+
+- Nenhum registro removido.
+- Banco original nao alterado.
+- Backup fisico da Fase 6.11 validado.
+- Rollback documentado.
+- Candles preservados.
+- IDs elegiveis conferidos.
+- Limpeza real nao aprovada.
+- Proxima fase exige confirmacao explicita.
+
+### Artefatos versionados
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_12_PREPARA_EXECUCAO_REAL_ROLLBACK_20260713.md`
+- `ATT/patches/fase6_12_prepara_execucao_real_rollback_20260713.md`
+- `ATT/scripts/fase6_12_prepara_execucao_real_rollback_20260713.py`
+- `ATT/tests/test_fase6_12_prepara_execucao_real_rollback.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_12_prepara_execucao_real_rollback_20260713.md`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_12_prepara_execucao_real_rollback_20260713.json`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_12_pytest_20260713.txt`
+
+### Decisao
+
+A Fase 6.12 nao executa limpeza real.
+
+A Fase 6.13, se executada, devera exigir confirmacao explicita, banco estavel, backup fisico valido e rollback disponivel.
+
+Marcador fim: FIM_AUDITORIA_FASE6_12_PREPARA_EXECUCAO_REAL_ROLLBACK_20260713
