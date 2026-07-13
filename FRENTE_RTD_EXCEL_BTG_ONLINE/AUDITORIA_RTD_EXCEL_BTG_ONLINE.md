@@ -776,3 +776,41 @@ A Fase 6 está iniciada em modo de auditoria e baseline.
 Nenhuma rotina de limpeza deve ser aplicada antes da definição dos contratos de retenção, dry-run, preservação de candles e snapshot final do dia.
 
 Marcador fim: FIM_AUDITORIA_FASE6_RETENCAO_LIMPEZA_BASELINE_20260713
+
+---
+
+## Fase 6.1 - Contrato de retenção com dry-run obrigatório
+
+Marcador inicio: INICIO_AUDITORIA_FASE6_1_CONTRATO_RETENCAO_DRY_RUN_20260713
+
+Data: 13/07/2026
+
+### Natureza
+
+Contrato operacional e simulação não destrutiva para retenção, limpeza e consolidação da frente RTD Excel BTG Online.
+
+### Guardrails preservados
+
+- Nenhum `DELETE` executado.
+- Nenhum `UPDATE` executado.
+- Nenhum `DROP` executado.
+- Nenhum `ALTER` executado.
+- Nenhum `VACUUM` executado.
+- Nenhuma compactação executada.
+- Nenhum dado removido.
+- Banco auditado em modo somente leitura no dry-run.
+
+### Artefatos
+
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_FASE6_1_CONTRATO_RETENCAO_DRY_RUN_20260713.md`
+- `ATT/patches/fase6_1_contrato_retencao_dry_run_20260713.md`
+- `ATT/scripts/fase6_1_retencao_dry_run_20260713.py`
+- `FRENTE_RTD_EXCEL_BTG_ONLINE/output/fase6_1_retencao_dry_run_20260713.md`
+
+### Decisão
+
+A Fase 6.1 estabelece contrato e simulação obrigatória.
+
+A execução destrutiva permanece bloqueada até fase posterior explicitamente aprovada.
+
+Marcador fim: FIM_AUDITORIA_FASE6_1_CONTRATO_RETENCAO_DRY_RUN_20260713
