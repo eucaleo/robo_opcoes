@@ -1485,3 +1485,62 @@ A frente de retencao e limpeza da Fase 6 fica encerrada tecnicamente.
 Acao recomendada: revisao final e merge da branch de feature.
 
 Marcador fim: FIM_AUDITORIA_FASE6_15_ENCERRAMENTO_FRENTE_CONSOLIDACAO_FINAL_20260713
+
+---
+
+## Atualizacao de rota pos Fase 6
+
+Marcador inicio: INICIO_ROTA_ATUALIZADA_POS_FASE6_20260713
+
+Data: 13/07/2026
+
+### Base
+
+Documento de rota analisado:
+
+EXCEL_RTD_BTG_ONLINE REESTRUTURADO.pdf
+
+### Correcao de andamento
+
+O documento original registrava:
+
+- Fase 6: iniciada
+
+Apos a execucao e consolidacao da Fase 6.15, o andamento correto passa a ser:
+
+- Fase 6: encerrada tecnicamente
+- Fase 7: proxima fase permitida
+
+### Evidencias
+
+- Commit final da Fase 6: ef39bab Encerra frente retencao limpeza Fase 6.15 RTD Excel
+- Branch: feature/rtd-excel-online-fase6-retencao-limpeza
+- Historico final limpo: sim
+- IDs elegiveis remanescentes: 0
+- Candles preservados: sim
+- Total de candles preservados: 110
+- Integridade final: ok
+- Performance validada: sim
+- Ausencia de regressao: sim
+- Rollback documentado: sim
+- Banco modificado na Fase 6.15: nao
+- Pronto para revisao ou merge: sim
+
+### Decisao
+
+A rota da frente RTD Excel BTG Online fica atualizada.
+
+As Fases 1 a 6 estao encerradas.
+
+A Fase 7 - Alertas e decisao operacional - passa a ser a proxima fase permitida.
+
+A execucao automatica de ordens reais permanece fora do escopo desta frente.
+
+### Artefatos
+
+- FRENTE_RTD_EXCEL_BTG_ONLINE/ROTA_ATUALIZADA_POS_FASE6_20260713.md
+- ATT/patches/rota_atualizada_pos_fase6_20260713.md
+- ATT/tests/test_rota_atualizada_pos_fase6.py
+- FRENTE_RTD_EXCEL_BTG_ONLINE/output/rota_atualizada_pos_fase6_pytest_20260713.txt
+
+Marcador fim: FIM_ROTA_ATUALIZADA_POS_FASE6_20260713
