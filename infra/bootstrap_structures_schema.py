@@ -1,60 +1,189 @@
+# infra/bootstrap_structures_schema.py
+"""
+Garante o schema SQLite da aplicação (idempotente).
+Cria tabelas e índices se ainda não existirem.
+
+alteracao_72: adicionada tabela structure_audit_log para rastreabilidade de mudancas.
+"""
+from __future__ import annotations
+
 import sqlite3
 from pathlib import Path
 
 DB_PATH = Path("dados/app.db")
 
 
+# ---------------------------------------------------------------------------
+# DDL principal
+# ---------------------------------------------------------------------------
+
 def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
+    """Cria todas as tabelas e índices necessários (idempotente)."""
     db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
     with sqlite3.connect(db_path) as conn:
         conn.execute("PRAGMA foreign_keys = ON;")
 
+        # ------------------------------------------------------------------ #
+        # structures                                                           #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS structures (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                underlying_asset TEXT NOT NULL,
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                name             TEXT    NOT NULL,
+                underlying_asset TEXT    NOT NULL,
                 alias_legacy_aba TEXT,
-                status TEXT NOT NULL DEFAULT 'active',
-                notes TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
+                status           TEXT    NOT NULL DEFAULT 'active',
+                notes            TEXT,
+                created_at       TEXT    NOT NULL,
+                updated_at       TEXT    NOT NULL
             )
             """
         )
 
+        # ------------------------------------------------------------------ #
+        # structure_legs                                                       #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE TABLE IF NOT EXISTS structure_legs (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                structure_id INTEGER NOT NULL,
-                position_side TEXT NOT NULL,
-                option_type TEXT NOT NULL,
-                symbol TEXT,
-                strike REAL NOT NULL,
-                expiration_date TEXT NOT NULL,
-                quantity INTEGER NOT NULL,
-                premium REAL,
-                multiplier REAL NOT NULL DEFAULT 1,
-                leg_order INTEGER NOT NULL,
-                notes TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
+                id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id    INTEGER NOT NULL,
+                position_side   TEXT    NOT NULL,
+                option_type     TEXT    NOT NULL,
+                symbol          TEXT,
+                strike          REAL    NOT NULL,
+                expiration_date TEXT    NOT NULL,
+                quantity        INTEGER NOT NULL,
+                premium         REAL,
+                multiplier      REAL    NOT NULL DEFAULT 1,
+                leg_order       INTEGER NOT NULL,
+                notes           TEXT,
+                created_at      TEXT    NOT NULL,
+                updated_at      TEXT    NOT NULL,
                 FOREIGN KEY (structure_id) REFERENCES structures(id) ON DELETE CASCADE
             )
             """
         )
 
+        # ------------------------------------------------------------------ #
+        # pricing_executions                                                   #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS pricing_executions (
+                id                INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at        TEXT    NOT NULL,
+                structure_id      INTEGER,
+                underlying_asset  TEXT,
+                reference_date    TEXT,
+                execution_status  TEXT,
+                execution_engine  TEXT,
+                error_message     TEXT,
+                duration_ms       INTEGER,
+                number_of_legs    INTEGER,
+                total_quantity    INTEGER,
+                theoretical_value REAL,
+                pricing_payload   TEXT,
+                result            TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_audit_log  [alteracao_72]                                      #
+        # Rastreia toda mutacao em structures: CREATE, UPDATE, ARCHIVE,        #
+        # ADD_LEG, REPLACE_LEGS.                                               #
+        # before_json / after_json sao snapshots do estado da estrutura        #
+        # (sem legs) serializado em JSON.                                      #
+        # changed_by e reservado para autenticacao futura; NULL por ora.       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_audit_log (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                action       TEXT    NOT NULL,
+                changed_by   TEXT,
+                changed_at   TEXT    NOT NULL,
+                before_json  TEXT,
+                after_json   TEXT,
+                notes        TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_snapshots  [fase_11]                                      #
+        # Histórico operacional oficial gerado pelo sistema.                  #
+        # Uma linha representa um snapshot consolidado de uma estrutura.       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_snapshots (
+                id                    INTEGER PRIMARY KEY AUTOINCREMENT,
+                created_at            TEXT    NOT NULL,
+                structure_id          INTEGER NOT NULL,
+                pricing_execution_id  INTEGER,
+                underlying_asset      TEXT,
+                reference_date        TEXT,
+                snapshot_source       TEXT    NOT NULL DEFAULT 'system',
+                structure_json        TEXT    NOT NULL,
+                market_json           TEXT,
+                metrics_json          TEXT,
+                payoff_json           TEXT,
+                decision_json         TEXT,
+                alerts_json           TEXT,
+                operation_state_json  TEXT,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (pricing_execution_id) REFERENCES pricing_executions(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # structure_leg_snapshots  [fase_11]                                  #
+        # Histórico detalhado das pernas pertencentes a cada snapshot.         #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_leg_snapshots (
+                id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                snapshot_id      INTEGER NOT NULL,
+                structure_id     INTEGER NOT NULL,
+                leg_id           INTEGER,
+                leg_order        INTEGER,
+                position_side    TEXT,
+                option_type      TEXT,
+                symbol           TEXT,
+                strike           REAL,
+                expiration_date  TEXT,
+                quantity         INTEGER,
+                premium          REAL,
+                multiplier       REAL,
+                metrics_json     TEXT,
+                market_json      TEXT,
+                raw_json         TEXT,
+                FOREIGN KEY (snapshot_id) REFERENCES structure_snapshots(id) ON DELETE CASCADE,
+                FOREIGN KEY (structure_id) REFERENCES structures(id),
+                FOREIGN KEY (leg_id) REFERENCES structure_legs(id)
+            )
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structures                                                #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structures_underlying_asset
             ON structures(underlying_asset)
             """
         )
-
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structures_alias_legacy_aba
@@ -62,13 +191,15 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_legs                                            #
+        # ------------------------------------------------------------------ #
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id
             ON structure_legs(structure_id)
             """
         )
-
         conn.execute(
             """
             CREATE INDEX IF NOT EXISTS idx_structure_legs_structure_id_leg_order
@@ -76,4 +207,140 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
             """
         )
 
+        # ------------------------------------------------------------------ #
+        # Indices -- pricing_executions                                        #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id
+            ON pricing_executions(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at
+            ON pricing_executions(created_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_pricing_executions_status
+            ON pricing_executions(execution_status)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_audit_log  [alteracao_72]                          #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_structure_id
+            ON structure_audit_log(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_changed_at
+            ON structure_audit_log(changed_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_audit_log_action
+            ON structure_audit_log(action)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_snapshots  [fase_11]                           #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_id
+            ON structure_snapshots(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_created_at
+            ON structure_snapshots(created_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_structure_created
+            ON structure_snapshots(structure_id, created_at)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_reference_date
+            ON structure_snapshots(reference_date)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_snapshots_pricing_execution_id
+            ON structure_snapshots(pricing_execution_id)
+            """
+        )
+
+        # ------------------------------------------------------------------ #
+        # Indices -- structure_leg_snapshots  [fase_11]                       #
+        # ------------------------------------------------------------------ #
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_snapshot_id
+            ON structure_leg_snapshots(snapshot_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_structure_id
+            ON structure_leg_snapshots(structure_id)
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_leg_snapshots_leg_id
+            ON structure_leg_snapshots(leg_id)
+            """
+        )
+
         conn.commit()
+
+
+# ---------------------------------------------------------------------------
+# Bootstrap auxiliar de pricing_executions (alteracao_23)
+# Mantido como função independente para uso em migrações pontuais.
+# ---------------------------------------------------------------------------
+
+_PRICING_EXECUTIONS_DDL = """
+CREATE TABLE IF NOT EXISTS pricing_executions (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    structure_id    INTEGER NOT NULL,
+    reference_date  TEXT    NOT NULL,
+    status          TEXT    NOT NULL DEFAULT 'ok',
+    canonical_input TEXT    NULL,
+    engine_result   TEXT    NULL,
+    error_message   TEXT    NULL,
+    executed_at     TEXT    NOT NULL,
+    created_at      TEXT    NOT NULL
+);
+"""
+
+_PRICING_EXECUTIONS_INDEXES: list[str] = [
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id   ON pricing_executions (structure_id);",
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_reference_date ON pricing_executions (reference_date);",
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_status         ON pricing_executions (status);",
+    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_date ON pricing_executions (structure_id, reference_date);",
+]
+
+
+def bootstrap_pricing_executions(conn: sqlite3.Connection) -> None:
+    """Garante tabela pricing_executions e seus índices (idempotente)."""
+    cur = conn.cursor()
+    cur.executescript(_PRICING_EXECUTIONS_DDL)
+    for idx in _PRICING_EXECUTIONS_INDEXES:
+        cur.execute(idx)
+    conn.commit()

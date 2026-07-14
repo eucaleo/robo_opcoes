@@ -1,46 +1,111 @@
+# Dados locais / bancos SQLite
+dados/
 dados/*.db
-> bridge/*.csv
-> __pycache__/
-> *.pyc
-> *.log
-> *.tmp
-> 
-
-# Python
-__pycache__/
-*.py[cod]
-
-# SQLite / DB
 *.db
 *.sqlite
 *.sqlite3
+SEU_CAMINHO_DO_DB.sqlite3
 
-# Logs / temp
+# Excel local / arquivos operacionais
+OPERACOES_E_OPCOES.xlsm
+OPERACOES_E_OPCOES.xlsx
+LISTA_RTD.xlsx
+
+# Bridge / artefatos exportados
+bridge/*.csv
+bridge/4026BA10
+
+# Logs / temporários
 logs/
-reports/
+*.log
+log_execucao.txt
+*.tmp
 .tables/
 .payoff_check_tmp
 __debug_payoff.png
 
+# Python / cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
 # Backups locais
 *.bak
+*.bak-*
 *.backup.*
 *.backup_*
 *.backup_debug_*
+*.bak_p*
+*.bak_p*b
 backup_*/
 backup_Data_*/
 
-# Excel exports / bridge artifacts (se não forem parte do produto)
-SEU_CAMINHO_DO_DB.sqlite3
-dados/
-OPERACOES_E_OPCOES.xlsm
-OPERACOES_E_OPCOES.xlsx
-
-# --- v2 hygiene: backups e artefatos temporários ---
+# Backups e artefatos temporários v2
 BAK/**
 ATT/reports/**
-# manter scripts reprodutíveis versionados:
-!ATT/patches/**
+
+# Manter scripts e testes reprodutíveis versionados
+!ATT/patches/.gitkeep
 !ATT/tests/**
 !ATT/**/.gitkeep
-# --- /v2 hygiene ---
+
+# Temporários internos
+ATT/temporario/
+project_context.json
+module_inventory.json
+main.py.txt
+
+# Auditorias e scripts temporários
+scripts/auditoria_*.md
+scripts/tmp_*.py
+scripts/cleanup_report_*.json
+scripts/.smoke_context.json
+
+# Arquivos temporários específicos
+ATT/tests/failures_log.txt
+debug_*.py
+cleanup_fase_b.py
+fix_orphan_decision.py
+
+# Lixo/local temporário
+.trash/
+~$*
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Relatórios locais de limpeza/auditoria
+_cleanup_reports/
+_repo_audit/
+candidatos_limpeza_cache.txt
+
+# Reforço: caches dentro de ATT/tests não devem ser versionados
+ATT/tests/__pycache__/
+ATT/tests/**/__pycache__/
+ATT/tests/**/*.pyc
+ATT/tests/**/*.pyo
+
+# Reforço: caches dentro de ATT/checks não devem ser versionados
+ATT/checks/__pycache__/
+ATT/checks/**/__pycache__/
+ATT/checks/**/*.pyc
+ATT/checks/**/*.pyo
+
+# Planilhas operacionais com RTD / dados voláteis
+LISTA_RTD.xlsm
+
+# Artefatos locais / experimentos
+_local_scripts_fase7/
+reports/
+spikes/
+FRENTE_BD_UNICO_APPDB/backups/*.db
+FRENTE_BD_UNICO_APPDB/backups_phase1f/
+
+# Artefatos gerados da frente RTD Excel BTG Online
+FRENTE_RTD_EXCEL_BTG_ONLINE/output/
+FRENTE_RTD_EXCEL_BTG_ONLINE/**/project_search_hits.txt
+FRENTE_RTD_EXCEL_BTG_ONLINE/**/repo_scan_*.txt
+FRENTE_RTD_EXCEL_BTG_ONLINE/**/retomada_*/

@@ -31,4 +31,7 @@ def assemble_structure_market_input(
             "interest_rate": market_snapshot["interest_rate"],
             "volatility": market_snapshot["volatility"],
         },
+        "meta": {
+            "input_source": "structure_market_input_assembler",
+        },
     }

@@ -22,7 +22,12 @@ class PricingExecutionService:
             structure_id=structure_id,
             reference_date=reference_date,
         )
+        return self.execute_payload(pricing_payload)
 
+    def execute_payload(
+        self,
+        pricing_payload: dict[str, Any],
+    ) -> dict[str, Any]:
         result = self.pricing_engine.run(pricing_payload)
 
         return {

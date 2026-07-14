@@ -4,8 +4,11 @@ from services.pricing_execution_app_service import PricingExecutionAppService
 def main():
     service = PricingExecutionAppService()
 
-    response = service.execute_pricing(structure_id=1)
-    record = response["persisted"]["record"]
+    response = service.execute_pricing(structure_id=2)
+    if isinstance(response, dict) and "persisted" in response:
+        record = response["persisted"]["record"]
+    else:
+        record = response
 
     if record["execution_status"] != "ok":
         raise RuntimeError("app service execution_status should be ok")
