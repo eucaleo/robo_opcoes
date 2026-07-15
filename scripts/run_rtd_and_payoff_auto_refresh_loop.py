@@ -22,7 +22,7 @@ def run_cmd(cmd: list[str], cwd: Path | None = None) -> int:
 
 
 def build_payoff_command(template: str, db: str) -> list[str]:
-    rendered = template.format(db=db)
+    rendered = template.format(db=Path(db).as_posix())  # PAYOFF_DB_POSIX_FIX
     return shlex.split(rendered)
 
 
