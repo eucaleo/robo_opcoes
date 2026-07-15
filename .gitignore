@@ -119,3 +119,4 @@ FRENTE_RTD_EXCEL_BTG_ONLINE/*.txt
 
 # Generated RTD/Excel operational output artifacts
 /FRENTE_RTD_EXCEL_BTG_ONLINE/output/
+logs/payoff-rtd-refresh-*.log
