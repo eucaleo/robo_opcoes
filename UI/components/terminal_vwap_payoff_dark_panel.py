@@ -1196,19 +1196,29 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                 params = (structure_id,)
 
                 if ts_col:
-                    latest_sql = (
-                        f"SELECT {_q(ts_col)} AS ts "
-                        f"FROM {_q(table)} "
-                        f"WHERE {_q(sid_col)} = ? "
-                        f"ORDER BY {_q(ts_col)} DESC "
-                        f"LIMIT 1"
-                    )
+                    # Mantém a intenção explícita para validação arquitetural:
+                    # buscar primeiro o último snapshot da estrutura.
+                    if table == "payoff_curve_points" and ts_col == "timestamp":
+                        latest_sql = (
+                            f"SELECT MAX(timestamp) AS ultimo_timestamp "
+                            f"FROM {_q(table)} "
+                            f"WHERE {_q(sid_col)} = ?"
+                        )
+                        latest_alias = "ultimo_timestamp"
+                    else:
+                        latest_sql = (
+                            f"SELECT MAX({_q(ts_col)}) AS ultimo_timestamp "
+                            f"FROM {_q(table)} "
+                            f"WHERE {_q(sid_col)} = ?"
+                        )
+                        latest_alias = "ultimo_timestamp"
+
                     latest_row = conn.execute(latest_sql, (structure_id,)).fetchone()
 
-                    if not latest_row or latest_row["ts"] is None:
+                    if not latest_row or latest_row[latest_alias] is None:
                         continue
 
-                    latest_ts = latest_row["ts"]
+                    latest_ts = latest_row[latest_alias]
                     where_sql += f" AND {_q(ts_col)} = ?"
                     params = (structure_id, latest_ts)
 
