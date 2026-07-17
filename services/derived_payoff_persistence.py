@@ -1,6 +1,9 @@
 # services/derived_payoff_persistence.py
 import logging
+import os
+import sqlite3
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from domain.payoff import compute_payoff_from_canonical_input
@@ -39,6 +42,21 @@ class DerivedPayoffPersistence:
             logger.debug(
                 "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
                 status,
+            )
+            return
+
+        structure_id = self._extract_structure_id(pricing_payload)
+        if structure_id is None:
+            logger.warning(
+                "derived_payoff_persistence: structure_id ausente; persistência bloqueada."
+            )
+            return
+
+        if not self._is_active_structure(structure_id):
+            logger.warning(
+                "derived_payoff_persistence: estrutura inativa/arquivada; "
+                "payoff e decisão não serão gravados -- structure_id=%s",
+                structure_id,
             )
             return
 
@@ -133,6 +151,32 @@ class DerivedPayoffPersistence:
                 except (ZeroDivisionError, TypeError, ValueError):
                     pass
 
+            structure_payload = pricing_payload.get("structure") if isinstance(pricing_payload, dict) else {}
+            if not isinstance(structure_payload, dict):
+                structure_payload = {}
+
+            market_payload = pricing_payload.get("market") if isinstance(pricing_payload, dict) else {}
+            if not isinstance(market_payload, dict):
+                market_payload = {}
+
+            structure_id = (
+                pricing_payload.get("structure_id")
+                or structure_payload.get("structure_id")
+                or structure_payload.get("id")
+            )
+            structure_name = (
+                pricing_payload.get("structure_name")
+                or structure_payload.get("structure_name")
+                or structure_payload.get("name")
+            )
+            underlying_asset = (
+                pricing_payload.get("underlying_asset")
+                or structure_payload.get("underlying_asset")
+                or structure_payload.get("underlying")
+                or market_payload.get("underlying_asset")
+                or market_payload.get("underlying")
+            )
+
             decision_dict = {
                 "decision":      "HOLD",
                 "level":         0,
@@ -141,6 +185,9 @@ class DerivedPayoffPersistence:
                 "pl_pct_of_max": pl_pct_of_max,
                 "dte_min":       dte_min,
                 "spot_ref":      spot_ref,
+                "structure_id":    structure_id,
+                "structure_name":  structure_name,
+                "underlying_asset": underlying_asset,
                 "why": {
                     "source":           "pricing_engine",
                     "engine":           inner.get("engine"),
@@ -180,6 +227,83 @@ class DerivedPayoffPersistence:
     # -------------------------------------------------------------- #
 
     @staticmethod
+    def _extract_structure_id(pricing_payload: dict[str, Any]) -> int | None:
+        structure_payload = pricing_payload.get("structure") if isinstance(pricing_payload, dict) else {}
+        if not isinstance(structure_payload, dict):
+            structure_payload = {}
+
+        raw = (
+            pricing_payload.get("structure_id")
+            or structure_payload.get("structure_id")
+            or structure_payload.get("id")
+        )
+
+        try:
+            sid = int(raw)
+        except (TypeError, ValueError):
+            return None
+
+        return sid if sid > 0 else None
+
+    @staticmethod
+    def _default_db_path() -> Path:
+        env_path = os.getenv("APP_DB_PATH")
+        if env_path:
+            return Path(env_path)
+
+        # services/derived_payoff_persistence.py -> raiz do projeto -> dados/app.db
+        return Path(__file__).resolve().parents[1] / "dados" / "app.db"
+
+    @classmethod
+    def _is_active_structure(cls, structure_id: int) -> bool:
+        """
+        Barreira de segurança na camada de persistência.
+
+        Retorna True somente quando structures.status == 'active'.
+        Qualquer ausência, erro ou status diferente bloqueia gravação.
+        """
+        db_path = cls._default_db_path()
+
+        try:
+            if not db_path.exists():
+                logger.warning(
+                    "derived_payoff_persistence: app.db não encontrado para validar structure_id=%s -- db_path=%s",
+                    structure_id,
+                    db_path,
+                )
+                return False
+
+            with sqlite3.connect(str(db_path)) as conn:
+                conn.row_factory = sqlite3.Row
+
+                row = conn.execute(
+                    """
+                    SELECT status
+                      FROM structures
+                     WHERE id = ?
+                     LIMIT 1
+                    """,
+                    (int(structure_id),),
+                ).fetchone()
+
+            if not row:
+                logger.warning(
+                    "derived_payoff_persistence: structure_id=%s não encontrada; persistência bloqueada.",
+                    structure_id,
+                )
+                return False
+
+            status = str(row["status"] or "").strip().lower()
+            return status == "active"
+
+        except Exception:
+            logger.exception(
+                "derived_payoff_persistence: falha ao validar status da estrutura -- structure_id=%s",
+                structure_id,
+            )
+            return False
+
+    @staticmethod
     def _build_canonical_input(
         pricing_payload: dict[str, Any],
         result: dict[str, Any],
@@ -190,10 +314,53 @@ class DerivedPayoffPersistence:
         Suporta dois formatos de pricing_payload:
           A) já canônico: { structure: { legs, ... }, market: { spot_price, ... } }
           B) flat:        { legs: [...], spot_price: ..., structure_id: ..., ... }
+
+        Importante:
+          O domínio valida structure.legs[*].position_side.
+          Algumas etapas anteriores entregam legs com side.
+          Por isso, aqui normalizamos side -> position_side antes de calcular payoff.
         """
+        _ = result
+
+        def normalize_leg_for_canonical(leg: dict[str, Any]) -> dict[str, Any]:
+            normalized = dict(leg or {})
+
+            if not normalized.get("position_side") and normalized.get("side"):
+                side_value = str(normalized.get("side") or "").strip().upper()
+
+                if side_value in {"LONG", "BUY", "C", "COMPRA"}:
+                    normalized["position_side"] = "LONG"
+                elif side_value in {"SHORT", "SELL", "V", "VENDA"}:
+                    normalized["position_side"] = "SHORT"
+                else:
+                    normalized["position_side"] = side_value
+
+            if normalized.get("option_type"):
+                normalized["option_type"] = str(
+                    normalized.get("option_type")
+                ).strip().upper()
+
+            if normalized.get("instrument_type"):
+                normalized["instrument_type"] = str(
+                    normalized.get("instrument_type")
+                ).strip().upper()
+
+            return normalized
+
+        def normalize_legs(legs: Any) -> list[dict[str, Any]]:
+            return [
+                normalize_leg_for_canonical(leg)
+                for leg in (legs or [])
+                if isinstance(leg, dict)
+            ]
+
         # Formato A -- já canônico
         if "structure" in pricing_payload and "market" in pricing_payload:
-            return pricing_payload
+            canonical_input = dict(pricing_payload)
+            structure = dict(canonical_input.get("structure") or {})
+            structure["legs"] = normalize_legs(structure.get("legs"))
+            canonical_input["structure"] = structure
+            return canonical_input
 
         # Formato B -- flat  montar canônico
         structure_id   = pricing_payload.get("structure_id")
@@ -201,7 +368,7 @@ class DerivedPayoffPersistence:
         underlying     = pricing_payload.get("underlying_asset")
         spot_price     = pricing_payload.get("spot_price") or 0.0
         reference_date = pricing_payload.get("reference_date")
-        legs           = pricing_payload.get("legs") or []
+        legs           = normalize_legs(pricing_payload.get("legs"))
 
         return {
             "structure": {

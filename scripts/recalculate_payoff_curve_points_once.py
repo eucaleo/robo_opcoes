@@ -57,14 +57,45 @@ def _load_structure_ids(
     if not cols:
         raise RuntimeError("Tabela structures não encontrada no app.db.")
 
+    # Regra operacional:
+    # - structure_id explícito também precisa estar active;
+    # - rotina em lote processa apenas structures.status = 'active' quando a coluna existe.
+    if structure_id is not None:
+        if "status" in cols:
+            row = conn.execute(
+                """
+                SELECT id, status
+                  FROM structures
+                 WHERE id = ?
+                 LIMIT 1
+                """,
+                (structure_id,),
+            ).fetchone()
+
+            if not row:
+                raise ValueError(f"structure_id={structure_id} não encontrada.")
+
+            status = str(row["status"] or "").strip().lower()
+            if status != "active":
+                raise ValueError(
+                    f"structure_id={structure_id} não está active; "
+                    f"status={row['status']!r}. Recálculo bloqueado."
+                )
+
+            return [int(row["id"])]
+
+        rows = conn.execute(
+            "SELECT id FROM structures WHERE id = ? ORDER BY id",
+            (structure_id,),
+        ).fetchall()
+        return [int(row["id"]) for row in rows]
+
     where = []
     params = []
 
-    if structure_id is not None:
-        where.append("id = ?")
-        params.append(structure_id)
-
-    if active_only:
+    if "status" in cols:
+        where.append("LOWER(COALESCE(status, '')) = 'active'")
+    elif active_only:
         for candidate in ("is_active", "active", "enabled"):
             if candidate in cols:
                 where.append(f"COALESCE({candidate}, 1) = 1")
@@ -114,11 +145,15 @@ def main() -> int:
 
     with _connect(db_path) as conn:
         before = _count_payoff_points(conn)
-        structure_ids = _load_structure_ids(
-            conn,
-            structure_id=args.structure_id,
-            active_only=args.active_only,
-        )
+        try:
+            structure_ids = _load_structure_ids(
+                conn,
+                structure_id=args.structure_id,
+                active_only=args.active_only,
+            )
+        except ValueError as exc:
+            print(f"[payoff-once] ERRO: {exc}")
+            return 1
 
     if not structure_ids:
         print("[payoff-once] Nenhuma estrutura encontrada para recalcular.")
