@@ -1,0 +1,280 @@
+{
+  "status": "ok",
+  "objective": "Teste real do PayoffRefreshCommandService como comando oficial de refresh do payoff.",
+  "db_path": "C:\\users\\eucal\\projeto\\dados\\app.db",
+  "structure_id": 2,
+  "backup_path": "C:\\users\\eucal\\projeto\\dados\\app.db.bak_32_10_20260717_203059",
+  "before": {
+    "db_path": "C:\\users\\eucal\\projeto\\dados\\app.db",
+    "exists": true,
+    "tables": {
+      "pricing_executions": {
+        "exists": true,
+        "count_all": 148,
+        "count_structure": 39,
+        "latest_all": "2026-07-17T23:28:20.681714Z",
+        "latest_structure": "2026-07-17T23:28:20.681714Z"
+      },
+      "payoff_curve_points": {
+        "exists": true,
+        "count_all": 3434,
+        "count_structure": 1919,
+        "latest_all": "2026-07-17T23:28:20.712566+00:00",
+        "latest_structure": "2026-07-17T23:28:20.712566+00:00"
+      },
+      "structure_decisions": {
+        "exists": true,
+        "count_all": 15,
+        "count_structure": 8,
+        "latest_all": "2026-07-17T23:28:20.712566+00:00",
+        "latest_structure": "2026-07-17T23:28:20.712566+00:00"
+      },
+      "structure_snapshots": {
+        "exists": true,
+        "count_all": 178,
+        "count_structure": 57,
+        "latest_all": "2026-07-17T23:28:20.697907+00:00",
+        "latest_structure": "2026-07-17T23:28:20.697907+00:00"
+      },
+      "system_snapshots": {
+        "exists": false,
+        "count_all": null,
+        "count_structure": null,
+        "latest_all": null,
+        "latest_structure": null
+      }
+    }
+  },
+  "after": {
+    "db_path": "C:\\users\\eucal\\projeto\\dados\\app.db",
+    "exists": true,
+    "tables": {
+      "pricing_executions": {
+        "exists": true,
+        "count_all": 149,
+        "count_structure": 40,
+        "latest_all": "2026-07-17T23:31:00.666933Z",
+        "latest_structure": "2026-07-17T23:31:00.666933Z"
+      },
+      "payoff_curve_points": {
+        "exists": true,
+        "count_all": 3535,
+        "count_structure": 2020,
+        "latest_all": "2026-07-17T23:31:00.693467+00:00",
+        "latest_structure": "2026-07-17T23:31:00.693467+00:00"
+      },
+      "structure_decisions": {
+        "exists": true,
+        "count_all": 16,
+        "count_structure": 9,
+        "latest_all": "2026-07-17T23:31:00.693467+00:00",
+        "latest_structure": "2026-07-17T23:31:00.693467+00:00"
+      },
+      "structure_snapshots": {
+        "exists": true,
+        "count_all": 179,
+        "count_structure": 58,
+        "latest_all": "2026-07-17T23:31:00.680200+00:00",
+        "latest_structure": "2026-07-17T23:31:00.680200+00:00"
+      },
+      "system_snapshots": {
+        "exists": false,
+        "count_all": null,
+        "count_structure": null,
+        "latest_all": null,
+        "latest_structure": null
+      }
+    }
+  },
+  "deltas": {
+    "pricing_executions_all": 1,
+    "pricing_executions_structure": 1,
+    "payoff_curve_points_all": 101,
+    "payoff_curve_points_structure": 101,
+    "structure_decisions_all": 1,
+    "structure_decisions_structure": 1
+  },
+  "service": {
+    "instantiation": {
+      "instantiation": "sem argumentos",
+      "kwargs": {},
+      "error": null
+    },
+    "execution": {
+      "called": true,
+      "method": "refresh_payoff_for_structure",
+      "kwargs": {
+        "structure_id": 2
+      },
+      "result": {
+        "status": "ok",
+        "structure_id": 2,
+        "reference_date": null,
+        "pricing_execution_id": 193,
+        "snapshot_id": 179,
+        "payoff_points_count": 101,
+        "latest_payoff_timestamp": "2026-07-17T23:31:00.693467+00:00",
+        "decision_found": true,
+        "message": "Payoff atualizado com sucesso.",
+        "pricing_result": {
+          "id": 193,
+          "created_at": "2026-07-17T23:31:00.666933Z",
+          "structure_id": 2,
+          "underlying_asset": "BOVA11",
+          "reference_date": "2026-07-17",
+          "execution_status": "ok",
+          "execution_engine": "stub",
+          "error_message": null,
+          "duration_ms": 8,
+          "number_of_legs": 4,
+          "total_quantity": 12500,
+          "theoretical_value": 0.0,
+          "pricing_payload": {
+            "structure_id": 2,
+            "structure_name": "SBSP+SMAL=BOVA",
+            "underlying_asset": "BOVA11",
+            "reference_date": "2026-07-17",
+            "spot_price": 198.35,
+            "interest_rate": 0.1175,
+            "volatility": 0.22,
+            "legs": [
+              {
+                "side": "LONG",
+                "instrument_type": "OPTION",
+                "option_type": "CALL",
+                "symbol": "BOVAH186",
+                "strike": 186.0,
+                "expiration_date": "2026-08-21",
+                "quantity": 4000,
+                "premium": 0.69,
+                "multiplier": 1.0
+              },
+              {
+                "side": "SHORT",
+                "instrument_type": "OPTION",
+                "option_type": "CALL",
+                "symbol": "BOVAG34",
+                "strike": 157.0,
+                "expiration_date": "2026-07-17",
+                "quantity": 2000,
+                "premium": 10.44,
+                "multiplier": 1.0
+              },
+              {
+                "side": "SHORT",
+                "instrument_type": "OPTION",
+                "option_type": "PUT",
+                "symbol": "BOVAS61",
+                "strike": 184.0,
+                "expiration_date": "2026-07-17",
+                "quantity": 2500,
+                "premium": 16.93,
+                "multiplier": 1.0
+              },
+              {
+                "side": "LONG",
+                "instrument_type": "OPTION",
+                "option_type": "PUT",
+                "symbol": "BOVAT158",
+                "strike": 158.0,
+                "expiration_date": "2026-08-21",
+                "quantity": 4000,
+                "premium": 1.51,
+                "multiplier": 1.0
+              }
+            ]
+          },
+          "result": {
+            "pricing_payload": {
+              "structure_id": 2,
+              "structure_name": "SBSP+SMAL=BOVA",
+              "underlying_asset": "BOVA11",
+              "reference_date": "2026-07-17",
+              "spot_price": 198.35,
+              "interest_rate": 0.1175,
+              "volatility": 0.22,
+              "legs": [
+                {
+                  "side": "LONG",
+                  "instrument_type": "OPTION",
+                  "option_type": "CALL",
+                  "symbol": "BOVAH186",
+                  "strike": 186.0,
+                  "expiration_date": "2026-08-21",
+                  "quantity": 4000,
+                  "premium": 0.69,
+                  "multiplier": 1.0
+                },
+                {
+                  "side": "SHORT",
+                  "instrument_type": "OPTION",
+                  "option_type": "CALL",
+                  "symbol": "BOVAG34",
+                  "strike": 157.0,
+                  "expiration_date": "2026-07-17",
+                  "quantity": 2000,
+                  "premium": 10.44,
+                  "multiplier": 1.0
+                },
+                {
+                  "side": "SHORT",
+                  "instrument_type": "OPTION",
+                  "option_type": "PUT",
+                  "symbol": "BOVAS61",
+                  "strike": 184.0,
+                  "expiration_date": "2026-07-17",
+                  "quantity": 2500,
+                  "premium": 16.93,
+                  "multiplier": 1.0
+                },
+                {
+                  "side": "LONG",
+                  "instrument_type": "OPTION",
+                  "option_type": "PUT",
+                  "symbol": "BOVAT158",
+                  "strike": 158.0,
+                  "expiration_date": "2026-08-21",
+                  "quantity": 4000,
+                  "premium": 1.51,
+                  "multiplier": 1.0
+                }
+              ]
+            },
+            "result": {
+              "engine": "stub",
+              "status": "ok",
+              "structure_id": 2,
+              "underlying_asset": "BOVA11",
+              "reference_date": "2026-07-17",
+              "metrics": {
+                "number_of_legs": 4,
+                "total_quantity": 12500,
+                "spot_price": 198.35,
+                "interest_rate": 0.1175,
+                "volatility": 0.22
+              },
+              "valuation": {
+                "theoretical_value": 0.0,
+                "premium_paid": 0.0,
+                "max_profit": null,
+                "max_loss": null
+              }
+            }
+          }
+        }
+      },
+      "error": null,
+      "attempt_errors": []
+    }
+  },
+  "checks": {
+    "service_called": true,
+    "service_status": "ok",
+    "pricing_execution_incremented": true,
+    "payoff_points_incremented": true,
+    "structure_decision_incremented": true,
+    "ok_only_with_payoff_points": true,
+    "backup_created": true
+  },
+  "error": null
+}
