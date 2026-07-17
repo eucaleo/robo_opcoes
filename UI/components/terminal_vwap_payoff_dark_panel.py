@@ -1247,66 +1247,39 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             conn.close()
 
     def _calculate_payoff_from_legs(self, legs: List[Dict[str, Any]]) -> List[Dict[str, float]]:
-        strikes = self._collect_payoff_strikes(legs)
-
-        if not strikes:
-            return []
-
-        x_min, x_max = self._calculate_payoff_spot_range(strikes)
-        return self._calculate_payoff_points_for_range(legs, x_min, x_max)
+        # Bloqueio arquitetural 32.13.
+        # A UI nao pode calcular payoff nem manter fallback local.
+        raise RuntimeError(
+            'Cálculo de payoff na UI é proibido. Use PayoffRefreshCommandService.'
+        )
 
     def _collect_payoff_strikes(self, legs: List[Dict[str, Any]]) -> List[float]:
-        strikes = [_to_float(leg.get("strike")) for leg in legs]
-        return [s for s in strikes if s is not None]
+        # Bloqueio arquitetural 32.13.
+        # A UI nao pode calcular payoff nem manter fallback local.
+        raise RuntimeError(
+            'Cálculo de payoff na UI é proibido. Use PayoffRefreshCommandService.'
+        )
 
     def _calculate_payoff_spot_range(self, strikes: List[float]) -> tuple[float, float]:
-        low = min(strikes)
-        high = max(strikes)
-        span = max(high - low, high * 0.20, 1.0)
-        x_min = max(0.01, low - span)
-        x_max = high + span
-        return x_min, x_max
+        # Bloqueio arquitetural 32.13.
+        # A UI nao pode calcular payoff nem manter fallback local.
+        raise RuntimeError(
+            'Cálculo de payoff na UI é proibido. Use PayoffRefreshCommandService.'
+        )
 
     def _calculate_payoff_points_for_range(
-        self,
-        legs: List[Dict[str, Any]],
-        x_min: float,
-        x_max: float,
-    ) -> List[Dict[str, float]]:
-        points: List[Dict[str, float]] = []
-        steps = 140
-
-        for i in range(steps + 1):
-            spot = x_min + (x_max - x_min) * i / steps
-            total = 0.0
-
-            for leg in legs:
-                total += self._calculate_leg_payoff(leg, spot)
-
-            points.append({"spot": spot, "pl": total})
-
-        return points
+        # Bloqueio arquitetural 32.13.
+        # A UI nao pode calcular payoff nem manter fallback local.
+        raise RuntimeError(
+            'Cálculo de payoff na UI é proibido. Use PayoffRefreshCommandService.'
+        )
 
     def _calculate_leg_payoff(self, leg: Dict[str, Any], spot: float) -> float:
-        strike = _to_float(leg.get("strike"))
-        if strike is None:
-            return 0.0
-
-        premium = _to_float(leg.get("premium"), 0.0) or 0.0
-        quantity = abs(_to_float(leg.get("quantity"), 1.0) or 1.0)
-        multiplier = abs(_to_float(leg.get("multiplier"), 1.0) or 1.0)
-
-        side = str(leg.get("position_side") or "").upper()
-        opt_type = str(leg.get("option_type") or "").upper()
-
-        sign = -1.0 if self._is_short_payoff_leg(side) else 1.0
-
-        if "PUT" in opt_type:
-            intrinsic = max(strike - spot, 0.0)
-        else:
-            intrinsic = max(spot - strike, 0.0)
-
-        return sign * (intrinsic - premium) * quantity * multiplier
+        # Bloqueio arquitetural 32.13.
+        # A UI nao pode calcular payoff nem manter fallback local.
+        raise RuntimeError(
+            'Cálculo de payoff na UI é proibido. Use PayoffRefreshCommandService.'
+        )
 
     def _is_short_payoff_leg(self, side: str) -> bool:
         return (
