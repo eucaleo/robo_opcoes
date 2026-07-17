@@ -1,3 +1,26 @@
+"""
+ATENCAO - MANUTENCAO / EMERGENCIA
+
+Este script nao e fluxo oficial de recalculo de payoff.
+Este script nao deve ser chamado pela UI.
+Este script nao deve substituir PayoffRefreshCommandService.
+Este script nao deve ser usado como motor produtivo.
+
+Classificacao:
+maintenance / legacy / emergencia
+
+Fluxo oficial:
+UI -> PayoffRefreshCommandService -> PricingExecutionAppService
+
+Regras:
+- usar somente com backup;
+- usar somente em manutencao controlada;
+- validar persistencia depois da execucao;
+- nao criar dependencia da UI para este script.
+
+NAO E FLUXO OFICIAL.
+"""
+
 from __future__ import annotations
 
 import argparse

@@ -1,0 +1,10 @@
+{
+  "status": "ok",
+  "objective": "Aplicar cabecalho de quarentena no script paralelo de payoff.",
+  "generated_at": "2026-07-17T23:36:11.762274+00:00",
+  "target": "scripts/recalculate_payoff_curve_points_once.py",
+  "changed": true,
+  "backup_path": "scripts/recalculate_payoff_curve_points_once.py.bak_32_11_20260717_203611",
+  "error": null,
+  "conclusion": "Script paralelo classificado como manutencao, legado ou emergencia. Fluxo oficial permanece via PayoffRefreshCommandService."
+}

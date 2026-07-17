@@ -1,0 +1,110 @@
+{
+  "status": "error",
+  "objective": "Auditar UI para localizar calculo local de payoff, fallback e chamadas proibidas.",
+  "generated_at": "2026-07-17T23:36:12.453185+00:00",
+  "checks": {
+    "ui_root_exists": true,
+    "terminal_panel_exists": true,
+    "local_calc_hits_count": 9,
+    "hard_forbidden_hits_count": 2,
+    "sql_forbidden_hits_count": 1,
+    "terminal_calculate_payoff_points_for_range_occurrences": 2,
+    "execute_pricing_direct_in_ui": false,
+    "direct_sql_write_payoff_in_ui": true
+  },
+  "local_calc_hits": [
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1249,
+      "token": "_calculate_payoff_from_legs",
+      "text": "def _calculate_payoff_from_legs(self, legs: List[Dict[str, Any]]) -> List[Dict[str, float]]:"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1250,
+      "token": "_collect_payoff_strikes",
+      "text": "strikes = self._collect_payoff_strikes(legs)"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1255,
+      "token": "_calculate_payoff_spot_range",
+      "text": "x_min, x_max = self._calculate_payoff_spot_range(strikes)"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1256,
+      "token": "_calculate_payoff_points_for_range",
+      "text": "return self._calculate_payoff_points_for_range(legs, x_min, x_max)"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1258,
+      "token": "_collect_payoff_strikes",
+      "text": "def _collect_payoff_strikes(self, legs: List[Dict[str, Any]]) -> List[float]:"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1262,
+      "token": "_calculate_payoff_spot_range",
+      "text": "def _calculate_payoff_spot_range(self, strikes: List[float]) -> tuple[float, float]:"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1270,
+      "token": "_calculate_payoff_points_for_range",
+      "text": "def _calculate_payoff_points_for_range("
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1284,
+      "token": "_calculate_leg_payoff",
+      "text": "total += self._calculate_leg_payoff(leg, spot)"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1290,
+      "token": "_calculate_leg_payoff",
+      "text": "def _calculate_leg_payoff(self, leg: Dict[str, Any], spot: float) -> float:"
+    }
+  ],
+  "hard_forbidden_hits": [
+    {
+      "file": "UI/main_window.py",
+      "line": 404,
+      "token": "subprocess.run",
+      "text": "res = subprocess.run("
+    },
+    {
+      "file": "UI/main_window.py",
+      "line": 462,
+      "token": "subprocess.run",
+      "text": "res = subprocess.run("
+    }
+  ],
+  "sql_forbidden_hits": [
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1937,
+      "pattern": "insert\\s+into\\s+structure_decisions",
+      "text": "INSERT INTO structure_decisions ("
+    }
+  ],
+  "terminal_callers": [
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1256,
+      "text": "return self._calculate_payoff_points_for_range(legs, x_min, x_max)"
+    },
+    {
+      "file": "UI/components/terminal_vwap_payoff_dark_panel.py",
+      "line": 1270,
+      "text": "def _calculate_payoff_points_for_range("
+    }
+  ],
+  "notes": [
+    "UI possui chamadas ou escritas proibidas para o fluxo oficial.",
+    "UI ainda possui calculo local ou fallback de payoff."
+  ],
+  "conclusion": "A UI deve apenas chamar o comando oficial para recalcular e depois reler snapshot persistido. Calculo local e fallback devem ser removidos ou bloqueados em etapa posterior."
+}

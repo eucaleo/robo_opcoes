@@ -1,0 +1,51 @@
+{
+  "status": "warning",
+  "objective": "Auditar script paralelo de payoff e confirmar se deve ser tratado como manutencao ou emergencia.",
+  "generated_at": "2026-07-17T23:36:12.047465+00:00",
+  "target": "scripts/recalculate_payoff_curve_points_once.py",
+  "checks": {
+    "target_exists": true,
+    "has_maintenance_header": true,
+    "mentions_not_official_flow": true,
+    "mentions_payoff_refresh_command_service": true,
+    "reads_structure_legs": false,
+    "reads_rtd_option_quotes": false,
+    "reads_rtd_underlying_quotes": false,
+    "mentions_payoff_curve_points": true,
+    "mentions_structure_decisions": false,
+    "has_active_guard": true
+  },
+  "ui_references": [
+    {
+      "file": "UI/main_window.py",
+      "line": 404,
+      "needle": "subprocess.run",
+      "text": "res = subprocess.run("
+    },
+    {
+      "file": "UI/main_window.py",
+      "line": 462,
+      "needle": "subprocess.run",
+      "text": "res = subprocess.run("
+    }
+  ],
+  "ui_calls_parallel_script": [],
+  "ui_subprocess_usage": [
+    {
+      "file": "UI/main_window.py",
+      "line": 404,
+      "needle": "subprocess.run",
+      "text": "res = subprocess.run("
+    },
+    {
+      "file": "UI/main_window.py",
+      "line": 462,
+      "needle": "subprocess.run",
+      "text": "res = subprocess.run("
+    }
+  ],
+  "notes": [
+    "UI contem uso de subprocess ou os.system. Validar se nao chama fluxo paralelo."
+  ],
+  "conclusion": "Script paralelo deve permanecer fora do fluxo oficial. Fluxo oficial: UI -> PayoffRefreshCommandService -> PricingExecutionAppService."
+}
