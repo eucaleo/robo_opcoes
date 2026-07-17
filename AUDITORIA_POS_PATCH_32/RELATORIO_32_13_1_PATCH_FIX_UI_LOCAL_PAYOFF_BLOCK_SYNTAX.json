@@ -1,0 +1,13 @@
+{
+  "generated_at": "2026-07-17T20:40:04.155964-03:00",
+  "target": "C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py",
+  "status": "error",
+  "actions": [
+    "Backup do estado atual criado em C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py.bak_32_13_1_20260717_204004",
+    "Arquivo atual com erro de sintaxe: '(' was never closed em linha 1270, coluna 43",
+    "Backup também possui erro de sintaxe: '(' was never closed em linha 1270, coluna 43"
+  ],
+  "changes": [],
+  "final_syntax_ok": false,
+  "final_syntax_error": "'(' was never closed em linha 1270, coluna 43"
+}
