@@ -5,6 +5,7 @@ from repositories.system_snapshots_repository import SystemSnapshotsRepository
 from services.pricing_execution_persistence_service import (
     PricingExecutionPersistenceService,
 )
+from services.derived_payoff_persistence import DerivedPayoffPersistence
 from services.pricing_execution_service import PricingExecutionService
 from services.pricing_input_service import PricingInputService
 
@@ -23,6 +24,7 @@ class PricingExecutionOrchestrationService:
         self.pricing_execution_persistence_service = (
             pricing_execution_persistence_service
             or PricingExecutionPersistenceService(
+                payoff_persistence_port=DerivedPayoffPersistence(),
                 system_snapshots_repository=SystemSnapshotsRepository(),
             )
         )

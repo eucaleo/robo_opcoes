@@ -291,14 +291,79 @@ def save_decision(
         },
     }
 
-    with connect_app() as conn:
-        ensure_derived_tables(conn)
-        return insert_structure_decision(
-            conn=conn,
-            timestamp=ts,
-            aba=storage_key,
-            decision_dict=enriched_decision,
-        )
+    # Patch 32.6: última barreira antes do insert em structure_decisions.
+    if enriched_decision.get("structure_id") is None:
+        sid_from_meta = (enriched_decision.get("meta") or {}).get("structure_id")
+        if sid_from_meta is not None:
+            enriched_decision["structure_id"] = int(sid_from_meta)
+
+    if enriched_decision.get("structure_id") is None:
+        resolved_sid = _resolve_structure_id(storage_key)
+        if resolved_sid is not None:
+            enriched_decision["structure_id"] = int(resolved_sid)
+
+    # Patch 32.7: recupera structure_id do payload original antes do insert.
+    if enriched_decision.get("structure_id") is None:
+        _src_32_7 = locals().get("decision")
+        if isinstance(_src_32_7, dict):
+            _sid_32_7 = _src_32_7.get("structure_id")
+            if _sid_32_7 is not None:
+                enriched_decision["structure_id"] = int(_sid_32_7)
+
+    if enriched_decision.get("structure_id") is None:
+        _src_32_7 = locals().get("decision_dict")
+        if isinstance(_src_32_7, dict):
+            _sid_32_7 = _src_32_7.get("structure_id")
+            if _sid_32_7 is not None:
+                enriched_decision["structure_id"] = int(_sid_32_7)
+
+    if enriched_decision.get("structure_id") is None:
+        _src_32_7 = locals().get("decision")
+        if isinstance(_src_32_7, dict):
+            _meta_32_7 = _src_32_7.get("meta")
+            if isinstance(_meta_32_7, dict):
+                _sid_32_7 = _meta_32_7.get("structure_id")
+                if _sid_32_7 is not None:
+                    enriched_decision["structure_id"] = int(_sid_32_7)
+
+    if enriched_decision.get("structure_id") is None:
+        _src_32_7 = locals().get("decision_dict")
+        if isinstance(_src_32_7, dict):
+            _meta_32_7 = _src_32_7.get("meta")
+            if isinstance(_meta_32_7, dict):
+                _sid_32_7 = _meta_32_7.get("structure_id")
+                if _sid_32_7 is not None:
+                    enriched_decision["structure_id"] = int(_sid_32_7)
+
+    if enriched_decision.get("structure_id") is None:
+        _sid_32_7 = None
+        try:
+            _sid_32_7 = _resolve_structure_id(storage_key)
+        except Exception:
+            _sid_32_7 = None
+
+        if _sid_32_7 is not None:
+            enriched_decision["structure_id"] = int(_sid_32_7)
+
+    if enriched_decision.get("structure_id") is not None:
+        _sid_32_7 = int(enriched_decision.get("structure_id"))
+        enriched_decision["structure_id"] = _sid_32_7
+
+        _meta_32_7 = enriched_decision.get("meta")
+        if not isinstance(_meta_32_7, dict):
+            _meta_32_7 = {}
+            enriched_decision["meta"] = _meta_32_7
+
+        _meta_32_7["structure_id"] = _sid_32_7
+
+        with connect_app() as conn:
+            ensure_derived_tables(conn)
+            return insert_structure_decision(
+                conn=conn,
+                timestamp=ts,
+                aba=storage_key,
+                decision_dict=enriched_decision,
+            )
 
 
 def save_decision_from_canonical_payload(
@@ -336,7 +401,33 @@ def save_decision_from_canonical_payload(
         },
     }
 
-    return save_decision(
+    # Patch 32.6: garante structure_id no topo antes de delegar para save_decision.
+    if enriched_decision.get("structure_id") is None and structure_id is not None:
+        enriched_decision["structure_id"] = int(structure_id)
+
+    if enriched_decision.get("structure_id") is None:
+        sid_from_meta = (enriched_decision.get("meta") or {}).get("structure_id")
+        if sid_from_meta is not None:
+            enriched_decision["structure_id"] = int(sid_from_meta)
+
+    if enriched_decision.get("structure_id") is None:
+        resolved_sid = _resolve_structure_id(storage_key)
+        if resolved_sid is not None:
+            enriched_decision["structure_id"] = int(resolved_sid)
+
+    # Patch 32.7: espelha structure_id no meta antes de delegar para save_decision.
+    if enriched_decision.get("structure_id") is not None:
+        _sid_32_7 = int(enriched_decision.get("structure_id"))
+        enriched_decision["structure_id"] = _sid_32_7
+
+        _meta_32_7 = enriched_decision.get("meta")
+        if not isinstance(_meta_32_7, dict):
+            _meta_32_7 = {}
+            enriched_decision["meta"] = _meta_32_7
+
+        _meta_32_7["structure_id"] = _sid_32_7
+
+        return save_decision(
         ref=storage_key,
         decision=enriched_decision,
         timestamp=ts,
