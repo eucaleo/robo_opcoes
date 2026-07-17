@@ -356,14 +356,14 @@ def save_decision(
 
         _meta_32_7["structure_id"] = _sid_32_7
 
-        with connect_app() as conn:
-            ensure_derived_tables(conn)
-            return insert_structure_decision(
-                conn=conn,
-                timestamp=ts,
-                aba=storage_key,
-                decision_dict=enriched_decision,
-            )
+    with connect_app() as conn:
+        ensure_derived_tables(conn)
+        return insert_structure_decision(
+            conn=conn,
+            timestamp=ts,
+            aba=storage_key,
+            decision_dict=enriched_decision,
+        )
 
 
 def save_decision_from_canonical_payload(
@@ -427,7 +427,7 @@ def save_decision_from_canonical_payload(
 
         _meta_32_7["structure_id"] = _sid_32_7
 
-        return save_decision(
+    return save_decision(
         ref=storage_key,
         decision=enriched_decision,
         timestamp=ts,

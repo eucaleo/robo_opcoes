@@ -202,6 +202,9 @@ class DerivedPayoffPersistence:
                 },
             }
 
+            if isinstance(decision_dict, dict) and decision_dict.get("structure_id") is None:
+                decision_dict["structure_id"] = structure_id
+
             save_decision_from_canonical_payload(
                 decision=decision_dict,
                 structure_id=pricing_payload.get("structure_id"),

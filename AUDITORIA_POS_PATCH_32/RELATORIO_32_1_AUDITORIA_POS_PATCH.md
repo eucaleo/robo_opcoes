@@ -1,6 +1,6 @@
 # Rodada 32.1 — Auditoria Pós-Patch / Centro de Verdade
 
-Gerado em: `2026-07-17T19:50:52`
+Gerado em: `2026-07-17T20:25:52`
 
 ## Arquivos auditados
 
@@ -43,9 +43,9 @@ Gerado em: `2026-07-17T19:50:52`
 
 ## `services/pricing_execution_orchestration_service.py`
 
-- `DerivedPayoffPersistence`: **NÃO ENCONTRADO** (0)
+- `DerivedPayoffPersistence`: **OK** (2)
 - `PricingExecutionPersistenceService`: **OK** (3)
-- `payoff_persistence_port`: **NÃO ENCONTRADO** (0)
+- `payoff_persistence_port`: **OK** (1)
 
 
 # 2. Padrões proibidos ou suspeitos na UI
