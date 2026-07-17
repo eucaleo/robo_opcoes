@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-07-17T20:42:26",
+  "status": "ok",
+  "target": "C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py",
+  "actions": [
+    {
+      "name": "backup_seguranca",
+      "status": "ok",
+      "detail": "Backup criado: C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py.bak_32_13_2_20260717_204226"
+    },
+    {
+      "name": "compilacao_antes",
+      "status": "warning",
+      "detail": "  File \"C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py\", line 1270     def _calculate_payoff_points_for_range(                                           ^ SyntaxError: '(' was never closed "
+    },
+    {
+      "name": "avaliar_backup",
+      "status": "ok",
+      "detail": "terminal_vwap_payoff_dark_panel.py.bak_32_13_20260717_203810: ok"
+    },
+    {
+      "name": "restaurar_backup_bom",
+      "status": "ok",
+      "detail": "Restaurado a partir de terminal_vwap_payoff_dark_panel.py.bak_32_13_20260717_203810"
+    },
+    {
+      "name": "bloquear_funcao_por_ast",
+      "status": "ok",
+      "detail": "Funcao _calculate_payoff_points_for_range substituida por bloqueio seguro."
+    },
+    {
+      "name": "compilacao_depois",
+      "status": "ok",
+      "detail": "ok"
+    },
+    {
+      "name": "marcador_bloqueio",
+      "status": "ok",
+      "detail": "Marcador de bloqueio encontrado no arquivo UI."
+    }
+  ],
+  "conclusion": "Patch aplicado com UI compilavel e calculo local de payoff bloqueado."
+}

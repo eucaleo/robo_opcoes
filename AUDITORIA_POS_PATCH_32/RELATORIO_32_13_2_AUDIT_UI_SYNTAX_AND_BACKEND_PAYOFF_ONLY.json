@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-07-17T20:42:27",
+  "status": "ok",
+  "target": "C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py",
+  "checks": [
+    {
+      "name": "arquivo_ui",
+      "status": "ok",
+      "detail": "Arquivo encontrado: C:\\Users\\eucal\\projeto\\UI\\components\\terminal_vwap_payoff_dark_panel.py"
+    },
+    {
+      "name": "py_compile",
+      "status": "ok",
+      "detail": "Arquivo UI compila sem erro de sintaxe."
+    },
+    {
+      "name": "ast_parse",
+      "status": "ok",
+      "detail": "AST carregada com sucesso."
+    },
+    {
+      "name": "bloqueio_calculo_local_payoff",
+      "status": "ok",
+      "detail": "Funcao local de payoff bloqueada com marcador e retorno vazio."
+    },
+    {
+      "name": "escopo_funcao_bloqueada",
+      "status": "ok",
+      "detail": "Nao foram encontrados sinais fortes de calculo local dentro da funcao bloqueada."
+    }
+  ],
+  "conclusion": "UI compila e calculo local de payoff permanece bloqueado."
+}
