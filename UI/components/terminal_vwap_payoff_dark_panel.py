@@ -2517,6 +2517,14 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         Antes: recalculava payoff na UI.
         Agora: apenas atualiza do banco/snapshot persistido.
         """
+        structure = getattr(self, "selected_structure", None)
+        if structure and self._is_structure_already_archived(structure):
+            self._handle_archived_structure_action_blocked(
+                structure,
+                "recalcular payoff",
+            )
+            return
+
         try:
             ok = self._refresh_selected_structure_from_store(silent=False)
             if not ok:
