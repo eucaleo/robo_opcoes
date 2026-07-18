@@ -220,6 +220,25 @@ def latest_payoff_summary(conn: sqlite3.Connection, structure_id: int) -> dict[s
 
 
 def instantiate_command_service() -> Any:
+    # CENTRO_VERDADE_34_PROJECT_ROOT_ON_SYSPATH
+    import sys
+    from pathlib import Path
+
+    project_root = globals().get("PROJECT_ROOT")
+    if project_root is None:
+        here = Path(__file__).resolve()
+        project_root = None
+        for candidate in [here.parent, *here.parents]:
+            if (candidate / "services").is_dir():
+                project_root = candidate
+                break
+        if project_root is None:
+            project_root = Path.cwd()
+
+    project_root_str = str(project_root)
+    if project_root_str not in sys.path:
+        sys.path.insert(0, project_root_str)
+
     from services.payoff_refresh_command_service import PayoffRefreshCommandService
 
     try:
