@@ -1,0 +1,13 @@
+Arquivo: C:\users\eucal\projeto\services\pricing_execution_orchestration_service.py
+Gerado em: 2026-07-17T21:24:04
+
+Achados:
+
+4: from repositories.system_snapshots_repository import SystemSnapshotsRepository
+6:     PricingExecutionPersistenceService,
+8: from services.derived_payoff_persistence import DerivedPayoffPersistence
+18:         pricing_execution_persistence_service: PricingExecutionPersistenceService | None = None,
+26:             or PricingExecutionPersistenceService(
+27:                 payoff_persistence_port=DerivedPayoffPersistence(),
+28:                 system_snapshots_repository=SystemSnapshotsRepository(),
+32:     def execute_and_persist(

@@ -1,0 +1,12 @@
+Arquivo: C:\users\eucal\projeto\services\pricing_execution_persistence_service.py
+Gerado em: 2026-07-17T21:24:04
+
+Achados:
+
+6: from repositories.system_snapshots_repository import SystemSnapshotsRepository
+7: from services.payoff_persistence_port import PayoffPersistencePort
+12: class PricingExecutionPersistenceService:
+16:         payoff_persistence_port: PayoffPersistencePort | None = None,
+17:         system_snapshots_repository: SystemSnapshotsRepository | None = None,
+22:         self._payoff_port = payoff_persistence_port
+78:                     "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",

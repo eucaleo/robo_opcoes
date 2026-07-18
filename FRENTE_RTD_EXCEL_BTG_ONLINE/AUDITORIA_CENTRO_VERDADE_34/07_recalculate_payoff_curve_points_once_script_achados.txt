@@ -1,0 +1,11 @@
+Arquivo: C:\users\eucal\projeto\scripts\recalculate_payoff_curve_points_once.py
+Gerado em: 2026-07-17T21:24:04
+
+Achados:
+
+2: ATENCAO - MANUTENCAO / EMERGENCIA
+10: maintenance / legacy / emergencia
+17: - usar somente em manutencao controlada;
+39:         description="Recalcula payoff das estruturas e grava em payoff_curve_points."
+138:         row = conn.execute("SELECT COUNT(*) AS n FROM payoff_curve_points").fetchone()
+149:         sys.path.insert(0, str(root))

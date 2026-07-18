@@ -1,0 +1,17 @@
+Arquivo: C:\users\eucal\projeto\services\canonical_pricing_facade.py
+Gerado em: 2026-07-17T21:24:04
+
+Achados:
+
+4: alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+5:            no PricingExecutionPersistenceService.
+21:   C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+33: from repositories.system_snapshots_repository import SystemSnapshotsRepository
+34: from services.derived_payoff_persistence import DerivedPayoffPersistence
+36: from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+329:                                              PricingExecutionPersistenceService.persist()
+330:                                                      DerivedPayoffPersistence.persist()
+338:         persistence_service: PricingExecutionPersistenceService | None = None,
+345:         self._persister = persistence_service or PricingExecutionPersistenceService(
+346:             payoff_persistence_port=DerivedPayoffPersistence(),
+347:             system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),

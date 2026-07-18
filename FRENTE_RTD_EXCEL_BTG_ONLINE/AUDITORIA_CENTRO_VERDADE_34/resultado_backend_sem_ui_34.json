@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-07-17T21:25:29",
+  "project_root": "C:\\users\\eucal\\projeto",
+  "db_path": "C:\\users\\eucal\\projeto\\dados\\app.db",
+  "backup_path": "C:\\users\\eucal\\projeto\\dados\\app.backup_backend_sem_ui_34_20260717_212529.db",
+  "structure_id": 2,
+  "before_counts": {
+    "pricing_executions": 149,
+    "structure_snapshots": 179,
+    "payoff_curve_points": 3535,
+    "structure_decisions": 16
+  },
+  "after_counts": {},
+  "deltas": {},
+  "latest_payoff_summary_before": {
+    "latest_payoff_timestamp": "2026-07-17T23:31:00.693467+00:00",
+    "payoff_points_count": 101,
+    "decision_found": true
+  },
+  "latest_payoff_summary_after": {},
+  "command_result": null,
+  "status": "error",
+  "error": "Traceback (most recent call last):\n  File \"C:\\users\\eucal\\projeto\\FRENTE_RTD_EXCEL_BTG_ONLINE\\AUDITORIA_CENTRO_VERDADE_34\\validar_backend_sem_ui_34.py\", line 436, in main\n    service = instantiate_command_service()\n  File \"C:\\users\\eucal\\projeto\\FRENTE_RTD_EXCEL_BTG_ONLINE\\AUDITORIA_CENTRO_VERDADE_34\\validar_backend_sem_ui_34.py\", line 223, in instantiate_command_service\n    from services.payoff_refresh_command_service import PayoffRefreshCommandService\nModuleNotFoundError: No module named 'services'\n"
+}
