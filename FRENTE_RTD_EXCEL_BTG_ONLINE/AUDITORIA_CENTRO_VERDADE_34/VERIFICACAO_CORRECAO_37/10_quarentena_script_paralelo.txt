@@ -1,6 +1,0 @@
-2:ATENCAO - MANUTENCAO / EMERGENCIA
-4:Este script nao e fluxo oficial de recalculo de payoff.
-6:Este script nao deve substituir PayoffRefreshCommandService.
-10:maintenance / legacy / emergencia
-13:UI -> PayoffRefreshCommandService -> PricingExecutionAppService
-17:- usar somente em manutencao controlada;

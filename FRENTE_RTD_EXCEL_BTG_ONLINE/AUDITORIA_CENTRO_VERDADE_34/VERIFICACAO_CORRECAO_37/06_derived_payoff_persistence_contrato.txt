@@ -1,5 +1,0 @@
-OK: possui classe DerivedPayoffPersistence
-OK: possui metodo persist ou equivalente
-OK: possui guard de active
-FALHA: referencia payoff_curve_points
-FALHA: referencia structure_decisions

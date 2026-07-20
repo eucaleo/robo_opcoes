@@ -1,9 +1,0 @@
-RESULTADO: OK
-
-UI/main_window.py corrigido quanto ao erro de sintaxe.
-Nenhum git add, commit ou push foi executado.
-
-Proximo passo sugerido:
-bash scripts/verify_pycompile_contexto_40.sh
-bash scripts/verify_pycompile_detalhado_39.sh
-bash scripts/verify_aplicacao_correcao_38.sh

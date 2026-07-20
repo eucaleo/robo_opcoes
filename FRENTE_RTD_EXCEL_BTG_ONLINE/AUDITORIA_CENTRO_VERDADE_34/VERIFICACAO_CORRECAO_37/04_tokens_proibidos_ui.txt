@@ -1,1 +1,0 @@
-OK: nenhum token proibido encontrado na UI.

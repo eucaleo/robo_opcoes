@@ -1,3 +1,0 @@
-ERRO: verificacao de centro de verdade falhou.
-
-1. UI contem token proibido: UI\main_window.py: subprocess.run

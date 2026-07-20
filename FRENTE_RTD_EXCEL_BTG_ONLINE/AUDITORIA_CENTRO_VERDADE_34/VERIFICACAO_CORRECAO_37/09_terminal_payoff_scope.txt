@@ -1,9 +1,0 @@
-805:            payoff_points = self._load_payoff_points(sid, legs)
-1132:    def _load_payoff_points(
-1145:        persisted = self._load_persisted_payoff_points(structure_id)
-1154:    def _load_persisted_payoff_points(self, structure_id: Any) -> List[Dict[str, float]]:
-1203:                            f"SELECT MAX(timestamp) AS ultimo_timestamp "
-2664:    orig_load = getattr(cls, "_load_persisted_payoff_points", None)
-2666:        def _debug_load_persisted_payoff_points(self, structure_id):
-2675:                        SELECT MAX(timestamp) AS latest_ts
-2707:        cls._load_persisted_payoff_points = _debug_load_persisted_payoff_points

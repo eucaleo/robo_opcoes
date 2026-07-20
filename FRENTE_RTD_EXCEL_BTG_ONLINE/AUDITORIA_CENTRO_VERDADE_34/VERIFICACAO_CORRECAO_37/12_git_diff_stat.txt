@@ -1,2 +1,0 @@
- UI/main_window.py | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)

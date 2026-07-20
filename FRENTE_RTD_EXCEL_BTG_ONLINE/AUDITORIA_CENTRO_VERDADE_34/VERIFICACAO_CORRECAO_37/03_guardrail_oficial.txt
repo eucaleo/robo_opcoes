@@ -1,9 +1,0 @@
-COMANDO:
-python scripts/verify_payoff_center_of_truth_scope.py 
-
-OK: escopo centro de verdade payoff validado.
-OK: UI sem calculo local proibido, subprocess ou escrita direta.
-OK: comando oficial e wiring backend encontrados.
-OK: leitura por ultimo snapshot evidenciada.
-
-EXIT_CODE=0

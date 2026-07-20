@@ -1,3 +1,0 @@
-OK: bloco inserido indevidamente dentro do import foi removido.
-OK: backup salvo em: FRENTE_RTD_EXCEL_BTG_ONLINE\AUDITORIA_CENTRO_VERDADE_34\CORRECAO_PYCOMPILE_UI_41\UI_main_window.py.bak_antes_correcao_41
-OK: bloco removido salvo em: FRENTE_RTD_EXCEL_BTG_ONLINE\AUDITORIA_CENTRO_VERDADE_34\CORRECAO_PYCOMPILE_UI_41\03_bloco_removido_41.txt
