@@ -1246,68 +1246,6 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         finally:
             conn.close()
 
-    def _calculate_payoff_from_legs(self, legs: List[Dict[str, Any]]) -> List[Dict[str, float]]:
-        strikes = self._collect_payoff_strikes(legs)
-
-        if not strikes:
-            return []
-
-        x_min, x_max = self._calculate_payoff_spot_range(strikes)
-        return self._calculate_payoff_points_for_range(legs, x_min, x_max)
-
-    def _collect_payoff_strikes(self, legs: List[Dict[str, Any]]) -> List[float]:
-        strikes = [_to_float(leg.get("strike")) for leg in legs]
-        return [s for s in strikes if s is not None]
-
-    def _calculate_payoff_spot_range(self, strikes: List[float]) -> tuple[float, float]:
-        low = min(strikes)
-        high = max(strikes)
-        span = max(high - low, high * 0.20, 1.0)
-        x_min = max(0.01, low - span)
-        x_max = high + span
-        return x_min, x_max
-
-    def _calculate_payoff_points_for_range(
-        self,
-        legs: List[Dict[str, Any]],
-        x_min: float,
-        x_max: float,
-    ) -> List[Dict[str, float]]:
-        """
-        PAYOFF_LOCAL_CALCULATION_BLOCKED_32_13_2
-        Calculo local de payoff desabilitado na UI.
-        A curva deve ser obtida exclusivamente do backend ou da persistencia oficial.
-        """
-        return []
-
-    def _calculate_leg_payoff(self, leg: Dict[str, Any], spot: float) -> float:
-        strike = _to_float(leg.get("strike"))
-        if strike is None:
-            return 0.0
-
-        premium = _to_float(leg.get("premium"), 0.0) or 0.0
-        quantity = abs(_to_float(leg.get("quantity"), 1.0) or 1.0)
-        multiplier = abs(_to_float(leg.get("multiplier"), 1.0) or 1.0)
-
-        side = str(leg.get("position_side") or "").upper()
-        opt_type = str(leg.get("option_type") or "").upper()
-
-        sign = -1.0 if self._is_short_payoff_leg(side) else 1.0
-
-        if "PUT" in opt_type:
-            intrinsic = max(strike - spot, 0.0)
-        else:
-            intrinsic = max(spot - strike, 0.0)
-
-        return sign * (intrinsic - premium) * quantity * multiplier
-
-    def _is_short_payoff_leg(self, side: str) -> bool:
-        return (
-            "VEND" in side
-            or "SELL" in side
-            or "SHORT" in side
-            or side in {"S", "-1"}
-        )
 
     def _breakevens(self, points: List[Dict[str, float]]) -> List[float]:
         bes: List[float] = []
@@ -1895,59 +1833,47 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         button.pack(fill="x", padx=10, pady=4)
 
 
-    def _ensure_structure_decisions_table(self, conn: sqlite3.Connection) -> None:
-        conn.execute(
-            """
-            CREATE TABLE IF NOT EXISTS structure_decisions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                structure_id INTEGER NOT NULL,
-                decision TEXT NOT NULL,
-                label TEXT,
-                note TEXT,
-                created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
-            )
-            """
-        )
-        conn.execute(
-            """
-            CREATE INDEX IF NOT EXISTS idx_structure_decisions_structure_id
-            ON structure_decisions(structure_id)
-            """
-        )
 
+    def _structure_decisions_table_exists(self, conn: sqlite3.Connection) -> bool:
+        """
+        Verifica se a tabela de decisões existe sem criar schema pela UI.
+
+        Centro de verdade:
+        - A UI pode ler decisões já persistidas.
+        - A UI não cria tabela nem grava decisões diretamente.
+        - Persistência de decisão deve ocorrer no backend/serviço oficial.
+        """
+        row = conn.execute(
+            """
+            SELECT name
+            FROM sqlite_master
+            WHERE type = 'table'
+              AND name = 'structure_decisions'
+            """
+        ).fetchone()
+        return row is not None
 
     def _insert_structure_decision(self, sid: int, decision: str, note: Optional[str] = None) -> None:
+        """
+        Escrita direta de decisão desabilitada na UI.
+
+        A decisão deve ser persistida exclusivamente pelo backend/serviço oficial,
+        preservando o banco como centro de verdade fora da camada visual.
+        """
         raw_decision = str(decision or "").strip().upper()
         if raw_decision not in DECISION_LABELS:
             raise ValueError(f"Decisao invalida: {decision}")
 
-        label = decision_label(raw_decision)
-
-        with self._connect() as conn:
-            self._ensure_structure_decisions_table(conn)
-            conn.execute(
-                """
-                INSERT INTO structure_decisions (
-                    structure_id,
-                    decision,
-                    label,
-                    note
-                )
-                VALUES (?, ?, ?, ?)
-                """,
-                (
-                    int(sid),
-                    raw_decision,
-                    label,
-                    note,
-                ),
-            )
-            conn.commit()
-
+        self._safe_status(
+            f"Decisao {raw_decision} nao gravada pela UI; aguardando backend oficial."
+        )
+        return None
 
     def _load_structure_decisions(self, sid: int, limit: int = 5) -> List[Dict[str, Any]]:
         with self._connect() as conn:
-            self._ensure_structure_decisions_table(conn)
+            if not self._structure_decisions_table_exists(conn):
+                return []
+
             rows = conn.execute(
                 """
                 SELECT
