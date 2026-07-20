@@ -1,163 +1,213 @@
 #!/usr/bin/env python3
 """
 Domain: Decision logic (30/60/80 thresholds + DTE gate) from real data.
+
+Codigo legado removido neste modulo.
+Funcoes canonicas: compute_decision_from_inputs, compute_decision_from_payoff,
+compute_decision_from_contract.
 """
+from __future__ import annotations
+
 import json
-from typing import Dict
+import math
+from typing import Any, Dict, List, Optional, Tuple
 
-from .payoff import read_structure_summary, safe_float, safe_int, compute_payoff_for_aba
+from domain.contracts import CanonicalStructureMarketInput
 
 
-def _interp_payoff(points, spot: float) -> float:
-    """Interpolação linear do payoff no preço spot com base em uma lista [(x, y), ...]."""
+# ---------------------------------------------------------------------------
+# Constantes de decisão
+# ---------------------------------------------------------------------------
+THRESHOLD_CLOSE   = 0.80
+THRESHOLD_PREPARE = 0.60
+THRESHOLD_WATCH   = 0.30
+
+DTE_GATE_DEFAULT  = 7
+
+
+# ---------------------------------------------------------------------------
+# Helpers internos (exportados para testes de interpolação)
+# ---------------------------------------------------------------------------
+
+def _interp_payoff(points: List[Tuple[float, float]], spot: float) -> float:
+    """Interpola P&L no spot dado a partir dos pontos da curva."""
     if not points:
         return 0.0
-
-    # Garantir ordenação por preço
-    pts = sorted(points, key=lambda t: t[0])
-
-    # Clamp fora do range
-    if spot <= pts[0][0]:
-        return float(pts[0][1])
-    if spot >= pts[-1][0]:
-        return float(pts[-1][1])
-
-    # Achar intervalo e interpolar
-    for i in range(1, len(pts)):
-        x1, y1 = pts[i - 1]
-        x2, y2 = pts[i]
-        if x2 >= spot:
-            if x2 == x1:
-                return float(y2)
-            t = (spot - x1) / (x2 - x1)
-            return float(y1 + t * (y2 - y1))
-
-    return float(pts[-1][1])
+    xs = [p[0] for p in points]
+    ys = [p[1] for p in points]
+    if spot <= xs[0]:
+        return ys[0]
+    if spot >= xs[-1]:
+        return ys[-1]
+    for i in range(len(xs) - 1):
+        if xs[i] <= spot <= xs[i + 1]:
+            t = (spot - xs[i]) / (xs[i + 1] - xs[i])
+            return ys[i] + t * (ys[i + 1] - ys[i])
+    return 0.0
 
 
-def compute_decision_for_aba(
-    aba: str,
+def _ratio(numerator: float, denominator: float) -> float:
+    if denominator == 0.0:
+        return 0.0
+    return numerator / denominator
+
+
+# Mapeamento decision  level
+_DECISION_LEVEL = {
+    "HOLD":         0,
+    "WATCH":        1,   # nível interno, mapeado para decision="HOLD" level=1
+    "PREPARE_ROLL": 2,
+    "CLOSE_REOPEN": 3,
+}
+
+
+# ---------------------------------------------------------------------------
+# API pública
+# ---------------------------------------------------------------------------
+
+def compute_decision_from_inputs(
+    pl_atual: float,
     pl_max: float,
-    thresholds: Dict[str, float] = None,
-    dte_gate: int = 7
-) -> Dict:
-    if thresholds is None:
-        thresholds = {"watch": 0.30, "prepare": 0.60, "close": 0.80}
+    dte_min: Optional[int] = None,
+    dte_gate: int = DTE_GATE_DEFAULT,
+    spread_pct_medio: Optional[float] = None,
+    thresholds: Optional[Dict[str, float]] = None,
+) -> Dict[str, Any]:
+    _t_close   = (thresholds or {}).get("close",   THRESHOLD_CLOSE)
+    _t_prepare = (thresholds or {}).get("prepare", THRESHOLD_PREPARE)
+    _t_watch   = (thresholds or {}).get("watch",   THRESHOLD_WATCH)
 
-    # 1) Ler dados agregados (DTE, spread, spot do DB)
-    summary = read_structure_summary(aba)
-    if not summary:
-        return {
-            "decision": "HOLD",
-            "level": 0,
-            "pl_atual": 0.0,
-            "pl_max": pl_max,
-            "pl_pct_of_max": 0.0,
-            "dte_min": 0,
-            "why_json": json.dumps({"error": "No data found for aba", "aba": aba})
-        }
+    ratio = _ratio(pl_atual, pl_max)
+    alts: List[str] = []
 
-    dte_min = safe_int(summary.get("dte_min"), 999)
-    spread_pct_medio = safe_float(summary.get("spread_pct_medio"), 0.0)
+    if spread_pct_medio is not None and spread_pct_medio > 0.015:
+        alts.append("Spread alto -- aguardar execução")
 
-    # 2) Calcular PL atual a partir da curva de payoff no spot_ref
-    payoff = compute_payoff_for_aba(aba)
-    spot = safe_float(payoff.get("spot_ref"), safe_float(summary.get("spot"), 0.0))
-    points = payoff.get("points", [])
-    pl_atual = _interp_payoff(points, spot)
-
-    # 3) Ratio (permite negativo; só protege pl_max)
-    ratio = (pl_atual / pl_max) if (pl_max and pl_max > 0) else 0.0
-
-    # 4) Lógica de decisão (igual à sua)
-    decision = "HOLD"
-    level = 0
-    reasons = []
-    alternatives = []
-
-    if ratio >= thresholds["close"]:
-        decision = "CLOSE_REOPEN"
+    # [OK] Gate só dispara se dte_min foi fornecido E é > 0
+    #    dte_min=0 significa "expirado/sem DTE real" -- não aciona gate
+    if dte_min is not None and dte_min > 0 and dte_min <= dte_gate:
+        _internal = "CLOSE_REOPEN"
         level = 3
-        reasons.append(
-            f"PL atual ({pl_atual:.2f}) atingiu {ratio*100:.1f}% do máximo (>= {thresholds['close']*100:.0f}%)"
-        )
-        alternatives.append("Executar fechamento e reabertura")
-    elif ratio >= thresholds["prepare"]:
-        decision = "PREPARE_ROLL"
+        reason = "DTE gate"
+        extra: Dict[str, Any] = {"dte_min": dte_min, "dte_gate": dte_gate}
+    elif ratio >= _t_close:
+        _internal = "CLOSE_REOPEN"
+        level = 3
+        reason = "threshold_close"
+        extra = {}
+    elif ratio >= _t_prepare:
+        _internal = "PREPARE_ROLL"
         level = 2
-        reasons.append(
-            f"PL atual ({pl_atual:.2f}) atingiu {ratio*100:.1f}% do máximo (>= {thresholds['prepare']*100:.0f}%)"
-        )
-        alternatives.append("Preparar para fechamento ou aguardar 80%")
-    elif ratio >= thresholds["watch"]:
-        decision = "HOLD"
+        reason = "threshold_prepare"
+        extra = {}
+    elif ratio >= _t_watch:
+        _internal = "WATCH"
         level = 1
-        reasons.append(
-            f"PL atual ({pl_atual:.2f}) atingiu {ratio*100:.1f}% do máximo (>= {thresholds['watch']*100:.0f}%)"
-        )
-        alternatives.append("Continuar monitorando")
+        reason = "threshold_watch"
+        extra = {}
     else:
-        reasons.append(f"PL atual ({pl_atual:.2f}) ainda baixo ({ratio*100:.1f}% do máximo)")
-        alternatives.append("Aguardar evolução")
+        _internal = "HOLD"
+        level = 0
+        reason = "below_watch"
+        extra = {}
 
-    # Gate de DTE
-    if dte_min <= dte_gate and ratio >= thresholds["prepare"]:
-        old_decision = decision
-        decision = "CLOSE_REOPEN"
-        level = 3
-        reasons.append(
-            f"Gate DTE: {dte_min} <= {dte_gate} dias e ratio >= {thresholds['prepare']*100:.0f}% → promovido para CLOSE"
-        )
-        alternatives.append(f"Era {old_decision}, mas DTE baixo força fechamento")
-    elif dte_min <= dte_gate:
-        reasons.append(f"DTE baixo ({dte_min} dias), mas ratio ainda insuficiente para close")
-        alternatives.append("Avaliar fechamento manual por vencimento próximo")
+    decision = "HOLD" if _internal == "WATCH" else _internal
 
-    extra_info = {
-        "spot": spot,
-        "spread_pct_medio": spread_pct_medio,
-        "dte_min": dte_min
+    why_dict: Dict[str, Any] = {
+        "reasons":        [reason],
+        "ratio":          round(ratio, 4),
+        "alternatives":   alts,
+        "thresholds_used": {
+            "watch":   _t_watch,
+            "prepare": _t_prepare,
+            "close":   _t_close,
+        },
+        **extra,
     }
-
-    if spread_pct_medio > 1.5:
-        alternatives.append(f"ATENÇÃO: Spread alto ({spread_pct_medio:.1%}) pode dificultar execução")
-
-    why_json = json.dumps({
-        "reasons": reasons,
-        "alternatives": alternatives,
-        "thresholds_used": thresholds,
-        "dte_gate": dte_gate,
-        "extra_info": extra_info
-    })
 
     return {
-        "decision": decision,
-        "level": level,
-        "pl_atual": pl_atual,
-        "pl_max": pl_max,
-        "pl_pct_of_max": ratio,
-        "dte_min": dte_min,
-        "why_json": why_json
+        "decision":      decision,
+        "level":         level,
+        "ratio":         round(ratio, 4),
+        "pl_pct_of_max": round(ratio, 4),
+        "why_json":      json.dumps(why_dict),
+        "why":           why_dict,
+        "alternatives":  alts,
     }
 
 
+def compute_decision_from_payoff(
+    payoff: Dict[str, Any],
+    dte_min: Optional[int] = None,
+    dte_gate: int = DTE_GATE_DEFAULT,
+    spread_pct_medio: Optional[float] = None,
+    thresholds: Optional[Dict[str, float]] = None,
+) -> Dict[str, Any]:
+    """
+    Decide a partir de um dict de payoff.
+    Payoff vazio ou inválido  HOLD com 'error' em why_json.
+    """
+    if not payoff:
+        why_dict = {"error": "payoff vazio ou invalido", "reason": "invalid_input"}
+        return {
+            "decision":      "HOLD",
+            "level":         0,
+            "ratio":         0.0,
+            "pl_pct_of_max": 0.0,
+            "why_json":      json.dumps(why_dict),
+            "why":           why_dict,
+            "alternatives":  [],
+        }
 
-if __name__ == "__main__":
-    # Teste rápido
-    from .payoff import get_app_db_connection
-    
-    print("Testando decision com dados reais...")
-    
-    # Listar abas disponíveis
-    conn = get_app_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT aba, pl_realista_total FROM rtd_analise_robo ORDER BY aba")
-    abas_data = cursor.fetchall()
-    conn.close()
-    
-    print(f"Abas com dados: {len(abas_data)}")
-    
-    for aba, pl_total in abas_data[:3]:  # Testar 3 primeiras
-        pl_max_simulado = safe_float(pl_total) * 3  # Simular que o máximo é 3x o atual
-        decision_result = compute_decision_for_aba(aba, pl_max_simulado)
-        print(f"Aba '{aba}': {decision_result['decision']} (nível {decision_result['level']}) - ratio: {decision_result['pl_pct_of_max']*100:.1f}%")
+    pl_atual = payoff.get("pl_atual") or payoff.get("pl_now") or 0.0
+    pl_max   = payoff.get("pl_max") or 0.0
+
+    # Interpolação via points + spot, se disponíveis
+    points = payoff.get("points") or []
+    spot   = payoff.get("spot")
+    if points and spot is not None and pl_atual == 0.0:
+        pl_atual = _interp_payoff(points, float(spot))
+
+    if not math.isfinite(float(pl_max)):
+        why_dict = {"error": "pl_max invalido", "reason": "invalid_pl_max"}
+        return {
+            "decision":      "HOLD",
+            "level":         0,
+            "ratio":         0.0,
+            "pl_pct_of_max": 0.0,
+            "why_json":      json.dumps(why_dict),
+            "why":           why_dict,
+            "alternatives":  [],
+        }
+
+    return compute_decision_from_inputs(
+        pl_atual=float(pl_atual),
+        pl_max=float(pl_max),
+        dte_min=dte_min,
+        dte_gate=dte_gate,
+        spread_pct_medio=spread_pct_medio,
+        thresholds=thresholds,
+    )
+
+
+def compute_decision_from_contract(
+    contract: CanonicalStructureMarketInput,
+    payoff: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Entrada canônica via CanonicalStructureMarketInput."""
+    pl_max  = float(getattr(contract, "pl_max",  None) or 0.0)
+    dte_min = getattr(contract, "dte_min", None)
+
+    if payoff:
+        return compute_decision_from_payoff(payoff=payoff, dte_min=dte_min)
+
+    pl_atual = float(
+        getattr(contract, "pl_atual", None)
+        or getattr(contract, "pl_now", None)
+        or 0.0
+    )
+    return compute_decision_from_inputs(
+        pl_atual=pl_atual,
+        pl_max=pl_max,
+        dte_min=dte_min,
+    )

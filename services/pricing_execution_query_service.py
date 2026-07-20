@@ -43,6 +43,35 @@ class PricingExecutionQueryService:
     def list_executions(self) -> list[dict[str, Any]]:
         return self.pricing_executions_repository.list_executions()
 
+    def _load_executions_for_summary(
+        self,
+        structure_id: int | None = None,
+        status: str | None = None,
+        reference_date: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Compatibilidade:
+        - repositório real pode aceitar page/page_size/filtros;
+        - fakes antigos dos testes aceitam list_executions() sem kwargs.
+        """
+        try:
+            executions = self.pricing_executions_repository.list_executions(
+                page=1,
+                page_size=10_000,
+                status=status,
+                structure_id=structure_id,
+                reference_date=reference_date,
+            )
+        except TypeError as exc:
+            if "unexpected keyword argument" not in str(exc):
+                raise
+            executions = self.pricing_executions_repository.list_executions()
+
+        if isinstance(executions, dict):
+            executions = executions.get("items", [])
+
+        return list(executions or [])
+
     def list_execution_summaries(
         self,
         structure_id: int | None = None,
@@ -58,7 +87,11 @@ class PricingExecutionQueryService:
             reference_date=reference_date,
         )
 
-        executions = self.pricing_executions_repository.list_executions()
+        executions = self._load_executions_for_summary(
+            structure_id=structure_id,
+            status=status,
+            reference_date=reference_date,
+        )
 
         summaries = []
         for execution in executions:
@@ -66,10 +99,10 @@ class PricingExecutionQueryService:
             persisted_total_quantity = execution.get("total_quantity")
             persisted_theoretical_value = execution.get("theoretical_value")
 
-            nested_result = execution.get("result", {})
-            engine_result = nested_result.get("result", {})
-            metrics = engine_result.get("metrics", {})
-            valuation = engine_result.get("valuation", {})
+            nested_result = execution.get("result", {}) or {}
+            engine_result = nested_result.get("result", nested_result)
+            metrics = engine_result.get("metrics", {}) or {}
+            valuation = engine_result.get("valuation", {}) or {}
 
             summary = {
                 "id": execution["id"],
@@ -101,19 +134,14 @@ class PricingExecutionQueryService:
             if structure_id is not None and summary["structure_id"] != structure_id:
                 continue
 
-            if (
-                underlying_asset is not None
-                and summary["underlying_asset"] != underlying_asset
-            ):
-                continue
+            if underlying_asset is not None:
+                if str(summary["underlying_asset"]).upper() != underlying_asset.upper():
+                    continue
 
             if status is not None and summary["execution_status"] != status:
                 continue
 
-            if (
-                reference_date is not None
-                and summary["reference_date"] != reference_date
-            ):
+            if reference_date is not None and summary["reference_date"] != reference_date:
                 continue
 
             summaries.append(summary)
@@ -206,3 +234,6 @@ class PricingExecutionQueryService:
             raise ValueError(f"pricing execution {execution_id} not found")
 
         return execution
+
+    def get_execution_details(self, execution_id: int) -> dict[str, Any]:
+        return self.get_execution(execution_id)

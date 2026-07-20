@@ -10,8 +10,8 @@ def main():
     execution_service = PricingExecutionService()
     persistence_service = PricingExecutionPersistenceService()
 
-    pricing_payload = pricing_input_service.build_pricing_payload(structure_id=1)
-    result = execution_service.execute(structure_id=1)
+    pricing_payload = pricing_input_service.build_pricing_payload(structure_id=2)
+    result = execution_service.execute(structure_id=2)
 
     persisted = persistence_service.persist_execution(
         pricing_payload=pricing_payload,
@@ -43,10 +43,16 @@ def main():
     if record["error_message"] is not None:
         raise RuntimeError("persisted error_message should be None")
 
-    if record["number_of_legs"] != 2:
+    expected_number_of_legs = len(pricing_payload.get("legs", []))
+    expected_total_quantity = sum(
+        int(leg.get("quantity", 0) or 0)
+        for leg in pricing_payload.get("legs", [])
+    )
+
+    if record["number_of_legs"] != expected_number_of_legs:
         raise RuntimeError("persisted number_of_legs does not match expected value")
 
-    if record["total_quantity"] != 4000:
+    if record["total_quantity"] != expected_total_quantity:
         raise RuntimeError("persisted total_quantity does not match expected value")
 
     if record["theoretical_value"] != 0.0:

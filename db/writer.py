@@ -1,7 +1,8 @@
 # db/writer.py
 """
-Writer para persistência de dados derivados no SQLite.
+Writer para persistência de dados consolidados no SQLite.
 """
+from domain.refs.structure_ref import StructureRef
 import sqlite3
 import json
 from datetime import datetime
@@ -11,7 +12,7 @@ from pathlib import Path
 class PayoffWriter:
     """Escritor para pontos do payoff curve e decisões estruturais."""
     
-    def __init__(self, db_path: str = "dados/derived.db"):
+    def __init__(self, db_path: str = "dados/app.db"):
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
@@ -25,7 +26,7 @@ class PayoffWriter:
     
     def save_payoff_points(self, 
                           timestamp: str,
-                          aba: str,
+                          ref: StructureRef,
                           points: List[Dict[str, Any]],
                           spot_ref: Optional[float] = None,
                           meta: Optional[Dict] = None) -> int:
@@ -77,7 +78,7 @@ class PayoffWriter:
     
     def save_structure_decision(self,
                            timestamp: str,
-                           aba: str,
+                           ref: StructureRef,
                            decision: str,
                            ratio: Optional[float] = None,
                            dte_min: Optional[int] = None,
@@ -98,7 +99,8 @@ class PayoffWriter:
             stacklevel=2
         )
         
-        from db.derived_repo import get_derived_connection, write_decision_snapshot_atomic
+        from db.config import connect_app
+        from db.derived_repo import write_decision_snapshot_atomic
         
         decision_dict = {
             "decision": decision,
@@ -111,14 +113,14 @@ class PayoffWriter:
             "why": why
         }
         
-        conn = get_derived_connection()
+        conn = connect_app()
         try:
             return write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
         finally:
             conn.close()
 
 
-    def get_latest_decision(self, aba: str) -> Optional[Dict]:
+    def get_latest_decision(self, ref: StructureRef) -> Optional[Dict]:
         """Retorna a última decisão para uma aba."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -126,7 +128,7 @@ class PayoffWriter:
             
             cursor.execute("""
                 SELECT * FROM structure_decisions 
-                WHERE aba = ? 
+                WHERE {ref.db_column()} = ? 
                 ORDER BY timestamp DESC, id DESC 
                 LIMIT 1
             """, (aba,))
@@ -134,7 +136,7 @@ class PayoffWriter:
             row = cursor.fetchone()
             return dict(row) if row else None
 
-    def get_payoff_history(self, aba: str, limit: int = 100) -> List[Dict]:
+    def get_payoff_history(self, ref: StructureRef, limit: int = 100) -> List[Dict]:
         """Retorna histórico de payoff points para uma aba."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -143,7 +145,7 @@ class PayoffWriter:
             cursor.execute("""
                 SELECT timestamp, spot_ref, point_spot, point_pl, meta_json
                 FROM payoff_curve_points 
-                WHERE aba = ? 
+                WHERE {ref.db_column()} = ? 
                 ORDER BY timestamp DESC, id DESC 
                 LIMIT ?
             """, (aba, limit))

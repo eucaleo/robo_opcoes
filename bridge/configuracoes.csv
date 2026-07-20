@@ -1,5 +1,0 @@
-﻿"Parâmetro";"Valor";"Descrição"
-"Delta máximo CALL";"0.38";"Delta máximo antes de acionar roll na call"
-"PL alvo roll";"90";"Lucro estimado em R$ para encerrar a operação"
-"Slippage";"0.01";"Diferença esperada bid-ask na execução real"
-"TimeFrame Snapshot (min)";"10";"Intervalo de registro automático do robô"

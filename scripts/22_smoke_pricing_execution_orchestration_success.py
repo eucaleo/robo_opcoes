@@ -6,7 +6,7 @@ from services.pricing_execution_orchestration_service import (
 def main():
     service = PricingExecutionOrchestrationService()
 
-    response = service.execute_and_persist(structure_id=1)
+    response = service.execute_and_persist(structure_id=2)
 
     persisted = response["persisted"]["record"]
 

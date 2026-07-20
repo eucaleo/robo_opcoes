@@ -21,4 +21,10 @@ class PricingInputService:
             reference_date=reference_date,
         )
 
+        return self.build_pricing_payload_from_canonical_input(canonical_input)
+
+    def build_pricing_payload_from_canonical_input(
+        self,
+        canonical_input: dict[str, Any],
+    ) -> dict[str, Any]:
         return to_pricing_payload(canonical_input)
