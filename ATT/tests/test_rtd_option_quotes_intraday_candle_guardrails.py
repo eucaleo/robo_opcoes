@@ -10,7 +10,7 @@ def test_guardrails_fase4():
         Path("ATT/tests/test_rtd_option_quotes_intraday_candle_service.py"),
         Path("ATT/tests/test_rtd_option_quotes_intraday_build_candles_command.py"),
         Path("ATT/tests/test_rtd_option_quotes_intraday_candle_guardrails.py"),
-        Path("FRENTE_RTD_EXCEL_BTG_ONLINE/24_IMPLEMENTACAO_MINIMA_FASE4_MOTOR_CANDLES.md"),
+        # Documento histórico removido junto com artefatos obsoletos da frente RTD.
     ]
 
     text = "\n".join(

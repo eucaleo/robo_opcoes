@@ -118,9 +118,7 @@ def test_capture_once_generated_files_have_no_backtick_character():
     files = [
         CMD_PATH,
         ROOT_DIR / "ATT" / "tests" / "test_rtd_option_quotes_intraday_capture_once_command.py",
-        ROOT_DIR
-        / "FRENTE_RTD_EXCEL_BTG_ONLINE"
-        / "23_IMPLEMENTACAO_FASE3_1_CAPTURA_MANUAL_UNICA.md",
+        # Documento histórico removido junto com artefatos obsoletos da frente RTD.
     ]
 
     for path in files:
