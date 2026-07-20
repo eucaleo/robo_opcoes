@@ -1,0 +1,44 @@
+1:# services/derived_payoff_persistence.py
+9:from domain.payoff import compute_payoff_from_canonical_input
+10:from services.derived_service import save_payoff_from_canonical_payload, save_decision_from_canonical_payload
+15:class DerivedPayoffPersistence:
+20:      1. Montar o canonical_input a partir do pricing_payload
+27:    #  PayoffPersistencePort.persist()                                 #
+30:    def persist(
+36:            logger.debug("derived_payoff_persistence: pricing_payload vazio, skip.")
+43:                "derived_payoff_persistence: status=%r não elegível para payoff, skip.",
+51:                "derived_payoff_persistence: structure_id ausente; persistência bloqueada."
+55:        if not self._is_active_structure(structure_id):
+57:                "derived_payoff_persistence: estrutura inativa/arquivada; "
+67:        payoff_saved = self._persist_payoff(pricing_payload, result, snapshot_ts)
+70:                "derived_payoff_persistence: decisão não gravada porque payoff não foi salvo -- structure_id=%s",
+75:        decision_saved = self._persist_decision(pricing_payload, result, snapshot_ts)
+78:                "derived_payoff_persistence: payoff salvo, mas decisão falhou -- structure_id=%s timestamp=%s",
+87:    def _persist_payoff(
+94:            canonical_input = self._build_canonical_input(pricing_payload, result)
+95:            payoff_result = compute_payoff_from_canonical_input(canonical_input)
+99:                    "derived_payoff_persistence: payoff sem pontos para structure_id=%s",
+104:            save_payoff_from_canonical_payload(payoff_result, timestamp=snapshot_ts)
+106:                "derived_payoff_persistence: %d pontos gravados -- structure_id=%s",
+114:                "derived_payoff_persistence: erro ao gravar payoff -- structure_id=%s",
+123:    def _persist_decision(
+208:            save_decision_from_canonical_payload(
+216:                "derived_payoff_persistence: decisão gravada -- structure_id=%s",
+223:                "derived_payoff_persistence: erro ao gravar decisão -- structure_id=%s",
+257:        # services/derived_payoff_persistence.py -> raiz do projeto -> dados/app.db
+261:    def _is_active_structure(cls, structure_id: int) -> bool:
+263:        Barreira de segurança na camada de persistência.
+265:        Retorna True somente quando structures.status == 'active'.
+273:                    "derived_payoff_persistence: app.db não encontrado para validar structure_id=%s -- db_path=%s",
+294:                    "derived_payoff_persistence: structure_id=%s não encontrada; persistência bloqueada.",
+300:            return status == "active"
+304:                "derived_payoff_persistence: falha ao validar status da estrutura -- structure_id=%s",
+310:    def _build_canonical_input(
+315:        Monta o canonical_input esperado por compute_payoff_from_canonical_input().
+328:        def normalize_leg_for_canonical(leg: dict[str, Any]) -> dict[str, Any]:
+355:                normalize_leg_for_canonical(leg)
+362:            canonical_input = dict(pricing_payload)
+363:            structure = dict(canonical_input.get("structure") or {})
+365:            canonical_input["structure"] = structure
+366:            return canonical_input
+389:                "source": "pricing_execution_persistence",
