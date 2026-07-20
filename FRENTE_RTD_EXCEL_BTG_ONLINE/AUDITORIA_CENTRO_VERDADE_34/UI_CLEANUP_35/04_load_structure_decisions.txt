@@ -1,0 +1,41 @@
+            conn.commit()
+
+
+    def _load_structure_decisions(self, sid: int, limit: int = 5) -> List[Dict[str, Any]]:
+        with self._connect() as conn:
+            self._ensure_structure_decisions_table(conn)
+            rows = conn.execute(
+                """
+                SELECT
+                    id,
+                    structure_id,
+                    decision,
+                    label,
+                    note,
+                    created_at
+                FROM structure_decisions
+                WHERE structure_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (
+                    int(sid),
+                    int(limit),
+                ),
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+
+    def _render_decision_history(self, sid: Any) -> None:
+        self._side_section_title("ULTIMAS DECISOES")
+        box = self._build_decision_history_box()
+
+        try:
+            rows = self._load_structure_decisions(int(sid), limit=5)
+        except Exception as exc:
+            self._render_decision_history_error(box, exc)
+            return
+
+        if not rows:
+            self._render_empty_decision_history(box)

@@ -1,0 +1,58 @@
+            text=text,
+            height=34,
+            fg_color=color,
+            hover_color=hover,
+            text_color=TEXT,
+            command=command,
+        )
+        button.pack(fill="x", padx=10, pady=4)
+
+
+    def _ensure_structure_decisions_table(self, conn: sqlite3.Connection) -> None:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS structure_decisions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                structure_id INTEGER NOT NULL,
+                decision TEXT NOT NULL,
+                label TEXT,
+                note TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_structure_decisions_structure_id
+            ON structure_decisions(structure_id)
+            """
+        )
+
+
+    def _insert_structure_decision(self, sid: int, decision: str, note: Optional[str] = None) -> None:
+        raw_decision = str(decision or "").strip().upper()
+        if raw_decision not in DECISION_LABELS:
+            raise ValueError(f"Decisao invalida: {decision}")
+
+        label = decision_label(raw_decision)
+
+        with self._connect() as conn:
+            self._ensure_structure_decisions_table(conn)
+            conn.execute(
+                """
+                INSERT INTO structure_decisions (
+                    structure_id,
+                    decision,
+                    label,
+                    note
+                )
+                VALUES (?, ?, ?, ?)
+                """,
+                (
+                    int(sid),
+                    raw_decision,
+                    label,
+                    note,
+                ),
+            )
+            conn.commit()

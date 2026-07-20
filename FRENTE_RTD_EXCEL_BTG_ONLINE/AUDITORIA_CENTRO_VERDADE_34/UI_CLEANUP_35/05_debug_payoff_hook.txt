@@ -1,0 +1,61 @@
+def _install_payoff_ui_debug_monkeypatch():
+    import os as _os
+
+    if _os.getenv("PAYOFF_DEBUG", "").strip() not in {"1", "true", "TRUE", "yes", "YES"}:
+        return
+
+    cls = globals().get("TerminalVwapPayoffDarkPanel")
+    if cls is None:
+        return
+
+    orig_load = getattr(cls, "_load_persisted_payoff_points", None)
+    if callable(orig_load):
+        def _debug_load_persisted_payoff_points(self, structure_id):
+            pts = orig_load(self, structure_id)
+            latest_ts = None
+            rows = None
+
+            try:
+                with self._connect() as conn:
+                    row = conn.execute(
+                        """
+                        SELECT MAX(timestamp) AS latest_ts
+                        FROM payoff_curve_points
+                        WHERE structure_id = ?
+                        """,
+                        (structure_id,),
+                    ).fetchone()
+
+                    latest_ts = row["latest_ts"] if row else None
+
+                    if latest_ts:
+                        row2 = conn.execute(
+                            """
+                            SELECT COUNT(*) AS rows
+                            FROM payoff_curve_points
+                            WHERE structure_id = ?
+                              AND timestamp = ?
+                            """,
+                            (structure_id, latest_ts),
+                        ).fetchone()
+                        rows = row2["rows"] if row2 else None
+            except Exception as exc:
+                print(f"[PAYOFF-UI-DEBUG] erro consultando snapshot: {exc}")
+
+            print(
+                "[PAYOFF-UI-DEBUG] "
+                f"structure_id={structure_id} "
+                f"latest_ts={latest_ts} "
+                f"db_rows={rows} "
+                f"loaded_points={len(pts or [])}"
+            )
+            return pts
+
+        cls._load_persisted_payoff_points = _debug_load_persisted_payoff_points
+
+    orig_be = getattr(cls, "_breakevens", None)
+    if callable(orig_be):
+        def _debug_breakevens(self, points):
+            bes = orig_be(self, points)
+            print(
+                "[PAYOFF-UI-DEBUG] "
