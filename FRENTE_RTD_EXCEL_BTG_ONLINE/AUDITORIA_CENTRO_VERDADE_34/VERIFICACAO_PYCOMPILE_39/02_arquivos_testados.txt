@@ -1,0 +1,10 @@
+UI/main_window.py
+UI/components/terminal_vwap_payoff_dark_panel.py
+services/derived_payoff_persistence.py
+services/derived_service.py
+services/pricing_execution_persistence_service.py
+services/payoff_refresh_command_service.py
+services/pricing_execution_app_service.py
+services/pricing_execution_orchestration_service.py
+scripts/recalculate_payoff_curve_points_once.py
+scripts/verify_payoff_center_of_truth_scope.py

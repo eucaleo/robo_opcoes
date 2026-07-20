@@ -814,7 +814,7 @@ class DetailsPanel(ttk.LabelFrame):
         self.lbl_recalc_status.config(text="", foreground="gray")
 
     def on_recalc_finished(self, structure_id, ok: bool, message: str = ""):
-        """Chamado pelo MainWindow ao finalizar o subprocess do pipeline."""
+        """Chamado pelo MainWindow ao finalizar o fluxo externo legado do pipeline."""
         try:
             if ok:
                 self._last_recalc_signature = self._compute_recalc_signature(

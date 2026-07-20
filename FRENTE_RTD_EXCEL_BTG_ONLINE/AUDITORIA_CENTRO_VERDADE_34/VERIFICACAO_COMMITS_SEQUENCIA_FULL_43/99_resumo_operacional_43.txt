@@ -1,0 +1,1 @@
+OK: PayoffRefreshCommandService contem tokens essenciais do contrato.

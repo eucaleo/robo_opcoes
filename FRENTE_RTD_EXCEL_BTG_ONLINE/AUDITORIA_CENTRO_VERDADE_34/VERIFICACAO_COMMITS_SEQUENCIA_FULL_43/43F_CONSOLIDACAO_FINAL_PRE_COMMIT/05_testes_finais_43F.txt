@@ -1,0 +1,7 @@
+Testes finais - Rodada 43F
+
+1. git diff --check
+OK: git diff --check sem problemas.
+
+2. py_compile arquivos centrais
+OK: py_compile final passou.

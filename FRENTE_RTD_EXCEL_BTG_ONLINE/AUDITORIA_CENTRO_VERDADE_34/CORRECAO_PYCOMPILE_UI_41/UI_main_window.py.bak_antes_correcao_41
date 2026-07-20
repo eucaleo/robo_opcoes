@@ -354,78 +354,140 @@ class MainWindow:
 
     def recalculate_structure(self, structure_id: str):
         """
-        Recalculo via UI bloqueado.
-
-        Centro de verdade:
-            UI -> PayoffRefreshCommandService -> PricingExecutionAppService
-
-        A UI nao deve:
-        - chamar scripts externos;
-        - chamar processos externos;
-        - executar pipeline local;
-        - recalcular payoff diretamente;
-        - substituir o comando oficial de backend.
-
-        Esta rotina permanece como bloqueio explicito para evitar sucesso
-        silencioso ou contaminacao por fluxo paralelo.
+        Recalcula a estrutura identificada por structure_id e atualiza a UI.
+        alteracao_36: recalculate_aba() removida; este é o único entry point.
         """
-        msg = (
-            "Recálculo via UI bloqueado. "
-            "Use o comando oficial PayoffRefreshCommandService no backend; "
-            "a UI deve apenas reler dados persistidos."
-        )
-
-        try:
-            self._recalc_in_progress = False
-        except Exception:
-            pass
-
-        try:
-            self.status_bar.config(text=msg)
-        except Exception:
-            pass
-
-        try:
-            if hasattr(self, "details_panel") and hasattr(
-                self.details_panel, "on_recalc_finished"
-            ):
-                self.details_panel.on_recalc_finished(
-                    structure_id,
-                    ok=False,
-                    message=msg,
+        if self._recalc_in_progress:
+            try:
+                self.status_bar.config(
+                    text=f"Recalc já em andamento; ignorando ({structure_id})"
                 )
-        except Exception as e:
-            print("[UI] Erro notificando bloqueio de recalc:", e)
+            except Exception:
+                pass
+            return
+
+        self._recalc_in_progress = True
 
         try:
-            messagebox.showwarning("Recálculo bloqueado", msg)
+            self.payoff_chart.fix_current_curve()
         except Exception:
             pass
+
+        import subprocess
+        import sys
+
+        self.status_bar.config(text=f"Recalculando {structure_id}...")
+
+        def finish(ok: bool, msg: str):
+            self._recalc_in_progress = False
+            try:
+                self.status_bar.config(text=msg)
+            except Exception:
+                pass
+            try:
+                if hasattr(self, "details_panel") and hasattr(
+                    self.details_panel, "on_recalc_finished"
+                ):
+                    self.details_panel.on_recalc_finished(
+                        structure_id, ok=ok, message=msg
+                    )
+            except Exception as e:
+                print("[UI] Erro notificando details_panel fim recalc:", e)
+
+        def worker():
+            try:
+                project_root = Path(__file__).resolve().parents[1]
+                script_path = project_root / "scripts" / "run_derived_pipeline.py"
+                if not script_path.exists():
+                    script_path = project_root / "Scripts" / "run_derived_pipeline.py"
+
+                res = _blocked_ui_external_process_call(
+                    [sys.executable, str(script_path)],
+                    cwd=str(project_root),
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=120,
+                )
+
+                if res.stdout:
+                    print("[UI] Recalc STDOUT:\n", res.stdout)
+                if res.stderr:
+                    print("[UI] Recalc STDERR:\n", res.stderr)
+
+                self.root.after(0, self.refresh_data)
+                self.root.after(
+                    0, lambda: finish(True, f"OK: {structure_id} recalculado")
+                )
+
+            except subprocess.TimeoutExpired:
+                self.root.after(0, lambda: finish(False, "Timeout no recálculo"))
+            except subprocess.CalledProcessError as e:
+                if e.stdout:
+                    print("[UI] Recalc STDOUT:\n", e.stdout)
+                if e.stderr:
+                    print("[UI] Recalc STDERR:\n", e.stderr)
+                self.root.after(0, lambda: finish(False, "Falha no recálculo"))
+            except Exception as e:
+                print("[UI] Erro inesperado recalc:", e)
+                self.root.after(0, lambda: finish(False, "Erro no recálculo"))
+
+        threading.Thread(target=worker, daemon=True).start()
+
     def run_pipeline(self):
-        """
-        Execucao de pipeline via UI bloqueada.
-
-        Regra operacional:
-        - a UI nao executa scripts;
-        - a UI nao abre processos externos;
-        - a UI nao recalcula payoff;
-        - o fluxo oficial deve passar pelo PayoffRefreshCommandService/backend.
-        """
-        msg = (
-            "Pipeline via UI bloqueado. "
-            "Execute o fluxo oficial pelo backend/PayoffRefreshCommandService; "
-            "a UI deve apenas atualizar a leitura dos dados persistidos."
+        """Executa o pipeline de derivados."""
+        result = messagebox.askyesno(
+            "Executar Pipeline",
+            "Executar pipeline de derivados?\nIsso pode demorar alguns segundos.",
         )
+        if not result:
+            return
+
+        self.status_bar.config(text="Executando pipeline...")
 
         try:
-            self.status_bar.config(text=msg)
-        except Exception:
-            pass
+            project_root = Path(__file__).resolve().parents[1]
+            script_path = project_root / "scripts" / "run_derived_pipeline.py"
+            if not script_path.exists():
+                script_path = project_root / "Scripts" / "run_derived_pipeline.py"
 
-        try:
-            messagebox.showwarning("Pipeline bloqueado", msg)
-        except Exception:
-            pass
+            if not script_path.exists():
+                raise FileNotFoundError(
+                    f"Não achei o script do pipeline em: {script_path}"
+                )
+
+            import subprocess
+            import sys
+
+            res = _blocked_ui_external_process_call(
+                [sys.executable, str(script_path)],
+                cwd=str(project_root),
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            if res.stdout:
+                print("[UI] Pipeline STDOUT:\n", res.stdout)
+            if res.stderr:
+                print("[UI] Pipeline STDERR:\n", res.stderr)
+
+            messagebox.showinfo("Sucesso", "Pipeline executado com sucesso!")
+            self.refresh_data()
+
+        except subprocess.CalledProcessError as e:
+            messagebox.showerror(
+                "Erro",
+                "Pipeline falhou:\n\nSTDOUT:\n"
+                + (e.stdout or "")
+                + "\n\nSTDERR:\n"
+                + (e.stderr or ""),
+            )
+            self.status_bar.config(text="Pipeline falhou")
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao executar pipeline: {e}")
+            self.status_bar.config(text="Erro ao executar pipeline")
+
     def check_databases(self):
         """Verifica status dos bancos de dados."""
         try:
@@ -645,6 +707,21 @@ Baseline: executed_v1 + baseline_v1b"""
                 TerminalVWAPPayoffAppService,
             )
             from controllers.terminal_vwap_payoff_controller import (
+
+def _blocked_ui_external_process_call(*args, **kwargs):
+    """
+    Bloqueia chamada de processo externo a partir da camada visual.
+
+    Centro de verdade:
+    - UI nao executa scripts.
+    - UI nao dispara subprocesso.
+    - Fluxos de negocio devem passar por servicos oficiais.
+    """
+    raise RuntimeError(
+        "Chamada de processo externo pela UI e proibida. "
+        "Use o servico oficial do backend."
+    )
+
                 TerminalVWAPPayoffController,
             )
 

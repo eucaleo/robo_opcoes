@@ -1,0 +1,10 @@
+OK: referencia DerivedPayoffPersistence
+OK: usa payoff_persistence_port
+OK: referencia PricingExecutionPersistenceService
+OK: referencia SystemSnapshotsRepository
+
+Ocorrencias relevantes:
+DerivedPayoffPersistence: 7
+payoff_persistence_port: 7
+PricingExecutionPersistenceService: 9
+SystemSnapshotsRepository: 6

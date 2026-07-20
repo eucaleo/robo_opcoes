@@ -1,0 +1,9 @@
+COMANDO:
+python -m py_compile scripts/verify_payoff_center_of_truth_scope.py services/payoff_refresh_command_service.py services/derived_payoff_persistence.py services/pricing_execution_persistence_service.py services/pricing_execution_orchestration_service.py services/canonical_pricing_facade.py UI/main_window.py UI/components/terminal_vwap_payoff_dark_panel.py 
+
+  File "UI/main_window.py", line 711
+    def _blocked_ui_external_process_call(*args, **kwargs):
+    ^^^
+SyntaxError: invalid syntax
+
+EXIT_CODE=1

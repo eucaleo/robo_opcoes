@@ -1,0 +1,14 @@
+def _blocked_ui_external_process_call(*args, **kwargs):
+    """
+    Bloqueia chamada de processo externo a partir da camada visual.
+
+    Centro de verdade:
+    - UI nao executa scripts.
+    - UI nao dispara subprocesso.
+    - Fluxos de negocio devem passar por servicos oficiais.
+    """
+    raise RuntimeError(
+        "Chamada de processo externo pela UI e proibida. "
+        "Use o servico oficial do backend."
+    )
+

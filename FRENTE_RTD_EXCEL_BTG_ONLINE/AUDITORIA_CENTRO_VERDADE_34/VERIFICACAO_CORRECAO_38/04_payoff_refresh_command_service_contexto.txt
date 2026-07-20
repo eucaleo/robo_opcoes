@@ -1,0 +1,71 @@
+============================================================
+Contexto PayoffRefreshCommandService
+Gerado em: 2026-07-20 11:16:19
+Branch: fix/payoff-centro-verdade-32
+Diretorio: /c/users/eucal/projeto
+============================================================
+
+
+### contrato minimo do comando
+8:from services.pricing_execution_app_service import PricingExecutionAppService
+18:    - Este serviço chama PricingExecutionAppService.
+25:        pricing_app_service: PricingExecutionAppService | None = None,
+28:        self.pricing_app_service = pricing_app_service or PricingExecutionAppService()
+38:        before_ts = self._latest_payoff_timestamp(structure_id)
+41:            pricing_result = self._execute_pricing(structure_id, reference_date)
+44:                "status": "error",
+49:                "payoff_points_count": 0,
+50:                "latest_payoff_timestamp": before_ts,
+51:                "decision_found": False,
+55:        pricing_status = self._extract_status(pricing_result)
+58:        if pricing_status in {"error", "failed", "fail"}:
+60:                "status": "error",
+65:                "payoff_points_count": 0,
+66:                "latest_payoff_timestamp": before_ts,
+67:                "decision_found": False,
+72:        payoff_summary = self._latest_payoff_summary(structure_id)
+73:        after_ts = payoff_summary.get("latest_payoff_timestamp")
+74:        points_count = int(payoff_summary.get("payoff_points_count") or 0)
+76:        decision_found = self._decision_exists(structure_id, after_ts)
+81:                "status": "error",
+86:                "payoff_points_count": 0,
+87:                "latest_payoff_timestamp": after_ts,
+88:                "decision_found": decision_found,
+96:        if before_ts == after_ts:
+98:                "status": "warning",
+103:                "payoff_points_count": points_count,
+104:                "latest_payoff_timestamp": after_ts,
+105:                "decision_found": decision_found,
+114:            "status": "ok",
+119:            "payoff_points_count": points_count,
+120:            "latest_payoff_timestamp": after_ts,
+121:            "decision_found": decision_found,
+126:    def _execute_pricing(
+131:        method = self.pricing_app_service.execute_pricing
+150:        self._ensure_active_structure(value)
+154:    def _ensure_active_structure(self, structure_id: int) -> None:
+159:          - apenas structures.status == 'active' pode gerar novo payoff/decisão;
+160:          - archived/inactive não deve consumir processamento nem persistir derivados.
+167:            if "status" not in cols:
+168:                raise ValueError("coluna structures.status não encontrada; validação de estrutura ativa impossível")
+172:                SELECT status
+183:        status = str(row[0] or "").strip().lower()
+184:        if status != "active":
+187:                f"structure_id={structure_id}, status={status!r}"
+193:    def _latest_payoff_timestamp(self, structure_id: int) -> str | None:
+194:        return self._latest_payoff_summary(structure_id).get("latest_payoff_timestamp")
+196:    def _latest_payoff_summary(self, structure_id: int) -> dict[str, Any]:
+199:                "latest_payoff_timestamp": None,
+200:                "payoff_points_count": 0,
+205:            FROM payoff_curve_points
+217:                "latest_payoff_timestamp": None,
+218:                "payoff_points_count": 0,
+223:                "latest_payoff_timestamp": None,
+224:                "payoff_points_count": 0,
+228:            "latest_payoff_timestamp": row[0],
+229:            "payoff_points_count": row[1],
+240:                FROM structure_decisions
+249:                FROM structure_decisions
+298:    def _extract_status(self, result: Any) -> str | None:
+300:            value = result.get("status")
+303:        value = getattr(result, "status", None)

@@ -407,7 +407,7 @@ class StructureEditorDialog(tk.Toplevel):
     def _refresh_rtd_symbol_on_demand(self, codigo_opcao: str) -> tuple[bool, str]:
         """Valida se o simbolo existe no snapshot RTD centralizado.
 
-        A UI nao sincroniza Excel nem chama subprocessos. O botao Preencher via RTD
+        A UI nao sincroniza Excel nem chama processos externos. O botao Preencher via RTD
         consome apenas a tabela rtd_option_quotes do banco recebido pelo dialogo.
         """
         symbol = str(codigo_opcao or "").strip().upper()

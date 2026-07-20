@@ -1,0 +1,36 @@
+============================================================
+Git status
+Gerado em: 2026-07-20 11:16:20
+Branch: fix/payoff-centro-verdade-32
+Diretorio: /c/users/eucal/projeto
+============================================================
+
+
+>>> git status --short
+ M UI/main_window.py
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/CORRECAO_PYCOMPILE_UI_41/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_37/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_38/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_39/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_CONTEXTO_40/
+?? scripts/fix_ui_main_window_pycompile_41.sh
+?? scripts/verify_aplicacao_correcao_37.sh
+?? scripts/verify_aplicacao_correcao_38.sh
+?? scripts/verify_pycompile_contexto_40.sh
+?? scripts/verify_pycompile_detalhado_39.sh
+
+
+>>> git branch --show-current
+fix/payoff-centro-verdade-32
+
+ M UI/main_window.py
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/CORRECAO_PYCOMPILE_UI_41/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_37/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_38/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_39/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_CONTEXTO_40/
+?? scripts/fix_ui_main_window_pycompile_41.sh
+?? scripts/verify_aplicacao_correcao_37.sh
+?? scripts/verify_aplicacao_correcao_38.sh
+?? scripts/verify_pycompile_contexto_40.sh
+?? scripts/verify_pycompile_detalhado_39.sh

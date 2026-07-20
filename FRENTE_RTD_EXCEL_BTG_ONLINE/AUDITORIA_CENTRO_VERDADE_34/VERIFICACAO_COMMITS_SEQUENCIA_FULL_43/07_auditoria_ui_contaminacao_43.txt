@@ -1,0 +1,55 @@
+== tokens proibidos ou pendentes na UI ==
+
+-- token: compute_payoff_from_canonical_input --
+
+-- token: _calculate_payoff_from_legs --
+
+-- token: _calculate_payoff_points_for_range --
+
+-- token: _calculate_leg_payoff --
+
+-- token: _collect_payoff_strikes --
+
+-- token: _calculate_payoff_spot_range --
+
+-- token: subprocess.run --
+
+-- token: subprocess.Popen --
+
+-- token: os.system --
+
+-- token: INSERT INTO payoff_curve_points --
+
+-- token: INSERT INTO structure_decisions --
+
+== chamadas especificas do fallback local ==
+805:            payoff_points = self._load_payoff_points(sid, legs)
+1132:    def _load_payoff_points(
+1145:        persisted = self._load_persisted_payoff_points(structure_id)
+1154:    def _load_persisted_payoff_points(self, structure_id: Any) -> List[Dict[str, float]]:
+2664:    orig_load = getattr(cls, "_load_persisted_payoff_points", None)
+2666:        def _debug_load_persisted_payoff_points(self, structure_id):
+2707:        cls._load_persisted_payoff_points = _debug_load_persisted_payoff_points
+
+== leitura ultimo timestamp em UI ==
+UI/components/details_panel.py:111:    def _get_latest_snapshot_timestamp_for_structure(self, structure_id):
+UI/components/details_panel.py:124:            ts = self._latest_snapshot_timestamp_in_db(db_path, sid, sid_text)
+UI/components/details_panel.py:275:    def _latest_snapshot_timestamp_in_db(self, db_path, sid, sid_text):
+UI/components/details_panel.py:284:                return self._latest_snapshot_timestamp_in_connection(con, sid, sid_text)
+UI/components/details_panel.py:290:    def _latest_snapshot_timestamp_in_connection(self, con, sid, sid_text):
+UI/components/details_panel.py:295:            ts = self._latest_snapshot_timestamp_in_table(cur, table, sid, sid_text)
+UI/components/details_panel.py:344:    def _latest_snapshot_timestamp_in_table(self, cur, table, sid, sid_text):
+UI/components/details_panel.py:519:            self._get_latest_snapshot_timestamp_for_structure(structure_id),
+UI/components/terminal_vwap_payoff_dark_panel.py:1203:                            f"SELECT MAX(timestamp) AS ultimo_timestamp "
+UI/components/terminal_vwap_payoff_dark_panel.py:1207:                        latest_alias = "ultimo_timestamp"
+UI/components/terminal_vwap_payoff_dark_panel.py:1210:                            f"SELECT MAX({_q(ts_col)}) AS ultimo_timestamp "
+UI/components/terminal_vwap_payoff_dark_panel.py:1214:                        latest_alias = "ultimo_timestamp"
+UI/models/ui_data.py:527:    def _build_payoff_curve_latest_timestamp_sql(
+UI/models/ui_data.py:538:    def _fetch_payoff_curve_latest_timestamp(
+UI/models/ui_data.py:541:        sql_ts = self._build_payoff_curve_latest_timestamp_sql(p, filter_col)
+UI/models/ui_data.py:561:        row_ts = self._fetch_payoff_curve_latest_timestamp(
+UI/models/ui_data.py:704:    def _fetch_latest_canonical_payoff_timestamp(
+UI/models/ui_data.py:709:            f"WHERE {filter_col} = ? ORDER BY timestamp DESC LIMIT 1",
+UI/models/ui_data.py:740:            used_ts = self._fetch_latest_canonical_payoff_timestamp(
+UI/models/ui_data.py:772:    def _fetch_latest_legacy_payoff_timestamp(
+UI/models/ui_data.py:798:            used_ts = self._fetch_latest_legacy_payoff_timestamp(

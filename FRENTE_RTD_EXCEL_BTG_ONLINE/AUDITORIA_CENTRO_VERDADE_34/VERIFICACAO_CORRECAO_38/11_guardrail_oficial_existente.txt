@@ -1,0 +1,4 @@
+OK: escopo centro de verdade payoff validado.
+OK: UI sem calculo local proibido, subprocess ou escrita direta.
+OK: comando oficial e wiring backend encontrados.
+OK: leitura por ultimo snapshot evidenciada.

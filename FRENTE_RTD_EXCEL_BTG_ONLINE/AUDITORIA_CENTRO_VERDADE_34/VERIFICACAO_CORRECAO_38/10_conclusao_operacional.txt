@@ -1,0 +1,14 @@
+Resultado tecnico da verificacao 38:
+
+RESULTADO: OK
+
+A aplicacao da correcao parece consistente para fechamento tecnico preliminar da fase.
+
+Proximos passos recomendados:
+1. Rodar teste backend sem UI com PricingExecutionAppService.execute_pricing(structure_id=2).
+2. Comparar contagens antes/depois em pricing_executions, structure_snapshots, payoff_curve_points e structure_decisions.
+3. Se as quatro contagens subirem, encerrar fase com commit controlado.
+4. Se payoff_curve_points ou structure_decisions nao subir, corrigir contrato de DerivedPayoffPersistence antes de mexer na UI.
+
+Observacao:
+Este script nao executou git add, commit ou push.

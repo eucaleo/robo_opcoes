@@ -1,0 +1,30 @@
+BRANCH:
+fix/payoff-centro-verdade-32
+
+STATUS SHORT:
+ M UI/components/details_panel.py
+ M UI/components/structure_editor_dialog.py
+ M UI/main_window.py
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/CORRECAO_PYCOMPILE_UI_41/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_BACKEND_EXECUTE_PRICING_42/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_37/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_38/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_39/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_CONTEXTO_40/
+?? scripts/apply_ui_block_and_verify_43C.sh
+?? scripts/apply_ui_text_cleanup_and_guardrail_43D.sh
+?? scripts/fix_ui_main_window_pycompile_41.sh
+?? scripts/verify_aplicacao_correcao_37.sh
+?? scripts/verify_aplicacao_correcao_38.sh
+?? scripts/verify_backend_execute_pricing_42.sh
+?? scripts/verify_commits_sequence_full_43.sh
+?? scripts/verify_commits_sequence_full_43B.sh
+?? scripts/verify_pycompile_contexto_40.sh
+?? scripts/verify_pycompile_detalhado_39.sh
+
+DIFF STAT:
+ UI/components/details_panel.py           |   2 +-
+ UI/components/structure_editor_dialog.py |   2 +-
+ UI/main_window.py                        | 179 ++++++++++---------------------
+ 3 files changed, 61 insertions(+), 122 deletions(-)

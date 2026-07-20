@@ -1,0 +1,35 @@
+============================================================
+Contexto PricingExecutionPersistenceService
+Gerado em: 2026-07-20 11:16:18
+Branch: fix/payoff-centro-verdade-32
+Diretorio: /c/users/eucal/projeto
+============================================================
+
+
+### wiring e chamada do port de payoff
+1:# services/pricing_execution_persistence_service.py
+5:from repositories.pricing_executions_repository import PricingExecutionsRepository
+6:from repositories.system_snapshots_repository import SystemSnapshotsRepository
+7:from services.payoff_persistence_port import PayoffPersistencePort
+15:        pricing_executions_repository: PricingExecutionsRepository | None = None,
+16:        payoff_persistence_port: PayoffPersistencePort | None = None,
+17:        system_snapshots_repository: SystemSnapshotsRepository | None = None,
+20:            pricing_executions_repository or PricingExecutionsRepository()
+22:        self._payoff_port = payoff_persistence_port
+23:        self._system_snapshots_repository = system_snapshots_repository
+25:    def persist_execution(
+39:        persisted_error_message = error_message or (
+51:            error_message=persisted_error_message,
+58:        snapshot_id = self._create_system_snapshot_if_applicable(
+67:        #  alteracao_21 -- persistência derivada (payoff + decisão)           #
+70:        if self._payoff_port is not None:
+72:                self._payoff_port.persist(
+78:                    "payoff_persistence_port.persist() falhou -- execução id=%s não afetada",
+86:        if snapshot_id is not None:
+87:            response["snapshot_id"] = snapshot_id
+91:    def _create_system_snapshot_if_applicable(
+100:        if self._system_snapshots_repository is None:
+114:            return self._system_snapshots_repository.create_snapshot(
+119:                snapshot_source="system_pricing_execution",
+124:                payoff_json=self._extract_result_field(inner, "payoff"),
+135:                "system_snapshots_repository.create_snapshot() falhou -- execução id=%s não afetada",

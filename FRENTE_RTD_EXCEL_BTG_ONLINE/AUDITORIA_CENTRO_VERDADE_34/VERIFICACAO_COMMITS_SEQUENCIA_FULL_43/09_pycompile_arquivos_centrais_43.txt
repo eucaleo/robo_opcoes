@@ -1,0 +1,35 @@
+
+== py_compile: UI/main_window.py ==
+OK: UI/main_window.py
+
+== py_compile: UI/components/terminal_vwap_payoff_dark_panel.py ==
+OK: UI/components/terminal_vwap_payoff_dark_panel.py
+
+== py_compile: services/payoff_refresh_command_service.py ==
+OK: services/payoff_refresh_command_service.py
+
+== py_compile: services/pricing_execution_app_service.py ==
+OK: services/pricing_execution_app_service.py
+
+== py_compile: services/pricing_execution_orchestration_service.py ==
+OK: services/pricing_execution_orchestration_service.py
+
+== py_compile: services/pricing_execution_persistence_service.py ==
+OK: services/pricing_execution_persistence_service.py
+
+== py_compile: services/derived_payoff_persistence.py ==
+OK: services/derived_payoff_persistence.py
+
+== py_compile: services/derived_service.py ==
+OK: services/derived_service.py
+
+== py_compile: services/canonical_pricing_facade.py ==
+OK: services/canonical_pricing_facade.py
+
+== py_compile: scripts/recalculate_payoff_curve_points_once.py ==
+OK: scripts/recalculate_payoff_curve_points_once.py
+
+== py_compile: scripts/verify_payoff_center_of_truth_scope.py ==
+OK: scripts/verify_payoff_center_of_truth_scope.py
+
+PY_RC=0

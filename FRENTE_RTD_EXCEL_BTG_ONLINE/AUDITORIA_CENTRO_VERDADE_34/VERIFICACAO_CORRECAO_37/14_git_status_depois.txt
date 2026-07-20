@@ -1,0 +1,3 @@
+ M UI/main_window.py
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_37/
+?? scripts/verify_aplicacao_correcao_37.sh

@@ -1,0 +1,31 @@
+Status git pre-commit - Rodada 44
+
+Branch: fix/payoff-centro-verdade-32
+HEAD: 148aac4
+
+## git status --short
+
+ M UI/components/details_panel.py
+ M UI/components/structure_editor_dialog.py
+ M UI/main_window.py
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/CORRECAO_PYCOMPILE_UI_41/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_BACKEND_EXECUTE_PRICING_42/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_37/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_38/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_39/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_CONTEXTO_40/
+?? scripts/apply_ui_block_and_verify_43C.sh
+?? scripts/apply_ui_text_cleanup_and_guardrail_43D.sh
+?? scripts/consolidar_sequencia_full_43F.sh
+?? scripts/documentar_encerramento_fase_43E.sh
+?? scripts/fix_ui_main_window_pycompile_41.sh
+?? scripts/regenerar_43F_e_encerrar_rota_44_sem_crase.sh
+?? scripts/regenerar_43F_sem_crase.sh
+?? scripts/verify_aplicacao_correcao_37.sh
+?? scripts/verify_aplicacao_correcao_38.sh
+?? scripts/verify_backend_execute_pricing_42.sh
+?? scripts/verify_commits_sequence_full_43.sh
+?? scripts/verify_commits_sequence_full_43B.sh
+?? scripts/verify_pycompile_contexto_40.sh
+?? scripts/verify_pycompile_detalhado_39.sh

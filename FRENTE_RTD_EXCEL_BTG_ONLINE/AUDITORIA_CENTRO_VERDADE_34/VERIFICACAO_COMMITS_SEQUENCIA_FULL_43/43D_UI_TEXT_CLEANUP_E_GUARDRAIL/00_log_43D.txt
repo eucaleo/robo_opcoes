@@ -1,0 +1,158 @@
+==> Rodada 43D - limpeza textual UI e guardrail
+Diretorio raiz: C:/Users/eucal/projeto
+Saida: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL
+
+==> criando backups
+Backup: UI/main_window.py
+Backup: UI/components/details_panel.py
+Backup: UI/components/structure_editor_dialog.py
+
+==> aplicando limpeza textual automatizada
+
+==> executando py_compile
+== py_compile: UI/main_window.py ==
+OK: UI/main_window.py
+
+== py_compile: UI/components/details_panel.py ==
+OK: UI/components/details_panel.py
+
+== py_compile: UI/components/structure_editor_dialog.py ==
+OK: UI/components/structure_editor_dialog.py
+
+== py_compile: UI/components/terminal_vwap_payoff_dark_panel.py ==
+OK: UI/components/terminal_vwap_payoff_dark_panel.py
+
+== py_compile: services/payoff_refresh_command_service.py ==
+OK: services/payoff_refresh_command_service.py
+
+== py_compile: services/pricing_execution_app_service.py ==
+OK: services/pricing_execution_app_service.py
+
+== py_compile: services/pricing_execution_orchestration_service.py ==
+OK: services/pricing_execution_orchestration_service.py
+
+== py_compile: services/pricing_execution_persistence_service.py ==
+OK: services/pricing_execution_persistence_service.py
+
+== py_compile: services/pricing_execution_service.py ==
+OK: services/pricing_execution_service.py
+
+== py_compile: services/derived_payoff_persistence.py ==
+OK: services/derived_payoff_persistence.py
+
+== py_compile: services/derived_service.py ==
+OK: services/derived_service.py
+
+== py_compile: services/canonical_pricing_facade.py ==
+OK: services/canonical_pricing_facade.py
+
+== py_compile: repositories/structures_repository.py ==
+OK: repositories/structures_repository.py
+
+== py_compile: scripts/recalculate_payoff_curve_points_once.py ==
+OK: scripts/recalculate_payoff_curve_points_once.py
+
+==> executando guardrail textual UI
+## Guardrail 43D - UI
+
+### Tokens fortes proibidos
+
+
+-- token: compute_payoff_from_canonical_input --
+
+-- token: _calculate_payoff_from_legs --
+
+-- token: _calculate_payoff_points_for_range --
+
+-- token: _calculate_leg_payoff --
+
+-- token: _collect_payoff_strikes --
+
+-- token: _calculate_payoff_spot_range --
+
+-- token: subprocess.run --
+
+-- token: subprocess.Popen --
+
+-- token: os.system --
+
+-- token: INSERT INTO payoff_curve_points --
+
+-- token: INSERT INTO structure_decisions --
+
+-- token: recalculate_payoff_curve_points_once --
+
+### Busca informativa por termos sensiveis
+
+UI/components/decisions_dark_panel.py:702:    def _active_structure_decisions(self) -> List[Dict[str, Any]]:
+UI/components/decisions_dark_panel.py:799:        active_decisions = self._active_structure_decisions()
+UI/components/details_panel.py:309:            "structure_decisions",
+UI/components/details_panel.py:310:            "payoff_curve_points",
+UI/components/details_panel.py:982:        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
+UI/components/details_panel.py:1000:                FROM structure_decisions
+UI/components/details_panel.py:1022:        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
+UI/components/details_panel.py:1034:                FROM payoff_curve_points
+UI/components/details_panel.py:1062:                FROM structure_decisions
+UI/components/details_panel.py:1075:                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
+UI/components/details_panel.py:1080:                "source_table": "app.db:structure_decisions / payoff_curve_points",
+UI/components/terminal_vwap_payoff_dark_panel.py:1171:                "payoff_curve_points",
+UI/components/terminal_vwap_payoff_dark_panel.py:1201:                    if table == "payoff_curve_points" and ts_col == "timestamp":
+UI/components/terminal_vwap_payoff_dark_panel.py:1837:    def _structure_decisions_table_exists(self, conn: sqlite3.Connection) -> bool:
+UI/components/terminal_vwap_payoff_dark_panel.py:1851:              AND name = 'structure_decisions'
+UI/components/terminal_vwap_payoff_dark_panel.py:1872:    def _load_structure_decisions(self, sid: int, limit: int = 5) -> List[Dict[str, Any]]:
+UI/components/terminal_vwap_payoff_dark_panel.py:1874:            if not self._structure_decisions_table_exists(conn):
+UI/components/terminal_vwap_payoff_dark_panel.py:1886:                FROM structure_decisions
+UI/components/terminal_vwap_payoff_dark_panel.py:1905:            rows = self._load_structure_decisions(int(sid), limit=5)
+UI/components/terminal_vwap_payoff_dark_panel.py:2676:                        FROM payoff_curve_points
+UI/components/terminal_vwap_payoff_dark_panel.py:2688:                            FROM payoff_curve_points
+UI/main_window.py:496:                src = (info_dict or {}).get("source_table", "payoff_curve_points")
+UI/models/ui_data.py:131:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:673:        if self._payoff_table == "payoff_curve_points":
+UI/models/ui_data.py:684:        if "meta_json" in self._inspect_columns("payoff_curve_points"):
+UI/models/ui_data.py:688:    def _fetch_canonical_payoff_curve_points(
+UI/models/ui_data.py:698:            f"FROM payoff_curve_points "
+UI/models/ui_data.py:708:            f"SELECT timestamp FROM payoff_curve_points "
+UI/models/ui_data.py:735:        rows = self._fetch_canonical_payoff_curve_points(
+UI/models/ui_data.py:746:                rows = self._fetch_canonical_payoff_curve_points(
+
+==> registrando git status e diff
+BRANCH:
+fix/payoff-centro-verdade-32
+
+STATUS SHORT:
+ M UI/components/details_panel.py
+ M UI/components/structure_editor_dialog.py
+ M UI/main_window.py
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/CORRECAO_PYCOMPILE_UI_41/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_BACKEND_EXECUTE_PRICING_42/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_37/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_CORRECAO_38/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_39/
+?? FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_PYCOMPILE_CONTEXTO_40/
+?? scripts/apply_ui_block_and_verify_43C.sh
+?? scripts/apply_ui_text_cleanup_and_guardrail_43D.sh
+?? scripts/fix_ui_main_window_pycompile_41.sh
+?? scripts/verify_aplicacao_correcao_37.sh
+?? scripts/verify_aplicacao_correcao_38.sh
+?? scripts/verify_backend_execute_pricing_42.sh
+?? scripts/verify_commits_sequence_full_43.sh
+?? scripts/verify_commits_sequence_full_43B.sh
+?? scripts/verify_pycompile_contexto_40.sh
+?? scripts/verify_pycompile_detalhado_39.sh
+
+DIFF STAT:
+ UI/components/details_panel.py           |   2 +-
+ UI/components/structure_editor_dialog.py |   2 +-
+ UI/main_window.py                        | 179 ++++++++++---------------------
+ 3 files changed, 61 insertions(+), 122 deletions(-)
+
+==> gerando relatorio
+OK: relatorio salvo em: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL/01_relatorio_43D.md
+
+OK: Rodada 43D concluida com guardrail OK.
+Relatorio: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL/01_relatorio_43D.md
+PyCompile: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL/02_py_compile_43D.txt
+Guardrail UI: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL/03_guardrail_ui_tokens_43D.txt
+Git status: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL/04_git_status_43D.txt
+Diff: FRENTE_RTD_EXCEL_BTG_ONLINE/AUDITORIA_CENTRO_VERDADE_34/VERIFICACAO_COMMITS_SEQUENCIA_FULL_43/43D_UI_TEXT_CLEANUP_E_GUARDRAIL/05_diff_43D.txt

@@ -1,0 +1,37 @@
+Rodada 43B - py_compile central
+ROOT_DIR=C:/Users/eucal/projeto
+PYTHON_BIN=python
+
+Compilando: services/payoff_refresh_command_service.py
+OK: services/payoff_refresh_command_service.py
+
+Compilando: services/pricing_execution_app_service.py
+OK: services/pricing_execution_app_service.py
+
+Compilando: services/pricing_execution_orchestration_service.py
+OK: services/pricing_execution_orchestration_service.py
+
+Compilando: services/pricing_execution_persistence_service.py
+OK: services/pricing_execution_persistence_service.py
+
+Compilando: services/pricing_execution_service.py
+OK: services/pricing_execution_service.py
+
+Compilando: services/derived_payoff_persistence.py
+OK: services/derived_payoff_persistence.py
+
+Compilando: services/derived_service.py
+OK: services/derived_service.py
+
+Compilando: services/canonical_pricing_facade.py
+OK: services/canonical_pricing_facade.py
+
+Compilando: repositories/structures_repository.py
+OK: repositories/structures_repository.py
+
+Compilando: UI/components/terminal_vwap_payoff_dark_panel.py
+OK: UI/components/terminal_vwap_payoff_dark_panel.py
+
+Compilando: scripts/recalculate_payoff_curve_points_once.py
+OK: scripts/recalculate_payoff_curve_points_once.py
+

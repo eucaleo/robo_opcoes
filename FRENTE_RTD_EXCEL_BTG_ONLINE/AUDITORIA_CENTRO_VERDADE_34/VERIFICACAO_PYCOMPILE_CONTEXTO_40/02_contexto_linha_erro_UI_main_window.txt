@@ -1,0 +1,268 @@
+==> contexto do erro em UI/main_window.py
+
+Linha detectada: NAO_DETECTADA
+
+Nao foi possivel detectar automaticamente a linha.
+
+Primeiras 260 linhas para inspecao manual:
+
+     1	# UI/main_window.py
+     2	#!/usr/bin/env python3
+     3	"""
+     4	UI Principal - Sistema de Derivados
+     5	Carrega dados do app.db para exibir decisões e payoffs
+     6	"""
+     7	from UI.models.ui_data import UIDataModel
+     8	from UI.components.payoff_chart import PayoffChart
+     9	from UI.components.details_panel import DetailsPanel
+    10	from UI.components.decisions_grid import DecisionsGrid
+    11	from UI.components.filters_panel import FiltersPanel
+    12	from UI.components.structures_list_panel import StructuresListPanel
+    13	from UI.components.structure_editor_dialog import StructureEditorDialog
+    14	from UI.components.terminal_vwap_payoff_panel import TerminalVWAPPayoffPanel
+    15	from datetime import datetime, timedelta
+    16	from typing import Dict, List, Optional
+    17	from UI.debug_utils import debug, info
+    18	import tkinter as tk
+    19	from tkinter import ttk, messagebox
+    20	import matplotlib.pyplot as plt
+    21	# FigureCanvasTkAgg importado lazily em _setup_chart para evitar side-effects no import
+    22	from pathlib import Path
+    23	import threading
+    24	import time
+    25	
+    26	PROJECT_ROOT = Path(__file__).resolve().parents[1]
+    27	
+    28	class MainWindow:
+    29	    def __init__(self):
+    30	        self.root = tk.Tk()
+    31	        self.root.title("Sistema de Derivados - Análise de Decisões")
+    32	        self.root.geometry("1400x900")
+    33	
+    34	        # Data model
+    35	        self.data_model = UIDataModel()
+    36	
+    37	        # Caminho canônico ao banco operacional (alteracao_70/71)
+    38	        self._db_path = str(PROJECT_ROOT / "dados" / "app.db")
+    39	
+    40	        # Threading control: evitar freeze da UI
+    41	        self._payoff_worker_id = 0
+    42	
+    43	        # Loading animation
+    44	        self._loading_animation_active = False
+    45	        self._loading_animation_chars = ["", "", "", "", "", "", "", "", "", ""]
+    46	        self._loading_animation_index = 0
+    47	        self._loading_payoff = False
+    48	        self._stop_loading_animation()
+    49	
+    50	        # Última decisão selecionada (preservada entre refreshes)
+    51	        self.last_selected_decision: Optional[Dict] = None
+    52	
+    53	        # Controle de recalc em andamento
+    54	        self._recalc_in_progress = False
+    55	
+    56	        # Configurar layout principal
+    57	        self._setup_layout()
+    58	        self._setup_menus()
+    59	        self._bind_events()
+    60	
+    61	        # Carregar dados iniciais
+    62	        self.refresh_data()
+    63	
+    64	    def _setup_layout(self):
+    65	        """Organiza layout em painéis."""
+    66	        main_paned = ttk.PanedWindow(self.root, orient="horizontal")
+    67	        main_paned.pack(fill="both", expand=True, padx=5, pady=5)
+    68	
+    69	        # Painel esquerdo: filtros + grid
+    70	        left_frame = ttk.Frame(main_paned)
+    71	        main_paned.add(left_frame, weight=1)
+    72	
+    73	        # Painel direito: notebook com abas
+    74	        right_frame = ttk.Frame(main_paned)
+    75	        main_paned.add(right_frame, weight=2)
+    76	
+    77	        # === PAINEL ESQUERDO ===
+    78	        self.filters_panel = FiltersPanel(
+    79	            parent=left_frame,
+    80	            on_filter_change=self.on_filter_change,
+    81	        )
+    82	        self.filters_panel.pack(fill="x", padx=5, pady=5)
+    83	
+    84	        self.decisions_grid = DecisionsGrid(
+    85	            parent=left_frame,
+    86	            on_selection_change=self.on_decision_selected,
+    87	        )
+    88	        self.decisions_grid.pack(fill="both", expand=True, padx=5, pady=5)
+    89	
+    90	        # === PAINEL DIREITO ===
+    91	        right_notebook = ttk.Notebook(right_frame)
+    92	        right_notebook.pack(fill="both", expand=True, padx=5, pady=5)
+    93	
+    94	        # Aba 1: Detalhes da Decisão
+    95	        details_frame = ttk.Frame(right_notebook)
+    96	        right_notebook.add(details_frame, text="Detalhes da Decisão")
+    97	
+    98	        self.details_panel = DetailsPanel(
+    99	            details_frame,
+   100	            on_recalculate=self.recalculate_structure,
+   101	            app_db_path=self._db_path,
+   102	        )
+   103	        self.details_panel.pack(fill="both", expand=True, padx=5, pady=5)
+   104	
+   105	        # Aba 2: Gráfico de Payoff
+   106	        chart_frame = ttk.Frame(right_notebook)
+   107	        right_notebook.add(chart_frame, text="Curva de Payoff")
+   108	
+   109	        self.payoff_chart = PayoffChart(chart_frame)
+   110	        self.payoff_chart.pack(fill="both", expand=True, padx=5, pady=5)
+   111	
+   112	        # Aba 3: Estruturas (Fase 5 -- alteracao_10)
+   113	        self._setup_structures_tab(right_notebook)
+   114	
+   115	        self._setup_terminal_vwap_payoff_tab(right_notebook)
+   116	
+   117	        # Status bar
+   118	        self.status_bar = ttk.Label(
+   119	            self.root,
+   120	            text="Pronto",
+   121	            relief=tk.SUNKEN,
+   122	            anchor="w",
+   123	        )
+   124	        self.status_bar.pack(side="bottom", fill="x")
+   125	
+   126	    def _setup_menus(self):
+   127	        """Cria menu superior."""
+   128	        menubar = tk.Menu(self.root)
+   129	        self.root.config(menu=menubar)
+   130	
+   131	        # Menu Arquivo
+   132	        file_menu = tk.Menu(menubar, tearoff=0)
+   133	        menubar.add_cascade(label="Arquivo", menu=file_menu)
+   134	        file_menu.add_command(label="Atualizar Dados", command=self.refresh_data)
+   135	        file_menu.add_separator()
+   136	        file_menu.add_command(label="Exportar CSV...", command=self.export_csv)
+   137	        file_menu.add_separator()
+   138	        file_menu.add_command(label="Sair", command=self.root.quit)
+   139	
+   140	        # Menu Ferramentas
+   141	        tools_menu = tk.Menu(menubar, tearoff=0)
+   142	        menubar.add_cascade(label="Ferramentas", menu=tools_menu)
+   143	        tools_menu.add_command(label="Executar Pipeline", command=self.run_pipeline)
+   144	        tools_menu.add_command(label="Verificar Bancos", command=self.check_databases)
+   145	        tools_menu.add_separator()
+   146	        tools_menu.add_command(label="Limpar Cache", command=self.clear_cache)
+   147	
+   148	        # Menu Ajuda
+   149	        help_menu = tk.Menu(menubar, tearoff=0)
+   150	        menubar.add_cascade(label="Ajuda", menu=help_menu)
+   151	        help_menu.add_command(label="Sobre", command=self.show_about)
+   152	
+   153	    def _bind_events(self):
+   154	        """Vincula atalhos de teclado."""
+   155	        self.root.bind("<F5>", lambda e: self.refresh_data())
+   156	        self.root.bind("<Control-q>", lambda e: self.root.quit())
+   157	
+   158	    # ------------------------------------------------------------------
+   159	    # Callbacks
+   160	    # ------------------------------------------------------------------
+   161	
+   162	    def on_filter_change(self, filters: Dict):
+   163	        """Callback quando filtros mudam."""
+   164	        self.status_bar.config(text="Aplicando filtros...")
+   165	        try:
+   166	            filtered_data = self.data_model.get_decisions(filters)
+   167	            self.decisions_grid.update_data(filtered_data)
+   168	            count = len(filtered_data)
+   169	            self.status_bar.config(text=f"{count} decisões encontradas")
+   170	        except Exception as e:
+   171	            messagebox.showerror("Erro", f"Erro ao aplicar filtros: {e}")
+   172	            self.status_bar.config(text="Erro nos filtros")
+   173	
+   174	    def on_decision_selected(self, decision_data: Dict):
+   175	        """Callback quando uma decisão é selecionada no grid.
+   176	        alteracao_36: structure_id é suficiente para carregar payoff -- timestamp não é obrigatório.
+   177	        """
+   178	        if not decision_data:
+   179	            return
+   180	
+   181	        self.last_selected_decision = dict(decision_data)
+   182	
+   183	        # Atualizar painel de detalhes (síncrono, leve)
+   184	        try:
+   185	            self.details_panel.update_decision(decision_data)
+   186	        except Exception as e:
+   187	            print(f"[UI] Erro ao atualizar detalhes: {e}")
+   188	
+   189	        # Carregar payoff em background -- apenas structure_id necessário
+   190	        structure_id = decision_data.get("structure_id")
+   191	        timestamp = decision_data.get("timestamp")  # opcional
+   192	
+   193	        if structure_id is not None:
+   194	            self._start_payoff_load(structure_id, timestamp, decision_data)
+   195	        else:
+   196	            self.payoff_chart.clear()
+   197	            self.status_bar.config(text="Dados insuficientes para payoff")
+   198	
+   199	    def _start_payoff_load(
+   200	        self,
+   201	        structure_id,
+   202	        timestamp=None,       # alteracao_36: opcional
+   203	        decision_data=None,   # alteracao_36: opcional
+   204	    ):
+   205	        """Inicia carregamento de payoff em thread separada.
+   206	        alteracao_36: structure_id é a única chave obrigatória.
+   207	        """
+   208	        if decision_data is None:
+   209	            decision_data = {"structure_id": structure_id}
+   210	
+   211	        self._payoff_worker_id += 1
+   212	        current_worker_id = self._payoff_worker_id
+   213	
+   214	        if self._loading_payoff:
+   215	            self.status_bar.config(text="Carregando payoff... (cancelando anterior)")
+   216	        else:
+   217	            self.status_bar.config(text="Carregando payoff...")
+   218	
+   219	        self._loading_payoff = True
+   220	
+   221	        def load_worker():
+   222	            try:
+   223	                points, info_dict = self.data_model.get_payoff_curve_info(
+   224	                    structure_id, timestamp
+   225	                )
+   226	                try:
+   227	                    debug(
+   228	                        f"payoff structure_id={structure_id} ts_req={timestamp} "
+   229	                        f"-> n={len(points or [])} info={info_dict}"
+   230	                    )
+   231	                except Exception:
+   232	                    pass
+   233	
+   234	                # Normalizar formato de pontos para o chart
+   235	                norm = []
+   236	                for p in points or []:
+   237	                    if isinstance(p, dict):
+   238	                        if "spot" in p and "pl" in p:
+   239	                            norm.append({"spot": p["spot"], "pl": p["pl"]})
+   240	                        elif "point_spot" in p and "point_pl" in p:
+   241	                            norm.append({"spot": p["point_spot"], "pl": p["point_pl"]})
+   242	                        else:
+   243	                            spot = p.get("x") if "x" in p else p.get("s")
+   244	                            pl = p.get("y") if "y" in p else p.get("p")
+   245	                            if spot is not None and pl is not None:
+   246	                                norm.append({"spot": spot, "pl": pl})
+   247	                    elif isinstance(p, (list, tuple)) and len(p) >= 2:
+   248	                        norm.append({"spot": p[0], "pl": p[1]})
+   249	                points = norm
+   250	
+   251	                if current_worker_id != self._payoff_worker_id:
+   252	                    return
+   253	
+   254	                self.root.after(
+   255	                    0,
+   256	                    self._finish_payoff_load,
+   257	                    points,
+   258	                    info_dict,
+   259	                    decision_data,
+   260	                    current_worker_id,
