@@ -606,13 +606,6 @@ class DerivedService:
     # alteracao_65: get_payoff_by_aba() deliberadamente nao implementada nesta classe.
     # Chamadores legados devem migrar para get_payoff_by_structure_id().
 
-    def get_payoff_by_structure_id(self, structure_id: int):
-        """Retorna pontos de payoff para a estrutura informada."""
-        return get_payoff_by_structure_id(structure_id)
-
-    def save_payoff_curve(self, *args, **kwargs):
-        return save_payoff_curve(*args, **kwargs)
-
     def save_decision(self, *args, **kwargs):
         return save_decision(*args, **kwargs)
 
