@@ -354,53 +354,59 @@ class MainWindow:
 
     def recalculate_structure(self, structure_id: str):
         """
-        Recalculo via UI bloqueado.
+        Recalcula somente a estrutura informada usando o backend oficial.
 
-        Centro de verdade:
-            UI -> PayoffRefreshCommandService -> PricingExecutionAppService
-
-        A UI nao deve:
-        - chamar scripts externos;
-        - chamar processos externos;
-        - executar pipeline local;
-        - recalcular payoff diretamente;
-        - substituir o comando oficial de backend.
-
-        Esta rotina permanece como bloqueio explicito para evitar sucesso
-        silencioso ou contaminacao por fluxo paralelo.
+        A UI não calcula payoff nem decisão.
         """
-        msg = (
-            "Recálculo via UI bloqueado. "
-            "Use o comando oficial PayoffRefreshCommandService no backend; "
-            "a UI deve apenas reler dados persistidos."
-        )
-
         try:
-            self._recalc_in_progress = False
-        except Exception:
-            pass
+            sid = int(structure_id)
 
-        try:
-            self.status_bar.config(text=msg)
-        except Exception:
-            pass
-
-        try:
-            if hasattr(self, "details_panel") and hasattr(
-                self.details_panel, "on_recalc_finished"
-            ):
-                self.details_panel.on_recalc_finished(
-                    structure_id,
-                    ok=False,
-                    message=msg,
+            if hasattr(self, "status_bar"):
+                self.status_bar.config(
+                    text=f"Solicitando recalculo da estrutura {sid} ao backend..."
                 )
-        except Exception as e:
-            print("[UI] Erro notificando bloqueio de recalc:", e)
 
-        try:
-            messagebox.showwarning("Recálculo bloqueado", msg)
-        except Exception:
-            pass
+            from services.payoff_refresh_command_service import PayoffRefreshCommandService
+
+            result = PayoffRefreshCommandService().refresh_payoff_for_structure(sid)
+
+            data_model = getattr(self, "data_model", None)
+            if data_model is not None:
+                invalidator = getattr(data_model, "invalidate_payoff_cache", None)
+                if callable(invalidator):
+                    try:
+                        invalidator(sid)
+                    except TypeError:
+                        invalidator()
+                elif hasattr(data_model, "_payoff_cache"):
+                    try:
+                        data_model._payoff_cache.clear()
+                    except Exception:
+                        pass
+
+            if hasattr(self, "refresh_data"):
+                self.refresh_data()
+
+            status = str(result.get("status") or "").lower()
+            ts = result.get("latest_payoff_timestamp")
+            points = result.get("payoff_points_count")
+
+            if hasattr(self, "status_bar"):
+                self.status_bar.config(
+                    text=(
+                        f"Recalculo da estrutura {sid} concluido: "
+                        f"status={status}, pontos={points}, timestamp={ts}"
+                    )
+                )
+
+            return result
+
+        except Exception as exc:
+            if hasattr(self, "status_bar"):
+                self.status_bar.config(
+                    text=f"Erro ao recalcular estrutura: {exc}"
+                )
+            raise
     def run_pipeline(self):
         """
         Execucao de pipeline via UI bloqueada.

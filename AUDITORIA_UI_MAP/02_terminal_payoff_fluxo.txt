@@ -1,0 +1,20 @@
+523:            ("_render_alerts", ({}, [], [])),
+715:        self._update_kpis(market, payoff_points)
+717:        self._render_charts(market, payoff_points, asset, legs)
+718:        self._render_alerts(market, payoff_points, legs)
+805:            payoff_points = self._load_payoff_points(sid, legs)
+1132:    def _load_payoff_points(
+1145:        persisted = self._load_persisted_payoff_points(structure_id)
+1154:    def _load_persisted_payoff_points(self, structure_id: Any) -> List[Dict[str, float]]:
+1273:    def _update_kpis(
+1340:    def _render_alerts(
+1386:    def _render_charts(
+2375:            self._refresh_selected_structure_from_store(silent=True)
+2384:    def _refresh_selected_structure_from_store(self, silent: bool = False) -> bool:
+2427:        self._update_kpis(market, payoff_points)
+2429:        self._render_charts(market, payoff_points, asset, legs)
+2430:        self._render_alerts(market, payoff_points, legs)
+2455:            ok = self._refresh_selected_structure_from_store(silent=False)
+2664:    orig_load = getattr(cls, "_load_persisted_payoff_points", None)
+2666:        def _debug_load_persisted_payoff_points(self, structure_id):
+2707:        cls._load_persisted_payoff_points = _debug_load_persisted_payoff_points

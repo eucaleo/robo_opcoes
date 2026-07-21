@@ -47,6 +47,16 @@ def _first_match(cols: List[str], candidates: List[str]) -> Optional[str]:
     return None
 
 class UIDataModel:
+    def invalidate_payoff_cache(self, structure_id=None) -> None:
+        """
+        Invalida cache local de payoff.
+
+        A UI usa isso apos comando oficial de backend para evitar
+        leitura de snapshot antigo.
+        """
+        if hasattr(self, "_payoff_cache") and isinstance(self._payoff_cache, dict):
+            self._payoff_cache.clear()
+
     def __init__(self, app_db_path: Optional[Path] = None):
         from db.config import APP_DB_PATH
         self.app_db_path = (
