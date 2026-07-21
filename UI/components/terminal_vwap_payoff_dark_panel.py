@@ -1700,7 +1700,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             messagebox.showwarning(
                 "Exportar PNG",
                 "Nenhum grafico de payoff disponivel para exportar.",
-                parent=self.winfo_toplevel(),
+                parent=self._messagebox_parent_or_none(),
             )
             self._safe_status("Exportacao PNG indisponivel")
             return
@@ -1709,7 +1709,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             defaultextension=".png",
             filetypes=[("PNG", "*.png"), ("All files", "*.*")],
             title="Exportar payoff como PNG",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
 
         if not file_path:
@@ -1722,14 +1722,14 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             messagebox.showinfo(
                 "Exportar PNG",
                 f"Grafico salvo em {file_path}",
-                parent=self.winfo_toplevel(),
+                parent=self._messagebox_parent_or_none(),
             )
         except Exception as exc:
             self._safe_status("Erro ao exportar PNG")
             messagebox.showerror(
                 "Erro ao exportar PNG",
                 f"Erro ao salvar: {exc}",
-                parent=self.winfo_toplevel(),
+                parent=self._messagebox_parent_or_none(),
             )
 
     # BEGIN AUTO STRUCTURE SIDE ACTIONS
@@ -2156,7 +2156,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             messagebox.showerror(
                 "Editor indisponivel",
                 "StructureEditorDialog nao foi encontrado.",
-                parent=self.winfo_toplevel(),
+                parent=self._messagebox_parent_or_none(),
             )
             return
 
@@ -2203,7 +2203,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         messagebox.showerror(
             "Editor indisponivel",
             "StructureEditorDialog nao foi encontrado.",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
         return False
 
@@ -2265,7 +2265,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         messagebox.showerror(
             "Repositorio indisponivel",
             "StructuresRepository nao foi encontrado.",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
         return False
 
@@ -2278,7 +2278,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         messagebox.showerror(
             "Duplicar estrutura",
             "Nao foi possivel carregar a estrutura selecionada.",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
         return None
 
@@ -2436,30 +2436,149 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
         return True
 
+    def _selected_structure_id_for_backend_refresh(self, structure: object) -> int:
+        """
+        Extrai structure_id da estrutura aberta em tela.
+
+        A UI apenas identifica a estrutura. O cálculo permanece no backend.
+        """
+        sid = None
+
+        if isinstance(structure, dict):
+            sid = (
+                structure.get("structure_id")
+                or structure.get("id")
+                or structure.get("sid")
+            )
+        else:
+            sid = (
+                getattr(structure, "structure_id", None)
+                or getattr(structure, "id", None)
+                or getattr(structure, "sid", None)
+            )
+
+        if sid is None:
+            raise ValueError("structure_id ausente na estrutura selecionada")
+
+        return int(sid)
+
+    def _invalidate_payoff_ui_caches_for_structure(self, structure_id: int) -> None:
+        """
+        Invalida caches locais da UI depois do comando oficial.
+
+        Não recalcula nada. Apenas evita gráfico velho.
+        """
+        owners = [
+            self,
+            getattr(self, "app_service", None),
+            getattr(self, "service", None),
+            getattr(self, "data_model", None),
+        ]
+
+        for owner in owners:
+            if owner is None:
+                continue
+
+            invalidator = getattr(owner, "invalidate_payoff_cache", None)
+            if callable(invalidator):
+                try:
+                    invalidator(structure_id)
+                except TypeError:
+                    invalidator()
+                except Exception:
+                    pass
+
+            for attr in (
+                "_payoff_cache",
+                "payoff_cache",
+                "_viewmodel_cache",
+                "viewmodel_cache",
+            ):
+                cache = getattr(owner, attr, None)
+                if isinstance(cache, dict):
+                    cache.clear()
+
+    def _refresh_open_structure_payoff_via_backend(self, action_label: str = "atualizar payoff", structure: object = None):
+        """
+        Solicita refresh/recalculo da estrutura aberta ao backend oficial.
+
+        Fluxo:
+        UI -> PayoffRefreshCommandService -> PricingExecutionAppService
+        """
+        structure = self._require_active_selected_structure(action_label)
+        structure_id = self._selected_structure_id_for_backend_refresh(structure)
+
+        self._safe_status(
+            f"Solicitando {action_label} da estrutura {structure_id} ao backend..."
+        )
+
+        from services.payoff_refresh_command_service import PayoffRefreshCommandService
+
+        result = PayoffRefreshCommandService().refresh_payoff_for_structure(
+            structure_id
+        )
+
+        self._invalidate_payoff_ui_caches_for_structure(structure_id)
+        return result
+
+    def refresh_selected_structure_payoff(self) -> None:
+        """
+        Handler semântico para o botão Atualizar payoff.
+
+        Mantém o gráfico da estrutura aberta alinhado ao snapshot persistido
+        mais recente, sem cálculo local na UI.
+        """
+        self.recalculate_selected_structure()
+
+    def _messagebox_parent_or_none(self):
+        try:
+            return self.winfo_toplevel()
+        except Exception:
+            return None
+
     def recalculate_selected_structure(self) -> None:
         """
-        Nome mantido por compatibilidade com command= existente.
+        Compatibilidade de nome legado.
 
-        Antes: recalculava payoff na UI.
-        Agora: apenas atualiza do banco/snapshot persistido.
+        Semântica atual:
+        - botão Atualizar payoff;
+        - somente estrutura aberta em tela;
+        - cálculo executado pelo backend oficial;
+        - UI apenas invalida cache, relê snapshot persistido e redesenha.
         """
-        structure = getattr(self, "selected_structure", None)
-        if structure and self._is_structure_already_archived(structure):
-            self._handle_archived_structure_action_blocked(
-                structure,
-                "recalcular payoff",
-            )
-            return
-
         try:
-            ok = self._refresh_selected_structure_from_store(silent=False)
-            if not ok:
+            structure = self._require_active_selected_structure("recalcular payoff")
+            if structure is None:
                 return
+            result = self._refresh_open_structure_payoff_via_backend(
+                "atualizar payoff",
+                structure=structure,
+            )
+
+            ok = self._refresh_selected_structure_from_store(silent=False)
+
+            status = str(result.get("status") or "").lower()
+            ts = result.get("latest_payoff_timestamp")
+            points = result.get("payoff_points_count")
+
+            if ok:
+                self._safe_status(
+                    f"Payoff atualizado via backend: status={status}, "
+                    f"pontos={points}, timestamp={ts}"
+                )
+            else:
+                self._safe_status(
+                    "Backend executado, mas a UI não conseguiu reler "
+                    "o snapshot persistido."
+                )
+
         except Exception as exc:
             self._safe_status(f"Erro ao atualizar payoff: {exc}")
-            messagebox.showerror("Erro ao atualizar payoff", str(exc), parent=self.winfo_toplevel())
-
-
+            messagebox.showerror(
+                "Erro ao atualizar payoff",
+                str(exc),
+                parent=self._messagebox_parent_or_none(),
+            )
     def archive_selected_structure(self) -> None:
         structure = self._require_selected_structure()
         if not structure:
@@ -2523,7 +2642,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         return messagebox.askyesno(
             "Arquivar",
             f"Arquivar '{name}'?\nA estrutura ficara oculta e nao sera deletada.",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
 
     def _handle_archive_cancelled(self) -> None:
@@ -2548,7 +2667,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         messagebox.showinfo(
             "Arquivar",
             f"Estrutura '{name}' arquivada com sucesso.",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
 
 
@@ -2618,7 +2737,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         return messagebox.askyesno(
             "Encerrar estrutura",
             f"Encerrar '{name}'?\nA estrutura sera marcada como arquivada.",
-            parent=self.winfo_toplevel(),
+            parent=self._messagebox_parent_or_none(),
         )
 
     def _handle_closed_structure_decision_saved(self, sid: Any, msg: str) -> None:
