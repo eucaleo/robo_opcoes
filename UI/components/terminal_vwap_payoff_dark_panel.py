@@ -2505,7 +2505,16 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         Fluxo:
         UI -> PayoffRefreshCommandService -> PricingExecutionAppService
         """
-        structure = self._require_active_selected_structure(action_label)
+        if structure is None:
+            structure = self._require_active_selected_structure(action_label)
+
+        if structure is None:
+            return {
+                "status": "blocked",
+                "ok": False,
+                "message": "Nenhuma estrutura selecionada ou estrutura bloqueada.",
+            }
+
         structure_id = self._selected_structure_id_for_backend_refresh(structure)
 
         self._safe_status(
@@ -2551,7 +2560,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             if structure is None:
                 return
             result = self._refresh_open_structure_payoff_via_backend(
-                "atualizar payoff",
+                "recalcular payoff",
                 structure=structure,
             )
 
