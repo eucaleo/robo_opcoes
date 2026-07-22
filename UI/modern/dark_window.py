@@ -23,6 +23,7 @@ import customtkinter as ctk
 
 from repositories.structures_repository import StructuresRepository
 from repositories.rtd_option_quotes_repository import RtdOptionQuotesRepository
+from repositories.decision_repository import DecisionRepository
 from services.terminal_vwap_payoff_app_service import TerminalVWAPPayoffAppService
 from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichmentService
 from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
@@ -103,9 +104,12 @@ class ModernDarkWindow:
             rtd_option_quotes_repository
         )
 
+        decision_repository = DecisionRepository(db_path=str(APP_DB_PATH))
+
         terminal_app_service = TerminalVWAPPayoffAppService(
             structure_repository=structure_repository,
             rtd_leg_enrichment_service=rtd_leg_enrichment_service,
+            decision_repository=decision_repository,
         )
 
         self.panel = TerminalVWAPPayoffDarkPanel(

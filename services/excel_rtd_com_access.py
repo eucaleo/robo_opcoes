@@ -228,3 +228,63 @@ def list_worksheet_names(workbook: Any) -> list[str]:
         for sheet in iter_com_collection(worksheets)
         if safe_str(safe_getattr(sheet, "Name")).strip()
     ]
+
+
+def get_excel_application_with_workbook(workbook_name: str) -> Any:
+    """Varre o ROT (Running Object Table) e retorna a instancia do Excel
+    que possui o workbook alvo aberto.
+
+    Resolve o problema de multiplas instancias do Excel abertas
+    simultaneamente, onde GetActiveObject() pode retornar uma instancia
+    diferente daquela que contem o workbook desejado.
+    """
+    import pythoncom
+
+    target = normalize_com_name(Path(workbook_name).name)
+    context = pythoncom.CreateBindCtx(0)
+    rot = pythoncom.GetRunningObjectTable()
+
+    last_error: Exception | None = None
+
+    for moniker in rot:
+        try:
+            display_name = moniker.GetDisplayName(context, None)
+        except Exception as exc:
+            last_error = exc
+            continue
+
+        if target not in normalize_com_name(display_name):
+            continue
+
+        try:
+            workbook = rot.GetObject(moniker)
+            application = safe_getattr(workbook, "Application")
+
+            if application is not None:
+                return application
+        except Exception as exc:
+            last_error = exc
+            continue
+
+    detail = f" ultimo erro: {last_error}" if last_error else ""
+    raise ExcelComAccessError(
+        f"Nenhuma instancia do Excel com '{workbook_name}' aberto foi "
+        f"encontrada no ROT.{detail}"
+    )
+
+
+def get_excel_application_for_workbook(
+    workbook_name: str,
+    fallback_to_active: bool = True,
+) -> Any:
+    """Tenta localizar a instancia correta do Excel pelo workbook alvo.
+
+    Se nao encontrar via ROT e fallback_to_active=True, cai para
+    GetActiveObject() como ultimo recurso (comportamento legado).
+    """
+    try:
+        return get_excel_application_with_workbook(workbook_name)
+    except ExcelComAccessError:
+        if not fallback_to_active:
+            raise
+        return get_active_excel_application()

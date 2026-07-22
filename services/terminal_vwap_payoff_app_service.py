@@ -33,12 +33,14 @@ class TerminalVWAPPayoffAppService:
         payoff_provider: Any | None = None,
         viewmodel_service: Any | None = None,
         rtd_leg_enrichment_service: Any | None = None,
+        decision_repository: Any | None = None,
     ) -> None:
         self.structure_repository = structure_repository
         self.market_snapshot_provider = market_snapshot_provider
         self.payoff_provider = payoff_provider
         self.viewmodel_service = viewmodel_service or self._default_viewmodel_service()
         self.rtd_leg_enrichment_service = rtd_leg_enrichment_service
+        self.decision_repository = decision_repository
 
     def build_for_structure_id(
         self,
@@ -95,8 +97,37 @@ class TerminalVWAPPayoffAppService:
             ),
             default=[],
         )
-
         return list(result or [])
+
+    def list_decisions(
+        self,
+        structure_id: int | None = None,
+        limit: int = 50,
+    ) -> list[dict[str, Any]]:
+        """Lista decisões da tabela structure_decisions."""
+
+        if self.decision_repository is None:
+            return []
+
+        return self._call_first_available(
+            self.decision_repository,
+            method_names=(
+                "list_decisions",
+            ),
+            call_variants=(
+                lambda method: method(
+                    structure_id=structure_id,
+                    limit=limit,
+                ),
+                lambda method: method(
+                    structure_id,
+                    limit,
+                ),
+                lambda method: method(limit=limit),
+                lambda method: method(),
+            ),
+            default=[],
+        ) or []
 
     @staticmethod
     def _validate_structure_id(structure_id: int) -> int:
