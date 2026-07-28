@@ -1,0 +1,468 @@
+============================================================
+LOCALIZAÇÃO AUTOMÁTICA DE MÓDULOS E TELAS DA UI
+============================================================
+Projeto : C:/Users/eucal/projeto
+Data    : 22/07/2026 13:53:09
+Branch  : fix/payoff-ui-bridge-contract
+
+============================================================
+1. MÓDULOS PYTHON DA UI
+============================================================
+UI/__init__.py
+UI/components/__init__.py
+UI/components/decisions_dark_panel.py
+UI/components/decisions_grid.py
+UI/components/details_panel.py
+UI/components/filters_panel.py
+UI/components/payoff_chart.py
+UI/components/structure_editor_dialog.py
+UI/components/structures_list_panel.py
+UI/components/terminal_vwap_payoff_dark_panel.py
+UI/components/terminal_vwap_payoff_panel.py
+UI/debug_utils.py
+UI/main_window.py
+UI/models/__init__.py
+UI/models/ui_data.py
+UI/modern/__init__.py
+UI/modern/__main__.py
+UI/modern/app.py
+UI/modern/dark_window.py
+
+============================================================
+2. POSSÍVEIS CLASSES DE TELA, JANELA, PAINEL OU FRAME
+============================================================
+
+--- UI/components/decisions_dark_panel.py
+41:class DecisionsDarkPanel(ctk.CTkFrame):
+
+--- UI/components/decisions_grid.py
+9:class DecisionsGrid(ttk.LabelFrame):
+
+--- UI/components/details_panel.py
+10:class DetailsPanel(ttk.LabelFrame):
+
+--- UI/components/filters_panel.py
+7:class FiltersPanel(ttk.LabelFrame):
+
+--- UI/components/payoff_chart.py
+55:class PayoffChart(ttk.Frame):
+
+--- UI/components/structure_editor_dialog.py
+62:class StructureEditorDialog(tk.Toplevel):
+
+--- UI/components/structures_list_panel.py
+46:class StructuresListPanel(ttk.Frame):
+
+--- UI/components/terminal_vwap_payoff_dark_panel.py
+137:class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
+
+--- UI/components/terminal_vwap_payoff_panel.py
+185:class TerminalVWAPPayoffPanel(ttk.Frame):
+
+============================================================
+3. TODOS OS COMPONENTES / CLASSES DA UI
+============================================================
+
+--- UI/components/decisions_dark_panel.py
+28:class _DecisionFilterState:
+41:class DecisionsDarkPanel(ctk.CTkFrame):
+
+--- UI/components/decisions_grid.py
+9:class DecisionsGrid(ttk.LabelFrame):
+
+--- UI/components/details_panel.py
+10:class DetailsPanel(ttk.LabelFrame):
+
+--- UI/components/filters_panel.py
+7:class FiltersPanel(ttk.LabelFrame):
+
+--- UI/components/payoff_chart.py
+55:class PayoffChart(ttk.Frame):
+
+--- UI/components/structure_editor_dialog.py
+62:class StructureEditorDialog(tk.Toplevel):
+
+--- UI/components/structures_list_panel.py
+46:class StructuresListPanel(ttk.Frame):
+
+--- UI/components/terminal_vwap_payoff_dark_panel.py
+137:class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
+
+--- UI/components/terminal_vwap_payoff_panel.py
+185:class TerminalVWAPPayoffPanel(ttk.Frame):
+
+--- UI/main_window.py
+28:class MainWindow:
+
+--- UI/models/ui_data.py
+49:class UIDataModel:
+
+--- UI/modern/dark_window.py
+42:class ModernDarkWindow:
+
+============================================================
+4. PONTOS DE ENTRADA E INICIALIZAÇÃO DA UI
+============================================================
+./ATT/CORRECAO_UI/scripts/4_ui_refresh.py:19:    "mainloop()":         re.compile(r"\.mainloop\s*\("),
+./ATT/CORRECAO_UI/scripts/4_ui_refresh.py:20:    "CTk()":              re.compile(r"CTk\s*\("),
+./ATT/CORRECAO_UI/scripts/diagnose_data_flow.py:112:        resultado["main_window_tk"] = "tk.Tk()" in conteudo
+./ATT/CORRECAO_UI/scripts/diagnose_data_flow.py:115:            if "tk.Tk()" in linha:
+./ATT/CORRECAO_UI/scripts/diagnose_data_flow.py:121:        resultado["dark_window_ctk"] = "ctk.CTk()" in conteudo or "CTk()" in conteudo
+./ATT/CORRECAO_UI/scripts/diagnose_data_flow.py:123:            if "CTk()" in linha or "ctk.CTk()" in linha:
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:37:        "tem_tk": "tk.Tk()" in conteudo,
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:38:        "tem_ctk": "ctk.CTk()" in conteudo or "CTk()" in conteudo,
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:39:        "tem_mainloop": ".mainloop()" in conteudo,
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:46:        if "tk.Tk()" in linha:
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:48:        if "CTk()" in linha or "ctk.CTk()" in linha:
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:50:        if ".mainloop()" in linha:
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:60:    O problema: main_window.py cria tk.Tk() como raiz e dark_window.py cria 
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:61:    ctk.CTk() como OUTRA raiz. Duas raízes = dois mainloops conflitantes.
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:63:    Solução ideal: dark_window.py deve usar ctk.CTkToplevel() em vez de CTk(),
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:64:    vinculando-se à raiz de main_window.py. Ou main_window.py deve usar ctk.CTk().
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:68:    2. Substituir CTk() por CTkToplevel() no dark_window.py
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:80:        print("✓ dark_window.py não cria CTk() — OK")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:91:        print("   1. Substituir ctk.CTk() por ctk.CTkToplevel()")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:93:        print("   3. Remover .mainloop() do dark_window (só a raiz principal chama mainloop)")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:106:    # 1. CTk() → CTkToplevel()
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:107:    novo_conteudo = novo_conteudo.replace("ctk.CTk()", "ctk.CTkToplevel()")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:108:    novo_conteudo = novo_conteudo.replace("CTk()", "CTkToplevel()")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:110:    # 2. Remover .mainloop() — só a raiz principal deve ter
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:113:        "self.root.mainloop()",
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:114:        "# self.root.mainloop()  # REMOVIDO: só a raiz principal (main_window) chama mainloop"
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:120:        print("   - CTk() → CTkToplevel()")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:121:        print("   - .mainloop() comentado")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:141:        print(f"   tk.Tk(): {info_main['tem_tk']}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:142:        print(f"   CTk(): {info_main['tem_ctk']}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:143:        print(f"   mainloop(): {info_main['tem_mainloop']}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:155:        print(f"   tk.Tk(): {info_dark['tem_tk']}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:156:        print(f"   CTk(): {info_dark['tem_ctk']}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:157:        print(f"   mainloop(): {info_dark['tem_mainloop']}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:173:        print(f"   - main_window.py cria {'tk.Tk()' if info_main.get('tem_tk') else 'CTk()'}")
+./ATT/CORRECAO_UI/scripts/fix_dual_root.py:174:        print(f"   - dark_window.py cria {'CTk()' if info_dark.get('tem_ctk') else 'tk.Tk()'}")
+./ATT/CORRECAO_UI/scripts/map_system.py:252:        tem_tk = "tk.Tk()" in conteudo
+./ATT/CORRECAO_UI/scripts/map_system.py:253:        tem_ctk = "ctk.CTk()" in conteudo or "CTk()" in conteudo
+./ATT/CORRECAO_UI/scripts/map_system.py:254:        tem_mainloop = ".mainloop()" in conteudo
+./ATT/CORRECAO_UI/scripts/map_system.py:274:            if "tk.Tk()" in linha and "self.root" in linha:
+./ATT/CORRECAO_UI/scripts/map_system.py:277:            if ("CTk()" in linha or "ctk.CTk()" in linha) and "self.root" in linha:
+./ATT/CORRECAO_UI/scripts/map_system.py:280:            if ".mainloop()" in linha and "self.root" in linha:
+./ATT/CORRECAO_UI/scripts/map_system.py:384:            elif "main_window" in linha.lower() or "MainWindow" in linha:
+./ATT/CORRECAO_UI/scripts/map_system.py:391:    resultado["main_tem_CTk"] = "CTk()" in main if main else False
+./ATT/CORRECAO_UI/scripts/map_system.py:392:    resultado["main_tem_Tk"] = "tk.Tk()" in main if main else False
+./ATT/CORRECAO_UI/scripts/map_system.py:393:    resultado["dark_tem_CTk"] = "CTk()" in dark if dark else False
+./ATT/CORRECAO_UI/scripts/map_system.py:394:    resultado["dark_tem_Tk"] = "tk.Tk()" in dark if dark else False
+./ATT/CORRECAO_UI/scripts/map_system.py:395:    resultado["main_tem_mainloop"] = ".mainloop()" in main if main else False
+./ATT/CORRECAO_UI/scripts/map_system.py:396:    resultado["dark_tem_mainloop"] = ".mainloop()" in dark if dark else False
+./ATT/CORRECAO_UI/scripts/map_system.py:402:            if ".mainloop()" in l
+./ATT/CORRECAO_UI/scripts/map_system.py:520:            flags.append(f"🔴 tk.Tk() na linha {info.get('linha_tk', '?')}: {info.get('trecho_tk', '?')}")
+./ATT/CORRECAO_UI/scripts/map_system.py:522:            flags.append(f"🔴 ctk.CTk() na linha {info.get('linha_ctk', '?')}: {info.get('trecho_ctk', '?')}")
+./ATT/CORRECAO_UI/scripts/map_system.py:524:            flags.append(f"🟡 mainloop() na linha {info.get('linha_mainloop', '?')}")
+./ATT/CORRECAO_UI/scripts/map_system.py:544:    print(f"     tk.Tk(): {relacao['main_tem_Tk']}")
+./ATT/CORRECAO_UI/scripts/map_system.py:545:    print(f"     CTk(): {relacao['main_tem_CTk']}")
+./ATT/CORRECAO_UI/scripts/map_system.py:546:    print(f"     mainloop(): {relacao['main_tem_mainloop']}")
+./ATT/CORRECAO_UI/scripts/map_system.py:554:    print(f"     tk.Tk(): {relacao['dark_tem_Tk']}")
+./ATT/CORRECAO_UI/scripts/map_system.py:555:    print(f"     CTk(): {relacao['dark_tem_CTk']}")
+./ATT/CORRECAO_UI/scripts/map_system.py:556:    print(f"     mainloop(): {relacao['dark_tem_mainloop']}")
+./ATT/CORRECAO_UI/scripts/map_system.py:568:        print(f"  ║    main_window.py → tk.Tk() + mainloop()          ║")
+./ATT/CORRECAO_UI/scripts/map_system.py:569:        print(f"  ║    dark_window.py → ctk.CTk() + mainloop()        ║")
+./ATT/tests/conftest.py:65:        def mainloop(self):              pass
+./ATT/tests/conftest.py:114:    class _FakeTk(_FakeWidget):
+./ATT/tests/test_structures_archive_wiring.py:115:class TestStructuresArchiveWiringMainWindow(unittest.TestCase):
+./ATT/tests/test_structures_archive_wiring.py:519:        self.root = tk.Tk()
+./ATT/tests/test_structure_editor_dialog.py:131:        self.root = Tk.Tk()
+./ATT/tests/test_structure_editor_dialog.py:200:        self.root = tk.Tk()
+./ATT/tests/test_structure_editor_dialog.py:307:        self.root = tk.Tk()
+./ATT/tests/test_structure_editor_integration.py:5:Testes de integração: StructureEditorDialog x MainWindow.
+./ATT/tests/test_structure_editor_integration.py:308:    mw = object.__new__(mw_mod.MainWindow)
+./ATT/tests/test_terminal_vwap_payoff_dark_panel_app_service_integration.py:36:from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
+./ATT/tests/test_terminal_vwap_payoff_dark_panel_app_service_integration.py:48:    panel = object.__new__(TerminalVWAPPayoffDarkPanel)
+./ATT/tests/test_terminal_vwap_payoff_dark_panel_app_service_integration.py:101:    TerminalVWAPPayoffDarkPanel.select_structure(
+./ATT/tests/test_terminal_vwap_payoff_dark_panel_operational_states.py:76:    instance = object.__new__(dark_panel.TerminalVWAPPayoffDarkPanel)
+./ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py:38:root = tk.Tk()
+./ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py:42:    window = module.ModernDarkWindow.__new__(module.ModernDarkWindow)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:93:    terminal_module.TerminalVWAPPayoffDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:96:    decisions_module.DecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:171:    monkeypatch.setattr(module, "TerminalVWAPPayoffDarkPanel", terminal_panel)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:172:    monkeypatch.setattr(module, "DecisionsDarkPanel", decisions_panel)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:187:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:200:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:211:    class FakeDecisionsDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:228:            FakeDecisionsDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:239:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:240:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:243:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:246:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:247:    decisions_panel = FakeDecisionsDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:275:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:284:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:293:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:298:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:299:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:302:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:306:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:325:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:334:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:343:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:348:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:349:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:352:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:356:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:377:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:387:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:399:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:404:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:405:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:408:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:412:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:433:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:443:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:455:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:462:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:463:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:466:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:471:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:492:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:505:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:516:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:525:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:526:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:530:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:535:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:556:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:566:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:581:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:590:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:591:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:595:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:600:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:623:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:633:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:648:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:657:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:658:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:662:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:667:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:688:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:698:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:710:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:719:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:720:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:724:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:729:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:761:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:774:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:785:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:794:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:795:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:799:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:804:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:827:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:840:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:851:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:860:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:861:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:865:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:870:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:893:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:903:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:918:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:927:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:928:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:932:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:937:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:960:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:970:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:984:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:993:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:994:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:998:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1003:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1029:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1043:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1054:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1063:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1064:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1068:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1073:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1096:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1110:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1121:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1130:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1131:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1135:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1140:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1163:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1176:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1187:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1196:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1197:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1201:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1206:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1232:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1246:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1257:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1266:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1267:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1271:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1276:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1299:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1313:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1324:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1333:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1334:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1338:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1343:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1366:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1380:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1391:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1400:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1401:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1405:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1410:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1435:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1449:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1460:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1469:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1470:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1474:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1479:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1504:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1518:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1529:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1538:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1539:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1543:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1548:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1573:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1587:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1598:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1607:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1608:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1612:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1617:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1642:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1654:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1665:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1674:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1675:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1679:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1684:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1704:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1717:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1729:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1738:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1739:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1743:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1748:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1775:    class FakeTerminalVWAPPayoffDarkPanel:
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1788:            FakeTerminalVWAPPayoffDarkPanel.instances.append(self)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1800:    FakeDecisionsDarkPanel = PlaceholderWidget
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1809:        FakeTerminalVWAPPayoffDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1810:        FakeDecisionsDarkPanel,
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1814:    window = module.ModernDarkWindow()
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:1820:    terminal_panel = FakeTerminalVWAPPayoffDarkPanel.instances[0]
+./ATT/tools/verify_payoff_ui_bridge_contract.py:55:            ok(lines, "MainWindow.recalculate_structure usa comando oficial")
+./ATT/tools/verify_payoff_ui_bridge_contract.py:57:            fail(errors, "MainWindow.recalculate_structure nao usa comando oficial")
+./services/rtd_option_quotes_intraday_candle_chart_service.py:55:        Retorna a série no contrato já esperado por TerminalVWAPPayoffDarkPanel:
+./UI/components/decisions_dark_panel.py:41:class DecisionsDarkPanel(ctk.CTkFrame):
+./UI/components/details_panel.py:817:        """Chamado pelo MainWindow ao finalizar o fluxo externo legado do pipeline."""
+./UI/components/payoff_chart.py:103:        self.toolbar = NavigationToolbar2Tk(self.canvas, top, pack_toolbar=False)
+./UI/components/terminal_vwap_payoff_dark_panel.py:137:class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
+./UI/components/terminal_vwap_payoff_panel.py:9:    MainWindow
+./UI/main_window.py:28:class MainWindow:
+./UI/main_window.py:30:        self.root = tk.Tk()
+./UI/main_window.py:698:        self.root.mainloop()
+./UI/main_window.py:702:    app = MainWindow()
+./UI/modern/dark_window.py:6:Ele abre diretamente o TerminalVWAPPayoffDarkPanel, que corresponde
+./UI/modern/dark_window.py:29:from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
+./UI/modern/dark_window.py:30:from UI.components.decisions_dark_panel import DecisionsDarkPanel
+./UI/modern/dark_window.py:42:class ModernDarkWindow:
+./UI/modern/dark_window.py:51:        self.root = ctk.CTk()
+./UI/modern/dark_window.py:115:        self.panel = TerminalVWAPPayoffDarkPanel(
+./UI/modern/dark_window.py:123:        self.decisions_panel = DecisionsDarkPanel(
+./UI/modern/dark_window.py:481:        self.root.mainloop()
+./UI/modern/dark_window.py:485:    app = ModernDarkWindow()
+
+============================================================
+5. IMPORTS E REFERÊNCIAS ENTRE MÓDULOS UI
+============================================================
+./ATT/tests/test_payoff_chart.py:51:from UI.components.payoff_chart import (  # noqa: E402
+./ATT/tests/test_payoff_chart.py:65:    with patch("UI.components.payoff_chart.FigureCanvasTkAgg"), \
+./ATT/tests/test_payoff_chart.py:66:         patch("UI.components.payoff_chart.NavigationToolbar2Tk"), \
+./ATT/tests/test_payoff_chart.py:67:         patch("UI.components.payoff_chart.Figure") as MockFig, \
+./ATT/tests/test_payoff_chart.py:68:         patch("UI.components.payoff_chart.ttk.Frame.__init__", return_value=None), \
+./ATT/tests/test_payoff_chart.py:69:         patch("UI.components.payoff_chart.ttk.Frame.pack",     return_value=None), \
+./ATT/tests/test_payoff_chart.py:70:         patch("UI.components.payoff_chart.ttk.Frame.bind",     return_value=None):
+./ATT/tests/test_structures_archive_wiring.py:230:        mod_key = "UI.components.structures_list_panel"
+./ATT/tests/test_structures_archive_wiring.py:233:        mod = importlib.import_module("UI.components.structures_list_panel")
+./ATT/tests/test_structures_archive_wiring.py:433:        mod_key = "UI.components.structures_list_panel"
+./ATT/tests/test_structures_archive_wiring.py:437:            mod = importlib.import_module("UI.components.structures_list_panel")
+./ATT/tests/test_structures_archive_wiring.py:488:        mod_key = "UI.components.structures_list_panel"
+./ATT/tests/test_structures_archive_wiring.py:491:            mod = importlib.import_module("UI.components.structures_list_panel")
+./ATT/tests/test_structures_archive_wiring.py:527:        from UI.components.structures_list_panel import StructuresListPanel
+./ATT/tests/test_structures_archive_wiring.py:565:        from UI.components.structures_list_panel import StructuresListPanel
+./ATT/tests/test_structure_editor_dialog.py:21:    from UI.components.structure_editor_dialog import StructureEditorDialog
+./ATT/tests/test_structure_editor_integration.py:265:    import UI.main_window as mw_mod
+./ATT/tests/test_structure_editor_integration.py:275:    from UI.components.structure_editor_dialog import StructureEditorDialog
+./ATT/tests/test_terminal_vwap_payoff_dark_panel_app_service_integration.py:36:from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
+./ATT/tests/test_terminal_vwap_payoff_dark_panel_operational_states.py:72:dark_panel = importlib.import_module("UI.components.terminal_vwap_payoff_dark_panel")
+./ATT/tests/test_terminal_vwap_payoff_panel.py:1:from UI.components.terminal_vwap_payoff_panel import (
+./ATT/tests/test_terminal_vwap_payoff_panel_helpers.py:1:from UI.components import terminal_vwap_payoff_panel as panel
+./ATT/tests/test_terminal_vwap_payoff_panel_rendering.py:1:from UI.components import terminal_vwap_payoff_panel as panel
+./ATT/tests/test_ui_data_migration.py:11:from UI.models.ui_data import UIDataModel
+./ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py:21:    - import real de UI.modern.dark_window;
+./ATT/tests/test_ui_modern_dark_window_excel_rtd_status_menu.py:35:import UI.modern.dark_window as module
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:81:    sys.modules.pop("UI.modern.dark_window", None)
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:92:    terminal_module = types.ModuleType("UI.components.terminal_vwap_payoff_dark_panel")
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:95:    decisions_module = types.ModuleType("UI.components.decisions_dark_panel")
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:106:        "UI.components.terminal_vwap_payoff_dark_panel",
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:111:        "UI.components.decisions_dark_panel",
+./ATT/tests/test_ui_modern_dark_window_terminal_vwap_wiring.py:116:    return importlib.import_module("UI.modern.dark_window")
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:12:        [sys.executable, "-m", "UI.modern", *args],
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:21:    import UI.modern.app as app
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:30:    assert runtime["module"] == "UI.modern.dark_window"
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:33:    assert os.environ["MYHUB_UI_MODULE"] == "UI.modern.dark_window"
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:39:    import UI.modern.app as app
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:58:    assert calls == ["UI.modern.dark_window", "main"]
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:68:    assert "module: UI.modern.dark_window" in result.stdout
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:109:    assert "UI.modern.theme" not in dark_window_source
+./ATT/tests/test_ui_modern_moderndarkui_contract.py:110:    assert "from UI.modern.theme" not in dark_window_source
+./ATT/tests/test_ui_modern_package_entrypoint.py:4:from UI.modern import app
+./ATT/tests/test_ui_modern_package_entrypoint.py:15:    monkeypatch.setitem(sys.modules, "UI.modern.app", app)
+./ATT/tests/test_ui_modern_package_entrypoint.py:17:    modern_package = sys.modules.get("UI.modern")
+./ATT/tests/test_ui_modern_package_entrypoint.py:20:    monkeypatch.setattr(sys, "argv", ["python -m UI.modern"])
+./ATT/tests/test_ui_modern_package_entrypoint.py:23:        runpy.run_module("UI.modern.__main__", run_name="__main__")
+./ATT/tests/test_ui_modern_package_entrypoint.py:39:    monkeypatch.setitem(sys.modules, "UI.modern.app", app)
+./ATT/tests/test_ui_modern_package_entrypoint.py:41:    modern_package = sys.modules.get("UI.modern")
+./ATT/tests/test_ui_modern_package_entrypoint.py:44:    monkeypatch.setattr(sys, "argv", ["python -m UI.modern"])
+./ATT/tests/test_ui_modern_package_entrypoint.py:47:        runpy.run_module("UI.modern.__main__", run_name="__main__")
+./ATT/tests/test_ui_modern_package_entrypoint.py:51:        raise AssertionError("UI.modern.__main__ should raise SystemExit with app.main return code")
+./UI/components/payoff_chart.py:8:from UI.debug_utils import payoff_debug, payoff_info
+./UI/components/terminal_vwap_payoff_dark_panel.py:40:    from UI.components.structure_editor_dialog import StructureEditorDialog
+./UI/main_window.py:7:from UI.models.ui_data import UIDataModel
+./UI/main_window.py:8:from UI.components.payoff_chart import PayoffChart
+./UI/main_window.py:9:from UI.components.details_panel import DetailsPanel
+./UI/main_window.py:10:from UI.components.decisions_grid import DecisionsGrid
+./UI/main_window.py:11:from UI.components.filters_panel import FiltersPanel
+./UI/main_window.py:12:from UI.components.structures_list_panel import StructuresListPanel
+./UI/main_window.py:13:from UI.components.structure_editor_dialog import StructureEditorDialog
+./UI/main_window.py:14:from UI.components.terminal_vwap_payoff_panel import TerminalVWAPPayoffPanel
+./UI/main_window.py:17:from UI.debug_utils import debug, info
+./UI/modern/app.py:14:OFFICIAL_MODULE = "UI.modern.dark_window"
+./UI/modern/app.py:42:        prog="python -m UI.modern",
+./UI/modern/dark_window.py:29:from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
+./UI/modern/dark_window.py:30:from UI.components.decisions_dark_panel import DecisionsDarkPanel
+./UI/modern/dark_window.py:31:from UI.models.ui_data import UIDataModel
+
+============================================================
+6. STATUS GIT RELACIONADO À UI
+============================================================
+ M UI/components/decisions_dark_panel.py
+ M UI/main_window.py
+
+============================================================
+CONCLUÍDO
+============================================================
+Relatório : C:/Users/eucal/projeto/ATT/CORRECAO_UI/localizacao_modulos_ui_20260722_135304.txt
+Log       : C:/Users/eucal/projeto/ATT/CORRECAO_UI/localizacao_modulos_ui_20260722_135304.log
+
+-rw-r--r-- 1 eucal 197609 42131 Jul 22 13:53 ATT/CORRECAO_UI/localizacao_modulos_ui_20260722_135304.txt

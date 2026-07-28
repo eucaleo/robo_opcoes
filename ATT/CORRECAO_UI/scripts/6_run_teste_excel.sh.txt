@@ -1,0 +1,66 @@
+#!/bin/bash
+set -e
+
+BASE_PROJETO="$(pwd)"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+PASTA_RESULTADOS="${BASE_PROJETO}/ATT/CORRECAO_UI/resultados/${TIMESTAMP}"
+mkdir -p "$PASTA_RESULTADOS"
+
+DIR_PROJETO_WIN="C:\\users\\eucal\\projeto"
+CMD_ARQUIVO="INICIAR_UI_ROBO_OPCOES.cmd"
+LOG="${PASTA_RESULTADOS}/6_verifica_instancia_excel.txt"
+FILTRO_PROCESSO="UI.modern"
+
+echo "=== TESTE AUTOMATIZADO: INSTANCIA EXCEL ===" | tee "$LOG"
+echo "Timestamp: $TIMESTAMP" | tee -a "$LOG"
+echo | tee -a "$LOG"
+
+ANTES=$(tasklist /FI "IMAGENAME eq EXCEL.EXE" 2>/dev/null | grep -c "EXCEL.EXE" || true)
+echo "Processos EXCEL.EXE ANTES: $ANTES" | tee -a "$LOG"
+
+echo ">> Iniciando sistema (nova janela) via $DIR_PROJETO_WIN\\$CMD_ARQUIVO" | tee -a "$LOG"
+# Correção: usar /D para definir diretório de trabalho e chamar o .cmd
+# pelo nome relativo. O 'start' quebra a interpretação de aspas quando
+# o alvo é um .cmd/.bat com caminho absoluto entre aspas duplas.
+cmd.exe /c 'start "" /D "C:\Users\eucal\projeto" cmd.exe /k "call INICIAR_UI_ROBO_OPCOES.cmd"'
+
+
+echo ">> Aguardando 8s (conexao RTD e quase imediata)..." | tee -a "$LOG"
+sleep 8
+
+DURANTE=$(tasklist /FI "IMAGENAME eq EXCEL.EXE" 2>/dev/null | grep -c "EXCEL.EXE" || true)
+echo "Processos EXCEL.EXE DURANTE operacao: $DURANTE" | tee -a "$LOG"
+
+echo ">> Identificando PID do processo da UI (filtro: '$FILTRO_PROCESSO')..." | tee -a "$LOG"
+PID_UI=$(wmic process where "name='python.exe'" get ProcessId,CommandLine 2>/dev/null \
+    | grep -i "$FILTRO_PROCESSO" \
+    | grep -oE "[0-9]+" \
+    | tail -n 1)
+
+if [ -n "$PID_UI" ]; then
+    echo "PID encontrado: $PID_UI" | tee -a "$LOG"
+    echo ">> Encerrando SOMENTE o PID $PID_UI (e filhos)..." | tee -a "$LOG"
+    taskkill //F //PID "$PID_UI" //T 2>&1 | tee -a "$LOG"
+else
+    echo "[ALERTA] Nao foi possivel identificar o PID da UI automaticamente." | tee -a "$LOG"
+    echo "-> Feche manualmente a janela 'RoboUI' e pressione ENTER para continuar." | tee -a "$LOG"
+    read -r
+fi
+
+echo ">> Aguardando 5s para liberacao de referencia COM..." | tee -a "$LOG"
+sleep 5
+
+DEPOIS=$(tasklist /FI "IMAGENAME eq EXCEL.EXE" 2>/dev/null | grep -c "EXCEL.EXE" || true)
+echo "Processos EXCEL.EXE DEPOIS do fechamento: $DEPOIS" | tee -a "$LOG"
+echo | tee -a "$LOG"
+
+if [ "$DEPOIS" -gt "$ANTES" ]; then
+    echo "[RISCO] $((DEPOIS - ANTES)) processo(s) EXCEL.EXE ficaram ORFAOS." | tee -a "$LOG"
+elif [ "$DEPOIS" -eq "$ANTES" ]; then
+    echo "[OK] Fechamento limpo. Nenhum EXCEL.EXE orfao." | tee -a "$LOG"
+else
+    echo "[ATENCAO] Menos processos depois que antes - verificar." | tee -a "$LOG"
+fi
+
+echo | tee -a "$LOG"
+echo "Relatorio salvo em: $LOG"

@@ -32,6 +32,7 @@ Atributos publicos esperados pelos testes de integracao:
 """
 
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import ttk, messagebox
 from typing import Optional
 
@@ -59,7 +60,7 @@ def _parse_decimal(value, field_name: str) -> float:
         raise ValueError(f"{field_name} must be numeric") from exc
 
 
-class StructureEditorDialog(tk.Toplevel):
+class StructureEditorDialog(ctk.CTkToplevel):
     """Dialog modal de criacao / edicao de estrutura."""
 
     def __init__(
@@ -98,7 +99,10 @@ class StructureEditorDialog(tk.Toplevel):
         self._build_ui()
 
         if structure_id is not None:
-            self._load_existing()
+            if not self._load_existing():
+                # A estrutura não existe: _load_existing() já destruiu o diálogo.
+                # Não execute chamadas Tk após destroy().
+                return
 
         # Comportamento modal
         self.transient(parent)
@@ -268,7 +272,7 @@ class StructureEditorDialog(tk.Toplevel):
                 parent=self,
             )
             self.destroy()
-            return
+            return False
 
         self._f_name.set(data.get("name", ""))
         self._f_underlying.set(data.get("underlying_asset", ""))
@@ -278,6 +282,7 @@ class StructureEditorDialog(tk.Toplevel):
 
         self._legs_rows = list(data.get("legs", []))
         self._refresh_leg_tree()
+        return True
 
     # ------------------------------------------------------------------
     # Renderizacao da leg tree

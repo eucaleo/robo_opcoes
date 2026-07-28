@@ -14,7 +14,7 @@ from services.rtd_option_quotes_schema import (
 from services.excel_rtd_com_access import (
     ExcelComAccessError,
     ExcelComUnavailableError,
-    get_active_excel_application,
+    get_excel_application_for_workbook,
     get_or_open_workbook,
     iter_com_collection as _shared_iter_com_collection,
     safe_getattr as _shared_safe_getattr,
@@ -59,7 +59,7 @@ def check_excel_rtd_connection_status(
 
     if excel_app is None:
         try:
-            excel_app = get_active_excel_application()
+            excel_app = get_excel_application_for_workbook(workbook_name)
         except ExcelComUnavailableError as exc:
             return ExcelRtdConnectionStatus(
                 pywin32_available=False,

@@ -1,0 +1,13 @@
+=== ARQUIVOS QUE INSTANCIAM JANELA RAIZ (CTk/Tk) ===
+
+Objetivo: detectar mais de uma raiz sendo criada no sistema (conflito de UI)
+
+C:/Users/eucal/projeto\ATT\tests\test_structures_archive_wiring.py:519  ->  self.root = tk.Tk()
+C:/Users/eucal/projeto\ATT\tests\test_structure_editor_dialog.py:200  ->  self.root = tk.Tk()
+C:/Users/eucal/projeto\ATT\tests\test_structure_editor_dialog.py:307  ->  self.root = tk.Tk()
+C:/Users/eucal/projeto\ATT\tests\test_ui_modern_dark_window_excel_rtd_status_menu.py:38  ->  root = tk.Tk()
+C:/Users/eucal/projeto\UI\main_window.py:30  ->  self.root = tk.Tk()
+C:/Users/eucal/projeto\UI\modern\dark_window.py:50  ->  self.root = ctk.CTk()
+
+Total de instanciacoes de janela raiz encontradas: 6
+Se total > 1 em arquivos diferentes de teste, investigar conflito de mainloop.

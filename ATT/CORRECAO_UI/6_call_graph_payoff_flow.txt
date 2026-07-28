@@ -1,0 +1,347 @@
+=====================================================
+CALL GRAPH - FLUXO ATIVO (dark_window -> dark_panel)
+Data: Tue Jul 21 11:18:56     2026
+=====================================================
+
+### PASSO 1: Confirmando que dark_window.py referencia o panel ativo ###
+28:from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
+
+### PASSO 2: Funcoes duplicadas efetivamente CHAMADAS dentro do fluxo ativo ###
+
+--------------------------------------------------------
+[FUNCAO] _request_to_payoff_dict
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./services/calculation_orchestrator.py : linha 144
+       ./services/calculation_orchestrator.py : linha 469
+  [ATENCAO] '_request_to_payoff_dict' esta duplicada DENTRO de ./services/calculation_orchestrator.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 469 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def _request_to_payoff_dict(
+                    request: CalculationRequest,
+                    extra_meta: Optional[dict] = None,
+                ) -> dict:
+                    """
+                    Wrapper de compatibilidade.
+                
+                    A implementação canônica fica em CalculationOrchestrator._request_to_payoff_dict().
+                    """
+                    return CalculationOrchestrator()._request_to_payoff_dict(
+                        request,
+                        extra_meta=extra_meta,
+                    )
+                
+                
+                def run_payoff(
+                    request: CalculationRequest,
+                    low_pct: float = 0.5,
+                    high_pct: float = 1.5,
+                    step_pct: float = 0.01,
+                    extra_meta: Optional[dict] = None,
+
+
+--------------------------------------------------------
+[FUNCAO] run_payoff
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./services/calculation_orchestrator.py : linha 199
+       ./services/calculation_orchestrator.py : linha 484
+  [ATENCAO] 'run_payoff' esta duplicada DENTRO de ./services/calculation_orchestrator.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 484 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def run_payoff(
+                    request: CalculationRequest,
+                    low_pct: float = 0.5,
+                    high_pct: float = 1.5,
+                    step_pct: float = 0.01,
+                    extra_meta: Optional[dict] = None,
+                ) -> dict:
+                    """
+                    Wrapper de compatibilidade.
+                
+                    A implementação canônica fica em CalculationOrchestrator.run_payoff().
+                    """
+                    return CalculationOrchestrator().run_payoff(
+                        request,
+                        low_pct=low_pct,
+                        high_pct=high_pct,
+                        step_pct=step_pct,
+                        extra_meta=extra_meta,
+                    )
+                
+                
+
+
+--------------------------------------------------------
+[FUNCAO] cleanup_old_payoff_data
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 613
+       ./db/derived_repo.py : linha 911
+  [ATENCAO] 'cleanup_old_payoff_data' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 911 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def cleanup_old_payoff_data(conn: sqlite3.Connection, days_to_keep: int = 30) -> int:
+                    ensure_derived_tables(conn)
+                    cur = conn.cursor()
+                    cur.execute(f"""
+                        DELETE FROM payoff_curve_points
+                        WHERE datetime(timestamp) < datetime('now', '-{days_to_keep} days')
+                    """)
+                    deleted = cur.rowcount
+                    conn.commit()
+                    return deleted
+                
+                
+                def cleanup_old_decisions(conn: sqlite3.Connection, days_to_keep: int = 30) -> int:
+                    ensure_derived_tables(conn)
+                    cur = conn.cursor()
+                    cur.execute(f"""
+                        DELETE FROM structure_decisions
+                        WHERE datetime(timestamp) < datetime('now', '-{days_to_keep} days')
+                    """)
+                    deleted = cur.rowcount
+                    conn.commit()
+
+
+--------------------------------------------------------
+[FUNCAO] get_payoff_points
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 494
+       ./db/derived_repo.py : linha 847
+  [ATENCAO] 'get_payoff_points' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 847 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def get_payoff_points(
+                    conn: sqlite3.Connection,
+                    aba: Optional[str] = None,
+                    timestamp: Optional[str] = None,
+                ) -> List[Dict[str, Any]]:
+                    ensure_derived_tables(conn)
+                    aba = _unwrap_aba(aba)
+                    cur = conn.cursor()
+                    if aba and timestamp:
+                        cur.execute("""
+                            SELECT timestamp, aba, point_spot, point_pl, meta_json
+                            FROM payoff_curve_points
+                            WHERE aba = ? AND timestamp = ?
+                            ORDER BY point_spot
+                        """, (aba, timestamp))
+                    elif aba:
+                        cur.execute("""
+                            SELECT timestamp, aba, point_spot, point_pl, meta_json
+                            FROM payoff_curve_points
+                            WHERE aba = ?
+                            ORDER BY timestamp DESC, point_spot
+
+
+--------------------------------------------------------
+[FUNCAO] insert_payoff_points
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 388
+       ./db/derived_repo.py : linha 775
+  [ATENCAO] 'insert_payoff_points' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 775 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def insert_payoff_points(
+                    conn: sqlite3.Connection,
+                    timestamp: str,
+                    aba: str,
+                    points: List[PayoffPoint],
+                    spot_ref: Optional[float] = None,
+                    meta: Optional[Dict[str, Any]] = None,
+                    structure_id: Optional[int] = None,
+                ) -> int:
+                    ensure_derived_tables(conn)
+                    if structure_id is None and isinstance(meta, dict):
+                        structure_id = meta.get("structure_id") or meta.get("payload_structure_id")
+                    aba = _unwrap_aba(aba)
+                    meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+                    cur = conn.cursor()
+                    sql = """
+                        INSERT OR REPLACE INTO payoff_curve_points
+                            (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+                        VALUES (?, ?, ?, ?, ?, ?)
+                    """
+                    count = 0
+
+
+--------------------------------------------------------
+[FUNCAO] validate_snapshot_consistency
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 579
+       ./db/derived_repo.py : linha 881
+  [ATENCAO] 'validate_snapshot_consistency' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 881 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
+                    ensure_derived_tables(conn)
+                    cur = conn.cursor()
+                    cur.execute("""
+                        SELECT d.aba, d.timestamp, COUNT(p.point_spot) as point_count
+                        FROM structure_decisions d
+                        LEFT JOIN payoff_curve_points p ON (d.aba = p.aba AND d.timestamp = p.timestamp)
+                        GROUP BY d.aba, d.timestamp
+                        HAVING point_count = 0
+                    """)
+                    orphan_decisions = cur.fetchall()
+                    cur.execute("""
+                        SELECT p.aba, p.timestamp, COUNT(DISTINCT p.point_spot)
+                        FROM payoff_curve_points p
+                        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
+                        WHERE d.aba IS NULL
+                        GROUP BY p.aba, p.timestamp
+                    """)
+                    orphan_points = cur.fetchall()
+                    ok = not orphan_decisions and not orphan_points
+                    if not ok:
+
+
+--------------------------------------------------------
+[FUNCAO] write_complete_snapshot_atomic
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 435
+       ./db/derived_repo.py : linha 759
+  [ATENCAO] 'write_complete_snapshot_atomic' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 759 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def write_complete_snapshot_atomic(
+                    conn: sqlite3.Connection,
+                    timestamp: str,
+                    aba: str,
+                    points: List,
+                    decision_dict: Dict[str, Any],
+                    points_meta: Optional[Dict] = None,
+                ) -> Dict[str, int]:
+                    ensure_derived_tables(conn)
+                    aba = _unwrap_aba(aba)
+                    with conn:
+                        pc  = write_payoff_snapshot_atomic(conn, timestamp, aba, points, points_meta, structure_id=decision_dict.get("structure_id"))
+                        did = write_decision_snapshot_atomic(conn, timestamp, aba, decision_dict)
+                    return {"points_count": pc, "decision_id": did}
+                
+                
+                def insert_payoff_points(
+                    conn: sqlite3.Connection,
+                    timestamp: str,
+                    aba: str,
+                    points: List[PayoffPoint],
+
+
+--------------------------------------------------------
+[FUNCAO] write_decision_snapshot_atomic
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 288
+       ./db/derived_repo.py : linha 722
+  [ATENCAO] 'write_decision_snapshot_atomic' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 722 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def write_decision_snapshot_atomic(
+                    conn: sqlite3.Connection,
+                    timestamp: str,
+                    aba: str,
+                    decision_dict: Dict[str, Any],
+                ) -> int:
+                    ensure_derived_tables(conn)
+                    aba = _unwrap_aba(aba)
+                    cur = conn.cursor()
+                    cur.execute(
+                        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
+                        (aba, timestamp),
+                    )
+                    why, why_json = _normalize_why_fields(decision_dict)
+                    meta = decision_dict.get("meta")
+                    cur.execute("""
+                        INSERT INTO structure_decisions
+                            (timestamp, aba, decision, level, pl_atual, pl_max, pl_pct_of_max,
+                             dte_min, why, why_json, spot_ref, meta_json, created_at, structure_id)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+
+
+--------------------------------------------------------
+[FUNCAO] write_payoff_snapshot_atomic
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./db/derived_repo.py : linha 338
+       ./db/derived_repo.py : linha 682
+  [ATENCAO] 'write_payoff_snapshot_atomic' esta duplicada DENTRO de ./db/derived_repo.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 682 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                def write_payoff_snapshot_atomic(
+                    conn: sqlite3.Connection,
+                    timestamp: str,
+                    aba: str,
+                    points: List,
+                    meta: Optional[Dict[str, Any]] = None,
+                    structure_id: Optional[int] = None,
+                ) -> int:
+                    ensure_derived_tables(conn)
+                    if structure_id is None and isinstance(meta, dict):
+                        structure_id = meta.get("structure_id") or meta.get("payload_structure_id")
+                    meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
+                    aba = _unwrap_aba(aba)
+                    cur = conn.cursor()
+                    cur.execute(
+                        "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
+                        (aba, timestamp),
+                    )
+                    sql = """
+                        INSERT INTO payoff_curve_points
+                            (timestamp, aba, structure_id, point_spot, point_pl, meta_json)
+
+
+--------------------------------------------------------
+[FUNCAO] get_payoff_by_structure_id
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./services/derived_service.py : linha 473
+       ./services/derived_service.py : linha 609
+  [ATENCAO] 'get_payoff_by_structure_id' esta duplicada DENTRO de ./services/derived_service.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 609 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                    def get_payoff_by_structure_id(self, structure_id: int):
+                        """Retorna pontos de payoff para a estrutura informada."""
+                        return get_payoff_by_structure_id(structure_id)
+                
+                    def save_payoff_curve(self, *args, **kwargs):
+                        return save_payoff_curve(*args, **kwargs)
+                
+                    def save_decision(self, *args, **kwargs):
+                        return save_decision(*args, **kwargs)
+                
+                    def cleanup_derived(self, days_to_keep: int = 30):
+                        return cleanup_derived(days_to_keep)
+
+
+--------------------------------------------------------
+[FUNCAO] save_payoff_curve
+  -> Nao chamada diretamente no panel (pode vir via services/*.py intermediario)
+  -> DEFINICOES ENCONTRADAS (ordem no arquivo = prioridade de sobrescrita):
+       ./services/derived_service.py : linha 160
+       ./services/derived_service.py : linha 613
+  [ATENCAO] 'save_payoff_curve' esta duplicada DENTRO de ./services/derived_service.py
+            -> A versao que REALMENTE EXECUTA comeca na linha 613 (ultima definicao)
+            -> Trecho da versao ATIVA (20 linhas):
+                    def save_payoff_curve(self, *args, **kwargs):
+                        return save_payoff_curve(*args, **kwargs)
+                
+                    def save_decision(self, *args, **kwargs):
+                        return save_decision(*args, **kwargs)
+                
+                    def cleanup_derived(self, days_to_keep: int = 30):
+                        return cleanup_derived(days_to_keep)
+
+
+=====================================================
+RESUMO: revise as funcoes marcadas [ATENCAO] acima.
+Essas sao as que tem definicao DUPLICADA e cuja versao
+ativa (a que executa de fato) e a ULTIMA do arquivo.
+Compare-a com a primeira definicao para saber se a logica
+correta foi preservada ou se ficou uma versao incompleta.
+=====================================================

@@ -50,12 +50,14 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         on_status: Optional[Callable[[str], None]] = None,
         on_load_structure: Optional[Callable[[Any], None]] = None,
         get_structures: Optional[Callable[[], List[Dict[str, Any]]]] = None,
+        app_service=None,
     ) -> None:
         super().__init__(parent, fg_color="#0f172a")
 
         self.data_model = data_model
         self.on_status = on_status
         self.on_load_structure = on_load_structure
+        self.app_service = app_service
         self.get_structures = get_structures
         self.decisions: List[Dict[str, Any]] = []
         self.filtered_decisions: List[Dict[str, Any]] = []
@@ -295,17 +297,16 @@ class DecisionsDarkPanel(ctk.CTkFrame):
             self._render_reloaded_decisions_state()
         except Exception as exc:
             self._handle_decisions_load_error(exc)
-
     def _load_decisions_from_model(self) -> None:
+        if self.app_service is not None:
+            self.decisions = self.app_service.list_decisions()
+            return
+
         if hasattr(self.data_model, "refresh"):
             self.data_model.refresh()
 
         decisions = self.data_model.get_decisions()
         self.decisions = list(decisions or [])
-
-    def _prepare_reloaded_decisions_view(self) -> None:
-        self._clear_selection()
-        self._last_filter_status_text = None
         self._refresh_structure_index()
         self._apply_filter(render=False)
         self._render_rows()

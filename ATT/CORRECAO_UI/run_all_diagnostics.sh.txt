@@ -1,0 +1,43 @@
+#!/bin/bash
+# ============================================================
+# EXECUTAR TODOS OS DIAGNÓSTICOS E CORREÇÕES
+# Usar via Git Bash: bash run_all_diagnostics.sh
+# ============================================================
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
+
+echo "============================================================"
+echo "  DIAGNÓSTICO E CORREÇÃO COMPLETOS"
+echo "  Data: $(date '+%Y-%m-%d %H:%M:%S')"
+echo "============================================================"
+
+# 1. Diagnóstico do fluxo de dados
+echo ""
+echo "[PASSO 1/4] Diagnóstico do fluxo de dados..."
+python scripts/diagnose_data_flow.py
+echo ""
+
+# 2. Verificação do pipeline RTD → DB → UI
+echo "[PASSO 2/4] Verificação do pipeline RTD → DB → UI..."
+python scripts/check_rtd_to_ui_pipeline.py
+echo ""
+
+# 3. Verificação de commits (dry-run primeiro)
+echo "[PASSO 3/4] Verificação de commits faltantes (dry-run)..."
+python scripts/fix_critical_commits.py
+echo ""
+
+# 4. Verificação de janelas raiz
+echo "[PASSO 4/4] Verificação de janelas raiz duplicadas..."
+python scripts/fix_dual_root.py
+echo ""
+
+echo "============================================================"
+echo "  DIAGNÓSTICO CONCLUÍDO"
+echo ""
+echo "  Se foram encontrados problemas:"
+echo "    1. Execute: python scripts/fix_critical_commits.py --apply"
+echo "    2. Execute: python scripts/fix_dual_root.py --apply"
+echo "    3. Reinicie o sistema e teste"
+echo "============================================================"

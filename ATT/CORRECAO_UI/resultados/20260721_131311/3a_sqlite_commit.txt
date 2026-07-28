@@ -1,0 +1,845 @@
+=== ARQUIVOS COM OPERACOES SQLite ===
+
+C:/Users/eucal/projeto\ATT\database_retention_inventory_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\database_retention_simulation_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\operational_observability_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\backup_20260721_130038\derived_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\00_env_check.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\04_precedence_check.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\check_end_to_end.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\check_rota_desenvolvimento.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\check_structures.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_bd_unico_absorcao_funcional.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_bd_unico_artifacts_in_app_db.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_bd_unico_no_residual_backup_tables_app_db.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_bd_unico_rtd_tables_app_db.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_canonical_pricing_facade.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_database_retention_inventory_service.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_database_retention_simulation_service.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_legacy_structure_legs_importer.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_legacy_structure_legs_importer_integration.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_legacy_structure_legs_reader.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_market_snapshot_repository_rtd_option_quotes.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_operational_data_status_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_operational_observability_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_pricing_executions_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_pricing_execution_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_robo_legs_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_robo_legs_status_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_build_candles_command.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_capture_once_command.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_capture_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_history_schema_contract.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_price_mapping_regression.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_snapshot_schema_contract.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_sync_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_structures_archive_wiring.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_system_snapshots_repository.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\ATT\tests\test_system_snapshots_schema.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\config.py
+   execute/executemany: False
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\derived_repo.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\import_excel.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\reader.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\sqlite.py
+   execute/executemany: False
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\writer.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\db\migrations\add_structure_id_to_payoff_curve_points.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  True
+
+C:/Users/eucal/projeto\domain\payoff_features.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\domain\refs\structure_ref.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\infra\bootstrap_rtd_option_quotes_schema.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\infra\bootstrap_structures_schema.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\infra\sqlite_conn.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  True
+
+C:/Users/eucal/projeto\repositories\market_snapshot_repository.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\pricing_executions_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\robo_legs_repository.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\robo_legs_status_repository.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\rtd_option_quotes_intraday_candle_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\rtd_option_quotes_intraday_history_repository.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\rtd_option_quotes_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\structures_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\structure_events_repository.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\system_snapshots_repository.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\repositories\_aba_resolver_mixin.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\01_schema_dump.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\02_legs_integrity_report.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\03_aba_timestamp_inventory.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\06_audit_datetime_formats.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\07_audit_snapshot_keys.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\08_audit_leg_domains.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\15_smoke_pricing_execution_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\16_smoke_pricing_execution_persistence.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\apply_fase9_atomic_create.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\apply_ui_manual_first.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\apply_ui_manual_first_v2.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\apply_ui_manual_first_v3.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\db_probe_manual_vs_rtd.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\debug_pricing_payoff_payload.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\diagnose_payoff_curve_points.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\drop_residual_backup_tables_app_db.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\gen_seed_script.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\import_rtd_option_quotes_wide_csv.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\list_abas_rtd.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\patch_ui_payoff_refresh_architecture.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\payoff_rtd_batch.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\purge_derived_snapshots.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\recalculate_payoff_curve_points_once.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\recalculate_payoff_curve_points_once_checked.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\refresh_rtd_symbol_to_option_quotes.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\repair_app_db_consistency.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\rtd_option_quotes_intraday_capture_once.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\seed_manual_legs_from_rtd.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\ui_dedupe_and_manual_first.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\validate_app_db.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\validate_payoff_rtd_latest.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\verify_payoff_refresh_architecture.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\audit\collect_backend_fix_context_32_3.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\audit\diagnose_payoff_persistence_gap_32_2.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\scripts\audit\test_backend_payoff_flow_32.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\canonical_pricing_facade.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\derived_payoff_persistence.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\derived_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\operational_data_status_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\payoff_refresh_command_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\pricing_execution_orchestration_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    False
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\rtd_option_quotes_excel_populator.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\rtd_option_quotes_excel_sync.py
+   execute/executemany: True
+   commit presente:     True
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\rtd_option_quotes_intraday_candle_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\rtd_option_quotes_intraday_history_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\services\system_recalculation_command_service.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\UI\components\details_panel.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\UI\components\terminal_vwap_payoff_dark_panel.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\UI\models\ui_data.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+C:/Users/eucal/projeto\UI\modern\dark_window.py
+   execute/executemany: True
+   commit presente:     False
+   connect presente:    True
+   isolation_level:     False
+   journal_mode (WAL):  False
+
+
+=== ALERTA: execute() SEM commit() no mesmo arquivo ===
+
+[RISCO] C:/Users/eucal/projeto\ATT\database_retention_inventory_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\database_retention_simulation_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\operational_observability_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\CORRECAO_UI\backup_20260721_130038\derived_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\00_env_check.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\04_precedence_check.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\check_end_to_end.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\check_rota_desenvolvimento.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\check_structures.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_bd_unico_artifacts_in_app_db.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_bd_unico_no_residual_backup_tables_app_db.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_bd_unico_rtd_tables_app_db.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_operational_data_status_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_operational_observability_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_pricing_execution_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_capture_once_command.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_capture_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_intraday_history_schema_contract.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_rtd_option_quotes_sync_service.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_system_snapshots_repository.py
+[RISCO] C:/Users/eucal/projeto\ATT\tests\test_system_snapshots_schema.py
+[RISCO] C:/Users/eucal/projeto\db\reader.py
+[RISCO] C:/Users/eucal/projeto\db\writer.py
+[RISCO] C:/Users/eucal/projeto\db\migrations\add_structure_id_to_payoff_curve_points.py
+[RISCO] C:/Users/eucal/projeto\domain\refs\structure_ref.py
+[RISCO] C:/Users/eucal/projeto\infra\sqlite_conn.py
+[RISCO] C:/Users/eucal/projeto\repositories\market_snapshot_repository.py
+[RISCO] C:/Users/eucal/projeto\repositories\robo_legs_repository.py
+[RISCO] C:/Users/eucal/projeto\repositories\robo_legs_status_repository.py
+[RISCO] C:/Users/eucal/projeto\repositories\rtd_option_quotes_intraday_history_repository.py
+[RISCO] C:/Users/eucal/projeto\repositories\system_snapshots_repository.py
+[RISCO] C:/Users/eucal/projeto\repositories\_aba_resolver_mixin.py
+[RISCO] C:/Users/eucal/projeto\scripts\01_schema_dump.py
+[RISCO] C:/Users/eucal/projeto\scripts\02_legs_integrity_report.py
+[RISCO] C:/Users/eucal/projeto\scripts\03_aba_timestamp_inventory.py
+[RISCO] C:/Users/eucal/projeto\scripts\06_audit_datetime_formats.py
+[RISCO] C:/Users/eucal/projeto\scripts\07_audit_snapshot_keys.py
+[RISCO] C:/Users/eucal/projeto\scripts\08_audit_leg_domains.py
+[RISCO] C:/Users/eucal/projeto\scripts\15_smoke_pricing_execution_service.py
+[RISCO] C:/Users/eucal/projeto\scripts\16_smoke_pricing_execution_persistence.py
+[RISCO] C:/Users/eucal/projeto\scripts\apply_ui_manual_first.py
+[RISCO] C:/Users/eucal/projeto\scripts\apply_ui_manual_first_v2.py
+[RISCO] C:/Users/eucal/projeto\scripts\apply_ui_manual_first_v3.py
+[RISCO] C:/Users/eucal/projeto\scripts\db_probe_manual_vs_rtd.py
+[RISCO] C:/Users/eucal/projeto\scripts\debug_pricing_payoff_payload.py
+[RISCO] C:/Users/eucal/projeto\scripts\diagnose_payoff_curve_points.py
+[RISCO] C:/Users/eucal/projeto\scripts\list_abas_rtd.py
+[RISCO] C:/Users/eucal/projeto\scripts\patch_ui_payoff_refresh_architecture.py
+[RISCO] C:/Users/eucal/projeto\scripts\payoff_rtd_batch.py
+[RISCO] C:/Users/eucal/projeto\scripts\purge_derived_snapshots.py
+[RISCO] C:/Users/eucal/projeto\scripts\recalculate_payoff_curve_points_once.py
+[RISCO] C:/Users/eucal/projeto\scripts\refresh_rtd_symbol_to_option_quotes.py
+[RISCO] C:/Users/eucal/projeto\scripts\repair_app_db_consistency.py
+[RISCO] C:/Users/eucal/projeto\scripts\rtd_option_quotes_intraday_capture_once.py
+[RISCO] C:/Users/eucal/projeto\scripts\ui_dedupe_and_manual_first.py
+[RISCO] C:/Users/eucal/projeto\scripts\validate_app_db.py
+[RISCO] C:/Users/eucal/projeto\scripts\validate_payoff_rtd_latest.py
+[RISCO] C:/Users/eucal/projeto\scripts\verify_payoff_refresh_architecture.py
+[RISCO] C:/Users/eucal/projeto\scripts\audit\collect_backend_fix_context_32_3.py
+[RISCO] C:/Users/eucal/projeto\scripts\audit\diagnose_payoff_persistence_gap_32_2.py
+[RISCO] C:/Users/eucal/projeto\scripts\audit\test_backend_payoff_flow_32.py
+[RISCO] C:/Users/eucal/projeto\services\canonical_pricing_facade.py
+[RISCO] C:/Users/eucal/projeto\services\derived_payoff_persistence.py
+[RISCO] C:/Users/eucal/projeto\services\derived_service.py
+[RISCO] C:/Users/eucal/projeto\services\operational_data_status_service.py
+[RISCO] C:/Users/eucal/projeto\services\payoff_refresh_command_service.py
+[RISCO] C:/Users/eucal/projeto\services\pricing_execution_orchestration_service.py
+[RISCO] C:/Users/eucal/projeto\services\rtd_option_quotes_excel_populator.py
+[RISCO] C:/Users/eucal/projeto\services\rtd_option_quotes_intraday_candle_service.py
+[RISCO] C:/Users/eucal/projeto\services\rtd_option_quotes_intraday_history_service.py
+[RISCO] C:/Users/eucal/projeto\services\system_recalculation_command_service.py
+[RISCO] C:/Users/eucal/projeto\UI\components\details_panel.py
+[RISCO] C:/Users/eucal/projeto\UI\components\terminal_vwap_payoff_dark_panel.py
+[RISCO] C:/Users/eucal/projeto\UI\models\ui_data.py
+[RISCO] C:/Users/eucal/projeto\UI\modern\dark_window.py
+
+Total de arquivos em risco: 75

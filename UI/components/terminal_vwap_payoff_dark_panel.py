@@ -396,7 +396,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
     def _build_legs_table(self) -> None:
         self.legs_table = ttk.Treeview(
             self.bottom,
-            columns=("n", "symbol", "side", "type", "strike", "expiration", "qty", "premium"),
+            columns=("n", "symbol", "side", "type", "strike", "expiration", "qty", "premium", "current_price"),
             show="headings",
             style="Dark.Treeview",
             height=7,
@@ -411,6 +411,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             "expiration": "Vencimento",
             "qty": "Qtde",
             "premium": "Prêmio",
+            "current_price": "Preço atual",
         }
         widths = {
             "n": 40,
@@ -421,6 +422,7 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             "expiration": 100,
             "qty": 90,
             "premium": 90,
+            "current_price": 100,
         }
 
         for col, title in headers.items():
@@ -1327,6 +1329,15 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
                     leg.get("expiration_date") or "--",
                     _number(leg.get("quantity")),
                     _money(leg.get("premium")),
+                    _money(
+                        leg.get("current_price")
+                        if leg.get("current_price") is not None
+                        else leg.get("ultimo_preco")
+                        if leg.get("ultimo_preco") is not None
+                        else leg.get("last_price")
+                        if leg.get("last_price") is not None
+                        else leg.get("price")
+                    ),
                 ),
             )
 

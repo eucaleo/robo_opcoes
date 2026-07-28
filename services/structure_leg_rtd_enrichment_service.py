@@ -210,7 +210,9 @@ class StructureLegRtdEnrichmentService:
                         or leg.get("valor_executado")
                     )
 
-                leg["premium"] = price
+                # O prêmio representa o custo/preço de entrada da leg.
+                # O preço RTD atual é mantido em campo separado para a UI
+                # e para eventuais cálculos de marcação a mercado.
                 leg["current_price"] = price
                 leg["price_source"] = price_source
                 leg["_rtd_live_price_applied"] = True

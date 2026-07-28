@@ -20,7 +20,7 @@ from services.rtd_option_quotes_schema import (
 from services.excel_rtd_com_access import (
     find_open_workbook as _find_open_workbook,
     find_worksheet as _find_worksheet,
-    get_active_excel_application,
+    get_excel_application_for_workbook,
     iter_com_collection as _iter_com_collection,
     list_workbook_names as _list_workbook_names,
     list_worksheet_names as _list_worksheet_names,
@@ -280,9 +280,9 @@ def iter_rows_from_range(values: Any) -> Iterable[Sequence[Any]]:
     return values
 
 
-def get_excel_application() -> Any:
+def get_excel_application(workbook_name: str = DEFAULT_WORKBOOK_NAME) -> Any:
     try:
-        return get_active_excel_application()
+        return get_excel_application_for_workbook(workbook_name)
     except Exception as exc:
         raise ExcelRtdReaderError(f"Nao foi possivel obter instancia ativa do Excel: {exc}") from exc
 
@@ -376,7 +376,7 @@ def read_excel_rtd_options(
     read_at = dt.datetime.now().isoformat(timespec="seconds")
 
     try:
-        excel = get_excel_application()
+        excel = get_excel_application(workbook_name)
         workbook = find_workbook(excel, workbook_name)
         sheet = find_sheet(workbook, sheet_name)
 

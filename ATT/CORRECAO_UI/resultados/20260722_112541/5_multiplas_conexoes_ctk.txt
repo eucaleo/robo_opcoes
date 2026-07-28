@@ -1,0 +1,35 @@
+=== ARQUIVOS QUE INSTANCIAM JANELA RAIZ (CTk/Tk) ===
+
+Objetivo: detectar mais de uma raiz sendo criada no sistema (conflito de UI)
+
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\diagnose_data_flow.py:112  ->  resultado["main_window_tk"] = "tk.Tk()" in conteudo
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\diagnose_data_flow.py:115  ->  if "tk.Tk()" in linha:
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\diagnose_data_flow.py:121  ->  resultado["dark_window_ctk"] = "ctk.CTk()" in conteudo or "CTk()" in conteudo
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\diagnose_data_flow.py:123  ->  if "CTk()" in linha or "ctk.CTk()" in linha:
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:37  ->  "tem_tk": "tk.Tk()" in conteudo,
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:38  ->  "tem_ctk": "ctk.CTk()" in conteudo or "CTk()" in conteudo,
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:46  ->  if "tk.Tk()" in linha:
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:48  ->  if "CTk()" in linha or "ctk.CTk()" in linha:
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:60  ->  O problema: main_window.py cria tk.Tk() como raiz e dark_window.py cria
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:61  ->  ctk.CTk() como OUTRA raiz. Duas raízes = dois mainloops conflitantes.
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:64  ->  vinculando-se à raiz de main_window.py. Ou main_window.py deve usar ctk.CTk().
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:91  ->  print("   1. Substituir ctk.CTk() por ctk.CTkToplevel()")
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:107  ->  novo_conteudo = novo_conteudo.replace("ctk.CTk()", "ctk.CTkToplevel()")
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:141  ->  print(f"   tk.Tk(): {info_main['tem_tk']}")
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:155  ->  print(f"   tk.Tk(): {info_dark['tem_tk']}")
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:173  ->  print(f"   - main_window.py cria {'tk.Tk()' if info_main.get('tem_tk') else 'CTk()'}")
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\fix_dual_root.py:174  ->  print(f"   - dark_window.py cria {'CTk()' if info_dark.get('tem_ctk') else 'tk.Tk()'}")
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\map_system.py:252  ->  tem_tk = "tk.Tk()" in conteudo
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\map_system.py:253  ->  tem_ctk = "ctk.CTk()" in conteudo or "CTk()" in conteudo
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\map_system.py:274  ->  if "tk.Tk()" in linha and "self.root" in linha:
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\map_system.py:277  ->  if ("CTk()" in linha or "ctk.CTk()" in linha) and "self.root" in linha:
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\map_system.py:392  ->  resultado["main_tem_Tk"] = "tk.Tk()" in main if main else False
+C:/Users/eucal/projeto\ATT\CORRECAO_UI\scripts\map_system.py:394  ->  resultado["dark_tem_Tk"] = "tk.Tk()" in dark if dark else False
+Traceback (most recent call last):
+  File "C:\Users\eucal\projeto\ATT\CORRECAO_UI\scripts\5_multiplas_conexoes_ctk.py", line 26, in <module>
+    print(f"{caminho}:{i}  ->  {linha.strip()}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\eucal\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f534' in position 85: character maps to <undefined>

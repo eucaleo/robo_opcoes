@@ -11,6 +11,7 @@ from __future__ import annotations
 import inspect
 import os
 import unittest
+import customtkinter as ctk
 from unittest.mock import MagicMock, patch
 
 
@@ -73,6 +74,46 @@ def _make_mock_repo(get_return=None, create_return=42) -> MagicMock:
 # Bloco 1 -- Logica pura (sem Tk, sem repositorio)
 # ===========================================================================
 
+def _cleanup_ctk_windows(root):
+    """Fecha filhos CTk e remove callbacks after antes de destruir a root."""
+    if root is None:
+        return
+
+    try:
+        children = list(root.winfo_children())
+    except Exception:
+        children = []
+
+    for child in reversed(children):
+        try:
+            if child.winfo_exists():
+                child.destroy()
+        except Exception:
+            pass
+
+    try:
+        root.update_idletasks()
+        root.update()
+    except Exception:
+        pass
+
+    try:
+        after_ids = root.tk.splitlist(root.tk.call("after", "info"))
+    except Exception:
+        after_ids = ()
+
+    for after_id in after_ids:
+        try:
+            root.after_cancel(after_id)
+        except Exception:
+            pass
+
+    try:
+        root.update_idletasks()
+    except Exception:
+        pass
+
+
 @unittest.skipUnless(_IMPORT_OK, "StructureEditorDialog nao importavel")
 class TestBuildLegsPayload(unittest.TestCase):
 
@@ -133,6 +174,7 @@ class TestLoadExisting(unittest.TestCase):
         self._tk_patchers = _start_tk_patches()
 
     def tearDown(self):
+        _cleanup_ctk_windows(self.root)
         _stop_patches(self._tk_patchers)
         try:
             self.root.destroy()
@@ -196,13 +238,13 @@ class TestLoadExisting(unittest.TestCase):
 class TestCmdSaveCreate(unittest.TestCase):
 
     def setUp(self):
-        import tkinter as tk
-        self.root = tk.Tk()
+        self.root = ctk.CTk()
         self.root.withdraw()
         self._tk_patchers = _start_tk_patches()
         self.mock_repo = _make_mock_repo(get_return=None, create_return=42)
 
     def tearDown(self):
+        _cleanup_ctk_windows(self.root)
         _stop_patches(self._tk_patchers)
         try:
             self.root.destroy()
@@ -303,13 +345,13 @@ class TestCmdSaveCreate(unittest.TestCase):
 class TestCmdSaveUpdate(unittest.TestCase):
 
     def setUp(self):
-        import tkinter as tk
-        self.root = tk.Tk()
+        self.root = ctk.CTk()
         self.root.withdraw()
         self._tk_patchers = _start_tk_patches()
         self.mock_repo = _make_mock_repo()
 
     def tearDown(self):
+        _cleanup_ctk_windows(self.root)
         _stop_patches(self._tk_patchers)
         try:
             self.root.destroy()

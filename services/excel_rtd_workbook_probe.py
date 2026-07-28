@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Protocol
 
 from services.rtd_option_quotes_schema import DEFAULT_WORKBOOK_NAME
-from services.excel_rtd_com_access import get_active_excel_application
+from services.excel_rtd_com_access import get_excel_application_for_workbook
 
 
 
@@ -79,7 +79,7 @@ class Win32ExcelWorkbookAdapter:
 
     def __init__(self) -> None:
         try:
-            self._excel = get_active_excel_application()
+            self._excel = get_excel_application_for_workbook(DEFAULT_WORKBOOK_NAME)
         except Exception as exc:  # pragma: no cover
             raise ExcelRtdProbeError(
                 "Excel nao esta aberto ou nao esta acessivel via COM"

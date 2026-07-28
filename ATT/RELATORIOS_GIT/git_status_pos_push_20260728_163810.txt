@@ -1,0 +1,138 @@
+RELATORIO GIT POS-PUSH
+Data: Tue Jul 28 16:38:11     2026
+
+PWD
+/c/users/eucal/projeto
+
+BRANCH
+fix/payoff-ui-bridge-contract
+
+STATUS SB
+## fix/payoff-ui-bridge-contract...origin/fix/payoff-ui-bridge-contract
+ M ATT/tests/test_structure_editor_dialog.py
+ M UI/components/decisions_dark_panel.py
+ M UI/components/structure_editor_dialog.py
+ M UI/components/terminal_vwap_payoff_dark_panel.py
+ M rtd_bridge/excel_rtd_connection_status.py
+ M services/excel_rtd_reader.py
+ M services/excel_rtd_workbook_probe.py
+ M services/structure_leg_rtd_enrichment_service.py
+ M services/terminal_vwap_payoff_viewmodel_service.py
+?? ATT/CORRECAO_UI/
+?? ATT/RELATORIOS_GIT/
+?? ATT/tests/test_terminal_vwap_payoff_app_service_contract.py
+?? ATT/tests/test_terminal_vwap_payoff_app_service_decisions.py
+?? ATT/tests/test_terminal_vwap_payoff_current_price.py
+?? ATT/tools/
+?? check_excel.py
+?? connect_excel.py
+?? scripts/import_rtd_underlying_quotes_wide_csv.py
+
+AHEAD BEHIND
+0	0
+
+ULTIMOS COMMITS
+6ebb7df (HEAD -> fix/payoff-ui-bridge-contract, origin/fix/payoff-ui-bridge-contract) chore: remove artefatos legados de auditoria payoff
+97e40f7 fix: wire decisions repository and Excel workbook instance lookup
+3ce31e0 fix: remove metodos duplicados self-recursivos em DerivedService
+3bc0a91 test: adiciona verificacao do contrato da ponte payoff UI
+ebae143 fix: respeita estrutura validada no refresh de payoff
+
+ALTERACOES RASTREADAS
+M	ATT/tests/test_structure_editor_dialog.py
+M	UI/components/decisions_dark_panel.py
+M	UI/components/structure_editor_dialog.py
+M	UI/components/terminal_vwap_payoff_dark_panel.py
+M	rtd_bridge/excel_rtd_connection_status.py
+M	services/excel_rtd_reader.py
+M	services/excel_rtd_workbook_probe.py
+M	services/structure_leg_rtd_enrichment_service.py
+M	services/terminal_vwap_payoff_viewmodel_service.py
+
+STAT ALTERACOES RASTREADAS
+ ATT/tests/test_structure_editor_dialog.py          | 50 ++++++++++++++++++++--
+ UI/components/decisions_dark_panel.py              | 11 ++---
+ UI/components/structure_editor_dialog.py           | 11 +++--
+ UI/components/terminal_vwap_payoff_dark_panel.py   | 13 +++++-
+ rtd_bridge/excel_rtd_connection_status.py          |  4 +-
+ services/excel_rtd_reader.py                       |  8 ++--
+ services/excel_rtd_workbook_probe.py               |  4 +-
+ services/structure_leg_rtd_enrichment_service.py   |  4 +-
+ services/terminal_vwap_payoff_viewmodel_service.py | 22 ++++++++++
+ 9 files changed, 105 insertions(+), 22 deletions(-)
+
+ARQUIVOS NAO RASTREADOS
+ATT/CORRECAO_UI/6_call_graph_payoff_flow.txt
+ATT/CORRECAO_UI/7_fix_duplicate_recursive_methods.sh
+ATT/CORRECAO_UI/8_check_excel_rot_instances_20260721_155213.txt
+ATT/CORRECAO_UI/8_check_excel_rot_instances_20260721_155420.txt
+ATT/CORRECAO_UI/8_check_excel_rot_instances_20260721_155628.txt
+ATT/CORRECAO_UI/_check_excel_rot.py
+ATT/CORRECAO_UI/_fix_helper.py
+ATT/CORRECAO_UI/auditoria.sh
+ATT/CORRECAO_UI/localizacao_modulos_ui_20260722_135304.txt
+ATT/CORRECAO_UI/patch_componentes_preco_atual_20260722_141232.txt
+ATT/CORRECAO_UI/resultados/20260721_103607/1_arquivos_orfaos.txt
+ATT/CORRECAO_UI/resultados/20260721_103607/2_funcoes_duplicadas.txt
+ATT/CORRECAO_UI/resultados/20260721_103607/3_sqlite_commit.txt
+ATT/CORRECAO_UI/resultados/20260721_103607/4_ui_refresh.txt
+ATT/CORRECAO_UI/resultados/20260721_103607/5_multiplas_conexoes_ctk.txt
+ATT/CORRECAO_UI/resultados/20260721_103607/RELATORIO_CONSOLIDADO.txt
+ATT/CORRECAO_UI/resultados/20260721_111224/1_arquivos_orfaos.txt
+ATT/CORRECAO_UI/resultados/20260721_111224/2_funcoes_duplicadas.txt
+ATT/CORRECAO_UI/resultados/20260721_111224/3_sqlite_commit.txt
+ATT/CORRECAO_UI/resultados/20260721_111224/4_ui_refresh.txt
+ATT/CORRECAO_UI/resultados/20260721_111224/5_multiplas_conexoes_ctk.txt
+ATT/CORRECAO_UI/resultados/20260721_111224/RELATORIO_CONSOLIDADO.txt
+ATT/CORRECAO_UI/resultados/20260721_131311/1a_arquivos_orfaos.txt
+ATT/CORRECAO_UI/resultados/20260721_131311/2a_funcoes_duplicadas.txt
+ATT/CORRECAO_UI/resultados/20260721_131311/3a_sqlite_commit.txt
+ATT/CORRECAO_UI/resultados/20260721_131311/4a_ui_refresh.txt
+ATT/CORRECAO_UI/resultados/20260721_131311/5a_multiplas_conexoes_ctk.txt
+ATT/CORRECAO_UI/resultados/20260721_131311/aRELATORIO_CONSOLIDADO.txt
+ATT/CORRECAO_UI/resultados/20260721_160544/1_arquivos_orfaos.txt
+ATT/CORRECAO_UI/resultados/20260721_160544/2_funcoes_duplicadas.txt
+ATT/CORRECAO_UI/resultados/20260721_160544/3_sqlite_commit.txt
+ATT/CORRECAO_UI/resultados/20260721_160544/4_ui_refresh.txt
+ATT/CORRECAO_UI/resultados/20260721_160544/5_multiplas_conexoes_ctk.txt
+ATT/CORRECAO_UI/resultados/20260721_160544/RELATORIO_CONSOLIDADO.txt
+ATT/CORRECAO_UI/resultados/20260722_112541/1_arquivos_orfaos.txt
+ATT/CORRECAO_UI/resultados/20260722_112541/2_funcoes_duplicadas.txt
+ATT/CORRECAO_UI/resultados/20260722_112541/3_sqlite_commit.txt
+ATT/CORRECAO_UI/resultados/20260722_112541/4_ui_refresh.txt
+ATT/CORRECAO_UI/resultados/20260722_112541/5_multiplas_conexoes_ctk.txt
+ATT/CORRECAO_UI/run_all_diagnostics.sh.txt
+ATT/CORRECAO_UI/scripts/1_arquivos_orfaos.py
+ATT/CORRECAO_UI/scripts/1_arquivos_orfaos_v2.py
+ATT/CORRECAO_UI/scripts/2_funcoes_duplicadas.py
+ATT/CORRECAO_UI/scripts/3_sqlite_commit.py
+ATT/CORRECAO_UI/scripts/4_ui_refresh.py
+ATT/CORRECAO_UI/scripts/5_multiplas_conexoes_ctk.py
+ATT/CORRECAO_UI/scripts/6_run_teste_excel.sh.txt
+ATT/CORRECAO_UI/scripts/6_verifica_instancia_excel.py
+ATT/CORRECAO_UI/scripts/check_rtd_to_ui_pipeline.py
+ATT/CORRECAO_UI/scripts/diagnose_data_flow.py
+ATT/CORRECAO_UI/scripts/fix_critical_commits.py
+ATT/CORRECAO_UI/scripts/fix_dual_root.py
+ATT/CORRECAO_UI/scripts/map_system.py
+ATT/CORRECAO_UI/scripts/patch_componentes_preco_atual.sh
+ATT/CORRECAO_UI/scripts/patch_preco_atual_viewmodel.sh
+ATT/CORRECAO_UI/scripts/patch_preservar_premium_entrada.sh
+ATT/CORRECAO_UI/scripts/patch_prioridade_preco_atual.sh
+ATT/RELATORIOS_GIT/git_status_20260728_162608.txt
+ATT/RELATORIOS_GIT/git_status_pos_commit_deletados_20260728_163145.txt
+ATT/RELATORIOS_GIT/git_status_pos_deletados_20260728_162930.txt
+ATT/RELATORIOS_GIT/git_status_pos_push_20260728_163810.txt
+ATT/tests/test_terminal_vwap_payoff_app_service_contract.py
+ATT/tests/test_terminal_vwap_payoff_app_service_decisions.py
+ATT/tests/test_terminal_vwap_payoff_current_price.py
+ATT/tools/apply_fix_list_decisions.py
+ATT/tools/audit_payoff_ui_bridge.sh
+ATT/tools/auditar_contrato_painel_decisoes.py
+ATT/tools/find_global_recalculo.sh
+ATT/tools/verify_payoff_ui_bridge_contract.py
+check_excel.py
+connect_excel.py
+scripts/import_rtd_underlying_quotes_wide_csv.py
+
+DIFF CHECK

@@ -94,6 +94,14 @@ class TerminalVWAPPayoffViewModelService:
             "status": self._get(structure, "status", default=None),
         }
 
+    def _build_leg_viewmodel(self, leg: Any, *, index: int) -> dict[str, Any]:
+        """Compatibilidade com consumidores do contrato anterior.
+
+        Delega para a normalização canônica da leg, preservando a separação
+        entre ``premium`` (preço de entrada) e ``current_price`` (RTD).
+        """
+        return self._normalize_leg(leg, index=index)
+
     def _normalize_leg(self, leg: Any, *, index: int) -> dict[str, Any]:
         symbol = self._get(
             leg,
@@ -124,6 +132,19 @@ class TerminalVWAPPayoffViewModelService:
             self._get(leg, "strike", "preco_exercicio", default=None)
         )
 
+        # Preço de mercado da opção, independente do prêmio de entrada.
+        # A prioridade segue o contrato RTD adotado no enrichment service.
+        current_price = self._to_float(
+            self._get(
+                leg,
+                "current_price",
+                "ultimo_preco",
+                "last_price",
+                "price",
+                default=None,
+            )
+        )
+
         return {
             "leg_order": self._get(leg, "leg_order", default=index),
             "symbol": symbol,
@@ -143,6 +164,7 @@ class TerminalVWAPPayoffViewModelService:
             ),
             "quantity": quantity,
             "premium": premium,
+            "current_price": current_price,
             "strike": strike,
             "expiration_date": self._get(
                 leg,
