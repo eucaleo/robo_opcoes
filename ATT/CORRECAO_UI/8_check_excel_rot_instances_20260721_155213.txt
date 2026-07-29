@@ -1,6 +1,0 @@
-[INFO] Usando interpretador: python (Python 3.13.7)
-
-  File "C:\Users\eucal\projeto\ATT\CORRECAO_UI\_check_excel_rot.py", line 60
-    print("para automacao COM neste momento (mesmo que o processo exista").
-                                                                           ^
-SyntaxError: invalid syntax
