@@ -31,9 +31,8 @@ DB_FILES = [
 ]
 
 SCRIPT_CANDIDATES = [
-    ROOT_DIR / "Scripts" / "run_derived_pipeline.py",
-    ROOT_DIR / "Scripts" / "validate_app_db.py",
-    ROOT_DIR / "Scripts" / "build_payoff_summaries.py",
+    ROOT_DIR / "scripts" / "run_derived_pipeline.py",
+    ROOT_DIR / "scripts" / "validate_app_db.py",
 ]
 
 
