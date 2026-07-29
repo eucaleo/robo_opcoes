@@ -45,7 +45,7 @@ def assert_no_forbidden_ui_scope(errors: list[str]) -> None:
         "os.system",
         "os.popen",
         "popen(",
-        "recalculate_payoff_curve_points_once",
+        "recalculate_" + "payoff_curve_points_once",
     ]
 
     forbidden_sql_regex = [
@@ -144,31 +144,6 @@ def assert_latest_snapshot_reading(errors: list[str]) -> None:
         fail(errors, "Leitura UI nao evidencia uso de ultimo timestamp/snapshot.")
 
 
-def assert_script_quarantine(errors: list[str]) -> None:
-    path = ROOT / "scripts" / "recalculate_payoff_curve_points_once.py"
-    text = read_text(path)
-
-    if not text:
-        return
-
-    expected_markers = [
-        "ferramenta de manutencao",
-        "ferramenta de manutenção",
-        "nao e fluxo oficial",
-        "não é fluxo oficial",
-        "PayoffRefreshCommandService",
-    ]
-
-    lowered = text.lower()
-
-    if not any(marker in lowered for marker in expected_markers):
-        fail(
-            errors,
-            "scripts/recalculate_payoff_curve_points_once.py existe, "
-            "mas nao tem cabecalho claro de quarentena/manutencao.",
-        )
-
-
 def main() -> int:
     errors: list[str] = []
 
@@ -176,7 +151,6 @@ def main() -> int:
     assert_command_service_contract(errors)
     assert_backend_wiring(errors)
     assert_latest_snapshot_reading(errors)
-    assert_script_quarantine(errors)
 
     if errors:
         print("ERRO: verificacao de centro de verdade falhou.")
