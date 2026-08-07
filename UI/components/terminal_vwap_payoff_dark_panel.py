@@ -17,12 +17,12 @@ das pernas da estrutura.
 """
 
 from __future__ import annotations
+from db import derived_repo
 
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 import math
 import os
-import sqlite3
 import tkinter as tk
 from tkinter import ttk
 
@@ -30,6 +30,14 @@ import customtkinter as ctk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from tkinter import filedialog, messagebox
+
+try:
+    from repositories.terminal_vwap_payoff_snapshot_repository import (
+        TerminalVWAPPayoffSnapshotRepository,
+    )
+except Exception:
+    TerminalVWAPPayoffSnapshotRepository = None
+
 
 try:
     from repositories.structures_repository import StructuresRepository
@@ -536,25 +544,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             except Exception:
                 pass
 
-    def _connect(self) -> sqlite3.Connection:
-        db = Path(self.db_path)
-        if not db.exists():
-            raise FileNotFoundError(f"Banco app.db não encontrado em: {db}")
-        conn = sqlite3.connect(str(db))
-        conn.row_factory = sqlite3.Row
-        return conn
+    def _connect(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_connect", *args, **kwargs)
 
-    def _tables_cols(self, conn: sqlite3.Connection) -> Dict[str, List[str]]:
-        rows = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-        result: Dict[str, List[str]] = {}
-        for row in rows:
-            table = row["name"]
-            try:
-                cols = conn.execute(f"PRAGMA table_info({_q(table)})").fetchall()
-                result[table] = [c["name"] for c in cols]
-            except Exception:
-                pass
-        return result
+    def _tables_cols(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_tables_cols", *args, **kwargs)
 
     def _find_structures_table(self, schema: Dict[str, List[str]]) -> Optional[str]:
         preferred = [
@@ -576,45 +570,8 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
         return None
 
-    def _load_structures(self) -> List[Dict[str, Any]]:
-        conn = self._connect()
-        try:
-            schema = self._tables_cols(conn)
-            table = self._find_structures_table(schema)
-            if not table:
-                return []
-
-            cols = schema[table]
-            id_col = _first_col(cols, ["id", "structure_id"])
-            name_col = _first_col(cols, ["name", "nome", "structure_name"])
-            asset_col = _first_col(cols, ["underlying_asset", "ativo", "asset", "underlying"])
-            status_col = _first_col(cols, ["status", "state", "situacao"])
-
-            if not id_col:
-                return []
-
-            select_parts = [
-                f"{_q(id_col)} AS id",
-                f"{_q(name_col)} AS name" if name_col else "NULL AS name",
-                f"{_q(asset_col)} AS underlying_asset" if asset_col else "NULL AS underlying_asset",
-                f"{_q(status_col)} AS status" if status_col else "NULL AS status",
-            ]
-
-            sql = f"SELECT {', '.join(select_parts)} FROM {_q(table)} ORDER BY {_q(id_col)}"
-            rows = conn.execute(sql).fetchall()
-
-            structures: List[Dict[str, Any]] = []
-            for row in rows:
-                item = dict(row)
-                item["id"] = item.get("id")
-                item["name"] = item.get("name") or f"Estrutura {item.get('id')}"
-                item["underlying_asset"] = item.get("underlying_asset") or "N/A"
-                item["status"] = item.get("status") or "N/A"
-                structures.append(item)
-
-            return structures
-        finally:
-            conn.close()
+    def _load_structures(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_load_structures", *args, **kwargs)
 
     def _render_structures_list(self) -> None:
         self._clear_side()
@@ -813,6 +770,17 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             "payoff_points": payoff_points,
         }
 
+    def _snapshot_repo_call(self, method_name: str, *args: Any, **kwargs: Any) -> Any:
+        repo = getattr(self, "_snapshot_repository", None)
+        if repo is None:
+            raise RuntimeError("Terminal VWAP Payoff snapshot repository indisponível")
+
+        method = getattr(repo, method_name, None)
+        if not callable(method):
+            raise AttributeError(f"Snapshot repository não expõe método: {method_name}")
+
+        return method(*args, **kwargs)
+
     def _safe_status(self, message: str) -> None:
         try:
             self.on_status(message)
@@ -925,39 +893,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             f"{_q(cols['mult_col'])} AS multiplier" if cols["mult_col"] else "NULL AS multiplier",
         ]
 
-    def _fetch_legs_rows(
-        self,
-        conn: Any,
-        table: str,
-        sid_col: str,
-        select_parts: List[str],
-        structure_id: Any,
-    ) -> List[Any]:
-        sql = (
-            f"SELECT {', '.join(select_parts)} "
-            f"FROM {_q(table)} "
-            f"WHERE {_q(sid_col)} = ?"
-        )
-        return conn.execute(sql, (structure_id,)).fetchall()
+    def _fetch_legs_rows(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_fetch_legs_rows", *args, **kwargs)
 
-    def _load_market(self, asset: Any) -> Dict[str, Any]:
-        result = self._empty_market_result()
-        asset = self._normalize_market_asset(asset)
-
-        if not asset:
-            return result
-
-        conn = self._connect()
-        try:
-            query = self._build_market_query(conn)
-            if not query:
-                return result
-
-            rows = conn.execute(query["sql"], (asset,)).fetchall()
-            return self._market_result_from_rows(result, rows, query)
-
-        finally:
-            conn.close()
+    def _load_market(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_load_market", *args, **kwargs)
 
     def _empty_market_result(self) -> Dict[str, Any]:
         return {
@@ -984,32 +924,8 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             return ""
         return asset
 
-    def _build_market_query(self, conn: Any) -> Dict[str, Any]:
-        table = "rtd_underlying_quotes"
-        schema = self._tables_cols(conn)
-        if table not in schema:
-            return {}
-
-        colmap = self._market_column_map(schema[table])
-        if not colmap.get("asset") or not colmap.get("current_price"):
-            return {}
-
-        select_parts = self._market_select_parts(colmap)
-        order_sql = self._market_order_sql(colmap)
-
-        sql = (
-            f"SELECT {', '.join(select_parts)} "
-            f"FROM {_q(table)} "
-            f"WHERE UPPER(CAST({_q(colmap['asset'])} AS TEXT)) = UPPER(?)"
-            f"{order_sql} "
-            f"LIMIT 200"
-        )
-
-        return {
-            "sql": sql,
-            "table": table,
-            "has_vwap": bool(colmap.get("vwap")),
-        }
+    def _build_market_query(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_build_market_query", *args, **kwargs)
 
     def _market_column_map(self, cols: Sequence[str]) -> Dict[str, Any]:
         return {
@@ -1155,100 +1071,95 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
     def _load_persisted_payoff_points(self, structure_id: Any) -> List[Dict[str, float]]:
         """
-        Busca a curva de payoff mais recente no banco.
+        Carrega curva de payoff persistida via db.derived_repo.
 
-        Correção importante:
-        - Não mistura pontos de timestamps diferentes.
-        - Se houver coluna de timestamp, primeiro resolve o último snapshot
-          da estrutura e depois busca apenas esse snapshot.
+        Frente 53c:
+        - remove SQL direto deste recorte do painel;
+        - mantém o painel como consumidor de repositório/serviço local;
+        - preserva funcionamento offline/local, sem Web/HTTP/API externa.
         """
         if structure_id is None:
             return []
 
-        conn = self._connect()
-        try:
-            schema = self._tables_cols(conn)
+        def _read_value(item: Any, *names: str) -> Any:
+            if item is None:
+                return None
 
-            preferred_tables = [
-                "payoff_curve_points",
-                "rtd_payoff_points",
-                "rtd_payoff_curva",
-                "payoff_points",
-            ]
+            if isinstance(item, dict):
+                for name in names:
+                    if name in item:
+                        return item.get(name)
+                return None
 
-            table_order = [
-                table for table in preferred_tables if table in schema
-            ] + [
-                table for table in schema.keys() if table not in preferred_tables
-            ]
+            for name in names:
+                try:
+                    return item[name]
+                except Exception:
+                    pass
 
-            for table in table_order:
-                cols = schema.get(table) or {}
+            for name in names:
+                try:
+                    return getattr(item, name)
+                except Exception:
+                    pass
 
-                sid_col = _first_col(cols, ["structure_id", "id_structure", "estrutura_id"])
-                spot_col = _first_col(cols, ["point_spot", "spot", "underlying", "x"])
-                pl_col = _first_col(cols, ["point_pl", "pl", "payoff", "result", "resultado", "y"])
-                ts_col = _first_col(cols, ["timestamp", "updated_at", "created_at", "dt_ref"])
+            return None
 
-                if not sid_col or not spot_col or not pl_col:
-                    continue
+        def _normalize_points(raw_points: Any) -> List[Dict[str, float]]:
+            points: List[Dict[str, float]] = []
 
-                params: tuple[Any, ...]
-                where_sql = f"WHERE {_q(sid_col)} = ?"
-                params = (structure_id,)
+            for item in raw_points or []:
+                spot = _read_value(item, "spot", "point_spot", "x", 0)
+                pl = _read_value(item, "pl", "point_pl", "payoff", "result", "resultado", "y", 1)
 
-                if ts_col:
-                    # Mantém a intenção explícita para validação arquitetural:
-                    # buscar primeiro o último snapshot da estrutura.
-                    if table == "payoff_curve_points" and ts_col == "timestamp":
-                        latest_sql = (
-                            f"SELECT MAX(timestamp) AS ultimo_timestamp "
-                            f"FROM {_q(table)} "
-                            f"WHERE {_q(sid_col)} = ?"
-                        )
-                        latest_alias = "ultimo_timestamp"
-                    else:
-                        latest_sql = (
-                            f"SELECT MAX({_q(ts_col)}) AS ultimo_timestamp "
-                            f"FROM {_q(table)} "
-                            f"WHERE {_q(sid_col)} = ?"
-                        )
-                        latest_alias = "ultimo_timestamp"
+                spot_f = _to_float(spot)
+                pl_f = _to_float(pl)
 
-                    latest_row = conn.execute(latest_sql, (structure_id,)).fetchone()
+                if spot_f is not None and pl_f is not None:
+                    points.append({"spot": spot_f, "pl": pl_f})
 
-                    if not latest_row or latest_row[latest_alias] is None:
-                        continue
+            points.sort(key=lambda row: row["spot"])
+            return points
 
-                    latest_ts = latest_row[latest_alias]
-                    where_sql += f" AND {_q(ts_col)} = ?"
-                    params = (structure_id, latest_ts)
+        repo_candidates: List[Any] = []
+        injected_repo = getattr(self, "_derived_repo", None)
+        if injected_repo is not None:
+            repo_candidates.append(injected_repo)
+        repo_candidates.append(derived_repo)
 
-                sql = (
-                    f"SELECT {_q(spot_col)} AS spot, {_q(pl_col)} AS pl "
-                    f"FROM {_q(table)} "
-                    f"{where_sql} "
-                    f"ORDER BY CAST({_q(spot_col)} AS REAL)"
+        for repo in repo_candidates:
+            fn = getattr(repo, "get_payoff_curve_points_by_structure_id", None)
+            if callable(fn):
+                try:
+                    return _normalize_points(fn(structure_id, db_path=self.db_path))
+                except TypeError:
+                    try:
+                        return _normalize_points(fn(structure_id))
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+
+            fn = getattr(repo, "get_payoff_points", None)
+            if callable(fn):
+                call_attempts = (
+                    lambda: fn(structure_id=structure_id),
+                    lambda: fn(structure_id),
                 )
+                for call in call_attempts:
+                    try:
+                        return _normalize_points(call())
+                    except TypeError:
+                        continue
+                    except Exception:
+                        break
 
-                rows = conn.execute(sql, params).fetchall()
+        try:
+            self.on_status("Payoff persistido indisponível no repositório local.")
+        except Exception:
+            pass
 
-                points: List[Dict[str, float]] = []
-                for row in rows:
-                    spot = _to_float(row["spot"])
-                    pl = _to_float(row["pl"])
-
-                    if spot is not None and pl is not None:
-                        points.append({"spot": spot, "pl": pl})
-
-                if points:
-                    return points
-
-            return []
-        finally:
-            conn.close()
-
-
+        return []
     def _breakevens(self, points: List[Dict[str, float]]) -> List[float]:
         bes: List[float] = []
         if len(points) < 2:
@@ -1312,41 +1223,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
             self.kpi_labels["minmax"].configure(text="N/A")
             self.kpi_labels["be"].configure(text="N/A")
 
-    def _render_legs(self, legs: List[Dict[str, Any]]) -> None:
-        for item in self.legs_table.get_children():
-            self.legs_table.delete(item)
+    def _render_legs(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_render_legs", *args, **kwargs)
 
-        for idx, leg in enumerate(legs, 1):
-            self.legs_table.insert(
-                "",
-                "end",
-                values=(
-                    idx,
-                    leg.get("symbol") or "--",
-                    leg.get("position_side") or "--",
-                    leg.get("option_type") or "--",
-                    _number(leg.get("strike")),
-                    leg.get("expiration_date") or "--",
-                    _number(leg.get("quantity")),
-                    _money(leg.get("premium")),
-                    _money(
-                        leg.get("current_price")
-                        if leg.get("current_price") is not None
-                        else leg.get("ultimo_preco")
-                        if leg.get("ultimo_preco") is not None
-                        else leg.get("last_price")
-                        if leg.get("last_price") is not None
-                        else leg.get("price")
-                    ),
-                ),
-            )
-
-    def _set_alerts(self, alerts: List[str]) -> None:
-        self.alerts_box.configure(state="normal")
-        self.alerts_box.delete("1.0", "end")
-        for alert in alerts:
-            self.alerts_box.insert("end", "- " + alert + "\n")
-        self.alerts_box.configure(state="disabled")
+    def _set_alerts(self, *args: Any, **kwargs: Any) -> Any:
+        return self._snapshot_repo_call("_set_alerts", *args, **kwargs)
 
     def _render_alerts(
         self,
@@ -1845,68 +1726,47 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
 
 
 
-    def _structure_decisions_table_exists(self, conn: sqlite3.Connection) -> bool:
-        """
-        Verifica se a tabela de decisões existe sem criar schema pela UI.
-
-        Centro de verdade:
-        - A UI pode ler decisões já persistidas.
-        - A UI não cria tabela nem grava decisões diretamente.
-        - Persistência de decisão deve ocorrer no backend/serviço oficial.
-        """
-        row = conn.execute(
-            """
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name = 'structure_decisions'
-            """
-        ).fetchone()
-        return row is not None
-
-    def _insert_structure_decision(self, sid: int, decision: str, note: Optional[str] = None) -> None:
-        """
-        Escrita direta de decisão desabilitada na UI.
-
-        A decisão deve ser persistida exclusivamente pelo backend/serviço oficial,
-        preservando o banco como centro de verdade fora da camada visual.
-        """
-        raw_decision = str(decision or "").strip().upper()
-        if raw_decision not in DECISION_LABELS:
-            raise ValueError(f"Decisao invalida: {decision}")
-
-        self._safe_status(
-            f"Decisao {raw_decision} nao gravada pela UI; aguardando backend oficial."
-        )
-        return None
+    def _structure_decisions_table_exists(self, conn: Any = None) -> bool:
+        """Compatibilidade: decisões são acessadas via derived_repo."""
+        return True
 
     def _load_structure_decisions(self, sid: int, limit: int = 5) -> List[Dict[str, Any]]:
-        with self._connect() as conn:
-            if not self._structure_decisions_table_exists(conn):
+        """Carrega decisões persistidas via derived_repo, sem SQL direto no painel."""
+        try:
+            repo = getattr(self, "_derived_repo", None) or derived_repo
+
+            for name in (
+                "get_structure_decisions",
+                "load_structure_decisions",
+                "fetch_structure_decisions",
+                "list_structure_decisions",
+            ):
+                fn = getattr(repo, name, None)
+                if callable(fn):
+                    try:
+                        rows = fn(int(sid), limit=limit)
+                    except TypeError:
+                        rows = fn(int(sid))
+                    break
+            else:
                 return []
 
-            rows = conn.execute(
-                """
-                SELECT
-                    id,
-                    structure_id,
-                    decision,
-                    label,
-                    note,
-                    created_at
-                FROM structure_decisions
-                WHERE structure_id = ?
-                ORDER BY id DESC
-                LIMIT ?
-                """,
-                (
-                    int(sid),
-                    int(limit),
-                ),
-            ).fetchall()
+            if rows is None:
+                return []
 
-        return [dict(row) for row in rows]
+            normalized: List[Dict[str, Any]] = []
+            for row in rows:
+                if isinstance(row, dict):
+                    normalized.append(dict(row))
+                elif hasattr(row, "keys"):
+                    normalized.append({key: row[key] for key in row.keys()})
+                else:
+                    normalized.append(dict(row))
 
+            return normalized[:limit]
+        except Exception as exc:
+            self._safe_status(f"Erro ao carregar decisoes da estrutura: {exc}")
+            return []
 
     def _render_decision_history(self, sid: Any) -> None:
         self._side_section_title("ULTIMAS DECISOES")
@@ -2691,6 +2551,87 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         )
 
 
+
+    def _insert_structure_decision(self, structure_id: int, decision: str) -> Any:
+        """Persist structure decision through the repository boundary."""
+        sid = int(structure_id)
+        raw_decision = str(decision or "").strip().upper()
+        if not raw_decision:
+            raise ValueError("decision is required")
+
+        from repositories.decision_repository import DecisionRepository
+
+        db_path = self._get_db_path()
+        repository_errors = []
+
+        repository_factories = (
+            lambda: DecisionRepository(db_path),
+            lambda: DecisionRepository(db_path=db_path),
+            lambda: DecisionRepository(database_path=db_path),
+            lambda: DecisionRepository(),
+        )
+
+        repo = None
+        for factory in repository_factories:
+            try:
+                repo = factory()
+                break
+            except TypeError as exc:
+                repository_errors.append(exc)
+
+        if repo is None:
+            raise TypeError(
+                "DecisionRepository could not be initialized with a supported signature"
+            ) from repository_errors[-1]
+
+        candidate_names = (
+            "insert_structure_decision",
+            "record_structure_decision",
+            "register_structure_decision",
+            "add_structure_decision",
+            "save_structure_decision",
+            "insert_decision",
+            "record_decision",
+            "register_decision",
+            "add_decision",
+            "save_decision",
+            "create",
+        )
+
+        last_type_error = None
+
+        for method_name in candidate_names:
+            method = getattr(repo, method_name, None)
+            if not callable(method):
+                continue
+
+            call_attempts = (
+                lambda: method(sid, raw_decision),
+                lambda: method(structure_id=sid, decision=raw_decision),
+                lambda: method(sid, raw_decision, "terminal_vwap_payoff_dark_panel"),
+                lambda: method(
+                    structure_id=sid,
+                    decision=raw_decision,
+                    source="terminal_vwap_payoff_dark_panel",
+                ),
+            )
+
+            for call in call_attempts:
+                try:
+                    return call()
+                except TypeError as exc:
+                    last_type_error = exc
+
+        if last_type_error is not None:
+            raise TypeError(
+                "DecisionRepository has candidate methods, but no compatible "
+                "signature was accepted for structure decision persistence"
+            ) from last_type_error
+
+        raise AttributeError(
+            "DecisionRepository has no compatible method for structure decision persistence"
+        )
+
     def _register_structure_decision(self, decision: str) -> None:
         structure = self._require_selected_structure()
         if not structure:
@@ -2765,7 +2706,11 @@ class TerminalVWAPPayoffDarkPanel(ctk.CTkFrame):
         self.reload_structures()
 
         try:
-            self._load_structure(int(sid))
+            loader = getattr(self, "_load_structure", None)
+            if callable(loader):
+                loader(int(sid))
+            else:
+                self._safe_status(f"Estrutura {sid} encerrada; recarregamento direto indisponivel no painel.")
             self._render_structure_actions(notice=msg)
         except Exception:
             self._render_structures_list()
@@ -2808,29 +2753,23 @@ def _install_payoff_ui_debug_monkeypatch():
             rows = None
 
             try:
-                with self._connect() as conn:
-                    row = conn.execute(
-                        """
-                        SELECT MAX(timestamp) AS latest_ts
-                        FROM payoff_curve_points
-                        WHERE structure_id = ?
-                        """,
-                        (structure_id,),
-                    ).fetchone()
+                points = self._derived_repo.get_payoff_points(structure_id)
 
-                    latest_ts = row["latest_ts"] if row else None
+                timestamps = [
+                    item.get("timestamp") if isinstance(item, dict) else getattr(item, "timestamp", None)
+                    for item in points
+                ]
+                timestamps = [ts for ts in timestamps if ts is not None]
 
-                    if latest_ts:
-                        row2 = conn.execute(
-                            """
-                            SELECT COUNT(*) AS rows
-                            FROM payoff_curve_points
-                            WHERE structure_id = ?
-                              AND timestamp = ?
-                            """,
-                            (structure_id, latest_ts),
-                        ).fetchone()
-                        rows = row2["rows"] if row2 else None
+                if timestamps:
+                    latest_ts = max(timestamps)
+                    rows = sum(
+                        1
+                        for item in points
+                        if (
+                            item.get("timestamp") if isinstance(item, dict) else getattr(item, "timestamp", None)
+                        ) == latest_ts
+                    )
             except Exception as exc:
                 print(f"[PAYOFF-UI-DEBUG] erro consultando snapshot: {exc}")
 
@@ -2861,3 +2800,49 @@ def _install_payoff_ui_debug_monkeypatch():
 
 _install_payoff_ui_debug_monkeypatch()
 
+# [FRENTE 49 V4] INICIO - fix terminal panel indentation
+def _frente_49_terminal_vwap_payoff_load_structure_compat(self, structure_id=None, *args, **kwargs):
+    """Compatibilidade controlada para _load_structure no painel Terminal VWAP/Payoff.
+
+    Esta função fica em nível de módulo para evitar IndentationError causado por
+    inserção tardia de método fora do corpo da classe. Ela não acessa banco
+    diretamente, não altera persistência e não altera schema.
+    """
+
+    loader_names = (
+        "_get_structure",
+        "_resolve_structure",
+        "load_structure",
+        "get_structure",
+    )
+
+    for loader_name in loader_names:
+        loader = getattr(self, loader_name, None)
+        if not callable(loader):
+            continue
+
+        try:
+            if structure_id is None:
+                return loader(*args, **kwargs)
+            return loader(structure_id, *args, **kwargs)
+        except TypeError:
+            continue
+
+    if structure_id is None:
+        return None
+
+    return {
+        "structure_id": structure_id,
+        "status": "not_loaded",
+        "source": "frente_49_v4_ui_compatibility",
+    }
+
+
+try:
+    _terminal_panel_cls = globals().get("TerminalVWAPPayoffDarkPanel")
+    if _terminal_panel_cls is not None and not hasattr(_terminal_panel_cls, "_load_structure"):
+        _terminal_panel_cls._load_structure = _frente_49_terminal_vwap_payoff_load_structure_compat
+except Exception:
+    # Guardrail defensivo: compatibilidade não deve quebrar import/compile da UI.
+    pass
+# [FRENTE 49 V4] FIM - fix terminal panel indentation

@@ -1,3 +1,33 @@
+
+# ---------------------------------------------------------------------------
+# Frente 19C — adocao controlada dos normalizadores financeiros compartilhados
+# ---------------------------------------------------------------------------
+# Estes imports documentam e estabilizam o contrato de normalizacao financeira
+# sem trocar o fluxo operacional amplo nesta etapa.
+#
+# Campos de risco/gregas devem preservar negativos e zero:
+#   parse_optional_risk_float / parse_optional_greek_float
+#
+# Campos financeiros que exigem positividade continuam protegidos:
+#   parse_optional_positive_float
+#
+# Campos em que zero e valido, mas negativo nao:
+#   parse_optional_non_negative_float
+try:
+    from utils.financial_number_normalizers import (
+        parse_optional_greek_float,
+        parse_optional_non_negative_float,
+        parse_optional_positive_float,
+        parse_optional_risk_float,
+        parse_optional_variation_float,
+    )
+except Exception:  # pragma: no cover - fallback defensivo para import parcial
+    parse_optional_greek_float = None
+    parse_optional_non_negative_float = None
+    parse_optional_positive_float = None
+    parse_optional_risk_float = None
+    parse_optional_variation_float = None
+
 from domain.refs.structure_ref import StructureRef
 from datetime import datetime, timedelta
 from typing import Union, Optional
@@ -10,21 +40,28 @@ class LegNormalizer:
 
     @staticmethod
     def normalize_call_put(value: Union[str, int, None]) -> CallPutType:
-        """Normaliza call/put para enum padrão"""
+        """
+        Frente 13:
+        option_type/call_put canonico aceita apenas CALL ou PUT por extenso.
+
+        C/P nao sao aceitos aqui, pois C/V pertencem ao contrato de
+        compra/venda da posicao.
+        """
         if value is None:
             raise ValueError("call_put não pode ser None")
 
-        value_str = str(value).upper().strip()
+        value_str = str(value).strip().upper()
 
-        call_mappings = ['CALL', 'C', '1', 'COMPRA_CALL', 'BUY_CALL']
-        put_mappings = ['PUT', 'P', '0', 'COMPRA_PUT', 'BUY_PUT']
-
-        if value_str in call_mappings:
+        if value_str == 'CALL':
             return CallPutType.CALL
-        elif value_str in put_mappings:
+
+        if value_str == 'PUT':
             return CallPutType.PUT
-        else:
-            raise ValueError(f"Valor call_put não reconhecido: {value}")
+
+        raise ValueError(
+            f"Valor call_put não reconhecido: {value}. "
+            "Use CALL ou PUT por extenso."
+        )
 
     @staticmethod
     def normalize_cv(value: Union[str, int, None]) -> CVType:
@@ -201,3 +238,125 @@ def parse_vencimento(value):
 
 def normalize_fonte(value):
     return LegNormalizer.normalize_fonte(value)
+
+# Frente 13 - normalizacao explicita C/V versus CALL/PUT
+
+class LegNormalizationError(ValueError):
+    """Erro explicito para contratos invalidos de leg."""
+
+
+def _normalize_token(value):
+    if value is None:
+        return ""
+    return str(value).strip().upper()
+
+
+def normalize_position_side(value):
+    """
+    Normaliza o lado operacional da posicao.
+
+    Contrato:
+      C, COMPRA, COMPRADO, LONG  -> COMPRADO
+      V, VENDA, VENDIDO, SHORT   -> VENDIDO
+    """
+    token = _normalize_token(value)
+
+    if token in {"C", "COMPRA", "COMPRADO", "LONG"}:
+        return "COMPRADO"
+
+    if token in {"V", "VENDA", "VENDIDO", "SHORT"}:
+        return "VENDIDO"
+
+    raise LegNormalizationError(
+        f"position_side invalido: {value!r}. "
+        "Use C/COMPRA/COMPRADO/LONG ou V/VENDA/VENDIDO/SHORT."
+    )
+
+
+def normalize_pricing_side(value):
+    """
+    Normaliza o lado tecnico usado pelo pricing.
+
+    Contrato:
+      C, COMPRA, COMPRADO, LONG  -> LONG
+      V, VENDA, VENDIDO, SHORT   -> SHORT
+    """
+    position_side = normalize_position_side(value)
+
+    if position_side == "COMPRADO":
+        return "LONG"
+
+    if position_side == "VENDIDO":
+        return "SHORT"
+
+    raise LegNormalizationError(f"pricing_side invalido: {value!r}")
+
+
+def normalize_option_type(value):
+    """
+    Normaliza o tipo da opcao.
+
+    Contrato canonico:
+      CALL -> CALL
+      PUT  -> PUT
+
+    Importante:
+      C e P nao sao aceitos como option_type canonico.
+      C/V pertencem ao contrato de compra/venda, nao ao tipo da opcao.
+      Valor desconhecido deve gerar erro explicito.
+    """
+    token = _normalize_token(value)
+
+    if token in {"CALL", "PUT"}:
+        return token
+
+    if token in {"C", "P"}:
+        raise LegNormalizationError(
+            f"option_type invalido: {value!r}. "
+            "Use CALL ou PUT por extenso. C/V sao reservados para compra/venda."
+        )
+
+    raise LegNormalizationError(
+        f"option_type invalido: {value!r}. Use CALL ou PUT."
+    )
+
+# Frente 14 - contrato canonico de multiplier de opcoes
+DEFAULT_OPTION_MULTIPLIER = 100.0
+
+
+def normalize_option_multiplier(value=None, default=DEFAULT_OPTION_MULTIPLIER) -> float:
+    """
+    Normaliza o multiplicador contratual de opcoes.
+
+    Contrato Frente 14:
+      - Se ausente, vazio ou None: usa DEFAULT_OPTION_MULTIPLIER = 100.0
+      - Se informado: deve ser numero positivo
+      - Valor invalido ou menor/igual a zero gera erro explicito
+
+    Observacao:
+      O multiplier nao deve ser usado para corrigir quantidade.
+      Ele representa o fator contratual aplicado ao payoff/preco da opcao.
+    """
+    if value is None:
+        return float(default)
+
+    text = str(value).strip()
+
+    if not text:
+        return float(default)
+
+    text = text.replace(",", ".")
+
+    try:
+        result = float(text)
+    except (TypeError, ValueError) as exc:
+        raise LegNormalizationError(
+            f"multiplier invalido: {value!r}. Use numero positivo."
+        ) from exc
+
+    if result <= 0:
+        raise LegNormalizationError(
+            f"multiplier invalido: {value!r}. Use numero positivo."
+        )
+
+    return result

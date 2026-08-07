@@ -1,9 +1,56 @@
 from __future__ import annotations
 
-import sqlite3
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Iterable
+
+from repositories.operational_data_status_service_sql_boundary import build_operational_data_status as _boundary_build_operational_data_status
+from repositories.operational_data_status_service_sql_boundary import _table_names as _boundary__table_names
+from repositories.operational_data_status_service_sql_boundary import _column_names as _boundary__column_names
+from repositories.operational_data_status_service_sql_boundary import _count_rows as _boundary__count_rows
+from repositories.operational_data_status_service_sql_boundary import _count_distinct as _boundary__count_distinct
+from repositories.operational_data_status_service_sql_boundary import _max_text as _boundary__max_text
+
+def _coerce_operational_data_status(value):
+    if isinstance(value, OperationalDataStatus):
+        return value
+    if hasattr(value, "__dataclass_fields__"):
+        payload = {
+            name: getattr(value, name)
+            for name in value.__dataclass_fields__
+            if hasattr(value, name)
+        }
+        return OperationalDataStatus(**payload)
+    if isinstance(value, dict):
+        return OperationalDataStatus(**value)
+    return value
+
+
+def build_operational_data_status(db_path):
+    return _coerce_operational_data_status(
+        _boundary_build_operational_data_status(db_path)
+    )
+
+
+def _table_names(conn):
+    return _boundary__table_names(conn)
+
+
+def _column_names(conn, table_name):
+    return _boundary__column_names(conn, table_name)
+
+
+def _count_rows(conn, table_name):
+    return _boundary__count_rows(conn, table_name)
+
+
+def _count_distinct(conn, table_name, column_name):
+    return _boundary__count_distinct(conn, table_name, column_name)
+
+
+def _max_text(conn, table_name, column_name):
+    return _boundary__max_text(conn, table_name, column_name)
+
 
 
 SNAPSHOT_TABLE_CANDIDATES = (
@@ -88,87 +135,6 @@ class OperationalDataStatusService:
         return build_operational_data_status(self.db_path)
 
 
-def build_operational_data_status(db_path: str | Path) -> OperationalDataStatus:
-    path = Path(db_path)
-    source = "sqlite:" + str(path)
-
-    if not path.exists():
-        return OperationalDataStatus(
-            database_path=str(path),
-            database_exists=False,
-            source=source,
-            status="database_missing",
-            errors=["database_file_not_found"],
-        )
-
-    errors: list[str] = []
-
-    try:
-        with sqlite3.connect(str(path)) as conn:
-            table_names = _table_names(conn)
-
-            snapshot = _summarize_first_existing_table(
-                conn=conn,
-                table_names=table_names,
-                candidates=SNAPSHOT_TABLE_CANDIDATES,
-                count_distinct_symbols=True,
-            )
-            intraday = _summarize_first_existing_table(
-                conn=conn,
-                table_names=table_names,
-                candidates=INTRADAY_TABLE_CANDIDATES,
-                count_distinct_symbols=False,
-            )
-            candles = _summarize_first_existing_table(
-                conn=conn,
-                table_names=table_names,
-                candidates=CANDLE_TABLE_CANDIDATES,
-                count_distinct_symbols=False,
-            )
-
-    except sqlite3.Error as exc:
-        return OperationalDataStatus(
-            database_path=str(path),
-            database_exists=True,
-            source=source,
-            status="sqlite_error",
-            errors=[str(exc)],
-        )
-
-    latest_update = _latest_text_value(
-        (
-            snapshot.latest_update,
-            intraday.latest_update,
-            candles.latest_update,
-        )
-    )
-
-    status = _overall_status(
-        snapshot_available=snapshot.available,
-        intraday_available=intraday.available,
-        candles_available=candles.available,
-    )
-
-    return OperationalDataStatus(
-        database_path=str(path),
-        database_exists=True,
-        source=source,
-        status=status,
-        snapshot_table=snapshot.table_name,
-        intraday_table=intraday.table_name,
-        candle_table=candles.table_name,
-        snapshot_available=snapshot.available,
-        intraday_available=intraday.available,
-        candles_available=candles.available,
-        snapshot_symbols_count=snapshot.distinct_symbols_count,
-        intraday_rows_count=intraday.rows_count,
-        candles_count=candles.rows_count,
-        latest_snapshot_update=snapshot.latest_update,
-        latest_intraday_update=intraday.latest_update,
-        latest_candle_update=candles.latest_update,
-        latest_update=latest_update,
-        errors=errors,
-    )
 
 
 def _overall_status(
@@ -188,15 +154,6 @@ def _overall_status(
     return "empty"
 
 
-def _table_names(conn: sqlite3.Connection) -> set[str]:
-    rows = conn.execute(
-        """
-        SELECT name
-        FROM sqlite_master
-        WHERE type = 'table'
-        """
-    ).fetchall()
-    return {str(row[0]) for row in rows}
 
 
 def _summarize_first_existing_table(
@@ -239,11 +196,6 @@ def _summarize_first_existing_table(
     )
 
 
-def _column_names(conn: sqlite3.Connection, table_name: str) -> set[str]:
-    rows = conn.execute(
-        "PRAGMA table_info(" + _quote_identifier(table_name) + ")"
-    ).fetchall()
-    return {str(row[1]) for row in rows}
 
 
 def _first_existing_name(existing_names: set[str], candidates: Iterable[str]) -> str | None:
@@ -257,35 +209,10 @@ def _first_existing_name(existing_names: set[str], candidates: Iterable[str]) ->
     return None
 
 
-def _count_rows(conn: sqlite3.Connection, table_name: str) -> int:
-    row = conn.execute(
-        "SELECT COUNT(*) FROM " + _quote_identifier(table_name)
-    ).fetchone()
-    return int(row[0] or 0)
 
 
-def _count_distinct(conn: sqlite3.Connection, table_name: str, column_name: str) -> int:
-    row = conn.execute(
-        "SELECT COUNT(DISTINCT "
-        + _quote_identifier(column_name)
-        + ") FROM "
-        + _quote_identifier(table_name)
-    ).fetchone()
-    return int(row[0] or 0)
 
 
-def _max_text(conn: sqlite3.Connection, table_name: str, column_name: str) -> str | None:
-    row = conn.execute(
-        "SELECT MAX("
-        + _quote_identifier(column_name)
-        + ") FROM "
-        + _quote_identifier(table_name)
-    ).fetchone()
-
-    if row is None or row[0] is None:
-        return None
-
-    return str(row[0])
 
 
 def _latest_text_value(values: Iterable[str | None]) -> str | None:

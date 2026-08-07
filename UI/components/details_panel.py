@@ -3,7 +3,6 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 from typing import Dict, Optional, Any
 import json
-import sqlite3
 from pathlib import Path
 
 
@@ -273,19 +272,8 @@ class DetailsPanel(ttk.LabelFrame):
             return str(path)
 
     def _latest_snapshot_timestamp_in_db(self, db_path, sid, sid_text):
-        import sqlite3
-
-        if not db_path.exists():
-            return None
-
-        try:
-            con = sqlite3.connect(str(db_path))
-            try:
-                return self._latest_snapshot_timestamp_in_connection(con, sid, sid_text)
-            finally:
-                con.close()
-        except sqlite3.Error:
-            return None
+        boundary = self._get_details_panel_sql_boundary()
+        return boundary._latest_snapshot_timestamp_in_db(db_path, sid, sid_text)
 
     def _latest_snapshot_timestamp_in_connection(self, con, sid, sid_text):
         cur = con.cursor()
@@ -322,21 +310,12 @@ class DetailsPanel(ttk.LabelFrame):
         return ordered
 
     def _table_names(self, cur):
-        rows = cur.execute(
-            """
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-              AND name NOT LIKE 'sqlite_%'
-            """
-        ).fetchall()
-        return [row[0] for row in rows]
+        boundary = self._get_details_panel_sql_boundary()
+        return boundary._table_names(cur)
 
     def _table_columns(self, cur, table):
-        rows = cur.execute(
-            f"PRAGMA table_info({self._quote_sql_identifier(table)})"
-        ).fetchall()
-        return [row[1] for row in rows]
+        boundary = self._get_details_panel_sql_boundary()
+        return boundary._table_columns(cur, table)
 
     def _quote_sql_identifier(self, identifier):
         return '"' + str(identifier).replace('"', '""') + '"'
@@ -493,25 +472,8 @@ class DetailsPanel(ttk.LabelFrame):
         sid,
         sid_text,
     ):
-        import sqlite3
-
-        try:
-            row = cur.execute(
-                f"""
-                SELECT MAX({self._quote_sql_identifier(timestamp_col)})
-                FROM {self._quote_sql_identifier(table)}
-                WHERE {self._quote_sql_identifier(structure_col)} = ?
-                   OR CAST({self._quote_sql_identifier(structure_col)} AS TEXT) = ?
-                """,
-                (sid, sid_text),
-            ).fetchone()
-        except sqlite3.Error:
-            return None
-
-        if row and row[0] is not None:
-            return str(row[0])
-
-        return None
+        boundary = self._get_details_panel_sql_boundary()
+        return boundary._max_timestamp_for_structure_column(cur, table, structure_col, timestamp_col, sid, sid_text)
 
     def _compute_recalc_signature(self, structure_id):
         return (
@@ -979,111 +941,52 @@ class DetailsPanel(ttk.LabelFrame):
         self, structure_id
     ) -> Optional[Dict[str, Any]]:
         """
-        alteracao_36: filtra por structure_id (INTEGER) em structure_decisions.
-        Legado aba removido.
+        Frente 53b: delega leitura local da decisao mais recente para db.derived_repo.
+
+        Sem Web, sem HTTP, sem API externa e sem troca de persistencia.
         """
+        from db import derived_repo
+
         sid = self._resolve_structure_key(structure_id)
-        db_path = self._app_db_path()
-        con = sqlite3.connect(str(db_path))
-        con.row_factory = sqlite3.Row
-        cur = con.cursor()
-        try:
-            select_cols = [
-                "structure_id", "timestamp", "decision", "level",
-                "pl_atual", "pl_max", "pl_pct_of_max", "dte_min",
-                "spot_ref", "meta_json", "created_at", "why_json",
-            ]
-
-            row = cur.execute(
-                f"""
-                SELECT {", ".join(select_cols)}
-                FROM structure_decisions
-                WHERE structure_id = ?
-                ORDER BY COALESCE(created_at, timestamp) DESC
-                LIMIT 1
-                """,
-                (sid,),
-            ).fetchone()
-
-            if not row:
-                return None
-
-            d = dict(row)
-            if d.get("why_json") is not None:
-                d["why"] = d["why_json"]
-
-            d["spot_reference"] = d.pop("spot_ref", None)
-            return d
-        finally:
-            con.close()
+        result = derived_repo.get_latest_structure_decision(
+            sid,
+            db_path=self._app_db_path(),
+        )
+        return result if isinstance(result, dict) else None
 
     def _fetch_payoff_points_from_app_db(self, structure_id):
         """
-        alteracao_36: filtra por structure_id (INTEGER) em payoff_curve_points.
-        Legado aba removido.
+        Frente 53b: delega leitura local dos pontos de payoff para db.derived_repo.
+
+        Sem Web, sem HTTP, sem API externa e sem troca de persistencia.
         """
+        from db import derived_repo
+
         sid = self._resolve_structure_key(structure_id)
-        db_path = self._app_db_path()
-        con = sqlite3.connect(str(db_path))
-        con.row_factory = sqlite3.Row
-        cur = con.cursor()
-        try:
-            rows = cur.execute(
-                """
-                SELECT point_spot, point_pl
-                FROM payoff_curve_points
-                WHERE structure_id = ?
-                ORDER BY point_spot ASC
-                """,
-                (sid,),
-            ).fetchall()
-            return [
-                (float(r["point_spot"]), float(r["point_pl"]))
-                for r in rows
-                if r["point_spot"] is not None and r["point_pl"] is not None
-            ]
-        finally:
-            con.close()
+        return derived_repo.get_payoff_curve_points_by_structure_id(
+            sid,
+            db_path=self._app_db_path(),
+        )
 
     def _fetch_audit_info_from_app_db(self, structure_id) -> Dict[str, Any]:
         """
-        alteracao_36: filtra por structure_id (INTEGER).
-        Legado aba removido.
+        Frente 53b: delega auditoria local minima de payoff para db.derived_repo.
+
+        Sem Web, sem HTTP, sem API externa e sem troca de persistencia.
         """
+        from db import derived_repo
+
         sid = self._resolve_structure_key(structure_id)
-        db_path = self._app_db_path()
-        con = sqlite3.connect(str(db_path))
-        con.row_factory = sqlite3.Row
-        cur = con.cursor()
-        try:
-            row = cur.execute(
-                """
-                SELECT created_at, timestamp
-                FROM structure_decisions
-                WHERE structure_id = ?
-                ORDER BY COALESCE(created_at, timestamp) DESC
-                LIMIT 1
-                """,
-                (sid,),
-            ).fetchone()
-
-            created_at = None
-            if row:
-                created_at = row["created_at"] or row["timestamp"]
-
-            n_points = cur.execute(
-                "SELECT COUNT(*) AS n FROM payoff_curve_points WHERE structure_id = ?",
-                (sid,),
-            ).fetchone()["n"]
-
-            return {
-                "source_table": "app.db:structure_decisions / payoff_curve_points",
-                "created_at": created_at,
-                "count_points": n_points,
-                "fallback": False,
-            }
-        finally:
-            con.close()
+        info = derived_repo.get_structure_payoff_audit_info(
+            sid,
+            db_path=self._app_db_path(),
+        )
+        return info if isinstance(info, dict) else {
+            "source_table": "derived_repo_local_app_db",
+            "created_at": None,
+            "count_points": 0,
+            "fallback": True,
+        }
 
     def _compute_breakevens_from_points(self, pts):
         if not pts or len(pts) < 2:
@@ -1223,3 +1126,12 @@ class DetailsPanel(ttk.LabelFrame):
                 color="red",
             )
             print(f"[UI] Erro delegando recalc: {exc}")
+
+    def _get_details_panel_sql_boundary(self):
+        boundary = getattr(self, "_details_panel_sql_boundary", None)
+        if boundary is None:
+            from repositories.details_panel_sql_boundary import DetailsPanelSqlBoundary
+
+            boundary = DetailsPanelSqlBoundary(owner=self)
+            self._details_panel_sql_boundary = boundary
+        return boundary

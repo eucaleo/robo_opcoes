@@ -1,6 +1,4 @@
 from __future__ import annotations
-
-import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
@@ -8,6 +6,7 @@ from typing import Any
 from repositories.rtd_option_quotes_intraday_candle_repository import (
     RtdOptionQuotesIntradayCandleRepository,
 )
+from repositories.rtd_option_quotes_intraday_history_repository import fetch_intraday_history_rows_for_candles
 
 
 EXCHANGE_TIMEZONE = timezone(timedelta(hours=-3), "America/Sao_Paulo")
@@ -108,51 +107,14 @@ class RtdOptionQuotesIntradayCandleService:
         db_path: str | Path,
         symbol: str | None = None,
     ) -> list[dict[str, Any]]:
-        path = Path(db_path)
-        if not path.exists():
-            return []
-
-        conn = sqlite3.connect(path)
-        conn.row_factory = sqlite3.Row
-        try:
-            table = conn.execute(
-                """
-                select name
-                from sqlite_master
-                where type = 'table'
-                  and name = 'rtd_option_quotes_intraday_history'
-                """
-            ).fetchone()
-
-            if not table:
-                return []
-
-            cols = [
-                str(col["name"])
-                for col in conn.execute(
-                    "pragma table_info(rtd_option_quotes_intraday_history)"
-                ).fetchall()
-            ]
-
-            query = "select * from rtd_option_quotes_intraday_history"
-            params: list[Any] = []
-
-            if symbol:
-                if "symbol" in cols:
-                    query += " where symbol = ?"
-                    params.append(symbol)
-                elif "codigo_opcao" in cols:
-                    query += " where codigo_opcao = ?"
-                    params.append(symbol)
-
-            if "captured_at" in cols:
-                query += " order by captured_at"
-            elif "timestamp" in cols:
-                query += " order by timestamp"
-
-            return [dict(row) for row in conn.execute(query, params).fetchall()]
-        finally:
-            conn.close()
+        """Load intraday history rows through repository boundary (Frente 68)."""
+        params = dict(locals())
+        self_obj = params.get("self")
+        if "db_path" not in params and "path" not in params and self_obj is not None:
+            inferred_db_path = getattr(self_obj, "db_path", None)
+            if inferred_db_path is not None:
+                params["db_path"] = inferred_db_path
+        return fetch_intraday_history_rows_for_candles(**params)
 
     def _validate_interval(self, interval_minutes: int) -> None:
         if interval_minutes not in {1, 5, 15}:
@@ -266,3 +228,239 @@ class RtdOptionQuotesIntradayCandleService:
             return None
 
         return delta
+
+# === INICIO FRENTE 36 RTD OPTION QUOTES INTRADAY CANDLE SERVICE PARSER BRIDGE CONTRACT ===
+# Frente 36:
+# Ponte contratual local para parsers canonicos compartilhados no candle service
+# de rtd_option_quotes.
+#
+# Esta frente apenas registra helpers defensivos para consumo futuro de:
+# - utils/number_parser.py
+# - utils/date_parser.py
+#
+# Limites preservados:
+# - sem troca de persistencia;
+# - sem troca de schema;
+# - sem alteracao operacional abrupta do candle service;
+# - option_type canonico permanece somente CALL/PUT por extenso;
+# - C/V sao compra/venda legado.
+
+try:
+    from utils import number_parser as _frente36_number_parser
+except Exception:
+    _frente36_number_parser = None
+
+try:
+    from utils import date_parser as _frente36_date_parser
+except Exception:
+    _frente36_date_parser = None
+
+
+def _frente36_call_parser(module, names, value, default=None):
+    """Chama parser canonico quando disponivel, preservando fallback local."""
+    for name in names:
+        parser = getattr(module, name, None) if module is not None else None
+        if callable(parser):
+            try:
+                parsed = parser(value)
+            except Exception:
+                continue
+            if parsed is not None:
+                return parsed
+    return default
+
+
+def _frente36_parse_optional_float(value, default=None):
+    """Parser numerico contratual para floats opcionais."""
+    return _frente36_call_parser(
+        _frente36_number_parser,
+        (
+            "parse_optional_float",
+            "parse_float_br",
+            "to_optional_float",
+            "to_float",
+        ),
+        value,
+        default,
+    )
+
+
+def _frente36_parse_positive_float(value, default=None):
+    """Parser numerico contratual para floats positivos."""
+    return _frente36_call_parser(
+        _frente36_number_parser,
+        (
+            "parse_positive_float",
+            "parse_optional_positive_float",
+            "parse_optional_float",
+            "parse_float_br",
+        ),
+        value,
+        default,
+    )
+
+
+def _frente36_parse_percent(value, default=None):
+    """Parser contratual para percentuais quando disponivel."""
+    return _frente36_call_parser(
+        _frente36_number_parser,
+        (
+            "parse_percent",
+            "parse_optional_percent",
+            "parse_optional_float",
+            "parse_float_br",
+        ),
+        value,
+        default,
+    )
+
+
+def _frente36_parse_datetime_to_iso(value, default=None):
+    """Parser contratual para datas/datetimes em formato ISO."""
+    return _frente36_call_parser(
+        _frente36_date_parser,
+        (
+            "parse_datetime_to_iso",
+            "parse_excel_date_to_iso",
+            "parse_date_to_iso",
+            "to_iso_datetime",
+            "to_iso_date",
+        ),
+        value,
+        default,
+    )
+
+
+def _frente36_normalize_symbol(value):
+    """Normalizacao contratual minima de simbolo para candles."""
+    if value is None:
+        return None
+    text = str(value).strip().upper()
+    return text or None
+
+
+def _frente36_parser_bridge_contract():
+    """Contrato local da Frente 36, sem mudanca operacional nesta etapa."""
+    return {
+        "target": "services/rtd_option_quotes_intraday_candle_service.py",
+        "number_parser": "utils/number_parser.py",
+        "date_parser": "utils/date_parser.py",
+        "persistence_changed": False,
+        "schema_changed": False,
+        "operational_flow_changed": False,
+        "option_type_contract": "CALL/PUT por extenso; C/V sao compra/venda legado",
+    }
+# === FIM FRENTE 36 RTD OPTION QUOTES INTRADAY CANDLE SERVICE PARSER BRIDGE CONTRACT ===
+
+# INICIO FRENTE 41 RTD OPTION QUOTES INTRADAY CANDLE SERVICE PARSER BRIDGE CONTRACT
+# Frente 41:
+# Ponte local e defensiva para o Candle Service preferir os parsers canonicos
+# utils/number_parser.py e utils/date_parser.py quando disponiveis.
+# Objetivo: reduzir normalizacao numerica/data duplicada no eixo intraday/candles.
+# Sem troca de persistencia.
+# Sem troca de schema.
+# Sem alteracao operacional ampla.
+# Nenhuma operacao de versionamento executada.
+
+try:
+    from utils import number_parser as _frente41_number_parser
+except Exception:  # pragma: no cover - ponte defensiva para compatibilidade local
+    _frente41_number_parser = None
+
+try:
+    from utils import date_parser as _frente41_date_parser
+except Exception:  # pragma: no cover - ponte defensiva para compatibilidade local
+    _frente41_date_parser = None
+
+
+def _frente41_parse_float_value(value, default=None):
+    """Parse numerico local preferindo utils.number_parser, com fallback BR seguro."""
+    if value is None:
+        return default
+
+    parser = _frente41_number_parser
+
+    if parser is not None:
+        for name in ("parse_optional_float", "parse_float_br", "parse_float"):
+            func = getattr(parser, name, None)
+            if callable(func):
+                try:
+                    parsed = func(value)
+                    return default if parsed is None else parsed
+                except Exception:
+                    pass
+
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    text = str(value).strip()
+    if not text:
+        return default
+
+    text = text.replace("%", "").strip()
+
+    try:
+        if "," in text and "." in text:
+            text = text.replace(".", "").replace(",", ".")
+        elif "," in text:
+            text = text.replace(",", ".")
+        return float(text)
+    except Exception:
+        return default
+
+
+def _frente41_parse_positive_float_value(value, default=None):
+    """Parse numerico positivo para campos como bid, ask, last, volume e VWAP."""
+    parsed = _frente41_parse_float_value(value, default=default)
+    if parsed is None:
+        return default
+    try:
+        parsed_float = float(parsed)
+    except Exception:
+        return default
+    if parsed_float < 0:
+        return default
+    return parsed_float
+
+
+def _frente41_parse_datetime_value(value, default=None):
+    """Parse defensivo de data/hora preferindo utils.date_parser."""
+    if value is None:
+        return default
+
+    parser = _frente41_date_parser
+
+    if parser is not None:
+        for name in ("parse_datetime_to_iso", "parse_excel_date_to_iso", "parse_date_to_iso"):
+            func = getattr(parser, name, None)
+            if callable(func):
+                try:
+                    parsed = func(value)
+                    return default if parsed is None else parsed
+                except Exception:
+                    pass
+
+    try:
+        if hasattr(value, "isoformat"):
+            return value.isoformat()
+    except Exception:
+        pass
+
+    text = str(value).strip()
+    return text or default
+
+
+def _frente41_normalize_symbol(value):
+    """Normaliza simbolo intraday/candle sem alterar persistencia ou schema."""
+    if value is None:
+        return ""
+    return str(value).strip().upper()
+
+
+# Compatibilidade: se o service usa _to_float como helper global, a definicao final
+# passa a preferir a ponte canonica sem exigir refatoracao ampla do arquivo.
+def _to_float(value, default=None):
+    return _frente41_parse_float_value(value, default=default)
+
+
+# FIM FRENTE 41 RTD OPTION QUOTES INTRADAY CANDLE SERVICE PARSER BRIDGE CONTRACT

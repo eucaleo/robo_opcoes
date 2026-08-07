@@ -25,6 +25,59 @@ from services.excel_rtd_com_access import (
     list_workbook_names as _list_workbook_names,
     list_worksheet_names as _list_worksheet_names,
 )
+
+# --- Frente 22B - ponte local para contrato RTD Option Quotes ---
+try:
+    from services import rtd_option_quotes_schema as _frente_22b_rtd_option_quotes_schema
+except Exception:  # pragma: no cover - fallback defensivo para ambientes parciais
+    _frente_22b_rtd_option_quotes_schema = None
+
+
+def _frente_22b_schema_api_value(name: str, fallback):
+    """Resolve valor via API pública do schema RTD Option Quotes quando disponível."""
+    schema = _frente_22b_rtd_option_quotes_schema
+    api = getattr(schema, name, None) if schema is not None else None
+    if callable(api):
+        value = api()
+        if value is not None:
+            return value
+    return fallback
+
+
+def _frente_22b_same_sequence_type(value, fallback):
+    if isinstance(fallback, tuple):
+        return tuple(value)
+    if isinstance(fallback, list):
+        return list(value)
+    return value
+
+
+def _frente_22b_schema_headers(fallback):
+    value = _frente_22b_schema_api_value("rtd_option_quotes_headers", fallback)
+    return _frente_22b_same_sequence_type(value, fallback)
+
+
+def _frente_22b_schema_required_headers(fallback):
+    value = _frente_22b_schema_api_value("rtd_option_quotes_required_headers", fallback)
+    return _frente_22b_same_sequence_type(value, fallback)
+
+
+def _frente_22b_schema_workbook_name(fallback):
+    return _frente_22b_schema_api_value("rtd_option_quotes_workbook_name", fallback)
+
+
+def _frente_22b_schema_sheet_name(fallback):
+    return _frente_22b_schema_api_value("rtd_option_quotes_sheet_name", fallback)
+
+
+def _frente_22b_normalize_header(header):
+    schema = _frente_22b_rtd_option_quotes_schema
+    api = getattr(schema, "normalize_header", None) if schema is not None else None
+    if callable(api):
+        return api(header)
+    return str(header or "").strip().lower()
+# --- fim Frente 22B ---
+
 NUMERIC_FIELDS = {
     "strike",
     "ultimo_preco",
@@ -464,3 +517,25 @@ def read_excel_rtd_options_as_dict(
             sheet_name=sheet_name,
         )
     )
+
+# --- INICIO FRENTE 31 EXCEL RTD READER PARSER BRIDGE CONTRACT ---
+# Frente 31: ponte local de contrato para normalizacao no Excel RTD Reader.
+#
+# Objetivo:
+# - registrar utils/number_parser.py como contrato canonico futuro para numeros;
+# - registrar utils/date_parser.py como contrato canonico futuro para datas;
+# - preparar reducao gradual de parsers duplicados nos fluxos RTD;
+# - manter a operacao atual intacta nesta frente.
+#
+# Esta frente nao altera sync RTD.
+# Esta frente nao troca persistencia.
+# Esta frente nao troca parser operacional ainda.
+#
+# Contratos canonicos reconhecidos:
+# - utils.number_parser.parse_float_br
+# - utils.number_parser.parse_optional_float
+# - utils.number_parser.parse_positive_float
+# - utils.number_parser.parse_percent
+# - utils.date_parser.parse_excel_date_to_iso
+# - utils.date_parser.parse_datetime_to_iso
+# --- FIM FRENTE 31 EXCEL RTD READER PARSER BRIDGE CONTRACT ---

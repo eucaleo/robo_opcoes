@@ -42,10 +42,18 @@ class RoboLegsStatusService:
 
     def status(
         self,
-        ref: StructureRef,
-        requested_timestamp: object,
+        ref: StructureRef | str | int | None = None,
+        requested_timestamp: object = None,
         ttl_seconds: Optional[int] = None,
+        *,
+        structure_id: int | None = None,
     ) -> RoboLegsStatusDTO:
+        if requested_timestamp is None:
+            raise ValueError("requested_timestamp é obrigatório para status")
+
+        if structure_id is not None:
+            ref = StructureRef.from_id(int(structure_id))
+
         requested_ts = parse_timestamp(requested_timestamp)
         ttl = timedelta(
             seconds=(
@@ -58,6 +66,10 @@ class RoboLegsStatusService:
 
         if isinstance(ref, str):
             aba = ref
+        elif isinstance(ref, StructureRef) and ref.aba:
+            aba = ref.aba
+        elif structure_id is not None:
+            aba = str(structure_id)
         else:
             aba = getattr(ref, "aba", None) or str(ref)
 
@@ -106,4 +118,17 @@ class RoboLegsStatusService:
             rtd_latest_ts=rtd_latest,
             freshness=freshness,
             reason=reason,
+        )
+
+    def status_by_structure_id(
+        self,
+        structure_id: int,
+        requested_timestamp: object,
+        ttl_seconds: Optional[int] = None,
+    ) -> RoboLegsStatusDTO:
+        """Ponto de entrada canônico por structure_id."""
+        return self.status(
+            requested_timestamp=requested_timestamp,
+            ttl_seconds=ttl_seconds,
+            structure_id=structure_id,
         )

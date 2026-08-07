@@ -330,3 +330,74 @@ class StructureLegRtdEnrichmentService:
             value = quote.get(field)
             if value is None or str(value).strip() == "":
                 raise ValueError(f"missing required RTD field: {field}")
+
+
+# Frente 19A — normalizadores por semântica financeira.
+#
+# Campos positivos, como bid, ask, vwap e volume, devem continuar protegidos
+# contra valores negativos ou zero quando a regra operacional exigir preço/volume
+# positivo.
+#
+# Campos de risco, como delta, gamma, theta e vega, não devem usar normalizador
+# genérico que descarte valores menores ou iguais a zero. Delta e theta podem ser
+# negativos, e zero pode ser informação válida em cenários de risco ou ausência
+# momentânea de sensibilidade.
+
+def _frente19_parse_optional_number(value):
+    if value is None:
+        return None
+
+    if isinstance(value, bool):
+        return None
+
+    if isinstance(value, (int, float)):
+        try:
+            number = float(value)
+        except (TypeError, ValueError):
+            return None
+        if number != number:
+            return None
+        return number
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    lowered = text.lower()
+    if lowered in {"none", "null", "nan", "na", "n/a", "-"}:
+        return None
+
+    text = text.replace("R$", "").replace("%", "").strip()
+    text = text.replace(" ", "")
+
+    if "," in text and "." in text:
+        if text.rfind(",") > text.rfind("."):
+            text = text.replace(".", "").replace(",", ".")
+        else:
+            text = text.replace(",", "")
+    elif "," in text:
+        text = text.replace(",", ".")
+
+    try:
+        number = float(text)
+    except (TypeError, ValueError):
+        return None
+
+    if number != number:
+        return None
+
+    return number
+
+
+def _to_optional_float_allow_negative(value):
+    return _frente19_parse_optional_number(value)
+
+
+def _to_optional_positive_float(value):
+    number = _frente19_parse_optional_number(value)
+    if number is None:
+        return None
+    if number <= 0:
+        return None
+    return number
+

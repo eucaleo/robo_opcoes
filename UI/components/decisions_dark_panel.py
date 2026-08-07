@@ -1462,3 +1462,26 @@ class DecisionsDarkPanel(ctk.CTkFrame):
         if hasattr(self, "copy_detail_btn"):
             has_selection = self._valid_selected_index() is not None
             self.copy_detail_btn.configure(state="normal" if has_selection else "disabled")
+
+
+    # [FRENTE 49] INICIO - correcao pontual bugs ui fluxo payoff
+    def _prepare_reloaded_decisions_view(self, decisions=None):
+        """Prepara a visao de decisoes recarregadas sem quebrar o fluxo da UI.
+
+        Metodo de compatibilidade controlada para evitar falha quando o painel
+        tenta chamar um preparador inexistente. A funcao nao acessa banco,
+        nao altera persistencia e nao muda contrato operacional amplo.
+        """
+
+        if decisions is None:
+            decisions = []
+
+        if isinstance(decisions, dict):
+            decisions = [decisions]
+
+        try:
+            return list(decisions)
+        except TypeError:
+            return []
+    # [FRENTE 49] FIM - correcao pontual bugs ui fluxo payoff
+

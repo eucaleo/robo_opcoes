@@ -1,3 +1,30 @@
+
+# [FRENTE 34] BEGIN rtd bridge option quotes parser bridge contract
+# Ponte contratual local para os parsers canonicos de normalizacao.
+#
+# Objetivo:
+# - declarar que este bridge RTD de option quotes deve convergir, em frentes futuras,
+#   para os contratos publicos de utils.number_parser e utils.date_parser;
+# - reduzir duplicacao futura de parsing numerico e parsing de datas nos fluxos RTD;
+# - preservar integralmente o comportamento operacional atual nesta frente.
+#
+# Contratos canonicos referenciados:
+# - utils.number_parser.parse_float_br
+# - utils.number_parser.parse_optional_float
+# - utils.number_parser.parse_positive_float
+# - utils.number_parser.parse_percent
+# - utils.date_parser.parse_excel_date_to_iso
+# - utils.date_parser.parse_datetime_to_iso
+#
+# Regras preservadas nesta frente:
+# - sem troca de persistencia;
+# - sem troca de schema;
+# - sem alteracao operacional do bridge RTD;
+# - sem alteracao operacional do sync RTD;
+# - option_type canonico somente CALL/PUT por extenso;
+# - C/V permanecem apenas como compra/venda legado.
+# [FRENTE 34] END rtd bridge option quotes parser bridge contract
+
 """Bridge legado/manual para criar instancia isolada do Excel e consultar RTD.
 
 Atencao:
@@ -399,3 +426,98 @@ class RtdOptionQuotesBridge:
                 result.append(cleaned)
 
         return result
+
+
+# --- INICIO FRENTE 23 RTD BRIDGE SCHEMA PUBLIC API ---
+#
+# Ponte incremental para o contrato público de RTD Option Quotes.
+#
+# Esta frente mantém o bridge operacional existente, mas cria um ponto local e
+# pequeno para preferir as APIs públicas de services/rtd_option_quotes_schema.py
+# quando disponíveis. Não há troca de persistência, não há substituição ampla
+# do fluxo operacional e não há execução de git.
+#
+def _frente_23_schema_api(*names):
+    try:
+        from services import rtd_option_quotes_schema as schema
+    except Exception:
+        return None
+
+    for name in names:
+        api = getattr(schema, name, None)
+        if callable(api):
+            return api
+
+    return None
+
+
+def _frente_23_rtd_option_quotes_headers():
+    api = _frente_23_schema_api("rtd_option_quotes_headers")
+    if api is not None:
+        return list(api())
+
+    value = globals().get("RTD_OPTION_QUOTES_HEADERS")
+    if value is None:
+        value = globals().get("HEADERS")
+    if value is None:
+        return []
+
+    return list(value)
+
+
+def _frente_23_rtd_option_quotes_required_headers():
+    api = _frente_23_schema_api("rtd_option_quotes_required_headers")
+    if api is not None:
+        return list(api())
+
+    value = globals().get("RTD_OPTION_QUOTES_REQUIRED_HEADERS")
+    if value is None:
+        value = globals().get("REQUIRED_HEADERS")
+    if value is None:
+        return []
+
+    return list(value)
+
+
+def _frente_23_rtd_option_quotes_workbook_name():
+    api = _frente_23_schema_api("rtd_option_quotes_workbook_name")
+    if api is not None:
+        return str(api())
+
+    value = globals().get("DEFAULT_WORKBOOK_NAME")
+    if value is None:
+        value = globals().get("WORKBOOK_NAME")
+    if value is None:
+        return ""
+
+    return str(value)
+
+
+def _frente_23_rtd_option_quotes_sheet_name():
+    api = _frente_23_schema_api("rtd_option_quotes_sheet_name")
+    if api is not None:
+        return str(api())
+
+    value = globals().get("DEFAULT_SHEET_NAME")
+    if value is None:
+        value = globals().get("SHEET_NAME")
+    if value is None:
+        return ""
+
+    return str(value)
+
+
+def _frente_23_normalize_rtd_option_quotes_header(value):
+    api = _frente_23_schema_api(
+        "normalize_rtd_option_quotes_header",
+        "normalize_header",
+        "rtd_option_quotes_normalize_header",
+    )
+    if api is not None:
+        return api(value)
+
+    text = "" if value is None else str(value)
+    return text.strip().lower().replace(" ", "_").replace("-", "_")
+
+
+# --- FIM FRENTE 23 RTD BRIDGE SCHEMA PUBLIC API ---

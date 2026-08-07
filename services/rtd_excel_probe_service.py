@@ -1,10 +1,414 @@
+# Frente 21D - consumo incremental da API publica workbook/sheet
+from __future__ import annotations
+
+# --- INICIO FRENTE 27 RTD EXCEL PROBE SERVICE SCHEMA REQUIRED HEADERS CONTRACT ---
+# Frente 27: ponte local para o service de probe Excel RTD preferir
+# services/rtd_option_quotes_schema.py como fonte canonica dos headers
+# obrigatorios de rtd_option_quotes.
+#
+# Objetivo: evitar que o probe aprove planilha incompleta validando apenas
+# ticker, bid e ask quando a API publica de schema estiver disponivel.
+#
+# Sem troca de persistencia.
+# Sem troca operacional ampla.
+# Regra preservada: option_type canonico somente CALL/PUT por extenso;
+# C/V sao compra/venda legado.
+
+try:
+    from services import rtd_option_quotes_schema as _frente27_rtd_option_quotes_schema
+except Exception:
+    _frente27_rtd_option_quotes_schema = None
+
+
+def _frente27_get_rtd_option_quotes_schema():
+    return _frente27_rtd_option_quotes_schema
+
+
+def _frente27_as_tuple(value):
+    if value is None:
+        return tuple()
+    if isinstance(value, str):
+        return (value,)
+    try:
+        return tuple(value)
+    except TypeError:
+        return tuple()
+
+
+def _frente27_get_required_headers():
+    schema = _frente27_get_rtd_option_quotes_schema()
+
+    if schema is not None:
+        for name in (
+            "get_required_headers",
+            "get_required_rtd_headers",
+            "get_rtd_required_headers",
+            "get_option_quotes_required_headers",
+            "get_option_quote_required_headers",
+            "required_headers",
+            "headers",
+            "get_headers",
+            "get_rtd_headers",
+            "get_option_quotes_headers",
+            "get_option_quote_headers",
+        ):
+            candidate = getattr(schema, name, None)
+            if candidate is None:
+                continue
+            try:
+                value = candidate() if callable(candidate) else candidate
+            except Exception:
+                continue
+            headers = _frente27_as_tuple(value)
+            if headers:
+                return headers
+
+        for name in (
+            "REQUIRED_HEADERS",
+            "RTD_REQUIRED_HEADERS",
+            "OPTION_QUOTES_REQUIRED_HEADERS",
+            "OPTION_QUOTE_REQUIRED_HEADERS",
+            "HEADERS",
+            "RTD_HEADERS",
+            "RTD_FIELDS",
+        ):
+            value = getattr(schema, name, None)
+            headers = _frente27_as_tuple(value)
+            if headers:
+                return headers
+
+    return (
+        "ticker",
+        "bid",
+        "ask",
+        "last",
+        "volume",
+        "option_type",
+        "strike",
+        "expiration_date",
+        "delta",
+        "gamma",
+        "theta",
+        "vega",
+    )
+
+
+# --- FIM FRENTE 27 RTD EXCEL PROBE SERVICE SCHEMA REQUIRED HEADERS CONTRACT ---
+def _frente21d_rtd_option_quotes_schema_contract():
+    """
+    Obtém o contrato canônico RTD Option Quotes.
+
+    Reusa o helper introduzido em frentes anteriores quando disponível e mantém
+    fallback local para evitar troca operacional ampla.
+    """
+    helper = globals().get("_frente21a_rtd_option_quotes_schema_contract")
+    if callable(helper):
+        return helper()
+
+    from services import rtd_option_quotes_schema
+
+    return rtd_option_quotes_schema
+
+
+def _frente21d_schema_public_text(function_name, candidate_names, default):
+    """
+    Lê texto público do schema, preferindo API pública e aceitando constantes
+    históricas apenas como compatibilidade.
+    """
+    schema = _frente21d_rtd_option_quotes_schema_contract()
+
+    public_getter = getattr(schema, function_name, None)
+    if callable(public_getter):
+        value = public_getter()
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+    for name in candidate_names:
+        value = getattr(schema, name, None)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+
+    return str(default).strip()
+
+
+def _canonical_rtd_option_quotes_workbook_name(default=None):
+    """
+    Nome canônico da pasta de trabalho RTD Option Quotes a partir do schema.
+    """
+    return _frente21d_schema_public_text(
+        "rtd_option_quotes_workbook_name",
+        (
+            "RTD_OPTION_QUOTES_WORKBOOK_NAME",
+            "DEFAULT_RTD_OPTION_QUOTES_WORKBOOK_NAME",
+            "DEFAULT_WORKBOOK_NAME",
+            "WORKBOOK_NAME",
+            "EXCEL_WORKBOOK_NAME",
+            "DEFAULT_EXCEL_WORKBOOK_NAME",
+        ),
+        default or "LISTA_RTD.xlsm",
+    )
+
+
+def _canonical_rtd_option_quotes_sheet_name(default=None):
+    """
+    Nome canônico da planilha RTD Option Quotes a partir do schema.
+    """
+    return _frente21d_schema_public_text(
+        "rtd_option_quotes_sheet_name",
+        (
+            "RTD_OPTION_QUOTES_SHEET_NAME",
+            "DEFAULT_RTD_OPTION_QUOTES_SHEET_NAME",
+            "DEFAULT_SHEET_NAME",
+            "SHEET_NAME",
+            "EXCEL_SHEET_NAME",
+            "DEFAULT_EXCEL_SHEET_NAME",
+        ),
+        default or "RTD_OPTION_QUOTES",
+    )
+
+
 """Probe controlado do Excel RTD BTG Online.
 
 Este módulo faz apenas diagnóstico de conexão com Excel/Workbook/Aba.
 Ele não abre Excel, não grava banco, não dispara subprocessos e não inicia coleta.
 """
 
-from __future__ import annotations
+
+# Frente 21A - RTD Option Quotes canonical schema probe bridge
+def _frente21a_rtd_option_quotes_schema_contract():
+    """
+    Retorna o módulo de contrato canônico RTD Option Quotes.
+
+    Mantido como ponte local para adoção incremental do contrato
+    `services/rtd_option_quotes_schema.py` sem trocar fluxo operacional,
+    persistência, bridge ou importadores nesta frente.
+    """
+    from services import rtd_option_quotes_schema
+
+    return rtd_option_quotes_schema
+
+def _frente21b_headers_from_schema_value(value: object) -> tuple[str, ...]:
+    """
+    Extrai headers/fields consumíveis de diferentes formatos possíveis do
+    contrato canônico RTD Option Quotes.
+
+    Esta função existe para evitar acoplamento a um único nome interno de
+    constante em services/rtd_option_quotes_schema.py.
+    """
+    if value is None:
+        return ()
+
+    if isinstance(value, str):
+        text = value.strip()
+        return (text,) if text else ()
+
+    if isinstance(value, dict):
+        if value and all(isinstance(key, str) for key in value.keys()):
+            return tuple(str(key).strip() for key in value.keys() if str(key).strip())
+
+        extracted: list[str] = []
+        for item in value.values():
+            extracted.extend(_frente21b_headers_from_schema_value(item))
+        return tuple(dict.fromkeys(extracted))
+
+    if isinstance(value, (list, tuple, set, frozenset)):
+        ordered = list(value)
+        if isinstance(value, (set, frozenset)):
+            ordered = sorted(ordered, key=lambda item: str(item))
+
+        if ordered and all(isinstance(item, str) for item in ordered):
+            return tuple(str(item).strip() for item in ordered if str(item).strip())
+
+        extracted: list[str] = []
+        for item in ordered:
+            if isinstance(item, dict):
+                for key in (
+                    "header",
+                    "headers",
+                    "name",
+                    "field",
+                    "fields",
+                    "column",
+                    "columns",
+                    "db_column",
+                    "excel_header",
+                    "rtd_field",
+                    "canonical_name",
+                ):
+                    if key in item:
+                        extracted.extend(_frente21b_headers_from_schema_value(item.get(key)))
+            else:
+                for attr in (
+                    "header",
+                    "name",
+                    "field",
+                    "column",
+                    "db_column",
+                    "excel_header",
+                    "rtd_field",
+                    "canonical_name",
+                ):
+                    if hasattr(item, attr):
+                        extracted.extend(_frente21b_headers_from_schema_value(getattr(item, attr)))
+
+        return tuple(dict.fromkeys(str(item).strip() for item in extracted if str(item).strip()))
+
+    for attr in (
+        "headers",
+        "required_headers",
+        "fields",
+        "columns",
+        "field_names",
+        "column_names",
+    ):
+        if hasattr(value, attr):
+            headers = _frente21b_headers_from_schema_value(getattr(value, attr))
+            if headers:
+                return headers
+
+    return ()
+
+
+def _frente21b_text_tokens(*values: object) -> set[str]:
+    text = " ".join(str(value) for value in values if value is not None).upper()
+    return set(re.findall(r"[A-Z0-9_]+", text))
+
+
+def _frente21b_header_score(name: str, headers: tuple[str, ...]) -> int:
+    """
+    Pontua candidatos para evitar pegar listas públicas não relacionadas.
+
+    O objetivo é preferir constantes/estruturas com sinais de contrato RTD
+    Option Quotes: headers, fields, columns, ticker/symbol, bid/ask etc.
+    """
+    if not headers:
+        return 0
+
+    tokens = _frente21b_text_tokens(name, *headers)
+
+    score = 0
+
+    for token in ("HEADER", "HEADERS", "FIELD", "FIELDS", "COLUMN", "COLUMNS"):
+        if token in tokens:
+            score += 8
+
+    for token in ("RTD", "OPTION", "OPTIONS", "QUOTE", "QUOTES", "CANONICAL", "REQUIRED"):
+        if token in tokens:
+            score += 4
+
+    if len(headers) >= 3:
+        score += 6
+
+    if tokens & {"TICKER", "SYMBOL", "CODIGO", "CÓDIGO", "ATIVO", "UNDERLYING"}:
+        score += 8
+
+    if tokens & {"BID", "COMPRA"}:
+        score += 5
+
+    if tokens & {"ASK", "VENDA"}:
+        score += 5
+
+    if tokens & {"LAST", "LAST_PRICE", "ULTIMO", "ÚLTIMO", "PRECO", "PREÇO", "PRICE"}:
+        score += 3
+
+    if tokens & {"SQL", "QUERY", "CREATE", "INSERT", "UPDATE", "DELETE", "DROP"}:
+        score -= 20
+
+    return score
+
+
+def _canonical_required_rtd_option_quote_headers() -> tuple[str, ...]:
+    """
+    Retorna headers obrigatórios a partir do contrato canônico RTD Option Quotes.
+
+    Frente 21B:
+    - o consumidor continua sendo o probe RTD Excel;
+    - a fonte de verdade é services/rtd_option_quotes_schema.py;
+    - não há dependência de um único nome interno de constante;
+    - não há troca operacional ampla.
+    """
+    schema = _frente21a_rtd_option_quotes_schema_contract()
+    public_required_headers = getattr(schema, "rtd_option_quotes_required_headers", None)
+    if callable(public_required_headers):
+        headers = public_required_headers()
+        if headers:
+            return tuple(str(item) for item in headers)
+
+
+    preferred_names = (
+        "REQUIRED_HEADERS",
+        "REQUIRED_FIELDS",
+        "REQUIRED_COLUMNS",
+        "RTD_OPTION_QUOTES_REQUIRED_HEADERS",
+        "RTD_OPTION_QUOTES_REQUIRED_FIELDS",
+        "RTD_OPTION_QUOTES_REQUIRED_COLUMNS",
+        "REQUIRED_RTD_OPTION_QUOTES_HEADERS",
+        "CANONICAL_REQUIRED_HEADERS",
+        "CANONICAL_REQUIRED_FIELDS",
+        "HEADERS",
+        "FIELDS",
+        "COLUMNS",
+        "RTD_FIELDS",
+        "RTD_OPTION_QUOTES_HEADERS",
+        "RTD_OPTION_QUOTES_FIELDS",
+        "RTD_OPTION_QUOTES_COLUMNS",
+        "CANONICAL_HEADERS",
+        "CANONICAL_FIELDS",
+        "CANONICAL_COLUMNS",
+        "SCHEMA",
+        "OPTION_QUOTES_SCHEMA",
+        "RTD_OPTION_QUOTES_SCHEMA",
+    )
+
+    for name in preferred_names:
+        value = getattr(schema, name, None)
+        headers = _frente21b_headers_from_schema_value(value)
+        if headers:
+            return headers
+
+    ranked: list[tuple[int, str, tuple[str, ...]]] = []
+
+    for name in dir(schema):
+        if name.startswith("_"):
+            continue
+
+        try:
+            value = getattr(schema, name)
+        except Exception:
+            continue
+
+        if callable(value):
+            continue
+
+        headers = _frente21b_headers_from_schema_value(value)
+        score = _frente21b_header_score(name, headers)
+
+        if score > 0:
+            ranked.append((score, name, headers))
+
+    if ranked:
+        ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        return ranked[0][2]
+
+    raise RuntimeError(
+        "Contrato RTD Option Quotes sem headers consumíveis. "
+        "Esperado em services/rtd_option_quotes_schema.py."
+    )
+
+def _normalize_rtd_option_quote_header_via_contract(value: object) -> str:
+    """
+    Normaliza header pelo contrato canônico quando a função estiver disponível.
+
+    Fallback mínimo preserva compatibilidade local do probe e não cria novo
+    contrato paralelo.
+    """
+    schema = _frente21a_rtd_option_quotes_schema_contract()
+    normalize = getattr(schema, "normalize_header", None)
+
+    if callable(normalize):
+        return str(normalize(value))
+
+    return str(value or "").strip().lower().replace(" ", "_")
 
 from dataclasses import asdict, dataclass, field
 import os
@@ -13,7 +417,7 @@ import unicodedata
 from typing import Any, Callable, Iterable
 
 
-DEFAULT_WORKBOOK_NAME = "LISTA_RTD.xlsm"
+DEFAULT_WORKBOOK_NAME = _canonical_rtd_option_quotes_workbook_name("LISTA_RTD.xlsm")
 DEFAULT_WORKSHEET_NAME = "RTD_OPTION_QUOTES"
 
 DEFAULT_REQUIRED_HEADERS = (

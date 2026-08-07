@@ -29,9 +29,11 @@ class RoboLegsService:
 
     def get_legs(
         self,
-        ref: StructureRef,
-        timestamp: Any,
+        ref: StructureRef | str | int | None = None,
+        timestamp: Any = None,
         validate: bool = True,
+        *,
+        structure_id: int | None = None,
     ) -> List[RoboLegDTO]:
         """
         Wrapper de compatibilidade legado.
@@ -40,7 +42,17 @@ class RoboLegsService:
         get_legs(ref=..., timestamp=...). Se o repo/fake for legado, usa
         get_legs(aba, timestamp).
         """
-        aba = ref.aba if isinstance(ref, StructureRef) else str(ref)
+        if timestamp is None:
+            raise ValueError("timestamp é obrigatório para get_legs")
+
+        if structure_id is not None:
+            ref = StructureRef.from_id(int(structure_id))
+
+        aba = (
+            ref.aba
+            if isinstance(ref, StructureRef) and ref.aba
+            else str(structure_id if structure_id is not None else ref)
+        )
 
         try:
             legs = self.repo.get_legs(ref=ref, timestamp=timestamp)

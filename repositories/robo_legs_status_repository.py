@@ -17,10 +17,24 @@ from utils.leg_normalizers import parse_timestamp
 
 
 def _to_aba(ref) -> str:
-    """Aceita StructureRef ou str e devolve a string da aba."""
+    """
+    Fallback legado: aceita StructureRef com aba ou str.
+
+    A resolução structure_id -> aba exige banco e fica em
+    RoboLegsStatusRepository.resolve_aba().
+    """
     if isinstance(ref, str):
         return ref
-    return ref.aba
+
+    aba = getattr(ref, "aba", None)
+    if aba:
+        return str(aba)
+
+    raise ValueError(
+        "Referência sem aba para RoboLegsStatusRepository. "
+        "Use resolve_aba(), latest_timestamps_by_structure_id() "
+        "ou StructureRef com structure_id resolvível."
+    )
 
 
 @dataclass(frozen=True)
@@ -39,15 +53,55 @@ class RoboLegsStatusRepository(AbaResolverMixin):
     def __init__(self, config: Optional[RoboLegsStatusRepoConfig] = None):
         self.config = config or RoboLegsStatusRepoConfig()
 
+    def resolve_aba(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> str:
+        """
+        Resolve entrada canônica para aba legada usada nas tabelas robo/manual.
+        """
+        if structure_id is not None:
+            aba = self._resolve_aba_from_structure_id(int(structure_id))
+            if not aba:
+                raise ValueError(
+                    f"structure_id={structure_id} sem alias_legacy_aba em structures"
+                )
+            return str(aba)
+
+        if isinstance(ref, StructureRef):
+            if ref.aba:
+                return str(ref.aba)
+            if ref.structure_id is not None:
+                aba = self._resolve_aba_from_structure_id(int(ref.structure_id))
+                if not aba:
+                    raise ValueError(
+                        f"structure_id={ref.structure_id} sem alias_legacy_aba em structures"
+                    )
+                return str(aba)
+            raise ValueError("StructureRef sem aba e sem structure_id em RoboLegsStatusRepository")
+
+        if isinstance(ref, int) and not isinstance(ref, bool):
+            aba = self._resolve_aba_from_structure_id(int(ref))
+            if not aba:
+                raise ValueError(f"structure_id={ref} sem alias_legacy_aba em structures")
+            return str(aba)
+
+        if ref is None:
+            raise ValueError("Informe ref ou structure_id para RoboLegsStatusRepository")
+
+        return _to_aba(ref)
+
     def latest_timestamps(
         self,
-        ref: StructureRef,
+        ref: StructureRef | str | int | None,
     ) -> Tuple[Optional[datetime], Optional[datetime]]:
         """
         Retorna (manual_latest_ts, rtd_latest_ts) para a aba.
         Se não houver, retorna (None, None).
         """
-        aba = _to_aba(ref)
+        aba = self.resolve_aba(ref)
         with sqlite_conn(self.config.app_db_path) as conn:
             row_m = conn.execute(
                 "SELECT MAX(timestamp) AS ts FROM manual_analise_robo_legs WHERE aba = ?",
@@ -75,8 +129,9 @@ class RoboLegsStatusRepository(AbaResolverMixin):
         Versão canônica de latest_timestamps() por structure_id.
         Retorna (manual_latest_ts, rtd_latest_ts).
         """
-        aba = self._resolve_aba_from_structure_id(structure_id)
-        if aba is None:
+        try:
+            aba = self.resolve_aba(structure_id=structure_id)
+        except ValueError:
             return (None, None)
         return self.latest_timestamps(
             ref=StructureRef(aba=aba, structure_id=structure_id),

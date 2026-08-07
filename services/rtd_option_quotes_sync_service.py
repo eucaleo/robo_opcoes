@@ -124,3 +124,81 @@ def sync_rtd_option_quotes_from_existing_excel(
         read_at=read_at,
         error=sync_result.error,
     )
+
+# <!-- INICIO FRENTE 35 RTD OPTION QUOTES SYNC SERVICE PARSER BRIDGE CONTRACT -->
+# Frente 35:
+# Ponte contratual local para parsers canonicos no sync service de RTD Option Quotes.
+#
+# Objetivo:
+# - registrar dependencia preferencial de utils.number_parser e utils.date_parser;
+# - preservar rtd_option_quotes_sync_service.py como orquestrador de sync via repository;
+# - nao alterar persistencia;
+# - nao alterar schema;
+# - nao alterar fluxo operacional do sync RTD nesta frente;
+# - manter option_type canonico somente CALL/PUT por extenso;
+# - manter C/V como compra/venda legado.
+try:
+    from utils.number_parser import (
+        parse_float_br as _frente35_parse_float_br,
+        parse_optional_float as _frente35_parse_optional_float,
+        parse_positive_float as _frente35_parse_positive_float,
+        parse_percent as _frente35_parse_percent,
+    )
+except Exception:  # pragma: no cover - fallback contratual defensivo
+    _frente35_parse_float_br = None
+    _frente35_parse_optional_float = None
+    _frente35_parse_positive_float = None
+    _frente35_parse_percent = None
+
+try:
+    from utils.date_parser import (
+        parse_excel_date_to_iso as _frente35_parse_excel_date_to_iso,
+        parse_datetime_to_iso as _frente35_parse_datetime_to_iso,
+    )
+except Exception:  # pragma: no cover - fallback contratual defensivo
+    _frente35_parse_excel_date_to_iso = None
+    _frente35_parse_datetime_to_iso = None
+
+
+def _frente35_number_parser_contract():
+    """Retorna os parsers numericos canonicos conhecidos pelo sync service.
+
+    Esta ponte e declarativa e incremental. Ela nao troca persistencia, nao
+    altera schema e nao muda o fluxo operacional existente do sync RTD.
+    """
+    return {
+        "parse_float_br": _frente35_parse_float_br,
+        "parse_optional_float": _frente35_parse_optional_float,
+        "parse_positive_float": _frente35_parse_positive_float,
+        "parse_percent": _frente35_parse_percent,
+    }
+
+
+def _frente35_date_parser_contract():
+    """Retorna os parsers canonicos de data conhecidos pelo sync service."""
+    return {
+        "parse_excel_date_to_iso": _frente35_parse_excel_date_to_iso,
+        "parse_datetime_to_iso": _frente35_parse_datetime_to_iso,
+    }
+
+
+def _frente35_rtd_option_quotes_sync_service_parser_bridge_contract():
+    """Contrato local da Frente 35 para parsers canonicos no sync service.
+
+    Regras preservadas:
+    - sem troca de persistencia;
+    - sem troca de schema;
+    - sem alteracao operacional do sync RTD;
+    - option_type canonico somente CALL/PUT por extenso;
+    - C/V sao compra/venda legado.
+    """
+    return {
+        "number_parser": _frente35_number_parser_contract(),
+        "date_parser": _frente35_date_parser_contract(),
+        "persistence_changed": False,
+        "schema_changed": False,
+        "operational_sync_changed": False,
+        "canonical_option_type": ("CALL", "PUT"),
+        "legacy_buy_sell": ("C", "V"),
+    }
+# <!-- FIM FRENTE 35 RTD OPTION QUOTES SYNC SERVICE PARSER BRIDGE CONTRACT -->

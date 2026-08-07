@@ -1,6 +1,11 @@
+from __future__ import annotations
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 # repositories/rtd_option_quotes_repository.py
 
-from __future__ import annotations
 
 import datetime as dt
 import json
@@ -324,3 +329,531 @@ def _prepare_record(
         row[column] = _to_float(record.get(column))
 
     return row
+
+# INICIO FRENTE 62 RTD OPTION QUOTES EXCEL SYNC SQL BOUNDARY
+# Código movido de services/rtd_option_quotes_excel_sync.py.
+# Objetivo: concentrar sqlite3.connect, PRAGMA table_info e SQL direto em repository.
+# Guardrail: não alterar schema, persistência ou contrato externo do service.
+
+def _frente62_get_table_columns_impl(con, table_name):
+    rows = con.execute(f"PRAGMA table_info({table_name})").fetchall()
+    return {row[1] for row in rows}
+
+
+def _frente62_update_or_insert_quotes_impl(db_path, quotes):
+    if not quotes:
+        return {
+            "updated": 0,
+            "inserted": 0,
+            "total": 0,
+        }
+
+    updated = 0
+    inserted = 0
+
+
+    def _parse_excel_float(value):
+        if value is None:
+            return None
+
+        if isinstance(value, (int, float)):
+            try:
+                return float(value)
+            except Exception:
+                return None
+
+        s = str(value).strip()
+        if not s:
+            return None
+
+        lowered = s.lower()
+        if lowered in {"none", "null", "nan", "na", "n/a", "-", "--"}:
+            return None
+
+        s = s.replace("\xa0", "").replace(" ", "")
+
+        # Formatos possíveis:
+        # "1,05"       -> 1.05
+        # "31.380,80"  -> 31380.80
+        # "31380.80"   -> 31380.80
+        # "1,234.56"   -> 1234.56
+        try:
+            if "," in s and "." in s:
+                if s.rfind(",") > s.rfind("."):
+                    s = s.replace(".", "").replace(",", ".")
+                else:
+                    s = s.replace(",", "")
+            elif "," in s:
+                s = s.replace(",", ".")
+
+            return float(s)
+        except Exception:
+            return None
+
+
+    def _parse_excel_date(value):
+        if value is None:
+            return None
+
+        s = str(value).strip()
+        if not s:
+            return None
+
+        # Já ISO.
+        if len(s) >= 10 and s[4:5] == "-" and s[7:8] == "-":
+            return s[:10]
+
+        from datetime import datetime, timedelta
+
+        for fmt in ("%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+            try:
+                return datetime.strptime(s[:10], fmt).date().isoformat()
+            except Exception:
+                pass
+
+        serial = _parse_excel_float(value)
+        if serial is not None and 20000 <= serial <= 60000:
+            try:
+                base = datetime(1899, 12, 30)
+                return (base + timedelta(days=int(serial))).date().isoformat()
+            except Exception:
+                return None
+
+        return None
+
+
+    def _normalize_excel_quote_payload(quote):
+        """
+        Garante que as colunas operacionais reflitam o payload Excel/RTD atual.
+
+        Motivo:
+        em alguns fluxos o raw_json chegava novo, mas ultimo_preco/bid/ask/vwap
+        permaneciam com valores antigos. A UI/payoff consome as colunas
+        normalizadas, não o raw_json.
+        """
+        import json
+
+        normalized = dict(quote or {})
+
+        payload = None
+        raw_json = normalized.get("raw_json")
+
+        if isinstance(raw_json, dict):
+            payload = raw_json
+        elif isinstance(raw_json, str) and raw_json.strip():
+            try:
+                payload = json.loads(raw_json, strict=False)
+            except Exception:
+                payload = None
+
+        source = payload if isinstance(payload, dict) else normalized
+
+        codigo = source.get("codigo_opcao")
+        if codigo is not None:
+            normalized["codigo_opcao"] = str(codigo).strip().upper()
+
+        ativo_base = source.get("ativo_base")
+        if ativo_base is not None:
+            normalized["ativo_base"] = str(ativo_base).strip().upper()
+
+        call_put = source.get("call_put")
+        if call_put is not None:
+            normalized["call_put"] = str(call_put).strip().upper()
+
+        vencimento = source.get("vencimento")
+        parsed_vencimento = _parse_excel_date(vencimento)
+        if parsed_vencimento is not None:
+            normalized["vencimento"] = parsed_vencimento
+
+        numeric_fields = (
+            "strike",
+            "ultimo_preco",
+            "ultima_quantidade",
+            "bid",
+            "ask",
+            "volume",
+            "iv",
+            "delta",
+            "gamma",
+            "theta",
+            "vega",
+            "vwap",
+        )
+
+        for field in numeric_fields:
+            if field in source:
+                parsed = _parse_excel_float(source.get(field))
+                if parsed is not None:
+                    normalized[field] = parsed
+
+        return normalized
+
+
+
+    def _force_operational_columns_from_raw_json(db_quote):
+        """
+        Hotfix: força as colunas operacionais a refletirem o raw_json atual.
+
+        Caso observado:
+        - raw_json chega novo do Excel/RTD;
+        - ultimo_preco/bid/ask/vwap continuam antigos;
+        - UI/payoff consomem as colunas normalizadas, não o raw_json.
+        """
+        import json
+        from datetime import datetime, timedelta
+
+        if not isinstance(db_quote, dict):
+            return db_quote
+
+        raw = db_quote.get("raw_json")
+        if not raw:
+            return db_quote
+
+        try:
+            payload = raw if isinstance(raw, dict) else json.loads(str(raw), strict=False)
+        except Exception:
+            return db_quote
+
+        if not isinstance(payload, dict):
+            return db_quote
+
+        def parse_float(value):
+            if value is None:
+                return None
+
+            if isinstance(value, (int, float)):
+                try:
+                    return float(value)
+                except Exception:
+                    return None
+
+            s = str(value).strip()
+            if not s:
+                return None
+
+            if s.lower() in {"none", "null", "nan", "na", "n/a", "-", "--"}:
+                return None
+
+            s = s.replace("\xa0", "").replace(" ", "")
+
+            try:
+                if "," in s and "." in s:
+                    # BR: 31.380,80
+                    if s.rfind(",") > s.rfind("."):
+                        s = s.replace(".", "").replace(",", ".")
+                    # US: 31,380.80
+                    else:
+                        s = s.replace(",", "")
+                elif "," in s:
+                    s = s.replace(",", ".")
+
+                return float(s)
+            except Exception:
+                return None
+
+        def parse_date(value):
+            if value is None:
+                return None
+
+            s = str(value).strip()
+            if not s:
+                return None
+
+            if len(s) >= 10 and s[4:5] == "-" and s[7:8] == "-":
+                return s[:10]
+
+            for fmt in ("%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+                try:
+                    return datetime.strptime(s[:10], fmt).date().isoformat()
+                except Exception:
+                    pass
+
+            serial = parse_float(value)
+            if serial is not None and 20000 <= serial <= 60000:
+                try:
+                    return (datetime(1899, 12, 30) + timedelta(days=int(serial))).date().isoformat()
+                except Exception:
+                    return None
+
+            return None
+
+        text_fields = {
+            "codigo_opcao": lambda x: str(x).strip().upper(),
+            "ativo_base": lambda x: str(x).strip().upper(),
+            "call_put": lambda x: str(x).strip().upper(),
+        }
+
+        for field, converter in text_fields.items():
+            if field in payload and payload.get(field) is not None:
+                db_quote[field] = converter(payload.get(field))
+
+        vencimento = parse_date(payload.get("vencimento"))
+        if vencimento is not None:
+            db_quote["vencimento"] = vencimento
+
+        numeric_fields = (
+            "strike",
+            "ultimo_preco",
+            "ultima_quantidade",
+            "bid",
+            "ask",
+            "volume",
+            "iv",
+            "delta",
+            "gamma",
+            "theta",
+            "vega",
+            "vwap",
+        )
+
+        for field in numeric_fields:
+            if field in payload:
+                parsed = parse_float(payload.get(field))
+                if parsed is not None:
+                    db_quote[field] = parsed
+
+        return db_quote
+
+
+
+    def _reconcile_operational_columns_from_raw_json_sql(con, db_quote, columns):
+        """
+        Reconciliação final e explícita:
+        força no SQLite as colunas normalizadas a partir do raw_json atual.
+        """
+        import json
+        from datetime import datetime, timedelta
+
+        if not isinstance(db_quote, dict):
+            return False
+
+        codigo_opcao = db_quote.get("codigo_opcao")
+
+        if not codigo_opcao:
+            return False
+
+        raw = db_quote.get("raw_json")
+
+        # Fallback importante:
+        # em alguns fluxos, db_quote não carrega raw_json,
+        # mas o UPDATE anterior já persistiu/tem o raw_json no SQLite.
+        if not raw:
+            try:
+                row = con.execute(
+                    """
+                    SELECT raw_json
+                    FROM rtd_option_quotes
+                    WHERE codigo_opcao = ?
+                    """,
+                    (codigo_opcao,),
+                ).fetchone()
+
+                if row:
+                    raw = row[0]
+            except Exception:
+                raw = None
+
+        if not raw:
+            return False
+
+        try:
+            payload = raw if isinstance(raw, dict) else json.loads(str(raw), strict=False)
+        except Exception:
+            return False
+
+        if not isinstance(payload, dict):
+            return False
+
+        def parse_float(value):
+            if value is None:
+                return None
+
+            if isinstance(value, (int, float)):
+                try:
+                    return float(value)
+                except Exception:
+                    return None
+
+            s = str(value).strip()
+            if not s:
+                return None
+
+            if s.lower() in {"none", "null", "nan", "na", "n/a", "-", "--"}:
+                return None
+
+            s = s.replace("\xa0", "").replace(" ", "")
+
+            try:
+                if "," in s and "." in s:
+                    # BR: 31.380,80
+                    if s.rfind(",") > s.rfind("."):
+                        s = s.replace(".", "").replace(",", ".")
+                    # US: 31,380.80
+                    else:
+                        s = s.replace(",", "")
+                elif "," in s:
+                    s = s.replace(",", ".")
+
+                return float(s)
+            except Exception:
+                return None
+
+        def parse_date(value):
+            if value is None:
+                return None
+
+            s = str(value).strip()
+            if not s:
+                return None
+
+            if len(s) >= 10 and s[4:5] == "-" and s[7:8] == "-":
+                return s[:10]
+
+            for fmt in ("%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d"):
+                try:
+                    return datetime.strptime(s[:10], fmt).date().isoformat()
+                except Exception:
+                    pass
+
+            serial = parse_float(value)
+            if serial is not None and 20000 <= serial <= 60000:
+                try:
+                    return (datetime(1899, 12, 30) + timedelta(days=int(serial))).date().isoformat()
+                except Exception:
+                    return None
+
+            return None
+
+        values = {}
+
+        text_fields = {
+            "ativo_base": lambda x: str(x).strip().upper(),
+            "call_put": lambda x: str(x).strip().upper(),
+        }
+
+        for field, converter in text_fields.items():
+            if field in columns and field in payload and payload.get(field) is not None:
+                values[field] = converter(payload.get(field))
+
+        if "vencimento" in columns:
+            vencimento = parse_date(payload.get("vencimento"))
+            if vencimento is not None:
+                values["vencimento"] = vencimento
+
+        numeric_fields = (
+            "strike",
+            "ultimo_preco",
+            "ultima_quantidade",
+            "bid",
+            "ask",
+            "volume",
+            "iv",
+            "delta",
+            "gamma",
+            "theta",
+            "vega",
+            "vwap",
+        )
+
+        for field in numeric_fields:
+            if field in columns and field in payload:
+                parsed = parse_float(payload.get(field))
+                if parsed is not None:
+                    values[field] = parsed
+
+        if not values:
+            return False
+
+        set_clause = ", ".join([f"{field} = ?" for field in values.keys()])
+        params = list(values.values()) + [codigo_opcao]
+
+        con.execute(
+            f"""
+            UPDATE rtd_option_quotes
+            SET {set_clause}
+            WHERE codigo_opcao = ?
+            """,
+            params,
+        )
+
+        return True
+
+
+    with sqlite3.connect(db_path) as con:
+        columns = get_table_columns(con, "rtd_option_quotes")
+
+        for quote in quotes:
+            quote = _normalize_excel_quote_payload(quote)
+
+            db_quote = {
+                key: value
+                for key, value in quote.items()
+                if key in columns
+            }
+
+            db_quote = _force_operational_columns_from_raw_json(db_quote)
+            db_quote = {
+                key: value
+                for key, value in db_quote.items()
+                if key in columns
+            }
+
+            codigo_opcao = db_quote.get("codigo_opcao")
+
+            if not codigo_opcao:
+                continue
+
+            update_columns = [
+                key
+                for key in db_quote.keys()
+                if key not in {"id", "codigo_opcao", "created_at"}
+            ]
+
+            if update_columns:
+                set_clause = ", ".join([f"{col} = ?" for col in update_columns])
+                params = [db_quote[col] for col in update_columns]
+                params.append(codigo_opcao)
+
+                cursor = con.execute(
+                    f"""
+                    UPDATE rtd_option_quotes
+                    SET {set_clause}
+                    WHERE codigo_opcao = ?
+                    """,
+                    params,
+                )
+
+                if cursor.rowcount > 0:
+                    _reconcile_operational_columns_from_raw_json_sql(con, db_quote, columns)
+                    updated += 1
+                    continue
+
+            insert_columns = [
+                key
+                for key in db_quote.keys()
+                if key not in {"id"}
+            ]
+
+            placeholders = ", ".join(["?"] * len(insert_columns))
+            column_clause = ", ".join(insert_columns)
+            params = [db_quote[col] for col in insert_columns]
+
+            con.execute(
+                f"""
+                INSERT INTO rtd_option_quotes ({column_clause})
+                VALUES ({placeholders})
+                """,
+                params,
+            )
+
+            inserted += 1
+
+        con.commit()
+
+    return {
+        "updated": updated,
+        "inserted": inserted,
+        "total": updated + inserted,
+    }
+
+# FIM FRENTE 62 RTD OPTION QUOTES EXCEL SYNC SQL BOUNDARY

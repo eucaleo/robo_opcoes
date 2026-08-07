@@ -19,10 +19,25 @@ from utils.leg_normalizers import parse_timestamp, parse_vencimento
 
 
 def _to_aba(ref) -> str:
-    """Aceita StructureRef ou str e devolve a string da aba."""
+    """
+    Fallback legado: aceita StructureRef com aba ou str.
+
+    Observação:
+    - A resolução structure_id -> alias_legacy_aba depende de banco.
+    - Portanto, a resolução canônica fica em RoboLegsRepository.resolve_aba().
+    """
     if isinstance(ref, str):
         return ref
-    return ref.aba  # StructureRef.aba (alteracao_53)
+
+    aba = getattr(ref, "aba", None)
+    if aba:
+        return str(aba)
+
+    raise ValueError(
+        "Referência sem aba para RoboLegsRepository. "
+        "Use repository.resolve_aba(), get_legs_by_structure_id() "
+        "ou StructureRef com structure_id resolvível."
+    )
 
 
 @dataclass(frozen=True)
@@ -50,13 +65,62 @@ class RoboLegsRepository(AbaResolverMixin):
     def __init__(self, config: Optional[RoboLegsRepoConfig] = None):
         self.config = config or RoboLegsRepoConfig()
 
-    def get_legs(self, ref: StructureRef, timestamp: Any) -> List[RoboLegDTO]:
+    def resolve_aba(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> str:
+        """
+        Resolve a entrada canônica para aba legada.
+
+        Regra da Frente 08:
+        - Camada canônica pode chamar por structure_id.
+        - Tabelas legadas robo/manual ainda são fisicamente filtradas por aba.
+        - A ponte autorizada é structures.alias_legacy_aba.
+        """
+        if structure_id is not None:
+            aba = self._resolve_aba_from_structure_id(int(structure_id))
+            if not aba:
+                raise ValueError(
+                    f"structure_id={structure_id} sem alias_legacy_aba em structures"
+                )
+            return str(aba)
+
+        if isinstance(ref, StructureRef):
+            if ref.aba:
+                return str(ref.aba)
+            if ref.structure_id is not None:
+                aba = self._resolve_aba_from_structure_id(int(ref.structure_id))
+                if not aba:
+                    raise ValueError(
+                        f"structure_id={ref.structure_id} sem alias_legacy_aba em structures"
+                    )
+                return str(aba)
+            raise ValueError("StructureRef sem aba e sem structure_id em RoboLegsRepository")
+
+        if isinstance(ref, int) and not isinstance(ref, bool):
+            aba = self._resolve_aba_from_structure_id(int(ref))
+            if not aba:
+                raise ValueError(f"structure_id={ref} sem alias_legacy_aba em structures")
+            return str(aba)
+
+        if ref is None:
+            raise ValueError("Informe ref ou structure_id para RoboLegsRepository")
+
+        return _to_aba(ref)
+
+    def get_legs(
+        self,
+        ref: StructureRef | str | int | None,
+        timestamp: Any,
+    ) -> List[RoboLegDTO]:
         """
         Retorna legs para uma aba e um timestamp exatos.
         - Primeiro tenta MANUAL
         - Se vazio, tenta RTD
         """
-        aba = _to_aba(ref)
+        aba = self.resolve_aba(ref)
         ts = parse_timestamp(timestamp)
         ts_candidates = self._timestamp_candidates(timestamp, ts)
 
@@ -77,8 +141,12 @@ class RoboLegsRepository(AbaResolverMixin):
         )
         return rtd
 
-    def has_manual(self, ref: StructureRef, timestamp: Any) -> bool:
-        aba = _to_aba(ref)
+    def has_manual(
+        self,
+        ref: StructureRef | str | int | None,
+        timestamp: Any,
+    ) -> bool:
+        aba = self.resolve_aba(ref)
         ts = parse_timestamp(timestamp)
         ts_candidates = self._timestamp_candidates(timestamp, ts)
 
@@ -97,11 +165,11 @@ class RoboLegsRepository(AbaResolverMixin):
 
     def list_timestamps(
         self,
-        ref: StructureRef,
+        ref: StructureRef | str | int | None,
         prefer: str = "manual_then_rtd",
     ) -> List[str]:
-        """Lista timestamps disponíveis para a aba."""
-        aba = _to_aba(ref)
+        """Lista timestamps disponíveis para a estrutura, resolvendo structure_id -> aba quando necessário."""
+        aba = self.resolve_aba(ref)
         prefer = (prefer or "").strip().lower()
         with sqlite_conn(self.config.app_db_path) as conn:
             if prefer == "all":
@@ -242,11 +310,7 @@ class RoboLegsRepository(AbaResolverMixin):
         delega para get_legs() existente.
         Levanta ValueError se structure_id não mapeado.
         """
-        aba = self._resolve_aba_from_structure_id(structure_id)
-        if aba is None:
-            raise ValueError(
-                f"structure_id={structure_id} sem alias_legacy_aba em structures"
-            )
+        aba = self.resolve_aba(structure_id=structure_id)
         # alteracao_62: passa StructureRef em vez de str nua -- semântica explícita
         ref = StructureRef(aba=aba, structure_id=structure_id)
         return self.get_legs(ref=ref, timestamp=timestamp)
@@ -257,8 +321,9 @@ class RoboLegsRepository(AbaResolverMixin):
         timestamp: Any,
     ) -> bool:
         """Versão canônica de has_manual() por structure_id."""
-        aba = self._resolve_aba_from_structure_id(structure_id)
-        if aba is None:
+        try:
+            aba = self.resolve_aba(structure_id=structure_id)
+        except ValueError:
             return False
         return self.has_manual(
             ref=StructureRef(aba=aba, structure_id=structure_id),
@@ -271,11 +336,7 @@ class RoboLegsRepository(AbaResolverMixin):
         prefer: str = "manual_then_rtd",
     ) -> List[str]:
         """Versão canônica de list_timestamps() por structure_id."""
-        aba = self._resolve_aba_from_structure_id(structure_id)
-        if aba is None:
-            raise ValueError(
-                f"structure_id={structure_id} sem alias_legacy_aba em structures"
-            )
+        aba = self.resolve_aba(structure_id=structure_id)
         return self.list_timestamps(
             ref=StructureRef(aba=aba, structure_id=structure_id),
             prefer=prefer,

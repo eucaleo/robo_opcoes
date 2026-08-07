@@ -1,11 +1,11 @@
 import argparse
 import os
 import re
-import sqlite3
 import time
 from pathlib import Path
 
 import win32com.client
+from repositories import rtd_option_quotes_excel_populator_sql_boundary as _rtd_excel_populator_sql_boundary
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -95,79 +95,13 @@ def get_sheet_name():
 
 
 def validate_database(db_path):
-    if not db_path.exists():
-        raise FileNotFoundError(f"Banco não encontrado: {db_path}")
-
-    required_tables = {
-        "structures",
-        "structure_legs",
-        "rtd_option_quotes",
-    }
-
-    with sqlite3.connect(db_path) as con:
-        rows = con.execute(
-            """
-            SELECT name
-            FROM sqlite_master
-            WHERE type = 'table'
-            """
-        ).fetchall()
-
-    existing_tables = {row[0] for row in rows}
-    missing_tables = required_tables - existing_tables
-
-    if missing_tables:
-        raise RuntimeError(
-            "Tabelas obrigatórias ausentes no banco: "
-            + ", ".join(sorted(missing_tables))
-        )
+    """Frente 66: delega acesso SQLite direto para boundary em repositories."""
+    return _rtd_excel_populator_sql_boundary.validate_database(db_path)
 
 
 def load_option_codes_from_db(db_path=None, include_archived=False):
-    db_path = Path(db_path or get_db_path())
-    validate_database(db_path)
-
-    codes = set()
-
-    with sqlite3.connect(db_path) as con:
-        con.row_factory = sqlite3.Row
-
-        if include_archived:
-            sql_legs = """
-                SELECT DISTINCT l.symbol AS symbol
-                FROM structure_legs l
-                JOIN structures s ON s.id = l.structure_id
-                WHERE l.symbol IS NOT NULL
-                  AND TRIM(l.symbol) <> ''
-            """
-        else:
-            sql_legs = """
-                SELECT DISTINCT l.symbol AS symbol
-                FROM structure_legs l
-                JOIN structures s ON s.id = l.structure_id
-                WHERE l.symbol IS NOT NULL
-                  AND TRIM(l.symbol) <> ''
-                  AND COALESCE(s.status, 'active') = 'active'
-            """
-
-        sql_cache = """
-            SELECT DISTINCT codigo_opcao AS symbol
-            FROM rtd_option_quotes
-            WHERE codigo_opcao IS NOT NULL
-              AND TRIM(codigo_opcao) <> ''
-        """
-
-        for row in con.execute(sql_legs):
-            symbol = normalize_symbol(row["symbol"])
-            if is_option_code(symbol):
-                codes.add(symbol)
-
-        for row in con.execute(sql_cache):
-            symbol = normalize_symbol(row["symbol"])
-            if is_option_code(symbol):
-                codes.add(symbol)
-
-    return sorted(codes)
+    """Frente 66: delega acesso SQLite direto para boundary em repositories."""
+    return _rtd_excel_populator_sql_boundary.load_option_codes_from_db(db_path, include_archived)
 
 
 def get_excel_pid(excel):
@@ -536,3 +470,129 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# >>> FRENTE 22A - RTD Option Quotes Excel Populator schema contract
+# Adoção incremental: o populator de Excel RTD passa a preferir a API pública
+# de services.rtd_option_quotes_schema quando disponível.
+#
+# Sem troca operacional ampla.
+# Sem alteração de persistência.
+# Sem operação de git.
+#
+# Regra preservada: option_type canônico somente CALL/PUT por extenso;
+# C/V são compra/venda legado, não tipo de opção canônico.
+
+def _frente_22a_rtd_option_quotes_schema_module():
+    """Retorna o módulo canônico de schema RTD Option Quotes, se disponível."""
+    import importlib
+
+    try:
+        return importlib.import_module("services.rtd_option_quotes_schema")
+    except Exception:
+        return None
+
+
+def _frente_22a_call_schema_api(api_name, fallback=None):
+    """Chama uma API pública do schema, preservando fallback local controlado."""
+    schema_module = _frente_22a_rtd_option_quotes_schema_module()
+    api = getattr(schema_module, api_name, None) if schema_module is not None else None
+
+    if callable(api):
+        try:
+            return api()
+        except Exception:
+            pass
+
+    if callable(fallback):
+        return fallback()
+
+    return fallback
+
+
+def _frente_22a_as_list(value):
+    if value is None:
+        return []
+
+    if isinstance(value, str):
+        return [value]
+
+    if isinstance(value, dict):
+        return list(value.keys())
+
+    try:
+        return list(value)
+    except TypeError:
+        return [value]
+
+
+def rtd_option_quotes_excel_populator_headers():
+    """Headers do populator preferindo rtd_option_quotes_headers()."""
+    fallback = globals().get("HEADERS", ())
+    return _frente_22a_as_list(
+        _frente_22a_call_schema_api("rtd_option_quotes_headers", fallback)
+    )
+
+
+def rtd_option_quotes_excel_populator_required_headers():
+    """Headers obrigatórios preferindo rtd_option_quotes_required_headers()."""
+    fallback = globals().get("REQUIRED_HEADERS", globals().get("HEADERS", ()))
+    return _frente_22a_as_list(
+        _frente_22a_call_schema_api("rtd_option_quotes_required_headers", fallback)
+    )
+
+
+def rtd_option_quotes_excel_populator_workbook_name():
+    """Workbook público preferindo rtd_option_quotes_workbook_name()."""
+    fallback = globals().get(
+        "DEFAULT_WORKBOOK_NAME",
+        globals().get("WORKBOOK_NAME", "LISTA_RTD.xlsm"),
+    )
+    return _frente_22a_call_schema_api("rtd_option_quotes_workbook_name", fallback)
+
+
+def rtd_option_quotes_excel_populator_sheet_name():
+    """Sheet pública preferindo rtd_option_quotes_sheet_name()."""
+    fallback = globals().get(
+        "DEFAULT_SHEET_NAME",
+        globals().get("SHEET_NAME", "RTD_OPTION_QUOTES"),
+    )
+    return _frente_22a_call_schema_api("rtd_option_quotes_sheet_name", fallback)
+
+
+# Publicação compatível: consumidores internos antigos que ainda leem constantes
+# passam a enxergar os valores resolvidos pela API pública do schema.
+_frente_22a_headers = rtd_option_quotes_excel_populator_headers()
+if _frente_22a_headers:
+    globals()["HEADERS"] = _frente_22a_headers
+
+_frente_22a_required_headers = rtd_option_quotes_excel_populator_required_headers()
+if _frente_22a_required_headers:
+    globals()["REQUIRED_HEADERS"] = _frente_22a_required_headers
+
+_frente_22a_workbook_name = rtd_option_quotes_excel_populator_workbook_name()
+if _frente_22a_workbook_name:
+    globals()["DEFAULT_WORKBOOK_NAME"] = _frente_22a_workbook_name
+    globals()["WORKBOOK_NAME"] = _frente_22a_workbook_name
+
+_frente_22a_sheet_name = rtd_option_quotes_excel_populator_sheet_name()
+if _frente_22a_sheet_name:
+    globals()["DEFAULT_SHEET_NAME"] = _frente_22a_sheet_name
+    globals()["SHEET_NAME"] = _frente_22a_sheet_name
+
+try:
+    __all__
+except NameError:
+    __all__ = []
+
+for _frente_22a_public_name in (
+    "rtd_option_quotes_excel_populator_headers",
+    "rtd_option_quotes_excel_populator_required_headers",
+    "rtd_option_quotes_excel_populator_workbook_name",
+    "rtd_option_quotes_excel_populator_sheet_name",
+):
+    if _frente_22a_public_name not in __all__:
+        __all__.append(_frente_22a_public_name)
+
+del _frente_22a_public_name
+# <<< FRENTE 22A - RTD Option Quotes Excel Populator schema contract

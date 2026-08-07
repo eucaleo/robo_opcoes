@@ -19,12 +19,20 @@ from domain.refs.structure_ref import StructureRef
 RTD_OPTION_QUOTES_SOURCE = "rtd_option_quotes"
 
 
-def _ref_to_aba(ref: StructureRef | str) -> str:
-    """Aceita StructureRef ou str e devolve a string da aba."""
+def _ref_to_aba(ref: StructureRef | str | int) -> str:
+    """
+    Fallback local para obter um rótulo de aba.
+
+    A resolução real structure_id -> alias_legacy_aba deve ser feita pelo
+    repository quando ele expõe resolve_aba(). Este helper preserva compatibilidade
+    para testes/fakes e para chamadas legadas por aba.
+    """
     if isinstance(ref, StructureRef):
         if ref.aba:
             return str(ref.aba)
-        raise ValueError("StructureRef precisa ter aba preenchida para consulta de market snapshot.")
+        if ref.structure_id is not None:
+            return str(ref.structure_id)
+        raise ValueError("StructureRef precisa ter aba ou structure_id.")
     return str(ref)
 
 
@@ -52,9 +60,10 @@ class MarketSnapshotSelector:
 
     def select(
         self,
-        ref: StructureRef | str | None = None,
+        ref: StructureRef | str | int | None = None,
         *,
         aba: str | None = None,
+        structure_id: int | None = None,
     ) -> SnapshotSelectionResult:
         """
         Seleciona as legs canônicas para a estrutura informada.
@@ -64,12 +73,24 @@ class MarketSnapshotSelector:
           - select(StructureRef(...))
           - select(aba="SMAL11")
           - select("SMAL11")
+          - select(structure_id=123)
+          - select(StructureRef.from_id(123))
         """
-        if ref is None and aba is None:
-            raise ValueError("Informe ref ou aba para selecionar snapshot.")
+        if ref is None and aba is None and structure_id is None:
+            raise ValueError("Informe ref, aba ou structure_id para selecionar snapshot.")
 
-        effective_ref: StructureRef | str = ref if ref is not None else aba
-        aba_str = _ref_to_aba(effective_ref)
+        if ref is not None:
+            effective_ref: StructureRef | str | int = ref
+        elif structure_id is not None:
+            effective_ref = StructureRef.from_id(int(structure_id))
+        else:
+            effective_ref = aba
+
+        resolve_aba = getattr(self._repo, "resolve_aba", None)
+        if callable(resolve_aba):
+            aba_str = resolve_aba(effective_ref)
+        else:
+            aba_str = _ref_to_aba(effective_ref)
 
         manual_legs = self._repo.get_manual_legs(effective_ref)
         rtd_legs = self._repo.get_rtd_legs(effective_ref)

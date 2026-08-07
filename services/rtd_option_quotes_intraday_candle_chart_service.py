@@ -146,3 +146,52 @@ class RtdOptionQuotesIntradayCandleChartService:
             return float(text)
         except Exception:
             return None
+
+# INICIO FRENTE 37 RTD OPTION QUOTES INTRADAY CANDLE CHART PARSER BRIDGE CONTRACT
+# Sem troca de persistencia.
+# Sem troca de schema.
+# Sem alteracao operacional abrupta do candle chart service.
+# Ponte contratual local para parsers canonicos compartilhados.
+# Esta frente registra o contrato de normalizacao para o chart de candles RTD,
+# sem alterar fluxo operacional, sem trocar persistencia e sem trocar schema.
+
+try:
+    from utils import number_parser as _frente37_number_parser
+except Exception:  # pragma: no cover - fallback defensivo de compatibilidade local
+    _frente37_number_parser = None
+
+try:
+    from utils import date_parser as _frente37_date_parser
+except Exception:  # pragma: no cover - fallback defensivo de compatibilidade local
+    _frente37_date_parser = None
+
+
+def _frente37_parse_optional_float(value):
+    """Ponte contratual para parse numerico opcional canonico."""
+    parser = getattr(_frente37_number_parser, "parse_optional_float", None)
+    if callable(parser):
+        return parser(value)
+    parser = getattr(_frente37_number_parser, "parse_float_br", None)
+    if callable(parser):
+        return parser(value)
+    return value
+
+
+def _frente37_parse_positive_float(value):
+    """Ponte contratual para parse numerico positivo canonico."""
+    parser = getattr(_frente37_number_parser, "parse_positive_float", None)
+    if callable(parser):
+        return parser(value)
+    return _frente37_parse_optional_float(value)
+
+
+def _frente37_parse_datetime_to_iso(value):
+    """Ponte contratual para parse canonico de data/hora."""
+    parser = getattr(_frente37_date_parser, "parse_datetime_to_iso", None)
+    if callable(parser):
+        return parser(value)
+    parser = getattr(_frente37_date_parser, "parse_excel_date_to_iso", None)
+    if callable(parser):
+        return parser(value)
+    return value
+# FIM FRENTE 37 RTD OPTION QUOTES INTRADAY CANDLE CHART PARSER BRIDGE CONTRACT

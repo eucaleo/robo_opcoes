@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from domain.position_side import normalize_position_side
+from utils.leg_normalizers import normalize_option_type, normalize_position_side, normalize_option_multiplier
 
 
 def _read_attr(obj: Any, name: str, default: Any = None) -> Any:
@@ -40,7 +40,27 @@ def _to_int(value: Any, field_name: str) -> int:
         raise ValueError(f"invalid {field_name}: {value}") from exc
 
 
-def to_canonical_leg(leg: Any, multiplier: float = 1.0) -> dict[str, Any]:
+def _normalize_expiration_date(value: Any) -> str | None:
+    if value is None:
+        return None
+
+    if hasattr(value, "strftime"):
+        return value.strftime("%Y-%m-%d")
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    if "T" in text:
+        return text.split("T", 1)[0]
+
+    if " " in text:
+        return text.split(" ", 1)[0]
+
+    return text
+
+
+def to_canonical_leg(leg: Any, multiplier: float | None = None) -> dict[str, Any]:
     cv = _enum_value(_read_attr(leg, "cv"))
     call_put = _enum_value(_read_attr(leg, "call_put"))
     ativo = _read_attr(leg, "ativo")
@@ -57,20 +77,18 @@ def to_canonical_leg(leg: Any, multiplier: float = 1.0) -> dict[str, Any]:
     except ValueError as exc:
         raise ValueError(f"invalid cv: {cv}") from exc
 
-    if call_put_str == "CALL":
-        option_type = "CALL"
-    elif call_put_str == "PUT":
-        option_type = "PUT"
-    else:
-        raise ValueError(f"invalid call_put: {call_put}")
+    try:
+        option_type = normalize_option_type(call_put_str)
+    except ValueError as exc:
+        raise ValueError(f"invalid call_put: {call_put}") from exc
 
     return {
         "position_side": position_side,
         "option_type": option_type,
         "symbol": _safe_upper_text(ativo),
         "strike": _to_float(strike, "strike"),
-        "expiration_date": vencimento.strftime("%Y-%m-%d") if vencimento else None,
+        "expiration_date": _normalize_expiration_date(vencimento),
         "quantity": _to_int(quant, "quant"),
         "premium": float(preco) if preco is not None else None,
-        "multiplier": float(multiplier),
+        "multiplier": normalize_option_multiplier(multiplier),
     }

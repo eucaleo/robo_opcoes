@@ -219,3 +219,226 @@ class RtdOptionQuotesIntradayHistoryRepository:
 
 
 IntradayHistoryRepository = RtdOptionQuotesIntradayHistoryRepository
+
+# INICIO FRENTE 39 RTD OPTION QUOTES INTRADAY HISTORY REPOSITORY PARSER BRIDGE CONTRACT
+# Ponte contratual para adocao progressiva dos parsers canonicos em repositorio intraday history.
+# Esta frente apenas declara o contrato local de integracao futura.
+# Sem troca de persistencia.
+# Sem troca de schema.
+# Sem alteracao operacional do intraday history repository.
+# Regra preservada: normalizacao numerica e temporal deve convergir para utils/number_parser.py e utils/date_parser.py.
+
+try:
+    from utils.number_parser import (
+        parse_float_br as _frente39_parse_float_br,
+        parse_optional_float as _frente39_parse_optional_float,
+        parse_positive_float as _frente39_parse_positive_float,
+    )
+except Exception:
+    _frente39_parse_float_br = None
+    _frente39_parse_optional_float = None
+    _frente39_parse_positive_float = None
+
+try:
+    from utils.date_parser import (
+        parse_datetime_to_iso as _frente39_parse_datetime_to_iso,
+    )
+except Exception:
+    _frente39_parse_datetime_to_iso = None
+
+
+def _frente39_intraday_history_repository_parser_bridge_contract():
+    """Contrato declarativo da Frente 39.
+
+    Nao altera persistencia, schema ou comportamento operacional.
+    Serve como ponto de convergencia para refatoracao futura controlada.
+    """
+
+    return {
+        "frente": 39,
+        "target": "repositories/rtd_option_quotes_intraday_history_repository.py",
+        "number_parser": "utils.number_parser",
+        "date_parser": "utils.date_parser",
+        "parse_float_br": "_frente39_parse_float_br",
+        "parse_optional_float": "_frente39_parse_optional_float",
+        "parse_positive_float": "_frente39_parse_positive_float",
+        "parse_datetime_to_iso": "_frente39_parse_datetime_to_iso",
+        "persistence_change": False,
+        "schema_change": False,
+        "operational_change": False,
+    }
+
+
+def _frente39_apply_parser_bridge(value, parser):
+    """Aplica parser canonico quando disponivel, preservando fallback local."""
+
+    if parser is not None:
+        return parser(value)
+    return value
+# FIM FRENTE 39 RTD OPTION QUOTES INTRADAY HISTORY REPOSITORY PARSER BRIDGE CONTRACT
+
+# BEGIN FRENTE_68_INTRADAY_CANDLE_HISTORY_REPOSITORY_BOUNDARY
+def fetch_intraday_history_rows_for_candles(**kwargs):
+    """Read intraday history rows for candle building through repository boundary.
+
+    This helper intentionally keeps SQL inside repositories, not services.
+    It is defensive to preserve compatibility with the service call signature:
+    accepted db path keys include db_path, path and database_path.
+    Optional filters accepted: symbol/symbols and start/end timestamp aliases.
+    """
+    import sqlite3
+    from pathlib import Path
+
+    db_path = (
+        kwargs.get("db_path")
+        or kwargs.get("path")
+        or kwargs.get("database_path")
+        or kwargs.get("database")
+    )
+    if db_path is None:
+        self_obj = kwargs.get("self")
+        if self_obj is not None:
+            db_path = getattr(self_obj, "db_path", None)
+
+    if db_path is None:
+        raise ValueError("db_path/path is required to read intraday history rows")
+
+    table_name = "rtd_option_quotes_intraday_history"
+    path_str = str(Path(db_path))
+
+    conn = sqlite3.connect(path_str)
+    conn.row_factory = sqlite3.Row
+    try:
+        table = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?",
+            (table_name,),
+        ).fetchone()
+        if table is None:
+            return []
+
+        columns = [
+            row[1]
+            for row in conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+        ]
+        if not columns:
+            return []
+
+        column_set = set(columns)
+        where = []
+        params = []
+
+        symbol_col = next(
+            (name for name in ("symbol", "ticker", "codigo", "code") if name in column_set),
+            None,
+        )
+        raw_symbol = (
+            kwargs.get("symbol")
+            or kwargs.get("ticker")
+            or kwargs.get("codigo")
+            or kwargs.get("code")
+        )
+        raw_symbols = kwargs.get("symbols") or kwargs.get("tickers") or kwargs.get("codigos")
+
+        if symbol_col and raw_symbol not in (None, ""):
+            where.append(f"UPPER(TRIM({symbol_col})) = ?")
+            params.append(str(raw_symbol).strip().upper())
+        elif symbol_col and raw_symbols:
+            normalized_symbols = [
+                str(item).strip().upper()
+                for item in raw_symbols
+                if str(item).strip()
+            ]
+            if normalized_symbols:
+                placeholders = ", ".join("?" for _ in normalized_symbols)
+                where.append(f"UPPER(TRIM({symbol_col})) IN ({placeholders})")
+                params.extend(normalized_symbols)
+
+        timestamp_col = next(
+            (
+                name
+                for name in (
+                    "captured_at",
+                    "timestamp",
+                    "created_at",
+                    "updated_at",
+                    "reference_at",
+                    "datetime",
+                )
+                if name in column_set
+            ),
+            None,
+        )
+
+        start_at = (
+            kwargs.get("start_at")
+            or kwargs.get("from_at")
+            or kwargs.get("start")
+            or kwargs.get("captured_from")
+            or kwargs.get("from_timestamp")
+        )
+        end_at = (
+            kwargs.get("end_at")
+            or kwargs.get("to_at")
+            or kwargs.get("end")
+            or kwargs.get("captured_to")
+            or kwargs.get("to_timestamp")
+        )
+
+        if timestamp_col and start_at not in (None, ""):
+            where.append(f"{timestamp_col} >= ?")
+            params.append(str(start_at))
+        if timestamp_col and end_at not in (None, ""):
+            where.append(f"{timestamp_col} <= ?")
+            params.append(str(end_at))
+
+        query = f"SELECT * FROM {table_name}"
+        if where:
+            query += " WHERE " + " AND ".join(where)
+        if timestamp_col:
+            query += f" ORDER BY {timestamp_col} ASC"
+
+        return [dict(row) for row in conn.execute(query, params).fetchall()]
+    finally:
+        conn.close()
+# END FRENTE_68_INTRADAY_CANDLE_HISTORY_REPOSITORY_BOUNDARY
+
+# INICIO FRENTE 70 INTRADAY HISTORY SERVICE SQL BOUNDARY
+
+def open_intraday_history_capture_connection(db_path):
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def intraday_history_snapshot_table_exists_for_capture(conn, table_name):
+    row = conn.execute(
+        """
+        SELECT name
+        FROM sqlite_master
+        WHERE type = 'table'
+          AND name = ?
+        """,
+        (table_name,),
+    ).fetchone()
+    return row is not None
+
+
+def fetch_snapshot_rows_for_intraday_history_capture(
+    db_path,
+    snapshot_table="rtd_option_quotes",
+):
+    conn = open_intraday_history_capture_connection(db_path)
+    try:
+        if not intraday_history_snapshot_table_exists_for_capture(conn, snapshot_table):
+            return []
+
+        rows = conn.execute(
+            f"SELECT * FROM {snapshot_table}"
+        ).fetchall()
+
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+# FIM FRENTE 70 INTRADAY HISTORY SERVICE SQL BOUNDARY
+

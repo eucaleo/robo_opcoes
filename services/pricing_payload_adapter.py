@@ -1,6 +1,6 @@
 from typing import Any
 
-from domain.position_side import to_pricing_engine_side
+from utils.leg_normalizers import normalize_option_type, normalize_pricing_side, normalize_option_multiplier
 
 
 def _clean_text(value: Any) -> str | None:
@@ -37,15 +37,15 @@ def to_pricing_payload(canonical_input: dict[str, Any]) -> dict[str, Any]:
 
         pricing_legs.append(
             {
-                "side": to_pricing_engine_side(leg["position_side"]),
+                "side": normalize_pricing_side(leg["position_side"]),
                 "instrument_type": "OPTION",
-                "option_type": _clean_upper_text(leg["option_type"]),
+                "option_type": normalize_option_type(leg["option_type"]),
                 "symbol": _clean_upper_text(leg.get("symbol")),
                 "strike": float(leg["strike"]),
                 "expiration_date": _clean_text(leg["expiration_date"]),
                 "quantity": int(leg["quantity"]),
                 "premium": float(leg["premium"]) if leg.get("premium") is not None else None,
-                "multiplier": float(leg["multiplier"]),
+                "multiplier": normalize_option_multiplier(leg.get("multiplier")),
             }
         )
 

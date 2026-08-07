@@ -237,3 +237,140 @@ class PricingExecutionQueryService:
 
     def get_execution_details(self, execution_id: int) -> dict[str, Any]:
         return self.get_execution(execution_id)
+
+# [FRENTE 45] INICIO - estabilizacao envelope query retorno pricing
+def _frente_45_get_pricing_envelope_contract():
+    """Retorna o modulo do contrato canonico de envelope de pricing."""
+
+    from services import pricing_execution_envelope as pricing_execution_envelope_contract
+
+    return pricing_execution_envelope_contract
+
+
+def _frente_45_has_minimum_pricing_envelope(value):
+    """Confere o contrato minimo do envelope canonico de pricing."""
+
+    required = {
+        "status",
+        "error_message",
+        "pricing_payload",
+        "engine_result",
+        "persisted",
+        "pricing_execution_id",
+    }
+    return isinstance(value, dict) and required.issubset(set(value.keys()))
+
+
+def _frente_45_metadata(**metadata):
+    """Monta metadata local da Frente 45 sem alterar persistencia ou schema."""
+
+    current = dict(metadata)
+    current.setdefault("frente", 45)
+    current.setdefault("fase", "Fase 4 - Pricing e payoff")
+    current.setdefault("query_return", True)
+    current.setdefault("persistence_change", False)
+    current.setdefault("schema_change", False)
+    current.setdefault("operational_change", False)
+    return current
+
+
+def _frente_45_merge_metadata(envelope, metadata):
+    """Acrescenta metadata ao envelope sem remover campos existentes."""
+
+    result = dict(envelope)
+    current = result.get("metadata")
+    if not isinstance(current, dict):
+        current = {}
+    merged = dict(current)
+    for key, value in metadata.items():
+        merged.setdefault(key, value)
+    result["metadata"] = merged
+    return result
+
+
+def _frente_45_extract_pricing_execution_id(result, metadata):
+    """Extrai pricing_execution_id de retorno de query sem impor schema novo."""
+
+    if isinstance(result, dict):
+        for key in ("pricing_execution_id", "execution_id", "id"):
+            value = result.get(key)
+            if value is not None:
+                return value
+    return metadata.get("pricing_execution_id")
+
+
+def _frente_45_stabilize_query_pricing_return(result, **metadata):
+    """Estabiliza retorno de consulta de pricing no envelope canonico minimo.
+
+    Esta funcao e intencionalmente conservadora:
+    - nao altera banco;
+    - nao cria schema;
+    - nao troca repository;
+    - nao muda fluxo operacional amplo;
+    - apenas normaliza o formato de retorno para consumidores de query.
+    """
+
+    current_metadata = _frente_45_metadata(**metadata)
+
+    if _frente_45_has_minimum_pricing_envelope(result):
+        return _frente_45_merge_metadata(result, current_metadata)
+
+    contract = _frente_45_get_pricing_envelope_contract()
+    builders = (
+        "normalize_pricing_envelope",
+        "canonical_pricing_envelope",
+        "build_pricing_envelope",
+        "create_pricing_envelope",
+    )
+
+    for builder_name in builders:
+        builder = getattr(contract, builder_name, None)
+        if builder is None:
+            continue
+        attempts = (
+            lambda: builder(result, **current_metadata),
+            lambda: builder(result),
+            lambda: builder(
+                pricing_payload=(result.get("pricing_payload") if isinstance(result, dict) else None),
+                engine_result=(result.get("result") if isinstance(result, dict) else result),
+                persisted={"record": result},
+                pricing_execution_id=_frente_45_extract_pricing_execution_id(result, current_metadata),
+                metadata=current_metadata,
+            ),
+        )
+        for attempt in attempts:
+            try:
+                candidate = attempt()
+            except TypeError:
+                continue
+            if _frente_45_has_minimum_pricing_envelope(candidate):
+                return _frente_45_merge_metadata(candidate, current_metadata)
+
+    pricing_execution_id = _frente_45_extract_pricing_execution_id(result, current_metadata)
+
+    if isinstance(result, dict):
+        pricing_payload = result.get("pricing_payload")
+        engine_result = result.get("engine_result", result.get("result", result))
+        persisted = result.get("persisted")
+        if not isinstance(persisted, dict):
+            persisted = {"record": result}
+        status = result.get("status", "ok")
+        error_message = result.get("error_message")
+    else:
+        pricing_payload = None
+        engine_result = result
+        persisted = {"record": None}
+        status = "ok"
+        error_message = None
+
+    envelope = {
+        "status": status,
+        "error_message": error_message,
+        "pricing_payload": pricing_payload,
+        "engine_result": engine_result,
+        "persisted": persisted,
+        "pricing_execution_id": pricing_execution_id,
+        "metadata": current_metadata,
+    }
+    return envelope
+# [FRENTE 45] FIM - estabilizacao envelope query retorno pricing

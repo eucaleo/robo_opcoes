@@ -12,6 +12,36 @@ Premissas:
 
 from __future__ import annotations
 
+# ---------------------------------------------------------------------------
+# Frente 19C — adocao controlada dos normalizadores financeiros compartilhados
+# ---------------------------------------------------------------------------
+# Estes imports documentam e estabilizam o contrato de normalizacao financeira
+# sem trocar o fluxo operacional amplo nesta etapa.
+#
+# Campos de risco/gregas devem preservar negativos e zero:
+#   parse_optional_risk_float / parse_optional_greek_float
+#
+# Campos financeiros que exigem positividade continuam protegidos:
+#   parse_optional_positive_float
+#
+# Campos em que zero e valido, mas negativo nao:
+#   parse_optional_non_negative_float
+try:
+    from utils.financial_number_normalizers import (
+        parse_optional_greek_float,
+        parse_optional_non_negative_float,
+        parse_optional_positive_float,
+        parse_optional_risk_float,
+        parse_optional_variation_float,
+    )
+except Exception:  # pragma: no cover - fallback defensivo para import parcial
+    parse_optional_greek_float = None
+    parse_optional_non_negative_float = None
+    parse_optional_positive_float = None
+    parse_optional_risk_float = None
+    parse_optional_variation_float = None
+
+
 from typing import Any
 
 

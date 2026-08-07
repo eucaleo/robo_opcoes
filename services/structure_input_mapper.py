@@ -57,7 +57,7 @@ def _map_leg_to_structure_input(leg: dict[str, Any]) -> dict[str, Any]:
         "expiration_date": _clean_text(leg["expiration_date"]),
         "quantity": leg["quantity"],
         "premium": leg.get("premium"),
-        "multiplier": leg.get("multiplier", 1.0),
+        "multiplier": leg.get("multiplier", 100.0),
     }
 
     optional_market_fields = (

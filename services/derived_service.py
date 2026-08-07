@@ -1,4 +1,13 @@
 from __future__ import annotations
+
+from repositories.derived_service_sql_boundary import (
+    SQLITE3,
+    DERIVED_SERVICE_SQL_BOUNDARY_001,
+    DERIVED_SERVICE_SQL_BOUNDARY_002,
+    DERIVED_SERVICE_SQL_BOUNDARY_003,
+    DERIVED_SERVICE_SQL_BOUNDARY_004,
+    DERIVED_SERVICE_SQL_BOUNDARY_005,
+)
 # services/derived_service.py
 """
 alteracao_30/alteracao_57c -- Servico de persistencia de dados consolidados (payoff + decisoes).
@@ -8,7 +17,6 @@ alteracao_65           -- get_payoff_by_aba() removida da interface pública (st
 
 import inspect
 import json
-import sqlite3
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -35,12 +43,7 @@ def _load_aba_cache() -> None:
     global _ABA_TO_STRUCTURE_ID, _ABA_CACHE_LOADED
     try:
         with connect_app() as conn:
-            cur = conn.execute("""
-                SELECT id, alias_legacy_aba
-                FROM structures
-                WHERE alias_legacy_aba IS NOT NULL
-                  AND alias_legacy_aba != ''
-            """)
+            cur = conn.execute(DERIVED_SERVICE_SQL_BOUNDARY_002)
             _ABA_TO_STRUCTURE_ID = {row[1]: row[0] for row in cur.fetchall()}
     except Exception:
         _ABA_TO_STRUCTURE_ID = {}
@@ -453,11 +456,7 @@ def cleanup_derived(days_to_keep: int = 30) -> Dict[str, int]:
 def get_all_payoff_curves():
     with connect_app() as conn:
         cursor = conn.cursor()
-        cursor.execute("""
-            SELECT timestamp, aba, point_spot, point_pl, meta_json
-            FROM payoff_curve_points
-            ORDER BY timestamp DESC, point_spot
-        """)
+        cursor.execute(DERIVED_SERVICE_SQL_BOUNDARY_001)
         return [
             {
                 "timestamp":  row[0],
@@ -480,10 +479,7 @@ def get_payoff_by_structure_id(structure_id: int):
     with connect_app() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            f"""
-            SELECT timestamp, point_spot, point_pl, meta_json
-              FROM payoff_curve_points
-             WHERE {col} = ?
+            f"""DERIVED_SERVICE_SQL_BOUNDARY_003{col} = ?
              ORDER BY point_spot
             """,
             (val,),
@@ -501,13 +497,13 @@ def get_payoff_by_structure_id(structure_id: int):
 
 def get_recent_decisions():
     with connect_app() as conn:
-        conn.row_factory = sqlite3.Row
+        conn.row_factory = SQLITE3.Row
         cursor = conn.cursor()
 
         cols = [
             row["name"]
             for row in cursor.execute(
-                "PRAGMA table_info(structure_decisions)"
+                DERIVED_SERVICE_SQL_BOUNDARY_005
             ).fetchall()
         ]
 
@@ -523,8 +519,7 @@ def get_recent_decisions():
         if "why_json" in cols:
             select_cols.append("why_json")
 
-        cursor.execute(f"""
-            SELECT {", ".join(select_cols)}
+        cursor.execute(f"""DERIVED_SERVICE_SQL_BOUNDARY_004{", ".join(select_cols)}
             FROM structure_decisions
             ORDER BY timestamp DESC
             LIMIT 50

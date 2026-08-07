@@ -149,6 +149,42 @@ _PAYOFF_MIGRATIONS: Dict[str, str] = {
 # Helpers internos (nível módulo -- reutilizados pela classe e shims)
 # ---------------------------------------------------------------------------
 
+
+_DERIVED_SNAPSHOT_TABLES = {"payoff_curve_points", "structure_decisions"}
+
+
+def _delete_derived_snapshot_rows(
+    cur: sqlite3.Cursor,
+    table: str,
+    timestamp: str,
+    aba: str,
+    structure_id: Optional[int] = None,
+) -> int:
+    """
+    Delete idempotente para snapshots derivados.
+
+    Regra canônica:
+      - se structure_id estiver disponível, substituir por structure_id + timestamp;
+      - se não houver structure_id, manter fallback legado por aba + timestamp.
+
+    A coluna aba permanece apenas como rastreabilidade/compatibilidade física.
+    """
+    if table not in _DERIVED_SNAPSHOT_TABLES:
+        raise ValueError(f"tabela derivada não autorizada para delete: {table!r}")
+
+    if structure_id is not None:
+        cur.execute(
+            f"DELETE FROM {table} WHERE structure_id = ? AND timestamp = ?",
+            (structure_id, timestamp),
+        )
+    else:
+        cur.execute(
+            f"DELETE FROM {table} WHERE aba = ? AND timestamp = ?",
+            (_unwrap_aba(aba), timestamp),
+        )
+    return cur.rowcount
+
+
 def _normalize_why_fields(
     decision_dict: Dict[str, Any],
 ) -> tuple[Any, Optional[str]]:
@@ -297,12 +333,16 @@ class DerivedRepo:
         Retorna lastrowid.
         """
         ts, ab = self._extract_ts_aba(decision_dict, timestamp, aba)
+        sid = decision_dict.get("structure_id")
         conn = self._connect()
         try:
             cur = conn.cursor()
-            cur.execute(
-                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
-                (ab, ts),
+            _delete_derived_snapshot_rows(
+                cur,
+                "structure_decisions",
+                timestamp=ts,
+                aba=ab,
+                structure_id=sid,
             )
             rowid = self._insert_decision(cur, ts, ab, decision_dict)
             conn.commit()
@@ -356,9 +396,12 @@ class DerivedRepo:
         try:
             meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
             cur = conn.cursor()
-            cur.execute(
-                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
-                (ab, ts),
+            _delete_derived_snapshot_rows(
+                cur,
+                "payoff_curve_points",
+                timestamp=ts,
+                aba=ab,
+                structure_id=sid,
             )
             # fix alteracao_56: 6 colunas → 6 placeholders
             sql = """
@@ -450,9 +493,12 @@ class DerivedRepo:
             cur = conn.cursor()
 
             # --- payoff ---
-            cur.execute(
-                "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
-                (ab, ts),
+            _delete_derived_snapshot_rows(
+                cur,
+                "payoff_curve_points",
+                timestamp=ts,
+                aba=ab,
+                structure_id=sid,
             )
             # fix alteracao_56: 6 colunas → 6 placeholders
             sql_p = """
@@ -476,9 +522,12 @@ class DerivedRepo:
                 count += 1
 
             # --- decisão ---
-            cur.execute(
-                "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
-                (ab, ts),
+            _delete_derived_snapshot_rows(
+                cur,
+                "structure_decisions",
+                timestamp=ts,
+                aba=ab,
+                structure_id=sid,
             )
             decision_id = self._insert_decision(cur, ts, ab, decision_dict)
 
@@ -495,14 +544,36 @@ class DerivedRepo:
         self,
         aba: Optional[str] = None,
         timestamp: Optional[str] = None,
+        structure_id: Optional[int] = None,
     ) -> List[Dict[str, Any]]:
         conn = self._connect()
         try:
             cur = conn.cursor()
-            if aba and timestamp:
+            if structure_id is not None and timestamp:
                 cur.execute(
                     """
-                    SELECT timestamp, aba, point_spot, point_pl, meta_json
+                    SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
+                    FROM payoff_curve_points
+                    WHERE structure_id = ? AND timestamp = ?
+                    ORDER BY point_spot
+                    """,
+                    (structure_id, timestamp),
+                )
+            elif structure_id is not None:
+                cur.execute(
+                    """
+                    SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
+                    FROM payoff_curve_points
+                    WHERE structure_id = ?
+                    ORDER BY timestamp DESC, point_spot
+                    LIMIT 100
+                    """,
+                    (structure_id,),
+                )
+            elif aba and timestamp:
+                cur.execute(
+                    """
+                    SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
                     WHERE aba = ? AND timestamp = ?
                     ORDER BY point_spot
@@ -512,7 +583,7 @@ class DerivedRepo:
             elif aba:
                 cur.execute(
                     """
-                    SELECT timestamp, aba, point_spot, point_pl, meta_json
+                    SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
                     WHERE aba = ?
                     ORDER BY timestamp DESC, point_spot
@@ -523,7 +594,7 @@ class DerivedRepo:
             else:
                 cur.execute(
                     """
-                    SELECT timestamp, aba, point_spot, point_pl, meta_json
+                    SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
                     FROM payoff_curve_points
                     ORDER BY timestamp DESC, point_spot
                     LIMIT 100
@@ -581,21 +652,31 @@ class DerivedRepo:
         try:
             cur = conn.cursor()
             cur.execute("""
-                SELECT d.aba, d.timestamp, COUNT(p.point_spot) as point_count
+                SELECT d.aba, d.timestamp, d.structure_id, COUNT(p.point_spot) as point_count
                 FROM structure_decisions d
                 LEFT JOIN payoff_curve_points p
-                       ON (d.aba = p.aba AND d.timestamp = p.timestamp)
-                GROUP BY d.aba, d.timestamp
+                       ON d.timestamp = p.timestamp
+                      AND (
+                           (d.structure_id IS NOT NULL AND p.structure_id = d.structure_id)
+                           OR
+                           (d.structure_id IS NULL AND p.structure_id IS NULL AND d.aba = p.aba)
+                      )
+                GROUP BY d.aba, d.timestamp, d.structure_id
                 HAVING point_count = 0
             """)
             orphan_decisions = cur.fetchall()
             cur.execute("""
-                SELECT p.aba, p.timestamp, COUNT(DISTINCT p.point_spot)
+                SELECT p.aba, p.timestamp, p.structure_id, COUNT(DISTINCT p.point_spot)
                 FROM payoff_curve_points p
                 LEFT JOIN structure_decisions d
-                       ON (p.aba = d.aba AND p.timestamp = d.timestamp)
-                WHERE d.aba IS NULL
-                GROUP BY p.aba, p.timestamp
+                       ON p.timestamp = d.timestamp
+                      AND (
+                           (p.structure_id IS NOT NULL AND d.structure_id = p.structure_id)
+                           OR
+                           (p.structure_id IS NULL AND d.structure_id IS NULL AND p.aba = d.aba)
+                      )
+                WHERE d.rowid IS NULL
+                GROUP BY p.aba, p.timestamp, p.structure_id
             """)
             orphan_points = cur.fetchall()
             ok = not orphan_decisions and not orphan_points
@@ -693,9 +774,12 @@ def write_payoff_snapshot_atomic(
     meta_json = json.dumps(meta, ensure_ascii=False) if meta else None
     aba = _unwrap_aba(aba)
     cur = conn.cursor()
-    cur.execute(
-        "DELETE FROM payoff_curve_points WHERE aba = ? AND timestamp = ?",
-        (aba, timestamp),
+    _delete_derived_snapshot_rows(
+        cur,
+        "payoff_curve_points",
+        timestamp=timestamp,
+        aba=aba,
+        structure_id=structure_id,
     )
     sql = """
         INSERT INTO payoff_curve_points
@@ -727,10 +811,14 @@ def write_decision_snapshot_atomic(
 ) -> int:
     ensure_derived_tables(conn)
     aba = _unwrap_aba(aba)
+    structure_id = decision_dict.get("structure_id")
     cur = conn.cursor()
-    cur.execute(
-        "DELETE FROM structure_decisions WHERE aba = ? AND timestamp = ?",
-        (aba, timestamp),
+    _delete_derived_snapshot_rows(
+        cur,
+        "structure_decisions",
+        timestamp=timestamp,
+        aba=aba,
+        structure_id=structure_id,
     )
     why, why_json = _normalize_why_fields(decision_dict)
     meta = decision_dict.get("meta")
@@ -848,20 +936,36 @@ def get_payoff_points(
     conn: sqlite3.Connection,
     aba: Optional[str] = None,
     timestamp: Optional[str] = None,
+    structure_id: Optional[int] = None,
 ) -> List[Dict[str, Any]]:
     ensure_derived_tables(conn)
     aba = _unwrap_aba(aba)
     cur = conn.cursor()
-    if aba and timestamp:
+    if structure_id is not None and timestamp:
         cur.execute("""
-            SELECT timestamp, aba, point_spot, point_pl, meta_json
+            SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
+            FROM payoff_curve_points
+            WHERE structure_id = ? AND timestamp = ?
+            ORDER BY point_spot
+        """, (structure_id, timestamp))
+    elif structure_id is not None:
+        cur.execute("""
+            SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
+            FROM payoff_curve_points
+            WHERE structure_id = ?
+            ORDER BY timestamp DESC, point_spot
+            LIMIT 100
+        """, (structure_id,))
+    elif aba and timestamp:
+        cur.execute("""
+            SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             WHERE aba = ? AND timestamp = ?
             ORDER BY point_spot
         """, (aba, timestamp))
     elif aba:
         cur.execute("""
-            SELECT timestamp, aba, point_spot, point_pl, meta_json
+            SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             WHERE aba = ?
             ORDER BY timestamp DESC, point_spot
@@ -869,7 +973,7 @@ def get_payoff_points(
         """, (aba,))
     else:
         cur.execute("""
-            SELECT timestamp, aba, point_spot, point_pl, meta_json
+            SELECT timestamp, aba, structure_id, point_spot, point_pl, meta_json
             FROM payoff_curve_points
             ORDER BY timestamp DESC, point_spot
             LIMIT 100
@@ -882,19 +986,31 @@ def validate_snapshot_consistency(conn: sqlite3.Connection) -> bool:
     ensure_derived_tables(conn)
     cur = conn.cursor()
     cur.execute("""
-        SELECT d.aba, d.timestamp, COUNT(p.point_spot) as point_count
+        SELECT d.aba, d.timestamp, d.structure_id, COUNT(p.point_spot) as point_count
         FROM structure_decisions d
-        LEFT JOIN payoff_curve_points p ON (d.aba = p.aba AND d.timestamp = p.timestamp)
-        GROUP BY d.aba, d.timestamp
+        LEFT JOIN payoff_curve_points p
+               ON d.timestamp = p.timestamp
+              AND (
+                   (d.structure_id IS NOT NULL AND p.structure_id = d.structure_id)
+                   OR
+                   (d.structure_id IS NULL AND p.structure_id IS NULL AND d.aba = p.aba)
+              )
+        GROUP BY d.aba, d.timestamp, d.structure_id
         HAVING point_count = 0
     """)
     orphan_decisions = cur.fetchall()
     cur.execute("""
-        SELECT p.aba, p.timestamp, COUNT(DISTINCT p.point_spot)
+        SELECT p.aba, p.timestamp, p.structure_id, COUNT(DISTINCT p.point_spot)
         FROM payoff_curve_points p
-        LEFT JOIN structure_decisions d ON (p.aba = d.aba AND p.timestamp = d.timestamp)
-        WHERE d.aba IS NULL
-        GROUP BY p.aba, p.timestamp
+        LEFT JOIN structure_decisions d
+               ON p.timestamp = d.timestamp
+              AND (
+                   (p.structure_id IS NOT NULL AND d.structure_id = p.structure_id)
+                   OR
+                   (p.structure_id IS NULL AND d.structure_id IS NULL AND p.aba = d.aba)
+              )
+        WHERE d.rowid IS NULL
+        GROUP BY p.aba, p.timestamp, p.structure_id
     """)
     orphan_points = cur.fetchall()
     ok = not orphan_decisions and not orphan_points
@@ -930,3 +1046,146 @@ def cleanup_old_decisions(conn: sqlite3.Connection, days_to_keep: int = 30) -> i
     deleted = cur.rowcount
     conn.commit()
     return deleted
+
+# INICIO FRENTE 53B DETAILS PANEL DERIVED REPO BRIDGE
+def get_latest_structure_decision(structure_id, db_path=None):
+    """
+    Frente 53b: leitura centralizada da decisao mais recente da estrutura.
+
+    Mantem SQL encapsulado no repository derivado, removendo acesso direto
+    da UI a structure_decisions para o recorte do DetailsPanel.
+    """
+    import sqlite3
+
+    from db.config import APP_DB_PATH
+
+    sid = int(structure_id)
+    target_db = APP_DB_PATH if db_path is None else db_path
+
+    con = sqlite3.connect(str(target_db))
+    con.row_factory = sqlite3.Row
+    try:
+        select_cols = [
+            "structure_id",
+            "timestamp",
+            "decision",
+            "level",
+            "pl_atual",
+            "pl_max",
+            "pl_pct_of_max",
+            "dte_min",
+            "spot_ref",
+            "meta_json",
+            "created_at",
+            "why_json",
+        ]
+
+        row = con.execute(
+            f"""
+            SELECT {", ".join(select_cols)}
+            FROM structure_decisions
+            WHERE structure_id = ?
+            ORDER BY COALESCE(created_at, timestamp) DESC
+            LIMIT 1
+            """,
+            (sid,),
+        ).fetchone()
+
+        if not row:
+            return None
+
+        data = dict(row)
+        if data.get("why_json") is not None:
+            data["why"] = data["why_json"]
+        data["spot_reference"] = data.pop("spot_ref", None)
+        return data
+    finally:
+        con.close()
+
+
+def get_payoff_curve_points_by_structure_id(structure_id, db_path=None):
+    """
+    Frente 53b: leitura centralizada dos pontos de payoff por structure_id.
+
+    Mantem SQL encapsulado no repository derivado, removendo acesso direto
+    da UI a payoff_curve_points para o recorte do DetailsPanel.
+    """
+    import sqlite3
+
+    from db.config import APP_DB_PATH
+
+    sid = int(structure_id)
+    target_db = APP_DB_PATH if db_path is None else db_path
+
+    con = sqlite3.connect(str(target_db))
+    con.row_factory = sqlite3.Row
+    try:
+        rows = con.execute(
+            """
+            SELECT point_spot, point_pl
+            FROM payoff_curve_points
+            WHERE structure_id = ?
+            ORDER BY point_spot ASC
+            """,
+            (sid,),
+        ).fetchall()
+
+        return [
+            (float(row["point_spot"]), float(row["point_pl"]))
+            for row in rows
+            if row["point_spot"] is not None and row["point_pl"] is not None
+        ]
+    finally:
+        con.close()
+
+
+def get_structure_payoff_audit_info(structure_id, db_path=None):
+    """
+    Frente 53b: informacao minima de auditoria do payoff por structure_id.
+
+    Encapsula no repository derivado a consulta de decisao mais recente e
+    contagem de pontos de payoff usada pelo DetailsPanel.
+    """
+    import sqlite3
+
+    from db.config import APP_DB_PATH
+
+    sid = int(structure_id)
+    target_db = APP_DB_PATH if db_path is None else db_path
+
+    con = sqlite3.connect(str(target_db))
+    con.row_factory = sqlite3.Row
+    try:
+        row = con.execute(
+            """
+            SELECT created_at, timestamp
+            FROM structure_decisions
+            WHERE structure_id = ?
+            ORDER BY COALESCE(created_at, timestamp) DESC
+            LIMIT 1
+            """,
+            (sid,),
+        ).fetchone()
+
+        created_at = None
+        if row:
+            created_at = row["created_at"] or row["timestamp"]
+
+        count_row = con.execute(
+            """
+            SELECT COUNT(*) AS n
+            FROM payoff_curve_points
+            WHERE structure_id = ?
+            """,
+            (sid,),
+        ).fetchone()
+
+        return {
+            "source_table": "derived_repo",
+            "created_at": created_at,
+            "count_points": count_row["n"] if count_row else 0,
+            "fallback": False,
+        }
+    finally:
+        con.close()
+# FIM FRENTE 53B DETAILS PANEL DERIVED REPO BRIDGE

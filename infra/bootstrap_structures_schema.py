@@ -1,3 +1,5 @@
+from __future__ import annotations
+from db.migrations.ensure_pricing_executions_schema import ensure_pricing_executions_schema
 # infra/bootstrap_structures_schema.py
 """
 Garante o schema SQLite da aplicação (idempotente).
@@ -5,13 +7,11 @@ Cria tabelas e índices se ainda não existirem.
 
 alteracao_72: adicionada tabela structure_audit_log para rastreabilidade de mudancas.
 """
-from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
 
 DB_PATH = Path("dados/app.db")
-
 
 # ---------------------------------------------------------------------------
 # DDL principal
@@ -309,38 +309,302 @@ def ensure_structures_schema(db_path: Path = DB_PATH) -> None:
 
         conn.commit()
 
-
 # ---------------------------------------------------------------------------
-# Bootstrap auxiliar de pricing_executions (alteracao_23)
-# Mantido como função independente para uso em migrações pontuais.
+# Bootstrap auxiliar de pricing_executions
+# Mantido apenas por compatibilidade para chamadas antigas.
+#
+# Importante:
+# - O contrato oficial é o mesmo usado em ensure_structures_schema().
 # ---------------------------------------------------------------------------
-
-_PRICING_EXECUTIONS_DDL = """
-CREATE TABLE IF NOT EXISTS pricing_executions (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    structure_id    INTEGER NOT NULL,
-    reference_date  TEXT    NOT NULL,
-    status          TEXT    NOT NULL DEFAULT 'ok',
-    canonical_input TEXT    NULL,
-    engine_result   TEXT    NULL,
-    error_message   TEXT    NULL,
-    executed_at     TEXT    NOT NULL,
-    created_at      TEXT    NOT NULL
-);
-"""
-
-_PRICING_EXECUTIONS_INDEXES: list[str] = [
-    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id   ON pricing_executions (structure_id);",
-    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_reference_date ON pricing_executions (reference_date);",
-    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_status         ON pricing_executions (status);",
-    "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_date ON pricing_executions (structure_id, reference_date);",
-]
-
 
 def bootstrap_pricing_executions(conn: sqlite3.Connection) -> None:
-    """Garante tabela pricing_executions e seus índices (idempotente)."""
+    """Garante pricing_executions usando o contrato oficial idempotente."""
     cur = conn.cursor()
-    cur.executescript(_PRICING_EXECUTIONS_DDL)
-    for idx in _PRICING_EXECUTIONS_INDEXES:
-        cur.execute(idx)
+
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS pricing_executions (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at        TEXT    NOT NULL,
+            structure_id      INTEGER,
+            underlying_asset  TEXT,
+            reference_date    TEXT,
+            execution_status  TEXT,
+            execution_engine  TEXT,
+            error_message     TEXT,
+            duration_ms       INTEGER,
+            number_of_legs    INTEGER,
+            total_quantity    INTEGER,
+            theoretical_value REAL,
+            pricing_payload   TEXT,
+            result            TEXT,
+            FOREIGN KEY (structure_id) REFERENCES structures(id)
+        )
+        """
+    )
+
+    existing_columns = {
+        row[1]
+        for row in cur.execute("PRAGMA table_info(pricing_executions)").fetchall()
+    }
+
+    columns_to_add = {
+        "created_at": "TEXT",
+        "structure_id": "INTEGER",
+        "underlying_asset": "TEXT",
+        "reference_date": "TEXT",
+        "execution_status": "TEXT",
+        "execution_engine": "TEXT",
+        "error_message": "TEXT",
+        "duration_ms": "INTEGER",
+        "number_of_legs": "INTEGER",
+        "total_quantity": "INTEGER",
+        "theoretical_value": "REAL",
+        "pricing_payload": "TEXT",
+        "result": "TEXT",
+    }
+
+    for column_name, column_type in columns_to_add.items():
+        if column_name not in existing_columns:
+            cur.execute(
+                f"ALTER TABLE pricing_executions ADD COLUMN {column_name} {column_type}"
+            )
+
+    cur.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id
+        ON pricing_executions(structure_id)
+        """
+    )
+
+    cur.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at
+        ON pricing_executions(created_at)
+        """
+    )
+
+    index_rows = cur.execute(
+        "PRAGMA index_info(idx_pricing_executions_status)"
+    ).fetchall()
+
+    indexed_columns = [row[2] for row in index_rows]
+
+    if indexed_columns and indexed_columns != ["execution_status"]:
+        cur.execute("DROP INDEX IF EXISTS idx_pricing_executions_status")
+
+    cur.execute(
+        """
+        CREATE INDEX IF NOT EXISTS idx_pricing_executions_status
+        ON pricing_executions(execution_status)
+        """
+    )
+
     conn.commit()
+
+def bootstrap_pricing_executions(conn):
+    """
+    Bootstrap oficial da tabela pricing_executions.
+
+    Frente 16 / 20H:
+    - garante contrato canônico idempotente;
+    - inclui updated_at;
+    - cria índices requeridos;
+    - retorna status explícito para guardrails.
+    """
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS pricing_executions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        created_at TEXT,
+        updated_at TEXT,
+        structure_id INTEGER,
+        underlying_asset TEXT,
+        reference_date TEXT,
+        execution_status TEXT,
+        execution_engine TEXT,
+        error_message TEXT,
+        duration_ms INTEGER,
+        number_of_legs INTEGER,
+        total_quantity REAL,
+        theoretical_value REAL,
+        pricing_payload TEXT,
+        result TEXT
+        )
+        """
+    )
+
+    existing_columns = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info(pricing_executions)").fetchall()
+    }
+
+    if "created_at" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN created_at TEXT")
+
+    if "updated_at" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN updated_at TEXT")
+
+    if "structure_id" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN structure_id INTEGER")
+
+    if "underlying_asset" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN underlying_asset TEXT")
+
+    if "reference_date" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN reference_date TEXT")
+
+    if "execution_status" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN execution_status TEXT")
+
+    if "execution_engine" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN execution_engine TEXT")
+
+    if "error_message" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN error_message TEXT")
+
+    if "duration_ms" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN duration_ms INTEGER")
+
+    if "number_of_legs" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN number_of_legs INTEGER")
+
+    if "total_quantity" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN total_quantity REAL")
+
+    if "theoretical_value" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN theoretical_value REAL")
+
+    if "pricing_payload" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN pricing_payload TEXT")
+
+    if "result" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN result TEXT")
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id "
+        "ON pricing_executions(structure_id)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at "
+        "ON pricing_executions(created_at)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pricing_executions_status "
+        "ON pricing_executions(execution_status)"
+    )
+
+    conn.commit()
+
+    return {
+        "status": "ok",
+        "table": "pricing_executions",
+        "columns": sorted(
+            row[1]
+            for row in conn.execute("PRAGMA table_info(pricing_executions)").fetchall()
+        ),
+    }
+
+def bootstrap_pricing_executions(conn):
+    """
+    Bootstrap oficial da tabela pricing_executions.
+
+    Frente 16 / 20H:
+    - garante contrato canônico idempotente;
+    - inclui updated_at;
+    - cria índices requeridos;
+    - retorna status explícito para guardrails.
+    """
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS pricing_executions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        created_at TEXT,
+        updated_at TEXT,
+        structure_id INTEGER,
+        underlying_asset TEXT,
+        reference_date TEXT,
+        execution_status TEXT,
+        execution_engine TEXT,
+        error_message TEXT,
+        duration_ms INTEGER,
+        number_of_legs INTEGER,
+        total_quantity REAL,
+        theoretical_value REAL,
+        pricing_payload TEXT,
+        result TEXT
+        )
+        """
+    )
+
+    existing_columns = {
+        row[1]
+        for row in conn.execute("PRAGMA table_info(pricing_executions)").fetchall()
+    }
+
+    if "created_at" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN created_at TEXT")
+
+    if "updated_at" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN updated_at TEXT")
+
+    if "structure_id" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN structure_id INTEGER")
+
+    if "underlying_asset" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN underlying_asset TEXT")
+
+    if "reference_date" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN reference_date TEXT")
+
+    if "execution_status" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN execution_status TEXT")
+
+    if "execution_engine" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN execution_engine TEXT")
+
+    if "error_message" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN error_message TEXT")
+
+    if "duration_ms" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN duration_ms INTEGER")
+
+    if "number_of_legs" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN number_of_legs INTEGER")
+
+    if "total_quantity" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN total_quantity REAL")
+
+    if "theoretical_value" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN theoretical_value REAL")
+
+    if "pricing_payload" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN pricing_payload TEXT")
+
+    if "result" not in existing_columns:
+        conn.execute("ALTER TABLE pricing_executions ADD COLUMN result TEXT")
+
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pricing_executions_structure_id "
+        "ON pricing_executions(structure_id)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pricing_executions_created_at "
+        "ON pricing_executions(created_at)"
+    )
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_pricing_executions_status "
+        "ON pricing_executions(execution_status)"
+    )
+
+    conn.commit()
+
+    return {
+        "status": "ok",
+        "table": "pricing_executions",
+        "columns": sorted(
+            row[1]
+            for row in conn.execute("PRAGMA table_info(pricing_executions)").fetchall()
+        ),
+    }
+

@@ -268,15 +268,104 @@ class MarketSnapshotRepository:
         conn.row_factory = sqlite3.Row
         return conn
 
+    # -- Ponte canônica structure_id -> aba -----------------------------------
+
+    def _resolve_aba_from_structure_id(self, structure_id: int) -> str:
+        """
+        Resolve a identidade canônica structure_id para o alias legado de aba.
+
+        O MarketSnapshotRepository ainda lê tabelas RTD/manuais legadas que são
+        indexadas por aba. Portanto, structure_id é a entrada canônica, mas a
+        consulta física permanece por alias_legacy_aba enquanto essas tabelas
+        existirem.
+        """
+        try:
+            sid = int(structure_id)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"structure_id inválido para market snapshot: {structure_id!r}") from exc
+
+        if sid <= 0:
+            raise ValueError(f"structure_id deve ser positivo: {structure_id!r}")
+
+        try:
+            with self._connect() as conn:
+                row = conn.execute(
+                    """
+                    SELECT alias_legacy_aba
+                      FROM structures
+                     WHERE id = ?
+                     LIMIT 1
+                    """,
+                    (sid,),
+                ).fetchone()
+        except sqlite3.OperationalError as exc:
+            raise ValueError(
+                "Tabela structures/coluna alias_legacy_aba indisponível para "
+                f"resolver structure_id={sid}"
+            ) from exc
+
+        if row is None:
+            raise ValueError(f"structure_id={sid} não encontrado em structures")
+
+        aba = row["alias_legacy_aba"]
+        if aba is None or not str(aba).strip():
+            raise ValueError(f"structure_id={sid} sem alias_legacy_aba em structures")
+
+        return str(aba).strip()
+
+    def resolve_aba(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> str:
+        """
+        Normaliza entradas aceitas pelo repositório para aba legada.
+
+        Preferência:
+          1. structure_id explícito;
+          2. StructureRef.aba, se disponível;
+          3. StructureRef.structure_id resolvido via structures.alias_legacy_aba;
+          4. int como structure_id;
+          5. str como aba legada, para compatibilidade.
+        """
+        if structure_id is not None:
+            return self._resolve_aba_from_structure_id(structure_id)
+
+        if isinstance(ref, StructureRef):
+            if ref.aba:
+                return str(ref.aba).strip()
+            if ref.structure_id is not None:
+                return self._resolve_aba_from_structure_id(ref.structure_id)
+            raise ValueError("StructureRef sem aba e sem structure_id para market snapshot.")
+
+        if isinstance(ref, int) and not isinstance(ref, bool):
+            return self._resolve_aba_from_structure_id(ref)
+
+        if ref is None:
+            raise ValueError("Informe ref, aba ou structure_id para market snapshot.")
+
+        return str(ref).strip()
+
     # -- RTD ------------------------------------------------------------------
 
-    def get_rtd_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
-        aba = _ref_to_aba(ref)
+    def get_rtd_legs(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> list[LegMarketSnapshot]:
+        aba = self.resolve_aba(ref, structure_id=structure_id)
         with self._connect() as conn:
             rows = conn.execute(_SQL_RTD_LEGS, (aba,)).fetchall()
         return [_row_to_leg(r, SnapshotSource.RTD) for r in rows]
 
-    def get_rtd_option_quote_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
+    def get_rtd_option_quote_legs(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> list[LegMarketSnapshot]:
         """
         Retorna legs RTD enriquecidas com rtd_option_quotes.
 
@@ -284,7 +373,7 @@ class MarketSnapshotRepository:
         dessa composição, se houver cotação em rtd_option_quotes.codigo_opcao,
         preço/greeks/strike/vencimento passam a vir da cotação centralizada.
         """
-        base_legs = self.get_rtd_legs(ref)
+        base_legs = self.get_rtd_legs(ref, structure_id=structure_id)
         if not base_legs:
             return []
 
@@ -346,8 +435,13 @@ class MarketSnapshotRepository:
 
         return enriched
 
-    def get_rtd_summary(self, ref: StructureRef | str) -> Optional[dict]:
-        aba = _ref_to_aba(ref)
+    def get_rtd_summary(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> Optional[dict]:
+        aba = self.resolve_aba(ref, structure_id=structure_id)
         with self._connect() as conn:
             row = conn.execute(_SQL_RTD_SUMMARY, (aba,)).fetchone()
         if row is None:
@@ -356,8 +450,13 @@ class MarketSnapshotRepository:
 
     # -- Manual ---------------------------------------------------------------
 
-    def get_manual_legs(self, ref: StructureRef | str) -> list[LegMarketSnapshot]:
-        aba = _ref_to_aba(ref)
+    def get_manual_legs(
+        self,
+        ref: StructureRef | str | int | None = None,
+        *,
+        structure_id: int | None = None,
+    ) -> list[LegMarketSnapshot]:
+        aba = self.resolve_aba(ref, structure_id=structure_id)
         with self._connect() as conn:
             rows = conn.execute(_SQL_MANUAL_LEGS, (aba,)).fetchall()
         return [_row_to_leg(r, SnapshotSource.MANUAL) for r in rows]
@@ -366,16 +465,18 @@ class MarketSnapshotRepository:
 
     def get_structure(
         self,
-        ref: StructureRef | str,
+        ref: StructureRef | str | int | None = None,
         source: SnapshotSource = SnapshotSource.RTD,
+        *,
+        structure_id: int | None = None,
     ) -> StructureMarketSnapshot:
-        aba = _ref_to_aba(ref)
+        aba = self.resolve_aba(ref, structure_id=structure_id)
 
         if source == SnapshotSource.RTD:
-            legs = self.get_rtd_legs(ref)
-            summary = self.get_rtd_summary(ref)
+            legs = self.get_rtd_legs(ref, structure_id=structure_id)
+            summary = self.get_rtd_summary(ref, structure_id=structure_id)
         else:
-            legs = self.get_manual_legs(ref)
+            legs = self.get_manual_legs(ref, structure_id=structure_id)
             summary = None
 
         def _f(key: str) -> Optional[float]:

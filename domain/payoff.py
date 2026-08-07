@@ -30,7 +30,7 @@ def _compute_leg_payoff_at_expiration(leg: dict[str, Any], spot_at_expiration: f
 
     strike = float(leg.get("strike") or 0.0)
     quantity = float(leg.get("quantity") or 0.0)
-    multiplier = float(leg.get("multiplier") or 1.0)
+    multiplier = float(leg.get("multiplier") or 100.0)
     premium = leg.get("premium")
     premium_value = float(premium) if premium is not None else 0.0
 

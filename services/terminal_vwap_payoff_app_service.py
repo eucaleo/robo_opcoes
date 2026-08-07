@@ -1,3 +1,6 @@
+from __future__ import annotations
+from utils.leg_normalizers import normalize_option_multiplier
+
 """App service do Terminal VWAP Payoff.
 
 Incremento 2:
@@ -6,7 +9,6 @@ Incremento 2:
 - não acessa Excel, RTD real ou UI pesada diretamente.
 """
 
-from __future__ import annotations
 
 from typing import Any, Callable
 
@@ -453,8 +455,7 @@ class TerminalVWAPPayoffAppService:
             if "leg_order" not in leg:
                 leg["leg_order"] = index
 
-            if "multiplier" not in leg:
-                leg["multiplier"] = 1.0
+            leg["multiplier"] = normalize_option_multiplier(leg.get("multiplier"))
 
             normalized_legs.append(leg)
 

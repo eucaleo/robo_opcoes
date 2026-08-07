@@ -326,3 +326,143 @@ def _normalize_excel_value_matrix(value: Any) -> list[list[Any]]:
         return [list(value)]
 
     return [list(row) for row in value]
+
+# --- INICIO FRENTE 24 EXCEL RTD WORKBOOK PROBE SCHEMA PUBLIC API ---
+# Frente 24 guardrail: Sem troca de persistência.
+# Frente 24 guardrail: Sem troca de fluxo operacional amplo.
+# Frente 24 guardrail: option_type canônico somente CALL/PUT por extenso; C/V são compra/venda legado.
+# Adoção local e incremental do contrato canônico de RTD Option Quotes.
+#
+# Esta ponte mantém compatibilidade com constantes locais legadas, mas passa a
+# preferir as APIs públicas de services.rtd_option_quotes_schema.py quando
+# disponíveis. Não altera persistência, bridge, importadores ou fluxo operacional
+# amplo.
+
+def _frente24_get_rtd_option_quotes_schema():
+    try:
+        from services import rtd_option_quotes_schema as _schema
+    except Exception:
+        return None
+    return _schema
+
+
+def _frente24_call_schema_public_api(api_name, fallback=None):
+    schema = _frente24_get_rtd_option_quotes_schema()
+    if schema is None:
+        return fallback
+
+    api = getattr(schema, api_name, None)
+    if not callable(api):
+        return fallback
+
+    try:
+        value = api()
+    except Exception:
+        return fallback
+
+    return fallback if value is None else value
+
+
+def rtd_workbook_probe_option_quotes_workbook_name(fallback=None):
+    return _frente24_call_schema_public_api(
+        "rtd_option_quotes_workbook_name",
+        fallback,
+    )
+
+
+def rtd_workbook_probe_option_quotes_sheet_name(fallback=None):
+    return _frente24_call_schema_public_api(
+        "rtd_option_quotes_sheet_name",
+        fallback,
+    )
+
+
+def rtd_workbook_probe_option_quotes_headers(fallback=None):
+    value = _frente24_call_schema_public_api(
+        "rtd_option_quotes_headers",
+        fallback or (),
+    )
+    return tuple(value or ())
+
+
+def rtd_workbook_probe_option_quotes_required_headers(fallback=None):
+    value = _frente24_call_schema_public_api(
+        "rtd_option_quotes_required_headers",
+        fallback or (),
+    )
+    return tuple(value or ())
+
+
+def rtd_workbook_probe_normalize_option_quotes_header(header):
+    schema = _frente24_get_rtd_option_quotes_schema()
+    if schema is not None:
+        for api_name in (
+            "normalize_rtd_option_quotes_header",
+            "normalize_header",
+            "normalize_header_name",
+        ):
+            api = getattr(schema, api_name, None)
+            if callable(api):
+                try:
+                    return api(header)
+                except Exception:
+                    break
+
+    if header is None:
+        return ""
+    return str(header).strip().lower()
+
+
+def _frente24_apply_rtd_option_quotes_schema_defaults():
+    workbook_name = rtd_workbook_probe_option_quotes_workbook_name()
+    sheet_name = rtd_workbook_probe_option_quotes_sheet_name()
+    headers = rtd_workbook_probe_option_quotes_headers()
+    required_headers = rtd_workbook_probe_option_quotes_required_headers()
+
+    if workbook_name:
+        for name in (
+            "DEFAULT_WORKBOOK_NAME",
+            "WORKBOOK_NAME",
+            "RTD_WORKBOOK_NAME",
+            "RTD_OPTION_QUOTES_WORKBOOK_NAME",
+            "OPTION_QUOTES_WORKBOOK_NAME",
+        ):
+            if name in globals():
+                globals()[name] = workbook_name
+
+    if sheet_name:
+        for name in (
+            "DEFAULT_SHEET_NAME",
+            "SHEET_NAME",
+            "RTD_SHEET_NAME",
+            "RTD_OPTION_QUOTES_SHEET_NAME",
+            "OPTION_QUOTES_SHEET_NAME",
+        ):
+            if name in globals():
+                globals()[name] = sheet_name
+
+    if headers:
+        for name in (
+            "HEADERS",
+            "RTD_HEADERS",
+            "OPTION_QUOTES_HEADERS",
+            "RTD_OPTION_QUOTES_HEADERS",
+            "EXPECTED_HEADERS",
+        ):
+            if name in globals():
+                globals()[name] = headers
+
+    if required_headers:
+        for name in (
+            "REQUIRED_HEADERS",
+            "RTD_REQUIRED_HEADERS",
+            "OPTION_QUOTES_REQUIRED_HEADERS",
+            "RTD_OPTION_QUOTES_REQUIRED_HEADERS",
+            "MIN_REQUIRED_HEADERS",
+        ):
+            if name in globals():
+                globals()[name] = required_headers
+
+
+_frente24_apply_rtd_option_quotes_schema_defaults()
+# --- FIM FRENTE 24 EXCEL RTD WORKBOOK PROBE SCHEMA PUBLIC API ---

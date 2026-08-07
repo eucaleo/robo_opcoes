@@ -139,3 +139,70 @@ class RtdOptionQuotesIntradayCandleRepository:
             conn.commit()
         finally:
             conn.close()
+
+# INICIO FRENTE 38 RTD OPTION QUOTES INTRADAY CANDLE REPOSITORY PARSER BRIDGE CONTRACT
+# Ponte contratual local para parsers canonicos compartilhados.
+#
+# Contexto:
+# - Este repository pertence ao fluxo de candles intraday de RTD Option Quotes.
+# - O plano de contencao definiu utils/number_parser.py e utils/date_parser.py
+#   como contratos canonicos para numeros, percentuais, datas e timestamps.
+#
+# Escopo desta frente:
+# - Registrar dependencia contratual futura nos parsers canonicos.
+# - Preservar a operacao atual do repository.
+# - Evitar refatoracao ampla nesta etapa.
+#
+# Garantias:
+# - Sem troca de persistencia.
+# - Sem troca de schema.
+# - Sem alteracao operacional do candle repository.
+# - Nenhuma operacao de versionamento executada.
+#
+# Observacao:
+# - Esta ponte e intencionalmente passiva.
+# - A ativacao operacional dos parsers deve ocorrer em frente propria,
+#   com testes funcionais e regressivos especificos.
+
+try:
+    from utils.number_parser import parse_float_br as _frente38_parse_float_br
+except Exception:  # pragma: no cover - ponte contratual defensiva
+    _frente38_parse_float_br = None
+
+try:
+    from utils.number_parser import parse_optional_float as _frente38_parse_optional_float
+except Exception:  # pragma: no cover - ponte contratual defensiva
+    _frente38_parse_optional_float = None
+
+try:
+    from utils.number_parser import parse_positive_float as _frente38_parse_positive_float
+except Exception:  # pragma: no cover - ponte contratual defensiva
+    _frente38_parse_positive_float = None
+
+try:
+    from utils.date_parser import parse_datetime_to_iso as _frente38_parse_datetime_to_iso
+except Exception:  # pragma: no cover - ponte contratual defensiva
+    _frente38_parse_datetime_to_iso = None
+
+
+FRENTE_38_INTRADAY_CANDLE_REPOSITORY_PARSER_BRIDGE_CONTRACT = {
+    "frente": 38,
+    "target": "repositories/rtd_option_quotes_intraday_candle_repository.py",
+    "number_parser": "utils.number_parser",
+    "date_parser": "utils.date_parser",
+    "parse_float_br": "_frente38_parse_float_br",
+    "parse_optional_float": "_frente38_parse_optional_float",
+    "parse_positive_float": "_frente38_parse_positive_float",
+    "parse_datetime_to_iso": "_frente38_parse_datetime_to_iso",
+    "sem_troca_de_persistencia": True,
+    "sem_troca_de_schema": True,
+    "sem_alteracao_operacional": True,
+}
+
+
+def _frente38_parser_bridge_contract(value, parser=None):
+    """Ponte passiva para parsers canonicos; nao altera comportamento atual."""
+    if parser is None:
+        return value
+    return parser(value)
+# FIM FRENTE 38 RTD OPTION QUOTES INTRADAY CANDLE REPOSITORY PARSER BRIDGE CONTRACT

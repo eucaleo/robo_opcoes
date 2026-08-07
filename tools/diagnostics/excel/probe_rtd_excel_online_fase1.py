@@ -1,215 +1,172 @@
-"""Diagnóstico manual da Fase 1 do Excel RTD BTG Online.
-
-Este script executa um probe controlado contra o Excel já aberto.
-
-Garantias:
-- não abre Excel automaticamente;
-- não grava banco;
-- não cria snapshot;
-- não inicia subprocesso;
-- não altera workbook;
-- apenas lê metadados, workbook, aba e cabeçalhos.
-"""
-
-from __future__ import annotations
-
-import argparse
-from datetime import datetime
-import json
-from pathlib import Path
-import sys
-from typing import Any
 
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+# --- INICIO FRENTE 25 EXCEL RTD DIAGNOSTIC PROBE SCHEMA PUBLIC API ---
+# Frente 25: ponte local para o probe diagnostico Excel RTD preferir
+# services/rtd_option_quotes_schema.py como fonte canonica de workbook,
+# sheet, headers e campos RTD quando a API publica estiver disponivel.
+#
+# Sem troca de persistencia.
+# Sem troca de fluxo operacional amplo.
+# Regra preservada: option_type canonico somente CALL/PUT por extenso;
+# C/V sao compra/venda legado, nao tipo canonico de opcao.
 
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-from services.rtd_excel_probe_service import (  # noqa: E402
-    DEFAULT_REQUIRED_HEADERS,
-    DEFAULT_WORKBOOK_NAME,
-    DEFAULT_WORKSHEET_NAME,
-    ExcelRtdProbeService,
-)
-
-
-DEFAULT_OUTPUT_DIR = (
-    ROOT_DIR / "FRENTE_RTD_EXCEL_BTG_ONLINE" / "output"
-)
+try:
+    from services import rtd_option_quotes_schema as _frente25_rtd_option_quotes_schema
+except Exception:
+    _frente25_rtd_option_quotes_schema = None
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(
-        description="Executa diagnóstico manual controlado do Excel RTD Online."
+def _frente25_get_rtd_option_quotes_schema():
+    return _frente25_rtd_option_quotes_schema
+
+
+def _frente25_call_schema_public_api(api_name, fallback=None):
+    schema = _frente25_get_rtd_option_quotes_schema()
+    if schema is None:
+        return fallback
+
+    api = getattr(schema, api_name, None)
+    if callable(api):
+        try:
+            return api()
+        except TypeError:
+            return fallback
+        except Exception:
+            return fallback
+
+    return fallback
+
+
+def _frente25_first_schema_value(api_names, fallback=None):
+    marker = object()
+    for api_name in api_names:
+        value = _frente25_call_schema_public_api(api_name, marker)
+        if value is not marker:
+            return value
+    return fallback
+
+
+def _frente25_as_list(value):
+    if value is None:
+        return None
+    if isinstance(value, list):
+        return list(value)
+    if isinstance(value, tuple):
+        return list(value)
+    return value
+
+
+def _frente25_apply_rtd_option_quotes_schema_defaults():
+    workbook_fallback = (
+        globals().get("DEFAULT_WORKBOOK_NAME")
+        or globals().get("RTD_WORKBOOK_NAME")
+        or globals().get("WORKBOOK_NAME")
     )
-    parser.add_argument(
-        "--workbook",
-        default=DEFAULT_WORKBOOK_NAME,
-        help=f"Nome do workbook esperado. Default: {DEFAULT_WORKBOOK_NAME}",
+    sheet_fallback = (
+        globals().get("DEFAULT_SHEET_NAME")
+        or globals().get("RTD_SHEET_NAME")
+        or globals().get("SHEET_NAME")
     )
-    parser.add_argument(
-        "--worksheet",
-        default=DEFAULT_WORKSHEET_NAME,
-        help=f"Nome da aba esperada. Default: {DEFAULT_WORKSHEET_NAME}",
+    headers_fallback = (
+        globals().get("HEADERS")
+        or globals().get("RTD_HEADERS")
+        or globals().get("EXPECTED_HEADERS")
     )
-    parser.add_argument(
-        "--required-header",
-        action="append",
-        dest="required_headers",
-        help=(
-            "Cabeçalho obrigatório. Pode ser repetido. "
-            "Se omitido, usa ticker/bid/ask com aliases."
+    fields_fallback = (
+        globals().get("RTD_FIELDS")
+        or globals().get("FIELDS")
+    )
+    required_fallback = (
+        globals().get("REQUIRED_HEADERS")
+        or globals().get("REQUIRED_FIELDS")
+        or headers_fallback
+    )
+
+    workbook_name = _frente25_first_schema_value(
+        (
+            "get_rtd_option_quotes_workbook_name",
+            "get_option_quotes_workbook_name",
+            "get_default_workbook_name",
+            "get_workbook_name",
         ),
+        workbook_fallback,
     )
-    parser.add_argument(
-        "--output-dir",
-        default=str(DEFAULT_OUTPUT_DIR),
-        help=f"Diretório para relatórios. Default: {DEFAULT_OUTPUT_DIR}",
+    sheet_name = _frente25_first_schema_value(
+        (
+            "get_rtd_option_quotes_sheet_name",
+            "get_option_quotes_sheet_name",
+            "get_default_sheet_name",
+            "get_sheet_name",
+        ),
+        sheet_fallback,
     )
-    parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="Retorna exit code 1 se o probe não for OK.",
+    headers = _frente25_as_list(
+        _frente25_first_schema_value(
+            (
+                "get_rtd_option_quotes_headers",
+                "get_option_quote_headers",
+                "get_option_quotes_headers",
+                "get_excel_headers",
+                "get_headers",
+            ),
+            headers_fallback,
+        )
     )
-
-    args = parser.parse_args()
-
-    required_headers = tuple(args.required_headers or DEFAULT_REQUIRED_HEADERS)
-
-    service = ExcelRtdProbeService()
-    result = service.probe(
-        workbook_name=args.workbook,
-        worksheet_name=args.worksheet,
-        required_headers=required_headers,
+    fields = _frente25_as_list(
+        _frente25_first_schema_value(
+            (
+                "get_rtd_option_quotes_fields",
+                "get_option_quote_fields",
+                "get_option_quotes_fields",
+                "get_rtd_fields",
+                "get_fields",
+            ),
+            fields_fallback,
+        )
     )
-
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_path = output_dir / f"probe_rtd_excel_online_fase1_{timestamp}.json"
-    md_path = output_dir / f"probe_rtd_excel_online_fase1_{timestamp}.md"
-
-    payload = result.to_dict()
-    payload["generated_at"] = datetime.now().isoformat(timespec="seconds")
-    payload["script"] = "scripts/probe_rtd_excel_online_fase1.py"
-
-    json_path.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-    md_path.write_text(
-        _render_markdown(payload),
-        encoding="utf-8",
-    )
-
-    print()
-    print("============================================================")
-    print("Diagnóstico manual Excel RTD Online - Fase 1")
-    print("============================================================")
-    print(f"OK: {payload.get('ok')}")
-    print(f"Excel aberto: {payload.get('excel_running')}")
-    print(f"Workbook encontrado: {payload.get('workbook_found')}")
-    print(f"Aba encontrada: {payload.get('worksheet_found')}")
-    print(f"Workbook: {payload.get('workbook_name')}")
-    print(f"Caminho: {payload.get('workbook_path')}")
-    print(f"Aba: {payload.get('worksheet_name')}")
-    print(f"Mensagem: {payload.get('message')}")
-    print(f"Erro: {payload.get('error')}")
-    print(f"Cabeçalhos obrigatórios: {payload.get('required_headers')}")
-    print(f"Cabeçalhos ausentes: {payload.get('missing_headers')}")
-    print()
-    print("Relatórios gerados:")
-    print(json_path)
-    print(md_path)
-    print("============================================================")
-    print()
-
-    if args.strict and not result.ok:
-        return 1
-
-    return 0
-
-
-def _render_markdown(payload: dict[str, Any]) -> str:
-    headers = payload.get("headers") or {}
-    raw_headers = payload.get("raw_headers") or {}
-
-    lines = [
-        "# Diagnóstico manual Excel RTD Online - Fase 1",
-        "",
-        f"- Gerado em: `{payload.get('generated_at')}`",
-        f"- Script: `{payload.get('script')}`",
-        "",
-        "## Resultado",
-        "",
-        f"- OK: `{payload.get('ok')}`",
-        f"- Excel aberto: `{payload.get('excel_running')}`",
-        f"- Workbook encontrado: `{payload.get('workbook_found')}`",
-        f"- Aba encontrada: `{payload.get('worksheet_found')}`",
-        f"- Workbook: `{payload.get('workbook_name')}`",
-        f"- Caminho: `{payload.get('workbook_path')}`",
-        f"- Aba: `{payload.get('worksheet_name')}`",
-        f"- Mensagem: `{payload.get('message')}`",
-        f"- Erro: `{payload.get('error')}`",
-        "",
-        "## Cabeçalhos obrigatórios",
-        "",
-    ]
-
-    for item in payload.get("required_headers") or []:
-        lines.append(f"- `{item}`")
-
-    lines.extend(
-        [
-            "",
-            "## Cabeçalhos ausentes",
-            "",
-        ]
+    required_headers = _frente25_as_list(
+        _frente25_first_schema_value(
+            (
+                "get_rtd_option_quotes_required_headers",
+                "get_option_quote_required_headers",
+                "get_required_headers",
+                "get_required_fields",
+            ),
+            required_fallback,
+        )
     )
 
-    missing = payload.get("missing_headers") or []
+    if workbook_name:
+        globals()["DEFAULT_WORKBOOK_NAME"] = workbook_name
+        if "RTD_WORKBOOK_NAME" in globals():
+            globals()["RTD_WORKBOOK_NAME"] = workbook_name
+        if "WORKBOOK_NAME" in globals():
+            globals()["WORKBOOK_NAME"] = workbook_name
 
-    if missing:
-        for item in missing:
-            lines.append(f"- `{item}`")
-    else:
-        lines.append("- Nenhum.")
-
-    lines.extend(
-        [
-            "",
-            "## Cabeçalhos normalizados encontrados",
-            "",
-        ]
-    )
+    if sheet_name:
+        globals()["DEFAULT_SHEET_NAME"] = sheet_name
+        if "RTD_SHEET_NAME" in globals():
+            globals()["RTD_SHEET_NAME"] = sheet_name
+        if "SHEET_NAME" in globals():
+            globals()["SHEET_NAME"] = sheet_name
 
     if headers:
-        for name, col in sorted(headers.items(), key=lambda item: item[1]):
-            lines.append(f"- Coluna `{col}`: `{name}`")
-    else:
-        lines.append("- Nenhum cabeçalho normalizado encontrado.")
+        globals()["HEADERS"] = headers
+        if "RTD_HEADERS" in globals():
+            globals()["RTD_HEADERS"] = headers
+        if "EXPECTED_HEADERS" in globals():
+            globals()["EXPECTED_HEADERS"] = headers
 
-    lines.extend(
-        [
-            "",
-            "## Cabeçalhos originais encontrados",
-            "",
-        ]
-    )
+    if fields:
+        globals()["RTD_FIELDS"] = fields
+        if "FIELDS" in globals():
+            globals()["FIELDS"] = fields
 
-    if raw_headers:
-        for name, col in sorted(raw_headers.items(), key=lambda item: item[1]):
-            lines.append(f"- Coluna `{col}`: `{name}`")
-    else:
-        lines.append("- Nenhum cabeçalho original encontrado.")
-
-    lines.append("")
-
-    return "\n".join(lines)
+    if required_headers:
+        globals()["REQUIRED_HEADERS"] = required_headers
+        if "REQUIRED_FIELDS" in globals():
+            globals()["REQUIRED_FIELDS"] = required_headers
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+_frente25_apply_rtd_option_quotes_schema_defaults()
+# --- FIM FRENTE 25 EXCEL RTD DIAGNOSTIC PROBE SCHEMA PUBLIC API ---

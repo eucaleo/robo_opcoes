@@ -1,10 +1,11 @@
 from domain.refs.structure_ref import StructureRef
 from typing import Any
 
-from domain.position_side import normalize_position_side
+from utils.leg_normalizers import normalize_option_type, normalize_position_side, normalize_option_multiplier
 
 
 class LegacyRoboLegsFallback:
+    # C e P nao sao aceitos como option_type canonico; legado deve inferir por simbolo quando necessario.
     def __init__(
         self,
         robo_legs_service: Any | None = None,
@@ -209,8 +210,10 @@ class LegacyRoboLegsFallback:
         position_side = self._normalize_position_side(
             data.get("cv") or data.get("position_side") or data.get("side")
         )
-        option_type = self._normalize_option_type(
-            data.get("call_put") or data.get("option_type")
+        option_type = self._normalize_legacy_option_type(
+            option_type=data.get("option_type"),
+            call_put=data.get("call_put"),
+            symbol=data.get("ativo") or data.get("symbol") or data.get("ticker"),
         )
 
         expiration_date = (
@@ -235,8 +238,39 @@ class LegacyRoboLegsFallback:
             "premium": float(data["preco"]) if data.get("preco") is not None else (
                 float(data["premium"]) if data.get("premium") is not None else None
             ),
-            "multiplier": float(data.get("multiplier") or 1.0),
+            "multiplier": normalize_option_multiplier(data.get("multiplier")),
         }
+
+
+    def _clean_text(self, value: Any) -> str | None:
+        """
+        Retorna texto limpo ou None.
+
+        Mantém o contrato do fallback legado:
+        - None continua None;
+        - strings vazias/whitespace viram None;
+        - demais valores são convertidos para str e limpos.
+        """
+        if value is None:
+            return None
+
+        text = str(value).strip()
+        if not text:
+            return None
+
+        return text
+
+    def _clean_upper_text(self, value: Any) -> str | None:
+        """
+        Retorna texto limpo em maiúsculas ou None.
+
+        Usado para normalizar símbolo/ticker vindo do legado RTD.
+        """
+        text = self._clean_text(value)
+        if text is None:
+            return None
+
+        return text.upper()
 
     def _to_dict(self, value: Any) -> dict[str, Any]:
         if value is None:
@@ -255,20 +289,94 @@ class LegacyRoboLegsFallback:
         return {}
 
     def _normalize_position_side(self, value: Any) -> str:
-        return normalize_position_side(value)
+        try:
+            return normalize_position_side(value)
+        except ValueError as exc:
+            raise ValueError(f"invalid cv: {value}") from exc
+    def _normalize_legacy_option_type(
+        self,
+        option_type: Any = None,
+        call_put: Any = None,
+        symbol: Any = None,
+    ) -> str:
+        """
+        Resolve option_type canônico para pernas vindas do legado.
+
+        Contrato preservado:
+        - option_type canônico aceita somente CALL/PUT.
+        - option_type=C/P deve continuar inválido.
+        - call_put=C/P é campo legado e não representa tipo da opção; quando
+          aparecer, o tipo deve ser inferido pelo código/série do símbolo.
+        """
+        if option_type is not None:
+            return self._normalize_option_type(option_type)
+
+        if call_put is not None:
+            token = str(call_put).strip().upper()
+            if token in {"CALL", "PUT"}:
+                return self._normalize_option_type(token)
+
+            if token in {"C", "P"}:
+                inferred = self._infer_option_type_from_symbol(symbol)
+                if inferred:
+                    return inferred
+
+                return self._normalize_option_type(call_put)
+
+            return self._normalize_option_type(call_put)
+
+        inferred = self._infer_option_type_from_symbol(symbol)
+        if inferred:
+            return inferred
+
+        return self._normalize_option_type(option_type)
+
+    def _infer_option_type_from_symbol(self, symbol: Any) -> str | None:
+        """
+        Infere CALL/PUT pela letra de série B3 no símbolo da opção.
+
+        Série:
+        - A até L: CALL
+        - M até X: PUT
+
+        A busca exige a letra de série após pelo menos 4 caracteres de raiz e
+        seguida de pelo menos dois dígitos, evitando falsos positivos simples
+        como BOVA11/PETR4.
+        """
+        cleaned = self._clean_upper_text(symbol)
+        if not cleaned:
+            return None
+
+        compact = "".join(ch for ch in cleaned if ch.isalnum())
+        if len(compact) < 7:
+            return None
+
+        for idx in range(4, len(compact) - 2):
+            series = compact[idx]
+            if not ("A" <= series <= "X"):
+                continue
+
+            if not (compact[idx + 1].isdigit() and compact[idx + 2].isdigit()):
+                continue
+
+            if "A" <= series <= "L":
+                return "CALL"
+
+            if "M" <= series <= "X":
+                return "PUT"
+
+        return None
 
     def _normalize_option_type(self, value: Any) -> str:
-        text = self._clean_upper_text(value) or ""
-        if text in {"C", "CALL"}:
-            return "CALL"
-        return "PUT"
+        """
+        Normaliza option_type pelo contrato canônico.
 
-    def _clean_text(self, value: Any) -> str | None:
-        if value is None:
-            return None
-        text = str(value).strip()
-        return text or None
-
-    def _clean_upper_text(self, value: Any) -> str | None:
-        text = self._clean_text(value)
-        return text.upper() if text is not None else None
+        Frente 13 / 20H:
+        - option_type canônico aceita somente CALL ou PUT por extenso.
+        - C/P não são option_type canônico.
+        - C/V pertencem ao contrato de compra/venda/position_side legado.
+        """
+        try:
+            return normalize_option_type(value)
+        except Exception as exc:
+            raise ValueError(f"invalid call_put: {value}") from exc

@@ -9,7 +9,6 @@ ao layout escuro das telas de referência.
 
 from __future__ import annotations
 
-import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 
@@ -29,6 +28,7 @@ from services.structure_leg_rtd_enrichment_service import StructureLegRtdEnrichm
 from UI.components.terminal_vwap_payoff_dark_panel import TerminalVWAPPayoffDarkPanel
 from UI.components.decisions_dark_panel import DecisionsDarkPanel
 from UI.models.ui_data import UIDataModel
+from services.rtd_option_quotes_snapshot_status_service import read_rtd_option_quotes_max_updated_at
 
 
 # CustomTkinter runtime configuration for the modernDarkUI visual contract.
@@ -156,24 +156,7 @@ class ModernDarkWindow:
             self.set_status(f"Watcher RTD não iniciado: {exc}")
 
     def _read_rtd_option_quotes_max_updated_at(self):
-        if not APP_DB_PATH.exists():
-            return None
-
-        try:
-            with sqlite3.connect(str(APP_DB_PATH), timeout=1.0) as conn:
-                row = conn.execute(
-                    "SELECT MAX(updated_at) FROM rtd_option_quotes"
-                ).fetchone()
-
-            if not row:
-                return None
-
-            return row[0]
-        except sqlite3.OperationalError:
-            return None
-        except Exception:
-            return None
-
+        return read_rtd_option_quotes_max_updated_at(APP_DB_PATH)
     def _poll_rtd_option_quotes_snapshot(self) -> None:
         try:
             current = self._read_rtd_option_quotes_max_updated_at()

@@ -21,6 +21,39 @@ ON payoff_curve_points(timestamp, aba);
 CREATE INDEX IF NOT EXISTS idx_payoff_spot
 ON payoff_curve_points(point_spot);
 
+
+-- Resumo canônico da curva de payoff por estrutura/data de referência.
+CREATE TABLE IF NOT EXISTS payoff_curve_summary (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    structure_id INTEGER NOT NULL,
+    reference_date TEXT NOT NULL,
+    timestamp TEXT,
+    aba TEXT,
+    spot_ref REAL,
+    points_count INTEGER NOT NULL DEFAULT 0,
+    pl_min REAL,
+    pl_max REAL,
+    pl_at_spot_ref REAL,
+    breakevens_json TEXT,
+    be_count INTEGER NOT NULL DEFAULT 0,
+    pos_ranges_json TEXT,
+    pos_ranges_count INTEGER NOT NULL DEFAULT 0,
+    max_drawdown_like REAL,
+    meta_json TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    UNIQUE(structure_id, reference_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_payoff_summary_sid_ref
+ON payoff_curve_summary(structure_id, reference_date);
+
+CREATE INDEX IF NOT EXISTS idx_payoff_summary_reference_date
+ON payoff_curve_summary(reference_date);
+
+CREATE INDEX IF NOT EXISTS idx_payoff_summary_timestamp_aba
+ON payoff_curve_summary(timestamp, aba);
+
+
 -- Decisões estruturais
 CREATE TABLE IF NOT EXISTS structure_decisions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
