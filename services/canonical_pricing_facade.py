@@ -1,0 +1,317 @@
+# services/canonical_pricing_facade.py
+"""
+alteracao_17 -- Fachada canônica corrigida.
+alteracao_21 -- Wiring do PayoffPersistencePort (DerivedPayoffPersistence) injetado
+           no PricingExecutionPersistenceService.
+alteracao_41 -- Corrige underlying_asset no pricing_payload.
+
+Correções alteracao_41:
+  C6: _get_alias_legacy_aba() substituído por _get_structure_info() --
+      busca alias_legacy_aba E underlying_asset em uma única query.
+  C7: _snapshot_result_to_payload() recebe underlying_asset explícito --
+      elimina uso de selection_result.aba como underlying_asset
+      (aba legada  ativo subjacente real).
+  C8: execute_pricing() passa underlying_asset para o payload builder.
+
+Correções anteriores mantidas:
+  C1: sel.select(aba=...) -- parâmetro correto
+  C2: alias_legacy_aba buscado via query antes de chamar o selector
+  C3: orquestração direta repo  selector  execute_payload()
+  C4: engine_result extraído do wrapper antes de passar ao persister
+  C5: DerivedPayoffPersistence injetado como payoff_persistence_port
+"""
+from __future__ import annotations
+
+
+import time
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+from repositories.market_snapshot_repository import MarketSnapshotRepository
+from repositories.system_snapshots_repository import SystemSnapshotsRepository
+from services.derived_payoff_persistence import DerivedPayoffPersistence
+from services.market_snapshot_selector import MarketSnapshotSelector
+from services.pricing_execution_persistence_service import PricingExecutionPersistenceService
+from services.pricing_execution_service import PricingExecutionService
+
+_DEFAULT_DB = Path("dados/app.db")
+
+
+#  C6: substitui _get_alias_legacy_aba -- busca aba + underlying em 1 query 
+
+def _get_structure_info(structure_id: int, db_path: Path) -> tuple[str, str]:
+    from repositories.canonical_pricing_facade_sql_boundary import _get_structure_info as _frente58__get_structure_info
+    return _frente58__get_structure_info(structure_id, db_path)
+
+
+#  C7: recebe underlying_asset explícito -- não usa selection_result.aba 
+
+
+
+def _to_float(value: Any, default: float = 0.0) -> float:
+    try:
+        if value is None or value == "":
+            return default
+
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return default
+
+            text = text.replace("R$", "").replace("$", "").strip()
+
+            # Remove espaços internos comuns em valores monetários.
+            text = text.replace(" ", "")
+
+            # Formatos comuns vindos de RTD/planilha:
+            #   BR: "1.234,56" -> "1234.56"
+            #   US: "1,234.56" -> "1234.56"
+            #   BR simples: "124,66" -> "124.66"
+            if "," in text and "." in text:
+                if text.rfind(",") > text.rfind("."):
+                    text = text.replace(".", "").replace(",", ".")
+                else:
+                    text = text.replace(",", "")
+            elif "," in text:
+                text = text.replace(",", ".")
+
+            return float(text)
+
+        return float(value)
+    except Exception:
+        return default
+
+
+def _normalize_expiration_date(value: Any) -> str | None:
+    if not value:
+        return None
+
+    text = str(value).strip()
+
+    formats = [
+        "%m/%d/%Y %H:%M",
+        "%m/%d/%Y %H:%M:%S",
+        "%Y-%m-%d",
+        "%Y-%m-%dT%H:%M:%S",
+    ]
+
+    for fmt in formats:
+        try:
+            return datetime.strptime(text, fmt).date().isoformat()
+        except ValueError:
+            pass
+
+    return text
+
+
+def _pick(data: dict[str, Any], *names: str) -> Any:
+    for name in names:
+        value = data.get(name)
+        if value is not None:
+            return value
+    return None
+
+
+def _quote_ident(name: str) -> str:
+    return '"' + name.replace('"', '""') + '"'
+
+
+def _lookup_spot_price(db_path: Path, underlying_asset: str) -> float:
+    from repositories.canonical_pricing_facade_sql_boundary import _lookup_spot_price as _frente58__lookup_spot_price
+    return _frente58__lookup_spot_price(db_path, underlying_asset)
+
+
+def _snapshot_result_to_payload(
+    selection_result: Any,
+    structure_id: int,
+    underlying_asset: str,
+    reference_date: str | None,
+    db_path: Path,
+) -> dict[str, Any]:
+    legs_data = []
+
+    for leg in selection_result.legs:
+        d = leg if isinstance(leg, dict) else vars(leg)
+
+        quantity = _to_float(_pick(d, "quantity", "quant"), 0.0)
+
+        raw_price = _pick(d, "premium", "price", "valor_executado")
+        raw_asset = _pick(d, "symbol", "asset", "ativo")
+        raw_expiry = _pick(d, "expiration_date", "expiry", "vencimento")
+
+        side = _pick(d, "side", "position_side")
+        if not side:
+            side = "SHORT" if quantity < 0 else "LONG"
+
+        canonical_leg = {
+            # campos originais/compatíveis
+            "quantity":    quantity,
+            "price":       _to_float(raw_price, 0.0),
+            "asset":       raw_asset,
+            "option_type": _pick(d, "option_type", "call_put"),
+            "strike":      _to_float(_pick(d, "strike"), 0.0),
+            "expiry":      raw_expiry,
+            "iv":          _pick(d, "iv"),
+            "delta":       _pick(d, "delta"),
+            "gamma":       _pick(d, "gamma"),
+            "theta":       _pick(d, "theta"),
+            "vega":        _pick(d, "vega"),
+            "source":      str(_pick(d, "source")),
+
+            # campos canônicos esperados pelo fluxo pricing/payoff
+            "symbol":          raw_asset,
+            "premium":         _to_float(raw_price, 0.0),
+            "expiration_date": _normalize_expiration_date(raw_expiry),
+            "multiplier":      100.0,
+            "side":            str(side).upper(),
+            "position_side":   str(side).upper(),
+        }
+
+        legs_data.append(canonical_leg)
+
+    spot = (
+        getattr(selection_result, "spot_price", None)
+        or getattr(selection_result, "spot", None)
+        or getattr(selection_result, "underlying_price", None)
+        or getattr(selection_result, "last_price", None)
+    )
+
+    spot_price = _to_float(spot, 0.0)
+
+    if spot_price <= 0:
+        spot_price = _lookup_spot_price(
+            db_path=db_path,
+            underlying_asset=underlying_asset,
+        )
+
+    if spot_price <= 0:
+        raise ValueError(
+            f"spot_price inválido ou ausente para underlying_asset={underlying_asset}. "
+            "Não persistir execução OK com spot_price <= 0."
+        )
+
+    return {
+        "structure_id":     structure_id,
+        "underlying_asset": underlying_asset,
+        "reference_date":   reference_date,
+        "spot_price":       spot_price,
+        "interest_rate":    0.0,
+        "volatility":       0.0,
+        "legs":             legs_data,
+        "meta": {
+            "snapshot_source":  str(selection_result.source),
+            "snapshot_aba":     selection_result.aba,
+            "manual_overrides": getattr(selection_result, "manual_overrides", None) or [],
+            "legs_count":       len(legs_data),
+        },
+    }
+
+
+class CanonicalPricingFacade:
+    """
+    Orquestra o pipeline canônico ponta a ponta:
+
+        structure_id
+             alias_legacy_aba + underlying_asset  (query em structures)
+                     MarketSnapshotSelector.select(aba=...)
+                             pricing_payload  (underlying_asset = ativo real)
+                                     PricingExecutionService.execute_payload()
+                                             PricingExecutionPersistenceService.persist()
+                                                     DerivedPayoffPersistence.persist()
+                                                             app.db
+    """
+
+    def __init__(
+        self,
+        db_path: Path | str = _DEFAULT_DB,
+        pricing_execution_service: PricingExecutionService | None = None,
+        persistence_service: PricingExecutionPersistenceService | None = None,
+    ) -> None:
+        self._db_path  = Path(db_path)
+        self._repo     = MarketSnapshotRepository(db_path=self._db_path)
+        self._selector = MarketSnapshotSelector(repository=self._repo)
+        self._engine   = pricing_execution_service or PricingExecutionService()
+
+        self._persister = persistence_service or PricingExecutionPersistenceService(
+            payoff_persistence_port=DerivedPayoffPersistence(),
+            system_snapshots_repository=SystemSnapshotsRepository(db_path=self._db_path),
+        )
+
+    def execute_pricing(
+        self,
+        structure_id: int,
+        reference_date: str | None = None,
+    ) -> dict[str, Any]:
+        started_at = time.perf_counter()
+
+        try:
+            #  1. Resolve aba + underlying_asset 
+            aba, underlying_asset = _get_structure_info(   #  C6/C8
+                structure_id, self._db_path
+            )
+
+            #  2. Seleciona snapshot (manual > rtd) 
+            selection = self._selector.select(aba=aba)
+
+            #  3. Monta pricing_payload 
+            pricing_payload = _snapshot_result_to_payload(
+                selection_result=selection,
+                structure_id=structure_id,
+                underlying_asset=underlying_asset,          #  C7/C8
+                reference_date=reference_date,
+                db_path=self._db_path,
+            )
+
+            #  4. Executa engine 
+            execution_result = self._engine.execute_payload(
+                pricing_payload=pricing_payload,
+            )
+
+            #  C4: extrai dict interno do wrapper 
+            engine_result = execution_result.get("result", execution_result)
+
+            duration_ms = int((time.perf_counter() - started_at) * 1000)
+
+            #  5. Persiste no app.db via port 
+            persisted = self._persister.persist_execution(
+                pricing_payload=pricing_payload,
+                result=engine_result,
+                duration_ms=duration_ms,
+                error_message=None,
+            )
+
+            return {
+                "status":          "ok",
+                "canonical_input": pricing_payload,
+                "pricing_payload": pricing_payload,
+                "result":          execution_result,
+                "persisted":       persisted,
+                "meta":            pricing_payload["meta"],
+                "duration_ms":     duration_ms,
+            }
+
+        except Exception as exc:
+            duration_ms   = int((time.perf_counter() - started_at) * 1000)
+            error_message = str(exc)
+
+            try:
+                self._persister.persist_execution(
+                    pricing_payload=None,
+                    result={"engine": "stub", "status": "error", "error_message": error_message},
+                    duration_ms=duration_ms,
+                    error_message=error_message,
+                )
+            except Exception:
+                pass
+
+            return {
+                "status":          "error",
+                "canonical_input": None,
+                "pricing_payload": None,
+                "result":          None,
+                "persisted":       None,
+                "meta":            {},
+                "duration_ms":     duration_ms,
+                "error_message":   error_message,
+            }
